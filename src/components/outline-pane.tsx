@@ -13,7 +13,7 @@ import { Input } from './ui/input';
 import ImportDialog from './import-dialog';
 import SettingsDialog from './settings-dialog';
 import type { NodeType } from '@/types';
-import { exportOutlineToJson } from '@/lib/export';
+import { exportOutlineToJson, exportAllOutlinesToJson } from '@/lib/export';
 
 // Get previous sibling of a node
 const getPreviousSibling = (nodes: NodeMap, nodeId: string): string | null => {
@@ -178,6 +178,41 @@ export default function OutlinePane({
     }
   };
 
+  const handleBackupAll = () => {
+    exportAllOutlinesToJson(outlines);
+  };
+
+  const handleRestoreAllClick = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        handleRestoreAll(file);
+      }
+    };
+    input.click();
+  };
+
+  const handleRestoreAll = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const content = e.target?.result as string;
+        const restoredOutlines = JSON.parse(content) as Outline[];
+
+        // Import each outline
+        restoredOutlines.forEach(outline => {
+          onImportOutline(new File([JSON.stringify(outline)], `${outline.name}.json`, { type: 'application/json' }));
+        });
+      } catch (error) {
+        console.error('Failed to restore outlines:', error);
+      }
+    };
+    reader.readAsText(file);
+  };
+
   const rootNode = currentOutline?.nodes[currentOutline.rootNodeId];
   const selectedNode = selectedNodeId && currentOutline?.nodes[selectedNodeId];
   const isSelectedNodeRoot = selectedNode?.type === 'root';
@@ -217,6 +252,14 @@ export default function OutlinePane({
                 />
                 <DropdownMenuItem onSelect={handleExport} disabled={!currentOutline} className="cursor-pointer">
                     <FileDown className="mr-2 h-4 w-4" /> Export Current Outline
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuLabel>Backup & Restore</DropdownMenuLabel>
+                <DropdownMenuItem onSelect={handleBackupAll} className="cursor-pointer">
+                    <FileDown className="mr-2 h-4 w-4" /> Backup All Outlines
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={handleRestoreAllClick} className="cursor-pointer">
+                    <FileUp className="mr-2 h-4 w-4" /> Restore All Outlines
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuLabel>Manage Current Outline</DropdownMenuLabel>

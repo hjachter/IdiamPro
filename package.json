@@ -96,7 +96,7 @@
   },
   "build": {
     "appId": "com.idiampro.app",
-    "productName": "IdiamPro",
+    "productName": "IdiamPro Desktop",
     "directories": {
       "output": "dist"
     },
