@@ -1,24 +1,37 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Folder, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { storeDirectoryHandle, getDirectoryHandle, verifyDirectoryPermission } from '@/lib/file-storage';
 
 interface SettingsDialogProps {
   children: React.ReactNode;
+  onFolderSelected?: () => void;
 }
 
-export default function SettingsDialog({ children }: SettingsDialogProps) {
+export default function SettingsDialog({ children, onFolderSelected }: SettingsDialogProps) {
   const [open, setOpen] = useState(false);
-  const [dataFolder, setDataFolder] = useState<string>(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('idiampro-data-folder') || 'Browser Storage (Default)';
-    }
-    return 'Browser Storage (Default)';
-  });
+  const [dataFolder, setDataFolder] = useState<string>('Browser Storage (Default)');
   const { toast } = useToast();
+
+  // Load current folder on mount
+  useEffect(() => {
+    const loadCurrentFolder = async () => {
+      const dirHandle = await getDirectoryHandle();
+      if (dirHandle) {
+        const hasPermission = await verifyDirectoryPermission(dirHandle, 'read');
+        if (hasPermission) {
+          setDataFolder(dirHandle.name);
+        } else {
+          setDataFolder('Browser Storage (Default)');
+        }
+      }
+    };
+    loadCurrentFolder();
+  }, []);
 
   const handleSelectFolder = async () => {
     try {
@@ -30,20 +43,23 @@ export default function SettingsDialog({ children }: SettingsDialogProps) {
           startIn: 'documents',
         });
 
-        // Save folder handle and path
-        const folderPath = dirHandle.name;
-        setDataFolder(folderPath);
-        localStorage.setItem('idiampro-data-folder', folderPath);
-
-        // Store the directory handle for future use
-        // Note: This requires persistence permission
+        // Request permission
         const permissionStatus = await dirHandle.requestPermission({ mode: 'readwrite' });
 
         if (permissionStatus === 'granted') {
+          // Store the directory handle in IndexedDB
+          await storeDirectoryHandle(dirHandle);
+
+          // Update UI
+          setDataFolder(dirHandle.name);
+
           toast({
             title: 'Folder Selected',
-            description: `Data folder set to: ${folderPath}`,
+            description: `Data folder set to: ${dirHandle.name}. Your outlines will now be saved as .json files in this folder.`,
           });
+
+          // Notify parent component that folder was selected
+          onFolderSelected?.();
         } else {
           toast({
             variant: 'destructive',

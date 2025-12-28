@@ -63,6 +63,7 @@ interface OutlinePaneProps {
   onUpdateNode: (nodeId: string, updates: Partial<OutlineNode>) => void;
   onImportOutline: (file: File) => void;
   onRefreshGuide: () => void;
+  onFolderSelected?: () => void;
   isLoadingAI: boolean;
 }
 
@@ -87,6 +88,7 @@ export default function OutlinePane({
   onUpdateNode,
   onImportOutline,
   onRefreshGuide,
+  onFolderSelected,
   isLoadingAI,
 }: OutlinePaneProps) {
   const [renameId, setRenameId] = useState<string | null>(null);
@@ -345,7 +347,7 @@ export default function OutlinePane({
           {/* Visual spacer */}
           <div className="w-px h-8 bg-border mx-1"></div>
 
-          <SettingsDialog>
+          <SettingsDialog onFolderSelected={onFolderSelected}>
             <Button variant="outline" size="icon" title="Settings" className="hover:bg-purple-950 hover:text-purple-400">
               <Settings className="h-4 w-4" />
             </Button>

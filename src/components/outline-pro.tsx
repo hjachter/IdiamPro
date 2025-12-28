@@ -13,8 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { generateOutlineAction, expandContentAction, generateContentForNodeAction, ingestExternalSourceAction } from '@/app/actions';
 import { useAI } from '@/contexts/ai-context';
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction } from './ui/alert-dialog';
-
-const LOCAL_STORAGE_KEY = 'outline-pro-data';
+import { loadStorageData, saveAllOutlines, migrateToFileSystem } from '@/lib/storage-manager';
 
 type MobileView = 'outline' | 'content';
 
@@ -35,34 +34,6 @@ const isValidOutline = (data: any): data is Outline => {
     }
 
     return Object.values(data.nodes).every((node: any) => typeof (node as OutlineNode).prefix === 'string');
-};
-
-const loadDataFromStorage = (): { outlines: Outline[], currentOutlineId: string } => {
-    let loadedOutlines: Outline[] = [];
-    let loadedCurrentOutlineId: string = '';
-    const guide = getInitialGuide();
-
-    try {
-        const savedData = localStorage.getItem(LOCAL_STORAGE_KEY);
-
-        if (savedData) {
-            const parsedData = JSON.parse(savedData);
-            const userOutlines = (parsedData.outlines || []).filter((o: any) => o && !o.isGuide && isValidOutline(o));
-            loadedOutlines = [guide, ...userOutlines];
-
-            const outlineToLoad = loadedOutlines.find(o => o.id === parsedData.currentOutlineId) || userOutlines[0] || guide;
-            loadedCurrentOutlineId = outlineToLoad.id;
-        } else {
-            loadedOutlines = [guide];
-            loadedCurrentOutlineId = guide.id;
-        }
-    } catch (error) {
-        console.error("Failed to load data from localStorage, initializing with guide.", error);
-        loadedOutlines = [guide];
-        loadedCurrentOutlineId = guide.id;
-    }
-
-    return { outlines: loadedOutlines, currentOutlineId: loadedCurrentOutlineId };
 };
 
 
@@ -111,29 +82,41 @@ export default function OutlinePro() {
     // Skip if no outlines loaded yet
     if (outlines.length === 0) return;
 
-    try {
-      const dataToSave = JSON.stringify({
-        outlines: outlines.filter(o => !o.isGuide),
-        currentOutlineId
-      });
-      localStorage.setItem(LOCAL_STORAGE_KEY, dataToSave);
-    } catch (error) {
+    // Save to storage (file system or localStorage)
+    saveAllOutlines(outlines, currentOutlineId).catch(error => {
       console.error("Auto-save failed:", error);
-    }
+    });
   }, [outlines, currentOutlineId]);
 
+  // Initial load: Load data from storage
   useEffect(() => {
     setIsClient(true);
-    const { outlines: loadedOutlines, currentOutlineId: loadedCurrentOutlineId } = loadDataFromStorage();
 
-    setOutlines(loadedOutlines);
-    setCurrentOutlineId(loadedCurrentOutlineId);
+    const loadData = async () => {
+      const guide = getInitialGuide();
 
-    const currentOutlineOnLoad = loadedOutlines.find(o => o.id === loadedCurrentOutlineId);
-    setSelectedNodeId(currentOutlineOnLoad?.rootNodeId || null);
+      try {
+        const { outlines: userOutlines, currentOutlineId: loadedCurrentOutlineId } = await loadStorageData();
+        const validOutlines = userOutlines.filter(o => o && isValidOutline(o));
+        const loadedOutlines = [guide, ...validOutlines];
 
-    // Mark initial load as complete so auto-save can start
-    isInitialLoadDone.current = true;
+        setOutlines(loadedOutlines);
+
+        const outlineToLoad = loadedOutlines.find(o => o.id === loadedCurrentOutlineId) || validOutlines[0] || guide;
+        setCurrentOutlineId(outlineToLoad.id);
+        setSelectedNodeId(outlineToLoad.rootNodeId || null);
+      } catch (error) {
+        console.error("Failed to load data, initializing with guide:", error);
+        setOutlines([guide]);
+        setCurrentOutlineId(guide.id);
+        setSelectedNodeId(guide.rootNodeId);
+      }
+
+      // Mark initial load as complete so auto-save can start
+      isInitialLoadDone.current = true;
+    };
+
+    loadData();
   }, []);
 
   // FIXED: handleSelectNode uses functional update for reading fresh state
@@ -359,6 +342,38 @@ export default function OutlinePro() {
     setCurrentOutlineId(newOutlineId);
     setSelectedNodeId(newRootId);
   }, []);
+
+  // Handle folder selection: migrate to file system and reload
+  const handleFolderSelected = useCallback(async () => {
+    try {
+      // Migrate localStorage data to file system
+      await migrateToFileSystem();
+
+      // Reload outlines from file system
+      const guide = getInitialGuide();
+      const { outlines: userOutlines, currentOutlineId: loadedCurrentOutlineId } = await loadStorageData();
+      const validOutlines = userOutlines.filter(o => o && isValidOutline(o));
+      const loadedOutlines = [guide, ...validOutlines];
+
+      setOutlines(loadedOutlines);
+
+      const outlineToLoad = loadedOutlines.find(o => o.id === loadedCurrentOutlineId) || validOutlines[0] || guide;
+      setCurrentOutlineId(outlineToLoad.id);
+      setSelectedNodeId(outlineToLoad.rootNodeId || null);
+
+      toast({
+        title: 'File Storage Enabled',
+        description: 'Your outlines are now being saved as .json files in the selected folder.',
+      });
+    } catch (error) {
+      console.error('Failed to migrate to file system:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Migration Failed',
+        description: 'Could not migrate outlines to file system. Using browser storage.',
+      });
+    }
+  }, [toast]);
 
   // FIXED: handleRenameOutline uses functional update pattern
   const handleRenameOutline = useCallback((outlineId: string, newName: string) => {
@@ -689,6 +704,7 @@ export default function OutlinePro() {
             onUpdateNode={handleUpdateNode}
             onImportOutline={handleImportOutline}
             onRefreshGuide={handleRefreshGuide}
+            onFolderSelected={handleFolderSelected}
             isLoadingAI={isLoadingAI}
           />
         ) : (
@@ -745,6 +761,7 @@ export default function OutlinePro() {
             onUpdateNode={handleUpdateNode}
             onImportOutline={handleImportOutline}
             onRefreshGuide={handleRefreshGuide}
+            onFolderSelected={handleFolderSelected}
             isLoadingAI={isLoadingAI}
           />
         </div>
