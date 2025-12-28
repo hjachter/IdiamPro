@@ -346,14 +346,9 @@ export default function OutlinePane({
           <div className="w-px h-8 bg-border mx-1"></div>
 
           <SettingsDialog>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="outline" size="icon" className="hover:bg-purple-950 hover:text-purple-400">
-                  <Settings className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Settings</TooltipContent>
-            </Tooltip>
+            <Button variant="outline" size="icon" title="Settings" className="hover:bg-purple-950 hover:text-purple-400">
+              <Settings className="h-4 w-4" />
+            </Button>
           </SettingsDialog>
         </div>
       </TooltipProvider>

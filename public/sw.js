@@ -1,5 +1,5 @@
 // Service Worker for IdiamPro PWA
-const CACHE_NAME = 'idiampro-v1';
+const CACHE_NAME = 'idiampro-v2';
 const urlsToCache = [
   '/',
   '/offline'
@@ -17,7 +17,7 @@ self.addEventListener('install', (event) => {
         console.log('Cache install failed:', error);
       })
   );
-  self.skipWaiting();
+  // Don't automatically skip waiting - let the client decide
 });
 
 // Fetch event - serve from cache, fallback to network
@@ -49,4 +49,11 @@ self.addEventListener('activate', (event) => {
     })
   );
   self.clients.claim();
+});
+
+// Listen for messages from clients
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
