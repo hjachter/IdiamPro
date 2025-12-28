@@ -6,7 +6,7 @@ import type { OutlineNode, NodeGenerationContext } from '@/types';
 import NodeIcon from './node-icon';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
-import { ArrowLeft, Sparkles, Loader2, Eraser, Scissors, Copy, Clipboard, Type, Undo, Redo, List, ListOrdered, ListX, Minus, FileText, Sheet, Presentation, Video, Map, AppWindow, Plus } from 'lucide-react';
+import { ArrowLeft, Sparkles, Loader2, Eraser, Scissors, Copy, Clipboard, Type, Undo, Redo, List, ListOrdered, ListX, Minus, FileText, Sheet, Presentation, Video, Map, AppWindow, Plus, Bold, Italic, Strikethrough, Code, Heading1, Heading2, Heading3 } from 'lucide-react';
 import { Card, CardContent } from './ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import ContentConflictDialog, { type ContentConflictAction } from './content-conflict-dialog';
@@ -252,6 +252,42 @@ export default function ContentPane({
     if (!editor) return;
     // Lift list items out of lists
     editor.chain().focus().liftListItem('listItem').run();
+  };
+
+  // Text formatting handlers
+  const handleBold = () => {
+    if (!editor) return;
+    editor.chain().focus().toggleBold().run();
+  };
+
+  const handleItalic = () => {
+    if (!editor) return;
+    editor.chain().focus().toggleItalic().run();
+  };
+
+  const handleStrikethrough = () => {
+    if (!editor) return;
+    editor.chain().focus().toggleStrike().run();
+  };
+
+  const handleCode = () => {
+    if (!editor) return;
+    editor.chain().focus().toggleCode().run();
+  };
+
+  const handleHeading1 = () => {
+    if (!editor) return;
+    editor.chain().focus().toggleHeading({ level: 1 }).run();
+  };
+
+  const handleHeading2 = () => {
+    if (!editor) return;
+    editor.chain().focus().toggleHeading({ level: 2 }).run();
+  };
+
+  const handleHeading3 = () => {
+    if (!editor) return;
+    editor.chain().focus().toggleHeading({ level: 3 }).run();
   };
 
   const handleInsertGoogleDoc = () => {
@@ -551,6 +587,56 @@ export default function ContentPane({
               Select All
               <ContextMenuShortcut>Ctrl+A</ContextMenuShortcut>
             </ContextMenuItem>
+
+            <ContextMenuSeparator />
+
+            {/* Text Formatting Submenu */}
+            <ContextMenuSub>
+              <ContextMenuSubTrigger>
+                <Type className="mr-2 h-4 w-4" />
+                Format
+              </ContextMenuSubTrigger>
+              <ContextMenuSubContent>
+                <ContextMenuItem onClick={handleBold}>
+                  <Bold className="mr-2 h-4 w-4" />
+                  Bold
+                  <ContextMenuShortcut>Ctrl+B</ContextMenuShortcut>
+                </ContextMenuItem>
+
+                <ContextMenuItem onClick={handleItalic}>
+                  <Italic className="mr-2 h-4 w-4" />
+                  Italic
+                  <ContextMenuShortcut>Ctrl+I</ContextMenuShortcut>
+                </ContextMenuItem>
+
+                <ContextMenuItem onClick={handleStrikethrough}>
+                  <Strikethrough className="mr-2 h-4 w-4" />
+                  Strikethrough
+                </ContextMenuItem>
+
+                <ContextMenuItem onClick={handleCode}>
+                  <Code className="mr-2 h-4 w-4" />
+                  Code
+                </ContextMenuItem>
+
+                <ContextMenuSeparator />
+
+                <ContextMenuItem onClick={handleHeading1}>
+                  <Heading1 className="mr-2 h-4 w-4" />
+                  Heading 1
+                </ContextMenuItem>
+
+                <ContextMenuItem onClick={handleHeading2}>
+                  <Heading2 className="mr-2 h-4 w-4" />
+                  Heading 2
+                </ContextMenuItem>
+
+                <ContextMenuItem onClick={handleHeading3}>
+                  <Heading3 className="mr-2 h-4 w-4" />
+                  Heading 3
+                </ContextMenuItem>
+              </ContextMenuSubContent>
+            </ContextMenuSub>
 
             <ContextMenuSeparator />
 
