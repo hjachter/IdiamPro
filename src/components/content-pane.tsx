@@ -544,6 +544,16 @@ export default function ContentPane({
               onDragLeave={handleDragLeave}
               onDragOver={handleDragOver}
               onDrop={handleDrop}
+              onMouseDown={(e) => {
+                // Prevent selection from being cleared when right-clicking
+                if (e.button === 2) { // Right mouse button
+                  e.preventDefault();
+                }
+              }}
+              onContextMenu={(e) => {
+                // Allow context menu to open but maintain selection
+                e.stopPropagation();
+              }}
             >
               {isDragging && (
                 <div className="absolute inset-0 bg-primary/10 flex items-center justify-center pointer-events-none z-10">
