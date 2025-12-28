@@ -6,11 +6,12 @@ import NodeItem from './node-item';
 import AIMenu from './ai-menu';
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent, DropdownMenuPortal } from "@/components/ui/dropdown-menu";
-import { ChevronDown, FilePlus, Plus, Trash2, Edit, FileDown, FileUp, RotateCcw, ChevronsUp, ChevronsDown } from 'lucide-react';
+import { ChevronDown, FilePlus, Plus, Trash2, Edit, FileDown, FileUp, RotateCcw, ChevronsUp, ChevronsDown, Settings } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Input } from './ui/input';
 import ImportDialog from './import-dialog';
+import SettingsDialog from './settings-dialog';
 import type { NodeType } from '@/types';
 import { exportOutlineToJson } from '@/lib/export';
 
@@ -340,6 +341,20 @@ export default function OutlinePane({
             outlineSummary={currentOutline?.name}
             isLoadingAI={isLoadingAI}
           />
+
+          {/* Visual spacer */}
+          <div className="w-px h-8 bg-border mx-1"></div>
+
+          <SettingsDialog>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="outline" size="icon" className="hover:bg-purple-950 hover:text-purple-400">
+                  <Settings className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Settings</TooltipContent>
+            </Tooltip>
+          </SettingsDialog>
         </div>
       </TooltipProvider>
 
