@@ -7,7 +7,7 @@ html {
 }
 
 body {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
 @layer base {
@@ -36,14 +36,14 @@ body {
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
+    --radius: 0.3125rem; /* 5px - macOS standard */
   }
   .dark {
-    --background: 240 6% 10%;
+    --background: 0 0% 14%; /* macOS dark mode gray #242424 */
     --foreground: 0 0% 98%;
-    --card: 240 6% 10%;
+    --card: 0 0% 14%;
     --card-foreground: 0 0% 98%;
-    --popover: 240 6% 10%;
+    --popover: 0 0% 18%; /* slightly lighter for popovers */
     --popover-foreground: 0 0% 98%;
     --primary: 273 17% 60%;
     --primary-foreground: 0 0% 100%;

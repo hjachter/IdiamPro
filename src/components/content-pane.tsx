@@ -553,7 +553,7 @@ export default function ContentPane({
                 size="icon"
                 onClick={handleGenerateContent}
                 disabled={isGenerating || isLoadingAI || !aiContentEnabled}
-                className="text-violet-400 hover:text-violet-300 hover:bg-violet-950"
+                className="text-primary hover:bg-primary/20"
               >
                 {(isGenerating || isLoadingAI) ? (
                   <Loader2 className="h-4 w-4 animate-spin" />

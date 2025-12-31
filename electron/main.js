@@ -61,7 +61,7 @@ function createWindow() {
     minWidth: 800,
     minHeight: 600,
     titleBarStyle: 'hiddenInset',
-    backgroundColor: '#000000',
+    backgroundColor: '#242424', // macOS dark mode gray
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -98,12 +98,40 @@ function createWindow() {
 }
 
 function createMenu() {
+  const isMac = process.platform === 'darwin';
+  const appName = process.env.NODE_ENV === 'development' ? 'IdiamPro Dev' : 'IdiamPro';
+
   const template = [
+    // macOS App Menu (required for proper HIG compliance)
+    ...(isMac ? [{
+      label: appName,
+      submenu: [
+        { role: 'about' },
+        { type: 'separator' },
+        {
+          label: 'Preferences...',
+          accelerator: 'CmdOrCtrl+,',
+          click: () => {
+            if (mainWindow) {
+              mainWindow.webContents.send('open-preferences');
+            }
+          },
+        },
+        { type: 'separator' },
+        { role: 'services' },
+        { type: 'separator' },
+        { role: 'hide' },
+        { role: 'hideOthers' },
+        { role: 'unhide' },
+        { type: 'separator' },
+        { role: 'quit' },
+      ],
+    }] : []),
     {
       label: 'File',
       submenu: [
         {
-          label: 'New Document',
+          label: 'New Outline',
           accelerator: 'CmdOrCtrl+N',
           click: () => {
             if (mainWindow) {
@@ -112,7 +140,7 @@ function createMenu() {
           },
         },
         { type: 'separator' },
-        { role: 'quit' },
+        isMac ? { role: 'close' } : { role: 'quit' },
       ],
     },
     {
@@ -124,7 +152,15 @@ function createMenu() {
         { role: 'cut' },
         { role: 'copy' },
         { role: 'paste' },
-        { role: 'selectAll' },
+        ...(isMac ? [
+          { role: 'pasteAndMatchStyle' },
+          { role: 'delete' },
+          { role: 'selectAll' },
+        ] : [
+          { role: 'delete' },
+          { type: 'separator' },
+          { role: 'selectAll' },
+        ]),
       ],
     },
     {
@@ -146,8 +182,26 @@ function createMenu() {
       submenu: [
         { role: 'minimize' },
         { role: 'zoom' },
-        { type: 'separator' },
-        { role: 'close' },
+        ...(isMac ? [
+          { type: 'separator' },
+          { role: 'front' },
+          { type: 'separator' },
+          { role: 'window' },
+        ] : [
+          { role: 'close' },
+        ]),
+      ],
+    },
+    {
+      label: 'Help',
+      submenu: [
+        {
+          label: 'IdiamPro Help',
+          click: async () => {
+            const { shell } = require('electron');
+            await shell.openExternal('https://idiam-pro.vercel.app');
+          },
+        },
       ],
     },
   ];

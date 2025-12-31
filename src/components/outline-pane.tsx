@@ -363,7 +363,7 @@ export default function OutlinePane({
         <div className="flex-shrink-0 flex items-center justify-center gap-1 px-2">
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="outline" size="icon" onClick={() => onCreateNode()} disabled={!selectedNodeId} className="hover:bg-green-950 hover:text-green-400">
+              <Button variant="outline" size="icon" onClick={() => onCreateNode()} disabled={!selectedNodeId} className="hover:bg-accent/20">
                 <Plus className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
@@ -374,7 +374,7 @@ export default function OutlinePane({
             <Tooltip>
               <TooltipTrigger asChild>
                 <AlertDialogTrigger asChild>
-                  <Button variant="outline" size="icon" disabled={!selectedNodeId || isSelectedNodeRoot} className="text-red-400 hover:text-red-300 hover:bg-red-950">
+                  <Button variant="outline" size="icon" disabled={!selectedNodeId || isSelectedNodeRoot} className="text-destructive hover:bg-destructive/20">
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </AlertDialogTrigger>
@@ -400,7 +400,7 @@ export default function OutlinePane({
 
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="outline" size="icon" onClick={onCollapseAll} disabled={!currentOutline} className="hover:bg-blue-950 hover:text-blue-400">
+              <Button variant="outline" size="icon" onClick={onCollapseAll} disabled={!currentOutline} className="hover:bg-accent/20">
                 <ChevronsUp className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
@@ -409,7 +409,7 @@ export default function OutlinePane({
 
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="outline" size="icon" onClick={onExpandAll} disabled={!currentOutline} className="hover:bg-blue-950 hover:text-blue-400">
+              <Button variant="outline" size="icon" onClick={onExpandAll} disabled={!currentOutline} className="hover:bg-accent/20">
                 <ChevronsDown className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
@@ -417,7 +417,7 @@ export default function OutlinePane({
           </Tooltip>
 
           <ImportDialog onCreateNode={onCreateNode}>
-            <Button variant="outline" size="icon" disabled={!selectedNodeId} title="Import media (PDF, YouTube)" className="hover:bg-amber-950 hover:text-amber-400">
+            <Button variant="outline" size="icon" disabled={!selectedNodeId} title="Import media (PDF, YouTube)" className="hover:bg-accent/20">
               <FileUp className="h-4 w-4" />
             </Button>
           </ImportDialog>
@@ -434,7 +434,7 @@ export default function OutlinePane({
           <div className="w-px h-8 bg-border mx-1"></div>
 
           <SettingsDialog onFolderSelected={onFolderSelected}>
-            <Button variant="outline" size="icon" title="Settings" className="hover:bg-purple-950 hover:text-purple-400">
+            <Button variant="outline" size="icon" title="Settings" className="hover:bg-accent/20">
               <Settings className="h-4 w-4" />
             </Button>
           </SettingsDialog>
