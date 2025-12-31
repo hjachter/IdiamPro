@@ -84,7 +84,7 @@ export async function verifyDirectoryPermission(
 /**
  * Sanitize outline name for use as filename
  */
-function sanitizeFileName(name: string): string {
+export function sanitizeFileName(name: string): string {
   // Replace invalid filename characters with underscores
   return name.replace(/[<>:"/\\|?*\x00-\x1F]/g, '_');
 }
@@ -92,8 +92,42 @@ function sanitizeFileName(name: string): string {
 /**
  * Get file name for an outline
  */
-function getOutlineFileName(outline: Outline): string {
+export function getOutlineFileName(outline: Outline): string {
   return `${sanitizeFileName(outline.name)}.idm`;
+}
+
+/**
+ * Check if an outline file exists in the directory
+ */
+export async function outlineFileExists(
+  dirHandle: FileSystemDirectoryHandle,
+  outline: Outline
+): Promise<boolean> {
+  try {
+    const fileName = getOutlineFileName(outline);
+    await dirHandle.getFileHandle(fileName);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Load an existing outline from the directory by name
+ */
+export async function loadExistingOutline(
+  dirHandle: FileSystemDirectoryHandle,
+  outline: Outline
+): Promise<Outline | null> {
+  try {
+    const fileName = getOutlineFileName(outline);
+    const fileHandle = await dirHandle.getFileHandle(fileName);
+    const file = await fileHandle.getFile();
+    const text = await file.text();
+    return JSON.parse(text) as Outline;
+  } catch {
+    return null;
+  }
 }
 
 /**

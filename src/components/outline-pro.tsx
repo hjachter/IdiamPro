@@ -12,8 +12,9 @@ import ContentPane from './content-pane';
 import { useToast } from "@/hooks/use-toast";
 import { generateOutlineAction, expandContentAction, generateContentForNodeAction, ingestExternalSourceAction } from '@/app/actions';
 import { useAI } from '@/contexts/ai-context';
-import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction } from './ui/alert-dialog';
-import { loadStorageData, saveAllOutlines, migrateToFileSystem } from '@/lib/storage-manager';
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel } from './ui/alert-dialog';
+import { Button } from './ui/button';
+import { loadStorageData, saveAllOutlines, migrateToFileSystem, type MigrationConflict, type ConflictResolution } from '@/lib/storage-manager';
 
 type MobileView = 'outline' | 'content';
 
@@ -53,6 +54,13 @@ export default function OutlinePro() {
     sourceOutlineId: string;
     isCut: boolean;
   } | null>(null);
+
+  // Migration conflict dialog state
+  const [conflictDialog, setConflictDialog] = useState<{
+    open: boolean;
+    conflict: MigrationConflict | null;
+    resolve: ((resolution: ConflictResolution) => void) | null;
+  }>({ open: false, conflict: null, resolve: null });
 
   const { toast } = useToast();
   const isMobile = useIsMobile();
@@ -354,8 +362,19 @@ export default function OutlinePro() {
   // Handle folder selection: migrate to file system and reload
   const handleFolderSelected = useCallback(async () => {
     try {
-      // Migrate localStorage data to file system
-      await migrateToFileSystem();
+      // Conflict resolver that shows a dialog and waits for user choice
+      const conflictResolver = async (conflict: MigrationConflict): Promise<ConflictResolution> => {
+        return new Promise((resolve) => {
+          setConflictDialog({
+            open: true,
+            conflict,
+            resolve,
+          });
+        });
+      };
+
+      // Migrate localStorage data to file system with conflict resolution
+      await migrateToFileSystem(conflictResolver);
 
       // Reload outlines from file system
       const guide = getInitialGuide();
@@ -371,7 +390,7 @@ export default function OutlinePro() {
 
       toast({
         title: 'File Storage Enabled',
-        description: 'Your outlines are now being saved as .json files in the selected folder.',
+        description: 'Your outlines are now being saved as .idm files in the selected folder.',
       });
     } catch (error) {
       console.error('Failed to migrate to file system:', error);
@@ -980,6 +999,54 @@ export default function OutlinePro() {
           </AlertDialogContent>
         </AlertDialog>
 
+        {/* Migration Conflict Dialog */}
+        <AlertDialog open={conflictDialog.open}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>File Already Exists</AlertDialogTitle>
+              <AlertDialogDescription className="space-y-2">
+                <p><strong>{conflictDialog.conflict?.fileName}</strong> already exists in the target folder.</p>
+                <p className="text-sm">
+                  <strong>Your version:</strong> {conflictDialog.conflict?.localOutline.name}
+                </p>
+                <p className="text-sm">
+                  <strong>Existing version:</strong> {conflictDialog.conflict?.existingOutline.name}
+                </p>
+                <p className="mt-2">What would you like to do?</p>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+              <Button
+                variant="destructive"
+                onClick={() => {
+                  conflictDialog.resolve?.('overwrite');
+                  setConflictDialog({ open: false, conflict: null, resolve: null });
+                }}
+              >
+                Overwrite
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  conflictDialog.resolve?.('keep_existing');
+                  setConflictDialog({ open: false, conflict: null, resolve: null });
+                }}
+              >
+                Keep Existing
+              </Button>
+              <Button
+                variant="default"
+                onClick={() => {
+                  conflictDialog.resolve?.('keep_both');
+                  setConflictDialog({ open: false, conflict: null, resolve: null });
+                }}
+              >
+                Keep Both
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
         {mobileView === 'outline' ? (
           <OutlinePane
             outlines={outlines}
@@ -1037,6 +1104,54 @@ export default function OutlinePro() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogAction onClick={() => setPrefixDialogState({ open: false, prefix: '', nodeName: '' })}>Close</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Migration Conflict Dialog */}
+      <AlertDialog open={conflictDialog.open}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>File Already Exists</AlertDialogTitle>
+            <AlertDialogDescription className="space-y-2">
+              <p><strong>{conflictDialog.conflict?.fileName}</strong> already exists in the target folder.</p>
+              <p className="text-sm">
+                <strong>Your version:</strong> {conflictDialog.conflict?.localOutline.name}
+              </p>
+              <p className="text-sm">
+                <strong>Existing version:</strong> {conflictDialog.conflict?.existingOutline.name}
+              </p>
+              <p className="mt-2">What would you like to do?</p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+            <Button
+              variant="destructive"
+              onClick={() => {
+                conflictDialog.resolve?.('overwrite');
+                setConflictDialog({ open: false, conflict: null, resolve: null });
+              }}
+            >
+              Overwrite
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                conflictDialog.resolve?.('keep_existing');
+                setConflictDialog({ open: false, conflict: null, resolve: null });
+              }}
+            >
+              Keep Existing
+            </Button>
+            <Button
+              variant="default"
+              onClick={() => {
+                conflictDialog.resolve?.('keep_both');
+                setConflictDialog({ open: false, conflict: null, resolve: null });
+              }}
+            >
+              Keep Both
+            </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

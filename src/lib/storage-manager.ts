@@ -6,6 +6,9 @@ import {
   loadOutlinesFromDirectory,
   deleteOutlineFile,
   renameOutlineFile,
+  outlineFileExists,
+  loadExistingOutline,
+  getOutlineFileName,
 } from './file-storage';
 
 const LOCAL_STORAGE_KEY = 'outline-pro-data';
@@ -222,9 +225,30 @@ export async function renameOutline(oldName: string, newOutline: Outline): Promi
 }
 
 /**
- * Migrate localStorage data to file system
+ * Conflict resolution options
  */
-export async function migrateToFileSystem(): Promise<void> {
+export type ConflictResolution = 'overwrite' | 'keep_existing' | 'keep_both';
+
+/**
+ * Conflict info passed to resolver
+ */
+export interface MigrationConflict {
+  localOutline: Outline;
+  existingOutline: Outline;
+  fileName: string;
+}
+
+/**
+ * Conflict resolver callback type
+ */
+export type ConflictResolver = (conflict: MigrationConflict) => Promise<ConflictResolution>;
+
+/**
+ * Migrate localStorage data to file system with conflict resolution
+ */
+export async function migrateToFileSystem(
+  onConflict?: ConflictResolver
+): Promise<void> {
   try {
     const dirHandle = await getDirectoryHandle();
     if (!dirHandle) {
@@ -244,10 +268,52 @@ export async function migrateToFileSystem(): Promise<void> {
       return;
     }
 
-    // Save each outline to file system
-    await Promise.all(localOutlines.map(outline => saveOutlineToFile(dirHandle, outline)));
+    // Process each outline, checking for conflicts
+    for (const outline of localOutlines) {
+      const exists = await outlineFileExists(dirHandle, outline);
 
-    console.log(`Migrated ${localOutlines.length} outlines to file system`);
+      if (exists && onConflict) {
+        // File exists - need to resolve conflict
+        const existingOutline = await loadExistingOutline(dirHandle, outline);
+
+        if (existingOutline) {
+          const conflict: MigrationConflict = {
+            localOutline: outline,
+            existingOutline,
+            fileName: getOutlineFileName(outline),
+          };
+
+          const resolution = await onConflict(conflict);
+
+          switch (resolution) {
+            case 'overwrite':
+              // Overwrite with local version
+              await saveOutlineToFile(dirHandle, outline);
+              console.log(`Overwrote ${conflict.fileName} with local version`);
+              break;
+            case 'keep_existing':
+              // Skip - keep the existing file
+              console.log(`Kept existing ${conflict.fileName}`);
+              break;
+            case 'keep_both':
+              // Rename local outline and save both
+              const renamedOutline = {
+                ...outline,
+                name: `${outline.name} (migrated)`,
+              };
+              await saveOutlineToFile(dirHandle, renamedOutline);
+              console.log(`Saved as ${getOutlineFileName(renamedOutline)}`);
+              break;
+          }
+        }
+      } else if (!exists) {
+        // No conflict - just save
+        await saveOutlineToFile(dirHandle, outline);
+        console.log(`Migrated ${getOutlineFileName(outline)}`);
+      }
+    }
+
+    console.log(`Migration complete`);
   } catch (error) {
     console.error('Failed to migrate to file system:', error);
     throw error;
