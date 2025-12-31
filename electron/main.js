@@ -2,6 +2,20 @@ const { app, BrowserWindow, Menu } = require('electron');
 const path = require('path');
 const url = require('url');
 
+// Set app name based on environment
+if (process.env.NODE_ENV === 'development') {
+  app.setName('IdiamPro Dev');
+  // Set dock icon for dev mode on macOS
+  if (process.platform === 'darwin') {
+    app.whenReady().then(() => {
+      const iconPath = path.join(__dirname, '..', 'public', 'icons', 'icon-512.png');
+      app.dock.setIcon(iconPath);
+    });
+  }
+} else {
+  app.setName('IdiamPro Desktop');
+}
+
 let mainWindow;
 
 function createWindow() {

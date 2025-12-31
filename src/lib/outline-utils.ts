@@ -38,7 +38,7 @@ export function calculateNodePrefix(nodes: NodeMap, nodeId: string): string {
 }
 
 
-function recalculatePrefixesForBranch(nodes: NodeMap, startNodeId: string): void {
+export function recalculatePrefixesForBranch(nodes: NodeMap, startNodeId: string): void {
   const queue: string[] = [startNodeId];
   while(queue.length > 0) {
     const currentId = queue.shift()!;

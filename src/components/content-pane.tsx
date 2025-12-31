@@ -6,7 +6,7 @@ import type { OutlineNode, NodeGenerationContext } from '@/types';
 import NodeIcon from './node-icon';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
-import { ArrowLeft, Sparkles, Loader2, Eraser, Scissors, Copy, Clipboard, Type, Undo, Redo, List, ListOrdered, ListX, Minus, FileText, Sheet, Presentation, Video, Map, AppWindow, Plus, Bold, Italic, Strikethrough, Code, Heading1, Heading2, Heading3 } from 'lucide-react';
+import { ArrowLeft, Sparkles, Loader2, Eraser, Scissors, Copy, Clipboard, Type, Undo, Redo, List, ListOrdered, ListX, Minus, FileText, Sheet, Presentation, Video, Map, AppWindow, Plus, Bold, Italic, Strikethrough, Code, Heading1, Heading2, Heading3, Mic, MicOff } from 'lucide-react';
 import { Card, CardContent } from './ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import ContentConflictDialog, { type ContentConflictAction } from './content-conflict-dialog';
@@ -36,6 +36,7 @@ import ImageExt from '@tiptap/extension-image';
 import Youtube from '@tiptap/extension-youtube';
 import Placeholder from '@tiptap/extension-placeholder';
 import { GoogleDocs, GoogleSheets, GoogleSlides, GoogleMaps } from './tiptap-extensions';
+import { useSpeechRecognition } from '@/lib/use-speech-recognition';
 
 interface ContentPaneProps {
   node: OutlineNode | null;
@@ -97,6 +98,18 @@ export default function ContentPane({
   const aiContentEnabled = useAIFeature('enableAIContentGeneration');
   const { aiService } = useAI();
 
+  // Speech recognition
+  const {
+    isListening,
+    transcript,
+    interimTranscript,
+    isSupported: speechSupported,
+    startListening,
+    stopListening,
+    resetTranscript,
+    error: speechError,
+  } = useSpeechRecognition();
+
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
@@ -145,6 +158,24 @@ export default function ContentPane({
       }
     }
   }, [node, editor]);
+
+  // Insert transcript when speech recognition completes
+  useEffect(() => {
+    if (transcript && editor) {
+      // Insert the transcribed text at cursor position
+      editor.chain().focus().insertContent(transcript + ' ').run();
+      resetTranscript();
+    }
+  }, [transcript, editor, resetTranscript]);
+
+  // Speech recognition toggle handler
+  const handleSpeechToggle = () => {
+    if (isListening) {
+      stopListening();
+    } else {
+      startListening();
+    }
+  };
 
   const handleGenerateContent = async () => {
     if (!node || isGenerating || isLoadingAI || !editor) return;
@@ -454,40 +485,22 @@ export default function ContentPane({
             {onBack && <Button variant="ghost" size="icon" onClick={onBack}><ArrowLeft /></Button>}
             <h1 className="text-2xl font-bold font-headline truncate">{node.name}</h1>
         </div>
-        {showAIButton && (
-          <TooltipProvider delayDuration={300}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={handleGenerateContent}
-                  disabled={isGenerating || isLoadingAI}
-                  className="text-violet-400 hover:text-violet-300 hover:bg-violet-950 flex-shrink-0"
-                >
-                  {(isGenerating || isLoadingAI) ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Generate content with AI</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        )}
       </header>
 
       {/* Toolbar */}
       <div className="flex-shrink-0 border-b px-4 py-2 flex items-center gap-2 bg-muted/30">
         <TooltipProvider delayDuration={300}>
+          {/* Add Content Button */}
           <Tooltip>
             <DropdownMenu>
               <TooltipTrigger asChild>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="gap-2">
+                  <Button variant="outline" size="icon">
                     <Plus className="h-4 w-4" />
-                    Add Content
                   </Button>
                 </DropdownMenuTrigger>
               </TooltipTrigger>
-              <TooltipContent>Insert content into the editor</TooltipContent>
+              <TooltipContent>Add content</TooltipContent>
               <DropdownMenuContent align="start">
                 <DropdownMenuItem onClick={handleInsertYouTube}>
                   <Video className="mr-2 h-4 w-4" />
@@ -512,7 +525,53 @@ export default function ContentPane({
               </DropdownMenuContent>
             </DropdownMenu>
           </Tooltip>
+
+          {/* Speech Recognition Button */}
+          {speechSupported && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant={isListening ? "default" : "outline"}
+                  size="icon"
+                  onClick={handleSpeechToggle}
+                  className={isListening ? 'bg-red-600 hover:bg-red-700 text-white' : ''}
+                >
+                  {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                {isListening ? 'Stop dictation' : 'Dictate (speak to type)'}
+              </TooltipContent>
+            </Tooltip>
+          )}
+
+          {/* AI Generate Content Button */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={handleGenerateContent}
+                disabled={isGenerating || isLoadingAI || !aiContentEnabled}
+                className="text-violet-400 hover:text-violet-300 hover:bg-violet-950"
+              >
+                {(isGenerating || isLoadingAI) ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Sparkles className="h-4 w-4" />
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Generate content with AI</TooltipContent>
+          </Tooltip>
         </TooltipProvider>
+
+        {/* Interim transcript indicator */}
+        {isListening && interimTranscript && (
+          <span className="text-sm text-muted-foreground italic truncate max-w-[200px]">
+            {interimTranscript}...
+          </span>
+        )}
       </div>
 
       <main className="flex-grow overflow-y-auto p-6 space-y-4">

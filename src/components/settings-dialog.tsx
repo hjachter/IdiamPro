@@ -55,7 +55,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
 
           toast({
             title: 'Folder Selected',
-            description: `Data folder set to: ${dirHandle.name}. Your outlines will now be saved as .json files in this folder.`,
+            description: `Data folder set to: ${dirHandle.name}. Your outlines will now be saved as .idm files in this folder.`,
           });
 
           // Notify parent component that folder was selected

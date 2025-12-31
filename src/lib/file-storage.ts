@@ -93,7 +93,7 @@ function sanitizeFileName(name: string): string {
  * Get file name for an outline
  */
 function getOutlineFileName(outline: Outline): string {
-  return `${sanitizeFileName(outline.name)}.json`;
+  return `${sanitizeFileName(outline.name)}.idm`;
 }
 
 /**
@@ -159,7 +159,7 @@ export async function loadOutlinesFromDirectory(
 
     // Iterate through all files in the directory
     for await (const entry of dirHandle.values()) {
-      if (entry.kind === 'file' && entry.name.endsWith('.json')) {
+      if (entry.kind === 'file' && entry.name.endsWith('.idm')) {
         try {
           const outline = await loadOutlineFromFile(entry as FileSystemFileHandle);
           outlines.push(outline);
@@ -213,7 +213,7 @@ export async function renameOutlineFile(
       throw new Error('No write permission for directory');
     }
 
-    const oldFileName = `${sanitizeFileName(oldName)}.json`;
+    const oldFileName = `${sanitizeFileName(oldName)}.idm`;
     const newFileName = getOutlineFileName(newOutline);
 
     // If names are the same, just update the file

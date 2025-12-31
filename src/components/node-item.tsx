@@ -3,7 +3,7 @@
 import React from 'react';
 import type { OutlineNode, NodeMap } from '@/types';
 import NodeIcon from './node-icon';
-import { ChevronRight, Plus, Trash2, Edit3, ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronRight, Plus, Trash2, Edit3, ChevronDown, ChevronUp, Copy, Scissors, ClipboardPaste } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import {
@@ -30,6 +30,10 @@ interface NodeItemProps {
   onUpdateNode: (nodeId: string, updates: Partial<OutlineNode>) => void;
   onCreateNode?: () => void;
   onDeleteNode?: (nodeId: string) => void;
+  onCopySubtree?: (nodeId: string) => void;
+  onCutSubtree?: (nodeId: string) => void;
+  onPasteSubtree?: (targetNodeId: string) => void;
+  hasClipboard?: boolean;
   isRoot?: boolean;
 }
 
@@ -75,6 +79,10 @@ export default function NodeItem({
   onUpdateNode,
   onCreateNode,
   onDeleteNode,
+  onCopySubtree,
+  onCutSubtree,
+  onPasteSubtree,
+  hasClipboard = false,
   isRoot = false,
 }: NodeItemProps) {
   const node = nodes[nodeId];
@@ -299,6 +307,30 @@ export default function NodeItem({
               </ContextMenuItem>
             )}
 
+            <ContextMenuSeparator />
+            {onCopySubtree && (
+              <ContextMenuItem onClick={(e) => { e.stopPropagation(); onCopySubtree(node.id); }}>
+                <Copy className="mr-2 h-4 w-4" />
+                Copy Subtree
+                <ContextMenuShortcut>⌘C</ContextMenuShortcut>
+              </ContextMenuItem>
+            )}
+            {!isRoot && onCutSubtree && (
+              <ContextMenuItem onClick={(e) => { e.stopPropagation(); onCutSubtree(node.id); }}>
+                <Scissors className="mr-2 h-4 w-4" />
+                Move Subtree
+                <ContextMenuShortcut>⌘X</ContextMenuShortcut>
+              </ContextMenuItem>
+            )}
+
+            {onPasteSubtree && hasClipboard && (
+              <ContextMenuItem onClick={(e) => { e.stopPropagation(); onPasteSubtree(node.id); }}>
+                <ClipboardPaste className="mr-2 h-4 w-4" />
+                Paste Subtree
+                <ContextMenuShortcut>⌘V</ContextMenuShortcut>
+              </ContextMenuItem>
+            )}
+
             {!isRoot && onDeleteNode && (
               <>
                 <ContextMenuSeparator />
@@ -330,6 +362,10 @@ export default function NodeItem({
                     onUpdateNode={onUpdateNode}
                     onCreateNode={onCreateNode}
                     onDeleteNode={onDeleteNode}
+                    onCopySubtree={onCopySubtree}
+                    onCutSubtree={onCutSubtree}
+                    onPasteSubtree={onPasteSubtree}
+                    hasClipboard={hasClipboard}
                 />
             ))}
             </ul>

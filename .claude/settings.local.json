@@ -10,7 +10,24 @@
       "Bash(node -c:*)",
       "Bash(npx shadcn@latest add context-menu:*)",
       "Bash(npm install:*)",
-      "Bash(npm run dev:*)"
+      "Bash(npm run dev:*)",
+      "Bash(cat:*)",
+      "Bash(ls:*)",
+      "Bash(pkill:*)",
+      "Bash(osascript:*)",
+      "Bash(chmod:*)",
+      "Bash(git --version)",
+      "Bash(mdfind:*)",
+      "Bash(killall:*)",
+      "Bash(/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user)",
+      "Bash(/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister:*)",
+      "Bash(open:*)",
+      "Bash(python3:*)",
+      "Bash(for f in ~/Downloads/idiampro*.json)",
+      "Bash(do echo \"=== $f ===\")",
+      "Bash(done)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ]
   }
 }

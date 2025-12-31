@@ -6,7 +6,7 @@ import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/componen
 import { useIsMobile } from "@/hooks/use-mobile";
 import type { Outline, OutlineNode, NodeType, NodeMap, NodeGenerationContext, ExternalSourceInput, IngestPreview } from '@/types';
 import { getInitialGuide } from '@/lib/initial-guide';
-import { addNode, addNodeAfter, removeNode, updateNode, moveNode, parseMarkdownToNodes } from '@/lib/outline-utils';
+import { addNode, addNodeAfter, removeNode, updateNode, moveNode, parseMarkdownToNodes, recalculatePrefixesForBranch } from '@/lib/outline-utils';
 import OutlinePane from './outline-pane';
 import ContentPane from './content-pane';
 import { useToast } from "@/hooks/use-toast";
@@ -45,6 +45,14 @@ export default function OutlinePro() {
   const [mobileView, setMobileView] = useState<MobileView>('outline');
   const [isLoadingAI, setIsLoadingAI] = useState(false);
   const [prefixDialogState, setPrefixDialogState] = useState<{ open: boolean, prefix: string, nodeName: string }>({ open: false, prefix: '', nodeName: '' });
+
+  // Subtree clipboard state
+  const [subtreeClipboard, setSubtreeClipboard] = useState<{
+    nodes: NodeMap;
+    rootId: string;
+    sourceOutlineId: string;
+    isCut: boolean;
+  } | null>(null);
 
   const { toast } = useToast();
   const isMobile = useIsMobile();
@@ -657,6 +665,296 @@ export default function OutlinePro() {
     reader.readAsText(file);
   }, [toast]);
 
+  // Import an outline as a chapter within the current outline
+  const handleImportAsChapter = useCallback((file: File) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const text = e.target?.result;
+        if (typeof text !== 'string') {
+          throw new Error("File could not be read.");
+        }
+        const importedData = JSON.parse(text);
+
+        // Handle both single outline and array of outlines
+        const outlineToImport = Array.isArray(importedData) ? importedData[0] : importedData;
+
+        if (!isValidOutline(outlineToImport)) {
+          throw new Error("Invalid outline file format.");
+        }
+
+        setOutlines(currentOutlines => {
+          const outline = currentOutlines.find(o => o.id === currentOutlineId);
+          if (!outline) {
+            throw new Error("No current outline selected.");
+          }
+
+          // Create a mapping of old IDs to new IDs
+          const idMapping: Record<string, string> = {};
+          Object.keys(outlineToImport.nodes).forEach(oldId => {
+            idMapping[oldId] = uuidv4();
+          });
+
+          // Create new nodes with remapped IDs
+          const newNodes: NodeMap = {};
+          const importedRoot = outlineToImport.nodes[outlineToImport.rootNodeId];
+
+          Object.entries(outlineToImport.nodes).forEach(([oldId, node]) => {
+            const typedNode = node as OutlineNode;
+            const newId = idMapping[oldId];
+            const isImportedRoot = oldId === outlineToImport.rootNodeId;
+
+            newNodes[newId] = {
+              ...typedNode,
+              id: newId,
+              // Convert imported root to chapter, keep others as-is
+              type: isImportedRoot ? 'chapter' : typedNode.type,
+              // Remap parent ID (imported root's parent becomes current outline's root)
+              parentId: isImportedRoot
+                ? outline.rootNodeId
+                : (typedNode.parentId ? idMapping[typedNode.parentId] : null),
+              // Remap children IDs
+              childrenIds: typedNode.childrenIds.map(childId => idMapping[childId]),
+            };
+          });
+
+          // Get the new chapter ID (was the imported root)
+          const newChapterId = idMapping[outlineToImport.rootNodeId];
+
+          // Update the current outline
+          const updatedOutline: Outline = {
+            ...outline,
+            nodes: {
+              ...outline.nodes,
+              ...newNodes,
+              // Update the root node to include the new chapter as a child
+              [outline.rootNodeId]: {
+                ...outline.nodes[outline.rootNodeId],
+                childrenIds: [...outline.nodes[outline.rootNodeId].childrenIds, newChapterId],
+              },
+            },
+          };
+
+          // Schedule selection of the new chapter
+          setTimeout(() => {
+            setSelectedNodeId(newChapterId);
+            toast({
+              title: "Import Successful",
+              description: `"${importedRoot.name}" has been added as a chapter.`,
+            });
+          }, 0);
+
+          return currentOutlines.map(o => o.id === outline.id ? updatedOutline : o);
+        });
+
+      } catch (error) {
+        toast({
+          variant: "destructive",
+          title: "Import Failed",
+          description: (error as Error).message || "An unknown error occurred during import.",
+        });
+      }
+    };
+    reader.readAsText(file);
+  }, [currentOutlineId, toast]);
+
+  // Helper function to collect all nodes in a subtree
+  const collectSubtree = useCallback((nodes: NodeMap, rootId: string): NodeMap => {
+    const result: NodeMap = {};
+    const collectRecursive = (nodeId: string) => {
+      const node = nodes[nodeId];
+      if (node) {
+        result[nodeId] = { ...node };
+        node.childrenIds.forEach(collectRecursive);
+      }
+    };
+    collectRecursive(rootId);
+    return result;
+  }, []);
+
+  // Copy subtree to clipboard
+  const handleCopySubtree = useCallback((nodeId: string) => {
+    const outline = outlines.find(o => o.id === currentOutlineId);
+    if (!outline) return;
+
+    const subtreeNodes = collectSubtree(outline.nodes, nodeId);
+    setSubtreeClipboard({
+      nodes: subtreeNodes,
+      rootId: nodeId,
+      sourceOutlineId: currentOutlineId,
+      isCut: false,
+    });
+
+    toast({
+      title: "Subtree Copied",
+      description: `"${outline.nodes[nodeId].name}" and its children copied to clipboard.`,
+    });
+  }, [currentOutlineId, outlines, collectSubtree, toast]);
+
+  // Cut subtree to clipboard (will be removed on paste)
+  const handleCutSubtree = useCallback((nodeId: string) => {
+    const outline = outlines.find(o => o.id === currentOutlineId);
+    if (!outline) return;
+
+    const subtreeNodes = collectSubtree(outline.nodes, nodeId);
+    setSubtreeClipboard({
+      nodes: subtreeNodes,
+      rootId: nodeId,
+      sourceOutlineId: currentOutlineId,
+      isCut: true,
+    });
+
+    toast({
+      title: "Subtree Cut",
+      description: `"${outline.nodes[nodeId].name}" ready to move. Select a target node and paste.`,
+    });
+  }, [currentOutlineId, outlines, collectSubtree, toast]);
+
+  // Paste subtree as sibling after target node
+  const handlePasteSubtree = useCallback((targetNodeId: string) => {
+    if (!subtreeClipboard) return;
+
+    setOutlines(currentOutlines => {
+      const targetOutline = currentOutlines.find(o => o.id === currentOutlineId);
+      if (!targetOutline) return currentOutlines;
+
+      const targetNode = targetOutline.nodes[targetNodeId];
+      if (!targetNode) return currentOutlines;
+
+      // Create new IDs for all pasted nodes
+      const idMapping: Record<string, string> = {};
+      Object.keys(subtreeClipboard.nodes).forEach(oldId => {
+        idMapping[oldId] = uuidv4();
+      });
+
+      // Create new nodes with remapped IDs
+      const newNodes: NodeMap = {};
+      const clipboardRoot = subtreeClipboard.nodes[subtreeClipboard.rootId];
+
+      Object.entries(subtreeClipboard.nodes).forEach(([oldId, node]) => {
+        const newId = idMapping[oldId];
+        const isClipboardRoot = oldId === subtreeClipboard.rootId;
+
+        // Determine the new type - if it was a root node, change to chapter (has children) or document
+        let newType = node.type;
+        if (isClipboardRoot && node.type === 'root') {
+          newType = node.childrenIds.length > 0 ? 'chapter' : 'document';
+        }
+
+        newNodes[newId] = {
+          ...node,
+          id: newId,
+          type: newType,
+          // Clear prefix - will be recalculated
+          prefix: '',
+          // The clipboard root becomes a sibling of target, so its parent is target's parent
+          parentId: isClipboardRoot
+            ? targetNode.parentId
+            : (node.parentId ? idMapping[node.parentId] : null),
+          childrenIds: node.childrenIds.map(childId => idMapping[childId]),
+        };
+      });
+
+      const newRootId = idMapping[subtreeClipboard.rootId];
+
+      // Find the target's parent and insert the new root after the target
+      const parentNode = targetNode.parentId ? targetOutline.nodes[targetNode.parentId] : null;
+      let updatedOutline = { ...targetOutline };
+
+      if (parentNode) {
+        const targetIndex = parentNode.childrenIds.indexOf(targetNodeId);
+        const newChildrenIds = [...parentNode.childrenIds];
+        newChildrenIds.splice(targetIndex + 1, 0, newRootId);
+
+        updatedOutline = {
+          ...updatedOutline,
+          nodes: {
+            ...updatedOutline.nodes,
+            ...newNodes,
+            [parentNode.id]: {
+              ...parentNode,
+              childrenIds: newChildrenIds,
+            },
+          },
+        };
+      } else {
+        // Target is root node - paste as child instead
+        const newChildrenIds = [...targetNode.childrenIds, newRootId];
+        newNodes[newRootId].parentId = targetNodeId;
+
+        updatedOutline = {
+          ...updatedOutline,
+          nodes: {
+            ...updatedOutline.nodes,
+            ...newNodes,
+            [targetNodeId]: {
+              ...targetNode,
+              childrenIds: newChildrenIds,
+            },
+          },
+        };
+      }
+
+      // If it was a cut operation, remove the source nodes
+      let result = currentOutlines.map(o => o.id === currentOutlineId ? updatedOutline : o);
+
+      if (subtreeClipboard.isCut) {
+        const sourceOutline = result.find(o => o.id === subtreeClipboard.sourceOutlineId);
+        if (sourceOutline) {
+          // Remove the cut subtree from source
+          const sourceNode = sourceOutline.nodes[subtreeClipboard.rootId];
+          if (sourceNode && sourceNode.parentId) {
+            const sourceParent = sourceOutline.nodes[sourceNode.parentId];
+            if (sourceParent) {
+              const updatedSourceNodes = { ...sourceOutline.nodes };
+              // Remove all nodes in the cut subtree
+              Object.keys(subtreeClipboard.nodes).forEach(nodeId => {
+                delete updatedSourceNodes[nodeId];
+              });
+              // Update parent's children
+              updatedSourceNodes[sourceParent.id] = {
+                ...sourceParent,
+                childrenIds: sourceParent.childrenIds.filter(id => id !== subtreeClipboard.rootId),
+              };
+
+              // Recalculate prefixes for the source outline after removal
+              recalculatePrefixesForBranch(updatedSourceNodes, sourceParent.id);
+
+              result = result.map(o =>
+                o.id === subtreeClipboard.sourceOutlineId
+                  ? { ...o, nodes: updatedSourceNodes }
+                  : o
+              );
+            }
+          }
+        }
+      }
+
+      // Recalculate prefixes for the pasted subtree
+      result = result.map(o => {
+        if (o.id === currentOutlineId) {
+          const parentId = parentNode ? parentNode.id : targetNodeId;
+          recalculatePrefixesForBranch(o.nodes, parentId);
+        }
+        return o;
+      });
+
+      // Schedule toast and clear clipboard
+      setTimeout(() => {
+        setSelectedNodeId(newRootId);
+        toast({
+          title: subtreeClipboard.isCut ? "Subtree Moved" : "Subtree Pasted",
+          description: `"${clipboardRoot.name}" has been ${subtreeClipboard.isCut ? 'moved' : 'pasted'}.`,
+        });
+        if (subtreeClipboard.isCut) {
+          setSubtreeClipboard(null);
+        }
+      }, 0);
+
+      return result;
+    });
+  }, [currentOutlineId, subtreeClipboard, toast]);
+
   if (!isClient || !currentOutline) {
     return (
       <div className="flex items-center justify-center h-screen w-full">
@@ -703,6 +1001,11 @@ export default function OutlinePro() {
             onApplyIngestPreview={handleApplyIngestPreview}
             onUpdateNode={handleUpdateNode}
             onImportOutline={handleImportOutline}
+            onImportAsChapter={handleImportAsChapter}
+            onCopySubtree={handleCopySubtree}
+            onCutSubtree={handleCutSubtree}
+            onPasteSubtree={handlePasteSubtree}
+            hasClipboard={subtreeClipboard !== null}
             onRefreshGuide={handleRefreshGuide}
             onFolderSelected={handleFolderSelected}
             isLoadingAI={isLoadingAI}
@@ -760,6 +1063,11 @@ export default function OutlinePro() {
             onApplyIngestPreview={handleApplyIngestPreview}
             onUpdateNode={handleUpdateNode}
             onImportOutline={handleImportOutline}
+            onImportAsChapter={handleImportAsChapter}
+            onCopySubtree={handleCopySubtree}
+            onCutSubtree={handleCutSubtree}
+            onPasteSubtree={handlePasteSubtree}
+            hasClipboard={subtreeClipboard !== null}
             onRefreshGuide={handleRefreshGuide}
             onFolderSelected={handleFolderSelected}
             isLoadingAI={isLoadingAI}

@@ -1,0 +1,69 @@
+[
+  {
+    "id": "doc-library-outline",
+    "name": "Document Library",
+    "rootNodeId": "doc-library-root",
+    "nodes": {
+      "doc-library-root": {
+        "id": "doc-library-root",
+        "name": "Document Library",
+        "content": "<h1>IdiamPro Documentation</h1><p>This outline contains all the developer documentation for IdiamPro.</p><h2>Quick Start</h2><ul><li><strong>User Workflow</strong> - 5-step guide to making changes (2 min)</li><li><strong>Responsibilities</strong> - What Claude does vs what you do (3 min)</li></ul><h2>Complete Guides</h2><ul><li><strong>Developers Manual</strong> - Complete non-technical guide (15 min)</li><li><strong>Setup Guide</strong> - Setting up a new development machine (30 min)</li><li><strong>Multi-Developer Guide</strong> - Collaborating with other developers (5 min)</li></ul>",
+        "type": "root",
+        "parentId": null,
+        "childrenIds": ["doc-setup-guide", "doc-user-workflow", "doc-responsibilities", "doc-developers-manual", "doc-multi-developer"],
+        "isCollapsed": false,
+        "prefix": ""
+      },
+      "doc-setup-guide": {
+        "id": "doc-setup-guide",
+        "name": "Setup Guide",
+        "content": "<h1>IdiamPro Development Environment Setup Guide</h1><p><strong>Time Required: ~20-30 minutes</strong></p><p>This guide will help you set up a new Mac for IdiamPro development.</p><hr><h2>Prerequisites</h2><h3>1. Install Homebrew (if not installed)</h3><pre><code>/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\"</code></pre><h3>2. Install Node.js (v20 or later)</h3><pre><code>brew install node</code></pre><h3>3. Install Git (usually pre-installed on Mac)</h3><pre><code>git --version  # Check if installed\nbrew install git  # Install if needed</code></pre><h3>4. Install Claude Code CLI</h3><pre><code>npm install -g @anthropic-ai/claude-code</code></pre><hr><h2>Project Setup</h2><h3>1. Clone the Repository</h3><pre><code>cd ~/Library/Mobile\\ Documents/com~apple~CloudDocs/ClaudeProjects/\ngit clone https://github.com/hjachter/IdiamPro.git\ncd IdiamPro</code></pre><h3>2. Install Dependencies</h3><pre><code>npm install</code></pre><h3>3. Create Environment File</h3><p>Create <code>.env.local</code> in the project root with your Gemini API key.</p><hr><h2>App Installation</h2><h3>1. Build Desktop App</h3><pre><code>npm run electron:build:mac</code></pre><p>Then open <code>dist/IdiamPro Desktop-*.dmg</code> and drag to Applications.</p><h3>2. Create Dev Launcher</h3><pre><code>chmod +x start-dev.sh\nosacompile -o ~/Applications/\"IdiamPro Dev.app\" -e 'do shell script \"'\"$PWD\"'/start-dev.sh &gt; /tmp/idiampro-dev.log &amp;\"'</code></pre><h3>3. Create Webapp (Safari PWA)</h3><ol><li>Open Safari</li><li>Go to https://idiam-pro.vercel.app</li><li>File → Add to Dock</li></ol><hr><h2>Quick Reference</h2><table><thead><tr><th>Version</th><th>Location</th><th>Loads From</th><th>Use For</th></tr></thead><tbody><tr><td>Dev</td><td>~/Applications/</td><td>localhost:9002</td><td>Development</td></tr><tr><td>Desktop</td><td>/Applications/</td><td>Vercel</td><td>Production</td></tr><tr><td>Webapp</td><td>Dock (Safari PWA)</td><td>Vercel</td><td>Quick access</td></tr></tbody></table><hr><h2>Troubleshooting</h2><h3>Dev version won't start:</h3><pre><code>lsof -ti:9002 | xargs kill -9\npkill -f Electron\ncat /tmp/idiampro-dev.log</code></pre><p><em>Last updated: December 2024</em></p>",
+        "type": "chapter",
+        "parentId": "doc-library-root",
+        "childrenIds": [],
+        "isCollapsed": false,
+        "prefix": ""
+      },
+      "doc-user-workflow": {
+        "id": "doc-user-workflow",
+        "name": "User Workflow",
+        "content": "<h1>IdiamPro Development Workflow</h1><p><strong>How to make changes to IdiamPro using Claude Code</strong></p><hr><h2>Quick Workflow (5 Steps)</h2><h3>1. Start Your Session</h3><ul><li>Open Terminal in the IdiamPro project folder</li><li>Run: <code>claude</code> to start Claude Code</li></ul><h3>2. Describe What You Want</h3><ul><li>Tell Claude what feature to add or bug to fix</li><li>Example: \"Add a dark mode toggle to the settings menu\"</li></ul><h3>3. Review &amp; Approve Changes</h3><ul><li>Claude will show you the changes it wants to make</li><li>Review and approve each change</li><li>Ask questions if anything is unclear</li></ul><h3>4. Test Your Changes</h3><ul><li>Click <strong>IdiamPro Dev</strong> from Dock to test</li><li>Press <strong>Cmd+R</strong> to refresh after changes</li><li>Verify the feature works as expected</li></ul><h3>5. Deploy</h3><ul><li>Tell Claude: \"commit and push these changes\"</li><li>Claude commits to Git and pushes to GitHub</li><li>Vercel automatically deploys to production</li><li>Desktop and Webapp apps update automatically (within 60 seconds)</li></ul><hr><h2>What Gets Updated Automatically</h2><table><thead><tr><th>Action</th><th>Dev App</th><th>Desktop App</th><th>Webapp</th></tr></thead><tbody><tr><td>Code change (no push)</td><td>Instant (Cmd+R)</td><td>No</td><td>No</td></tr><tr><td>Git push to GitHub</td><td>Instant (Cmd+R)</td><td>~2 min (Vercel)</td><td>~2 min (Vercel)</td></tr></tbody></table><hr><h2>Tips</h2><ul><li><strong>Be specific</strong> - \"Add a red button\" vs \"Add a button\"</li><li><strong>Test in Dev first</strong> - Always verify before committing</li><li><strong>One feature at a time</strong> - Easier to track and revert if needed</li><li><strong>Ask Claude to explain</strong> - If code is unclear, ask!</li></ul><p><em>Last updated: December 2024</em></p>",
+        "type": "chapter",
+        "parentId": "doc-library-root",
+        "childrenIds": [],
+        "isCollapsed": false,
+        "prefix": ""
+      },
+      "doc-responsibilities": {
+        "id": "doc-responsibilities",
+        "name": "Responsibilities",
+        "content": "<h1>Claude Code vs User Responsibilities</h1><p><strong>Who does what when developing IdiamPro</strong></p><hr><h2>What Claude Code Does</h2><h3>Code Work</h3><ul><li>Reads and understands the existing codebase</li><li>Writes new code for features you describe</li><li>Fixes bugs you report</li><li>Refactors and improves code structure</li><li>Adds tests when appropriate</li></ul><h3>Git Operations</h3><ul><li>Creates commits with descriptive messages</li><li>Pushes changes to GitHub (when you ask)</li><li>Creates branches if needed</li><li>Shows you what changed before committing</li></ul><h3>Problem Solving</h3><ul><li>Researches how to implement features</li><li>Suggests approaches and alternatives</li><li>Explains code when asked</li><li>Troubleshoots errors</li></ul><hr><h2>What You (The User) Do</h2><h3>Decision Making</h3><ul><li>Describe what features you want</li><li>Approve or reject proposed changes</li><li>Choose between alternative approaches</li><li>Decide when to commit and deploy</li></ul><h3>Testing</h3><ul><li>Click \"IdiamPro Dev\" to test changes</li><li>Verify features work as expected</li><li>Report bugs or issues you find</li><li>Confirm when something works</li></ul><h3>Quality Control</h3><ul><li>Review changes Claude proposes</li><li>Ask questions if something is unclear</li><li>Request adjustments if needed</li><li>Give the final \"commit it\" approval</li></ul><hr><h2>Things Claude Will NOT Do Without Asking</h2><ul><li>Push to GitHub (waits for your \"commit\" command)</li><li>Delete important files</li><li>Make breaking changes without warning</li><li>Deploy to production without confirmation</li></ul><h2>Things Claude Will Do Automatically</h2><ul><li>Read files to understand context</li><li>Search the codebase for relevant code</li><li>Show you proposed changes before applying</li><li>Explain what each change does</li></ul><hr><p><em>Remember: Claude writes the code, you make the decisions.</em></p>",
+        "type": "chapter",
+        "parentId": "doc-library-root",
+        "childrenIds": [],
+        "isCollapsed": false,
+        "prefix": ""
+      },
+      "doc-developers-manual": {
+        "id": "doc-developers-manual",
+        "name": "Developers Manual",
+        "content": "<h1>IdiamPro Developers Manual</h1><p><strong>A complete guide to developing IdiamPro using Claude Code</strong></p><p><em>Written in plain language for non-programmers</em></p><hr><h2>Understanding the System</h2><h3>What is IdiamPro?</h3><p>IdiamPro is a professional outlining application. You don't need to know how to code. Claude Code will handle the programming for you.</p><h3>How Development Works</h3><ol><li><strong>You describe</strong> what you want in plain English</li><li><strong>Claude Code</strong> writes the code</li><li><strong>You test</strong> to make sure it works</li><li><strong>You approve</strong> and it goes live</li></ol><hr><h2>The Three App Versions</h2><table><thead><tr><th>Version</th><th>What It's For</th><th>Where It Gets Data</th></tr></thead><tbody><tr><td><strong>Dev</strong></td><td>Testing changes before they go live</td><td>Your computer (localhost)</td></tr><tr><td><strong>Desktop</strong></td><td>Daily use, full features</td><td>Internet (Vercel)</td></tr><tr><td><strong>Webapp</strong></td><td>Quick access from browser</td><td>Internet (Vercel)</td></tr></tbody></table><h3>Important: Data is Separate</h3><p>Each version has its own storage. Use \"Backup All Outlines\" and \"Restore All Outlines\" to move data between versions.</p><hr><h2>Your Development Toolkit</h2><h3>Starting a Development Session</h3><ol><li>Open <strong>Terminal</strong></li><li>Type: <code>cd ~/Library/Mobile\\ Documents/com~apple~CloudDocs/ClaudeProjects/IdiamPro</code></li><li>Type: <code>claude</code></li></ol><p>You're now talking to Claude Code!</p><hr><h2>Making Changes: Step by Step</h2><ol><li><strong>Describe What You Want</strong> - Be specific</li><li><strong>Review Claude's Plan</strong> - Ask questions if needed</li><li><strong>Watch the Changes</strong> - Claude modifies files</li><li><strong>Test It</strong> - Click IdiamPro Dev, press Cmd+R</li><li><strong>Report Results</strong> - Works or needs changes</li><li><strong>Approve for Deployment</strong> - Say \"Commit and push\"</li></ol><hr><h2>Backing Up Your Data</h2><h3>How to Backup</h3><ol><li>Open any IdiamPro version</li><li>Click the dropdown arrow next to your outline name</li><li>Click <strong>Backup All Outlines</strong></li><li>Save the .json file somewhere safe</li></ol><h3>How to Restore</h3><ol><li>Open the IdiamPro version you want to restore to</li><li>Click the dropdown arrow</li><li>Click <strong>Restore All Outlines</strong></li><li>Select your backup .json file</li></ol><hr><p><em>Last updated: December 2024</em></p>",
+        "type": "chapter",
+        "parentId": "doc-library-root",
+        "childrenIds": [],
+        "isCollapsed": false,
+        "prefix": ""
+      },
+      "doc-multi-developer": {
+        "id": "doc-multi-developer",
+        "name": "Multi-Developer Guide",
+        "content": "<h1>Multi-Developer Setup Guide</h1><p><strong>How to collaborate with others on IdiamPro development</strong></p><hr><h2>Overview</h2><p>If you want someone else to help develop IdiamPro, here's how to set them up. Each developer works independently with their own Claude Code session, and changes are synchronized through GitHub.</p><hr><h2>Setting Up a New Developer</h2><h3>What They Need</h3><ol><li>A Mac computer</li><li>An Anthropic API key (for Claude Code)</li><li>GitHub access to the IdiamPro repository</li><li>About 30 minutes for setup</li></ol><h3>GitHub Access</h3><p>The repository owner needs to:</p><ol><li>Go to github.com/hjachter/IdiamPro</li><li>Settings &gt; Collaborators</li><li>Add the new developer's GitHub username</li></ol><hr><h2>How Collaboration Works</h2><h3>Before Starting Work</h3><p>Each developer should always run:</p><pre><code>git pull</code></pre><p>This downloads any changes others have made.</p><h3>After Making Changes</h3><p>Tell Claude: \"commit and push these changes\"</p><hr><h2>Avoiding Conflicts</h2><h3>The Golden Rule</h3><p><strong>Communicate about what you're working on.</strong></p><ol><li><strong>Coordinate:</strong> \"I'm working on the toolbar today\"</li><li><strong>Pull often:</strong> Start each session with <code>git pull</code></li><li><strong>Push often:</strong> Commit and push when done with a feature</li><li><strong>Work on different features:</strong> Don't edit the same areas</li></ol><hr><h2>API Keys and Secrets</h2><h3>Never Share in Code</h3><ul><li>Keep <code>.env.local</code> files out of Git (already configured)</li><li>Each developer uses their own API keys</li><li>Never paste API keys into chat or commits</li></ul><h3>Each Developer Needs</h3><ul><li>Their own Anthropic API key (for Claude Code)</li><li>Their own Gemini API key (for AI features in the app)</li></ul><hr><h2>Quick Reference</h2><h3>Start of Work Session</h3><pre><code>cd ~/Library/Mobile\\ Documents/com~apple~CloudDocs/ClaudeProjects/IdiamPro\ngit pull\nclaude</code></pre><h3>End of Work Session</h3><p>\"Commit and push these changes\"</p><p><em>Last updated: December 2024</em></p>",
+        "type": "chapter",
+        "parentId": "doc-library-root",
+        "childrenIds": [],
+        "isCollapsed": false,
+        "prefix": ""
+      }
+    }
+  }
+]

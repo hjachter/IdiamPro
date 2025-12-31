@@ -62,6 +62,11 @@ interface OutlinePaneProps {
   onApplyIngestPreview: (preview: IngestPreview) => Promise<void>;
   onUpdateNode: (nodeId: string, updates: Partial<OutlineNode>) => void;
   onImportOutline: (file: File) => void;
+  onImportAsChapter: (file: File) => void;
+  onCopySubtree: (nodeId: string) => void;
+  onCutSubtree: (nodeId: string) => void;
+  onPasteSubtree: (targetNodeId: string) => void;
+  hasClipboard: boolean;
   onRefreshGuide: () => void;
   onFolderSelected?: () => void;
   isLoadingAI: boolean;
@@ -87,6 +92,11 @@ export default function OutlinePane({
   onApplyIngestPreview,
   onUpdateNode,
   onImportOutline,
+  onImportAsChapter,
+  onCopySubtree,
+  onCutSubtree,
+  onPasteSubtree,
+  hasClipboard,
   onRefreshGuide,
   onFolderSelected,
   isLoadingAI,
@@ -123,30 +133,50 @@ export default function OutlinePane({
     }
   }, [selectedNodeId, currentOutline, onMoveNode]);
 
-  // Keyboard event handler for Tab/Shift+Tab
+  // Keyboard event handler for Tab/Shift+Tab and clipboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Only handle Tab key when outline pane has focus or a node is selected
-      if (e.key !== 'Tab') return;
-
       // Don't interfere with input fields
       const target = e.target as HTMLElement;
-      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') return;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) return;
 
-      if (!selectedNodeId || !currentOutline) return;
+      // Handle Tab for indent/outdent
+      if (e.key === 'Tab') {
+        if (!selectedNodeId || !currentOutline) return;
+        e.preventDefault();
+        if (e.shiftKey) {
+          handleOutdent();
+        } else {
+          handleIndent();
+        }
+        return;
+      }
 
-      e.preventDefault();
+      // Handle clipboard shortcuts (Cmd on Mac, Ctrl on Windows/Linux)
+      const isMod = e.metaKey || e.ctrlKey;
+      if (!isMod || !selectedNodeId || !currentOutline) return;
 
-      if (e.shiftKey) {
-        handleOutdent();
-      } else {
-        handleIndent();
+      const selectedNode = currentOutline.nodes[selectedNodeId];
+      const isRoot = selectedNode?.type === 'root';
+
+      if (e.key === 'c') {
+        // Copy subtree - works on all nodes including root
+        e.preventDefault();
+        onCopySubtree(selectedNodeId);
+      } else if (e.key === 'x' && !isRoot) {
+        // Cut subtree - only non-root nodes
+        e.preventDefault();
+        onCutSubtree(selectedNodeId);
+      } else if (e.key === 'v' && hasClipboard) {
+        // Paste subtree - only if clipboard has content
+        e.preventDefault();
+        onPasteSubtree(selectedNodeId);
       }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [selectedNodeId, currentOutline, handleIndent, handleOutdent]);
+  }, [selectedNodeId, currentOutline, handleIndent, handleOutdent, hasClipboard, onCopySubtree, onCutSubtree, onPasteSubtree]);
 
   const handleStartRename = (id: string, currentName: string) => {
     setRenameId(id);
@@ -211,6 +241,19 @@ export default function OutlinePane({
       }
     };
     reader.readAsText(file);
+  };
+
+  const handleImportAsChapterClick = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        onImportAsChapter(file);
+      }
+    };
+    input.click();
   };
 
   const rootNode = currentOutline?.nodes[currentOutline.rootNodeId];
@@ -414,6 +457,10 @@ export default function OutlinePane({
               onUpdateNode={onUpdateNode}
               onCreateNode={onCreateNode}
               onDeleteNode={onDeleteNode}
+              onCopySubtree={onCopySubtree}
+              onCutSubtree={onCutSubtree}
+              onPasteSubtree={onPasteSubtree}
+              hasClipboard={hasClipboard}
               isRoot={true}
             />
           </ul>
