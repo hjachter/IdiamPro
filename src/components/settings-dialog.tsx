@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Folder, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { storeDirectoryHandle, getDirectoryHandle, verifyDirectoryPermission } from '@/lib/file-storage';
+import { isElectron, electronSelectDirectory, electronGetStoredDirectoryPath } from '@/lib/electron-storage';
 
 interface SettingsDialogProps {
   children: React.ReactNode;
@@ -20,6 +21,20 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
   // Load current folder on mount
   useEffect(() => {
     const loadCurrentFolder = async () => {
+      // Check Electron first
+      if (isElectron()) {
+        const dirPath = await electronGetStoredDirectoryPath();
+        if (dirPath) {
+          // Extract folder name from path
+          const folderName = dirPath.split('/').pop() || dirPath;
+          setDataFolder(folderName);
+          return;
+        }
+        setDataFolder('Browser Storage (Default)');
+        return;
+      }
+
+      // Fall back to File System Access API
       const dirHandle = await getDirectoryHandle();
       if (dirHandle) {
         const hasPermission = await verifyDirectoryPermission(dirHandle, 'read');
@@ -35,6 +50,23 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
 
   const handleSelectFolder = async () => {
     try {
+      // Use Electron dialog if available
+      if (isElectron()) {
+        const dirPath = await electronSelectDirectory();
+        if (dirPath) {
+          const folderName = dirPath.split('/').pop() || dirPath;
+          setDataFolder(folderName);
+
+          toast({
+            title: 'Folder Selected',
+            description: 'Data folder set to: ' + folderName + '. Your outlines will now be saved as .idm files in this folder.',
+          });
+
+          onFolderSelected?.();
+        }
+        return;
+      }
+
       // Check if File System Access API is supported
       if ('showDirectoryPicker' in window) {
         // @ts-ignore - showDirectoryPicker is not in TypeScript types yet
@@ -55,7 +87,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
 
           toast({
             title: 'Folder Selected',
-            description: `Data folder set to: ${dirHandle.name}. Your outlines will now be saved as .idm files in this folder.`,
+            description: 'Data folder set to: ' + dirHandle.name + '. Your outlines will now be saved as .idm files in this folder.',
           });
 
           // Notify parent component that folder was selected
@@ -122,7 +154,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
                 <Info className="h-3 w-3 mt-0.5 flex-shrink-0" />
                 <span>
                   Select a folder where all your outlines will be saved. Currently using browser storage by default.
-                  {!('showDirectoryPicker' in window) && (
+                  {!isElectron() && !('showDirectoryPicker' in window) && (
                     <span className="block mt-1 text-amber-400">
                       Note: Folder selection is not supported in your browser. Use Chrome, Edge, or the Desktop app for this feature.
                     </span>

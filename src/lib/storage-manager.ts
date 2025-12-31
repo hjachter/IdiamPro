@@ -10,6 +10,17 @@ import {
   loadExistingOutline,
   getOutlineFileName,
 } from './file-storage';
+import {
+  isElectron,
+  isElectronStorageAvailable,
+  electronLoadOutlinesFromDirectory,
+  electronSaveOutlineToFile,
+  electronDeleteOutlineFile,
+  electronRenameOutlineFile,
+  electronOutlineFileExists,
+  electronLoadExistingOutline,
+  getElectronOutlineFileName,
+} from './electron-storage';
 
 const LOCAL_STORAGE_KEY = 'outline-pro-data';
 
@@ -22,6 +33,12 @@ export interface StorageData {
  * Check if file system storage is available and has permission
  */
 export async function isFileSystemStorageAvailable(): Promise<boolean> {
+  // Check Electron storage first
+  if (isElectron()) {
+    return isElectronStorageAvailable();
+  }
+
+  // Fall back to File System Access API
   try {
     const dirHandle = await getDirectoryHandle();
     if (!dirHandle) return false;
@@ -38,6 +55,17 @@ export async function isFileSystemStorageAvailable(): Promise<boolean> {
  * Load outlines from file system
  */
 async function loadFromFileSystem(): Promise<Outline[]> {
+  // Use Electron storage if available
+  if (isElectron()) {
+    try {
+      return await electronLoadOutlinesFromDirectory();
+    } catch (error) {
+      console.error('Failed to load from Electron storage:', error);
+      return [];
+    }
+  }
+
+  // Fall back to File System Access API
   try {
     const dirHandle = await getDirectoryHandle();
     if (!dirHandle) return [];
@@ -96,7 +124,18 @@ export async function loadStorageData(): Promise<StorageData> {
  * Save an outline to storage (file system or localStorage)
  */
 export async function saveOutline(outline: Outline, allOutlines: Outline[]): Promise<void> {
-  // Try file system first
+  // Try Electron storage first
+  if (isElectron() && await isElectronStorageAvailable()) {
+    try {
+      await electronSaveOutlineToFile(outline);
+      console.log('Saved outline to Electron storage:', outline.name);
+      return;
+    } catch (error) {
+      console.error('Failed to save to Electron storage, falling back to localStorage:', error);
+    }
+  }
+
+  // Try File System Access API
   const fileSystemAvailable = await isFileSystemStorageAvailable();
 
   if (fileSystemAvailable) {
@@ -138,7 +177,18 @@ export async function saveAllOutlines(outlines: Outline[], currentOutlineId: str
   // Filter out the guide
   const userOutlines = outlines.filter(o => !o.isGuide);
 
-  // Try file system first
+  // Try Electron storage first
+  if (isElectron() && await isElectronStorageAvailable()) {
+    try {
+      await Promise.all(userOutlines.map(outline => electronSaveOutlineToFile(outline)));
+      console.log('Saved all outlines to Electron storage');
+      return;
+    } catch (error) {
+      console.error('Failed to save to Electron storage, falling back to localStorage:', error);
+    }
+  }
+
+  // Try File System Access API
   const fileSystemAvailable = await isFileSystemStorageAvailable();
 
   if (fileSystemAvailable) {
@@ -171,7 +221,18 @@ export async function saveAllOutlines(outlines: Outline[], currentOutlineId: str
  * Delete an outline from storage
  */
 export async function deleteOutline(outline: Outline): Promise<void> {
-  // Try file system first
+  // Try Electron storage first
+  if (isElectron() && await isElectronStorageAvailable()) {
+    try {
+      await electronDeleteOutlineFile(outline);
+      console.log('Deleted outline from Electron storage:', outline.name);
+      return;
+    } catch (error) {
+      console.error('Failed to delete from Electron storage, falling back to localStorage:', error);
+    }
+  }
+
+  // Try File System Access API
   const fileSystemAvailable = await isFileSystemStorageAvailable();
 
   if (fileSystemAvailable) {
@@ -204,7 +265,18 @@ export async function deleteOutline(outline: Outline): Promise<void> {
  * Rename an outline in storage
  */
 export async function renameOutline(oldName: string, newOutline: Outline): Promise<void> {
-  // Try file system first
+  // Try Electron storage first
+  if (isElectron() && await isElectronStorageAvailable()) {
+    try {
+      await electronRenameOutlineFile(oldName, newOutline);
+      console.log('Renamed outline in Electron storage:', oldName, '->', newOutline.name);
+      return;
+    } catch (error) {
+      console.error('Failed to rename in Electron storage, falling back to localStorage:', error);
+    }
+  }
+
+  // Try File System Access API
   const fileSystemAvailable = await isFileSystemStorageAvailable();
 
   if (fileSystemAvailable) {
@@ -249,6 +321,65 @@ export type ConflictResolver = (conflict: MigrationConflict) => Promise<Conflict
 export async function migrateToFileSystem(
   onConflict?: ConflictResolver
 ): Promise<void> {
+  // Load outlines from localStorage
+  const localOutlines = loadFromLocalStorage();
+
+  if (localOutlines.length === 0) {
+    console.log('No outlines to migrate');
+    return;
+  }
+
+  // Use Electron storage if available
+  if (isElectron()) {
+    try {
+      for (const outline of localOutlines) {
+        const exists = await electronOutlineFileExists(outline);
+
+        if (exists && onConflict) {
+          const existingOutline = await electronLoadExistingOutline(outline);
+
+          if (existingOutline) {
+            const conflict: MigrationConflict = {
+              localOutline: outline,
+              existingOutline,
+              fileName: getElectronOutlineFileName(outline),
+            };
+
+            const resolution = await onConflict(conflict);
+
+            switch (resolution) {
+              case 'overwrite':
+                await electronSaveOutlineToFile(outline);
+                console.log('Overwrote ' + conflict.fileName + ' with local version');
+                break;
+              case 'keep_existing':
+                console.log('Kept existing ' + conflict.fileName);
+                break;
+              case 'keep_both':
+                const renamedOutline = {
+                  ...outline,
+                  name: outline.name + ' (migrated)',
+                };
+                await electronSaveOutlineToFile(renamedOutline);
+                console.log('Saved as ' + getElectronOutlineFileName(renamedOutline));
+                break;
+            }
+          }
+        } else if (!exists) {
+          await electronSaveOutlineToFile(outline);
+          console.log('Migrated ' + getElectronOutlineFileName(outline));
+        }
+      }
+
+      console.log('Migration complete (Electron)');
+      return;
+    } catch (error) {
+      console.error('Failed to migrate to Electron storage:', error);
+      throw error;
+    }
+  }
+
+  // Fall back to File System Access API
   try {
     const dirHandle = await getDirectoryHandle();
     if (!dirHandle) {
@@ -258,14 +389,6 @@ export async function migrateToFileSystem(
     const hasPermission = await verifyDirectoryPermission(dirHandle, 'readwrite');
     if (!hasPermission) {
       throw new Error('No write permission for directory');
-    }
-
-    // Load outlines from localStorage
-    const localOutlines = loadFromLocalStorage();
-
-    if (localOutlines.length === 0) {
-      console.log('No outlines to migrate');
-      return;
     }
 
     // Process each outline, checking for conflicts
@@ -289,33 +412,36 @@ export async function migrateToFileSystem(
             case 'overwrite':
               // Overwrite with local version
               await saveOutlineToFile(dirHandle, outline);
-              console.log(`Overwrote ${conflict.fileName} with local version`);
+              console.log('Overwrote ' + conflict.fileName + ' with local version');
               break;
             case 'keep_existing':
               // Skip - keep the existing file
-              console.log(`Kept existing ${conflict.fileName}`);
+              console.log('Kept existing ' + conflict.fileName);
               break;
             case 'keep_both':
               // Rename local outline and save both
               const renamedOutline = {
                 ...outline,
-                name: `${outline.name} (migrated)`,
+                name: outline.name + ' (migrated)',
               };
               await saveOutlineToFile(dirHandle, renamedOutline);
-              console.log(`Saved as ${getOutlineFileName(renamedOutline)}`);
+              console.log('Saved as ' + getOutlineFileName(renamedOutline));
               break;
           }
         }
       } else if (!exists) {
         // No conflict - just save
         await saveOutlineToFile(dirHandle, outline);
-        console.log(`Migrated ${getOutlineFileName(outline)}`);
+        console.log('Migrated ' + getOutlineFileName(outline));
       }
     }
 
-    console.log(`Migration complete`);
+    console.log('Migration complete');
   } catch (error) {
     console.error('Failed to migrate to file system:', error);
     throw error;
   }
 }
+
+// Re-export isElectron for use in other components
+export { isElectron } from './electron-storage';
