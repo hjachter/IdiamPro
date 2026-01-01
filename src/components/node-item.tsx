@@ -102,70 +102,58 @@ export default function NodeItem({
   const lastTapRef = React.useRef<number>(0);
   const tapTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
 
-  // Swipe gesture detection for indent/outdent
-  const touchStartRef = React.useRef<{ x: number; y: number; time: number } | null>(null);
+  // Swipe gesture detection for indent/outdent (works with both touch and mouse/pointer)
+  const pointerStartRef = React.useRef<{ x: number; y: number; time: number; pointerId: number } | null>(null);
   const [swipeOffset, setSwipeOffset] = React.useState(0);
-  const SWIPE_THRESHOLD = 50; // pixels needed to trigger indent/outdent
+  const SWIPE_THRESHOLD = 40; // pixels needed to trigger indent/outdent
+  const swipeTriggeredRef = React.useRef(false);
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-    const touch = e.touches[0];
-    touchStartRef.current = { x: touch.clientX, y: touch.clientY, time: Date.now() };
+  const handlePointerDown = (e: React.PointerEvent) => {
+    if (isRoot || isEditing) return;
+    pointerStartRef.current = { x: e.clientX, y: e.clientY, time: Date.now(), pointerId: e.pointerId };
+    swipeTriggeredRef.current = false;
     setSwipeOffset(0);
+    // Capture pointer to receive move events even outside element
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
   };
 
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (!touchStartRef.current || isRoot) return;
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!pointerStartRef.current || isRoot || swipeTriggeredRef.current) return;
+    if (e.pointerId !== pointerStartRef.current.pointerId) return;
 
-    const touch = e.touches[0];
-    const deltaX = touch.clientX - touchStartRef.current.x;
-    const deltaY = Math.abs(touch.clientY - touchStartRef.current.y);
+    const deltaX = e.clientX - pointerStartRef.current.x;
+    const deltaY = Math.abs(e.clientY - pointerStartRef.current.y);
 
     // Only track horizontal swipes (ignore if more vertical than horizontal)
-    if (deltaY > Math.abs(deltaX)) {
+    if (deltaY > Math.abs(deltaX) * 0.5) {
       setSwipeOffset(0);
       return;
     }
 
     // Limit the visual offset
-    const clampedOffset = Math.max(-SWIPE_THRESHOLD * 1.5, Math.min(SWIPE_THRESHOLD * 1.5, deltaX));
+    const clampedOffset = Math.max(-SWIPE_THRESHOLD * 2, Math.min(SWIPE_THRESHOLD * 2, deltaX));
     setSwipeOffset(clampedOffset);
-  };
 
-  // Returns true if a swipe action was performed
-  const handleSwipeEnd = (e: React.TouchEvent): boolean => {
-    if (!touchStartRef.current || isRoot) {
-      touchStartRef.current = null;
-      setSwipeOffset(0);
-      return false;
-    }
-
-    const touch = e.changedTouches[0];
-    const deltaX = touch.clientX - touchStartRef.current.x;
-    const deltaY = Math.abs(touch.clientY - touchStartRef.current.y);
-    const deltaTime = Date.now() - touchStartRef.current.time;
-
-    // Reset visual offset
-    setSwipeOffset(0);
-    touchStartRef.current = null;
-
-    // Only process if horizontal swipe (not vertical scroll)
-    if (deltaY > Math.abs(deltaX)) return false;
-
-    // Check if swipe was fast enough and far enough
-    if (deltaTime < 500 && Math.abs(deltaX) >= SWIPE_THRESHOLD) {
+    // Trigger indent/outdent immediately when threshold is crossed
+    if (Math.abs(deltaX) >= SWIPE_THRESHOLD && !swipeTriggeredRef.current) {
+      swipeTriggeredRef.current = true;
       if (deltaX > 0 && onIndent) {
-        // Swipe right = indent
         onIndent(nodeId);
-        e.preventDefault();
-        return true;
       } else if (deltaX < 0 && onOutdent) {
-        // Swipe left = outdent
         onOutdent(nodeId);
-        e.preventDefault();
-        return true;
       }
     }
-    return false;
+  };
+
+  const handlePointerUp = (e: React.PointerEvent) => {
+    if (pointerStartRef.current && e.pointerId === pointerStartRef.current.pointerId) {
+      (e.target as HTMLElement).releasePointerCapture(e.pointerId);
+    }
+    const wasSwipe = swipeTriggeredRef.current;
+    pointerStartRef.current = null;
+    swipeTriggeredRef.current = false;
+    setSwipeOffset(0);
+    return wasSwipe;
   };
 
   React.useEffect(() => {
@@ -377,14 +365,17 @@ export default function NodeItem({
               transition: swipeOffset ? 'none' : 'transform 0.2s ease-out',
             }}
             onClick={handleClick}
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={(e) => {
-              // Only handle tap if no swipe was detected
-              const wasSwipe = handleSwipeEnd(e);
-              if (!wasSwipe) {
-                handleTouchTap(e);
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={(e) => {
+              const wasSwipe = handlePointerUp(e);
+              // Don't process as tap if it was a swipe
+              if (wasSwipe) {
+                e.preventDefault();
               }
+            }}
+            onPointerCancel={(e) => {
+              handlePointerUp(e);
             }}
             onDoubleClick={() => setIsEditing(true)}
             draggable={!isRoot}
