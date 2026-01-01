@@ -1,6 +1,8 @@
 {
-  "name": "nextn",
-  "version": "0.1.0",
+  "name": "idiampro",
+  "version": "1.0.0",
+  "description": "Professional outlining with AI-powered assistance",
+  "author": "IdiamPro",
   "private": true,
   "main": "electron/main.js",
   "scripts": {
@@ -120,8 +122,12 @@
           ]
         }
       ],
-      "icon": "public/icons/icon.png",
-      "darkModeSupport": true
+      "icon": "public/icons/icon.icns",
+      "darkModeSupport": true,
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "electron/entitlements.mac.plist",
+      "entitlementsInherit": "electron/entitlements.mac.plist"
     },
     "win": {
       "target": [
