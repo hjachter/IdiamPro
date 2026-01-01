@@ -212,13 +212,20 @@ export default function NodeItem({
     }
   };
 
-  // Handle tap/click with double-tap detection for touch devices
-  const handleTap = (e: React.MouseEvent | React.TouchEvent) => {
+  // Track if we just handled a touch event to prevent double-firing
+  const touchHandledRef = React.useRef<boolean>(false);
+
+  // Handle touch tap with double-tap detection
+  const handleTouchTap = (e: React.TouchEvent) => {
     // Don't handle if already editing
     if (isEditing) return;
 
+    // Mark that we handled a touch event
+    touchHandledRef.current = true;
+    setTimeout(() => { touchHandledRef.current = false; }, 100);
+
     const now = Date.now();
-    const DOUBLE_TAP_DELAY = 300;
+    const DOUBLE_TAP_DELAY = 350;
 
     // Check if this is a double-tap
     if (now - lastTapRef.current < DOUBLE_TAP_DELAY) {
@@ -234,19 +241,25 @@ export default function NodeItem({
     } else {
       // First tap - wait to see if there's a second tap
       lastTapRef.current = now;
+      e.preventDefault();
 
-      // For touch events, delay navigation to allow for double-tap
-      if ('touches' in e) {
-        e.preventDefault();
-        tapTimeoutRef.current = setTimeout(() => {
-          onSelectNode(node.id);
-          tapTimeoutRef.current = null;
-        }, DOUBLE_TAP_DELAY);
-      } else {
-        // For mouse clicks, select immediately (desktop behavior)
+      tapTimeoutRef.current = setTimeout(() => {
         onSelectNode(node.id);
-      }
+        tapTimeoutRef.current = null;
+      }, DOUBLE_TAP_DELAY);
     }
+  };
+
+  // Handle mouse click (desktop only)
+  const handleClick = (e: React.MouseEvent) => {
+    // Skip if this click was triggered by a touch event
+    if (touchHandledRef.current) return;
+
+    // Don't handle if already editing
+    if (isEditing) return;
+
+    // Desktop: single click selects, double-click handled by onDoubleClick
+    onSelectNode(node.id);
   };
 
   // Cleanup timeout on unmount
@@ -281,8 +294,8 @@ export default function NodeItem({
                 !isRoot && "cursor-grab active:cursor-grabbing"
             )}
             style={{ paddingLeft: `${level * 1.5}rem` }}
-            onClick={handleTap}
-            onTouchEnd={handleTap}
+            onClick={handleClick}
+            onTouchEnd={handleTouchTap}
             onDoubleClick={() => setIsEditing(true)}
             draggable={!isRoot}
             onDragStart={handleDragStart}
