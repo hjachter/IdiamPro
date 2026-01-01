@@ -480,9 +480,22 @@ export default function ContentPane({
         onCancel={handleEmbedCancel}
       />
 
-      <header className="flex-shrink-0 flex items-center justify-between p-4 border-b">
+      <header className="flex-shrink-0 flex items-center justify-between p-4 border-b" style={{ paddingTop: 'max(1rem, env(safe-area-inset-top))' }}>
         <div className="flex items-center gap-2 min-w-0">
-            {onBack && <Button variant="ghost" size="icon" onClick={onBack}><ArrowLeft /></Button>}
+            {onBack && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onBack}
+                onTouchEnd={(e) => {
+                  e.preventDefault();
+                  onBack();
+                }}
+                className="min-w-[44px] min-h-[44px] touch-manipulation"
+              >
+                <ArrowLeft />
+              </Button>
+            )}
             <h1 className="text-2xl font-bold font-headline truncate">{node.name}</h1>
         </div>
       </header>

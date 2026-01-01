@@ -28,7 +28,18 @@
       "Bash(done)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git push)"
+      "Bash(git push)",
+      "Bash(npx cap sync:*)",
+      "Bash(node --version:*)",
+      "Bash(source:*)",
+      "Bash(nvm ls:*)",
+      "Bash(nvm install:*)",
+      "Bash(nvm use:*)",
+      "Bash(npx cap open ios)",
+      "Bash(xcodebuild:*)",
+      "Bash(xcrun simctl boot:*)",
+      "Bash(xcrun simctl install:*)",
+      "Bash(xcrun simctl launch:*)"
     ]
   }
 }

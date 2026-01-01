@@ -33,7 +33,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full overflow-hidden" suppressHydrationWarning>
       <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
         <meta name="theme-color" content="#242424" media="(prefers-color-scheme: dark)" />
         <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)" />
         <script dangerouslySetInnerHTML={{

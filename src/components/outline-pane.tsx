@@ -261,7 +261,7 @@ export default function OutlinePane({
   const isSelectedNodeRoot = selectedNode?.type === 'root';
 
   return (
-    <div className="flex flex-col h-full bg-background/50 dark:bg-black/10 p-2 space-y-2">
+    <div className="flex flex-col h-full bg-background/50 dark:bg-black/10 p-2 space-y-2" style={{ paddingTop: 'max(0.5rem, env(safe-area-inset-top))' }}>
       <div className="flex-shrink-0 flex items-center space-x-2 px-2">
 
         <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
