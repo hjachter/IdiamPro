@@ -94,6 +94,10 @@ export default function NodeItem({
   const itemRef = React.useRef<HTMLLIElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
+  // Double-tap detection for touch devices
+  const lastTapRef = React.useRef<number>(0);
+  const tapTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+
   React.useEffect(() => {
     if (isEditing && inputRef.current) {
       inputRef.current.focus();
@@ -208,6 +212,52 @@ export default function NodeItem({
     }
   };
 
+  // Handle tap/click with double-tap detection for touch devices
+  const handleTap = (e: React.MouseEvent | React.TouchEvent) => {
+    // Don't handle if already editing
+    if (isEditing) return;
+
+    const now = Date.now();
+    const DOUBLE_TAP_DELAY = 300;
+
+    // Check if this is a double-tap
+    if (now - lastTapRef.current < DOUBLE_TAP_DELAY) {
+      // Double-tap detected - enter edit mode
+      if (tapTimeoutRef.current) {
+        clearTimeout(tapTimeoutRef.current);
+        tapTimeoutRef.current = null;
+      }
+      lastTapRef.current = 0;
+      setIsEditing(true);
+      e.preventDefault();
+      e.stopPropagation();
+    } else {
+      // First tap - wait to see if there's a second tap
+      lastTapRef.current = now;
+
+      // For touch events, delay navigation to allow for double-tap
+      if ('touches' in e) {
+        e.preventDefault();
+        tapTimeoutRef.current = setTimeout(() => {
+          onSelectNode(node.id);
+          tapTimeoutRef.current = null;
+        }, DOUBLE_TAP_DELAY);
+      } else {
+        // For mouse clicks, select immediately (desktop behavior)
+        onSelectNode(node.id);
+      }
+    }
+  };
+
+  // Cleanup timeout on unmount
+  React.useEffect(() => {
+    return () => {
+      if (tapTimeoutRef.current) {
+        clearTimeout(tapTimeoutRef.current);
+      }
+    };
+  }, []);
+
   return (
     <li
       ref={itemRef}
@@ -224,14 +274,15 @@ export default function NodeItem({
           <ContextMenuTrigger asChild>
             <div
             className={cn(
-                "relative flex items-center rounded-md transition-colors group",
+                "relative flex items-center rounded-md transition-colors group touch-manipulation",
                 isSelected ? "bg-primary/20 border-l-4 border-l-blue-500" : "hover:bg-primary/10 border-l-4 border-l-transparent",
                 dropPosition && "bg-accent/10",
                 isDragging && "opacity-50 bg-muted",
                 !isRoot && "cursor-grab active:cursor-grabbing"
             )}
             style={{ paddingLeft: `${level * 1.5}rem` }}
-            onClick={() => onSelectNode(node.id)}
+            onClick={handleTap}
+            onTouchEnd={handleTap}
             onDoubleClick={() => setIsEditing(true)}
             draggable={!isRoot}
             onDragStart={handleDragStart}
