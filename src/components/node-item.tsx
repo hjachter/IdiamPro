@@ -35,6 +35,8 @@ interface NodeItemProps {
   onPasteSubtree?: (targetNodeId: string) => void;
   hasClipboard?: boolean;
   isRoot?: boolean;
+  onIndent?: (nodeId: string) => void;
+  onOutdent?: (nodeId: string) => void;
 }
 
 type DropPosition = 'before' | 'after' | 'inside' | null;
@@ -84,6 +86,8 @@ export default function NodeItem({
   onPasteSubtree,
   hasClipboard = false,
   isRoot = false,
+  onIndent,
+  onOutdent,
 }: NodeItemProps) {
   const node = nodes[nodeId];
   const [isEditing, setIsEditing] = React.useState(false);
@@ -97,6 +101,68 @@ export default function NodeItem({
   // Double-tap detection for touch devices
   const lastTapRef = React.useRef<number>(0);
   const tapTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+
+  // Swipe gesture detection for indent/outdent
+  const touchStartRef = React.useRef<{ x: number; y: number; time: number } | null>(null);
+  const [swipeOffset, setSwipeOffset] = React.useState(0);
+  const SWIPE_THRESHOLD = 50; // pixels needed to trigger indent/outdent
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    touchStartRef.current = { x: touch.clientX, y: touch.clientY, time: Date.now() };
+    setSwipeOffset(0);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!touchStartRef.current || isRoot) return;
+
+    const touch = e.touches[0];
+    const deltaX = touch.clientX - touchStartRef.current.x;
+    const deltaY = Math.abs(touch.clientY - touchStartRef.current.y);
+
+    // Only track horizontal swipes (ignore if more vertical than horizontal)
+    if (deltaY > Math.abs(deltaX)) {
+      setSwipeOffset(0);
+      return;
+    }
+
+    // Limit the visual offset
+    const clampedOffset = Math.max(-SWIPE_THRESHOLD * 1.5, Math.min(SWIPE_THRESHOLD * 1.5, deltaX));
+    setSwipeOffset(clampedOffset);
+  };
+
+  const handleSwipeEnd = (e: React.TouchEvent) => {
+    if (!touchStartRef.current || isRoot) {
+      touchStartRef.current = null;
+      setSwipeOffset(0);
+      return;
+    }
+
+    const touch = e.changedTouches[0];
+    const deltaX = touch.clientX - touchStartRef.current.x;
+    const deltaY = Math.abs(touch.clientY - touchStartRef.current.y);
+    const deltaTime = Date.now() - touchStartRef.current.time;
+
+    // Reset visual offset
+    setSwipeOffset(0);
+    touchStartRef.current = null;
+
+    // Only process if horizontal swipe (not vertical scroll)
+    if (deltaY > Math.abs(deltaX)) return;
+
+    // Check if swipe was fast enough and far enough
+    if (deltaTime < 500 && Math.abs(deltaX) >= SWIPE_THRESHOLD) {
+      if (deltaX > 0 && onIndent) {
+        // Swipe right = indent
+        onIndent(nodeId);
+        e.preventDefault();
+      } else if (deltaX < 0 && onOutdent) {
+        // Swipe left = outdent
+        onOutdent(nodeId);
+        e.preventDefault();
+      }
+    }
+  };
 
   React.useEffect(() => {
     if (isEditing && inputRef.current) {
@@ -301,9 +367,18 @@ export default function NodeItem({
                 isDragging && "opacity-50 bg-muted",
                 !isRoot && "cursor-grab active:cursor-grabbing"
             )}
-            style={{ paddingLeft: `${level * 1.5}rem` }}
+            style={{
+              paddingLeft: `${level * 1.5}rem`,
+              transform: swipeOffset ? `translateX(${swipeOffset}px)` : undefined,
+              transition: swipeOffset ? 'none' : 'transform 0.2s ease-out',
+            }}
             onClick={handleClick}
-            onTouchEnd={handleTouchTap}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={(e) => {
+              handleSwipeEnd(e);
+              handleTouchTap(e);
+            }}
             onDoubleClick={() => setIsEditing(true)}
             draggable={!isRoot}
             onDragStart={handleDragStart}
@@ -438,6 +513,8 @@ export default function NodeItem({
                     onCutSubtree={onCutSubtree}
                     onPasteSubtree={onPasteSubtree}
                     hasClipboard={hasClipboard}
+                    onIndent={onIndent}
+                    onOutdent={onOutdent}
                 />
             ))}
             </ul>

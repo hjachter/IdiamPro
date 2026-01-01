@@ -108,28 +108,30 @@ export default function OutlinePane({
   const outlinePaneRef = useRef<HTMLDivElement>(null);
 
   // Handle indent (Tab) - move node inside its previous sibling
-  const handleIndent = useCallback(() => {
-    if (!selectedNodeId || !currentOutline) return;
+  const handleIndent = useCallback((nodeId?: string) => {
+    const targetNodeId = nodeId || selectedNodeId;
+    if (!targetNodeId || !currentOutline) return;
     const nodes = currentOutline.nodes;
 
-    if (!canIndent(nodes, selectedNodeId)) return;
+    if (!canIndent(nodes, targetNodeId)) return;
 
-    const prevSibling = getPreviousSibling(nodes, selectedNodeId);
+    const prevSibling = getPreviousSibling(nodes, targetNodeId);
     if (prevSibling) {
-      onMoveNode(selectedNodeId, prevSibling, 'inside');
+      onMoveNode(targetNodeId, prevSibling, 'inside');
     }
   }, [selectedNodeId, currentOutline, onMoveNode]);
 
   // Handle outdent (Shift+Tab) - move node to be after its parent
-  const handleOutdent = useCallback(() => {
-    if (!selectedNodeId || !currentOutline) return;
+  const handleOutdent = useCallback((nodeId?: string) => {
+    const targetNodeId = nodeId || selectedNodeId;
+    if (!targetNodeId || !currentOutline) return;
     const nodes = currentOutline.nodes;
 
-    if (!canOutdent(nodes, selectedNodeId, currentOutline.rootNodeId)) return;
+    if (!canOutdent(nodes, targetNodeId, currentOutline.rootNodeId)) return;
 
-    const node = nodes[selectedNodeId];
+    const node = nodes[targetNodeId];
     if (node && node.parentId) {
-      onMoveNode(selectedNodeId, node.parentId, 'after');
+      onMoveNode(targetNodeId, node.parentId, 'after');
     }
   }, [selectedNodeId, currentOutline, onMoveNode]);
 
@@ -462,6 +464,8 @@ export default function OutlinePane({
               onPasteSubtree={onPasteSubtree}
               hasClipboard={hasClipboard}
               isRoot={true}
+              onIndent={handleIndent}
+              onOutdent={handleOutdent}
             />
           </ul>
         )}
