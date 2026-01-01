@@ -131,11 +131,12 @@ export default function NodeItem({
     setSwipeOffset(clampedOffset);
   };
 
-  const handleSwipeEnd = (e: React.TouchEvent) => {
+  // Returns true if a swipe action was performed
+  const handleSwipeEnd = (e: React.TouchEvent): boolean => {
     if (!touchStartRef.current || isRoot) {
       touchStartRef.current = null;
       setSwipeOffset(0);
-      return;
+      return false;
     }
 
     const touch = e.changedTouches[0];
@@ -148,7 +149,7 @@ export default function NodeItem({
     touchStartRef.current = null;
 
     // Only process if horizontal swipe (not vertical scroll)
-    if (deltaY > Math.abs(deltaX)) return;
+    if (deltaY > Math.abs(deltaX)) return false;
 
     // Check if swipe was fast enough and far enough
     if (deltaTime < 500 && Math.abs(deltaX) >= SWIPE_THRESHOLD) {
@@ -156,12 +157,15 @@ export default function NodeItem({
         // Swipe right = indent
         onIndent(nodeId);
         e.preventDefault();
+        return true;
       } else if (deltaX < 0 && onOutdent) {
         // Swipe left = outdent
         onOutdent(nodeId);
         e.preventDefault();
+        return true;
       }
     }
+    return false;
   };
 
   React.useEffect(() => {
@@ -376,8 +380,11 @@ export default function NodeItem({
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={(e) => {
-              handleSwipeEnd(e);
-              handleTouchTap(e);
+              // Only handle tap if no swipe was detected
+              const wasSwipe = handleSwipeEnd(e);
+              if (!wasSwipe) {
+                handleTouchTap(e);
+              }
             }}
             onDoubleClick={() => setIsEditing(true)}
             draggable={!isRoot}
