@@ -135,29 +135,14 @@ export default function OutlinePro() {
     loadData();
   }, []);
 
-  // FIXED: handleSelectNode uses functional update for reading fresh state
-  const handleSelectNode = useCallback((nodeId: string, showPrefixDialog = false) => {
+  // handleSelectNode - navigate param controls whether to switch to content view on mobile
+  // On mobile: first tap selects (navigate=false), tap on selected node navigates (navigate=true)
+  const handleSelectNode = useCallback((nodeId: string, navigate = true) => {
     setSelectedNodeId(nodeId);
-    if (isMobile) {
+    if (isMobile && navigate) {
       setMobileView('content');
     }
-
-    if (showPrefixDialog) {
-      // Use functional update to ensure we read fresh state
-      setOutlines(currentOutlines => {
-        const outline = currentOutlines.find(o => o.id === currentOutlineId);
-        if (outline) {
-          const node = outline.nodes[nodeId];
-          if (node) {
-            const prefix = node.prefix || (node.type === 'root' ? '(Root)' : '');
-            setPrefixDialogState({ open: true, prefix, nodeName: node.name });
-          }
-        }
-        // Return unchanged - reading only
-        return currentOutlines;
-      });
-    }
-  }, [isMobile, currentOutlineId]);
+  }, [isMobile]);
 
   // handleUpdateNode - also updates outline name when root node name changes
   const handleUpdateNode = useCallback((nodeId: string, updates: Partial<OutlineNode>) => {
@@ -1056,7 +1041,7 @@ export default function OutlinePro() {
             onCreateOutline={handleCreateOutline}
             onRenameOutline={handleRenameOutline}
             onDeleteOutline={handleDeleteOutline}
-            onSelectNode={(id) => handleSelectNode(id, false)}
+            onSelectNode={(id, navigate) => handleSelectNode(id, navigate)}
             onMoveNode={handleMoveNode}
             onToggleCollapse={handleToggleCollapse}
             onCollapseAll={handleCollapseAll}
@@ -1166,7 +1151,7 @@ export default function OutlinePro() {
             onCreateOutline={handleCreateOutline}
             onRenameOutline={handleRenameOutline}
             onDeleteOutline={handleDeleteOutline}
-            onSelectNode={(id) => handleSelectNode(id, false)}
+            onSelectNode={(id, navigate) => handleSelectNode(id, navigate)}
             onMoveNode={handleMoveNode}
             onToggleCollapse={handleToggleCollapse}
             onCollapseAll={handleCollapseAll}

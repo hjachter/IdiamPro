@@ -50,7 +50,7 @@ interface OutlinePaneProps {
   onCreateOutline: () => void;
   onRenameOutline: (id: string, newName: string) => void;
   onDeleteOutline: (id: string) => void;
-  onSelectNode: (id: string) => void;
+  onSelectNode: (id: string, navigate?: boolean) => void;
   onMoveNode: (draggedId: string, targetId: string, position: 'before' | 'after' | 'inside') => void;
   onToggleCollapse: (id: string) => void;
   onCollapseAll: () => void;

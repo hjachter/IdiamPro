@@ -24,7 +24,7 @@ interface NodeItemProps {
   nodes: NodeMap;
   level: number;
   selectedNodeId: string | null;
-  onSelectNode: (id: string) => void;
+  onSelectNode: (id: string, navigate?: boolean) => void;
   onMoveNode: (draggedId: string, targetId: string, position: 'before' | 'after' | 'inside') => void;
   onToggleCollapse: (id: string) => void;
   onUpdateNode: (nodeId: string, updates: Partial<OutlineNode>) => void;
@@ -244,7 +244,15 @@ export default function NodeItem({
       e.preventDefault();
 
       tapTimeoutRef.current = setTimeout(() => {
-        onSelectNode(node.id);
+        // If already selected, this tap navigates to content
+        // If not selected, just select (don't navigate yet)
+        if (isSelected) {
+          // Second tap on selected node - navigate to content
+          onSelectNode(node.id, true); // true = force navigate
+        } else {
+          // First selection - just select, don't navigate
+          onSelectNode(node.id, false); // false = don't navigate
+        }
         tapTimeoutRef.current = null;
       }, DOUBLE_TAP_DELAY);
     }
