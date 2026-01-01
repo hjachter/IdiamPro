@@ -16,7 +16,7 @@ import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, A
 import { Button } from './ui/button';
 import { loadStorageData, saveAllOutlines, migrateToFileSystem, type MigrationConflict, type ConflictResolution } from '@/lib/storage-manager';
 
-type MobileView = 'outline' | 'content';
+type MobileView = 'stacked' | 'content'; // stacked = outline + preview, content = full screen content
 
 const isValidOutline = (data: any): data is Outline => {
     if (
@@ -43,7 +43,7 @@ export default function OutlinePro() {
   const [outlines, setOutlines] = useState<Outline[]>([]);
   const [currentOutlineId, setCurrentOutlineId] = useState<string>('');
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
-  const [mobileView, setMobileView] = useState<MobileView>('outline');
+  const [mobileView, setMobileView] = useState<MobileView>('stacked');
   const [isLoadingAI, setIsLoadingAI] = useState(false);
   const [prefixDialogState, setPrefixDialogState] = useState<{ open: boolean, prefix: string, nodeName: string }>({ open: false, prefix: '', nodeName: '' });
 
@@ -135,10 +135,11 @@ export default function OutlinePro() {
     loadData();
   }, []);
 
-  // handleSelectNode - navigate param controls whether to switch to content view on mobile
-  // On mobile: first tap selects (navigate=false), tap on selected node navigates (navigate=true)
-  const handleSelectNode = useCallback((nodeId: string, navigate = true) => {
+  // handleSelectNode - navigate param controls whether to switch to full content view on mobile
+  // On mobile with stacked layout: selection updates preview, navigate=true goes to full content
+  const handleSelectNode = useCallback((nodeId: string, navigate = false) => {
     setSelectedNodeId(nodeId);
+    // Only navigate to full content if explicitly requested (e.g., tap on already-selected node)
     if (isMobile && navigate) {
       setMobileView('content');
     }
@@ -1032,42 +1033,79 @@ export default function OutlinePro() {
           </AlertDialogContent>
         </AlertDialog>
 
-        {mobileView === 'outline' ? (
-          <OutlinePane
-            outlines={outlines}
-            currentOutline={currentOutline}
-            selectedNodeId={selectedNodeId}
-            onSelectOutline={handleSelectOutline}
-            onCreateOutline={handleCreateOutline}
-            onRenameOutline={handleRenameOutline}
-            onDeleteOutline={handleDeleteOutline}
-            onSelectNode={(id, navigate) => handleSelectNode(id, navigate)}
-            onMoveNode={handleMoveNode}
-            onToggleCollapse={handleToggleCollapse}
-            onCollapseAll={handleCollapseAll}
-            onExpandAll={handleExpandAll}
-            onCreateNode={handleCreateNode}
-            onDeleteNode={handleDeleteNode}
-            onGenerateOutline={handleGenerateOutline}
-            onIngestSource={handleIngestSource}
-            onApplyIngestPreview={handleApplyIngestPreview}
-            onUpdateNode={handleUpdateNode}
-            onImportOutline={handleImportOutline}
-            onImportAsChapter={handleImportAsChapter}
-            onCopySubtree={handleCopySubtree}
-            onCutSubtree={handleCutSubtree}
-            onPasteSubtree={handlePasteSubtree}
-            hasClipboard={subtreeClipboard !== null}
-            onRefreshGuide={handleRefreshGuide}
-            onFolderSelected={handleFolderSelected}
-            isLoadingAI={isLoadingAI}
-          />
+        {mobileView === 'stacked' ? (
+          /* Stacked layout: Outline (70%) + Content Preview (30%) */
+          <div className="flex flex-col h-full">
+            {/* Outline Pane - takes ~70% */}
+            <div className="flex-[7] min-h-0 overflow-hidden border-b">
+              <OutlinePane
+                outlines={outlines}
+                currentOutline={currentOutline}
+                selectedNodeId={selectedNodeId}
+                onSelectOutline={handleSelectOutline}
+                onCreateOutline={handleCreateOutline}
+                onRenameOutline={handleRenameOutline}
+                onDeleteOutline={handleDeleteOutline}
+                onSelectNode={(id, navigate) => handleSelectNode(id, navigate)}
+                onMoveNode={handleMoveNode}
+                onToggleCollapse={handleToggleCollapse}
+                onCollapseAll={handleCollapseAll}
+                onExpandAll={handleExpandAll}
+                onCreateNode={handleCreateNode}
+                onDeleteNode={handleDeleteNode}
+                onGenerateOutline={handleGenerateOutline}
+                onIngestSource={handleIngestSource}
+                onApplyIngestPreview={handleApplyIngestPreview}
+                onUpdateNode={handleUpdateNode}
+                onImportOutline={handleImportOutline}
+                onImportAsChapter={handleImportAsChapter}
+                onCopySubtree={handleCopySubtree}
+                onCutSubtree={handleCutSubtree}
+                onPasteSubtree={handlePasteSubtree}
+                hasClipboard={subtreeClipboard !== null}
+                onRefreshGuide={handleRefreshGuide}
+                onFolderSelected={handleFolderSelected}
+                isLoadingAI={isLoadingAI}
+              />
+            </div>
+            {/* Content Preview - takes ~30%, tap to expand */}
+            <div
+              className="flex-[3] min-h-0 overflow-hidden bg-background cursor-pointer active:bg-accent/10"
+              onClick={() => setMobileView('content')}
+              onTouchEnd={(e) => {
+                e.preventDefault();
+                setMobileView('content');
+              }}
+            >
+              <div className="h-full flex flex-col">
+                {/* Preview header with node name */}
+                <div className="flex-shrink-0 px-4 py-2 border-b bg-muted/30 flex items-center justify-between">
+                  <span className="font-semibold truncate text-sm">
+                    {selectedNode?.name || 'Select a node'}
+                  </span>
+                  <span className="text-xs text-muted-foreground">Tap to expand</span>
+                </div>
+                {/* Preview content - limited height with fade */}
+                <div className="flex-1 overflow-hidden relative px-4 py-2">
+                  <div
+                    className="text-sm text-muted-foreground line-clamp-4"
+                    dangerouslySetInnerHTML={{
+                      __html: selectedNode?.content || '<p class="italic">No content yet</p>'
+                    }}
+                  />
+                  {/* Fade overlay at bottom */}
+                  <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-background to-transparent pointer-events-none" />
+                </div>
+              </div>
+            </div>
+          </div>
         ) : (
+          /* Full screen content view */
           <ContentPane
             node={selectedNode}
             ancestorPath={selectedNodeAncestorPath}
             onUpdate={handleUpdateNode}
-            onBack={() => setMobileView('outline')}
+            onBack={() => setMobileView('stacked')}
             onExpandContent={handleExpandContent}
             onGenerateContent={handleGenerateContentForNode}
             isLoadingAI={isLoadingAI}
