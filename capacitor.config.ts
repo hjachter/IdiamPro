@@ -10,6 +10,10 @@ const config: CapacitorConfig = {
       ? 'http://localhost:9002'
       : 'https://idiam-pro.vercel.app',
     cleartext: process.env.NODE_ENV === 'development'
+  },
+  ios: {
+    contentInset: 'always',
+    scrollEnabled: true
   }
 };
 
