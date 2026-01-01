@@ -115,6 +115,8 @@ export default function NodeItem({
     setSwipeOffset(0);
     // Capture pointer to receive move events even outside element
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    // Prevent default to avoid zoom/scroll
+    e.preventDefault();
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
@@ -129,6 +131,9 @@ export default function NodeItem({
       setSwipeOffset(0);
       return;
     }
+
+    // Prevent default to avoid zoom/scroll during swipe
+    e.preventDefault();
 
     // Limit the visual offset
     const clampedOffset = Math.max(-SWIPE_THRESHOLD * 2, Math.min(SWIPE_THRESHOLD * 2, deltaX));
@@ -302,15 +307,9 @@ export default function NodeItem({
       e.preventDefault();
 
       tapTimeoutRef.current = setTimeout(() => {
-        // If already selected, this tap navigates to content
-        // If not selected, just select (don't navigate yet)
-        if (isSelected) {
-          // Second tap on selected node - navigate to content
-          onSelectNode(node.id, true); // true = force navigate
-        } else {
-          // First selection - just select, don't navigate
-          onSelectNode(node.id, false); // false = don't navigate
-        }
+        // Just select the node, never navigate from here
+        // Navigation only happens via content pane tap
+        onSelectNode(node.id, false);
         tapTimeoutRef.current = null;
       }, DOUBLE_TAP_DELAY);
     }
