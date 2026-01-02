@@ -25,6 +25,8 @@ import {
   BookOpen,
   ChevronRight,
   RefreshCw,
+  Maximize,
+  Keyboard,
 } from 'lucide-react';
 import type { Outline } from '@/types';
 
@@ -45,7 +47,10 @@ interface CommandPaletteProps {
   onExportOutline?: () => void;
   onImportOutline?: () => void;
   onRefreshGuide?: () => void;
+  onToggleFocusMode?: () => void;
+  onShowShortcuts?: () => void;
   isGuide: boolean;
+  isFocusMode?: boolean;
 }
 
 export default function CommandPalette({
@@ -65,7 +70,10 @@ export default function CommandPalette({
   onExportOutline,
   onImportOutline,
   onRefreshGuide,
+  onToggleFocusMode,
+  onShowShortcuts,
   isGuide,
+  isFocusMode,
 }: CommandPaletteProps) {
   const [searchValue, setSearchValue] = useState('');
 
@@ -139,6 +147,13 @@ export default function CommandPalette({
             <span>Search Outline</span>
             <CommandShortcut>⌃F</CommandShortcut>
           </CommandItem>
+          {onToggleFocusMode && (
+            <CommandItem onSelect={() => runCommand(onToggleFocusMode)}>
+              <Maximize className="mr-2 h-4 w-4" />
+              <span>{isFocusMode ? 'Exit Focus Mode' : 'Focus Mode'}</span>
+              <CommandShortcut>⌘⇧F</CommandShortcut>
+            </CommandItem>
+          )}
           <CommandItem onSelect={() => runCommand(onCollapseAll)}>
             <FolderClosed className="mr-2 h-4 w-4" />
             <span>Collapse All</span>
@@ -147,6 +162,13 @@ export default function CommandPalette({
             <FolderOpen className="mr-2 h-4 w-4" />
             <span>Expand All</span>
           </CommandItem>
+          {onShowShortcuts && (
+            <CommandItem onSelect={() => runCommand(onShowShortcuts)}>
+              <Keyboard className="mr-2 h-4 w-4" />
+              <span>Keyboard Shortcuts</span>
+              <CommandShortcut>?</CommandShortcut>
+            </CommandItem>
+          )}
         </CommandGroup>
 
         <CommandSeparator />

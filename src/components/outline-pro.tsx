@@ -17,6 +17,7 @@ import { Button } from './ui/button';
 import { loadStorageData, saveAllOutlines, migrateToFileSystem, type MigrationConflict, type ConflictResolution } from '@/lib/storage-manager';
 import CommandPalette from './command-palette';
 import EmptyState from './empty-state';
+import KeyboardShortcutsDialog, { useKeyboardShortcuts } from './keyboard-shortcuts-dialog';
 import { exportOutlineToJson } from '@/lib/export';
 import { createBlankOutline } from '@/lib/templates';
 
@@ -70,6 +71,12 @@ export default function OutlinePro() {
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const importFileInputRef = useRef<HTMLInputElement>(null);
+
+  // Keyboard shortcuts dialog
+  const { isOpen: isShortcutsOpen, setIsOpen: setIsShortcutsOpen } = useKeyboardShortcuts();
+
+  // Focus mode state
+  const [isFocusMode, setIsFocusMode] = useState(false);
 
   const { toast } = useToast();
   const isMobile = useIsMobile();
@@ -156,19 +163,47 @@ export default function OutlinePro() {
     loadData();
   }, []);
 
-  // Keyboard shortcut for Command Palette (Cmd+K / Ctrl+K)
+  // Keyboard shortcuts (Command Palette, Focus Mode)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Cmd+K or Ctrl+K to open command palette
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
         setIsCommandPaletteOpen(true);
+        return;
+      }
+
+      // Escape to exit focus mode
+      if (e.key === 'Escape' && isFocusMode) {
+        e.preventDefault();
+        setIsFocusMode(false);
+        toast({
+          title: "Focus Mode Off",
+          description: "Returned to normal view",
+          duration: 1500,
+        });
+        return;
+      }
+
+      // Cmd+Shift+F or Ctrl+Shift+F to toggle focus mode
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'f') {
+        e.preventDefault();
+        setIsFocusMode(prev => {
+          const next = !prev;
+          toast({
+            title: next ? "Focus Mode On" : "Focus Mode Off",
+            description: next ? "Press Escape to exit" : "Returned to normal view",
+            duration: 1500,
+          });
+          return next;
+        });
+        return;
       }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [isFocusMode, toast]);
 
   // handleSelectNode - navigate param controls whether to switch to full content view on mobile
   // On mobile with stacked layout: selection updates preview, navigate=true goes to full content
@@ -1184,7 +1219,16 @@ export default function OutlinePro() {
           onExportOutline={handleExportOutline}
           onImportOutline={handleImportOutlineTrigger}
           onRefreshGuide={handleRefreshGuide}
+          onToggleFocusMode={() => setIsFocusMode(prev => !prev)}
+          onShowShortcuts={() => setIsShortcutsOpen(true)}
           isGuide={currentOutline?.isGuide ?? false}
+          isFocusMode={isFocusMode}
+        />
+
+        {/* Keyboard Shortcuts Dialog */}
+        <KeyboardShortcutsDialog
+          open={isShortcutsOpen}
+          onOpenChange={setIsShortcutsOpen}
         />
 
         <AlertDialog open={prefixDialogState.open} onOpenChange={(open) => setPrefixDialogState(s => ({ ...s, open }))}>
@@ -1364,7 +1408,16 @@ export default function OutlinePro() {
         onExportOutline={handleExportOutline}
         onImportOutline={handleImportOutlineTrigger}
         onRefreshGuide={handleRefreshGuide}
+        onToggleFocusMode={() => setIsFocusMode(prev => !prev)}
+        onShowShortcuts={() => setIsShortcutsOpen(true)}
         isGuide={currentOutline?.isGuide ?? false}
+        isFocusMode={isFocusMode}
+      />
+
+      {/* Keyboard Shortcuts Dialog */}
+      <KeyboardShortcutsDialog
+        open={isShortcutsOpen}
+        onOpenChange={setIsShortcutsOpen}
       />
 
       <AlertDialog open={prefixDialogState.open} onOpenChange={(open) => setPrefixDialogState(s => ({ ...s, open }))}>
@@ -1429,46 +1482,15 @@ export default function OutlinePro() {
         </AlertDialogContent>
       </AlertDialog>
 
-      <ResizablePanel defaultSize={30} minSize={20}>
-        <div className="h-full overflow-hidden">
-          <OutlinePane
-            outlines={outlines}
-            currentOutline={currentOutline}
-            selectedNodeId={selectedNodeId}
-            onSelectOutline={handleSelectOutline}
-            onCreateOutline={handleCreateOutline}
-            onRenameOutline={handleRenameOutline}
-            onDeleteOutline={handleDeleteOutline}
-            onSelectNode={(id, navigate) => handleSelectNode(id, navigate)}
-            onMoveNode={handleMoveNode}
-            onToggleCollapse={handleToggleCollapse}
-            onCollapseAll={handleCollapseAll}
-            onExpandAll={handleExpandAll}
-            onExpandAncestors={handleExpandAncestors}
-            onCreateNode={handleCreateNode}
-            onDeleteNode={handleDeleteNode}
-            onGenerateOutline={handleGenerateOutline}
-            onIngestSource={handleIngestSource}
-            onApplyIngestPreview={handleApplyIngestPreview}
-            onUpdateNode={handleUpdateNode}
-            onImportOutline={handleImportOutline}
-            onImportAsChapter={handleImportAsChapter}
-            onCopySubtree={handleCopySubtree}
-            onCutSubtree={handleCutSubtree}
-            onPasteSubtree={handlePasteSubtree}
-            onDuplicateNode={handleDuplicateNode}
-            hasClipboard={subtreeClipboard !== null}
-            onRefreshGuide={handleRefreshGuide}
-            onFolderSelected={handleFolderSelected}
-            isLoadingAI={isLoadingAI}
-            externalSearchOpen={isSearchOpen}
-            onSearchOpenChange={setIsSearchOpen}
-          />
-        </div>
-      </ResizablePanel>
-      <ResizableHandle withHandle />
-      <ResizablePanel defaultSize={70} minSize={30}>
-        <div className="h-full overflow-hidden">
+      {/* Focus Mode: Full-screen content only */}
+      {isFocusMode ? (
+        <div className="h-full w-full relative">
+          {/* Focus mode indicator */}
+          <div className="absolute top-4 right-4 z-10 px-3 py-1.5 bg-primary/10 text-primary text-xs rounded-full font-medium flex items-center gap-2">
+            <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+            Focus Mode
+            <span className="text-muted-foreground ml-1">Esc to exit</span>
+          </div>
           <ContentPane
             node={selectedNode}
             ancestorPath={selectedNodeAncestorPath}
@@ -1478,7 +1500,60 @@ export default function OutlinePro() {
             isLoadingAI={isLoadingAI}
           />
         </div>
-      </ResizablePanel>
+      ) : (
+        <>
+          <ResizablePanel defaultSize={30} minSize={20}>
+            <div className="h-full overflow-hidden">
+              <OutlinePane
+                outlines={outlines}
+                currentOutline={currentOutline}
+                selectedNodeId={selectedNodeId}
+                onSelectOutline={handleSelectOutline}
+                onCreateOutline={handleCreateOutline}
+                onRenameOutline={handleRenameOutline}
+                onDeleteOutline={handleDeleteOutline}
+                onSelectNode={(id, navigate) => handleSelectNode(id, navigate)}
+                onMoveNode={handleMoveNode}
+                onToggleCollapse={handleToggleCollapse}
+                onCollapseAll={handleCollapseAll}
+                onExpandAll={handleExpandAll}
+                onExpandAncestors={handleExpandAncestors}
+                onCreateNode={handleCreateNode}
+                onDeleteNode={handleDeleteNode}
+                onGenerateOutline={handleGenerateOutline}
+                onIngestSource={handleIngestSource}
+                onApplyIngestPreview={handleApplyIngestPreview}
+                onUpdateNode={handleUpdateNode}
+                onImportOutline={handleImportOutline}
+                onImportAsChapter={handleImportAsChapter}
+                onCopySubtree={handleCopySubtree}
+                onCutSubtree={handleCutSubtree}
+                onPasteSubtree={handlePasteSubtree}
+                onDuplicateNode={handleDuplicateNode}
+                hasClipboard={subtreeClipboard !== null}
+                onRefreshGuide={handleRefreshGuide}
+                onFolderSelected={handleFolderSelected}
+                isLoadingAI={isLoadingAI}
+                externalSearchOpen={isSearchOpen}
+                onSearchOpenChange={setIsSearchOpen}
+              />
+            </div>
+          </ResizablePanel>
+          <ResizableHandle withHandle />
+          <ResizablePanel defaultSize={70} minSize={30}>
+            <div className="h-full overflow-hidden">
+              <ContentPane
+                node={selectedNode}
+                ancestorPath={selectedNodeAncestorPath}
+                onUpdate={handleUpdateNode}
+                onExpandContent={handleExpandContent}
+                onGenerateContent={handleGenerateContentForNode}
+                isLoadingAI={isLoadingAI}
+              />
+            </div>
+          </ResizablePanel>
+        </>
+      )}
     </ResizablePanelGroup>
   );
 }

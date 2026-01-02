@@ -220,6 +220,7 @@ export default function NodeItem({
 
   const isChapter = node.type === 'chapter' || node.type === 'root' || (Array.isArray(node.childrenIds) && node.childrenIds.length > 0);
   const isSelected = selectedNodeId === node.id;
+  const isHighlighted = highlightedNodeIds?.has(node.id) ?? false;
   const numbering = node.prefix;
 
   const handleDragStart = (e: React.DragEvent) => {
@@ -392,20 +393,32 @@ export default function NodeItem({
         {dropPosition === 'before' && <div className="absolute left-0 top-0 w-full h-1 bg-primary rounded pointer-events-none z-20" />}
         {dropPosition === 'after' && <div className="absolute left-0 bottom-0 w-full h-1 bg-primary rounded pointer-events-none z-20" />}
 
+        {/* Depth indicator line */}
+        {level > 0 && (
+          <div
+            className="absolute left-0 top-1 bottom-1 w-0.5 rounded-full"
+            style={{
+              marginLeft: `${(level - 1) * 1.5 + 0.5}rem`,
+              backgroundColor: `hsl(var(--primary) / ${Math.max(0.1, 0.4 - level * 0.08)})`,
+            }}
+          />
+        )}
+
         <ContextMenu>
           <ContextMenuTrigger asChild>
             <div
             className={cn(
                 "relative flex items-center rounded-lg transition-all duration-150 group touch-manipulation",
                 isSelected
-                  ? "bg-primary/15 shadow-sm"
+                  ? "bg-primary/15 shadow-sm ring-1 ring-primary/20"
                   : "hover:bg-primary/5",
                 dropPosition && "bg-accent/10",
                 isDragging && "opacity-50 bg-muted",
-                !isRoot && "cursor-grab active:cursor-grabbing"
+                !isRoot && "cursor-grab active:cursor-grabbing",
+                isHighlighted && !isSelected && "bg-yellow-100 dark:bg-yellow-900/30"
             )}
             style={{
-              paddingLeft: `${level * 1.5}rem`,
+              paddingLeft: `${level * 1.5 + 0.5}rem`,
               transform: swipeOffset ? `translateX(${swipeOffset}px)` : undefined,
               transition: swipeOffset ? 'none' : 'transform 0.2s ease-out',
             }}

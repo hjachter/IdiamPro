@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useDebounce } from '@/lib/hooks';
+import { useToast } from '@/hooks/use-toast';
 import type { OutlineNode, NodeGenerationContext } from '@/types';
 import NodeIcon from './node-icon';
 import { Button } from '@/components/ui/button';
@@ -97,6 +98,7 @@ export default function ContentPane({
 
   const aiContentEnabled = useAIFeature('enableAIContentGeneration');
   const { aiService } = useAI();
+  const { toast } = useToast();
 
   // Speech recognition
   const {
@@ -260,12 +262,26 @@ export default function ContentPane({
 
   const handleUndo = () => {
     if (!editor) return;
-    editor.commands.undo();
+    const success = editor.commands.undo();
+    if (success) {
+      toast({
+        title: "Undo",
+        description: "Action undone",
+        duration: 1500,
+      });
+    }
   };
 
   const handleRedo = () => {
     if (!editor) return;
-    editor.commands.redo();
+    const success = editor.commands.redo();
+    if (success) {
+      toast({
+        title: "Redo",
+        description: "Action redone",
+        duration: 1500,
+      });
+    }
   };
 
   const handleBulletList = () => {
