@@ -1,19 +1,45 @@
 'use client';
 
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import type { Outline, OutlineNode, NodeMap, ExternalSourceInput, IngestPreview } from '@/types';
 import NodeItem from './node-item';
 import AIMenu from './ai-menu';
+import OutlineSearch, { type SearchMatch } from './outline-search';
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent, DropdownMenuPortal } from "@/components/ui/dropdown-menu";
-import { ChevronDown, FilePlus, Plus, Trash2, Edit, FileDown, FileUp, RotateCcw, ChevronsUp, ChevronsDown, Settings } from 'lucide-react';
+import { ChevronDown, FilePlus, Plus, Trash2, Edit, FileDown, FileUp, RotateCcw, ChevronsUp, ChevronsDown, Settings, Search } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Input } from './ui/input';
 import ImportDialog from './import-dialog';
 import SettingsDialog from './settings-dialog';
 import type { NodeType } from '@/types';
-import { exportOutlineToJson, exportAllOutlinesToJson } from '@/lib/export';
+import { exportOutlineToJson, exportAllOutlinesToJson, backupToLocalStorage, restoreFromLocalStorage, shareBackupFile, shareOutlineFile } from '@/lib/export';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { useToast } from '@/hooks/use-toast';
+
+// Check if running in Capacitor native app (not just mobile browser)
+function isCapacitor(): boolean {
+  return typeof window !== 'undefined' && !!(window as any).Capacitor;
+}
+
+// Format relative time (e.g., "2h ago", "3d ago")
+function formatTimeAgo(timestamp: number): string {
+  const now = Date.now();
+  const diff = now - timestamp;
+
+  const seconds = Math.floor(diff / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+  const weeks = Math.floor(days / 7);
+
+  if (weeks > 0) return `${weeks}w ago`;
+  if (days > 0) return `${days}d ago`;
+  if (hours > 0) return `${hours}h ago`;
+  if (minutes > 0) return `${minutes}m ago`;
+  return 'just now';
+}
 
 // Get previous sibling of a node
 const getPreviousSibling = (nodes: NodeMap, nodeId: string): string | null => {
@@ -42,6 +68,17 @@ const canOutdent = (nodes: NodeMap, nodeId: string, rootNodeId: string): boolean
 };
 
 
+// Helper to get path from root to a node (for expanding ancestors)
+function getPathToNode(nodes: NodeMap, nodeId: string): string[] {
+  const path: string[] = [];
+  let current = nodes[nodeId];
+  while (current && current.parentId) {
+    path.unshift(current.parentId);
+    current = nodes[current.parentId];
+  }
+  return path;
+}
+
 interface OutlinePaneProps {
   outlines: Outline[];
   currentOutline: Outline | undefined;
@@ -66,10 +103,16 @@ interface OutlinePaneProps {
   onCopySubtree: (nodeId: string) => void;
   onCutSubtree: (nodeId: string) => void;
   onPasteSubtree: (targetNodeId: string) => void;
+  onDuplicateNode: (nodeId: string) => void;
   hasClipboard: boolean;
   onRefreshGuide: () => void;
   onFolderSelected?: () => void;
   isLoadingAI: boolean;
+  // Search-related props for expanding ancestors
+  onExpandAncestors?: (nodeIds: string[]) => void;
+  // External control for search (for command palette)
+  externalSearchOpen?: boolean;
+  onSearchOpenChange?: (open: boolean) => void;
 }
 
 export default function OutlinePane({
@@ -96,16 +139,49 @@ export default function OutlinePane({
   onCopySubtree,
   onCutSubtree,
   onPasteSubtree,
+  onDuplicateNode,
   hasClipboard,
   onRefreshGuide,
   onFolderSelected,
   isLoadingAI,
+  onExpandAncestors,
+  externalSearchOpen,
+  onSearchOpenChange,
 }: OutlinePaneProps) {
   const [renameId, setRenameId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const outlinePaneRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
+  const { toast } = useToast();
+
+  // Search state
+  const [isSearchOpenInternal, setIsSearchOpenInternal] = useState(false);
+  const [searchMatches, setSearchMatches] = useState<SearchMatch[]>([]);
+  const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [highlightedNodeIds, setHighlightedNodeIds] = useState<Set<string>>(new Set());
+
+  // Compute effective search open state (internal or external)
+  const isSearchOpen = externalSearchOpen !== undefined ? externalSearchOpen : isSearchOpenInternal;
+  const setIsSearchOpen = useCallback((open: boolean) => {
+    if (onSearchOpenChange) {
+      onSearchOpenChange(open);
+    } else {
+      setIsSearchOpenInternal(open);
+    }
+  }, [onSearchOpenChange]);
+
+  // Compute highlighted node IDs for the current outline
+  const currentOutlineHighlights = useMemo(() => {
+    if (!currentOutline || !searchTerm) return new Set<string>();
+    return new Set(
+      searchMatches
+        .filter(m => m.outlineId === currentOutline.id)
+        .map(m => m.nodeId)
+    );
+  }, [searchMatches, currentOutline, searchTerm]);
 
   // Handle indent (Tab) - move node inside its previous sibling
   const handleIndent = useCallback((nodeId?: string) => {
@@ -135,10 +211,88 @@ export default function OutlinePane({
     }
   }, [selectedNodeId, currentOutline, onMoveNode]);
 
-  // Keyboard event handler for Tab/Shift+Tab and clipboard shortcuts
+  // Search handlers
+  const handleSearchResults = useCallback((matches: SearchMatch[], term: string) => {
+    setSearchMatches(matches);
+    setSearchTerm(term);
+    setCurrentMatchIndex(0);
+
+    if (matches.length > 0 && currentOutline) {
+      // First, collapse all nodes
+      onCollapseAll();
+
+      // Then expand paths to all matching nodes in current outline
+      const currentOutlineMatches = matches.filter(m => m.outlineId === currentOutline.id);
+      const ancestorsToExpand = new Set<string>();
+
+      currentOutlineMatches.forEach(match => {
+        const path = getPathToNode(currentOutline.nodes, match.nodeId);
+        path.forEach(nodeId => ancestorsToExpand.add(nodeId));
+      });
+
+      // Expand ancestors after a brief delay to let collapse complete
+      if (ancestorsToExpand.size > 0 && onExpandAncestors) {
+        setTimeout(() => {
+          onExpandAncestors(Array.from(ancestorsToExpand));
+        }, 50);
+      }
+
+      // Navigate to first match
+      if (currentOutlineMatches.length > 0) {
+        onSelectNode(currentOutlineMatches[0].nodeId);
+      }
+    }
+  }, [currentOutline, onCollapseAll, onExpandAncestors, onSelectNode]);
+
+  const handleNavigateToMatch = useCallback((match: SearchMatch) => {
+    // Switch outline if needed
+    if (match.outlineId !== currentOutline?.id) {
+      onSelectOutline(match.outlineId);
+    }
+
+    // Expand path to the match
+    const outline = outlines.find(o => o.id === match.outlineId);
+    if (outline && onExpandAncestors) {
+      const path = getPathToNode(outline.nodes, match.nodeId);
+      onExpandAncestors(path);
+    }
+
+    // Select the node
+    setTimeout(() => {
+      onSelectNode(match.nodeId);
+    }, 100);
+  }, [currentOutline, outlines, onSelectOutline, onExpandAncestors, onSelectNode]);
+
+  const handleNextMatch = useCallback(() => {
+    if (searchMatches.length === 0) return;
+    const nextIndex = (currentMatchIndex + 1) % searchMatches.length;
+    setCurrentMatchIndex(nextIndex);
+    handleNavigateToMatch(searchMatches[nextIndex]);
+  }, [searchMatches, currentMatchIndex, handleNavigateToMatch]);
+
+  const handlePrevMatch = useCallback(() => {
+    if (searchMatches.length === 0) return;
+    const prevIndex = (currentMatchIndex - 1 + searchMatches.length) % searchMatches.length;
+    setCurrentMatchIndex(prevIndex);
+    handleNavigateToMatch(searchMatches[prevIndex]);
+  }, [searchMatches, currentMatchIndex, handleNavigateToMatch]);
+
+  const handleCloseSearch = useCallback(() => {
+    setIsSearchOpen(false);
+    // Don't clear search state - user said "leave as-is"
+  }, []);
+
+  // Keyboard event handler for Tab/Shift+Tab, clipboard shortcuts, and search
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Don't interfere with input fields
+      // Handle Ctrl+F for search (works even in input fields)
+      if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+        e.preventDefault();
+        setIsSearchOpen(true);
+        return;
+      }
+
+      // Don't interfere with input fields for other shortcuts
       const target = e.target as HTMLElement;
       if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) return;
 
@@ -173,12 +327,16 @@ export default function OutlinePane({
         // Paste subtree - only if clipboard has content
         e.preventDefault();
         onPasteSubtree(selectedNodeId);
+      } else if (e.key === 'd' && !isRoot) {
+        // Duplicate node - only non-root nodes
+        e.preventDefault();
+        onDuplicateNode(selectedNodeId);
       }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [selectedNodeId, currentOutline, handleIndent, handleOutdent, hasClipboard, onCopySubtree, onCutSubtree, onPasteSubtree]);
+  }, [selectedNodeId, currentOutline, handleIndent, handleOutdent, hasClipboard, onCopySubtree, onCutSubtree, onPasteSubtree, onDuplicateNode]);
 
   const handleStartRename = (id: string, currentName: string) => {
     setRenameId(id);
@@ -193,8 +351,21 @@ export default function OutlinePane({
     setRenameValue('');
   };
 
-  const handleExport = () => {
-    if (currentOutline) {
+  const handleExport = async () => {
+    if (!currentOutline) return;
+
+    if (isCapacitor()) {
+      // In native app, use Share sheet
+      const result = await shareOutlineFile(currentOutline);
+      if (!result.success) {
+        toast({
+          title: 'Export Failed',
+          description: 'Could not share the outline.',
+          variant: 'destructive',
+        });
+      }
+    } else {
+      // In browser, use file download
       exportOutlineToJson(currentOutline);
     }
   };
@@ -208,16 +379,37 @@ export default function OutlinePane({
     if (file) {
       onImportOutline(file);
     }
+    // Reset input so the same file can be selected again
+    event.target.value = '';
   };
 
-  const handleBackupAll = () => {
-    exportAllOutlinesToJson(outlines);
+  const handleBackupAll = async () => {
+    if (isCapacitor()) {
+      // In native app, use Share sheet to export file
+      const result = await shareBackupFile(outlines);
+      if (result.success) {
+        toast({
+          title: 'Backup Ready',
+          description: `${result.count} outline${result.count !== 1 ? 's' : ''} ready to share.`,
+        });
+      } else {
+        toast({
+          title: 'Backup Failed',
+          description: 'Could not create backup file.',
+          variant: 'destructive',
+        });
+      }
+    } else {
+      // In browser (including mobile Safari), use file download
+      exportAllOutlinesToJson(outlines);
+    }
   };
 
   const handleRestoreAllClick = () => {
+    // Use file picker on all platforms (works on iOS via Files app too)
     const input = document.createElement('input');
     input.type = 'file';
-    input.accept = '.json';
+    input.accept = '.json,.idm';
     input.onchange = (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (file) {
@@ -259,11 +451,11 @@ export default function OutlinePane({
   };
 
   const rootNode = currentOutline?.nodes[currentOutline.rootNodeId];
-  const selectedNode = selectedNodeId && currentOutline?.nodes[selectedNodeId];
+  const selectedNode = selectedNodeId ? currentOutline?.nodes[selectedNodeId] : undefined;
   const isSelectedNodeRoot = selectedNode?.type === 'root';
 
   return (
-    <div className="flex flex-col h-full bg-background/50 dark:bg-black/10 p-2 space-y-2" style={{ paddingTop: 'max(0.5rem, env(safe-area-inset-top))' }}>
+    <div className="flex flex-col h-full bg-card p-3 space-y-3" style={{ paddingTop: 'max(0.75rem, env(safe-area-inset-top))' }}>
       <div className="flex-shrink-0 flex items-center space-x-2 px-2">
 
         <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
@@ -276,25 +468,33 @@ export default function OutlinePane({
                     <ChevronDown className="h-4 w-4 shrink-0" />
                 </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-[var(--radix-dropdown-menu-trigger-width)]">
+            <DropdownMenuContent align="start" className="w-[var(--radix-dropdown-menu-trigger-width)] min-w-[280px]">
                 <DropdownMenuLabel>Switch Outline</DropdownMenuLabel>
-                {outlines.map(outline => (
-                    <DropdownMenuItem key={outline.id} onSelect={() => onSelectOutline(outline.id)} className="cursor-pointer">
-                        {outline.isGuide && '📖 '}{outline.name}
-                    </DropdownMenuItem>
-                ))}
+                {outlines.map(outline => {
+                    const nodeCount = Object.keys(outline.nodes).length;
+                    const lastMod = outline.lastModified;
+                    const timeAgo = lastMod ? formatTimeAgo(lastMod) : null;
+                    return (
+                        <DropdownMenuItem
+                            key={outline.id}
+                            onSelect={() => onSelectOutline(outline.id)}
+                            className="cursor-pointer flex justify-between items-center"
+                        >
+                            <span className="truncate">
+                                {outline.isGuide && '📖 '}{outline.name}
+                            </span>
+                            <span className="text-xs text-muted-foreground ml-2 flex-shrink-0">
+                                {nodeCount} {nodeCount === 1 ? 'node' : 'nodes'}
+                                {timeAgo && ` · ${timeAgo}`}
+                            </span>
+                        </DropdownMenuItem>
+                    );
+                })}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onSelect={onCreateOutline} className="cursor-pointer"><FilePlus className="mr-2 h-4 w-4" />New Outline</DropdownMenuItem>
                 <DropdownMenuItem onSelect={handleImportClick} className="cursor-pointer">
                     <FileUp className="mr-2 h-4 w-4" /> Import Outline
                 </DropdownMenuItem>
-                <input
-                    type="file"
-                    ref={fileInputRef}
-                    onChange={handleFileChange}
-                    accept=".json"
-                    className="hidden"
-                />
                 <DropdownMenuItem onSelect={handleExport} disabled={!currentOutline} className="cursor-pointer">
                     <FileDown className="mr-2 h-4 w-4" /> Export Current Outline
                 </DropdownMenuItem>
@@ -340,6 +540,15 @@ export default function OutlinePane({
             </DropdownMenuContent>
         </DropdownMenu>
 
+        {/* File input outside dropdown so it doesn't unmount when dropdown closes */}
+        <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            accept=".json,.idm"
+            className="hidden"
+        />
+
         {renameId && (
             <AlertDialog open={!!renameId} onOpenChange={(open) => !open && setRenameId(null)}>
                 <AlertDialogContent>
@@ -362,7 +571,7 @@ export default function OutlinePane({
       </div>
 
       <TooltipProvider delayDuration={300}>
-        <div className="flex-shrink-0 flex items-center justify-center gap-1 px-2">
+        <div className="flex-shrink-0 flex items-center justify-center gap-1.5 px-2 py-1 bg-secondary/50 rounded-xl">
           <Tooltip>
             <TooltipTrigger asChild>
               <Button variant="outline" size="icon" onClick={() => onCreateNode()} disabled={!selectedNodeId} className="hover:bg-accent/20">
@@ -398,7 +607,16 @@ export default function OutlinePane({
           </AlertDialog>
 
           {/* Visual spacer */}
-          <div className="w-px h-8 bg-border mx-1"></div>
+          <div className="w-px h-6 bg-border/50 mx-0.5"></div>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="outline" size="icon" onClick={() => setIsSearchOpen(true)} disabled={!currentOutline} className="hover:bg-accent/20">
+                <Search className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Search outline (Ctrl+F)</TooltipContent>
+          </Tooltip>
 
           <Tooltip>
             <TooltipTrigger asChild>
@@ -433,7 +651,7 @@ export default function OutlinePane({
           />
 
           {/* Visual spacer */}
-          <div className="w-px h-8 bg-border mx-1"></div>
+          <div className="w-px h-6 bg-border/50 mx-0.5"></div>
 
           <SettingsDialog onFolderSelected={onFolderSelected}>
             <Button variant="outline" size="icon" title="Settings" className="hover:bg-accent/20">
@@ -443,6 +661,19 @@ export default function OutlinePane({
         </div>
       </TooltipProvider>
 
+      {/* Search panel */}
+      <OutlineSearch
+        isOpen={isSearchOpen}
+        onClose={handleCloseSearch}
+        outlines={outlines}
+        currentOutline={currentOutline}
+        onSearchResults={handleSearchResults}
+        onNavigateToMatch={handleNavigateToMatch}
+        currentMatchIndex={currentMatchIndex}
+        totalMatches={searchMatches.length}
+        onNextMatch={handleNextMatch}
+        onPrevMatch={handlePrevMatch}
+      />
 
       <div className="flex-grow overflow-y-auto pr-2">
         {rootNode && currentOutline && (
@@ -462,10 +693,13 @@ export default function OutlinePane({
               onCopySubtree={onCopySubtree}
               onCutSubtree={onCutSubtree}
               onPasteSubtree={onPasteSubtree}
+              onDuplicateNode={onDuplicateNode}
               hasClipboard={hasClipboard}
               isRoot={true}
               onIndent={handleIndent}
               onOutdent={handleOutdent}
+              searchTerm={searchTerm}
+              highlightedNodeIds={currentOutlineHighlights}
             />
           </ul>
         )}

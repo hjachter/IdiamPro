@@ -3,10 +3,15 @@
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Folder, Info } from 'lucide-react';
+import { Folder, Info, Smartphone } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { storeDirectoryHandle, getDirectoryHandle, verifyDirectoryPermission } from '@/lib/file-storage';
 import { isElectron, electronSelectDirectory, electronGetStoredDirectoryPath } from '@/lib/electron-storage';
+
+// Check if running in Capacitor native app
+function isCapacitor(): boolean {
+  return typeof window !== 'undefined' && !!(window as any).Capacitor;
+}
 
 interface SettingsDialogProps {
   children: React.ReactNode;
@@ -136,32 +141,49 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
           <div className="space-y-3">
             <h3 className="text-sm font-medium">Data Storage</h3>
 
-            <div className="space-y-2">
-              <label className="text-sm text-muted-foreground">
-                User Data Folder
-              </label>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  onClick={handleSelectFolder}
-                  className="flex-grow justify-start"
-                >
-                  <Folder className="mr-2 h-4 w-4" />
-                  {dataFolder}
-                </Button>
+            {isCapacitor() ? (
+              /* Capacitor native app storage info */
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 p-3 bg-muted rounded-lg">
+                  <Smartphone className="h-5 w-5 text-muted-foreground" />
+                  <span className="text-sm">App Storage</span>
+                </div>
+                <p className="text-xs text-muted-foreground flex items-start gap-1">
+                  <Info className="h-3 w-3 mt-0.5 flex-shrink-0" />
+                  <span>
+                    Your outlines are automatically saved within the app. Use <strong>Backup All Outlines</strong> to share/export a backup file (via AirDrop, Files, email, etc.), and <strong>Restore All Outlines</strong> to import from a backup file.
+                  </span>
+                </p>
               </div>
-              <p className="text-xs text-muted-foreground flex items-start gap-1">
-                <Info className="h-3 w-3 mt-0.5 flex-shrink-0" />
-                <span>
-                  Select a folder where all your outlines will be saved. Currently using browser storage by default.
-                  {!isElectron() && !('showDirectoryPicker' in window) && (
-                    <span className="block mt-1 text-amber-400">
-                      Note: Folder selection is not supported in your browser. Use Chrome, Edge, or the Desktop app for this feature.
-                    </span>
-                  )}
-                </span>
-              </p>
-            </div>
+            ) : (
+              /* Desktop folder selection */
+              <div className="space-y-2">
+                <label className="text-sm text-muted-foreground">
+                  User Data Folder
+                </label>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={handleSelectFolder}
+                    className="flex-grow justify-start"
+                  >
+                    <Folder className="mr-2 h-4 w-4" />
+                    {dataFolder}
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground flex items-start gap-1">
+                  <Info className="h-3 w-3 mt-0.5 flex-shrink-0" />
+                  <span>
+                    Select a folder where all your outlines will be saved. Currently using browser storage by default.
+                    {!isElectron() && !('showDirectoryPicker' in window) && (
+                      <span className="block mt-1 text-amber-400">
+                        Note: Folder selection is not supported in your browser. Use Chrome, Edge, or the Desktop app for this feature.
+                      </span>
+                    )}
+                  </span>
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Future Settings Sections */}

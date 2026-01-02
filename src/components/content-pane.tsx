@@ -6,7 +6,7 @@ import type { OutlineNode, NodeGenerationContext } from '@/types';
 import NodeIcon from './node-icon';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
-import { ArrowLeft, Sparkles, Loader2, Eraser, Scissors, Copy, Clipboard, Type, Undo, Redo, List, ListOrdered, ListX, Minus, FileText, Sheet, Presentation, Video, Map, AppWindow, Plus, Bold, Italic, Strikethrough, Code, Heading1, Heading2, Heading3, Mic, MicOff } from 'lucide-react';
+import { ArrowLeft, Sparkles, Loader2, Eraser, Scissors, Copy, Clipboard, Type, Undo, Redo, List, ListOrdered, ListX, Minus, FileText, Sheet, Presentation, Video, Map, AppWindow, Plus, Bold, Italic, Strikethrough, Code, Heading1, Heading2, Heading3, Mic, MicOff, ChevronRight, Home } from 'lucide-react';
 import { Card, CardContent } from './ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import ContentConflictDialog, { type ContentConflictAction } from './content-conflict-dialog';
@@ -224,8 +224,12 @@ export default function ContentPane({
 
     if (action === 'replace') {
       editor.commands.setContent(pendingAIContent);
+    } else if (action === 'prepend') {
+      // Insert at beginning
+      editor.commands.focus('start');
+      editor.commands.insertContent('<p>' + pendingAIContent + '</p><p></p>');
     } else {
-      // append
+      // append - insert at end
       editor.commands.focus('end');
       editor.commands.insertContent('<p></p><p>' + pendingAIContent + '</p>');
     }
@@ -480,7 +484,7 @@ export default function ContentPane({
         onCancel={handleEmbedCancel}
       />
 
-      <header className="flex-shrink-0 flex items-center justify-between p-4 border-b" style={{ paddingTop: 'max(1rem, env(safe-area-inset-top))' }}>
+      <header className="flex-shrink-0 p-4 border-b" style={{ paddingTop: 'max(1rem, env(safe-area-inset-top))' }}>
         <div className="flex items-center gap-2 min-w-0">
             {onBack && (
               <Button
@@ -491,12 +495,28 @@ export default function ContentPane({
                   e.preventDefault();
                   onBack();
                 }}
-                className="min-w-[44px] min-h-[44px] touch-manipulation"
+                className="min-w-[44px] min-h-[44px] touch-manipulation flex-shrink-0"
               >
                 <ArrowLeft />
               </Button>
             )}
-            <h1 className="text-2xl font-bold font-headline truncate">{node.name}</h1>
+            <div className="min-w-0 flex-1">
+              {/* Breadcrumb navigation */}
+              {ancestorPath.length > 0 && (
+                <div className="flex items-center gap-1 text-xs text-muted-foreground mb-1 overflow-hidden">
+                  <Home className="h-3 w-3 flex-shrink-0" />
+                  {ancestorPath.map((name, index) => (
+                    <React.Fragment key={index}>
+                      <ChevronRight className="h-3 w-3 flex-shrink-0" />
+                      <span className="truncate max-w-[100px]" title={name}>
+                        {name}
+                      </span>
+                    </React.Fragment>
+                  ))}
+                </div>
+              )}
+              <h1 className="text-2xl font-bold font-headline truncate">{node.name}</h1>
+            </div>
         </div>
       </header>
 

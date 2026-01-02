@@ -1,0 +1,376 @@
+{
+  "id": "dev-guide-2026",
+  "name": "IdiamPro Developer Guide",
+  "rootNodeId": "root",
+  "nodes": {
+    "root": {
+      "id": "root",
+      "name": "IdiamPro Developer Guide",
+      "content": "<h1>Welcome to IdiamPro Development</h1><p><strong>Last updated:</strong> January 2026</p><h2>What Is IdiamPro?</h2><p>IdiamPro is an outlining application that helps users organize their thoughts, projects, and documents in a hierarchical structure. Think of it as a powerful tool for creating structured notes, documentation, and plans.</p><h2>What Are We Trying to Accomplish?</h2><p>Our goal is to maintain <strong>one codebase</strong> that runs on <strong>three platforms</strong>:</p><ol><li><strong>Web Browser</strong> - Access IdiamPro from any modern browser at localhost:9002 (development) or idiam-pro.vercel.app (production)</li><li><strong>Mac Desktop App</strong> - A standalone app built with Electron that feels native to macOS</li><li><strong>iOS App</strong> - A native iPhone/iPad app built with Capacitor that can be distributed through the App Store</li></ol><h2>Architecture Overview</h2><p>Here's how the three platforms share code:</p><pre><code>                    YOUR DEVELOPMENT ENVIRONMENT\n                    ============================\n\n                    ┌─────────────────────────────────────┐\n                    │         src/ (Shared Code)          │\n                    │   React + Next.js + TypeScript      │\n                    │                                     │\n                    │  - All UI components                │\n                    │  - All business logic               │\n                    │  - All utilities                    │\n                    └─────────────────────────────────────┘\n                                    │\n                   ┌────────────────┼────────────────┐\n                   │                │                │\n                   ▼                ▼                ▼\n           ┌─────────────┐  ┌─────────────┐  ┌─────────────┐\n           │   BROWSER   │  │  ELECTRON   │  │    iOS      │\n           │             │  │  (Desktop)  │  │ (Capacitor) │\n           │ localhost:  │  │             │  │             │\n           │   9002      │  │ electron/   │  │   ios/App/  │\n           └─────────────┘  └─────────────┘  └─────────────┘\n                 │                │                │\n                 ▼                ▼                ▼\n            Run in any      Packaged as      Packaged for\n            web browser     .dmg for Mac     iOS App Store</code></pre><h2>The Key Insight</h2><p>When you write code in the <code>src/</code> folder, that code automatically becomes available to all three platforms. The magic happens through:</p><ul><li><strong>Browser:</strong> Just loads the code directly via Next.js</li><li><strong>Electron:</strong> Wraps the web app in a native window</li><li><strong>iOS:</strong> Capacitor copies the web code into an iOS app wrapper</li></ul><h2>What You'll Learn in This Guide</h2><ol><li><strong>Quick-Start Cheatsheet</strong> - Get running in 5 minutes</li><li><strong>Project Architecture</strong> - Understand how the pieces fit together</li><li><strong>Development Workflow</strong> - Day-to-day development process</li><li><strong>Platform Details</strong> - Specifics for each platform</li><li><strong>Building & Releasing</strong> - How to package and distribute</li><li><strong>iOS Sync Mechanism</strong> - How changes propagate to iOS</li><li><strong>Troubleshooting</strong> - Common problems and solutions</li></ol>",
+      "type": "root",
+      "parentId": null,
+      "childrenIds": ["cheatsheet", "architecture", "key-files", "dev-workflow", "platforms", "building", "sync", "troubleshooting"],
+      "prefix": ""
+    },
+    "cheatsheet": {
+      "id": "cheatsheet",
+      "name": "Quick-Start Cheatsheet",
+      "content": "<h2>Getting Back Up to Speed?</h2><p>If you're returning after a break or just want the essentials, this section has everything you need to start working immediately. Each command is explained so you understand what it does.</p>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": ["cheat-setup", "cheat-daily", "cheat-commit", "cheat-release", "cheat-locations", "cheat-platform", "cheat-trouble"],
+      "prefix": ""
+    },
+    "cheat-setup": {
+      "id": "cheat-setup",
+      "name": "First Time Setup",
+      "content": "<p><strong>What we're doing:</strong> Navigating to the project folder, telling the system to use the correct version of Node.js (the JavaScript runtime), and downloading all the libraries the project needs.</p><pre><code># Navigate to the project folder (stored in iCloud)\ncd ~/Library/Mobile\\ Documents/com~apple~CloudDocs/ClaudeProjects/IdiamPro\n\n# Switch to Node.js version 22 (required by Capacitor for iOS builds)\nnvm use 22\n\n# Download all project dependencies from the internet\nnpm install</code></pre><p><strong>What each command does:</strong></p><ul><li><code>cd</code> = \"change directory\" - moves you into the project folder</li><li><code>nvm use 22</code> = \"node version manager use 22\" - switches to the right Node.js version</li><li><code>npm install</code> = \"node package manager install\" - downloads libraries listed in package.json</li></ul>",
+      "type": "document",
+      "parentId": "cheatsheet",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "cheat-daily": {
+      "id": "cheat-daily",
+      "name": "Daily Development",
+      "content": "<p><strong>What we're doing:</strong> Starting the development server so you can see your changes in real-time. You have three options depending on what you're working on.</p><pre><code># OPTION 1: Web development only (fastest startup)\n# Opens a local web server at http://localhost:9002\nnpm run dev\n\n# OPTION 2: Web + iOS together (use when testing iOS features)\n# Starts web server AND watches for changes to automatically sync to iOS\nnpm run dev:ios\n\n# OPTION 3: Test on iOS Simulator\n# Opens Xcode with the iOS project, then press Cmd+R to run\nnpx cap open ios</code></pre><p><strong>Which should I use?</strong></p><ul><li><strong>Option 1</strong> - For most development. Fast startup, hot reloading in browser.</li><li><strong>Option 2</strong> - When you need to test iOS-specific features like Share sheet.</li><li><strong>Option 3</strong> - When you want to see the app running in the iOS Simulator.</li></ul>",
+      "type": "document",
+      "parentId": "cheatsheet",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "cheat-commit": {
+      "id": "cheat-commit",
+      "name": "Before Committing",
+      "content": "<p><strong>What we're doing:</strong> Saving your changes to version control (Git). The pre-commit hook automatically ensures iOS stays in sync.</p><pre><code># Stage all your changes for commit\ngit add .\n\n# Create a commit with a descriptive message\n# NOTE: This automatically runs 'cap sync ios' before committing!\ngit commit -m \"Your descriptive message here\"\n\n# Upload your changes to GitHub\ngit push</code></pre><p><strong>What happens automatically:</strong></p><p>When you run <code>git commit</code>, a \"pre-commit hook\" runs first. This hook:</p><ol><li>Runs <code>npx cap sync ios</code> to copy your web code to the iOS project</li><li>Stages any iOS changes so they're included in your commit</li></ol><p>This ensures the iOS version is always in sync with your web code in every commit.</p>",
+      "type": "document",
+      "parentId": "cheatsheet",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "cheat-release": {
+      "id": "cheat-release",
+      "name": "Release Builds",
+      "content": "<p><strong>What we're doing:</strong> Creating distributable versions of the app for end users.</p><h3>Mac Desktop App (Electron)</h3><p>This creates a .dmg installer file that users can download and install on their Mac.</p><pre><code># Build the Mac desktop application\n# Output appears in: dist/IdiamPro Desktop-*.dmg\nnpm run electron:build:mac</code></pre><h3>iOS App Store</h3><p>This prepares the iOS app for submission to Apple's App Store.</p><pre><code># Step 1: Ensure we're using the right Node version\nnvm use 22\n\n# Step 2: Copy latest web code to iOS project\nnpx cap sync ios\n\n# Step 3: Open Xcode with the iOS project\nnpx cap open ios\n\n# Step 4: In Xcode:\n#   - Select \"Any iOS Device\" as the build target\n#   - Product menu → Archive\n#   - Window menu → Organizer → Distribute App\n#   - Choose \"App Store Connect\"</code></pre>",
+      "type": "document",
+      "parentId": "cheatsheet",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "cheat-locations": {
+      "id": "cheat-locations",
+      "name": "Key Locations",
+      "content": "<p><strong>Where everything lives in the project:</strong></p><table><thead><tr><th>What</th><th>Where</th><th>Purpose</th></tr></thead><tbody><tr><td>All app code</td><td><code>src/</code></td><td>Shared code for all platforms</td></tr><tr><td>iOS project</td><td><code>ios/App/</code></td><td>Xcode project files</td></tr><tr><td>Electron code</td><td><code>electron/</code></td><td>Mac desktop app wrapper</td></tr><tr><td>This guide</td><td><code>docs/DEVELOPER_GUIDE.md</code></td><td>Full documentation in Markdown</td></tr><tr><td>iOS sync hook</td><td><code>.husky/pre-commit</code></td><td>Auto-syncs iOS on commit</td></tr><tr><td>iOS watch script</td><td><code>scripts/watch-sync-ios.js</code></td><td>Auto-syncs during development</td></tr></tbody></table>",
+      "type": "document",
+      "parentId": "cheatsheet",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "cheat-platform": {
+      "id": "cheat-platform",
+      "name": "Platform Detection",
+      "content": "<p><strong>What we're doing:</strong> Sometimes you need code to behave differently on iOS vs Mac vs Browser. Here's how to detect which platform is running.</p><pre><code>// This code runs in any component or utility file\n\nif (isCapacitor()) {\n  // This code ONLY runs in the iOS native app\n  // Example: Use iOS Share sheet instead of file download\n} else if (isElectron()) {\n  // This code ONLY runs in the Mac desktop app\n  // Example: Use native file dialogs\n} else {\n  // This code runs in web browsers\n  // Example: Use browser's file download\n}</code></pre><p><strong>When would I need this?</strong></p><ul><li>iOS can't use browser file downloads - use Share sheet instead</li><li>Electron has access to native Mac features browsers don't</li><li>Some UI might need to be different on mobile vs desktop</li></ul>",
+      "type": "document",
+      "parentId": "cheatsheet",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "cheat-trouble": {
+      "id": "cheat-trouble",
+      "name": "Troubleshooting One-Liners",
+      "content": "<p><strong>Quick fixes for common problems:</strong></p><pre><code># \"Capacitor CLI requires NodeJS >=22.0.0\" error\nnvm use 22\n\n# iOS Simulator not showing your latest changes\nnpx cap sync ios\n\n# Pre-commit hook not running automatically\nnpm run prepare\n\n# Hook exists but has permission problems\nchmod +x .husky/pre-commit</code></pre><p><strong>What each fix does:</strong></p><ul><li><code>nvm use 22</code> - Capacitor requires Node.js 22+. This switches to it.</li><li><code>npx cap sync ios</code> - Manually copies web code to iOS project.</li><li><code>npm run prepare</code> - Reinstalls Husky, which manages git hooks.</li><li><code>chmod +x</code> - Makes the hook file executable (needed on some systems).</li></ul>",
+      "type": "document",
+      "parentId": "cheatsheet",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "architecture": {
+      "id": "architecture",
+      "name": "Project Architecture",
+      "content": "<h2>Understanding the Multi-Platform Approach</h2><p>IdiamPro uses a \"write once, run anywhere\" approach. Instead of maintaining three separate codebases (one for web, one for Mac, one for iOS), we write the code once and use different \"wrappers\" to package it for each platform.</p><h3>The Architecture Diagram</h3><pre><code>┌─────────────────────────────────────────────────────────────┐\n│                    Shared Web Code (src/)                    │\n│                   React + Next.js + TypeScript               │\n│                                                             │\n│    Components │ Utilities │ Hooks │ Types │ AI Integration  │\n└─────────────────────────────────────────────────────────────┘\n                              │\n                              │ Same code, different wrappers\n                              │\n        ┌─────────────────────┼─────────────────────┐\n        ▼                     ▼                     ▼\n┌───────────────┐    ┌───────────────┐    ┌───────────────┐\n│  Mac Browser  │    │ Mac Electron  │    │ iOS Capacitor │\n│  (localhost)  │    │   (Desktop)   │    │  (Native App) │\n│               │    │               │    │               │\n│ Standard web  │    │ Web app in a  │    │ Web app in a  │\n│ server, no    │    │ native Mac    │    │ native iOS    │\n│ wrapper       │    │ window        │    │ WebView       │\n└───────────────┘    └───────────────┘    └───────────────┘</code></pre><h3>Why This Approach?</h3><ul><li><strong>Efficiency:</strong> Fix a bug once, it's fixed everywhere</li><li><strong>Consistency:</strong> Same features across all platforms</li><li><strong>Speed:</strong> Develop in browser (fastest), deploy everywhere</li></ul>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": ["arch-sharing", "arch-technologies"],
+      "prefix": ""
+    },
+    "arch-sharing": {
+      "id": "arch-sharing",
+      "name": "How Code Sharing Works",
+      "content": "<h3>The src/ Folder is the Heart of Everything</h3><p>All application code lives in <code>src/</code>. This includes:</p><ul><li><strong>Components</strong> - Visual building blocks (buttons, panels, dialogs)</li><li><strong>Utilities</strong> - Helper functions (export, import, validation)</li><li><strong>Hooks</strong> - Reusable React logic (state management, effects)</li><li><strong>Types</strong> - TypeScript definitions (ensures code correctness)</li></ul><h3>Platform-Specific Code Uses Feature Detection</h3><p>When code needs to behave differently per platform, we use detection functions:</p><pre><code>// src/lib/export.ts - example of platform-specific behavior\n\nfunction isCapacitor(): boolean {\n  // Returns true ONLY in iOS/Android native apps\n  return typeof window !== 'undefined' && !!(window as any).Capacitor;\n}\n\nfunction isElectron(): boolean {\n  // Returns true ONLY in the Electron desktop app\n  return typeof window !== 'undefined' && !!(window as any).electron;\n}\n\n// Usage in actual code:\nexport async function exportOutline(outline: Outline) {\n  if (isCapacitor()) {\n    // iOS: Write to temp file, open Share sheet\n    await shareOutlineFile(outline);\n  } else {\n    // Browser/Electron: Standard file download\n    downloadOutlineFile(outline);\n  }\n}</code></pre>",
+      "type": "document",
+      "parentId": "architecture",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "arch-technologies": {
+      "id": "arch-technologies",
+      "name": "Technologies Used",
+      "content": "<h3>Core Stack</h3><table><thead><tr><th>Technology</th><th>What It Does</th><th>Why We Use It</th></tr></thead><tbody><tr><td><strong>React</strong></td><td>UI library</td><td>Component-based, huge ecosystem</td></tr><tr><td><strong>Next.js</strong></td><td>React framework</td><td>Routing, optimization, dev tools</td></tr><tr><td><strong>TypeScript</strong></td><td>Type-safe JavaScript</td><td>Catches bugs before runtime</td></tr><tr><td><strong>Tailwind CSS</strong></td><td>Styling</td><td>Fast, consistent design system</td></tr></tbody></table><h3>Platform Wrappers</h3><table><thead><tr><th>Technology</th><th>Platform</th><th>What It Does</th></tr></thead><tbody><tr><td><strong>Electron</strong></td><td>Mac Desktop</td><td>Wraps web app in native Mac window</td></tr><tr><td><strong>Capacitor</strong></td><td>iOS</td><td>Wraps web app in native iOS WebView</td></tr><tr><td><strong>Vercel</strong></td><td>Web</td><td>Hosts the web version (production)</td></tr></tbody></table><h3>Key Libraries</h3><table><thead><tr><th>Library</th><th>Purpose</th></tr></thead><tbody><tr><td><strong>TipTap</strong></td><td>Rich text editor for content</td></tr><tr><td><strong>Radix UI</strong></td><td>Accessible UI components</td></tr><tr><td><strong>Genkit</strong></td><td>AI content generation</td></tr><tr><td><strong>Husky</strong></td><td>Git hooks (pre-commit automation)</td></tr></tbody></table>",
+      "type": "document",
+      "parentId": "architecture",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "key-files": {
+      "id": "key-files",
+      "name": "Key Files & Directories",
+      "content": "<h2>Project Structure Overview</h2><p>Understanding where files live helps you navigate the codebase quickly. Here's a map of the most important locations.</p>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": ["files-shared", "files-platform", "files-config", "files-build"],
+      "prefix": ""
+    },
+    "files-shared": {
+      "id": "files-shared",
+      "name": "Shared Code",
+      "content": "<p><strong>These folders contain code used by ALL platforms.</strong> When you make changes here, they affect browser, desktop, and mobile.</p><table><thead><tr><th>Path</th><th>Purpose</th><th>Examples</th></tr></thead><tbody><tr><td><code>src/components/</code></td><td>React UI components</td><td>outline-pane.tsx, content-pane.tsx</td></tr><tr><td><code>src/lib/</code></td><td>Utilities and helpers</td><td>export.ts, storage.ts, hooks.ts</td></tr><tr><td><code>src/hooks/</code></td><td>Custom React hooks</td><td>useDebounce, useLocalStorage</td></tr><tr><td><code>src/types/</code></td><td>TypeScript definitions</td><td>Outline, OutlineNode types</td></tr><tr><td><code>src/app/</code></td><td>Next.js pages/routes</td><td>Main app entry points</td></tr><tr><td><code>src/ai/</code></td><td>AI integration</td><td>Genkit flows for content generation</td></tr><tr><td><code>src/contexts/</code></td><td>React contexts</td><td>AI settings, theme management</td></tr></tbody></table>",
+      "type": "document",
+      "parentId": "key-files",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "files-platform": {
+      "id": "files-platform",
+      "name": "Platform-Specific Code",
+      "content": "<p><strong>These folders contain platform-specific wrappers and configurations.</strong></p><table><thead><tr><th>Path</th><th>Platform</th><th>What's Inside</th></tr></thead><tbody><tr><td><code>electron/</code></td><td>Mac Desktop</td><td>main.js (app entry), preload.js (IPC bridge)</td></tr><tr><td><code>ios/</code></td><td>iOS</td><td>Xcode project, native configurations</td></tr><tr><td><code>ios/App/App/public/</code></td><td>iOS</td><td>Web assets copied by <code>cap sync</code></td></tr></tbody></table><p><strong>Important:</strong> You rarely edit files in <code>ios/</code> directly. The web assets in <code>ios/App/App/public/</code> are auto-generated by <code>cap sync</code> - don't edit them manually!</p>",
+      "type": "document",
+      "parentId": "key-files",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "files-config": {
+      "id": "files-config",
+      "name": "Configuration Files",
+      "content": "<p><strong>These files configure how the project builds and runs.</strong></p><table><thead><tr><th>File</th><th>What It Configures</th></tr></thead><tbody><tr><td><code>package.json</code></td><td>Dependencies, npm scripts, Electron build settings</td></tr><tr><td><code>capacitor.config.ts</code></td><td>iOS/Android app settings, server URL for dev</td></tr><tr><td><code>next.config.ts</code></td><td>Next.js behavior, build output</td></tr><tr><td><code>tsconfig.json</code></td><td>TypeScript compiler options</td></tr><tr><td><code>tailwind.config.ts</code></td><td>CSS theme, colors, fonts</td></tr></tbody></table><p><strong>Most commonly edited:</strong></p><ul><li><code>package.json</code> - When adding dependencies or npm scripts</li><li><code>capacitor.config.ts</code> - When changing iOS app settings</li></ul>",
+      "type": "document",
+      "parentId": "key-files",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "files-build": {
+      "id": "files-build",
+      "name": "Build & Automation",
+      "content": "<p><strong>These files automate development tasks.</strong></p><table><thead><tr><th>Path</th><th>What It Does</th><th>When It Runs</th></tr></thead><tbody><tr><td><code>.husky/pre-commit</code></td><td>Git hook that syncs iOS</td><td>Automatically before every commit</td></tr><tr><td><code>scripts/watch-sync-ios.js</code></td><td>Watches for file changes, syncs iOS</td><td>When you run <code>npm run watch:ios</code></td></tr></tbody></table><p><strong>How the automation works:</strong></p><ol><li><strong>During development:</strong> <code>watch-sync-ios.js</code> monitors the <code>src/</code> folder. When files change, it waits 2 seconds (debounce), then runs <code>cap sync ios</code>.</li><li><strong>Before commits:</strong> The pre-commit hook ensures iOS is always in sync with your latest code changes.</li></ol>",
+      "type": "document",
+      "parentId": "key-files",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "dev-workflow": {
+      "id": "dev-workflow",
+      "name": "Development Workflow",
+      "content": "<h2>Your Daily Development Process</h2><p>This section walks through the typical development cycle: setting up your environment, making changes, testing, and committing.</p>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": ["dev-prereq", "dev-daily", "dev-ios"],
+      "prefix": ""
+    },
+    "dev-prereq": {
+      "id": "dev-prereq",
+      "name": "Prerequisites",
+      "content": "<h3>What You Need Before Starting</h3><p>Before you can develop IdiamPro, make sure you have:</p><ul><li><strong>Node.js 22+</strong> - JavaScript runtime (use nvm to manage versions)</li><li><strong>Xcode</strong> - Required for iOS builds (Mac App Store, free)</li><li><strong>Git</strong> - Version control (usually pre-installed on Mac)</li></ul><h3>First-Time Setup</h3><p>Run these commands once when you first clone the project:</p><pre><code># Switch to the required Node.js version\n# (Capacitor requires Node 22 or higher)\nnvm use 22\n\n# Install all project dependencies\n# This reads package.json and downloads everything needed\nnpm install</code></pre><p><strong>What happens:</strong> npm reads the <code>package.json</code> file and downloads all required libraries into the <code>node_modules/</code> folder. This can take a few minutes on first run.</p>",
+      "type": "document",
+      "parentId": "dev-workflow",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "dev-daily": {
+      "id": "dev-daily",
+      "name": "Daily Development Options",
+      "content": "<h3>Choose Your Development Mode</h3><p>You have three options depending on what you're working on:</p><h4>Option 1: Web Only (Recommended for most work)</h4><p><strong>When to use:</strong> UI changes, business logic, most feature development</p><pre><code># Starts the Next.js development server\n# Hot-reloads when you save files\nnpm run dev\n\n# Then open your browser to:\n# http://localhost:9002</code></pre><p><strong>Benefits:</strong> Fastest startup, instant hot-reload, full browser DevTools</p><h4>Option 2: Web + iOS Auto-Sync</h4><p><strong>When to use:</strong> Testing iOS-specific features (Share sheet, file handling)</p><pre><code># Starts web server AND watches for changes to sync to iOS\nnpm run dev:ios</code></pre><p><strong>What this does:</strong> Runs two processes - the web server and a file watcher. When you save a file in <code>src/</code>, it automatically runs <code>cap sync ios</code> after 2 seconds.</p><h4>Option 3: Electron Desktop</h4><p><strong>When to use:</strong> Testing desktop-specific features</p><pre><code># Terminal 1: Start the web server\nnpm run dev\n\n# Terminal 2: Start Electron (after web server is running)\nnpm run electron:dev</code></pre><p><strong>Important:</strong> The web server must be running first! Electron loads from localhost:9002 in dev mode.</p>",
+      "type": "document",
+      "parentId": "dev-workflow",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "dev-ios": {
+      "id": "dev-ios",
+      "name": "Testing on iOS Simulator",
+      "content": "<h3>Running in the iOS Simulator</h3><p>To test your app in the iOS Simulator:</p><pre><code># Step 1: Start the development server (if not already running)\nnpm run dev\n\n# Step 2: Sync your web code to the iOS project\n# This copies compiled assets to ios/App/App/public/\nnpx cap sync ios\n\n# Step 3: Open the iOS project in Xcode\nnpx cap open ios\n\n# Step 4: In Xcode, press Cmd+R to build and run</code></pre><h3>Understanding the iOS Development Flow</h3><ol><li><strong>You edit code</strong> in <code>src/</code></li><li><strong>Web server</strong> compiles and serves it at localhost:9002</li><li><strong>cap sync</strong> copies compiled files to iOS project</li><li><strong>Xcode</strong> builds the iOS app with the new code</li><li><strong>Simulator</strong> runs the app (in dev mode, loads from localhost:9002)</li></ol><p><strong>Pro tip:</strong> In development mode, the iOS app loads from localhost:9002, so you often don't need to rebuild in Xcode - just refresh the app. But for native plugin changes, you need to rebuild.</p>",
+      "type": "document",
+      "parentId": "dev-workflow",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "platforms": {
+      "id": "platforms",
+      "name": "Platform-Specific Details",
+      "content": "<h2>How Each Platform Works</h2><p>While the code is shared, each platform has its own quirks and capabilities. This section covers what makes each one unique.</p>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": ["plat-browser", "plat-electron", "plat-ios"],
+      "prefix": ""
+    },
+    "plat-browser": {
+      "id": "plat-browser",
+      "name": "Web Browser",
+      "content": "<h3>The Simplest Platform</h3><p>The browser version is the most straightforward - it's just the web app running directly.</p><h4>Key Characteristics</h4><ul><li><strong>No wrapper</strong> - Runs directly in the browser</li><li><strong>Standard web APIs</strong> - File downloads, localStorage, etc.</li><li><strong>Development server:</strong> localhost:9002</li><li><strong>Production URL:</strong> https://idiam-pro.vercel.app</li></ul><h4>Browser-Specific Features</h4><ul><li><strong>File System Access API</strong> - Allows selecting a folder for backups (Chrome/Edge only)</li><li><strong>Falls back gracefully</strong> - On Safari, uses standard file downloads instead</li></ul><h4>Limitations</h4><ul><li>No access to native OS features</li><li>File handling limited to downloads/uploads</li><li>Can't create \"app-like\" experience (no dock icon, etc.)</li></ul>",
+      "type": "document",
+      "parentId": "platforms",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "plat-electron": {
+      "id": "plat-electron",
+      "name": "Mac Desktop (Electron)",
+      "content": "<h3>Native Mac App via Electron</h3><p>Electron wraps the web app in a native Mac window, giving it access to desktop features.</p><h4>Key Files</h4><ul><li><code>electron/main.js</code> - The main process (creates windows, handles app lifecycle)</li><li><code>electron/preload.js</code> - Bridge between web code and Node.js APIs</li><li><code>package.json → build</code> - Electron Builder configuration</li></ul><h4>How It Works</h4><pre><code>┌─────────────────────────────────────────┐\n│           Electron Main Process          │\n│         (Node.js - full system access)   │\n│                    │                     │\n│              IPC Bridge                  │\n│                    │                     │\n│     ┌──────────────▼──────────────┐     │\n│     │       Chromium Window        │     │\n│     │    (Your web app runs here)  │     │\n│     └──────────────────────────────┘     │\n└─────────────────────────────────────────┘</code></pre><h4>Development vs Production</h4><ul><li><strong>Dev mode:</strong> <code>npm run electron:dev</code> - Loads from localhost:9002</li><li><strong>Prod mode:</strong> <code>npm run electron</code> - Loads from Vercel (or built files)</li></ul><p><strong>Important:</strong> Always use <code>electron:dev</code> during development to see your changes!</p>",
+      "type": "document",
+      "parentId": "platforms",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "plat-ios": {
+      "id": "plat-ios",
+      "name": "iOS (Capacitor)",
+      "content": "<h3>Native iOS App via Capacitor</h3><p>Capacitor wraps the web app in a native iOS WebView, with access to native plugins.</p><h4>Key Locations</h4><ul><li><code>capacitor.config.ts</code> - App configuration (ID, name, server settings)</li><li><code>ios/App/</code> - The Xcode project</li><li><code>ios/App/App/public/</code> - Where web assets are copied (auto-generated!)</li></ul><h4>How It Works</h4><pre><code>┌─────────────────────────────────────────┐\n│            iOS Native Container          │\n│                    │                     │\n│     ┌──────────────▼──────────────┐     │\n│     │         WKWebView            │     │\n│     │    (Your web app runs here)  │     │\n│     │              │                │     │\n│     │    Capacitor Bridge          │     │\n│     │              │                │     │\n│     └──────────────▼──────────────┘     │\n│            Native Plugins               │\n│    (Share, Filesystem, Camera...)       │\n└─────────────────────────────────────────┘</code></pre><h4>Native Plugins We Use</h4><ul><li><code>@capacitor/share</code> - Opens iOS Share sheet for exporting files</li><li><code>@capacitor/filesystem</code> - Read/write files in app sandbox</li></ul><h4>Platform Detection in Code</h4><pre><code>function isCapacitor(): boolean {\n  return typeof window !== 'undefined' && \n         !!(window as any).Capacitor;\n}\n\n// Example usage:\nif (isCapacitor()) {\n  await shareOutlineFile(outline);  // iOS Share sheet\n} else {\n  downloadOutlineFile(outline);     // Browser download\n}</code></pre>",
+      "type": "document",
+      "parentId": "platforms",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "building": {
+      "id": "building",
+      "name": "Building & Releasing",
+      "content": "<h2>Creating Distributable Versions</h2><p>When you're ready to share your app with users, you need to create production builds. Each platform has its own process.</p>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": ["build-vercel", "build-electron", "build-ios"],
+      "prefix": ""
+    },
+    "build-vercel": {
+      "id": "build-vercel",
+      "name": "Web (Vercel)",
+      "content": "<h3>Automatic Deployment to Vercel</h3><p>The web version deploys automatically when you push to the main branch.</p><h4>How It Works</h4><ol><li>You push code to GitHub (<code>git push</code>)</li><li>Vercel detects the push</li><li>Vercel builds the Next.js app (<code>npm run build</code>)</li><li>Vercel deploys to https://idiam-pro.vercel.app</li></ol><h4>Manual Build (for testing)</h4><pre><code># Build the production version locally\n# This creates optimized files in the .next/ folder\nnpm run build\n\n# Start the production server locally\nnpm run start</code></pre><p><strong>Production URL:</strong> https://idiam-pro.vercel.app</p>",
+      "type": "document",
+      "parentId": "building",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "build-electron": {
+      "id": "build-electron",
+      "name": "Mac Desktop (Electron)",
+      "content": "<h3>Creating the Mac Installer</h3><p>Build a distributable .dmg file that users can download and install.</p><pre><code># Build the Mac desktop application\n# Creates: dist/IdiamPro Desktop-*.dmg\nnpm run electron:build:mac</code></pre><h4>What Gets Built</h4><ul><li><code>dist/IdiamPro Desktop-*.dmg</code> - Installer image</li><li><code>dist/IdiamPro Desktop-*.zip</code> - Zipped app bundle</li></ul><h4>Signing & Notarization</h4><p>For public distribution (not just personal use), you need to:</p><ol><li><strong>Get an Apple Developer certificate</strong> - Requires $99/year Apple Developer membership</li><li><strong>Set environment variables</strong> for code signing</li><li><strong>Configure notarization</strong> - Apple checks your app for malware</li></ol><p>Settings are in <code>electron/entitlements.mac.plist</code></p>",
+      "type": "document",
+      "parentId": "building",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "build-ios": {
+      "id": "build-ios",
+      "name": "iOS App Store",
+      "content": "<h3>Submitting to the App Store</h3><p>The iOS release process involves Xcode and App Store Connect.</p><h4>Step 1: Prepare the Build</h4><pre><code># Ensure correct Node version\nnvm use 22\n\n# Sync latest web code to iOS project\nnpx cap sync ios\n\n# Open the project in Xcode\nnpx cap open ios</code></pre><h4>Step 2: Archive in Xcode</h4><ol><li>In Xcode, select <strong>\"Any iOS Device\"</strong> as the build destination</li><li>Go to <strong>Product → Archive</strong></li><li>Wait for the archive to complete</li></ol><h4>Step 3: Distribute</h4><ol><li>Go to <strong>Window → Organizer</strong></li><li>Select your archive, click <strong>\"Distribute App\"</strong></li><li>Choose <strong>\"App Store Connect\"</strong></li><li>Follow the upload wizard</li></ol><h4>Step 4: Submit in App Store Connect</h4><ol><li>Go to <a href=\"https://appstoreconnect.apple.com\">appstoreconnect.apple.com</a></li><li>Create a new version</li><li>Add the build you just uploaded</li><li>Fill in release notes, screenshots</li><li>Submit for review</li></ol><h4>Important Settings</h4><ul><li><strong>Bundle ID:</strong> com.idiampro.app</li><li><strong>App icons:</strong> ios/App/App/Assets.xcassets/AppIcon.appiconset/</li></ul>",
+      "type": "document",
+      "parentId": "building",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "sync": {
+      "id": "sync",
+      "name": "iOS/Mac Sync Mechanism",
+      "content": "<h2>Keeping iOS in Sync with Your Code</h2><p>One of the challenges of multi-platform development is ensuring all platforms have the latest code. This section explains how we solve this for iOS.</p>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": ["sync-problem", "sync-solution", "sync-capsync"],
+      "prefix": ""
+    },
+    "sync-problem": {
+      "id": "sync-problem",
+      "name": "The Problem",
+      "content": "<h3>Why Syncing is Necessary</h3><p>Here's the challenge:</p><pre><code>Your code lives here:           iOS needs it here:\n─────────────────────           ─────────────────────\nsrc/                     →      ios/App/App/public/\n├── components/                 └── (compiled files)\n├── lib/\n└── ...</code></pre><p><strong>The gap:</strong> You edit files in <code>src/</code>, but the iOS app loads files from <code>ios/App/App/public/</code>. Without syncing, iOS would be stuck on old code!</p><h4>What Needs to Happen</h4><ol><li>Web code in <code>src/</code> gets compiled by Next.js</li><li>Compiled output needs to be copied to iOS project</li><li>iOS native plugins need to be updated</li><li>This needs to happen reliably, automatically</li></ol>",
+      "type": "document",
+      "parentId": "sync",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "sync-solution": {
+      "id": "sync-solution",
+      "name": "The Solution",
+      "content": "<h3>Two-Part Automatic Sync System</h3><p>We've set up automatic syncing in two places:</p><h4>1. Watch Mode (During Development)</h4><p><strong>When to use:</strong> Run this when actively developing iOS features</p><pre><code># Just the watcher\nnpm run watch:ios\n\n# Or combined with dev server\nnpm run dev:ios</code></pre><p><strong>How it works:</strong> The script <code>scripts/watch-sync-ios.js</code> monitors the <code>src/</code> folder:</p><ol><li>Detects file changes in <code>src/</code></li><li>Waits 2 seconds after the last change (debounce)</li><li>Runs <code>npx cap sync ios</code> automatically</li><li>Repeats</li></ol><h4>2. Pre-Commit Hook (Before Every Commit)</h4><p><strong>When it runs:</strong> Automatically, every time you <code>git commit</code></p><p>The file <code>.husky/pre-commit</code> runs before your commit completes:</p><ol><li>Runs <code>npx cap sync ios</code></li><li>Stages any changed files in <code>ios/</code></li><li>Commit proceeds with iOS in sync</li></ol><p><strong>Why this matters:</strong> Every commit is guaranteed to have synced iOS code. You can't accidentally forget!</p><h4>Manual Sync</h4><p>If you need to sync manually (after installing new plugins, etc.):</p><pre><code>npx cap sync ios\n# or\nnpm run cap:sync:ios</code></pre>",
+      "type": "document",
+      "parentId": "sync",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "sync-capsync": {
+      "id": "sync-capsync",
+      "name": "What cap sync Does",
+      "content": "<h3>Under the Hood of cap sync</h3><p>When you run <code>npx cap sync ios</code>, Capacitor performs several tasks:</p><h4>Step 1: Copy Web Assets</h4><p>Copies compiled web files from <code>out/</code> (or downloads from dev server URL) to <code>ios/App/App/public/</code></p><h4>Step 2: Update Native Plugins</h4><p>Checks <code>package.json</code> for Capacitor plugins and updates the native code:</p><ul><li>Updates <code>ios/App/Podfile</code> with CocoaPods dependencies</li><li>Runs <code>pod install</code> to download native libraries</li></ul><h4>Step 3: Update Package.swift</h4><p>For Swift Package Manager dependencies, updates <code>ios/App/App/Package.swift</code></p><h4>When You MUST Run cap sync</h4><ul><li>After installing a new Capacitor plugin (<code>npm install @capacitor/share</code>)</li><li>After changing <code>capacitor.config.ts</code></li><li>When iOS isn't showing your latest changes</li></ul>",
+      "type": "document",
+      "parentId": "sync",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "troubleshooting": {
+      "id": "troubleshooting",
+      "name": "Troubleshooting",
+      "content": "<h2>Common Problems and Solutions</h2><p>When things go wrong, check here first. These are the most common issues developers encounter.</p>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": ["trouble-node", "trouble-simulator", "trouble-share", "trouble-hook", "trouble-electron", "trouble-ts", "trouble-xcode"],
+      "prefix": ""
+    },
+    "trouble-node": {
+      "id": "trouble-node",
+      "name": "Node Version Error",
+      "content": "<h3>\"Capacitor CLI requires NodeJS >=22.0.0\"</h3><p><strong>The problem:</strong> Capacitor needs Node.js version 22 or higher, but you're using an older version.</p><p><strong>The fix:</strong></p><pre><code># Switch to Node 22\nnvm use 22\n\n# Verify you're on the right version\nnode --version  # Should show v22.x.x</code></pre><p><strong>If nvm says \"N/A\":</strong></p><pre><code># Install Node 22 first\nnvm install 22\n\n# Then use it\nnvm use 22</code></pre>",
+      "type": "document",
+      "parentId": "troubleshooting",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "trouble-simulator": {
+      "id": "trouble-simulator",
+      "name": "iOS Not Showing Changes",
+      "content": "<h3>iOS Simulator Shows Old Code</h3><p><strong>The problem:</strong> You made changes, but the iOS simulator still shows the old version.</p><p><strong>The fix:</strong></p><pre><code># Force sync your code to iOS\nnpx cap sync ios\n\n# Then rebuild in Xcode (Cmd+R)</code></pre><p><strong>If that doesn't work:</strong></p><ol><li>In Xcode: Product → Clean Build Folder (Cmd+Shift+K)</li><li>Rebuild: Cmd+R</li></ol><p><strong>Remember:</strong> In dev mode, iOS loads from localhost:9002. Make sure your dev server is running!</p>",
+      "type": "document",
+      "parentId": "troubleshooting",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "trouble-share": {
+      "id": "trouble-share",
+      "name": "Share Sheet Not Working",
+      "content": "<h3>iOS Share Sheet Doesn't Appear</h3><p><strong>The problem:</strong> Tapping export doesn't show the iOS Share sheet.</p><p><strong>The fix:</strong></p><pre><code># Make sure Capacitor plugins are installed\nnpm install @capacitor/share @capacitor/filesystem\n\n# Sync to iOS\nnpx cap sync ios\n\n# Rebuild in Xcode (Cmd+R)</code></pre><p><strong>Why this happens:</strong> Capacitor plugins have native code that must be compiled into the iOS app. After installing a plugin, you must sync and rebuild.</p>",
+      "type": "document",
+      "parentId": "troubleshooting",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "trouble-hook": {
+      "id": "trouble-hook",
+      "name": "Pre-Commit Hook Not Running",
+      "content": "<h3>Git Commits Don't Sync iOS</h3><p><strong>The problem:</strong> When you commit, the pre-commit hook doesn't run and iOS doesn't sync.</p><p><strong>The fix:</strong></p><pre><code># Reinstall Husky (the hook manager)\nnpm run prepare\n\n# Make the hook executable\nchmod +x .husky/pre-commit\n\n# Test it by making a commit\ngit add .\ngit commit -m \"Test commit\"</code></pre><p><strong>Check if hook exists:</strong></p><pre><code>cat .husky/pre-commit</code></pre><p>You should see a script that runs <code>npx cap sync ios</code>.</p>",
+      "type": "document",
+      "parentId": "troubleshooting",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "trouble-electron": {
+      "id": "trouble-electron",
+      "name": "Electron Shows Blank Screen",
+      "content": "<h3>Electron Window is Empty</h3><p><strong>The problem:</strong> You launch Electron but see a blank white screen.</p><p><strong>The fix:</strong></p><pre><code># Terminal 1: Start the web server\nnpm run dev\n\n# Terminal 2: Start Electron in dev mode\nnpm run electron:dev</code></pre><p><strong>Common mistakes:</strong></p><ul><li><strong>Wrong command:</strong> <code>npm run electron</code> loads from Vercel (production). Use <code>npm run electron:dev</code> for development.</li><li><strong>Server not running:</strong> Electron dev mode loads from localhost:9002. The server must be running first.</li><li><strong>Wrong port:</strong> Check that the dev server is on port 9002.</li></ul>",
+      "type": "document",
+      "parentId": "troubleshooting",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "trouble-ts": {
+      "id": "trouble-ts",
+      "name": "TypeScript Errors",
+      "content": "<h3>Type Checking Failures</h3><p><strong>The problem:</strong> Build fails with TypeScript errors.</p><p><strong>The fix:</strong></p><pre><code># Run type checking to see all errors\nnpm run typecheck</code></pre><p>This shows all TypeScript errors across the codebase. Fix them one by one.</p><p><strong>Common causes:</strong></p><ul><li><strong>Missing types:</strong> Install @types/ packages for libraries</li><li><strong>Wrong imports:</strong> Check import paths and exports</li><li><strong>API changes:</strong> After updating libraries, APIs may have changed</li></ul>",
+      "type": "document",
+      "parentId": "troubleshooting",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "trouble-xcode": {
+      "id": "trouble-xcode",
+      "name": "iOS Build Fails in Xcode",
+      "content": "<h3>Xcode Build Errors</h3><p><strong>The problem:</strong> Building in Xcode fails with errors.</p><p><strong>The standard fix sequence:</strong></p><ol><li><strong>Clean the build folder:</strong><br/>Product → Clean Build Folder (Cmd+Shift+K)</li><li><strong>Re-sync from Capacitor:</strong><br/><code>npx cap sync ios</code></li><li><strong>Rebuild:</strong><br/>Cmd+R</li></ol><p><strong>If still failing:</strong></p><ul><li>Check Xcode for specific error messages</li><li>Try closing and reopening Xcode</li><li>Delete <code>ios/App/Pods/</code> and run <code>npx cap sync ios</code> again</li></ul><p><strong>Signing errors:</strong> Make sure you have a development team selected in Xcode (Signing & Capabilities tab).</p>",
+      "type": "document",
+      "parentId": "troubleshooting",
+      "childrenIds": [],
+      "prefix": ""
+    }
+  }
+}

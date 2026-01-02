@@ -3,7 +3,7 @@
 import React from 'react';
 import type { OutlineNode, NodeMap } from '@/types';
 import NodeIcon from './node-icon';
-import { ChevronRight, Plus, Trash2, Edit3, ChevronDown, ChevronUp, Copy, Scissors, ClipboardPaste } from 'lucide-react';
+import { ChevronRight, Plus, Trash2, Edit3, ChevronDown, ChevronUp, Copy, Scissors, ClipboardPaste, CopyPlus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import {
@@ -33,10 +33,51 @@ interface NodeItemProps {
   onCopySubtree?: (nodeId: string) => void;
   onCutSubtree?: (nodeId: string) => void;
   onPasteSubtree?: (targetNodeId: string) => void;
+  onDuplicateNode?: (nodeId: string) => void;
   hasClipboard?: boolean;
   isRoot?: boolean;
   onIndent?: (nodeId: string) => void;
   onOutdent?: (nodeId: string) => void;
+  // Search highlighting
+  searchTerm?: string;
+  highlightedNodeIds?: Set<string>;
+}
+
+// Helper to highlight search matches in text
+function highlightText(text: string, searchTerm: string): React.ReactNode {
+  if (!searchTerm || searchTerm.length < 2) return text;
+
+  const lowerText = text.toLowerCase();
+  const lowerSearch = searchTerm.toLowerCase();
+  const parts: React.ReactNode[] = [];
+  let lastIndex = 0;
+  let index = lowerText.indexOf(lowerSearch);
+  let key = 0;
+
+  while (index !== -1) {
+    // Add text before match
+    if (index > lastIndex) {
+      parts.push(text.slice(lastIndex, index));
+    }
+    // Add highlighted match
+    parts.push(
+      <mark
+        key={key++}
+        className="bg-yellow-300 dark:bg-yellow-600 text-foreground px-0.5 rounded-sm"
+      >
+        {text.slice(index, index + searchTerm.length)}
+      </mark>
+    );
+    lastIndex = index + searchTerm.length;
+    index = lowerText.indexOf(lowerSearch, lastIndex);
+  }
+
+  // Add remaining text
+  if (lastIndex < text.length) {
+    parts.push(text.slice(lastIndex));
+  }
+
+  return parts.length > 0 ? parts : text;
 }
 
 type DropPosition = 'before' | 'after' | 'inside' | null;
@@ -84,10 +125,13 @@ export default function NodeItem({
   onCopySubtree,
   onCutSubtree,
   onPasteSubtree,
+  onDuplicateNode,
   hasClipboard = false,
   isRoot = false,
   onIndent,
   onOutdent,
+  searchTerm,
+  highlightedNodeIds,
 }: NodeItemProps) {
   const node = nodes[nodeId];
   const [isEditing, setIsEditing] = React.useState(false);
@@ -352,8 +396,10 @@ export default function NodeItem({
           <ContextMenuTrigger asChild>
             <div
             className={cn(
-                "relative flex items-center rounded-md transition-colors group touch-manipulation",
-                isSelected ? "bg-primary/20 border-l-4 border-l-blue-500" : "hover:bg-primary/10 border-l-4 border-l-transparent",
+                "relative flex items-center rounded-lg transition-all duration-150 group touch-manipulation",
+                isSelected
+                  ? "bg-primary/15 shadow-sm"
+                  : "hover:bg-primary/5",
                 dropPosition && "bg-accent/10",
                 isDragging && "opacity-50 bg-muted",
                 !isRoot && "cursor-grab active:cursor-grabbing"
@@ -407,12 +453,14 @@ export default function NodeItem({
                 />
             ) : (
                 <span className={cn(
-                    "flex-1 truncate p-1 cursor-pointer",
-                    "text-blue-400",
-                    node.name === 'Node 5' && "text-orange-500 font-bold"
+                    "flex-1 truncate py-1.5 px-1 cursor-pointer text-foreground font-medium",
+                    isSelected && "text-primary",
+                    highlightedNodeIds?.has(nodeId) && "bg-yellow-100 dark:bg-yellow-900/30 rounded"
                 )}>
-                    {numbering && <span className="text-muted-foreground mr-2">{numbering}</span>}
-                    {node.name}
+                    {numbering && <span className="text-muted-foreground mr-2 font-normal">{numbering}</span>}
+                    {searchTerm && highlightedNodeIds?.has(nodeId)
+                      ? highlightText(node.name, searchTerm)
+                      : node.name}
                 </span>
             )}
             </div>
@@ -475,6 +523,14 @@ export default function NodeItem({
               </ContextMenuItem>
             )}
 
+            {!isRoot && onDuplicateNode && (
+              <ContextMenuItem onClick={(e) => { e.stopPropagation(); onDuplicateNode(node.id); }}>
+                <CopyPlus className="mr-2 h-4 w-4" />
+                Duplicate
+                <ContextMenuShortcut>⌘D</ContextMenuShortcut>
+              </ContextMenuItem>
+            )}
+
             {!isRoot && onDeleteNode && (
               <>
                 <ContextMenuSeparator />
@@ -509,9 +565,12 @@ export default function NodeItem({
                     onCopySubtree={onCopySubtree}
                     onCutSubtree={onCutSubtree}
                     onPasteSubtree={onPasteSubtree}
+                    onDuplicateNode={onDuplicateNode}
                     hasClipboard={hasClipboard}
                     onIndent={onIndent}
                     onOutdent={onOutdent}
+                    searchTerm={searchTerm}
+                    highlightedNodeIds={highlightedNodeIds}
                 />
             ))}
             </ul>

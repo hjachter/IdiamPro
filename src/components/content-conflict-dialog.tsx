@@ -10,9 +10,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Replace, ListPlus, X } from 'lucide-react';
+import { Replace, ListPlus, ListStart, X } from 'lucide-react';
 
-export type ContentConflictAction = 'replace' | 'append' | 'cancel';
+export type ContentConflictAction = 'replace' | 'append' | 'prepend' | 'cancel';
 
 interface ContentConflictDialogProps {
   open: boolean;
@@ -62,6 +62,14 @@ export default function ContentConflictDialog({
           >
             <X className="h-4 w-4 mr-2" />
             Cancel
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => onAction('prepend')}
+            className="w-full sm:w-auto"
+          >
+            <ListStart className="h-4 w-4 mr-2" />
+            Append Above
           </Button>
           <Button
             variant="outline"

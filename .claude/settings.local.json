@@ -40,7 +40,11 @@
       "Bash(xcrun simctl boot:*)",
       "Bash(xcrun simctl install:*)",
       "Bash(xcrun simctl launch:*)",
-      "Bash(xcrun simctl:*)"
+      "Bash(xcrun simctl:*)",
+      "Bash(npx husky init)",
+      "Bash(node -e:*)",
+      "Skill(design)",
+      "Bash(npx shadcn@latest add:*)"
     ]
   }
 }

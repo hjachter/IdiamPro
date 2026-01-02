@@ -15,6 +15,10 @@ import { useAI } from '@/contexts/ai-context';
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel } from './ui/alert-dialog';
 import { Button } from './ui/button';
 import { loadStorageData, saveAllOutlines, migrateToFileSystem, type MigrationConflict, type ConflictResolution } from '@/lib/storage-manager';
+import CommandPalette from './command-palette';
+import EmptyState from './empty-state';
+import { exportOutlineToJson } from '@/lib/export';
+import { createBlankOutline } from '@/lib/templates';
 
 type MobileView = 'stacked' | 'content'; // stacked = outline + preview, content = full screen content
 
@@ -62,12 +66,20 @@ export default function OutlinePro() {
     resolve: ((resolution: ConflictResolution) => void) | null;
   }>({ open: false, conflict: null, resolve: null });
 
+  // Command palette state
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const importFileInputRef = useRef<HTMLInputElement>(null);
+
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const isInitialLoadDone = useRef(false);
 
   const currentOutline = useMemo(() => outlines.find(o => o.id === currentOutlineId), [outlines, currentOutlineId]);
   const selectedNode = useMemo(() => (currentOutline?.nodes && selectedNodeId) ? currentOutline.nodes[selectedNodeId] : null, [currentOutline, selectedNodeId]);
+
+  // Check if there are any user outlines (not just the guide)
+  const hasUserOutlines = useMemo(() => outlines.some(o => !o.isGuide), [outlines]);
 
   const { plan } = useAI();
 
@@ -92,14 +104,23 @@ export default function OutlinePro() {
   }, [currentOutline, selectedNodeId]);
 
   // Auto-save: Save to persistent storage whenever outlines change
+  // Also update lastModified timestamp for current outline
   useEffect(() => {
     // Skip saving during initial load
     if (!isInitialLoadDone.current) return;
     // Skip if no outlines loaded yet
     if (outlines.length === 0) return;
 
+    // Update lastModified for current outline before saving
+    const updatedOutlines = outlines.map(o => {
+      if (o.id === currentOutlineId && !o.isGuide) {
+        return { ...o, lastModified: Date.now() };
+      }
+      return o;
+    });
+
     // Save to storage (file system or localStorage)
-    saveAllOutlines(outlines, currentOutlineId).catch(error => {
+    saveAllOutlines(updatedOutlines, currentOutlineId).catch(error => {
       console.error("Auto-save failed:", error);
     });
   }, [outlines, currentOutlineId]);
@@ -133,6 +154,20 @@ export default function OutlinePro() {
     };
 
     loadData();
+  }, []);
+
+  // Keyboard shortcut for Command Palette (Cmd+K / Ctrl+K)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Cmd+K or Ctrl+K to open command palette
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsCommandPaletteOpen(true);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   // handleSelectNode - navigate param controls whether to switch to full content view on mobile
@@ -317,6 +352,26 @@ export default function OutlinePro() {
     });
   }, [currentOutlineId]);
 
+  // Expand specific ancestor nodes (for search results)
+  const handleExpandAncestors = useCallback((nodeIds: string[]) => {
+    setOutlines(currentOutlines => {
+      return currentOutlines.map(o => {
+        if (o.id === currentOutlineId) {
+          const newNodes = { ...o.nodes };
+
+          nodeIds.forEach(nodeId => {
+            if (newNodes[nodeId] && newNodes[nodeId].isCollapsed) {
+              newNodes[nodeId] = { ...newNodes[nodeId], isCollapsed: false };
+            }
+          });
+
+          return { ...o, nodes: newNodes };
+        }
+        return o;
+      });
+    });
+  }, [currentOutlineId]);
+
   // FIXED: handleCreateOutline uses functional update pattern
   const handleCreateOutline = useCallback(() => {
     const newRootId = uuidv4();
@@ -344,6 +399,26 @@ export default function OutlinePro() {
     setCurrentOutlineId(newOutlineId);
     setSelectedNodeId(newRootId);
   }, []);
+
+  // Create outline from template
+  const handleCreateFromTemplate = useCallback((templateOutline: Outline) => {
+    setOutlines(currentOutlines => [...currentOutlines, templateOutline]);
+    setCurrentOutlineId(templateOutline.id);
+    setSelectedNodeId(templateOutline.rootNodeId);
+    toast({
+      title: "Outline Created",
+      description: `"${templateOutline.name}" has been created from template.`,
+    });
+  }, [toast]);
+
+  // Open the User Guide
+  const handleOpenGuide = useCallback(() => {
+    const guide = outlines.find(o => o.isGuide);
+    if (guide) {
+      setCurrentOutlineId(guide.id);
+      setSelectedNodeId(guide.rootNodeId);
+    }
+  }, [outlines]);
 
   // Handle folder selection: migrate to file system and reload
   const handleFolderSelected = useCallback(async () => {
@@ -777,6 +852,104 @@ export default function OutlinePro() {
     return result;
   }, []);
 
+  // Duplicate a node and its subtree as a sibling
+  const handleDuplicateNode = useCallback((nodeId: string) => {
+    const outline = outlines.find(o => o.id === currentOutlineId);
+    if (!outline) return;
+
+    const nodeToDuplicate = outline.nodes[nodeId];
+    if (!nodeToDuplicate || nodeToDuplicate.type === 'root') return;
+
+    setOutlines(currentOutlines => {
+      return currentOutlines.map(o => {
+        if (o.id !== currentOutlineId) return o;
+
+        // Collect subtree
+        const subtreeNodes = collectSubtree(o.nodes, nodeId);
+
+        // Create new IDs for all duplicated nodes
+        const idMapping: Record<string, string> = {};
+        Object.keys(subtreeNodes).forEach(oldId => {
+          idMapping[oldId] = uuidv4();
+        });
+
+        // Create new nodes with remapped IDs
+        const newNodes: NodeMap = { ...o.nodes };
+        const duplicatedRoot = subtreeNodes[nodeId];
+
+        Object.entries(subtreeNodes).forEach(([oldId, node]) => {
+          const newId = idMapping[oldId];
+          const isSubtreeRoot = oldId === nodeId;
+
+          newNodes[newId] = {
+            ...node,
+            id: newId,
+            name: isSubtreeRoot ? `${node.name} (copy)` : node.name,
+            prefix: '',
+            parentId: isSubtreeRoot
+              ? node.parentId
+              : (node.parentId ? idMapping[node.parentId] : null),
+            childrenIds: node.childrenIds.map(childId => idMapping[childId]),
+          };
+        });
+
+        // Insert the duplicated root after the original
+        const newRootId = idMapping[nodeId];
+        const parentId = nodeToDuplicate.parentId;
+        if (parentId && newNodes[parentId]) {
+          const parent = newNodes[parentId];
+          const originalIndex = parent.childrenIds.indexOf(nodeId);
+          const newChildrenIds = [...parent.childrenIds];
+          newChildrenIds.splice(originalIndex + 1, 0, newRootId);
+          newNodes[parentId] = { ...parent, childrenIds: newChildrenIds };
+        }
+
+        // Recalculate prefixes
+        if (parentId) {
+          recalculatePrefixesForBranch(newNodes, parentId);
+        }
+
+        // Schedule selection of the duplicated node
+        setTimeout(() => {
+          setSelectedNodeId(newRootId);
+          toast({
+            title: "Node Duplicated",
+            description: `"${duplicatedRoot.name}" has been duplicated.`,
+          });
+        }, 0);
+
+        return { ...o, nodes: newNodes };
+      });
+    });
+  }, [currentOutlineId, outlines, collectSubtree, toast]);
+
+  // Handle export outline (for command palette)
+  const handleExportOutline = useCallback(() => {
+    if (currentOutline) {
+      exportOutlineToJson(currentOutline);
+    }
+  }, [currentOutline]);
+
+  // Handle import outline trigger (opens file picker)
+  const handleImportOutlineTrigger = useCallback(() => {
+    importFileInputRef.current?.click();
+  }, []);
+
+  // Handle file selection for import
+  const handleImportFileChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      handleImportOutline(file);
+    }
+    // Reset input so the same file can be selected again
+    event.target.value = '';
+  }, [handleImportOutline]);
+
+  // Open search (callback for command palette)
+  const handleOpenSearch = useCallback(() => {
+    setIsSearchOpen(true);
+  }, []);
+
   // Copy subtree to clipboard
   const handleCopySubtree = useCallback((nodeId: string) => {
     const outline = outlines.find(o => o.id === currentOutlineId);
@@ -968,9 +1141,52 @@ export default function OutlinePro() {
     );
   }
 
+  // Show empty state when there are no user outlines
+  if (!hasUserOutlines) {
+    return (
+      <div className="h-screen w-full">
+        <EmptyState
+          onCreateBlankOutline={handleCreateOutline}
+          onCreateFromTemplate={handleCreateFromTemplate}
+          onOpenGuide={handleOpenGuide}
+        />
+      </div>
+    );
+  }
+
   if (isMobile) {
     return (
       <div className="h-screen bg-background">
+        {/* Hidden file input for import */}
+        <input
+          type="file"
+          ref={importFileInputRef}
+          onChange={handleImportFileChange}
+          accept=".json,.idm"
+          className="hidden"
+        />
+
+        {/* Command Palette */}
+        <CommandPalette
+          open={isCommandPaletteOpen}
+          onOpenChange={setIsCommandPaletteOpen}
+          outlines={outlines}
+          currentOutlineId={currentOutlineId}
+          selectedNodeId={selectedNodeId}
+          onSelectOutline={handleSelectOutline}
+          onCreateOutline={handleCreateOutline}
+          onCreateNode={() => handleCreateNode()}
+          onDuplicateNode={handleDuplicateNode}
+          onDeleteNode={handleDeleteNode}
+          onCollapseAll={handleCollapseAll}
+          onExpandAll={handleExpandAll}
+          onOpenSearch={handleOpenSearch}
+          onExportOutline={handleExportOutline}
+          onImportOutline={handleImportOutlineTrigger}
+          onRefreshGuide={handleRefreshGuide}
+          isGuide={currentOutline?.isGuide ?? false}
+        />
+
         <AlertDialog open={prefixDialogState.open} onOpenChange={(open) => setPrefixDialogState(s => ({ ...s, open }))}>
           <AlertDialogContent>
             <AlertDialogHeader>
@@ -1051,6 +1267,7 @@ export default function OutlinePro() {
                 onToggleCollapse={handleToggleCollapse}
                 onCollapseAll={handleCollapseAll}
                 onExpandAll={handleExpandAll}
+                onExpandAncestors={handleExpandAncestors}
                 onCreateNode={handleCreateNode}
                 onDeleteNode={handleDeleteNode}
                 onGenerateOutline={handleGenerateOutline}
@@ -1062,10 +1279,13 @@ export default function OutlinePro() {
                 onCopySubtree={handleCopySubtree}
                 onCutSubtree={handleCutSubtree}
                 onPasteSubtree={handlePasteSubtree}
+                onDuplicateNode={handleDuplicateNode}
                 hasClipboard={subtreeClipboard !== null}
                 onRefreshGuide={handleRefreshGuide}
                 onFolderSelected={handleFolderSelected}
                 isLoadingAI={isLoadingAI}
+                externalSearchOpen={isSearchOpen}
+                onSearchOpenChange={setIsSearchOpen}
               />
             </div>
             {/* Content Preview - takes ~30%, tap to expand */}
@@ -1117,6 +1337,36 @@ export default function OutlinePro() {
 
   return (
     <ResizablePanelGroup direction="horizontal" className="h-screen w-full rounded-none border-none">
+      {/* Hidden file input for import */}
+      <input
+        type="file"
+        ref={importFileInputRef}
+        onChange={handleImportFileChange}
+        accept=".json,.idm"
+        className="hidden"
+      />
+
+      {/* Command Palette */}
+      <CommandPalette
+        open={isCommandPaletteOpen}
+        onOpenChange={setIsCommandPaletteOpen}
+        outlines={outlines}
+        currentOutlineId={currentOutlineId}
+        selectedNodeId={selectedNodeId}
+        onSelectOutline={handleSelectOutline}
+        onCreateOutline={handleCreateOutline}
+        onCreateNode={() => handleCreateNode()}
+        onDuplicateNode={handleDuplicateNode}
+        onDeleteNode={handleDeleteNode}
+        onCollapseAll={handleCollapseAll}
+        onExpandAll={handleExpandAll}
+        onOpenSearch={handleOpenSearch}
+        onExportOutline={handleExportOutline}
+        onImportOutline={handleImportOutlineTrigger}
+        onRefreshGuide={handleRefreshGuide}
+        isGuide={currentOutline?.isGuide ?? false}
+      />
+
       <AlertDialog open={prefixDialogState.open} onOpenChange={(open) => setPrefixDialogState(s => ({ ...s, open }))}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -1194,6 +1444,7 @@ export default function OutlinePro() {
             onToggleCollapse={handleToggleCollapse}
             onCollapseAll={handleCollapseAll}
             onExpandAll={handleExpandAll}
+            onExpandAncestors={handleExpandAncestors}
             onCreateNode={handleCreateNode}
             onDeleteNode={handleDeleteNode}
             onGenerateOutline={handleGenerateOutline}
@@ -1205,10 +1456,13 @@ export default function OutlinePro() {
             onCopySubtree={handleCopySubtree}
             onCutSubtree={handleCutSubtree}
             onPasteSubtree={handlePasteSubtree}
+            onDuplicateNode={handleDuplicateNode}
             hasClipboard={subtreeClipboard !== null}
             onRefreshGuide={handleRefreshGuide}
             onFolderSelected={handleFolderSelected}
             isLoadingAI={isLoadingAI}
+            externalSearchOpen={isSearchOpen}
+            onSearchOpenChange={setIsSearchOpen}
           />
         </div>
       </ResizablePanel>

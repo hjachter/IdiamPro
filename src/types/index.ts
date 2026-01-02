@@ -32,6 +32,7 @@ export interface Outline {
   rootNodeId: string;
   nodes: NodeMap;
   isGuide?: boolean;
+  lastModified?: number; // Unix timestamp
 }
 
 // ============================================

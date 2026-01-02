@@ -1,0 +1,20 @@
+#!/bin/sh
+
+# Pre-commit hook: Sync iOS before committing
+echo "[Pre-commit] Syncing iOS..."
+
+# Use Node 22 for Capacitor
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+nvm use 22 > /dev/null 2>&1
+
+# Run cap sync
+npx cap sync ios
+
+# Check if sync created changes that need to be staged
+if [ -n "$(git status --porcelain ios/)" ]; then
+  echo "[Pre-commit] iOS changes detected, staging..."
+  git add ios/
+fi
+
+echo "[Pre-commit] iOS sync complete!"
