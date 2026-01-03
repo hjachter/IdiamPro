@@ -98,16 +98,23 @@ function loadFromLocalStorage(): Outline[] {
   }
 }
 
+// Separate key for currentOutlineId (used even with file system storage)
+const CURRENT_OUTLINE_KEY = 'idiampro-current-outline-id';
+
 /**
  * Load storage data (from file system or localStorage)
  */
 export async function loadStorageData(): Promise<StorageData> {
+  // Always read currentOutlineId from localStorage (works with all storage backends)
+  const savedCurrentOutlineId = localStorage.getItem(CURRENT_OUTLINE_KEY) || '';
+
   // Try file system first
   const fileSystemAvailable = await isFileSystemStorageAvailable();
 
   if (fileSystemAvailable) {
     const fileOutlines = await loadFromFileSystem();
-    const currentOutlineId = fileOutlines[0]?.id || '';
+    // Use saved currentOutlineId, or fall back to first outline
+    const currentOutlineId = savedCurrentOutlineId || fileOutlines[0]?.id || '';
     console.log('Using file system storage');
     return { outlines: fileOutlines, currentOutlineId };
   }
@@ -115,7 +122,7 @@ export async function loadStorageData(): Promise<StorageData> {
   // Fall back to localStorage
   const localOutlines = loadFromLocalStorage();
   const savedData = localStorage.getItem(LOCAL_STORAGE_KEY);
-  const currentOutlineId = savedData ? JSON.parse(savedData).currentOutlineId || localOutlines[0]?.id || '' : '';
+  const currentOutlineId = savedCurrentOutlineId || (savedData ? JSON.parse(savedData).currentOutlineId || localOutlines[0]?.id || '' : '');
   console.log('Using localStorage');
   return { outlines: localOutlines, currentOutlineId };
 }
@@ -174,6 +181,9 @@ export async function saveOutline(outline: Outline, allOutlines: Outline[]): Pro
  * Save all outlines to storage
  */
 export async function saveAllOutlines(outlines: Outline[], currentOutlineId: string): Promise<void> {
+  // Always save currentOutlineId to dedicated key (works with all storage backends)
+  localStorage.setItem(CURRENT_OUTLINE_KEY, currentOutlineId);
+
   // Filter out the guide
   const userOutlines = outlines.filter(o => !o.isGuide);
 

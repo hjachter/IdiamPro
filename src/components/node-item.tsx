@@ -156,13 +156,14 @@ export default function NodeItem({
   const swipeTriggeredRef = React.useRef(false);
 
   const handlePointerDown = (e: React.PointerEvent) => {
-    if (isRoot || isEditing) return;
+    // Only use swipe gestures for touch input, not mouse (to preserve drag and drop)
+    if (isRoot || isEditing || e.pointerType === 'mouse') return;
     pointerStartRef.current = { x: e.clientX, y: e.clientY, time: Date.now(), pointerId: e.pointerId };
     swipeTriggeredRef.current = false;
     setSwipeOffset(0);
     // Capture pointer to receive move events even outside element
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
-    // Prevent default to avoid zoom/scroll
+    // Prevent default to avoid zoom/scroll (only for touch)
     e.preventDefault();
   };
 
