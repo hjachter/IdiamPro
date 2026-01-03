@@ -7,7 +7,14 @@ import type { OutlineNode, NodeGenerationContext } from '@/types';
 import NodeIcon from './node-icon';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
-import { ArrowLeft, Sparkles, Loader2, Eraser, Scissors, Copy, Clipboard, Type, Undo, Redo, List, ListOrdered, ListX, Minus, FileText, Sheet, Presentation, Video, Map, AppWindow, Plus, Bold, Italic, Strikethrough, Code, Heading1, Heading2, Heading3, Mic, MicOff, ChevronRight, Home } from 'lucide-react';
+import { ArrowLeft, Sparkles, Loader2, Eraser, Scissors, Copy, Clipboard, Type, Undo, Redo, List, ListOrdered, ListX, Minus, FileText, Sheet, Presentation, Video, Map, AppWindow, Plus, Bold, Italic, Strikethrough, Code, Heading1, Heading2, Heading3, Mic, MicOff, ChevronRight, Home, Pencil } from 'lucide-react';
+import dynamic from 'next/dynamic';
+
+// Dynamically import DrawingCanvas to avoid SSR issues with tldraw
+const DrawingCanvas = dynamic(() => import('./drawing-canvas'), {
+  ssr: false,
+  loading: () => null,
+});
 import { Card, CardContent } from './ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import ContentConflictDialog, { type ContentConflictAction } from './content-conflict-dialog';
@@ -95,6 +102,7 @@ export default function ContentPane({
   const [embedDialogOpen, setEmbedDialogOpen] = useState(false);
   const [embedType, setEmbedType] = useState<EmbedType>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [isDrawingOpen, setIsDrawingOpen] = useState(false);
 
   const aiContentEnabled = useAIFeature('enableAIContentGeneration');
   const { aiService } = useAI();
@@ -366,6 +374,24 @@ export default function ContentPane({
     setEmbedDialogOpen(true);
   };
 
+  const handleOpenDrawing = () => {
+    setIsDrawingOpen(true);
+  };
+
+  const handleSaveDrawing = (imageDataUrl: string) => {
+    if (!editor) return;
+
+    // Insert the drawing image into the editor
+    editor.chain().focus().setImage({ src: imageDataUrl }).run();
+    setIsDrawingOpen(false);
+
+    toast({
+      title: "Drawing inserted",
+      description: "Your drawing has been added to the content.",
+      duration: 2000,
+    });
+  };
+
   const handleEmbedSubmit = (urlInput: string) => {
     if (!editor || !node) return;
 
@@ -500,6 +526,12 @@ export default function ContentPane({
         onCancel={handleEmbedCancel}
       />
 
+      <DrawingCanvas
+        isOpen={isDrawingOpen}
+        onClose={() => setIsDrawingOpen(false)}
+        onSave={handleSaveDrawing}
+      />
+
       <header className="flex-shrink-0 p-4 border-b" style={{ paddingTop: 'max(1rem, env(safe-area-inset-top))' }}>
         <div className="flex items-center gap-2 min-w-0">
             {onBack && (
@@ -554,6 +586,10 @@ export default function ContentPane({
               </TooltipTrigger>
               <TooltipContent>Add content</TooltipContent>
               <DropdownMenuContent align="start">
+                <DropdownMenuItem onClick={handleOpenDrawing}>
+                  <Pencil className="mr-2 h-4 w-4" />
+                  Drawing (Apple Pencil)
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleInsertYouTube}>
                   <Video className="mr-2 h-4 w-4" />
                   YouTube Video
@@ -811,6 +847,11 @@ export default function ContentPane({
                 <ContextMenuItem onClick={handleInsertYouTube}>
                   <Video className="mr-2 h-4 w-4" />
                   YouTube Video
+                </ContextMenuItem>
+
+                <ContextMenuItem onClick={handleOpenDrawing}>
+                  <Pencil className="mr-2 h-4 w-4" />
+                  Drawing (Apple Pencil)
                 </ContextMenuItem>
 
                 <ContextMenuItem onClick={handleInsertGoogleMaps}>

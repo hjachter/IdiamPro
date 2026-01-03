@@ -44,7 +44,8 @@
       "Bash(npx husky init)",
       "Bash(node -e:*)",
       "Skill(design)",
-      "Bash(npx shadcn@latest add:*)"
+      "Bash(npx shadcn@latest add:*)",
+      "WebSearch"
     ]
   }
 }
