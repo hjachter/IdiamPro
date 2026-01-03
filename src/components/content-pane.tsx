@@ -64,13 +64,19 @@ function isTabularData(text: string): boolean {
 import NodeIcon from './node-icon';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
-import { ArrowLeft, Sparkles, Loader2, Eraser, Scissors, Copy, Clipboard, Type, Undo, Redo, List, ListOrdered, ListX, Minus, FileText, Sheet, Presentation, Video, Map, AppWindow, Plus, Bold, Italic, Strikethrough, Code, Heading1, Heading2, Heading3, Mic, MicOff, ChevronRight, Home, Pencil, ALargeSmall, Check, Calendar } from 'lucide-react';
+import { ArrowLeft, Sparkles, Loader2, Eraser, Scissors, Copy, Clipboard, Type, Undo, Redo, List, ListOrdered, ListX, Minus, FileText, Sheet, Presentation, Video, Map, AppWindow, Plus, Bold, Italic, Strikethrough, Code, Heading1, Heading2, Heading3, Mic, MicOff, ChevronRight, Home, Pencil, ALargeSmall, Check, Calendar, Brush } from 'lucide-react';
 import dynamic from 'next/dynamic';
 
 // Dynamically import DrawingCanvas to avoid SSR issues with tldraw
 const DrawingCanvas = dynamic(() => import('./drawing-canvas'), {
   ssr: false,
   loading: () => null,
+});
+
+// Dynamically import TldrawEditor for canvas nodes
+const TldrawEditor = dynamic(() => import('./tldraw-editor'), {
+  ssr: false,
+  loading: () => <div className="flex items-center justify-center h-[500px] text-muted-foreground">Loading canvas...</div>,
 });
 import { Card, CardContent } from './ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -525,6 +531,29 @@ export default function ContentPane({
     editor.chain().focus().insertContent(today).run();
   };
 
+  const handleConvertToCanvas = () => {
+    if (!node) return;
+    // Convert this node to a canvas type with empty content
+    // The TldrawEditor will initialize a fresh canvas
+    onUpdate(node.id, { type: 'canvas', content: '' });
+    toast({
+      title: "Switched to Canvas",
+      description: "This node is now a freeform canvas. Draw, add text, and arrange content freely!",
+      duration: 3000,
+    });
+  };
+
+  const handleConvertToText = () => {
+    if (!node) return;
+    // Convert back to document type with empty content
+    onUpdate(node.id, { type: 'document', content: '' });
+    toast({
+      title: "Switched to Text",
+      description: "This node is now a text document.",
+      duration: 2000,
+    });
+  };
+
   const handleSaveDrawing = (imageDataUrl: string) => {
     if (!editor) return;
 
@@ -733,6 +762,18 @@ export default function ContentPane({
               </TooltipTrigger>
               <TooltipContent>Add content</TooltipContent>
               <DropdownMenuContent align="start">
+                {node.type !== 'canvas' && (
+                  <DropdownMenuItem onClick={handleConvertToCanvas}>
+                    <Brush className="mr-2 h-4 w-4" />
+                    Canvas (Freeform)
+                  </DropdownMenuItem>
+                )}
+                {node.type === 'canvas' && (
+                  <DropdownMenuItem onClick={handleConvertToText}>
+                    <FileText className="mr-2 h-4 w-4" />
+                    Switch to Text
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem onClick={handleOpenDrawing}>
                   <Pencil className="mr-2 h-4 w-4" />
                   Drawing (Apple Pencil)
@@ -828,6 +869,26 @@ export default function ContentPane({
             </Card>
         )}
 
+        {/* Canvas node - full tldraw editor */}
+        {node.type === 'canvas' && (
+          <div className="h-[calc(100vh-200px)] min-h-[500px] rounded-lg border overflow-hidden">
+            <TldrawEditor
+              snapshot={node.content ? (() => {
+                try {
+                  return JSON.parse(node.content);
+                } catch {
+                  return null;
+                }
+              })() : null}
+              onSnapshotChange={(snapshot) => {
+                onUpdate(node.id, { content: JSON.stringify(snapshot) });
+              }}
+            />
+          </div>
+        )}
+
+        {/* Text editor for non-canvas nodes */}
+        {node.type !== 'canvas' && (
         <ContextMenu onOpenChange={(open) => {
             if (open) {
               // Block pointer events briefly when menu opens to prevent accidental clicks
@@ -1014,6 +1075,13 @@ export default function ContentPane({
                 Insert App
               </ContextMenuSubTrigger>
               <ContextMenuSubContent>
+                <ContextMenuItem onClick={handleConvertToCanvas}>
+                  <Brush className="mr-2 h-4 w-4" />
+                  Canvas (Freeform)
+                </ContextMenuItem>
+
+                <ContextMenuSeparator />
+
                 <ContextMenuItem onClick={handleInsertGoogleDoc}>
                   <FileText className="mr-2 h-4 w-4" />
                   Google Doc
@@ -1082,6 +1150,7 @@ export default function ContentPane({
             </ContextMenuItem>
           </ContextMenuContent>
         </ContextMenu>
+        )}
       </main>
     </div>
   );

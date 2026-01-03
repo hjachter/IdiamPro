@@ -16,6 +16,7 @@ import {
   FileJson,
   Youtube,
   Map,
+  Brush,
   type LucideProps,
 } from 'lucide-react';
 import type { NodeType } from '@/types';
@@ -41,6 +42,7 @@ const typeColorMap: Partial<Record<NodeType, string>> = {
   database: 'text-[hsl(var(--node-chapter))]',
   note: 'text-[hsl(var(--warning))]',
   map: 'text-[hsl(var(--success))]',
+  canvas: 'text-purple-500',
 };
 
 const NodeIcon: React.FC<NodeIconProps> = ({ type, isChapter, isCollapsed, className, ...props }) => {
@@ -72,6 +74,7 @@ const NodeIcon: React.FC<NodeIconProps> = ({ type, isChapter, isCollapsed, class
     pdf: FileJson,
     youtube: Youtube,
     map: Map,
+    canvas: Brush,
   };
 
   const Icon = iconMap[type] || FileText;

@@ -11,7 +11,8 @@ export type NodeType =
   | 'note'
   | 'pdf'
   | 'youtube'
-  | 'map';
+  | 'map'
+  | 'canvas';
 
 export interface OutlineNode {
   id: string;
