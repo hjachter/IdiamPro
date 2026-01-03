@@ -162,6 +162,7 @@ export default function ContentPane({
   const [isDrawingOpen, setIsDrawingOpen] = useState(false);
   const [pendingTabularPaste, setPendingTabularPaste] = useState<string | null>(null);
   const [fontSize, setFontSize] = useState<'xs' | 'sm' | 'base' | 'lg' | 'xl'>('base');
+  const [contextMenuReady, setContextMenuReady] = useState(true);
 
   const aiContentEnabled = useAIFeature('enableAIContentGeneration');
   const { aiService } = useAI();
@@ -827,7 +828,13 @@ export default function ContentPane({
             </Card>
         )}
 
-        <ContextMenu modal={false}>
+        <ContextMenu onOpenChange={(open) => {
+            if (open) {
+              // Block pointer events briefly when menu opens to prevent accidental clicks
+              setContextMenuReady(false);
+              setTimeout(() => setContextMenuReady(true), 100);
+            }
+          }}>
           <ContextMenuTrigger
             className={`min-h-[400px] flex-grow text-base font-body leading-relaxed p-0 relative block ${
               isDragging ? 'ring-2 ring-primary ring-offset-2' : ''
@@ -852,7 +859,7 @@ export default function ContentPane({
           </ContextMenuTrigger>
 
           <ContextMenuContent
-            avoidCollisions={false}
+            className={contextMenuReady ? '' : 'pointer-events-none'}
             onCloseAutoFocus={(e) => {
               // Prevent auto-focus behavior that might interfere
               e.preventDefault();
