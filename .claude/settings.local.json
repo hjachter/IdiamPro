@@ -45,7 +45,8 @@
       "Bash(node -e:*)",
       "Skill(design)",
       "Bash(npx shadcn@latest add:*)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(grep:*)"
     ]
   }
 }

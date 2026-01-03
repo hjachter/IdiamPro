@@ -81,6 +81,8 @@ export default function OutlinePro() {
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const isInitialLoadDone = useRef(false);
+  const pendingSaveRef = useRef<Promise<void> | null>(null);
+  const hasUnsavedChangesRef = useRef(false);
 
   const currentOutline = useMemo(() => outlines.find(o => o.id === currentOutlineId), [outlines, currentOutlineId]);
   const selectedNode = useMemo(() => (currentOutline?.nodes && selectedNodeId) ? currentOutline.nodes[selectedNodeId] : null, [currentOutline, selectedNodeId]);
@@ -118,6 +120,9 @@ export default function OutlinePro() {
     // Skip if no outlines loaded yet
     if (outlines.length === 0) return;
 
+    // Mark as having unsaved changes
+    hasUnsavedChangesRef.current = true;
+
     // Update lastModified for current outline before saving
     const updatedOutlines = outlines.map(o => {
       if (o.id === currentOutlineId && !o.isGuide) {
@@ -127,10 +132,33 @@ export default function OutlinePro() {
     });
 
     // Save to storage (file system or localStorage)
-    saveAllOutlines(updatedOutlines, currentOutlineId).catch(error => {
-      console.error("Auto-save failed:", error);
-    });
+    const savePromise = saveAllOutlines(updatedOutlines, currentOutlineId)
+      .then(() => {
+        hasUnsavedChangesRef.current = false;
+      })
+      .catch(error => {
+        console.error("Auto-save failed:", error);
+      })
+      .finally(() => {
+        pendingSaveRef.current = null;
+      });
+
+    pendingSaveRef.current = savePromise;
   }, [outlines, currentOutlineId]);
+
+  // Warn user before leaving if there are unsaved changes
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChangesRef.current || pendingSaveRef.current) {
+        e.preventDefault();
+        e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+        return e.returnValue;
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, []);
 
   // Initial load: Load data from storage
   useEffect(() => {

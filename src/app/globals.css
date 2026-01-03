@@ -123,7 +123,11 @@ body {
 
 /* Apple-like selection styles */
 ::selection {
-  background-color: hsl(211 100% 50% / 0.3);
+  background-color: hsl(211 100% 50% / 0.5);
+}
+
+.dark ::selection {
+  background-color: hsl(211 100% 60% / 0.55);
 }
 
 /* Smooth scrolling with Apple-like physics */

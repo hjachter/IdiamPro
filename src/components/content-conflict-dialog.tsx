@@ -34,7 +34,7 @@ export default function ContentConflictDialog({
 
   return (
     <AlertDialog open={open} onOpenChange={(isOpen) => !isOpen && onAction('cancel')}>
-      <AlertDialogContent className="sm:max-w-[500px]">
+      <AlertDialogContent className="sm:max-w-[600px]">
         <AlertDialogHeader>
           <AlertDialogTitle>Content Already Exists</AlertDialogTitle>
           <AlertDialogDescription>
@@ -45,16 +45,16 @@ export default function ContentConflictDialog({
         <div className="space-y-4 py-4">
           <div className="rounded-lg border p-3 bg-muted/30">
             <p className="text-xs font-medium text-muted-foreground mb-1">Existing Content</p>
-            <p className="text-sm">{truncate(existingContentPreview)}</p>
+            <p className="text-sm break-words">{truncate(existingContentPreview)}</p>
           </div>
 
           <div className="rounded-lg border p-3 bg-primary/5 border-primary/20">
             <p className="text-xs font-medium text-primary mb-1">AI-Generated Content</p>
-            <p className="text-sm">{truncate(newContentPreview)}</p>
+            <p className="text-sm break-words">{truncate(newContentPreview)}</p>
           </div>
         </div>
 
-        <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+        <AlertDialogFooter className="flex-col sm:flex-row gap-2 sm:flex-wrap sm:justify-end">
           <Button
             variant="outline"
             onClick={() => onAction('cancel')}

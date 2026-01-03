@@ -64,7 +64,7 @@ function isTabularData(text: string): boolean {
 import NodeIcon from './node-icon';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
-import { ArrowLeft, Sparkles, Loader2, Eraser, Scissors, Copy, Clipboard, Type, Undo, Redo, List, ListOrdered, ListX, Minus, FileText, Sheet, Presentation, Video, Map, AppWindow, Plus, Bold, Italic, Strikethrough, Code, Heading1, Heading2, Heading3, Mic, MicOff, ChevronRight, Home, Pencil, ALargeSmall, Check } from 'lucide-react';
+import { ArrowLeft, Sparkles, Loader2, Eraser, Scissors, Copy, Clipboard, Type, Undo, Redo, List, ListOrdered, ListX, Minus, FileText, Sheet, Presentation, Video, Map, AppWindow, Plus, Bold, Italic, Strikethrough, Code, Heading1, Heading2, Heading3, Mic, MicOff, ChevronRight, Home, Pencil, ALargeSmall, Check, Calendar } from 'lucide-react';
 import dynamic from 'next/dynamic';
 
 // Dynamically import DrawingCanvas to avoid SSR issues with tldraw
@@ -210,6 +210,20 @@ export default function ContentPane({
     editorProps: {
       attributes: {
         class: `tiptap focus:outline-none min-h-[400px] p-0 font-size-${fontSize}`,
+      },
+      handleDOMEvents: {
+        mousedown: (view, event) => {
+          // Prevent TipTap from handling right-click which clears selection
+          if (event.button === 2) {
+            event.preventDefault();
+            return true; // Stop TipTap from processing this event
+          }
+          return false;
+        },
+        contextmenu: (view, event) => {
+          // Let the event bubble up to Radix context menu
+          return false;
+        },
       },
       handlePaste: (view, event, slice) => {
         // Get plain text from clipboard
@@ -497,6 +511,17 @@ export default function ContentPane({
 
   const handleOpenDrawing = () => {
     setIsDrawingOpen(true);
+  };
+
+  const handleInsertDate = () => {
+    if (!editor) return;
+    const today = new Date().toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+    editor.chain().focus().insertContent(today).run();
   };
 
   const handleSaveDrawing = (imageDataUrl: string) => {
@@ -802,43 +827,37 @@ export default function ContentPane({
             </Card>
         )}
 
-        <ContextMenu>
-          <ContextMenuTrigger asChild>
-            <div
-              className={`min-h-[400px] flex-grow text-base font-body leading-relaxed p-0 relative ${
-                isDragging ? 'ring-2 ring-primary ring-offset-2' : ''
-              }`}
-              onDragEnter={handleDragEnter}
-              onDragLeave={handleDragLeave}
-              onDragOver={handleDragOver}
-              onDrop={handleDrop}
-              onMouseDown={(e) => {
-                // Prevent selection from being cleared when right-clicking
-                if (e.button === 2) { // Right mouse button
-                  e.preventDefault();
-                }
-              }}
-              onContextMenu={(e) => {
-                // Allow context menu to open but maintain selection
-                e.stopPropagation();
-              }}
-            >
-              {isDragging && (
-                <div className="absolute inset-0 bg-primary/10 flex items-center justify-center pointer-events-none z-10">
-                  <div className="text-lg font-semibold text-primary">
-                    Drop file to insert
-                  </div>
+        <ContextMenu modal={false}>
+          <ContextMenuTrigger
+            className={`min-h-[400px] flex-grow text-base font-body leading-relaxed p-0 relative block ${
+              isDragging ? 'ring-2 ring-primary ring-offset-2' : ''
+            }`}
+            onDragEnter={handleDragEnter}
+            onDragLeave={handleDragLeave}
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
+          >
+            {isDragging && (
+              <div className="absolute inset-0 bg-primary/10 flex items-center justify-center pointer-events-none z-10">
+                <div className="text-lg font-semibold text-primary">
+                  Drop file to insert
                 </div>
-              )}
-              {editor ? (
-                <EditorContent editor={editor} />
-              ) : (
-                <div className="text-muted-foreground">Loading editor...</div>
-              )}
-            </div>
+              </div>
+            )}
+            {editor ? (
+              <EditorContent editor={editor} />
+            ) : (
+              <div className="text-muted-foreground">Loading editor...</div>
+            )}
           </ContextMenuTrigger>
 
-          <ContextMenuContent>
+          <ContextMenuContent
+            avoidCollisions={false}
+            onCloseAutoFocus={(e) => {
+              // Prevent auto-focus behavior that might interfere
+              e.preventDefault();
+            }}
+          >
             {/* Text Editing Commands */}
             <ContextMenuItem onClick={handleCut}>
               <Scissors className="mr-2 h-4 w-4" />
@@ -967,6 +986,11 @@ export default function ContentPane({
             <ContextMenuItem onClick={handleHorizontalLine}>
               <Minus className="mr-2 h-4 w-4" />
               Horizontal Line
+            </ContextMenuItem>
+
+            <ContextMenuItem onClick={handleInsertDate}>
+              <Calendar className="mr-2 h-4 w-4" />
+              Insert Date
             </ContextMenuItem>
 
             <ContextMenuItem onClick={handleRemoveListFormatting}>
