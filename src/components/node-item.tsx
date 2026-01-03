@@ -3,7 +3,7 @@
 import React from 'react';
 import type { OutlineNode, NodeMap } from '@/types';
 import NodeIcon from './node-icon';
-import { ChevronRight, Plus, Trash2, Edit3, ChevronDown, ChevronUp, Copy, Scissors, ClipboardPaste, CopyPlus } from 'lucide-react';
+import { ChevronRight, Plus, Trash2, Edit3, ChevronDown, ChevronUp, Copy, Scissors, ClipboardPaste, CopyPlus, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import {
@@ -41,6 +41,8 @@ interface NodeItemProps {
   // Search highlighting
   searchTerm?: string;
   highlightedNodeIds?: Set<string>;
+  // AI content generation
+  onGenerateContentForChildren?: (nodeId: string) => void;
 }
 
 // Helper to highlight search matches in text
@@ -132,6 +134,7 @@ export default function NodeItem({
   onOutdent,
   searchTerm,
   highlightedNodeIds,
+  onGenerateContentForChildren,
 }: NodeItemProps) {
   const node = nodes[nodeId];
   const [isEditing, setIsEditing] = React.useState(false);
@@ -393,13 +396,13 @@ export default function NodeItem({
         {dropPosition === 'before' && <div className="absolute left-0 top-0 w-full h-1 bg-primary rounded pointer-events-none z-20" />}
         {dropPosition === 'after' && <div className="absolute left-0 bottom-0 w-full h-1 bg-primary rounded pointer-events-none z-20" />}
 
-        {/* Depth indicator line */}
+        {/* Depth indicator line with gradient colors */}
         {level > 0 && (
           <div
             className="absolute left-0 top-1 bottom-1 w-0.5 rounded-full"
             style={{
               marginLeft: `${(level - 1) * 1.5 + 0.5}rem`,
-              backgroundColor: `hsl(var(--primary) / ${Math.max(0.1, 0.4 - level * 0.08)})`,
+              backgroundColor: `hsl(var(--depth-${Math.min(level, 5)}) / ${Math.max(0.15, 0.5 - level * 0.08)})`,
             }}
           />
         )}
@@ -410,12 +413,14 @@ export default function NodeItem({
             className={cn(
                 "relative flex items-center rounded-lg transition-all duration-150 group touch-manipulation",
                 isSelected
-                  ? "bg-primary/15 shadow-sm ring-1 ring-primary/20"
+                  ? "bg-primary/15 shadow-sm ring-1 ring-primary/30"
                   : "hover:bg-primary/5",
                 dropPosition && "bg-accent/10",
                 isDragging && "opacity-50 bg-muted",
                 !isRoot && "cursor-grab active:cursor-grabbing",
-                isHighlighted && !isSelected && "bg-yellow-100 dark:bg-yellow-900/30"
+                isHighlighted && !isSelected && "bg-yellow-100 dark:bg-yellow-900/30",
+                // Subtle left accent for chapters (nodes with children)
+                isChapter && !isRoot && "border-l-2 border-l-[hsl(var(--node-chapter)/0.4)]"
             )}
             style={{
               paddingLeft: `${level * 1.5 + 0.5}rem`,
@@ -512,6 +517,13 @@ export default function NodeItem({
               </ContextMenuItem>
             )}
 
+            {isChapter && onGenerateContentForChildren && (
+              <ContextMenuItem onClick={(e) => { e.stopPropagation(); onGenerateContentForChildren(node.id); }}>
+                <Sparkles className="mr-2 h-4 w-4" />
+                Create Content for Children
+              </ContextMenuItem>
+            )}
+
             <ContextMenuSeparator />
             {onCopySubtree && (
               <ContextMenuItem onClick={(e) => { e.stopPropagation(); onCopySubtree(node.id); }}>
@@ -584,6 +596,7 @@ export default function NodeItem({
                     onOutdent={onOutdent}
                     searchTerm={searchTerm}
                     highlightedNodeIds={highlightedNodeIds}
+                    onGenerateContentForChildren={onGenerateContentForChildren}
                 />
             ))}
             </ul>

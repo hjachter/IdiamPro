@@ -113,6 +113,8 @@ interface OutlinePaneProps {
   // External control for search (for command palette)
   externalSearchOpen?: boolean;
   onSearchOpenChange?: (open: boolean) => void;
+  // AI content generation for children
+  onGenerateContentForChildren?: (nodeId: string) => void;
 }
 
 export default function OutlinePane({
@@ -147,6 +149,7 @@ export default function OutlinePane({
   onExpandAncestors,
   externalSearchOpen,
   onSearchOpenChange,
+  onGenerateContentForChildren,
 }: OutlinePaneProps) {
   const [renameId, setRenameId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
@@ -571,7 +574,7 @@ export default function OutlinePane({
       </div>
 
       <TooltipProvider delayDuration={300}>
-        <div className="flex-shrink-0 flex items-center justify-center gap-1.5 px-2 py-1 bg-secondary/50 rounded-xl">
+        <div className="flex-shrink-0 flex items-center justify-center gap-1.5 px-2 py-1.5 bg-[hsl(var(--toolbar-bg))] rounded-xl border border-border/30">
           <Tooltip>
             <TooltipTrigger asChild>
               <Button variant="outline" size="icon" onClick={() => onCreateNode()} disabled={!selectedNodeId} className="hover:bg-accent/20">
@@ -700,6 +703,7 @@ export default function OutlinePane({
               onOutdent={handleOutdent}
               searchTerm={searchTerm}
               highlightedNodeIds={currentOutlineHighlights}
+              onGenerateContentForChildren={onGenerateContentForChildren}
             />
           </ul>
         )}

@@ -519,12 +519,15 @@ export default function ContentPane({
             <div className="min-w-0 flex-1">
               {/* Breadcrumb navigation */}
               {ancestorPath.length > 0 && (
-                <div className="flex items-center gap-1 text-xs text-muted-foreground mb-1 overflow-hidden">
-                  <Home className="h-3 w-3 flex-shrink-0" />
+                <div className="flex items-center gap-1 text-xs mb-1 overflow-hidden">
+                  <Home className="h-3 w-3 flex-shrink-0 text-[hsl(var(--primary))]" />
                   {ancestorPath.map((name, index) => (
                     <React.Fragment key={index}>
-                      <ChevronRight className="h-3 w-3 flex-shrink-0" />
-                      <span className="truncate max-w-[100px]" title={name}>
+                      <ChevronRight className="h-3 w-3 flex-shrink-0 text-muted-foreground/50" />
+                      <span
+                        className="truncate max-w-[100px] text-muted-foreground hover:text-foreground transition-colors cursor-default"
+                        title={name}
+                      >
                         {name}
                       </span>
                     </React.Fragment>
@@ -537,7 +540,7 @@ export default function ContentPane({
       </header>
 
       {/* Toolbar */}
-      <div className="flex-shrink-0 border-b px-4 py-2 flex items-center gap-2 bg-muted/30">
+      <div className="flex-shrink-0 border-b border-border/50 px-4 py-2 flex items-center gap-2 bg-[hsl(var(--toolbar-bg))]">
         <TooltipProvider delayDuration={300}>
           {/* Add Content Button */}
           <Tooltip>

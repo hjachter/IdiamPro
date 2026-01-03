@@ -45,6 +45,22 @@ body {
     /* Additional Apple-like colors */
     --success: 142 76% 36%; /* iOS green #34C759 */
     --warning: 38 92% 50%; /* iOS orange #FF9500 */
+    --info: 211 100% 50%; /* iOS blue */
+
+    /* Depth indicator gradient colors (cool spectrum) */
+    --depth-1: 211 100% 50%; /* Blue */
+    --depth-2: 234 89% 58%; /* Indigo */
+    --depth-3: 262 80% 55%; /* Purple */
+    --depth-4: 280 70% 50%; /* Violet */
+    --depth-5: 320 72% 45%; /* Magenta */
+
+    /* Node type accent colors (subtle) */
+    --node-chapter: 211 100% 50%; /* Blue for chapters */
+    --node-document: 142 76% 36%; /* Green for documents */
+    --node-media: 280 70% 50%; /* Purple for media */
+
+    /* Toolbar backgrounds */
+    --toolbar-bg: 210 20% 96%; /* Slightly blue-tinted gray */
   }
 
   .dark {
@@ -73,6 +89,26 @@ body {
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+
+    /* Additional Apple-like colors */
+    --success: 142 70% 45%; /* Brighter green for dark mode */
+    --warning: 38 92% 55%;
+    --info: 211 100% 55%;
+
+    /* Depth indicator gradient colors (cool spectrum - brighter for dark) */
+    --depth-1: 211 100% 55%;
+    --depth-2: 234 85% 65%;
+    --depth-3: 262 75% 62%;
+    --depth-4: 280 65% 58%;
+    --depth-5: 320 65% 55%;
+
+    /* Node type accent colors (slightly brighter for dark mode) */
+    --node-chapter: 211 100% 55%;
+    --node-document: 142 70% 45%;
+    --node-media: 280 65% 58%;
+
+    /* Toolbar backgrounds */
+    --toolbar-bg: 220 15% 12%; /* Slightly blue-tinted dark */
   }
 }
 

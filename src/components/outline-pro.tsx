@@ -642,6 +642,107 @@ export default function OutlinePro() {
     }
   }, [plan, toast]);
 
+  // Helper to build ancestor path for a node
+  const getAncestorPath = useCallback((nodes: NodeMap, nodeId: string): string[] => {
+    const path: string[] = [];
+    let currentNode = nodes[nodeId];
+    while (currentNode && currentNode.parentId) {
+      const parent = nodes[currentNode.parentId];
+      if (parent) {
+        path.unshift(parent.name);
+        currentNode = parent;
+      } else {
+        break;
+      }
+    }
+    return path;
+  }, []);
+
+  // Generate content for all children of a node
+  const handleGenerateContentForChildren = useCallback(async (parentNodeId: string) => {
+    if (!currentOutline) return;
+
+    const nodes = currentOutline.nodes;
+    const parentNode = nodes[parentNodeId];
+    if (!parentNode || !parentNode.childrenIds || parentNode.childrenIds.length === 0) {
+      toast({
+        title: "No Children",
+        description: "This node has no children to generate content for.",
+      });
+      return;
+    }
+
+    const childIds = parentNode.childrenIds;
+    const totalChildren = childIds.length;
+
+    setIsLoadingAI(true);
+    toast({
+      title: "Generating Content",
+      description: `Creating content for ${totalChildren} child node${totalChildren > 1 ? 's' : ''}...`,
+    });
+
+    let successCount = 0;
+    let errorCount = 0;
+
+    // Process children sequentially to avoid rate limits
+    for (const childId of childIds) {
+      const childNode = nodes[childId];
+      if (!childNode) continue;
+
+      try {
+        const ancestorPath = getAncestorPath(nodes, childId);
+        const context: NodeGenerationContext = {
+          nodeId: childId,
+          nodeName: childNode.name,
+          ancestorPath,
+          existingContent: childNode.content || '',
+        };
+
+        const generatedContent = await generateContentForNodeAction(context, plan);
+
+        // Update the node with generated content
+        setOutlines(currentOutlines => {
+          return currentOutlines.map(o => {
+            if (o.id === currentOutlineId) {
+              return {
+                ...o,
+                lastModified: Date.now(),
+                nodes: {
+                  ...o.nodes,
+                  [childId]: {
+                    ...o.nodes[childId],
+                    content: generatedContent,
+                  },
+                },
+              };
+            }
+            return o;
+          });
+        });
+
+        successCount++;
+      } catch (e) {
+        console.error(`Failed to generate content for ${childNode.name}:`, e);
+        errorCount++;
+      }
+    }
+
+    setIsLoadingAI(false);
+
+    if (errorCount === 0) {
+      toast({
+        title: "Content Generated",
+        description: `Successfully created content for ${successCount} node${successCount > 1 ? 's' : ''}.`,
+      });
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Partial Success",
+        description: `Generated ${successCount} of ${totalChildren} nodes. ${errorCount} failed.`,
+      });
+    }
+  }, [currentOutline, currentOutlineId, getAncestorPath, plan, toast]);
+
   // Ingest external source - returns preview
   const handleIngestSource = useCallback(async (source: ExternalSourceInput): Promise<IngestPreview> => {
     // Build outline summary for context
@@ -1330,6 +1431,7 @@ export default function OutlinePro() {
                 isLoadingAI={isLoadingAI}
                 externalSearchOpen={isSearchOpen}
                 onSearchOpenChange={setIsSearchOpen}
+                onGenerateContentForChildren={handleGenerateContentForChildren}
               />
             </div>
             {/* Content Preview - takes ~30%, tap to expand */}
@@ -1536,6 +1638,7 @@ export default function OutlinePro() {
                 isLoadingAI={isLoadingAI}
                 externalSearchOpen={isSearchOpen}
                 onSearchOpenChange={setIsSearchOpen}
+                onGenerateContentForChildren={handleGenerateContentForChildren}
               />
             </div>
           </ResizablePanel>
