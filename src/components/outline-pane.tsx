@@ -7,7 +7,7 @@ import AIMenu from './ai-menu';
 import OutlineSearch, { type SearchMatch } from './outline-search';
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent, DropdownMenuPortal } from "@/components/ui/dropdown-menu";
-import { ChevronDown, FilePlus, Plus, Trash2, Edit, FileDown, FileUp, RotateCcw, ChevronsUp, ChevronsDown, Settings, Search } from 'lucide-react';
+import { ChevronDown, FilePlus, Plus, Trash2, Edit, FileDown, FileUp, RotateCcw, ChevronsUp, ChevronsDown, Settings, Search, Command } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Input } from './ui/input';
@@ -115,6 +115,8 @@ interface OutlinePaneProps {
   onSearchOpenChange?: (open: boolean) => void;
   // AI content generation for children
   onGenerateContentForChildren?: (nodeId: string) => void;
+  // Command palette
+  onOpenCommandPalette?: () => void;
 }
 
 export default function OutlinePane({
@@ -150,6 +152,7 @@ export default function OutlinePane({
   externalSearchOpen,
   onSearchOpenChange,
   onGenerateContentForChildren,
+  onOpenCommandPalette,
 }: OutlinePaneProps) {
   const [renameId, setRenameId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
@@ -655,6 +658,20 @@ export default function OutlinePane({
 
           {/* Visual spacer */}
           <div className="w-px h-6 bg-border/50 mx-0.5"></div>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={onOpenCommandPalette}
+                className="hover:bg-accent/20"
+              >
+                <Command className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Command Palette (⌘K)</TooltipContent>
+          </Tooltip>
 
           <SettingsDialog onFolderSelected={onFolderSelected}>
             <Button variant="outline" size="icon" title="Settings" className="hover:bg-accent/20">

@@ -1432,6 +1432,7 @@ export default function OutlinePro() {
                 externalSearchOpen={isSearchOpen}
                 onSearchOpenChange={setIsSearchOpen}
                 onGenerateContentForChildren={handleGenerateContentForChildren}
+                onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
               />
             </div>
             {/* Content Preview - takes ~30%, tap to expand */}
@@ -1639,6 +1640,7 @@ export default function OutlinePro() {
                 externalSearchOpen={isSearchOpen}
                 onSearchOpenChange={setIsSearchOpen}
                 onGenerateContentForChildren={handleGenerateContentForChildren}
+                onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
               />
             </div>
           </ResizablePanel>

@@ -1,13 +1,70 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useDebounce } from '@/lib/hooks';
 import { useToast } from '@/hooks/use-toast';
+import { ToastAction } from '@/components/ui/toast';
 import type { OutlineNode, NodeGenerationContext } from '@/types';
+
+/**
+ * Detect if text appears to be tabular/aligned data that would benefit from monospace formatting.
+ * Checks for: markdown tables, multiple consecutive spaces, tab-separated values, ASCII art tables.
+ */
+function isTabularData(text: string): boolean {
+  const lines = text.split('\n').filter(line => line.trim().length > 0);
+
+  // Need at least 2 lines to be considered tabular
+  if (lines.length < 2) return false;
+
+  // Check for markdown table (pipes with consistent structure)
+  const markdownTablePattern = /^\|.*\|$/;
+  const markdownTableLines = lines.filter(line => markdownTablePattern.test(line.trim()));
+  if (markdownTableLines.length >= 2) return true;
+
+  // Check for separator row (common in markdown/ASCII tables)
+  const separatorPattern = /^[\|\-\+\=\s]+$/;
+  const hasSeparator = lines.some(line => separatorPattern.test(line.trim()) && line.includes('-'));
+  if (hasSeparator && lines.length >= 3) return true;
+
+  // Check for multiple consecutive spaces (column alignment) in most lines
+  const multiSpacePattern = /\S\s{2,}\S/;  // Non-space, 2+ spaces, non-space
+  const linesWithMultiSpace = lines.filter(line => multiSpacePattern.test(line));
+  if (linesWithMultiSpace.length >= Math.min(2, lines.length * 0.5)) return true;
+
+  // Check for tab-separated values in most lines
+  const linesWithTabs = lines.filter(line => line.includes('\t'));
+  if (linesWithTabs.length >= Math.min(2, lines.length * 0.5)) return true;
+
+  // Check for consistent column structure (similar positions of whitespace gaps)
+  // This catches ASCII art tables and manually aligned text
+  if (lines.length >= 3) {
+    const getColumnPositions = (line: string): number[] => {
+      const positions: number[] = [];
+      const matches = line.matchAll(/\s{2,}/g);
+      for (const match of matches) {
+        if (match.index !== undefined) positions.push(match.index);
+      }
+      return positions;
+    };
+
+    const firstLinePositions = getColumnPositions(lines[0]);
+    if (firstLinePositions.length >= 1) {
+      const similarLines = lines.filter(line => {
+        const positions = getColumnPositions(line);
+        if (positions.length !== firstLinePositions.length) return false;
+        // Check if positions are within 3 characters of each other
+        return positions.every((pos, i) => Math.abs(pos - firstLinePositions[i]) <= 3);
+      });
+      if (similarLines.length >= lines.length * 0.6) return true;
+    }
+  }
+
+  return false;
+}
 import NodeIcon from './node-icon';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
-import { ArrowLeft, Sparkles, Loader2, Eraser, Scissors, Copy, Clipboard, Type, Undo, Redo, List, ListOrdered, ListX, Minus, FileText, Sheet, Presentation, Video, Map, AppWindow, Plus, Bold, Italic, Strikethrough, Code, Heading1, Heading2, Heading3, Mic, MicOff, ChevronRight, Home, Pencil } from 'lucide-react';
+import { ArrowLeft, Sparkles, Loader2, Eraser, Scissors, Copy, Clipboard, Type, Undo, Redo, List, ListOrdered, ListX, Minus, FileText, Sheet, Presentation, Video, Map, AppWindow, Plus, Bold, Italic, Strikethrough, Code, Heading1, Heading2, Heading3, Mic, MicOff, ChevronRight, Home, Pencil, ALargeSmall, Check } from 'lucide-react';
 import dynamic from 'next/dynamic';
 
 // Dynamically import DrawingCanvas to avoid SSR issues with tldraw
@@ -103,6 +160,8 @@ export default function ContentPane({
   const [embedType, setEmbedType] = useState<EmbedType>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isDrawingOpen, setIsDrawingOpen] = useState(false);
+  const [pendingTabularPaste, setPendingTabularPaste] = useState<string | null>(null);
+  const [fontSize, setFontSize] = useState<'xs' | 'sm' | 'base' | 'lg' | 'xl'>('base');
 
   const aiContentEnabled = useAIFeature('enableAIContentGeneration');
   const { aiService } = useAI();
@@ -150,7 +209,22 @@ export default function ContentPane({
     },
     editorProps: {
       attributes: {
-        class: 'tiptap focus:outline-none min-h-[400px] p-0',
+        class: `tiptap focus:outline-none min-h-[400px] p-0 font-size-${fontSize}`,
+      },
+      handlePaste: (view, event, slice) => {
+        // Get plain text from clipboard
+        const text = event.clipboardData?.getData('text/plain');
+
+        if (text && isTabularData(text)) {
+          // Let the paste happen normally, but show option to convert
+          // Use queueMicrotask to set state after paste completes
+          queueMicrotask(() => {
+            setPendingTabularPaste(text);
+          });
+        }
+
+        // Let Tiptap handle paste normally
+        return false;
       },
     },
   });
@@ -169,6 +243,19 @@ export default function ContentPane({
     }
   }, [node, editor]);
 
+  // Update editor class when font size changes
+  useEffect(() => {
+    if (editor) {
+      editor.setOptions({
+        editorProps: {
+          attributes: {
+            class: `tiptap focus:outline-none min-h-[400px] p-0 font-size-${fontSize}`,
+          },
+        },
+      });
+    }
+  }, [editor, fontSize]);
+
   // Insert transcript when speech recognition completes
   useEffect(() => {
     if (transcript && editor) {
@@ -186,6 +273,40 @@ export default function ContentPane({
       startListening();
     }
   };
+
+  // Handle converting last paste to code block (undo + repaste as code)
+  const handleConvertToCodeBlock = useCallback((text: string) => {
+    if (!editor) return;
+    // Undo the plain text paste, then insert as code block
+    editor.chain().focus().undo().setCodeBlock().insertContent(text).run();
+    setPendingTabularPaste(null);
+  }, [editor]);
+
+  // Show toast when tabular paste was detected (after paste already happened)
+  useEffect(() => {
+    if (pendingTabularPaste && editor) {
+      toast({
+        title: "Tabular data detected",
+        description: "Convert to code block to preserve alignment?",
+        duration: 8000,
+        action: (
+          <ToastAction
+            altText="Convert to code block"
+            onClick={() => handleConvertToCodeBlock(pendingTabularPaste)}
+          >
+            Convert
+          </ToastAction>
+        ),
+      });
+
+      // Clear pending state after toast duration
+      const timer = setTimeout(() => {
+        setPendingTabularPaste(null);
+      }, 8000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [pendingTabularPaste, editor, toast, handleConvertToCodeBlock]);
 
   const handleGenerateContent = async () => {
     if (!node || isGenerating || isLoadingAI || !editor) return;
@@ -791,6 +912,41 @@ export default function ContentPane({
                 <ContextMenuItem onClick={handleHeading3}>
                   <Heading3 className="mr-2 h-4 w-4" />
                   Heading 3
+                </ContextMenuItem>
+              </ContextMenuSubContent>
+            </ContextMenuSub>
+
+            {/* Font Size Submenu */}
+            <ContextMenuSub>
+              <ContextMenuSubTrigger>
+                <ALargeSmall className="mr-2 h-4 w-4" />
+                Font Size
+              </ContextMenuSubTrigger>
+              <ContextMenuSubContent>
+                <ContextMenuItem onClick={() => setFontSize('xs')}>
+                  {fontSize === 'xs' && <Check className="mr-2 h-4 w-4" />}
+                  {fontSize !== 'xs' && <span className="mr-2 w-4" />}
+                  Extra Small
+                </ContextMenuItem>
+                <ContextMenuItem onClick={() => setFontSize('sm')}>
+                  {fontSize === 'sm' && <Check className="mr-2 h-4 w-4" />}
+                  {fontSize !== 'sm' && <span className="mr-2 w-4" />}
+                  Small
+                </ContextMenuItem>
+                <ContextMenuItem onClick={() => setFontSize('base')}>
+                  {fontSize === 'base' && <Check className="mr-2 h-4 w-4" />}
+                  {fontSize !== 'base' && <span className="mr-2 w-4" />}
+                  Normal
+                </ContextMenuItem>
+                <ContextMenuItem onClick={() => setFontSize('lg')}>
+                  {fontSize === 'lg' && <Check className="mr-2 h-4 w-4" />}
+                  {fontSize !== 'lg' && <span className="mr-2 w-4" />}
+                  Large
+                </ContextMenuItem>
+                <ContextMenuItem onClick={() => setFontSize('xl')}>
+                  {fontSize === 'xl' && <Check className="mr-2 h-4 w-4" />}
+                  {fontSize !== 'xl' && <span className="mr-2 w-4" />}
+                  Extra Large
                 </ContextMenuItem>
               </ContextMenuSubContent>
             </ContextMenuSub>
