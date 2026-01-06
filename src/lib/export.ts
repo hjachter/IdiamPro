@@ -74,7 +74,9 @@ export function hasLocalStorageBackup(): boolean {
 export async function exportOutlineToJson(outline: Outline): Promise<void> {
   const dataStr = JSON.stringify(outline, null, 2);
   const blob = new Blob([dataStr], { type: 'application/json' });
-  const defaultName = `${outline.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.json`;
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+  const baseName = outline.name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+  const defaultName = `${baseName}_${timestamp}.idm`;
 
   // Try to use the File System Access API for folder selection
   if ('showSaveFilePicker' in window) {
@@ -82,8 +84,8 @@ export async function exportOutlineToJson(outline: Outline): Promise<void> {
       const handle = await (window as any).showSaveFilePicker({
         suggestedName: defaultName,
         types: [{
-          description: 'JSON Files',
-          accept: { 'application/json': ['.json'] },
+          description: 'IdiamPro Outline Files',
+          accept: { 'application/json': ['.idm', '.json'] },
         }],
       });
       const writable = await handle.createWritable();
@@ -152,7 +154,10 @@ export async function exportAllOutlinesToJson(outlines: Outline[]): Promise<void
  */
 export async function shareOutlineFile(outline: Outline): Promise<{ success: boolean }> {
   const dataStr = JSON.stringify(outline, null, 2);
-  const fileName = `${outline.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.json`;
+  // Add timestamp to ensure unique filenames and prevent duplicates
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+  const baseName = outline.name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+  const fileName = `${baseName}_${timestamp}.idm`;
 
   try {
     // Write the file to the cache directory
