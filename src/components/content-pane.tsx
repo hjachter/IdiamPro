@@ -97,6 +97,7 @@ const TldrawEditor = dynamic(() => import('./tldraw-editor'), {
 });
 import { Card, CardContent } from './ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Breadcrumbs } from './breadcrumbs';
 import ContentConflictDialog, { type ContentConflictAction } from './content-conflict-dialog';
 import EmbedUrlDialog, { type EmbedType } from './embed-url-dialog';
 import { useAIFeature } from '@/contexts/ai-context';

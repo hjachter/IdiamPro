@@ -5,6 +5,7 @@ import type { Outline, OutlineNode, NodeMap, ExternalSourceInput, IngestPreview 
 import NodeItem from './node-item';
 import AIMenu from './ai-menu';
 import OutlineSearch, { type SearchMatch } from './outline-search';
+import { MultiSelectToolbar } from './multi-select-toolbar';
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ChevronDown, FilePlus, Plus, Trash2, Edit, FileDown, FileUp, RotateCcw, ChevronsUp, ChevronsDown, Settings, Search, Command } from 'lucide-react';
@@ -124,6 +125,14 @@ interface OutlinePaneProps {
   editingNodeId?: string | null;
   onEditingComplete?: () => void;
   onTriggerEdit?: (nodeId: string) => void;
+  // Multi-select
+  selectedNodeIds?: Set<string>;
+  onToggleNodeSelection?: (nodeId: string, isCtrlClick: boolean) => void;
+  onRangeSelect?: (nodeId: string) => void;
+  onClearSelection?: () => void;
+  onBulkDelete?: () => void;
+  onBulkChangeColor?: (color: string | undefined) => void;
+  onBulkAddTag?: (tag: string) => void;
 }
 
 export default function OutlinePane({
@@ -165,6 +174,13 @@ export default function OutlinePane({
   editingNodeId,
   onEditingComplete,
   onTriggerEdit,
+  selectedNodeIds,
+  onToggleNodeSelection,
+  onRangeSelect,
+  onClearSelection,
+  onBulkDelete,
+  onBulkChangeColor,
+  onBulkAddTag,
 }: OutlinePaneProps) {
   const [renameId, setRenameId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
@@ -753,10 +769,24 @@ export default function OutlinePane({
               onCreateChildNode={onCreateChildNode}
               editingNodeId={editingNodeId}
               onEditingComplete={onEditingComplete}
+              selectedNodeIds={selectedNodeIds}
+              onToggleNodeSelection={onToggleNodeSelection}
+              onRangeSelect={onRangeSelect}
             />
           </ul>
         )}
       </div>
+
+      {/* Multi-select toolbar */}
+      {selectedNodeIds && selectedNodeIds.size > 0 && (
+        <MultiSelectToolbar
+          selectedCount={selectedNodeIds.size}
+          onClearSelection={onClearSelection || (() => {})}
+          onBulkDelete={onBulkDelete || (() => {})}
+          onBulkChangeColor={onBulkChangeColor || (() => {})}
+          onBulkAddTag={onBulkAddTag || (() => {})}
+        />
+      )}
     </div>
   );
 }

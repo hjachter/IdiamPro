@@ -79,6 +79,10 @@ export default function OutlinePro() {
   // Focus mode state
   const [isFocusMode, setIsFocusMode] = useState(false);
 
+  // Multi-select state
+  const [selectedNodeIds, setSelectedNodeIds] = useState<Set<string>>(new Set());
+  const [lastSelectedNodeId, setLastSelectedNodeId] = useState<string | null>(null);
+
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const isInitialLoadDone = useRef(false);
@@ -1342,6 +1346,156 @@ export default function OutlinePro() {
     });
   }, [currentOutlineId, subtreeClipboard, toast]);
 
+  // Multi-select handlers
+  const handleToggleNodeSelection = useCallback((nodeId: string, isCtrlClick: boolean) => {
+    setSelectedNodeIds(prev => {
+      const newSelection = new Set(prev);
+      if (isCtrlClick) {
+        // Ctrl/Cmd+Click: toggle node in selection
+        if (newSelection.has(nodeId)) {
+          newSelection.delete(nodeId);
+        } else {
+          newSelection.add(nodeId);
+        }
+      } else {
+        // Regular click: clear selection
+        newSelection.clear();
+      }
+      setLastSelectedNodeId(nodeId);
+      return newSelection;
+    });
+  }, []);
+
+  const handleRangeSelect = useCallback((nodeId: string) => {
+    if (!currentOutline || !lastSelectedNodeId) return;
+
+    // Get all visible node IDs in order
+    const allNodeIds: string[] = [];
+    const collectVisibleNodes = (id: string) => {
+      allNodeIds.push(id);
+      const node = currentOutline.nodes[id];
+      if (node && !node.isCollapsed) {
+        node.childrenIds.forEach(collectVisibleNodes);
+      }
+    };
+    collectVisibleNodes(currentOutline.rootNodeId);
+
+    // Find range between last selected and current
+    const lastIndex = allNodeIds.indexOf(lastSelectedNodeId);
+    const currentIndex = allNodeIds.indexOf(nodeId);
+    if (lastIndex === -1 || currentIndex === -1) return;
+
+    const start = Math.min(lastIndex, currentIndex);
+    const end = Math.max(lastIndex, currentIndex);
+    const range = allNodeIds.slice(start, end + 1);
+
+    setSelectedNodeIds(prev => {
+      const newSelection = new Set(prev);
+      range.forEach(id => newSelection.add(id));
+      return newSelection;
+    });
+    setLastSelectedNodeId(nodeId);
+  }, [currentOutline, lastSelectedNodeId]);
+
+  const handleClearSelection = useCallback(() => {
+    setSelectedNodeIds(new Set());
+    setLastSelectedNodeId(null);
+  }, []);
+
+  const handleBulkDelete = useCallback(() => {
+    if (selectedNodeIds.size === 0) return;
+
+    const nodeCount = selectedNodeIds.size;
+    const confirm = window.confirm(`Delete ${nodeCount} selected node${nodeCount > 1 ? 's' : ''}? This will also delete all their children.`);
+    if (!confirm) return;
+
+    setOutlines(currentOutlines => {
+      return currentOutlines.map(o => {
+        if (o.id === currentOutlineId) {
+          let newNodes = { ...o.nodes };
+          // Delete each selected node
+          selectedNodeIds.forEach(nodeId => {
+            if (newNodes[nodeId]) {
+              newNodes = removeNode(newNodes, nodeId);
+            }
+          });
+          return { ...o, nodes: newNodes };
+        }
+        return o;
+      });
+    });
+
+    setSelectedNodeIds(new Set());
+    setLastSelectedNodeId(null);
+    toast({
+      title: "Nodes Deleted",
+      description: `Deleted ${nodeCount} node${nodeCount > 1 ? 's' : ''}.`,
+    });
+  }, [selectedNodeIds, currentOutlineId, toast]);
+
+  const handleBulkChangeColor = useCallback((color: string | undefined) => {
+    if (selectedNodeIds.size === 0) return;
+
+    setOutlines(currentOutlines => {
+      return currentOutlines.map(o => {
+        if (o.id === currentOutlineId) {
+          const newNodes = { ...o.nodes };
+          selectedNodeIds.forEach(nodeId => {
+            if (newNodes[nodeId]) {
+              newNodes[nodeId] = {
+                ...newNodes[nodeId],
+                metadata: {
+                  ...newNodes[nodeId].metadata,
+                  color: color as any,
+                },
+              };
+            }
+          });
+          return { ...o, nodes: newNodes };
+        }
+        return o;
+      });
+    });
+
+    toast({
+      title: "Color Updated",
+      description: `Updated color for ${selectedNodeIds.size} node${selectedNodeIds.size > 1 ? 's' : ''}.`,
+    });
+  }, [selectedNodeIds, currentOutlineId, toast]);
+
+  const handleBulkAddTag = useCallback((tag: string) => {
+    if (selectedNodeIds.size === 0) return;
+
+    setOutlines(currentOutlines => {
+      return currentOutlines.map(o => {
+        if (o.id === currentOutlineId) {
+          const newNodes = { ...o.nodes };
+          selectedNodeIds.forEach(nodeId => {
+            if (newNodes[nodeId]) {
+              const existingTags = newNodes[nodeId].metadata?.tags || [];
+              if (!existingTags.includes(tag)) {
+                newNodes[nodeId] = {
+                  ...newNodes[nodeId],
+                  metadata: {
+                    ...newNodes[nodeId].metadata,
+                    tags: [...existingTags, tag],
+                  },
+                };
+              }
+            }
+          });
+          return { ...o, nodes: newNodes };
+        }
+        return o;
+      });
+    });
+
+    toast({
+      title: "Tag Added",
+      description: `Added "${tag}" to ${selectedNodeIds.size} node${selectedNodeIds.size > 1 ? 's' : ''}.`,
+    });
+  }, [selectedNodeIds, currentOutlineId, toast]);
+
   if (!isClient || !currentOutline) {
     return (
       <div className="flex items-center justify-center h-screen w-full">
@@ -1511,6 +1665,13 @@ export default function OutlinePro() {
                 editingNodeId={editingNodeId}
                 onEditingComplete={() => setEditingNodeId(null)}
                 onTriggerEdit={setEditingNodeId}
+                selectedNodeIds={selectedNodeIds}
+                onToggleNodeSelection={handleToggleNodeSelection}
+                onRangeSelect={handleRangeSelect}
+                onClearSelection={handleClearSelection}
+                onBulkDelete={handleBulkDelete}
+                onBulkChangeColor={handleBulkChangeColor}
+                onBulkAddTag={handleBulkAddTag}
               />
             </div>
             {/* Content Preview - takes ~30%, tap to expand */}
@@ -1724,6 +1885,13 @@ export default function OutlinePro() {
                 editingNodeId={editingNodeId}
                 onEditingComplete={() => setEditingNodeId(null)}
                 onTriggerEdit={setEditingNodeId}
+                selectedNodeIds={selectedNodeIds}
+                onToggleNodeSelection={handleToggleNodeSelection}
+                onRangeSelect={handleRangeSelect}
+                onClearSelection={handleClearSelection}
+                onBulkDelete={handleBulkDelete}
+                onBulkChangeColor={handleBulkChangeColor}
+                onBulkAddTag={handleBulkAddTag}
               />
             </div>
           </ResizablePanel>

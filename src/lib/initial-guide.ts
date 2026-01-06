@@ -157,6 +157,17 @@ function createGuideNodes(): { rootNodeId: string, nodes: NodeMap } {
 
   createNode(nodes, pinningId, advancedId, "Pinning Nodes", "Pin important nodes to keep them easily accessible.\n\nFeatures:\n- Star icon appears on hover\n- Click star to toggle pin status\n- Pinned nodes show filled yellow star\n- Visual highlighting for pinned items\n- Perfect for frequently accessed nodes");
 
+  // === MULTI-SELECT & BULK OPERATIONS ===
+  const multiSelectId = uuidv4();
+  const selectingNodesId = uuidv4();
+  const bulkOperationsId = uuidv4();
+
+  createNode(nodes, multiSelectId, advancedId, "Multi-Select & Bulk Operations", "Select multiple nodes at once and perform bulk operations for efficient outline management.", []);
+
+  createNode(nodes, selectingNodesId, multiSelectId, "Selecting Multiple Nodes", "Three ways to select multiple nodes:\n\n1. **Cmd/Ctrl + Click**: Toggle individual nodes in/out of selection\n   - Hold Cmd (Mac) or Ctrl (Windows/Linux)\n   - Click any node to add/remove from selection\n   - Selected nodes show blue ring and background\n\n2. **Shift + Click**: Select a range of nodes\n   - Select a node normally first\n   - Hold Shift and click another node\n   - All nodes between them are selected\n\n3. **Esc key**: Clear all selections\n   - Press Esc to deselect all nodes\n   - Returns to single-node selection mode");
+
+  createNode(nodes, bulkOperationsId, multiSelectId, "Bulk Operations Toolbar", "When nodes are selected, a floating toolbar appears at the bottom with bulk actions:\n\n**Tag**: Add a tag to all selected nodes at once\n- Click Tag button\n- Enter tag name\n- Tag is added to all selected nodes\n\n**Color**: Change color of all selected nodes\n- Click Color button\n- Choose from 8 colors\n- All selected nodes get the new color\n\n**Delete**: Remove all selected nodes\n- Click Delete button\n- Confirmation dialog appears\n- All selected nodes and their children are deleted\n\n**Clear**: Deselect all nodes\n- Returns to normal selection mode\n\nThe toolbar shows how many nodes are selected (e.g., \"3 nodes selected\")");
+
   // === NODE NUMBERING ===
   const numberingId = uuidv4();
 

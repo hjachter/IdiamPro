@@ -52,6 +52,10 @@ interface NodeItemProps {
   // External edit mode trigger
   editingNodeId?: string | null;
   onEditingComplete?: () => void;
+  // Multi-select
+  selectedNodeIds?: Set<string>;
+  onToggleNodeSelection?: (nodeId: string, isCtrlClick: boolean) => void;
+  onRangeSelect?: (nodeId: string) => void;
 }
 
 // Helper to highlight search matches in text
@@ -147,12 +151,16 @@ export default function NodeItem({
   onCreateChildNode,
   editingNodeId,
   onEditingComplete,
+  selectedNodeIds,
+  onToggleNodeSelection,
+  onRangeSelect,
 }: NodeItemProps) {
   const node = nodes[nodeId];
   const [isEditing, setIsEditing] = React.useState(false);
   const [name, setName] = React.useState(node.name);
   const [dropPosition, setDropPosition] = React.useState<DropPosition>(null);
   const [isDragging, setIsDragging] = React.useState(false);
+  const isMultiSelected = selectedNodeIds?.has(nodeId) || false;
 
   const itemRef = React.useRef<HTMLLIElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -402,12 +410,30 @@ export default function NodeItem({
   // };
 
   // Handle mouse click (desktop only)
-  const handleClick = () => {
+  const handleClick = (e: React.MouseEvent) => {
     // Skip if this click was triggered by a touch event
     if (touchHandledRef.current) return;
 
     // Don't handle if already editing
     if (isEditing) return;
+
+    // Multi-select logic
+    if (onToggleNodeSelection && onRangeSelect) {
+      if (e.shiftKey) {
+        // Shift+Click: range select
+        e.preventDefault();
+        onRangeSelect(node.id);
+        return;
+      } else if (e.ctrlKey || e.metaKey) {
+        // Ctrl/Cmd+Click: toggle selection
+        e.preventDefault();
+        onToggleNodeSelection(node.id, true);
+        return;
+      } else if (selectedNodeIds && selectedNodeIds.size > 0) {
+        // Regular click when multi-select is active: clear selection
+        onToggleNodeSelection(node.id, false);
+      }
+    }
 
     // Desktop: single click selects, double-click handled by onDoubleClick
     onSelectNode(node.id);
@@ -448,6 +474,8 @@ export default function NodeItem({
                 isDragging && "opacity-50 bg-muted",
                 !isRoot && "cursor-grab active:cursor-grabbing",
                 isHighlighted && !isSelected && "bg-yellow-100 dark:bg-yellow-900/30",
+                // Multi-select indicator (blue ring + background)
+                isMultiSelected && !isSelected && "bg-blue-50 dark:bg-blue-900/20 ring-2 ring-blue-500/50",
                 // Left border: custom color takes priority, then chapter color
                 node.metadata?.color ? "border-l-4" : (isChapter && !isRoot && "border-l-2 border-l-[hsl(var(--node-chapter)/0.4)]")
             )}
@@ -838,6 +866,9 @@ export default function NodeItem({
                     onCreateChildNode={onCreateChildNode}
                     editingNodeId={editingNodeId}
                     onEditingComplete={onEditingComplete}
+                    selectedNodeIds={selectedNodeIds}
+                    onToggleNodeSelection={onToggleNodeSelection}
+                    onRangeSelect={onRangeSelect}
                 />
             ))}
             </ul>
