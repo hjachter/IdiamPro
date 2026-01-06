@@ -460,7 +460,7 @@ export default function OutlinePane({
     // Use file picker on all platforms (works on iOS via Files app too)
     const input = document.createElement('input');
     input.type = 'file';
-    input.accept = '.json,.idm';
+    input.accept = '.json,.idm,application/json,application/octet-stream';
     input.onchange = (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (file) {
@@ -596,7 +596,7 @@ export default function OutlinePane({
             type="file"
             ref={fileInputRef}
             onChange={handleFileChange}
-            accept=".json,.idm"
+            accept=".json,.idm,application/json,application/octet-stream"
             className="hidden"
         />
 

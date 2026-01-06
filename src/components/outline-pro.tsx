@@ -1525,7 +1525,7 @@ export default function OutlinePro() {
           type="file"
           ref={importFileInputRef}
           onChange={handleImportFileChange}
-          accept=".json,.idm"
+          accept=".json,.idm,application/json,application/octet-stream"
           className="hidden"
         />
 
@@ -1728,7 +1728,7 @@ export default function OutlinePro() {
         type="file"
         ref={importFileInputRef}
         onChange={handleImportFileChange}
-        accept=".json,.idm"
+        accept=".json,.idm,application/json,application/octet-stream"
         className="hidden"
       />
 
