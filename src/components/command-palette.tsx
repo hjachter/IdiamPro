@@ -21,7 +21,6 @@ import {
   Trash2,
   Download,
   Upload,
-  Sparkles,
   BookOpen,
   ChevronRight,
   RefreshCw,
@@ -97,9 +96,9 @@ export default function CommandPalette({
   }, [outlines, currentOutlineId]);
 
   // Get current outline name
-  const currentOutline = useMemo(() => {
-    return outlines.find(o => o.id === currentOutlineId);
-  }, [outlines, currentOutlineId]);
+  // const currentOutline = useMemo(() => {
+  //   return outlines.find(o => o.id === currentOutlineId);
+  // }, [outlines, currentOutlineId]);
 
   return (
     <CommandDialog open={open} onOpenChange={onOpenChange}>

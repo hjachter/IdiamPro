@@ -34,7 +34,7 @@ const PLAN_FEATURES = {
 };
 
 export default function AIPlanDialog({ children }: AIPlanDialogProps) {
-  const { plan, switchPlan, isPremium } = useAI();
+  const { plan, switchPlan } = useAI();
   const [open, setOpen] = useState(false);
 
   const handleSwitchPlan = (newPlan: SubscriptionPlan) => {

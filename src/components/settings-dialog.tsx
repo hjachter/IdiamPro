@@ -10,6 +10,7 @@ import { isElectron, electronSelectDirectory, electronGetStoredDirectoryPath } f
 
 // Check if running in Capacitor native app
 function isCapacitor(): boolean {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return typeof window !== 'undefined' && !!(window as any).Capacitor;
 }
 
@@ -74,7 +75,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
 
       // Check if File System Access API is supported
       if ('showDirectoryPicker' in window) {
-        // @ts-ignore - showDirectoryPicker is not in TypeScript types yet
+        // @ts-expect-error - showDirectoryPicker is not in TypeScript types yet
         const dirHandle = await window.showDirectoryPicker({
           mode: 'readwrite',
           startIn: 'documents',

@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, FileText, Upload, Crown, Settings, Loader2 } from 'lucide-react';
+import { Sparkles, FileText, Upload, Crown, Loader2 } from 'lucide-react';
 import { useAI, useAIFeature } from '@/contexts/ai-context';
 import AiGenerateDialog from './ai-generate-dialog';
 import AIPlanDialog from './ai-plan-dialog';
@@ -35,7 +35,7 @@ export default function AIMenu({
   isLoadingAI,
   disabled,
 }: AIMenuProps) {
-  const { plan, isPremium } = useAI();
+  const { isPremium } = useAI();
   const contentGenEnabled = useAIFeature('enableAIContentGeneration');
   const ingestEnabled = useAIFeature('enableIngestExternalSource');
 

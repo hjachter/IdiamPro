@@ -80,11 +80,13 @@
     "lucide-react": "^0.475.0",
     "next": "^15.3.8",
     "patch-package": "^8.0.0",
+    "prismjs": "^1.30.0",
     "react": "^18.3.1",
     "react-day-picker": "^8.10.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.54.2",
     "react-resizable-panels": "^2.0.19",
+    "react-simple-code-editor": "^0.14.1",
     "recharts": "^2.15.1",
     "tailwind-merge": "^3.0.1",
     "tailwindcss-animate": "^1.0.7",
@@ -93,6 +95,8 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.3",
+    "@eslint/js": "^9.39.2",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
@@ -100,11 +104,15 @@
     "concurrently": "^9.2.1",
     "electron": "^39.2.7",
     "electron-builder": "^26.0.12",
+    "eslint": "^9.39.2",
+    "eslint-config-next": "^16.1.1",
+    "eslint-plugin-react": "^7.37.5",
     "genkit-cli": "^1.14.1",
     "husky": "^9.1.7",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.19",
-    "typescript": "^5"
+    "typescript": "^5",
+    "typescript-eslint": "^8.51.0"
   },
   "build": {
     "appId": "com.idiampro.app",

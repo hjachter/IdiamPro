@@ -3,7 +3,8 @@
 import React from 'react';
 import type { OutlineNode, NodeMap } from '@/types';
 import NodeIcon from './node-icon';
-import { ChevronRight, Plus, Trash2, Edit3, ChevronDown, ChevronUp, Copy, Scissors, ClipboardPaste, CopyPlus, Sparkles } from 'lucide-react';
+import { TagBadge } from './tag-badge';
+import { ChevronRight, Plus, Trash2, Edit3, ChevronDown, ChevronUp, Copy, Scissors, ClipboardPaste, CopyPlus, Sparkles, CheckSquare2, Palette, Check, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import {
@@ -13,6 +14,9 @@ import {
   ContextMenuSeparator,
   ContextMenuShortcut,
   ContextMenuTrigger,
+  ContextMenuSub,
+  ContextMenuSubTrigger,
+  ContextMenuSubContent,
 } from '@/components/ui/context-menu';
 
 // Module-level variable to track the currently dragged node ID
@@ -43,6 +47,11 @@ interface NodeItemProps {
   highlightedNodeIds?: Set<string>;
   // AI content generation
   onGenerateContentForChildren?: (nodeId: string) => void;
+  // Create child node
+  onCreateChildNode?: (parentId: string) => void;
+  // External edit mode trigger
+  editingNodeId?: string | null;
+  onEditingComplete?: () => void;
 }
 
 // Helper to highlight search matches in text
@@ -97,21 +106,21 @@ const isDescendant = (nodes: NodeMap, potentialDescendantId: string, potentialAn
 };
 
 // Get previous sibling of a node
-const getPreviousSibling = (nodes: NodeMap, nodeId: string): string | null => {
-    const node = nodes[nodeId];
-    if (!node || !node.parentId) return null;
-    const parent = nodes[node.parentId];
-    if (!parent || !parent.childrenIds) return null;
-    const index = parent.childrenIds.indexOf(nodeId);
-    if (index <= 0) return null;
-    return parent.childrenIds[index - 1];
-};
+// const getPreviousSibling = (nodes: NodeMap, nodeId: string): string | null => {
+//     const node = nodes[nodeId];
+//     if (!node || !node.parentId) return null;
+//     const parent = nodes[node.parentId];
+//     if (!parent || !parent.childrenIds) return null;
+//     const index = parent.childrenIds.indexOf(nodeId);
+//     if (index <= 0) return null;
+//     return parent.childrenIds[index - 1];
+// };
 
 // Check if a node is a leaf (has no children)
-const isLeafNode = (nodes: NodeMap, nodeId: string): boolean => {
-    const node = nodes[nodeId];
-    return !node || !node.childrenIds || node.childrenIds.length === 0;
-};
+// const isLeafNode = (nodes: NodeMap, nodeId: string): boolean => {
+//     const node = nodes[nodeId];
+//     return !node || !node.childrenIds || node.childrenIds.length === 0;
+// };
 
 export default function NodeItem({
   nodeId,
@@ -135,6 +144,9 @@ export default function NodeItem({
   searchTerm,
   highlightedNodeIds,
   onGenerateContentForChildren,
+  onCreateChildNode,
+  editingNodeId,
+  onEditingComplete,
 }: NodeItemProps) {
   const node = nodes[nodeId];
   const [isEditing, setIsEditing] = React.useState(false);
@@ -219,6 +231,25 @@ export default function NodeItem({
   React.useEffect(() => {
     setName(node.name);
   }, [node.name]);
+
+  // Watch for external edit trigger (Space after creation, F2)
+  React.useEffect(() => {
+    if (editingNodeId === nodeId && !isEditing) {
+      setIsEditing(true);
+    }
+  }, [editingNodeId, nodeId, isEditing]);
+
+  // Track if we just handled a touch event to prevent double-firing
+  const touchHandledRef = React.useRef<boolean>(false);
+
+  // Cleanup timeouts on unmount
+  React.useEffect(() => {
+    return () => {
+      if (tapTimeoutRef.current) {
+        clearTimeout(tapTimeoutRef.current);
+      }
+    };
+  }, []);
 
   if (!node) return null;
 
@@ -314,6 +345,7 @@ export default function NodeItem({
       onUpdateNode(node.id, { name });
     }
     setIsEditing(false);
+    onEditingComplete?.();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -321,51 +353,56 @@ export default function NodeItem({
     if (e.key === 'Escape') {
       setName(node.name);
       setIsEditing(false);
+      onEditingComplete?.();
     }
   };
-
-  // Track if we just handled a touch event to prevent double-firing
-  const touchHandledRef = React.useRef<boolean>(false);
 
   // Handle touch tap with double-tap detection
-  const handleTouchTap = (e: React.TouchEvent) => {
-    // Don't handle if already editing
-    if (isEditing) return;
+  // const handleTouchTap = (e: React.TouchEvent) => {
+  //   // Don't handle if already editing
+  //   if (isEditing) return;
 
-    // Mark that we handled a touch event
-    touchHandledRef.current = true;
-    setTimeout(() => { touchHandledRef.current = false; }, 100);
+  //   // Mark that we handled a touch event
+  //   touchHandledRef.current = true;
+  //   setTimeout(() => { touchHandledRef.current = false; }, 100);
 
-    const now = Date.now();
-    const DOUBLE_TAP_DELAY = 350;
+  //   const now = Date.now();
+  //   const DOUBLE_TAP_DELAY = 350;
 
-    // Check if this is a double-tap
-    if (now - lastTapRef.current < DOUBLE_TAP_DELAY) {
-      // Double-tap detected - enter edit mode
-      if (tapTimeoutRef.current) {
-        clearTimeout(tapTimeoutRef.current);
-        tapTimeoutRef.current = null;
-      }
-      lastTapRef.current = 0;
-      setIsEditing(true);
-      e.preventDefault();
-      e.stopPropagation();
-    } else {
-      // First tap - wait to see if there's a second tap
-      lastTapRef.current = now;
-      e.preventDefault();
+  //   // Check if this is a double-tap
+  //   if (now - lastTapRef.current < DOUBLE_TAP_DELAY) {
+  //     // Double-tap detected - create child node
+  //     if (tapTimeoutRef.current) {
+  //       clearTimeout(tapTimeoutRef.current);
+  //       tapTimeoutRef.current = null;
+  //     }
+  //     lastTapRef.current = 0;
+  //     onCreateChildNode?.(nodeId);
+  //     e.preventDefault();
+  //     e.stopPropagation();
+  //   } else {
+  //     // First tap - check if already selected
+  //     lastTapRef.current = now;
+  //     e.preventDefault();
 
-      tapTimeoutRef.current = setTimeout(() => {
-        // Just select the node, never navigate from here
-        // Navigation only happens via content pane tap
-        onSelectNode(node.id, false);
-        tapTimeoutRef.current = null;
-      }, DOUBLE_TAP_DELAY);
-    }
-  };
+  //     // If already selected and not root, enter edit mode on single tap
+  //     if (isSelected && !isRoot) {
+  //       tapTimeoutRef.current = setTimeout(() => {
+  //         setIsEditing(true);
+  //         tapTimeoutRef.current = null;
+  //       }, DOUBLE_TAP_DELAY);
+  //     } else {
+  //       // Not selected - wait to see if there's a second tap, then select
+  //       tapTimeoutRef.current = setTimeout(() => {
+  //         onSelectNode(node.id, false);
+  //         tapTimeoutRef.current = null;
+  //       }, DOUBLE_TAP_DELAY);
+  //     }
+  //   }
+  // };
 
   // Handle mouse click (desktop only)
-  const handleClick = (e: React.MouseEvent) => {
+  const handleClick = () => {
     // Skip if this click was triggered by a touch event
     if (touchHandledRef.current) return;
 
@@ -375,15 +412,6 @@ export default function NodeItem({
     // Desktop: single click selects, double-click handled by onDoubleClick
     onSelectNode(node.id);
   };
-
-  // Cleanup timeout on unmount
-  React.useEffect(() => {
-    return () => {
-      if (tapTimeoutRef.current) {
-        clearTimeout(tapTimeoutRef.current);
-      }
-    };
-  }, []);
 
   return (
     <li
@@ -420,13 +448,16 @@ export default function NodeItem({
                 isDragging && "opacity-50 bg-muted",
                 !isRoot && "cursor-grab active:cursor-grabbing",
                 isHighlighted && !isSelected && "bg-yellow-100 dark:bg-yellow-900/30",
-                // Subtle left accent for chapters (nodes with children)
-                isChapter && !isRoot && "border-l-2 border-l-[hsl(var(--node-chapter)/0.4)]"
+                // Left border: custom color takes priority, then chapter color
+                node.metadata?.color ? "border-l-4" : (isChapter && !isRoot && "border-l-2 border-l-[hsl(var(--node-chapter)/0.4)]")
             )}
             style={{
               paddingLeft: `${level * 1.5 + 0.5}rem`,
               transform: swipeOffset ? `translateX(${swipeOffset}px)` : undefined,
               transition: swipeOffset ? 'none' : 'transform 0.2s ease-out',
+              ...(node.metadata?.color && {
+                borderLeftColor: `hsl(var(--node-${node.metadata.color}))`,
+              }),
             }}
             onClick={handleClick}
             onPointerDown={handlePointerDown}
@@ -441,7 +472,7 @@ export default function NodeItem({
             onPointerCancel={(e) => {
               handlePointerUp(e);
             }}
-            onDoubleClick={() => setIsEditing(true)}
+            onDoubleClick={() => onCreateChildNode?.(nodeId)}
             draggable={!isRoot}
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
@@ -459,6 +490,26 @@ export default function NodeItem({
                 <ChevronRight size={16} className={cn("transition-transform", !node.isCollapsed && "rotate-90")} />
             </button>
             <NodeIcon type={node.type} isChapter={isChapter} isCollapsed={node.isCollapsed} />
+            {node.type === 'task' && (
+                <button
+                    className="p-1 rounded-md hover:bg-primary/20 ml-1"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onUpdateNode(nodeId, {
+                            metadata: {
+                                ...node.metadata,
+                                isCompleted: !node.metadata?.isCompleted,
+                            },
+                        });
+                    }}
+                >
+                    {node.metadata?.isCompleted ? (
+                        <CheckSquare2 size={16} className="text-blue-500" />
+                    ) : (
+                        <CheckSquare2 size={16} className="text-muted-foreground" />
+                    )}
+                </button>
+            )}
             {isEditing ? (
                 <Input
                     ref={inputRef}
@@ -471,16 +522,76 @@ export default function NodeItem({
                     onClick={e => e.stopPropagation()}
                 />
             ) : (
-                <span className={cn(
-                    "flex-1 truncate py-1.5 px-1 cursor-pointer text-foreground font-medium",
-                    isSelected && "text-primary",
-                    highlightedNodeIds?.has(nodeId) && "bg-yellow-100 dark:bg-yellow-900/30 rounded"
-                )}>
-                    {numbering && <span className="text-muted-foreground mr-2 font-normal">{numbering}</span>}
-                    {searchTerm && highlightedNodeIds?.has(nodeId)
-                      ? highlightText(node.name, searchTerm)
-                      : node.name}
-                </span>
+                <div className="flex-1 flex items-center gap-2 min-w-0">
+                    <span
+                        className={cn(
+                            "truncate py-1.5 px-1 cursor-pointer text-foreground font-medium",
+                            isSelected && "text-primary",
+                            highlightedNodeIds?.has(nodeId) && "bg-yellow-100 dark:bg-yellow-900/30 rounded",
+                            node.type === 'task' && node.metadata?.isCompleted && "line-through opacity-60",
+                            node.type === 'link' && "text-blue-600 dark:text-blue-400 underline hover:no-underline"
+                        )}
+                        onClick={(e) => {
+                            if (node.type === 'link' && node.metadata?.url) {
+                                e.stopPropagation();
+                                window.open(node.metadata.url, '_blank');
+                            }
+                        }}
+                    >
+                        {numbering && <span className="text-muted-foreground mr-2 font-normal">{numbering}</span>}
+                        {searchTerm && highlightedNodeIds?.has(nodeId)
+                          ? highlightText(node.name, searchTerm)
+                          : node.name}
+                    </span>
+                    {node.metadata?.tags && node.metadata.tags.length > 0 && (
+                        <div className="flex gap-1 flex-wrap">
+                            {node.metadata.tags.slice(0, 3).map((tag, index) => (
+                                <TagBadge
+                                    key={tag}
+                                    tag={tag}
+                                    onRemove={() => {
+                                        const newTags = node.metadata?.tags?.filter(t => t !== tag);
+                                        onUpdateNode(nodeId, {
+                                            metadata: {
+                                                ...node.metadata,
+                                                tags: newTags && newTags.length > 0 ? newTags : undefined,
+                                            },
+                                        });
+                                    }}
+                                />
+                            ))}
+                            {node.metadata.tags.length > 3 && (
+                                <span className="text-xs text-muted-foreground py-0.5">
+                                    +{node.metadata.tags.length - 3} more
+                                </span>
+                            )}
+                        </div>
+                    )}
+                </div>
+            )}
+            {!isRoot && (
+                <button
+                    className={cn(
+                        "p-1 rounded-md transition-colors shrink-0",
+                        node.metadata?.isPinned
+                          ? "text-yellow-500 hover:text-yellow-600"
+                          : "text-muted-foreground/30 hover:text-muted-foreground opacity-0 group-hover:opacity-100"
+                    )}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onUpdateNode(nodeId, {
+                            metadata: {
+                                ...node.metadata,
+                                isPinned: !node.metadata?.isPinned,
+                            },
+                        });
+                    }}
+                >
+                    <Star
+                        size={16}
+                        className={node.metadata?.isPinned ? "fill-yellow-500" : ""}
+                    />
+                </button>
             )}
             </div>
           </ContextMenuTrigger>
@@ -498,7 +609,7 @@ export default function NodeItem({
               <ContextMenuItem onClick={(e) => { e.stopPropagation(); setIsEditing(true); }}>
                 <Edit3 className="mr-2 h-4 w-4" />
                 Rename Node
-                <ContextMenuShortcut>F2</ContextMenuShortcut>
+                <ContextMenuShortcut>↵</ContextMenuShortcut>
               </ContextMenuItem>
             )}
 
@@ -557,6 +668,132 @@ export default function NodeItem({
               </ContextMenuItem>
             )}
 
+            {!isRoot && (
+              <>
+                <ContextMenuSeparator />
+                <ContextMenuSub>
+                  <ContextMenuSubTrigger>
+                    <Palette className="mr-2 h-4 w-4" />
+                    Set Color
+                  </ContextMenuSubTrigger>
+                  <ContextMenuSubContent>
+                    <ContextMenuItem
+                      onClick={() => {
+                        onUpdateNode(nodeId, {
+                          metadata: {
+                            ...node.metadata,
+                            color: undefined,
+                          },
+                        });
+                      }}
+                    >
+                      {!node.metadata?.color && <Check className="mr-2 h-4 w-4" />}
+                      {!node.metadata?.color || <span className="mr-2 h-4 w-4" />}
+                      Default
+                    </ContextMenuItem>
+                    <ContextMenuItem
+                      onClick={() => {
+                        onUpdateNode(nodeId, {
+                          metadata: {
+                            ...node.metadata,
+                            color: 'red',
+                          },
+                        });
+                      }}
+                    >
+                      {node.metadata?.color === 'red' && <Check className="mr-2 h-4 w-4" />}
+                      {node.metadata?.color !== 'red' && <span className="mr-2 h-4 w-4" />}
+                      Red
+                    </ContextMenuItem>
+                    <ContextMenuItem
+                      onClick={() => {
+                        onUpdateNode(nodeId, {
+                          metadata: {
+                            ...node.metadata,
+                            color: 'orange',
+                          },
+                        });
+                      }}
+                    >
+                      {node.metadata?.color === 'orange' && <Check className="mr-2 h-4 w-4" />}
+                      {node.metadata?.color !== 'orange' && <span className="mr-2 h-4 w-4" />}
+                      Orange
+                    </ContextMenuItem>
+                    <ContextMenuItem
+                      onClick={() => {
+                        onUpdateNode(nodeId, {
+                          metadata: {
+                            ...node.metadata,
+                            color: 'yellow',
+                          },
+                        });
+                      }}
+                    >
+                      {node.metadata?.color === 'yellow' && <Check className="mr-2 h-4 w-4" />}
+                      {node.metadata?.color !== 'yellow' && <span className="mr-2 h-4 w-4" />}
+                      Yellow
+                    </ContextMenuItem>
+                    <ContextMenuItem
+                      onClick={() => {
+                        onUpdateNode(nodeId, {
+                          metadata: {
+                            ...node.metadata,
+                            color: 'green',
+                          },
+                        });
+                      }}
+                    >
+                      {node.metadata?.color === 'green' && <Check className="mr-2 h-4 w-4" />}
+                      {node.metadata?.color !== 'green' && <span className="mr-2 h-4 w-4" />}
+                      Green
+                    </ContextMenuItem>
+                    <ContextMenuItem
+                      onClick={() => {
+                        onUpdateNode(nodeId, {
+                          metadata: {
+                            ...node.metadata,
+                            color: 'blue',
+                          },
+                        });
+                      }}
+                    >
+                      {node.metadata?.color === 'blue' && <Check className="mr-2 h-4 w-4" />}
+                      {node.metadata?.color !== 'blue' && <span className="mr-2 h-4 w-4" />}
+                      Blue
+                    </ContextMenuItem>
+                    <ContextMenuItem
+                      onClick={() => {
+                        onUpdateNode(nodeId, {
+                          metadata: {
+                            ...node.metadata,
+                            color: 'purple',
+                          },
+                        });
+                      }}
+                    >
+                      {node.metadata?.color === 'purple' && <Check className="mr-2 h-4 w-4" />}
+                      {node.metadata?.color !== 'purple' && <span className="mr-2 h-4 w-4" />}
+                      Purple
+                    </ContextMenuItem>
+                    <ContextMenuItem
+                      onClick={() => {
+                        onUpdateNode(nodeId, {
+                          metadata: {
+                            ...node.metadata,
+                            color: 'pink',
+                          },
+                        });
+                      }}
+                    >
+                      {node.metadata?.color === 'pink' && <Check className="mr-2 h-4 w-4" />}
+                      {node.metadata?.color !== 'pink' && <span className="mr-2 h-4 w-4" />}
+                      Pink
+                    </ContextMenuItem>
+                  </ContextMenuSubContent>
+                </ContextMenuSub>
+              </>
+            )}
+
             {!isRoot && onDeleteNode && (
               <>
                 <ContextMenuSeparator />
@@ -598,6 +835,9 @@ export default function NodeItem({
                     searchTerm={searchTerm}
                     highlightedNodeIds={highlightedNodeIds}
                     onGenerateContentForChildren={onGenerateContentForChildren}
+                    onCreateChildNode={onCreateChildNode}
+                    editingNodeId={editingNodeId}
+                    onEditingComplete={onEditingComplete}
                 />
             ))}
             </ul>

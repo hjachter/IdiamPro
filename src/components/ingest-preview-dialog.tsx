@@ -139,7 +139,7 @@ export default function IngestPreviewDialog({
 
         <div className="bg-muted/50 rounded-lg p-3 text-sm text-muted-foreground">
           <p>
-            Review the proposed changes carefully. Click "Apply Changes" to add these nodes to your outline, or "Cancel" to discard.
+            Review the proposed changes carefully. Click &quot;Apply Changes&quot; to add these nodes to your outline, or &quot;Cancel&quot; to discard.
           </p>
         </div>
 

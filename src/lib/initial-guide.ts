@@ -125,6 +125,38 @@ function createGuideNodes(): { rootNodeId: string, nodes: NodeMap } {
   createNode(nodes, pdfId, mediaId, "PDF Documents", "Click the upload icon > 'PDF from URL'. Enter the full URL of a publicly accessible PDF file (must end in .pdf or be a direct PDF link). A new node is created as a sibling after your selected node, displaying the PDF in an embedded viewer.");
   createNode(nodes, youtubeId, mediaId, "YouTube Videos", "Click the upload icon > 'YouTube Video'. Enter any YouTube URL (regular or shortened youtu.be links work). A new node is created as a sibling after your selected node, with an embedded video player that supports full playback controls.");
 
+  // === ADVANCED NODE FEATURES ===
+  const advancedId = uuidv4();
+  const nodeTypesId = uuidv4();
+  const taskNodesId = uuidv4();
+  const linkNodesId = uuidv4();
+  const codeNodesId = uuidv4();
+  const quoteNodesId = uuidv4();
+  const dateNodesId = uuidv4();
+  const tagsId = uuidv4();
+  const colorsId = uuidv4();
+  const pinningId = uuidv4();
+
+  createNode(nodes, advancedId, rootId, "Advanced Node Features", "Outline Pro supports specialized node types, organization tools like tags and colors, and pinning important nodes. These features help you create more structured and visually organized outlines.", []);
+
+  createNode(nodes, nodeTypesId, advancedId, "Node Types", "Beyond standard document and chapter nodes, Outline Pro supports several specialized node types, each with unique editors and functionality. Access these by right-clicking a node and selecting 'Set Type' from the context menu.", []);
+
+  createNode(nodes, taskNodesId, nodeTypesId, "Task/Checklist Nodes", "Task nodes display a checkbox that you can click to mark items as complete. Completed tasks show strikethrough text.\n\nFeatures:\n- Click the checkbox to toggle completion\n- Completed tasks are visually distinguished\n- Perfect for to-do lists and action items\n- Can still have full rich text content");
+
+  createNode(nodes, linkNodesId, nodeTypesId, "Link/Bookmark Nodes", "Link nodes store URLs and provide quick access to external resources.\n\nFeatures:\n- URL input field in the content pane\n- 'Open Link' button to visit the URL\n- Click the node name to open in new tab\n- Blue underlined styling indicates it's a link\n- Store notes about the link in the content area");
+
+  createNode(nodes, codeNodesId, nodeTypesId, "Code Snippet Nodes", "Code nodes provide syntax-highlighted code editing with support for 13+ programming languages.\n\nFeatures:\n- Language selector (JavaScript, Python, TypeScript, Java, C#, PHP, Ruby, Go, Rust, SQL, JSON, CSS, HTML)\n- Syntax highlighting with Prism.js\n- Monospace font\n- Copy button for quick code copying\n- Great for documentation and code examples");
+
+  createNode(nodes, quoteNodesId, nodeTypesId, "Quote/Citation Nodes", "Quote nodes are designed for storing quotations with proper attribution.\n\nFeatures:\n- Dedicated quote text area with italic styling\n- Source/attribution field for crediting\n- Purple left border for visual distinction\n- Blockquote formatting\n- Perfect for research and references");
+
+  createNode(nodes, dateNodesId, nodeTypesId, "Date/Event Nodes", "Date nodes help you track important dates and events.\n\nFeatures:\n- Date picker interface\n- Formatted date display (e.g., 'Monday, January 5, 2026')\n- Store notes about the event\n- Orange icon for visibility\n- Useful for timelines and planning");
+
+  createNode(nodes, tagsId, advancedId, "Tags", "Organize nodes with colored tags. Tags help you categorize and filter content across your outline.\n\nFeatures:\n- Add multiple tags to any node\n- Colored badges appear next to node names\n- Click 'x' on a badge to remove a tag\n- Tag Manager dialog for managing all tags\n- Each tag automatically gets a distinct color\n- Future: Filter outline by tags");
+
+  createNode(nodes, colorsId, advancedId, "Node Colors", "Add visual distinction to nodes with custom colors displayed as a left border.\n\nHow to use:\n- Right-click any node > 'Set Color'\n- Choose from 8 colors + default\n- 4px colored left border appears on the node\n- Great for prioritizing or categorizing\n- Works alongside chapter colors\n\nColors: Red, Orange, Yellow, Green, Blue, Purple, Pink");
+
+  createNode(nodes, pinningId, advancedId, "Pinning Nodes", "Pin important nodes to keep them easily accessible.\n\nFeatures:\n- Star icon appears on hover\n- Click star to toggle pin status\n- Pinned nodes show filled yellow star\n- Visual highlighting for pinned items\n- Perfect for frequently accessed nodes");
+
   // === NODE NUMBERING ===
   const numberingId = uuidv4();
 

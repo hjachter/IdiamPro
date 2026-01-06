@@ -1,10 +1,25 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { useDebounce } from '@/lib/hooks';
 import { useToast } from '@/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
 import type { OutlineNode, NodeGenerationContext } from '@/types';
+import Editor from 'react-simple-code-editor';
+import Prism from 'prismjs';
+import 'prismjs/components/prism-javascript';
+import 'prismjs/components/prism-typescript';
+import 'prismjs/components/prism-python';
+import 'prismjs/components/prism-java';
+import 'prismjs/components/prism-csharp';
+import 'prismjs/components/prism-php';
+import 'prismjs/components/prism-ruby';
+import 'prismjs/components/prism-go';
+import 'prismjs/components/prism-rust';
+import 'prismjs/components/prism-sql';
+import 'prismjs/components/prism-json';
+import 'prismjs/components/prism-css';
+import 'prismjs/components/prism-markup';
+import 'prismjs/themes/prism.css';
 
 /**
  * Detect if text appears to be tabular/aligned data that would benefit from monospace formatting.
@@ -22,7 +37,7 @@ function isTabularData(text: string): boolean {
   if (markdownTableLines.length >= 2) return true;
 
   // Check for separator row (common in markdown/ASCII tables)
-  const separatorPattern = /^[\|\-\+\=\s]+$/;
+  const separatorPattern = /^[|\-+=\s]+$/;
   const hasSeparator = lines.some(line => separatorPattern.test(line.trim()) && line.includes('-'));
   if (hasSeparator && lines.length >= 3) return true;
 
@@ -63,6 +78,8 @@ function isTabularData(text: string): boolean {
 }
 import NodeIcon from './node-icon';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Image from 'next/image';
 import { ArrowLeft, Sparkles, Loader2, Eraser, Scissors, Copy, Clipboard, Type, Undo, Redo, List, ListOrdered, ListX, Minus, FileText, Sheet, Presentation, Video, Map, AppWindow, Plus, Bold, Italic, Strikethrough, Code, Heading1, Heading2, Heading3, Mic, MicOff, ChevronRight, Home, Pencil, ALargeSmall, Check, Calendar, Brush } from 'lucide-react';
 import dynamic from 'next/dynamic';
@@ -82,7 +99,7 @@ import { Card, CardContent } from './ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import ContentConflictDialog, { type ContentConflictAction } from './content-conflict-dialog';
 import EmbedUrlDialog, { type EmbedType } from './embed-url-dialog';
-import { useAI, useAIFeature } from '@/contexts/ai-context';
+import { useAIFeature } from '@/contexts/ai-context';
 import {
   ContextMenu,
   ContextMenuContent,
@@ -145,7 +162,7 @@ const isUrl = (str: string) => {
     try {
         new URL(str);
         return true;
-    } catch (_) {
+    } catch {
         return false;
     }
 };
@@ -171,7 +188,6 @@ export default function ContentPane({
   const [contextMenuReady, setContextMenuReady] = useState(true);
 
   const aiContentEnabled = useAIFeature('enableAIContentGeneration');
-  const { aiService } = useAI();
   const { toast } = useToast();
 
   // Speech recognition
@@ -183,7 +199,6 @@ export default function ContentPane({
     startListening,
     stopListening,
     resetTranscript,
-    error: speechError,
   } = useSpeechRecognition();
 
   const editor = useEditor({
@@ -227,12 +242,12 @@ export default function ContentPane({
           }
           return false;
         },
-        contextmenu: (view, event) => {
+        contextmenu: () => {
           // Let the event bubble up to Radix context menu
           return false;
         },
       },
-      handlePaste: (view, event, slice) => {
+      handlePaste: (_view, event) => {
         // Get plain text from clipboard
         const text = event.clipboardData?.getData('text/plain');
 
@@ -582,17 +597,20 @@ export default function ContentPane({
 
     // Insert the embedded content
     if (embedType === 'googleDoc') {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (editor.commands as any).setGoogleDocs(url);
       // Update node type after microtask queue
       queueMicrotask(() => {
         onUpdate(node.id, { type: 'document' });
       });
     } else if (embedType === 'googleSheet') {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (editor.commands as any).setGoogleSheets(url);
       queueMicrotask(() => {
         onUpdate(node.id, { type: 'spreadsheet' });
       });
     } else if (embedType === 'googleSlide') {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (editor.commands as any).setGoogleSlides(url);
       queueMicrotask(() => {
         onUpdate(node.id, { type: 'document' });
@@ -603,6 +621,7 @@ export default function ContentPane({
         onUpdate(node.id, { type: 'youtube' });
       });
     } else if (embedType === 'googleMaps') {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (editor.commands as any).setGoogleMaps(url);
       queueMicrotask(() => {
         onUpdate(node.id, { type: 'map' });
@@ -684,8 +703,6 @@ export default function ContentPane({
   }
 
   const isRoot = node.type === 'root';
-  const showAIButton = aiContentEnabled && !isRoot;
-
   return (
     <div className="flex h-full flex-col bg-background">
       <ContentConflictDialog
@@ -885,6 +902,195 @@ export default function ContentPane({
               }}
             />
           </div>
+        )}
+
+        {/* Link node - URL input */}
+        {node.type === 'link' && (
+          <Card>
+            <CardContent className="p-4 space-y-3">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">URL</label>
+                <Input
+                  type="url"
+                  placeholder="https://example.com"
+                  value={node.metadata?.url || ''}
+                  onChange={(e) => {
+                    onUpdate(node.id, {
+                      metadata: {
+                        ...node.metadata,
+                        url: e.target.value,
+                      },
+                    });
+                  }}
+                  className="w-full"
+                />
+              </div>
+              {node.metadata?.url && (
+                <div className="pt-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      if (node.metadata?.url) {
+                        window.open(node.metadata.url, '_blank');
+                      }
+                    }}
+                    className="w-full"
+                  >
+                    Open Link
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Code node - syntax highlighted editor */}
+        {node.type === 'code' && (
+          <Card>
+            <CardContent className="p-4 space-y-3">
+              <div className="flex justify-between items-center">
+                <label className="text-sm font-medium">Language</label>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      navigator.clipboard.writeText(node.content || '');
+                      toast({ title: 'Copied to clipboard' });
+                    }}
+                  >
+                    <Copy className="h-4 w-4 mr-1" />
+                    Copy
+                  </Button>
+                </div>
+              </div>
+              <Select
+                value={node.metadata?.codeLanguage || 'javascript'}
+                onValueChange={(value) => {
+                  onUpdate(node.id, {
+                    metadata: {
+                      ...node.metadata,
+                      codeLanguage: value,
+                    },
+                  });
+                }}
+              >
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue placeholder="Select language" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="javascript">JavaScript</SelectItem>
+                  <SelectItem value="typescript">TypeScript</SelectItem>
+                  <SelectItem value="python">Python</SelectItem>
+                  <SelectItem value="java">Java</SelectItem>
+                  <SelectItem value="csharp">C#</SelectItem>
+                  <SelectItem value="php">PHP</SelectItem>
+                  <SelectItem value="ruby">Ruby</SelectItem>
+                  <SelectItem value="go">Go</SelectItem>
+                  <SelectItem value="rust">Rust</SelectItem>
+                  <SelectItem value="sql">SQL</SelectItem>
+                  <SelectItem value="json">JSON</SelectItem>
+                  <SelectItem value="css">CSS</SelectItem>
+                  <SelectItem value="markup">HTML</SelectItem>
+                </SelectContent>
+              </Select>
+              <div className="border rounded-md overflow-hidden">
+                <Editor
+                  value={node.content || ''}
+                  onValueChange={(code) => {
+                    onUpdate(node.id, { content: code });
+                  }}
+                  highlight={(code) => {
+                    const language = node.metadata?.codeLanguage || 'javascript';
+                    try {
+                      return Prism.highlight(code, Prism.languages[language] || Prism.languages.javascript, language);
+                    } catch {
+                      return code;
+                    }
+                  }}
+                  padding={16}
+                  style={{
+                    fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
+                    fontSize: 14,
+                    minHeight: '300px',
+                    backgroundColor: '#f8f9fa',
+                  }}
+                  className="font-mono text-sm"
+                />
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Quote node - quote text with citation */}
+        {node.type === 'quote' && (
+          <Card className="border-l-4 border-l-purple-500">
+            <CardContent className="p-6">
+              <blockquote className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-muted-foreground">Quote</label>
+                  <textarea
+                    value={node.content || ''}
+                    onChange={(e) => onUpdate(node.id, { content: e.target.value })}
+                    placeholder="Enter quote text..."
+                    className="w-full min-h-[120px] p-3 text-lg italic border rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-muted-foreground">Source / Attribution</label>
+                  <Input
+                    value={node.metadata?.url || ''}
+                    onChange={(e) => {
+                      onUpdate(node.id, {
+                        metadata: {
+                          ...node.metadata,
+                          url: e.target.value,
+                        },
+                      });
+                    }}
+                    placeholder="— Author Name, Book/Article Title"
+                    className="text-sm"
+                  />
+                </div>
+              </blockquote>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Date node - date picker with notes */}
+        {node.type === 'date' && (
+          <Card>
+            <CardContent className="p-4 space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Date</label>
+                <Input
+                  type="date"
+                  value={node.metadata?.dueDate ? new Date(node.metadata.dueDate).toISOString().split('T')[0] : ''}
+                  onChange={(e) => {
+                    const timestamp = new Date(e.target.value).getTime();
+                    onUpdate(node.id, {
+                      metadata: {
+                        ...node.metadata,
+                        dueDate: timestamp,
+                      },
+                    });
+                  }}
+                  className="w-full"
+                />
+              </div>
+              {node.metadata?.dueDate && (
+                <div className="text-sm text-muted-foreground">
+                  {new Date(node.metadata.dueDate).toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
         )}
 
         {/* Text editor for non-canvas nodes */}

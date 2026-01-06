@@ -8,23 +8,25 @@ const BACKUP_STORAGE_KEY = 'idiampro-backup';
  * Check if running in Capacitor native app
  */
 export function isCapacitorNative(): boolean {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return typeof window !== 'undefined' && !!(window as any).Capacitor?.isNativePlatform?.();
 }
 
 /**
  * Check if running on mobile (no file picker available)
  */
-function isMobileOrCapacitor(): boolean {
-  // Check for Capacitor
-  if (typeof window !== 'undefined' && (window as any).Capacitor) {
-    return true;
-  }
-  // Check screen width as fallback
-  if (typeof window !== 'undefined' && window.innerWidth < 768) {
-    return true;
-  }
-  return false;
-}
+// function isMobileOrCapacitor(): boolean {
+//   // Check for Capacitor
+//   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+//   if (typeof window !== 'undefined' && (window as any).Capacitor) {
+//     return true;
+//   }
+//   // Check screen width as fallback
+//   if (typeof window !== 'undefined' && window.innerWidth < 768) {
+//     return true;
+//   }
+//   return false;
+// }
 
 /**
  * Backup all outlines to localStorage (for mobile)

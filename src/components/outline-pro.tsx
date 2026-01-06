@@ -12,17 +12,17 @@ import ContentPane from './content-pane';
 import { useToast } from "@/hooks/use-toast";
 import { generateOutlineAction, expandContentAction, generateContentForNodeAction, ingestExternalSourceAction } from '@/app/actions';
 import { useAI } from '@/contexts/ai-context';
-import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel } from './ui/alert-dialog';
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction } from './ui/alert-dialog';
 import { Button } from './ui/button';
 import { loadStorageData, saveAllOutlines, migrateToFileSystem, type MigrationConflict, type ConflictResolution } from '@/lib/storage-manager';
 import CommandPalette from './command-palette';
 import EmptyState from './empty-state';
 import KeyboardShortcutsDialog, { useKeyboardShortcuts } from './keyboard-shortcuts-dialog';
 import { exportOutlineToJson } from '@/lib/export';
-import { createBlankOutline } from '@/lib/templates';
 
 type MobileView = 'stacked' | 'content'; // stacked = outline + preview, content = full screen content
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const isValidOutline = (data: any): data is Outline => {
     if (
         typeof data !== 'object' ||
@@ -39,6 +39,7 @@ const isValidOutline = (data: any): data is Outline => {
         return false;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return Object.values(data.nodes).every((node: any) => typeof (node as OutlineNode).prefix === 'string');
 };
 
@@ -83,6 +84,11 @@ export default function OutlinePro() {
   const isInitialLoadDone = useRef(false);
   const pendingSaveRef = useRef<Promise<void> | null>(null);
   const hasUnsavedChangesRef = useRef(false);
+
+  // Track just-created node for space-to-edit feature
+  const justCreatedNodeIdRef = useRef<string | null>(null);
+  // Trigger edit mode on a specific node (set by keyboard shortcuts)
+  const [editingNodeId, setEditingNodeId] = useState<string | null>(null);
 
   const currentOutline = useMemo(() => outlines.find(o => o.id === currentOutlineId), [outlines, currentOutlineId]);
   const selectedNode = useMemo(() => (currentOutline?.nodes && selectedNodeId) ? currentOutline.nodes[selectedNodeId] : null, [currentOutline, selectedNodeId]);
@@ -287,15 +293,54 @@ export default function OutlinePro() {
         const capturedNewNodeId = newNodeId;
         setTimeout(() => {
           setSelectedNodeId(capturedNewNodeId);
-          if (isMobile) {
-            setMobileView('content');
-          }
+          // On mobile, stay in outline view - user taps content preview to see content
         }, 0);
       }
 
       return newOutlines;
     });
-  }, [selectedNodeId, currentOutlineId, isMobile]);
+  }, [selectedNodeId, currentOutlineId]);
+
+  // handleCreateChildNode adds new node as child of specified parent (for double-click creation)
+  const handleCreateChildNode = useCallback((parentId: string) => {
+    setOutlines(currentOutlines => {
+      let newNodeId: string | null = null;
+
+      const newOutlines = currentOutlines.map(o => {
+        if (o.id === currentOutlineId) {
+          const { newNodes, newNodeId: createdNodeId } = addNode(
+            o.nodes,
+            parentId,
+            'document',
+            'New Node',
+            ''
+          );
+          newNodeId = createdNodeId;
+          return { ...o, nodes: newNodes };
+        }
+        return o;
+      });
+
+      // Schedule the selection update after this state update
+      if (newNodeId) {
+        const capturedNewNodeId = newNodeId;
+        // Track this as a just-created node for space-to-edit feature
+        justCreatedNodeIdRef.current = capturedNewNodeId;
+        // Clear the ref after 5 seconds (user has had enough time to press space)
+        setTimeout(() => {
+          if (justCreatedNodeIdRef.current === capturedNewNodeId) {
+            justCreatedNodeIdRef.current = null;
+          }
+        }, 5000);
+        setTimeout(() => {
+          setSelectedNodeId(capturedNewNodeId);
+          // On mobile, stay in outline view - user taps content preview to see content
+        }, 0);
+      }
+
+      return newOutlines;
+    });
+  }, [currentOutlineId]);
 
   const isDescendant = (nodes: NodeMap, childId: string, parentId: string): boolean => {
     let current = nodes[childId];
@@ -805,11 +850,11 @@ export default function OutlinePro() {
     setOutlines(currentOutlines => {
       return currentOutlines.map(o => {
         if (o.id === currentOutlineId) {
-          let newNodes = { ...o.nodes };
+          const newNodes = { ...o.nodes };
           const rootId = o.rootNodeId;
 
           // Add each node from preview as children of root
-          preview.nodesToAdd.forEach((previewNode, index) => {
+          preview.nodesToAdd.forEach((previewNode) => {
             const newNodeId = uuidv4();
             const newNode: OutlineNode = {
               id: newNodeId,
@@ -1461,6 +1506,11 @@ export default function OutlinePro() {
                 onSearchOpenChange={setIsSearchOpen}
                 onGenerateContentForChildren={handleGenerateContentForChildren}
                 onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
+                onCreateChildNode={handleCreateChildNode}
+                justCreatedNodeId={justCreatedNodeIdRef.current}
+                editingNodeId={editingNodeId}
+                onEditingComplete={() => setEditingNodeId(null)}
+                onTriggerEdit={setEditingNodeId}
               />
             </div>
             {/* Content Preview - takes ~30%, tap to expand */}
@@ -1669,6 +1719,11 @@ export default function OutlinePro() {
                 onSearchOpenChange={setIsSearchOpen}
                 onGenerateContentForChildren={handleGenerateContentForChildren}
                 onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
+                onCreateChildNode={handleCreateChildNode}
+                justCreatedNodeId={justCreatedNodeIdRef.current}
+                editingNodeId={editingNodeId}
+                onEditingComplete={() => setEditingNodeId(null)}
+                onTriggerEdit={setEditingNodeId}
               />
             </div>
           </ResizablePanel>

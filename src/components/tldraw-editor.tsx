@@ -22,9 +22,14 @@ function TldrawEditorInner({
   const isInitializedRef = useRef(false);
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Load snapshot on mount
+  // Load snapshot on mount and ensure UI stays visible
   useEffect(() => {
     if (!editor || isInitializedRef.current) return;
+
+    // Keep UI visible (disable focus mode which hides toolbars)
+    editor.updateInstanceState({
+      isFocusMode: false,
+    });
 
     if (snapshot) {
       try {
@@ -78,9 +83,13 @@ export default function TldrawEditor({
   onSnapshotChange,
   className = '',
 }: TldrawEditorProps) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleMount = useCallback((editor: any) => {
-    // Optional: Configure editor on mount
-    // editor.updateInstanceState({ isDebugMode: false });
+    // Keep UI visible on touch devices (don't auto-hide)
+    editor.updateInstanceState({
+      isFocusMode: false,
+      isToolLocked: false,
+    });
   }, []);
 
   return (

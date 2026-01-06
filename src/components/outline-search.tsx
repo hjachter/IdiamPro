@@ -4,8 +4,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search, X, ChevronUp, ChevronDown, Globe, FileText } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import type { Outline, OutlineNode, NodeMap } from '@/types';
+import type { Outline } from '@/types';
 import {
   Tooltip,
   TooltipContent,
@@ -27,7 +26,6 @@ interface OutlineSearchProps {
   outlines: Outline[];
   currentOutline: Outline | undefined;
   onSearchResults: (matches: SearchMatch[], searchTerm: string) => void;
-  onNavigateToMatch: (match: SearchMatch) => void;
   currentMatchIndex: number;
   totalMatches: number;
   onNextMatch: () => void;
@@ -78,7 +76,6 @@ export default function OutlineSearch({
   outlines,
   currentOutline,
   onSearchResults,
-  onNavigateToMatch,
   currentMatchIndex,
   totalMatches,
   onNextMatch,

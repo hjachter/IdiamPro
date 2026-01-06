@@ -59,6 +59,15 @@ body {
     --node-document: 142 76% 36%; /* Green for documents */
     --node-media: 280 70% 50%; /* Purple for media */
 
+    /* Node color palette */
+    --node-red: 0 70% 60%;
+    --node-orange: 30 70% 60%;
+    --node-yellow: 50 70% 60%;
+    --node-green: 120 70% 50%;
+    --node-blue: 210 70% 60%;
+    --node-purple: 270 70% 60%;
+    --node-pink: 330 70% 60%;
+
     /* Toolbar backgrounds */
     --toolbar-bg: 210 20% 96%; /* Slightly blue-tinted gray */
   }
@@ -106,6 +115,15 @@ body {
     --node-chapter: 211 100% 55%;
     --node-document: 142 70% 45%;
     --node-media: 280 65% 58%;
+
+    /* Node color palette (brighter for dark mode) */
+    --node-red: 0 75% 65%;
+    --node-orange: 30 75% 65%;
+    --node-yellow: 50 75% 65%;
+    --node-green: 120 75% 55%;
+    --node-blue: 210 75% 65%;
+    --node-purple: 270 75% 65%;
+    --node-pink: 330 75% 65%;
 
     /* Toolbar backgrounds */
     --toolbar-bg: 220 15% 12%; /* Slightly blue-tinted dark */

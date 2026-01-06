@@ -3,26 +3,24 @@
 import { generateOutlineFromTopic } from '@/ai/flows/generate-outline-from-topic';
 import { expandNodeContent } from '@/ai/flows/expand-node-content';
 import type {
-  SubscriptionPlan,
   NodeGenerationContext,
   ExternalSourceInput,
   IngestPreview,
 } from '@/types';
 
 // Plan-aware configuration (server-side)
-function getPlanConfig(plan: SubscriptionPlan) {
-  return plan === 'PREMIUM'
-    ? { maxTokens: 4000, temperature: 0.8 }
-    : { maxTokens: 1000, temperature: 0.7 };
-}
+// function getPlanConfig(plan: SubscriptionPlan) {
+//   return plan === 'PREMIUM'
+//     ? { maxTokens: 4000, temperature: 0.8 }
+//     : { maxTokens: 1000, temperature: 0.7 };
+// }
 
 export async function generateOutlineAction(
-  topic: string,
-  plan: SubscriptionPlan = 'FREE'
+  topic: string
 ): Promise<string> {
   try {
-    const config = getPlanConfig(plan);
     // Config can be passed to flow in future for model switching
+    // const config = getPlanConfig(plan);
     const result = await generateOutlineFromTopic({ topic });
     return result.outline;
   } catch (error) {
@@ -32,11 +30,10 @@ export async function generateOutlineAction(
 }
 
 export async function expandContentAction(
-  title: string,
-  plan: SubscriptionPlan = 'FREE'
+  title: string
 ): Promise<string> {
   try {
-    const config = getPlanConfig(plan);
+    // const config = getPlanConfig(plan);
     const result = await expandNodeContent({ title });
     return result.content;
   } catch (error) {
@@ -49,11 +46,10 @@ export async function expandContentAction(
  * Generate content for a node with full context (ancestors, existing content)
  */
 export async function generateContentForNodeAction(
-  context: NodeGenerationContext,
-  plan: SubscriptionPlan = 'FREE'
+  context: NodeGenerationContext
 ): Promise<string> {
   try {
-    const config = getPlanConfig(plan);
+    // const config = getPlanConfig(plan);
 
     // Build a rich prompt with context
     const ancestorContext = context.ancestorPath.length > 0
@@ -81,11 +77,10 @@ export async function generateContentForNodeAction(
  */
 export async function ingestExternalSourceAction(
   source: ExternalSourceInput,
-  existingOutlineSummary: string | undefined,
-  plan: SubscriptionPlan = 'FREE'
+  existingOutlineSummary: string | undefined
 ): Promise<IngestPreview> {
   try {
-    const config = getPlanConfig(plan);
+    // const config = getPlanConfig(plan);
 
     // Extract content from source
     let extractedContent = '';

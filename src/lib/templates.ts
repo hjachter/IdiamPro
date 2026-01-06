@@ -309,6 +309,319 @@ function createCourseNotesOutline(): Outline {
   };
 }
 
+// Daily Journal Template
+function createDailyJournalOutline(): Outline {
+  const rootId = uuidv4();
+  const nodes: NodeMap = {};
+
+  const root: OutlineNode = {
+    id: rootId,
+    name: 'Daily Journal',
+    content: '',
+    type: 'root',
+    parentId: null,
+    childrenIds: [],
+    isCollapsed: false,
+    prefix: '',
+  };
+  nodes[root.id] = root;
+
+  const sections = [
+    { name: 'Morning Reflection', content: '<p>How am I feeling? What are my intentions for today?</p>' },
+    { name: 'Tasks for Today', content: '<p>Top 3 priorities:</p><p>1. </p><p>2. </p><p>3. </p>' },
+    { name: 'Evening Review', content: '<p>What did I accomplish? What could have gone better?</p>' },
+    { name: 'Gratitude', content: '<p>Three things I\'m grateful for:</p><p>• </p><p>• </p><p>• </p>' },
+  ];
+
+  sections.forEach(({ name, content }) => {
+    const node = createNode(name, 'chapter', content, rootId);
+    nodes[node.id] = node;
+    root.childrenIds.push(node.id);
+  });
+
+  return {
+    id: uuidv4(),
+    name: 'Daily Journal',
+    rootNodeId: rootId,
+    nodes,
+  };
+}
+
+// Product Roadmap Template
+function createProductRoadmapOutline(): Outline {
+  const rootId = uuidv4();
+  const nodes: NodeMap = {};
+
+  const root: OutlineNode = {
+    id: rootId,
+    name: 'Product Roadmap',
+    content: '<p>Product vision and strategic direction...</p>',
+    type: 'root',
+    parentId: null,
+    childrenIds: [],
+    isCollapsed: false,
+    prefix: '',
+  };
+  nodes[root.id] = root;
+
+  const sections = [
+    { name: 'Vision', content: '<p>Long-term product vision and strategy...</p>' },
+    { name: 'Q1 Milestones', content: '<p>First quarter goals and features...</p>' },
+    { name: 'Q2 Milestones', content: '<p>Second quarter goals and features...</p>' },
+    { name: 'Q3 Milestones', content: '<p>Third quarter goals and features...</p>' },
+    { name: 'Q4 Milestones', content: '<p>Fourth quarter goals and features...</p>' },
+    { name: 'Feature Ideas', content: '<p>Backlog of potential features...</p>' },
+    { name: 'Technical Debt', content: '<p>Technical improvements needed...</p>' },
+  ];
+
+  sections.forEach(({ name, content }) => {
+    const node = createNode(name, 'chapter', content, rootId);
+    nodes[node.id] = node;
+    root.childrenIds.push(node.id);
+  });
+
+  return {
+    id: uuidv4(),
+    name: 'Product Roadmap',
+    rootNodeId: rootId,
+    nodes,
+  };
+}
+
+// Blog Post Template
+function createBlogPostOutline(): Outline {
+  const rootId = uuidv4();
+  const nodes: NodeMap = {};
+
+  const root: OutlineNode = {
+    id: rootId,
+    name: 'Blog Post Title',
+    content: '',
+    type: 'root',
+    parentId: null,
+    childrenIds: [],
+    isCollapsed: false,
+    prefix: '',
+  };
+  nodes[root.id] = root;
+
+  const sections = [
+    { name: 'Introduction', content: '<p>Hook the reader and introduce the topic...</p>' },
+    { name: 'Main Point 1', content: '<p>First key point with supporting details...</p>' },
+    { name: 'Main Point 2', content: '<p>Second key point with supporting details...</p>' },
+    { name: 'Main Point 3', content: '<p>Third key point with supporting details...</p>' },
+    { name: 'Conclusion', content: '<p>Summary and call to action...</p>' },
+    { name: 'SEO Notes', content: '<p>Keywords: </p><p>Meta description: </p><p>Tags: </p>' },
+  ];
+
+  sections.forEach(({ name, content }) => {
+    const node = createNode(name, 'chapter', content, rootId);
+    nodes[node.id] = node;
+    root.childrenIds.push(node.id);
+  });
+
+  return {
+    id: uuidv4(),
+    name: 'Blog Post Title',
+    rootNodeId: rootId,
+    nodes,
+  };
+}
+
+// Job Interview Prep Template
+function createJobInterviewPrepOutline(): Outline {
+  const rootId = uuidv4();
+  const nodes: NodeMap = {};
+
+  const root: OutlineNode = {
+    id: rootId,
+    name: 'Job Interview Prep',
+    content: '',
+    type: 'root',
+    parentId: null,
+    childrenIds: [],
+    isCollapsed: false,
+    prefix: '',
+  };
+  nodes[root.id] = root;
+
+  const sections = [
+    { name: 'Company Research', content: '<p>Company mission, recent news, culture...</p>' },
+    { name: 'Role Details', content: '<p>Job description, requirements, expectations...</p>' },
+    { name: 'Questions to Ask', content: '<p>• About the role:</p><p>• About the team:</p><p>• About the company:</p>' },
+    { name: 'Follow-up Notes', content: '<p>Post-interview reflections and thank you notes...</p>' },
+  ];
+
+  sections.forEach(({ name, content }) => {
+    const node = createNode(name, 'chapter', content, rootId);
+    nodes[node.id] = node;
+    root.childrenIds.push(node.id);
+  });
+
+  return {
+    id: uuidv4(),
+    name: 'Job Interview Prep',
+    rootNodeId: rootId,
+    nodes,
+  };
+}
+
+// Recipe Template
+function createRecipeOutline(): Outline {
+  const rootId = uuidv4();
+  const nodes: NodeMap = {};
+
+  const root: OutlineNode = {
+    id: rootId,
+    name: 'Recipe Name',
+    content: '',
+    type: 'root',
+    parentId: null,
+    childrenIds: [],
+    isCollapsed: false,
+    prefix: '',
+  };
+  nodes[root.id] = root;
+
+  const sections = [
+    { name: 'Ingredients', content: '<p>• </p><p>• </p><p>• </p>' },
+    { name: 'Equipment', content: '<p>• </p><p>• </p>' },
+    { name: 'Steps', content: '<p>1. </p><p>2. </p><p>3. </p>' },
+    { name: 'Notes & Variations', content: '<p>Tips, substitutions, and modifications...</p>' },
+    { name: 'Serving Info', content: '<p>Serves: </p><p>Prep time: </p><p>Cook time: </p>' },
+  ];
+
+  sections.forEach(({ name, content }) => {
+    const node = createNode(name, 'chapter', content, rootId);
+    nodes[node.id] = node;
+    root.childrenIds.push(node.id);
+  });
+
+  return {
+    id: uuidv4(),
+    name: 'Recipe Name',
+    rootNodeId: rootId,
+    nodes,
+  };
+}
+
+// Travel Itinerary Template
+function createTravelItineraryOutline(): Outline {
+  const rootId = uuidv4();
+  const nodes: NodeMap = {};
+
+  const root: OutlineNode = {
+    id: rootId,
+    name: 'Travel Itinerary',
+    content: '<p>Destination and dates...</p>',
+    type: 'root',
+    parentId: null,
+    childrenIds: [],
+    isCollapsed: false,
+    prefix: '',
+  };
+  nodes[root.id] = root;
+
+  const sections = [
+    { name: 'Pre-trip Planning', content: '<p>Bookings, documents, reservations...</p>' },
+    { name: 'Day 1', content: '<p>Activities, meals, accommodations...</p>' },
+    { name: 'Day 2', content: '<p>Activities, meals, accommodations...</p>' },
+    { name: 'Day 3', content: '<p>Activities, meals, accommodations...</p>' },
+    { name: 'Packing List', content: '<p>• </p><p>• </p><p>• </p>' },
+    { name: 'Memories & Photos', content: '<p>Highlights and favorite moments...</p>' },
+  ];
+
+  sections.forEach(({ name, content }) => {
+    const node = createNode(name, 'chapter', content, rootId);
+    nodes[node.id] = node;
+    root.childrenIds.push(node.id);
+  });
+
+  return {
+    id: uuidv4(),
+    name: 'Travel Itinerary',
+    rootNodeId: rootId,
+    nodes,
+  };
+}
+
+// 1-on-1 Meeting Template
+function createOneOnOneMeetingOutline(): Outline {
+  const rootId = uuidv4();
+  const nodes: NodeMap = {};
+
+  const root: OutlineNode = {
+    id: rootId,
+    name: '1-on-1 Meeting',
+    content: '',
+    type: 'root',
+    parentId: null,
+    childrenIds: [],
+    isCollapsed: false,
+    prefix: '',
+  };
+  nodes[root.id] = root;
+
+  const sections = [
+    { name: 'Updates', content: '<p>Progress on current work and projects...</p>' },
+    { name: 'Discussion Topics', content: '<p>• </p><p>• </p><p>• </p>' },
+    { name: 'Action Items', content: '<p>• </p><p>• </p>' },
+    { name: 'Next Meeting', content: '<p>Date: </p><p>Topics for next time: </p>' },
+  ];
+
+  sections.forEach(({ name, content }) => {
+    const node = createNode(name, 'chapter', content, rootId);
+    nodes[node.id] = node;
+    root.childrenIds.push(node.id);
+  });
+
+  return {
+    id: uuidv4(),
+    name: '1-on-1 Meeting',
+    rootNodeId: rootId,
+    nodes,
+  };
+}
+
+// Decision Document Template
+function createDecisionDocumentOutline(): Outline {
+  const rootId = uuidv4();
+  const nodes: NodeMap = {};
+
+  const root: OutlineNode = {
+    id: rootId,
+    name: 'Decision Document',
+    content: '<p>Decision title and summary...</p>',
+    type: 'root',
+    parentId: null,
+    childrenIds: [],
+    isCollapsed: false,
+    prefix: '',
+  };
+  nodes[root.id] = root;
+
+  const sections = [
+    { name: 'Context', content: '<p>Background and why this decision is needed...</p>' },
+    { name: 'Options Considered', content: '<p>Option 1: </p><p>Option 2: </p><p>Option 3: </p>' },
+    { name: 'Pros & Cons', content: '<p>Analysis of each option...</p>' },
+    { name: 'Decision', content: '<p>The chosen option and why...</p>' },
+    { name: 'Rationale', content: '<p>Detailed reasoning and supporting evidence...</p>' },
+  ];
+
+  sections.forEach(({ name, content }) => {
+    const node = createNode(name, 'chapter', content, rootId);
+    nodes[node.id] = node;
+    root.childrenIds.push(node.id);
+  });
+
+  return {
+    id: uuidv4(),
+    name: 'Decision Document',
+    rootNodeId: rootId,
+    nodes,
+  };
+}
+
 // Export all templates
 export const templates: Template[] = [
   {
@@ -352,6 +665,62 @@ export const templates: Template[] = [
     description: 'Organize learning by modules and topics',
     icon: '🎓',
     create: createCourseNotesOutline,
+  },
+  {
+    id: 'daily-journal',
+    name: 'Daily Journal',
+    description: 'Morning reflection, tasks, evening review, gratitude',
+    icon: '📔',
+    create: createDailyJournalOutline,
+  },
+  {
+    id: 'product-roadmap',
+    name: 'Product Roadmap',
+    description: 'Vision, quarterly milestones, feature ideas',
+    icon: '🚀',
+    create: createProductRoadmapOutline,
+  },
+  {
+    id: 'blog-post',
+    name: 'Blog Post',
+    description: 'Introduction, main points, conclusion, SEO notes',
+    icon: '✍️',
+    create: createBlogPostOutline,
+  },
+  {
+    id: 'job-interview-prep',
+    name: 'Job Interview Prep',
+    description: 'Company research, questions to ask, follow-up',
+    icon: '💼',
+    create: createJobInterviewPrepOutline,
+  },
+  {
+    id: 'recipe',
+    name: 'Recipe',
+    description: 'Ingredients, equipment, steps, notes',
+    icon: '🍳',
+    create: createRecipeOutline,
+  },
+  {
+    id: 'travel-itinerary',
+    name: 'Travel Itinerary',
+    description: 'Day-by-day schedule, packing list, memories',
+    icon: '✈️',
+    create: createTravelItineraryOutline,
+  },
+  {
+    id: 'one-on-one',
+    name: '1-on-1 Meeting',
+    description: 'Updates, discussion topics, action items',
+    icon: '👥',
+    create: createOneOnOneMeetingOutline,
+  },
+  {
+    id: 'decision-document',
+    name: 'Decision Document',
+    description: 'Context, options, pros/cons, decision',
+    icon: '⚖️',
+    create: createDecisionDocumentOutline,
   },
 ];
 

@@ -17,7 +17,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileText, Youtube, File, Loader2, Upload } from 'lucide-react';
 import type { ExternalSourceType, ExternalSourceInput, IngestPreview } from '@/types';
-import { useAI, useAIFeature } from '@/contexts/ai-context';
+import { useAIFeature } from '@/contexts/ai-context';
 import IngestPreviewDialog from './ingest-preview-dialog';
 
 interface IngestSourceDialogProps {

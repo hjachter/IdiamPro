@@ -6,7 +6,7 @@ import NodeItem from './node-item';
 import AIMenu from './ai-menu';
 import OutlineSearch, { type SearchMatch } from './outline-search';
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent, DropdownMenuPortal } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ChevronDown, FilePlus, Plus, Trash2, Edit, FileDown, FileUp, RotateCcw, ChevronsUp, ChevronsDown, Settings, Search, Command } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -14,7 +14,7 @@ import { Input } from './ui/input';
 import ImportDialog from './import-dialog';
 import SettingsDialog from './settings-dialog';
 import type { NodeType } from '@/types';
-import { exportOutlineToJson, exportAllOutlinesToJson, backupToLocalStorage, restoreFromLocalStorage, shareBackupFile, shareOutlineFile } from '@/lib/export';
+import { exportOutlineToJson, exportAllOutlinesToJson, shareBackupFile, shareOutlineFile } from '@/lib/export';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useToast } from '@/hooks/use-toast';
 
@@ -117,6 +117,13 @@ interface OutlinePaneProps {
   onGenerateContentForChildren?: (nodeId: string) => void;
   // Command palette
   onOpenCommandPalette?: () => void;
+  // Double-click child node creation
+  onCreateChildNode?: (parentId: string) => void;
+  // Edit mode control
+  justCreatedNodeId?: string | null;
+  editingNodeId?: string | null;
+  onEditingComplete?: () => void;
+  onTriggerEdit?: (nodeId: string) => void;
 }
 
 export default function OutlinePane({
@@ -153,13 +160,18 @@ export default function OutlinePane({
   onSearchOpenChange,
   onGenerateContentForChildren,
   onOpenCommandPalette,
+  onCreateChildNode,
+  justCreatedNodeId,
+  editingNodeId,
+  onEditingComplete,
+  onTriggerEdit,
 }: OutlinePaneProps) {
   const [renameId, setRenameId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const outlinePaneRef = useRef<HTMLDivElement>(null);
-  const isMobile = useIsMobile();
+  // const outlinePaneRef = useRef<HTMLDivElement>(null);
+  // const isMobile = useIsMobile();
   const { toast } = useToast();
 
   // Search state
@@ -167,7 +179,7 @@ export default function OutlinePane({
   const [searchMatches, setSearchMatches] = useState<SearchMatch[]>([]);
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
-  const [highlightedNodeIds, setHighlightedNodeIds] = useState<Set<string>>(new Set());
+  // const [highlightedNodeIds, setHighlightedNodeIds] = useState<Set<string>>(new Set());
 
   // Compute effective search open state (internal or external)
   const isSearchOpen = externalSearchOpen !== undefined ? externalSearchOpen : isSearchOpenInternal;
@@ -314,6 +326,23 @@ export default function OutlinePane({
         return;
       }
 
+      // Handle Enter/Return for edit mode (any selected node except root)
+      if (e.key === 'Enter') {
+        if (!selectedNodeId || !currentOutline) return;
+        const selectedNode = currentOutline.nodes[selectedNodeId];
+        if (selectedNode?.type === 'root') return;
+        e.preventDefault();
+        onTriggerEdit?.(selectedNodeId);
+        return;
+      }
+
+      // Handle Space for edit mode (only for just-created nodes)
+      if (e.key === ' ' && justCreatedNodeId && selectedNodeId === justCreatedNodeId) {
+        e.preventDefault();
+        onTriggerEdit?.(selectedNodeId);
+        return;
+      }
+
       // Handle clipboard shortcuts (Cmd on Mac, Ctrl on Windows/Linux)
       const isMod = e.metaKey || e.ctrlKey;
       if (!isMod || !selectedNodeId || !currentOutline) return;
@@ -342,7 +371,7 @@ export default function OutlinePane({
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [selectedNodeId, currentOutline, handleIndent, handleOutdent, hasClipboard, onCopySubtree, onCutSubtree, onPasteSubtree, onDuplicateNode]);
+  }, [selectedNodeId, currentOutline, handleIndent, handleOutdent, hasClipboard, onCopySubtree, onCutSubtree, onPasteSubtree, onDuplicateNode, justCreatedNodeId, onTriggerEdit]);
 
   const handleStartRename = (id: string, currentName: string) => {
     setRenameId(id);
@@ -443,18 +472,18 @@ export default function OutlinePane({
     reader.readAsText(file);
   };
 
-  const handleImportAsChapterClick = () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.json';
-    input.onchange = (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-      if (file) {
-        onImportAsChapter(file);
-      }
-    };
-    input.click();
-  };
+  // const handleImportAsChapterClick = () => {
+  //   const input = document.createElement('input');
+  //   input.type = 'file';
+  //   input.accept = '.json';
+  //   input.onchange = (e) => {
+  //     const file = (e.target as HTMLInputElement).files?.[0];
+  //     if (file) {
+  //       onImportAsChapter(file);
+  //     }
+  //   };
+  //   input.click();
+  // };
 
   const rootNode = currentOutline?.nodes[currentOutline.rootNodeId];
   const selectedNode = selectedNodeId ? currentOutline?.nodes[selectedNodeId] : undefined;
@@ -721,6 +750,9 @@ export default function OutlinePane({
               searchTerm={searchTerm}
               highlightedNodeIds={currentOutlineHighlights}
               onGenerateContentForChildren={onGenerateContentForChildren}
+              onCreateChildNode={onCreateChildNode}
+              editingNodeId={editingNodeId}
+              onEditingComplete={onEditingComplete}
             />
           </ul>
         )}

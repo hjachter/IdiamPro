@@ -2,17 +2,32 @@ export type NodeType =
   | 'root'
   | 'chapter'
   | 'document'
+  | 'note'
+  | 'task'
+  | 'link'
+  | 'code'
+  | 'quote'
+  | 'date'
   | 'image'
   | 'video'
   | 'audio'
+  | 'pdf'
+  | 'youtube'
   | 'spreadsheet'
   | 'database'
   | 'app'
-  | 'note'
-  | 'pdf'
-  | 'youtube'
   | 'map'
   | 'canvas';
+
+export type NodeColor =
+  | 'default'
+  | 'red'
+  | 'orange'
+  | 'yellow'
+  | 'green'
+  | 'blue'
+  | 'purple'
+  | 'pink';
 
 export interface OutlineNode {
   id: string;
@@ -23,6 +38,19 @@ export interface OutlineNode {
   childrenIds: string[];
   isCollapsed?: boolean;
   prefix: string;
+
+  // Metadata for enhanced features
+  metadata?: {
+    tags?: string[];           // Tags for organization
+    color?: NodeColor;         // Visual color
+    isPinned?: boolean;        // Pin to top
+    isCompleted?: boolean;     // For task nodes
+    codeLanguage?: string;     // For code nodes
+    url?: string;              // For link nodes
+    dueDate?: number;          // For date/task nodes (timestamp)
+    createdAt?: number;        // Creation timestamp
+    updatedAt?: number;        // Last modified timestamp
+  };
 }
 
 export type NodeMap = Record<string, OutlineNode>;
@@ -34,6 +62,15 @@ export interface Outline {
   nodes: NodeMap;
   isGuide?: boolean;
   lastModified?: number; // Unix timestamp
+}
+
+export interface OutlineTemplate {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  category: 'work' | 'personal' | 'education' | 'custom';
+  outline: Outline;
 }
 
 // ============================================
