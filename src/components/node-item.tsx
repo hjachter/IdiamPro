@@ -519,7 +519,10 @@ export default function NodeItem({
             >
                 <ChevronRight size={16} className={cn("transition-transform", !node.isCollapsed && "rotate-90")} />
             </button>
-            <NodeIcon type={node.type} isChapter={isChapter} isCollapsed={node.isCollapsed} />
+            {/* Show NodeIcon for all types except task (task has its own checkbox) */}
+            {node.type !== 'task' && (
+                <NodeIcon type={node.type} isChapter={isChapter} isCollapsed={node.isCollapsed} />
+            )}
             {node.type === 'task' && (
                 <button
                     className="p-1 rounded-md hover:bg-primary/20 ml-1"
