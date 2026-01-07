@@ -5,7 +5,7 @@ import type { OutlineNode, NodeMap } from '@/types';
 import NodeIcon from './node-icon';
 import { TagBadge } from './tag-badge';
 import { TagManager } from './tag-manager';
-import { ChevronRight, Plus, Trash2, Edit3, ChevronDown, ChevronUp, Copy, Scissors, ClipboardPaste, CopyPlus, Sparkles, CheckSquare2, Palette, Check, Star, Tag } from 'lucide-react';
+import { ChevronRight, Plus, Trash2, Edit3, ChevronDown, ChevronUp, Copy, Scissors, ClipboardPaste, CopyPlus, Sparkles, CheckSquare2, Square, Palette, Check, Star, Tag } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import {
@@ -539,7 +539,7 @@ export default function NodeItem({
                     {node.metadata?.isCompleted ? (
                         <CheckSquare2 size={16} className="text-blue-500" />
                     ) : (
-                        <CheckSquare2 size={16} className="text-muted-foreground" />
+                        <Square size={16} className="text-muted-foreground" />
                     )}
                 </button>
             )}
