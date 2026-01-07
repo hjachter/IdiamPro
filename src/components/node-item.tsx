@@ -4,7 +4,8 @@ import React from 'react';
 import type { OutlineNode, NodeMap } from '@/types';
 import NodeIcon from './node-icon';
 import { TagBadge } from './tag-badge';
-import { ChevronRight, Plus, Trash2, Edit3, ChevronDown, ChevronUp, Copy, Scissors, ClipboardPaste, CopyPlus, Sparkles, CheckSquare2, Palette, Check, Star } from 'lucide-react';
+import { TagManager } from './tag-manager';
+import { ChevronRight, Plus, Trash2, Edit3, ChevronDown, ChevronUp, Copy, Scissors, ClipboardPaste, CopyPlus, Sparkles, CheckSquare2, Palette, Check, Star, Tag } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import {
@@ -161,6 +162,7 @@ export default function NodeItem({
   const [dropPosition, setDropPosition] = React.useState<DropPosition>(null);
   const [isDragging, setIsDragging] = React.useState(false);
   const isMultiSelected = selectedNodeIds?.has(nodeId) || false;
+  const [isTagManagerOpen, setIsTagManagerOpen] = React.useState(false);
 
   const itemRef = React.useRef<HTMLLIElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -874,6 +876,11 @@ export default function NodeItem({
                     </ContextMenuItem>
                   </ContextMenuSubContent>
                 </ContextMenuSub>
+                <ContextMenuSeparator />
+                <ContextMenuItem onClick={() => setIsTagManagerOpen(true)}>
+                  <Tag className="mr-2 h-4 w-4" />
+                  Manage Tags...
+                </ContextMenuItem>
               </>
             )}
 
@@ -928,6 +935,14 @@ export default function NodeItem({
             ))}
             </ul>
         )}
+
+        {/* Tag Manager Dialog */}
+        <TagManager
+          open={isTagManagerOpen}
+          onOpenChange={setIsTagManagerOpen}
+          nodes={nodes}
+          onUpdateNode={onUpdateNode}
+        />
     </li>
   );
 }
