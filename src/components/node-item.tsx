@@ -701,6 +701,61 @@ export default function NodeItem({
                 <ContextMenuSeparator />
                 <ContextMenuSub>
                   <ContextMenuSubTrigger>
+                    <Edit3 className="mr-2 h-4 w-4" />
+                    Set Type
+                  </ContextMenuSubTrigger>
+                  <ContextMenuSubContent>
+                    <ContextMenuItem onClick={() => onUpdateNode(nodeId, { type: 'chapter' })}>
+                      {node.type === 'chapter' && <Check className="mr-2 h-4 w-4" />}
+                      {node.type !== 'chapter' && <span className="mr-2 h-4 w-4" />}
+                      Chapter
+                    </ContextMenuItem>
+                    <ContextMenuItem onClick={() => onUpdateNode(nodeId, { type: 'document' })}>
+                      {node.type === 'document' && <Check className="mr-2 h-4 w-4" />}
+                      {node.type !== 'document' && <span className="mr-2 h-4 w-4" />}
+                      Document
+                    </ContextMenuItem>
+                    <ContextMenuItem onClick={() => onUpdateNode(nodeId, { type: 'note' })}>
+                      {node.type === 'note' && <Check className="mr-2 h-4 w-4" />}
+                      {node.type !== 'note' && <span className="mr-2 h-4 w-4" />}
+                      Note
+                    </ContextMenuItem>
+                    <ContextMenuSeparator />
+                    <ContextMenuItem onClick={() => onUpdateNode(nodeId, { type: 'task' })}>
+                      {node.type === 'task' && <Check className="mr-2 h-4 w-4" />}
+                      {node.type !== 'task' && <span className="mr-2 h-4 w-4" />}
+                      Task
+                    </ContextMenuItem>
+                    <ContextMenuItem onClick={() => onUpdateNode(nodeId, { type: 'link' })}>
+                      {node.type === 'link' && <Check className="mr-2 h-4 w-4" />}
+                      {node.type !== 'link' && <span className="mr-2 h-4 w-4" />}
+                      Link
+                    </ContextMenuItem>
+                    <ContextMenuItem onClick={() => onUpdateNode(nodeId, { type: 'code' })}>
+                      {node.type === 'code' && <Check className="mr-2 h-4 w-4" />}
+                      {node.type !== 'code' && <span className="mr-2 h-4 w-4" />}
+                      Code
+                    </ContextMenuItem>
+                    <ContextMenuItem onClick={() => onUpdateNode(nodeId, { type: 'quote' })}>
+                      {node.type === 'quote' && <Check className="mr-2 h-4 w-4" />}
+                      {node.type !== 'quote' && <span className="mr-2 h-4 w-4" />}
+                      Quote
+                    </ContextMenuItem>
+                    <ContextMenuItem onClick={() => onUpdateNode(nodeId, { type: 'date' })}>
+                      {node.type === 'date' && <Check className="mr-2 h-4 w-4" />}
+                      {node.type !== 'date' && <span className="mr-2 h-4 w-4" />}
+                      Date
+                    </ContextMenuItem>
+                    <ContextMenuSeparator />
+                    <ContextMenuItem onClick={() => onUpdateNode(nodeId, { type: 'canvas' })}>
+                      {node.type === 'canvas' && <Check className="mr-2 h-4 w-4" />}
+                      {node.type !== 'canvas' && <span className="mr-2 h-4 w-4" />}
+                      Canvas
+                    </ContextMenuItem>
+                  </ContextMenuSubContent>
+                </ContextMenuSub>
+                <ContextMenuSub>
+                  <ContextMenuSubTrigger>
                     <Palette className="mr-2 h-4 w-4" />
                     Set Color
                   </ContextMenuSubTrigger>
