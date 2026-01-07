@@ -941,7 +941,18 @@ export default function NodeItem({
           open={isTagManagerOpen}
           onOpenChange={setIsTagManagerOpen}
           nodes={nodes}
-          onUpdateNode={onUpdateNode}
+          currentNodeId={nodeId}
+          onAddTagToNode={(tag) => {
+            const existingTags = node.metadata?.tags || [];
+            if (!existingTags.includes(tag)) {
+              onUpdateNode(nodeId, {
+                metadata: {
+                  ...node.metadata,
+                  tags: [...existingTags, tag],
+                },
+              });
+            }
+          }}
         />
     </li>
   );

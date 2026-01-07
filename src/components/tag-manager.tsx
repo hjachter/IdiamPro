@@ -23,8 +23,9 @@ interface TagManagerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   nodes: NodeMap;
-  onUpdateNodes: (nodes: NodeMap) => void;
-  onAddTag?: (tag: string) => void;
+  onUpdateNodes?: (nodes: NodeMap) => void;
+  onAddTagToNode?: (tag: string) => void;
+  currentNodeId?: string;
 }
 
 export function TagManager({
@@ -32,7 +33,8 @@ export function TagManager({
   onOpenChange,
   nodes,
   onUpdateNodes,
-  onAddTag,
+  onAddTagToNode,
+  currentNodeId,
 }: TagManagerProps) {
   const [newTagName, setNewTagName] = useState('');
   const [editingTag, setEditingTag] = useState<string | null>(null);
@@ -46,14 +48,15 @@ export function TagManager({
     if (!newTagName.trim()) return;
 
     const trimmedTag = newTagName.trim();
-    if (allTags.includes(trimmedTag)) {
-      alert('Tag already exists');
+
+    // If we have a callback to add tag to current node, use it
+    if (onAddTagToNode) {
+      onAddTagToNode(trimmedTag);
+      setNewTagName('');
       return;
     }
 
-    if (onAddTag) {
-      onAddTag(trimmedTag);
-    }
+    // Otherwise, just reset (tag list will show all existing tags)
     setNewTagName('');
   };
 
@@ -70,13 +73,16 @@ export function TagManager({
       return;
     }
 
-    const updatedNodes = renameTag(nodes, oldTag, trimmedTag);
-    onUpdateNodes(updatedNodes);
+    if (onUpdateNodes) {
+      const updatedNodes = renameTag(nodes, oldTag, trimmedTag);
+      onUpdateNodes(updatedNodes);
+    }
     setEditingTag(null);
     setEditedName('');
   };
 
   const handleDeleteTag = (tag: string) => {
+    if (!onUpdateNodes) return;
     const updatedNodes = deleteTag(nodes, tag);
     onUpdateNodes(updatedNodes);
     setDeletingTag(null);
