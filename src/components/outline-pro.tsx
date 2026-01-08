@@ -85,6 +85,7 @@ export default function OutlinePro() {
 
   // Search term state (for content pane highlighting)
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const [currentMatchType, setCurrentMatchType] = useState<'name' | 'content' | 'both' | null>(null);
 
   const { toast } = useToast();
   const isMobile = useIsMobile();
@@ -388,8 +389,9 @@ export default function OutlinePro() {
   }, [currentOutlineId]);
 
   // Handle search term change from OutlinePane (for content highlighting)
-  const handleSearchTermChange = useCallback((term: string) => {
+  const handleSearchTermChange = useCallback((term: string, matchType?: 'name' | 'content' | 'both') => {
     setSearchTerm(term);
+    setCurrentMatchType(matchType || null);
   }, []);
 
   // handleCreateNode adds new node as sibling AFTER selected node (or as child if root is selected)

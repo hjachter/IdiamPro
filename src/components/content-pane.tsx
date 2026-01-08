@@ -332,12 +332,15 @@ export default function ContentPane({
         queueMicrotask(() => {
           editor.commands.setContent(newContent, false);
 
-          // Reapply search highlighting after content update
-          if (searchTerm && shouldUseRichTextEditor) {
-            editor.view.dispatch(
-              editor.view.state.tr.setMeta('searchHighlight', searchTerm)
-            );
-          }
+          // Reapply search highlighting after content update with a small delay
+          // to ensure the content is fully rendered
+          setTimeout(() => {
+            if (searchTerm && shouldUseRichTextEditor) {
+              editor.view.dispatch(
+                editor.view.state.tr.setMeta('searchHighlight', searchTerm)
+              );
+            }
+          }, 50);
         });
       }
     }

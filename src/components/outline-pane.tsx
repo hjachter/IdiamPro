@@ -134,7 +134,7 @@ interface OutlinePaneProps {
   onBulkChangeColor?: (color: string | undefined) => void;
   onBulkAddTag?: (tag: string) => void;
   // Search term for content highlighting
-  onSearchTermChange?: (searchTerm: string) => void;
+  onSearchTermChange?: (searchTerm: string, matchType?: 'name' | 'content' | 'both') => void;
 }
 
 export default function OutlinePane({
