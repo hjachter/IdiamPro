@@ -4,22 +4,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
 import type { OutlineNode, NodeGenerationContext } from '@/types';
-import Editor from 'react-simple-code-editor';
-import Prism from 'prismjs';
-import 'prismjs/components/prism-javascript';
-import 'prismjs/components/prism-typescript';
-import 'prismjs/components/prism-python';
-import 'prismjs/components/prism-java';
-import 'prismjs/components/prism-csharp';
-import 'prismjs/components/prism-php';
-import 'prismjs/components/prism-ruby';
-import 'prismjs/components/prism-go';
-import 'prismjs/components/prism-rust';
-import 'prismjs/components/prism-sql';
-import 'prismjs/components/prism-json';
-import 'prismjs/components/prism-css';
-import 'prismjs/components/prism-markup';
-import 'prismjs/themes/prism.css';
 
 /**
  * Detect if text appears to be tabular/aligned data that would benefit from monospace formatting.
@@ -126,6 +110,71 @@ import Youtube from '@tiptap/extension-youtube';
 import Placeholder from '@tiptap/extension-placeholder';
 import { GoogleDocs, GoogleSheets, GoogleSlides, GoogleMaps } from './tiptap-extensions';
 import { useSpeechRecognition } from '@/lib/use-speech-recognition';
+import { Extension } from '@tiptap/core';
+import { Decoration, DecorationSet } from '@tiptap/pm/view';
+import { Plugin, PluginKey } from '@tiptap/pm/state';
+
+// Search highlight extension
+const SearchHighlight = Extension.create({
+  name: 'searchHighlight',
+
+  addProseMirrorPlugins() {
+    const { editor } = this;
+
+    return [
+      new Plugin({
+        key: new PluginKey('searchHighlight'),
+        state: {
+          init() { return DecorationSet.empty; },
+          apply(tr, oldState) {
+            // Get search term from transaction meta
+            const searchTerm = tr.getMeta('searchHighlight');
+
+            if (searchTerm === undefined) {
+              return oldState.map(tr.mapping, tr.doc);
+            }
+
+            if (!searchTerm || searchTerm.length < 2) {
+              return DecorationSet.empty;
+            }
+
+            const decorations: Decoration[] = [];
+            const lowerSearch = searchTerm.toLowerCase();
+
+            // Search through document text
+            tr.doc.descendants((node, pos) => {
+              if (!node.isText || !node.text) return;
+
+              const text = node.text;
+              const lowerText = text.toLowerCase();
+              let index = lowerText.indexOf(lowerSearch);
+
+              while (index !== -1) {
+                const from = pos + index;
+                const to = from + searchTerm.length;
+
+                decorations.push(
+                  Decoration.inline(from, to, {
+                    class: 'search-highlight',
+                  })
+                );
+
+                index = lowerText.indexOf(lowerSearch, index + 1);
+              }
+            });
+
+            return DecorationSet.create(tr.doc, decorations);
+          },
+        },
+        props: {
+          decorations(state) {
+            return this.getState(state);
+          },
+        },
+      }),
+    ];
+  },
+});
 
 interface ContentPaneProps {
   node: OutlineNode | null;
@@ -135,6 +184,7 @@ interface ContentPaneProps {
   onExpandContent: () => Promise<void>;  // Legacy callback (kept for compatibility)
   onGenerateContent?: (context: NodeGenerationContext) => Promise<string>;  // Enhanced callback
   isLoadingAI: boolean;
+  searchTerm?: string;  // Search term for highlighting matches
 }
 
 const YouTubeEmbed = ({ url }: { url: string }) => {
@@ -175,7 +225,8 @@ export default function ContentPane({
   onBack,
   onExpandContent,
   onGenerateContent,
-  isLoadingAI
+  isLoadingAI,
+  searchTerm
 }: ContentPaneProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [conflictDialogOpen, setConflictDialogOpen] = useState(false);
@@ -202,8 +253,12 @@ export default function ContentPane({
     resetTranscript,
   } = useSpeechRecognition();
 
+  // Only create editor for node types that need rich text editing
+  const shouldUseRichTextEditor = !['canvas', 'code', 'link', 'quote', 'date'].includes(node?.type || '');
+
   const editor = useEditor({
     immediatelyRender: false,
+    editable: shouldUseRichTextEditor,
     extensions: [
       StarterKit,
       HorizontalRule,
@@ -219,10 +274,11 @@ export default function ContentPane({
       GoogleSheets,
       GoogleSlides,
       GoogleMaps,
+      SearchHighlight,
     ],
     content: '',  // Start empty, useEffect will set content
     onUpdate: ({ editor }) => {
-      if (node) {
+      if (node && shouldUseRichTextEditor) {
         const html = editor.getHTML();
         // Defer update to avoid flushSync during render
         queueMicrotask(() => {
@@ -275,14 +331,21 @@ export default function ContentPane({
         // Defer to avoid flushSync during render
         queueMicrotask(() => {
           editor.commands.setContent(newContent, false);
+
+          // Reapply search highlighting after content update
+          if (searchTerm && shouldUseRichTextEditor) {
+            editor.view.dispatch(
+              editor.view.state.tr.setMeta('searchHighlight', searchTerm)
+            );
+          }
         });
       }
     }
-  }, [node, editor]);
+  }, [node, editor, searchTerm, shouldUseRichTextEditor]);
 
   // Update editor class when font size changes
   useEffect(() => {
-    if (editor) {
+    if (editor && shouldUseRichTextEditor) {
       editor.setOptions({
         editorProps: {
           attributes: {
@@ -291,7 +354,17 @@ export default function ContentPane({
         },
       });
     }
-  }, [editor, fontSize]);
+  }, [editor, fontSize, shouldUseRichTextEditor]);
+
+  // Update search highlighting when searchTerm changes
+  useEffect(() => {
+    if (editor && shouldUseRichTextEditor) {
+      // Dispatch transaction with search term metadata to trigger highlight plugin
+      editor.view.dispatch(
+        editor.view.state.tr.setMeta('searchHighlight', searchTerm || '')
+      );
+    }
+  }, [editor, searchTerm, shouldUseRichTextEditor]);
 
   // Insert transcript when speech recognition completes
   useEffect(() => {
@@ -996,30 +1069,18 @@ export default function ContentPane({
                   <SelectItem value="markup">HTML</SelectItem>
                 </SelectContent>
               </Select>
-              <div className="border rounded-md overflow-hidden">
-                <Editor
-                  value={node.content || ''}
-                  onValueChange={(code) => {
-                    onUpdate(node.id, { content: code });
-                  }}
-                  highlight={(code) => {
-                    const language = node.metadata?.codeLanguage || 'javascript';
-                    try {
-                      return Prism.highlight(code, Prism.languages[language] || Prism.languages.javascript, language);
-                    } catch {
-                      return code;
-                    }
-                  }}
-                  padding={16}
-                  style={{
-                    fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
-                    fontSize: 14,
-                    minHeight: '300px',
-                    backgroundColor: '#f8f9fa',
-                  }}
-                  className="font-mono text-sm"
-                />
-              </div>
+              <textarea
+                value={node.content || ''}
+                onChange={(e) => onUpdate(node.id, { content: e.target.value })}
+                placeholder="Enter your code here..."
+                className="w-full min-h-[300px] p-4 border rounded-md font-mono text-sm resize-y text-foreground bg-muted"
+                style={{
+                  fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
+                  fontSize: 14,
+                  direction: 'ltr',
+                  writingMode: 'horizontal-tb',
+                }}
+              />
             </CardContent>
           </Card>
         )}
@@ -1035,7 +1096,7 @@ export default function ContentPane({
                     value={node.content || ''}
                     onChange={(e) => onUpdate(node.id, { content: e.target.value })}
                     placeholder="Enter quote text..."
-                    className="w-full min-h-[120px] p-3 text-lg italic border rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full min-h-[120px] p-3 text-lg italic border rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-purple-500 text-foreground bg-background"
                   />
                 </div>
                 <div className="space-y-2">
@@ -1094,8 +1155,8 @@ export default function ContentPane({
           </Card>
         )}
 
-        {/* Text editor for non-canvas nodes */}
-        {node.type !== 'canvas' && (
+        {/* Text editor for standard nodes only (not special types with custom editors) */}
+        {shouldUseRichTextEditor && (
         <ContextMenu onOpenChange={(open) => {
             if (open) {
               // Block pointer events briefly when menu opens to prevent accidental clicks

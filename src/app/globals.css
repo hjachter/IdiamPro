@@ -337,3 +337,40 @@ button:active:not(:disabled),
     min-width: 44px;
   }
 }
+
+/* Force code editor to use horizontal left-to-right text */
+#code-editor-textarea,
+textarea[class*="code"],
+.npm__react-simple-code-editor__textarea,
+.npm__react-simple-code-editor__textarea *,
+textarea[id*="code"] {
+  direction: ltr !important;
+  writing-mode: horizontal-tb !important;
+  text-align: left !important;
+  unicode-bidi: normal !important;
+  color: #1e293b !important;
+  caret-color: #1e293b !important;
+  transform: none !important;
+  text-orientation: mixed !important;
+}
+
+/* Also fix the wrapper and pre elements */
+div[class*="code"] pre,
+div[class*="code"] textarea,
+.font-mono textarea,
+.font-mono pre {
+  writing-mode: horizontal-tb !important;
+  direction: ltr !important;
+}
+
+/* Search highlighting in content pane */
+.search-highlight {
+  background-color: hsl(50 100% 60%); /* Yellow highlight */
+  border-radius: 2px;
+  padding: 0 2px;
+}
+
+.dark .search-highlight {
+  background-color: hsl(50 90% 50%); /* Slightly darker yellow for dark mode */
+  color: hsl(0 0% 0%); /* Black text on yellow for better contrast */
+}

@@ -638,13 +638,11 @@ export default function NodeItem({
               </ContextMenuItem>
             )}
 
-            {!isRoot && (
-              <ContextMenuItem onClick={(e) => { e.stopPropagation(); setIsEditing(true); }}>
-                <Edit3 className="mr-2 h-4 w-4" />
-                Rename Node
-                <ContextMenuShortcut>↵</ContextMenuShortcut>
-              </ContextMenuItem>
-            )}
+            <ContextMenuItem onClick={(e) => { e.stopPropagation(); setIsEditing(true); }}>
+              <Edit3 className="mr-2 h-4 w-4" />
+              Rename Node
+              <ContextMenuShortcut>↵</ContextMenuShortcut>
+            </ContextMenuItem>
 
             {isChapter && (
               <ContextMenuItem onClick={(e) => { e.stopPropagation(); onToggleCollapse(node.id); }}>
@@ -731,22 +729,22 @@ export default function NodeItem({
                       {node.type !== 'task' && <span className="mr-2 h-4 w-4" />}
                       Task
                     </ContextMenuItem>
-                    <ContextMenuItem onClick={() => onUpdateNode(nodeId, { type: 'link' })}>
+                    <ContextMenuItem onClick={() => onUpdateNode(nodeId, { type: 'link', content: '' })}>
                       {node.type === 'link' && <Check className="mr-2 h-4 w-4" />}
                       {node.type !== 'link' && <span className="mr-2 h-4 w-4" />}
                       Link
                     </ContextMenuItem>
-                    <ContextMenuItem onClick={() => onUpdateNode(nodeId, { type: 'code' })}>
+                    <ContextMenuItem onClick={() => onUpdateNode(nodeId, { type: 'code', content: '' })}>
                       {node.type === 'code' && <Check className="mr-2 h-4 w-4" />}
                       {node.type !== 'code' && <span className="mr-2 h-4 w-4" />}
                       Code
                     </ContextMenuItem>
-                    <ContextMenuItem onClick={() => onUpdateNode(nodeId, { type: 'quote' })}>
+                    <ContextMenuItem onClick={() => onUpdateNode(nodeId, { type: 'quote', content: '' })}>
                       {node.type === 'quote' && <Check className="mr-2 h-4 w-4" />}
                       {node.type !== 'quote' && <span className="mr-2 h-4 w-4" />}
                       Quote
                     </ContextMenuItem>
-                    <ContextMenuItem onClick={() => onUpdateNode(nodeId, { type: 'date' })}>
+                    <ContextMenuItem onClick={() => onUpdateNode(nodeId, { type: 'date', content: '' })}>
                       {node.type === 'date' && <Check className="mr-2 h-4 w-4" />}
                       {node.type !== 'date' && <span className="mr-2 h-4 w-4" />}
                       Date

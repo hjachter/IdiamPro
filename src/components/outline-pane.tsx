@@ -133,6 +133,8 @@ interface OutlinePaneProps {
   onBulkDelete?: () => void;
   onBulkChangeColor?: (color: string | undefined) => void;
   onBulkAddTag?: (tag: string) => void;
+  // Search term for content highlighting
+  onSearchTermChange?: (searchTerm: string) => void;
 }
 
 export default function OutlinePane({
@@ -181,10 +183,12 @@ export default function OutlinePane({
   onBulkDelete,
   onBulkChangeColor,
   onBulkAddTag,
+  onSearchTermChange,
 }: OutlinePaneProps) {
   const [renameId, setRenameId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   // const outlinePaneRef = useRef<HTMLDivElement>(null);
   // const isMobile = useIsMobile();
@@ -195,6 +199,7 @@ export default function OutlinePane({
   const [searchMatches, setSearchMatches] = useState<SearchMatch[]>([]);
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
+  const prevSearchTermRef = useRef('');
   // const [highlightedNodeIds, setHighlightedNodeIds] = useState<Set<string>>(new Set());
 
   // Compute effective search open state (internal or external)
@@ -249,34 +254,22 @@ export default function OutlinePane({
   const handleSearchResults = useCallback((matches: SearchMatch[], term: string) => {
     setSearchMatches(matches);
     setSearchTerm(term);
-    setCurrentMatchIndex(0);
 
-    if (matches.length > 0 && currentOutline) {
-      // First, collapse all nodes
-      onCollapseAll();
-
-      // Then expand paths to all matching nodes in current outline
-      const currentOutlineMatches = matches.filter(m => m.outlineId === currentOutline.id);
-      const ancestorsToExpand = new Set<string>();
-
-      currentOutlineMatches.forEach(match => {
-        const path = getPathToNode(currentOutline.nodes, match.nodeId);
-        path.forEach(nodeId => ancestorsToExpand.add(nodeId));
-      });
-
-      // Expand ancestors after a brief delay to let collapse complete
-      if (ancestorsToExpand.size > 0 && onExpandAncestors) {
-        setTimeout(() => {
-          onExpandAncestors(Array.from(ancestorsToExpand));
-        }, 50);
-      }
-
-      // Navigate to first match
-      if (currentOutlineMatches.length > 0) {
-        onSelectNode(currentOutlineMatches[0].nodeId);
-      }
+    // Only reset to first match if term actually changed (not just navigation)
+    if (term !== prevSearchTermRef.current) {
+      setCurrentMatchIndex(0);
+      prevSearchTermRef.current = term;
     }
-  }, [currentOutline, onCollapseAll, onExpandAncestors, onSelectNode]);
+
+    // Notify parent of search term change for content pane highlighting
+    if (onSearchTermChange) {
+      onSearchTermChange(term);
+    }
+
+    // Don't auto-navigate on every keystroke - causes loops and re-render issues
+    // User can navigate to matches using next/prev buttons or Enter key
+    // The handleNavigateToMatch function will handle expansion and selection
+  }, [onSearchTermChange]);
 
   const handleNavigateToMatch = useCallback((match: SearchMatch) => {
     // Switch outline if needed
@@ -342,11 +335,9 @@ export default function OutlinePane({
         return;
       }
 
-      // Handle Enter/Return for edit mode (any selected node except root)
+      // Handle Enter/Return for edit mode (any selected node including root)
       if (e.key === 'Enter') {
         if (!selectedNodeId || !currentOutline) return;
-        const selectedNode = currentOutline.nodes[selectedNodeId];
-        if (selectedNode?.type === 'root') return;
         e.preventDefault();
         onTriggerEdit?.(selectedNodeId);
         return;
@@ -632,14 +623,25 @@ export default function OutlinePane({
             <TooltipContent>Add sibling node</TooltipContent>
           </Tooltip>
 
-          <AlertDialog>
+          <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
             <Tooltip>
               <TooltipTrigger asChild>
-                <AlertDialogTrigger asChild>
-                  <Button variant="outline" size="icon" disabled={!selectedNodeId || isSelectedNodeRoot} className="text-destructive hover:bg-destructive/20">
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </AlertDialogTrigger>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  disabled={!selectedNodeId || isSelectedNodeRoot}
+                  className="text-destructive hover:bg-destructive/20"
+                  onClick={() => {
+                    const confirmDelete = localStorage.getItem('confirmDelete') !== 'false';
+                    if (confirmDelete) {
+                      setShowDeleteDialog(true);
+                    } else {
+                      selectedNodeId && onDeleteNode(selectedNodeId);
+                    }
+                  }}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
               </TooltipTrigger>
               <TooltipContent>Delete node</TooltipContent>
             </Tooltip>
@@ -652,7 +654,10 @@ export default function OutlinePane({
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={() => selectedNodeId && onDeleteNode(selectedNodeId)} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
+                <AlertDialogAction onClick={() => {
+                  selectedNodeId && onDeleteNode(selectedNodeId);
+                  setShowDeleteDialog(false);
+                }} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>

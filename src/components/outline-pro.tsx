@@ -83,6 +83,9 @@ export default function OutlinePro() {
   const [selectedNodeIds, setSelectedNodeIds] = useState<Set<string>>(new Set());
   const [lastSelectedNodeId, setLastSelectedNodeId] = useState<string | null>(null);
 
+  // Search term state (for content pane highlighting)
+  const [searchTerm, setSearchTerm] = useState<string>('');
+
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const isInitialLoadDone = useRef(false);
@@ -211,6 +214,71 @@ export default function OutlinePro() {
         return;
       }
 
+      // Delete key to delete selected node
+      if (e.key === 'Delete' && selectedNodeId) {
+        // Check if user is typing in an input/textarea
+        const target = e.target as HTMLElement;
+        if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.contentEditable === 'true') {
+          return; // Don't delete node when typing
+        }
+
+        const outline = outlines.find(o => o.id === currentOutlineId);
+        if (!outline) return;
+        const node = outline.nodes[selectedNodeId];
+        if (!node || !node.parentId) return; // Don't delete root
+
+        e.preventDefault();
+
+        const confirmDelete = localStorage.getItem('confirmDelete') !== 'false';
+        if (confirmDelete) {
+          // Show toast to tell user to use button/menu for confirmation
+          toast({
+            title: "Use Delete Button",
+            description: "Disable 'Confirm before deleting' in Settings to use Delete key",
+            duration: 2000,
+          });
+          return;
+        }
+
+        // Delete without confirmation
+        setOutlines(currentOutlines => {
+          const outline = currentOutlines.find(o => o.id === currentOutlineId);
+          if (!outline) return currentOutlines;
+
+          const nodeToDelete = outline.nodes[selectedNodeId];
+          if (!nodeToDelete || !nodeToDelete.parentId) return currentOutlines;
+
+          const updatedOutlines = currentOutlines.map(o => {
+            if (o.id !== currentOutlineId) return o;
+
+            const updatedNodes = { ...o.nodes };
+            const parentNode = updatedNodes[nodeToDelete.parentId];
+            if (!parentNode) return o;
+
+            // Remove from parent's children
+            parentNode.childrenIds = parentNode.childrenIds.filter(id => id !== selectedNodeId);
+
+            // Delete the node and all descendants
+            const deleteNodeAndDescendants = (nodeId: string) => {
+              const node = updatedNodes[nodeId];
+              if (node) {
+                node.childrenIds.forEach(deleteNodeAndDescendants);
+                delete updatedNodes[nodeId];
+              }
+            };
+            deleteNodeAndDescendants(selectedNodeId);
+
+            return { ...o, nodes: updatedNodes };
+          });
+
+          return updatedOutlines;
+        });
+
+        // Clear selection
+        setSelectedNodeId(null);
+        return;
+      }
+
       // Escape to exit focus mode
       if (e.key === 'Escape' && isFocusMode) {
         e.preventDefault();
@@ -237,11 +305,60 @@ export default function OutlinePro() {
         });
         return;
       }
+
+      // Cmd++ (Cmd+Shift+=) to create sibling node (can be pressed repeatedly)
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && (e.key === '+' || e.key === '=' || e.code === 'Equal')) {
+        // Check if user is typing in an input/textarea
+        const target = e.target as HTMLElement;
+        if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.contentEditable === 'true') {
+          return; // Don't intercept when typing
+        }
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (!selectedNodeId) return;
+
+        // Clear multi-select first
+        setSelectedNodeIds(new Set());
+
+        // Copy the EXACT logic from handleCreateNode
+        setOutlines(currentOutlines => {
+          let newNodeId: string | null = null;
+
+          const newOutlines = currentOutlines.map(o => {
+            if (o.id === currentOutlineId) {
+              const { newNodes, newNodeId: createdNodeId } = addNodeAfter(
+                o.nodes,
+                selectedNodeId,
+                'document',
+                'New Node',
+                ''
+              );
+              newNodeId = createdNodeId;
+              return { ...o, nodes: newNodes };
+            }
+            return o;
+          });
+
+          // Schedule the selection update after this state update - EXACT copy from handleCreateNode
+          if (newNodeId) {
+            const capturedNewNodeId = newNodeId;
+            setTimeout(() => {
+              setSelectedNodeId(capturedNewNodeId);
+            }, 0);
+          }
+
+          return newOutlines;
+        });
+
+        return;
+      }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isFocusMode, toast]);
+  }, [isFocusMode, toast, selectedNodeId, currentOutlineId, outlines]);
 
   // handleSelectNode - navigate param controls whether to switch to full content view on mobile
   // On mobile with stacked layout: selection updates preview, navigate=true goes to full content
@@ -270,9 +387,17 @@ export default function OutlinePro() {
     });
   }, [currentOutlineId]);
 
+  // Handle search term change from OutlinePane (for content highlighting)
+  const handleSearchTermChange = useCallback((term: string) => {
+    setSearchTerm(term);
+  }, []);
+
   // handleCreateNode adds new node as sibling AFTER selected node (or as child if root is selected)
   const handleCreateNode = useCallback((type: NodeType = 'document', content: string = '') => {
     if (!selectedNodeId) return;
+
+    // Clear multi-select to ensure single selection
+    setSelectedNodeIds(new Set());
 
     setOutlines(currentOutlines => {
       let newNodeId: string | null = null;
@@ -1672,6 +1797,7 @@ export default function OutlinePro() {
                 onBulkDelete={handleBulkDelete}
                 onBulkChangeColor={handleBulkChangeColor}
                 onBulkAddTag={handleBulkAddTag}
+                onSearchTermChange={handleSearchTermChange}
               />
             </div>
             {/* Content Preview - takes ~30%, tap to expand */}
@@ -1715,6 +1841,7 @@ export default function OutlinePro() {
             onExpandContent={handleExpandContent}
             onGenerateContent={handleGenerateContentForNode}
             isLoadingAI={isLoadingAI}
+            searchTerm={searchTerm}
           />
         )}
       </div>
@@ -1840,6 +1967,7 @@ export default function OutlinePro() {
             onExpandContent={handleExpandContent}
             onGenerateContent={handleGenerateContentForNode}
             isLoadingAI={isLoadingAI}
+            searchTerm={searchTerm}
           />
         </div>
       ) : (
@@ -1892,6 +2020,7 @@ export default function OutlinePro() {
                 onBulkDelete={handleBulkDelete}
                 onBulkChangeColor={handleBulkChangeColor}
                 onBulkAddTag={handleBulkAddTag}
+                onSearchTermChange={handleSearchTermChange}
               />
             </div>
           </ResizablePanel>
@@ -1905,6 +2034,7 @@ export default function OutlinePro() {
                 onExpandContent={handleExpandContent}
                 onGenerateContent={handleGenerateContentForNode}
                 isLoadingAI={isLoadingAI}
+                searchTerm={searchTerm}
               />
             </div>
           </ResizablePanel>

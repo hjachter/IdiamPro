@@ -78,7 +78,26 @@ export async function exportOutlineToJson(outline: Outline): Promise<void> {
   const baseName = outline.name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
   const defaultName = `${baseName}_${timestamp}.idm`;
 
-  // Try to use the File System Access API for folder selection
+  // PRIORITY 1: Try to save to configured directory (Chrome/Edge only)
+  // Import these functions only when needed to avoid circular dependencies
+  const { getDirectoryHandle, saveOutlineToFile, verifyDirectoryPermission } = await import('./file-storage');
+
+  try {
+    const dirHandle = await getDirectoryHandle();
+    if (dirHandle) {
+      const hasPermission = await verifyDirectoryPermission(dirHandle, 'readwrite');
+      if (hasPermission) {
+        // Save directly to the configured folder
+        await saveOutlineToFile(dirHandle, outline);
+        console.log('Exported outline to configured folder:', outline.name);
+        return;
+      }
+    }
+  } catch (err) {
+    console.warn('Could not save to configured directory, falling back:', err);
+  }
+
+  // PRIORITY 2: Try to use the File System Access API for folder selection (Chrome/Edge only)
   if ('showSaveFilePicker' in window) {
     try {
       const handle = await (window as any).showSaveFilePicker({
@@ -98,7 +117,7 @@ export async function exportOutlineToJson(outline: Outline): Promise<void> {
     }
   }
 
-  // Fallback for browsers without File System Access API
+  // PRIORITY 3: Fallback for Safari and other browsers (download link)
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
