@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { Folder, Info, Smartphone } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { storeDirectoryHandle, getDirectoryHandle, verifyDirectoryPermission } from '@/lib/file-storage';
@@ -22,9 +24,10 @@ interface SettingsDialogProps {
 export default function SettingsDialog({ children, onFolderSelected }: SettingsDialogProps) {
   const [open, setOpen] = useState(false);
   const [dataFolder, setDataFolder] = useState<string>('Browser Storage (Default)');
+  const [confirmDelete, setConfirmDelete] = useState<boolean>(true);
   const { toast } = useToast();
 
-  // Load current folder on mount
+  // Load current folder and settings on mount
   useEffect(() => {
     const loadCurrentFolder = async () => {
       // Check Electron first
@@ -51,8 +54,20 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
         }
       }
     };
+
+    // Load confirm delete setting
+    const savedConfirmDelete = localStorage.getItem('confirmDelete');
+    if (savedConfirmDelete !== null) {
+      setConfirmDelete(savedConfirmDelete === 'true');
+    }
+
     loadCurrentFolder();
   }, []);
+
+  const handleConfirmDeleteChange = (checked: boolean) => {
+    setConfirmDelete(checked);
+    localStorage.setItem('confirmDelete', String(checked));
+  };
 
   const handleSelectFolder = async () => {
     try {
@@ -185,6 +200,24 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
                 </p>
               </div>
             )}
+          </div>
+
+          {/* User Preferences Section */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-medium">Preferences</h3>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="confirm-delete" className="text-sm">
+                Confirm before deleting nodes
+              </Label>
+              <Switch
+                id="confirm-delete"
+                checked={confirmDelete}
+                onCheckedChange={handleConfirmDeleteChange}
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Show confirmation dialog when deleting nodes or subtrees
+            </p>
           </div>
 
           {/* Future Settings Sections */}

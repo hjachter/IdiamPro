@@ -18,41 +18,109 @@ import {
 import { Button } from './ui/button';
 import { Label } from './ui/label';
 import { Input } from './ui/input';
-import { FileJson, Youtube } from 'lucide-react';
-import type { NodeType } from '@/types';
+import { FileJson, Youtube, FileUp, Loader2 } from 'lucide-react';
+import type { ExternalSourceInput } from '@/types';
 
 interface ImportDialogProps {
   children: React.ReactNode;
-  onCreateNode: (type: NodeType, content: string) => void;
+  onIngestSource: (source: ExternalSourceInput) => Promise<void>;
 }
 
-export default function ImportDialog({ children, onCreateNode }: ImportDialogProps) {
+export default function ImportDialog({ children, onIngestSource }: ImportDialogProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [importType, setImportType] = useState<NodeType | null>(null);
+  const [importType, setImportType] = useState<'pdf-url' | 'pdf-file' | 'youtube' | null>(null);
   const [url, setUrl] = useState('');
+  const [file, setFile] = useState<File | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
-  const openDialog = (type: NodeType) => {
+  const openDialog = (type: 'pdf-url' | 'pdf-file' | 'youtube') => {
     setImportType(type);
     setUrl('');
+    setFile(null);
     setDialogOpen(true);
   };
 
-  const handleImport = () => {
-    if (importType && url) {
-      onCreateNode(importType, url);
-      setDialogOpen(false);
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0];
+    if (selectedFile && selectedFile.type === 'application/pdf') {
+      setFile(selectedFile);
     }
   };
 
-  const title = importType === 'pdf' ? 'Import PDF from URL' : 'Import YouTube Video';
-  const description = importType === 'pdf' ? 'Enter the URL of a PDF file to create a new PDF node.' : 'Enter the URL of a YouTube video to create a new video node.';
+  const handleImport = async () => {
+    if (!importType) return;
+
+    setIsAnalyzing(true);
+    try {
+      if (importType === 'youtube' && url) {
+        await onIngestSource({
+          type: 'youtube',
+          url,
+        });
+      } else if (importType === 'pdf-url' && url) {
+        await onIngestSource({
+          type: 'pdf',
+          url,
+        });
+      } else if (importType === 'pdf-file' && file) {
+        // Read file as base64 for server transmission
+        const reader = new FileReader();
+        reader.onload = async () => {
+          const base64 = reader.result as string;
+          await onIngestSource({
+            type: 'pdf',
+            content: base64,
+            fileName: file.name,
+          });
+        };
+        reader.readAsDataURL(file);
+      }
+      setDialogOpen(false);
+    } catch (error) {
+      console.error('Import failed:', error);
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  const getDialogContent = () => {
+    switch (importType) {
+      case 'pdf-url':
+        return {
+          title: 'Import PDF from URL',
+          description: 'AI will analyze the PDF and generate a structured outline summary.',
+        };
+      case 'pdf-file':
+        return {
+          title: 'Import PDF from Computer',
+          description: 'AI will analyze the PDF and generate a structured outline summary.',
+        };
+      case 'youtube':
+        return {
+          title: 'Import YouTube Video',
+          description: 'AI will transcribe and outline the video content.',
+        };
+      default:
+        return { title: '', description: '' };
+    }
+  };
+
+  const { title, description } = getDialogContent();
+  const canImport = (importType === 'youtube' && url) ||
+                    (importType === 'pdf-url' && url) ||
+                    (importType === 'pdf-file' && file);
 
   return (
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
         <DropdownMenuContent align="start">
-          <DropdownMenuItem onSelect={() => openDialog('pdf')}>
+          <DropdownMenuItem onSelect={() => openDialog('pdf-file')}>
+            <FileUp className="mr-2 h-4 w-4" />
+            PDF from Computer
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => openDialog('pdf-url')}>
             <FileJson className="mr-2 h-4 w-4" />
             PDF from URL
           </DropdownMenuItem>
@@ -70,22 +138,51 @@ export default function ImportDialog({ children, onCreateNode }: ImportDialogPro
             <DialogDescription>{description}</DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="url" className="text-right">
-                URL
-              </Label>
-              <Input
-                id="url"
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                className="col-span-3"
-                placeholder="https://..."
-                onKeyDown={e => e.key === 'Enter' && handleImport()}
-              />
-            </div>
+            {importType === 'pdf-file' ? (
+              <div className="grid gap-4">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf,application/pdf"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                />
+                <Button
+                  variant="outline"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-full"
+                >
+                  <FileUp className="mr-2 h-4 w-4" />
+                  {file ? file.name : 'Choose PDF File...'}
+                </Button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="url" className="text-right">
+                  URL
+                </Label>
+                <Input
+                  id="url"
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  className="col-span-3"
+                  placeholder="https://..."
+                  onKeyDown={e => e.key === 'Enter' && !isAnalyzing && canImport && handleImport()}
+                />
+              </div>
+            )}
           </div>
           <DialogFooter>
-            <Button onClick={handleImport} disabled={!url}>Import</Button>
+            <Button onClick={handleImport} disabled={!canImport || isAnalyzing}>
+              {isAnalyzing ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Analyzing with AI...
+                </>
+              ) : (
+                'Analyze & Import'
+              )}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
