@@ -2,6 +2,11 @@
 
 import { generateOutlineFromTopic } from '@/ai/flows/generate-outline-from-topic';
 import { expandNodeContent } from '@/ai/flows/expand-node-content';
+import {
+  extractPdfFromUrl,
+  extractPdfFromFile,
+  extractYoutubeTranscript,
+} from '@/lib/media-extractors';
 import type {
   NodeGenerationContext,
   ExternalSourceInput,
@@ -84,17 +89,25 @@ export async function ingestExternalSourceAction(
 
     // Extract content from source
     let extractedContent = '';
+    let sourceDescription = '';
 
     if (source.type === 'text' && source.content) {
       extractedContent = source.content;
+      sourceDescription = 'Text input';
     } else if (source.type === 'youtube' && source.url) {
-      // TODO: Implement YouTube transcript extraction
-      // For now, return a stub that explains the limitation
-      extractedContent = `[YouTube Video: ${source.url}]\n\nNote: Automatic transcript extraction is not yet implemented. Please paste the video transcript or key points manually.`;
-    } else if (source.type === 'pdf' && source.url) {
-      // TODO: Implement PDF text extraction
-      // For now, return a stub that explains the limitation
-      extractedContent = `[PDF Document: ${source.url}]\n\nNote: Automatic PDF text extraction is not yet implemented. Please paste the document content manually.`;
+      // Extract YouTube transcript
+      extractedContent = await extractYoutubeTranscript(source.url);
+      sourceDescription = `YouTube Video: ${source.url}`;
+    } else if (source.type === 'pdf') {
+      // Handle both PDF URL and file upload
+      if (source.url) {
+        extractedContent = await extractPdfFromUrl(source.url);
+        sourceDescription = `PDF: ${source.url}`;
+      } else if (source.content) {
+        // File upload (base64 data)
+        extractedContent = await extractPdfFromFile(source.content);
+        sourceDescription = `PDF: ${source.fileName || 'Uploaded file'}`;
+      }
     }
 
     if (!extractedContent) {

@@ -96,7 +96,7 @@ interface OutlinePaneProps {
   onCreateNode: (type?: NodeType, content?: string) => void;
   onDeleteNode: (nodeId: string) => void;
   onGenerateOutline: (topic: string) => Promise<void>;
-  onIngestSource: (source: ExternalSourceInput) => Promise<IngestPreview>;
+  onIngestSource: (source: ExternalSourceInput) => Promise<void>;
   onApplyIngestPreview: (preview: IngestPreview) => Promise<void>;
   onUpdateNode: (nodeId: string, updates: Partial<OutlineNode>) => void;
   onImportOutline: (file: File) => void;
@@ -692,7 +692,7 @@ export default function OutlinePane({
             <TooltipContent>Expand outline (show all nodes)</TooltipContent>
           </Tooltip>
 
-          <ImportDialog onCreateNode={onCreateNode}>
+          <ImportDialog onIngestSource={onIngestSource}>
             <Button variant="outline" size="icon" disabled={!selectedNodeId} title="Import media (PDF, YouTube)" className="hover:bg-accent/20">
               <FileUp className="h-4 w-4" />
             </Button>

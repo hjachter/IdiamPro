@@ -1,0 +1,513 @@
+{
+  "id": "rollout-plan-2026",
+  "name": "IdiamPro Product Rollout Plan",
+  "rootNodeId": "root-rollout",
+  "nodes": {
+    "root-rollout": {
+      "id": "root-rollout",
+      "name": "IdiamPro Product Rollout Plan",
+      "content": "<p>Complete plan from current state to public launch and beyond. Estimated timeline: 8-12 weeks.</p>",
+      "type": "root",
+      "parentId": null,
+      "childrenIds": ["phase1", "phase2", "phase3", "phase4", "phase5", "phase6"],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "phase1": {
+      "id": "phase1",
+      "name": "Phase 1: Technical Foundation (Weeks 1-2)",
+      "content": "<p>Polish core product, fix critical bugs, complete platform testing</p>",
+      "type": "chapter",
+      "parentId": "root-rollout",
+      "childrenIds": ["tech1", "tech2", "tech3", "tech4", "tech5"],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "tech1": {
+      "id": "tech1",
+      "name": "Fix Search Functionality",
+      "content": "<p><strong>Priority: CRITICAL</strong></p><p>Debug and fix search not working correctly</p><p>Test search across all node types</p><p>Verify filters work properly</p>",
+      "type": "task",
+      "parentId": "phase1",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "metadata": {
+        "isCompleted": false
+      }
+    },
+    "tech2": {
+      "id": "tech2",
+      "name": "Final Polish & Bug Fixes",
+      "content": "<p>UI/UX refinements</p><p>Performance optimization</p><p>Edge case handling</p><p>Error messaging improvements</p>",
+      "type": "task",
+      "parentId": "phase1",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "metadata": {
+        "isCompleted": false
+      }
+    },
+    "tech3": {
+      "id": "tech3",
+      "name": "Platform Testing",
+      "content": "<p><strong>Web (macOS browsers):</strong> Chrome, Safari, Firefox, Edge</p><p><strong>iOS Mobile:</strong> iPhone gestures, iPad layout, keyboard shortcuts</p><p><strong>Electron Desktop:</strong> File system integration, native menus</p>",
+      "type": "task",
+      "parentId": "phase1",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "metadata": {
+        "isCompleted": false
+      }
+    },
+    "tech4": {
+      "id": "tech4",
+      "name": "Performance & Load Testing",
+      "content": "<p>Test with 100+ outlines</p><p>Test with 1000+ nodes</p><p>File system performance on large datasets</p><p>Memory usage optimization</p>",
+      "type": "task",
+      "parentId": "phase1",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "metadata": {
+        "isCompleted": false
+      }
+    },
+    "tech5": {
+      "id": "tech5",
+      "name": "Security Audit",
+      "content": "<p>Review data storage security</p><p>Sanitize user inputs (XSS prevention)</p><p>File system access permissions</p><p>API security (if applicable)</p>",
+      "type": "task",
+      "parentId": "phase1",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "metadata": {
+        "isCompleted": false
+      }
+    },
+    "phase2": {
+      "id": "phase2",
+      "name": "Phase 2: Business & Legal (Weeks 1-3)",
+      "content": "<p>Establish legal foundation and business structure</p>",
+      "type": "chapter",
+      "parentId": "root-rollout",
+      "childrenIds": ["legal1", "legal2", "legal3", "legal4", "legal5", "legal6"],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "legal1": {
+      "id": "legal1",
+      "name": "Business Entity Formation",
+      "content": "<p><strong>Options:</strong></p><p>• LLC (simpler, good for solo/small team)</p><p>• C-Corp (if planning VC funding)</p><p>• S-Corp (tax benefits for US)</p><p></p><p><strong>Action:</strong> Choose entity type, register with state, get EIN from IRS</p>",
+      "type": "task",
+      "parentId": "phase2",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "metadata": {
+        "isCompleted": false
+      }
+    },
+    "legal2": {
+      "id": "legal2",
+      "name": "Terms of Service",
+      "content": "<p>Draft TOS covering:</p><p>• User responsibilities</p><p>• Acceptable use policy</p><p>• Account termination</p><p>• Liability limitations</p><p>• Dispute resolution</p><p></p><p><strong>Recommendation:</strong> Use template (Termly, Rocket Lawyer) + lawyer review ($500-1500)</p>",
+      "type": "task",
+      "parentId": "phase2",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "metadata": {
+        "isCompleted": false
+      }
+    },
+    "legal3": {
+      "id": "legal3",
+      "name": "Privacy Policy",
+      "content": "<p>Must comply with:</p><p>• GDPR (EU users)</p><p>• CCPA (California users)</p><p>• Apple App Store requirements</p><p></p><p>Cover:</p><p>• What data is collected</p><p>• How data is used/stored</p><p>• User rights (access, deletion)</p><p>• Third-party services (analytics, payments)</p><p></p><p><strong>Tools:</strong> Termly, iubenda (auto-generate + updates)</p>",
+      "type": "task",
+      "parentId": "phase2",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "metadata": {
+        "isCompleted": false
+      }
+    },
+    "legal4": {
+      "id": "legal4",
+      "name": "Trademark Search & Registration",
+      "content": "<p>Search USPTO database for 'IdiamPro' conflicts</p><p>File trademark application ($250-350 per class)</p><p>Consider international trademark (Madrid Protocol)</p>",
+      "type": "task",
+      "parentId": "phase2",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "metadata": {
+        "isCompleted": false
+      }
+    },
+    "legal5": {
+      "id": "legal5",
+      "name": "Business Insurance",
+      "content": "<p><strong>Consider:</strong></p><p>• General Liability ($300-1000/year)</p><p>• Professional Liability / E&O ($500-2000/year)</p><p>• Cyber Liability (if handling user data)</p><p></p><p><strong>Providers:</strong> Hiscox, CoverWallet, Next Insurance</p>",
+      "type": "task",
+      "parentId": "phase2",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "metadata": {
+        "isCompleted": false
+      }
+    },
+    "legal6": {
+      "id": "legal6",
+      "name": "Business Bank Account & Accounting",
+      "content": "<p>Open business bank account (Chase, Mercury, Brex)</p><p>Set up accounting (QuickBooks, Wave, Xero)</p><p>Choose accountant/CPA for taxes</p>",
+      "type": "task",
+      "parentId": "phase2",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "metadata": {
+        "isCompleted": false
+      }
+    },
+    "phase3": {
+      "id": "phase3",
+      "name": "Phase 3: Payment & Subscription System (Weeks 2-4)",
+      "content": "<p>Build monetization infrastructure</p>",
+      "type": "chapter",
+      "parentId": "root-rollout",
+      "childrenIds": ["payment1", "payment2", "payment3", "payment4", "payment5"],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "payment1": {
+      "id": "payment1",
+      "name": "Define Pricing Strategy",
+      "content": "<p><strong>Recommended Model:</strong> Freemium + Premium Tiers</p><p></p><p><strong>FREE Plan:</strong></p><p>• 3 outlines max</p><p>• All features unlocked</p><p>• Local storage only</p><p></p><p><strong>PRO Plan ($7-10/month or $70-100/year):</strong></p><p>• Unlimited outlines</p><p>• Cloud sync (optional)</p><p>• Priority support</p><p>• Early access to new features</p><p></p><p><strong>TEAM Plan ($15-20/user/month):</strong></p><p>• Shared outlines</p><p>• Collaboration features</p><p>• Admin controls</p>",
+      "type": "document",
+      "parentId": "phase3",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "payment2": {
+      "id": "payment2",
+      "name": "Stripe Integration",
+      "content": "<p><strong>Setup:</strong></p><p>• Create Stripe account</p><p>• Complete business verification</p><p>• Set up products and pricing</p><p>• Configure webhooks</p><p></p><p><strong>Implement:</strong></p><p>• Checkout flow (Stripe Checkout or Elements)</p><p>• Subscription management</p><p>• Customer portal (update card, cancel)</p><p>• Invoice emails</p><p></p><p><strong>Test:</strong></p><p>• Test mode transactions</p><p>• Refund flow</p><p>• Failed payment handling</p>",
+      "type": "task",
+      "parentId": "phase3",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "metadata": {
+        "isCompleted": false
+      }
+    },
+    "payment3": {
+      "id": "payment3",
+      "name": "License Key System",
+      "content": "<p><strong>For Desktop/iOS Apps:</strong></p><p>Generate license keys on payment</p><p>Email license to customer</p><p>Validate license in app</p><p></p><p><strong>Tools:</strong> Gumroad, Paddle, or custom with Stripe + license generator</p>",
+      "type": "task",
+      "parentId": "phase3",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "metadata": {
+        "isCompleted": false
+      }
+    },
+    "payment4": {
+      "id": "payment4",
+      "name": "App Store In-App Purchases (iOS)",
+      "content": "<p>Set up IAP products in App Store Connect</p><p>Configure subscription groups</p><p>Implement StoreKit integration</p><p>Handle subscription status</p><p>Test with sandbox accounts</p><p></p><p><strong>Note:</strong> Apple takes 30% (15% after year 1)</p>",
+      "type": "task",
+      "parentId": "phase3",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "metadata": {
+        "isCompleted": false
+      }
+    },
+    "payment5": {
+      "id": "payment5",
+      "name": "User Account System",
+      "content": "<p>Build authentication (or use Clerk, Auth0, Supabase)</p><p>User dashboard for managing subscription</p><p>Email verification</p><p>Password reset flow</p><p>Link purchases to accounts</p>",
+      "type": "task",
+      "parentId": "phase3",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "metadata": {
+        "isCompleted": false
+      }
+    },
+    "phase4": {
+      "id": "phase4",
+      "name": "Phase 4: Marketing & Website (Weeks 3-5)",
+      "content": "<p>Build web presence and marketing assets</p>",
+      "type": "chapter",
+      "parentId": "root-rollout",
+      "childrenIds": ["marketing1", "marketing2", "marketing3", "marketing4", "marketing5", "marketing6", "marketing7"],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "marketing1": {
+      "id": "marketing1",
+      "name": "Domain & Branding",
+      "content": "<p>Register domain (idiampro.com, getidiampro.com)</p><p>Create logo and brand assets</p><p>Define brand colors, fonts, voice</p><p>Design app icon (1024x1024 for app stores)</p><p></p><p><strong>Tools:</strong> Figma, Canva, or hire designer on Fiverr/99designs</p>",
+      "type": "task",
+      "parentId": "phase4",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "metadata": {
+        "isCompleted": false
+      }
+    },
+    "marketing2": {
+      "id": "marketing2",
+      "name": "Marketing Website",
+      "content": "<p><strong>Build landing page with:</strong></p><p>• Hero section (clear value prop)</p><p>• Feature highlights with screenshots</p><p>• Pricing table</p><p>• Testimonials (post-beta)</p><p>• FAQ section</p><p>• Download/signup CTA</p><p></p><p><strong>Tech Stack:</strong> Next.js + Tailwind (current), Vercel hosting</p><p></p><p><strong>Pages needed:</strong></p><p>• Home</p><p>• Features</p><p>• Pricing</p><p>• About</p><p>• Blog (for SEO)</p><p>• Legal (TOS, Privacy)</p><p>• Contact/Support</p>",
+      "type": "task",
+      "parentId": "phase4",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "metadata": {
+        "isCompleted": false
+      }
+    },
+    "marketing3": {
+      "id": "marketing3",
+      "name": "Product Screenshots & Demo Video",
+      "content": "<p><strong>Screenshots:</strong></p><p>• Main app interface</p><p>• Each node type (task, code, link, etc.)</p><p>• Tags and filters</p><p>• Mobile responsive views</p><p>• Template gallery</p><p></p><p><strong>Demo Video (60-90 seconds):</strong></p><p>• Quick walkthrough of core features</p><p>• Emphasize speed and simplicity</p><p>• Show iOS gestures</p><p></p><p><strong>Tools:</strong> ScreenFlow, Loom, or hire on Fiverr</p>",
+      "type": "task",
+      "parentId": "phase4",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "metadata": {
+        "isCompleted": false
+      }
+    },
+    "marketing4": {
+      "id": "marketing4",
+      "name": "SEO & Analytics",
+      "content": "<p><strong>SEO:</strong></p><p>• Keyword research (outliner, note-taking, etc.)</p><p>• Meta tags and descriptions</p><p>• Sitemap.xml and robots.txt</p><p>• Google Search Console</p><p></p><p><strong>Analytics:</strong></p><p>• Google Analytics 4 or Plausible (privacy-focused)</p><p>• Track conversions (signups, purchases)</p><p>• Heatmaps (Hotjar, Microsoft Clarity)</p>",
+      "type": "task",
+      "parentId": "phase4",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "metadata": {
+        "isCompleted": false
+      }
+    },
+    "marketing5": {
+      "id": "marketing5",
+      "name": "Email Marketing Setup",
+      "content": "<p>Choose platform: ConvertKit, Mailchimp, Buttondown</p><p></p><p><strong>Email sequences:</strong></p><p>• Welcome series (5 emails)</p><p>• Onboarding tips</p><p>• Feature announcements</p><p>• Trial expiration reminders</p><p></p><p>Offer lead magnet (free outline templates pack)</p>",
+      "type": "task",
+      "parentId": "phase4",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "metadata": {
+        "isCompleted": false
+      }
+    },
+    "marketing6": {
+      "id": "marketing6",
+      "name": "Social Media Presence",
+      "content": "<p><strong>Create accounts:</strong></p><p>• Twitter/X (@IdiamPro)</p><p>• ProductHunt (prepare launch)</p><p>• LinkedIn (company page)</p><p>• Reddit (r/productivity, r/selfhosted)</p><p></p><p><strong>Content plan:</strong></p><p>• Tips and tricks</p><p>• Feature highlights</p><p>• User stories (post-launch)</p><p>• Behind-the-scenes development</p>",
+      "type": "task",
+      "parentId": "phase4",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "metadata": {
+        "isCompleted": false
+      }
+    },
+    "marketing7": {
+      "id": "marketing7",
+      "name": "App Store Listings",
+      "content": "<p><strong>iOS App Store:</strong></p><p>• App name, subtitle, description</p><p>• Keywords (100 char limit)</p><p>• Screenshots (iPhone, iPad)</p><p>• Preview video (15-30 sec)</p><p>• Support URL, privacy policy URL</p><p></p><p><strong>Mac App Store (if applicable):</strong></p><p>• Same as above for macOS</p><p></p><p><strong>Microsoft Store / Linux Snap (optional):</strong></p><p>• Electron app distribution</p>",
+      "type": "task",
+      "parentId": "phase4",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "metadata": {
+        "isCompleted": false
+      }
+    },
+    "phase5": {
+      "id": "phase5",
+      "name": "Phase 5: Beta Testing (Weeks 5-7)",
+      "content": "<p>Private beta with real users before public launch</p>",
+      "type": "chapter",
+      "parentId": "root-rollout",
+      "childrenIds": ["beta1", "beta2", "beta3", "beta4", "beta5"],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "beta1": {
+      "id": "beta1",
+      "name": "Beta Recruitment",
+      "content": "<p><strong>Target: 20-50 beta testers</strong></p><p></p><p><strong>Sources:</strong></p><p>• Personal network</p><p>• Twitter/X announcement</p><p>• Reddit (r/productivity, r/PKM)</p><p>• Indie Hackers community</p><p>• BetaList.com</p><p></p><p>Offer incentive: Free Pro for 1 year</p>",
+      "type": "task",
+      "parentId": "phase5",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "metadata": {
+        "isCompleted": false
+      }
+    },
+    "beta2": {
+      "id": "beta2",
+      "name": "Beta Testing Infrastructure",
+      "content": "<p>Set up feedback channels:</p><p>• Discord server or Slack workspace</p><p>• Bug reporting form (Typeform, Google Forms)</p><p>• Feature request board (Canny, Nolt)</p><p></p><p>Create beta documentation:</p><p>• Getting started guide</p><p>• Known issues list</p><p>• How to report bugs</p>",
+      "type": "task",
+      "parentId": "phase5",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "metadata": {
+        "isCompleted": false
+      }
+    },
+    "beta3": {
+      "id": "beta3",
+      "name": "TestFlight Distribution (iOS)",
+      "content": "<p>Set up TestFlight beta for iOS app</p><p>Invite testers via email</p><p>Monitor crash reports</p><p>Push updates based on feedback</p>",
+      "type": "task",
+      "parentId": "phase5",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "metadata": {
+        "isCompleted": false
+      }
+    },
+    "beta4": {
+      "id": "beta4",
+      "name": "Beta Testing Period (2-3 weeks)",
+      "content": "<p><strong>Focus areas:</strong></p><p>• Critical bugs</p><p>• UX friction points</p><p>• Performance issues</p><p>• Feature requests</p><p>• Platform-specific issues (iOS vs Web vs Desktop)</p><p></p><p><strong>Metrics to track:</strong></p><p>• Daily active users</p><p>• Feature adoption</p><p>• Crash rate</p><p>• Time to first outline created</p>",
+      "type": "task",
+      "parentId": "phase5",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "metadata": {
+        "isCompleted": false
+      }
+    },
+    "beta5": {
+      "id": "beta5",
+      "name": "Iterate Based on Feedback",
+      "content": "<p>Fix critical bugs immediately</p><p>Prioritize top feature requests</p><p>Refine onboarding flow</p><p>Update documentation</p><p>Prepare testimonials from happy beta users</p>",
+      "type": "task",
+      "parentId": "phase5",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "metadata": {
+        "isCompleted": false
+      }
+    },
+    "phase6": {
+      "id": "phase6",
+      "name": "Phase 6: Launch & Growth (Week 8+)",
+      "content": "<p>Public launch and ongoing growth strategy</p>",
+      "type": "chapter",
+      "parentId": "root-rollout",
+      "childrenIds": ["launch1", "launch2", "launch3", "launch4", "launch5", "launch6"],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "launch1": {
+      "id": "launch1",
+      "name": "Soft Launch (Week 8)",
+      "content": "<p>Limited public release to gauge interest</p><p></p><p><strong>Channels:</strong></p><p>• Personal social media</p><p>• Small subreddits</p><p>• Indie Hackers</p><p>• HackerNews Show HN (if B2B/technical)</p><p></p><p><strong>Goal:</strong> 100-500 users, gather more feedback</p>",
+      "type": "task",
+      "parentId": "phase6",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "metadata": {
+        "isCompleted": false
+      }
+    },
+    "launch2": {
+      "id": "launch2",
+      "name": "ProductHunt Launch (Week 9-10)",
+      "content": "<p><strong>Preparation (2 weeks before):</strong></p><p>• Schedule launch date (Tue-Thu recommended)</p><p>• Prepare tagline, description, media</p><p>• Recruit hunter (or self-submit)</p><p>• Build voting squad (friends, family, community)</p><p>• Plan launch day social posts</p><p></p><p><strong>Launch Day:</strong></p><p>• Go live 12:01am PST</p><p>• Respond to every comment</p><p>• Share on social media throughout day</p><p>• Monitor upvotes and ranking</p><p></p><p><strong>Goal:</strong> Top 5 product of the day</p>",
+      "type": "task",
+      "parentId": "phase6",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "metadata": {
+        "isCompleted": false
+      }
+    },
+    "launch3": {
+      "id": "launch3",
+      "name": "App Store Submission (iOS)",
+      "content": "<p><strong>Final checklist:</strong></p><p>• All features complete and tested</p><p>• No crashes in production build</p><p>• Privacy policy and TOS links working</p><p>• In-app purchases configured</p><p>• App Store screenshots and description finalized</p><p></p><p><strong>Submit for review (allow 2-3 days)</strong></p><p></p><p>Prepare for rejection scenarios (privacy, IAP issues)</p>",
+      "type": "task",
+      "parentId": "phase6",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "metadata": {
+        "isCompleted": false
+      }
+    },
+    "launch4": {
+      "id": "launch4",
+      "name": "Content Marketing",
+      "content": "<p><strong>Blog posts (weekly):</strong></p><p>• How to use IdiamPro for [use case]</p><p>• Productivity tips with outlines</p><p>• Comparison to competitors (Notion, Roam, etc.)</p><p></p><p><strong>Guest posts:</strong></p><p>• Medium publications</p><p>• Dev.to (if technical)</p><p>• Productivity blogs</p><p></p><p><strong>YouTube/Video:</strong></p><p>• Tutorial series</p><p>• Tips and tricks</p>",
+      "type": "task",
+      "parentId": "phase6",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "metadata": {
+        "isCompleted": false
+      }
+    },
+    "launch5": {
+      "id": "launch5",
+      "name": "Customer Support System",
+      "content": "<p><strong>Support channels:</strong></p><p>• Email support (hello@idiampro.com, support@idiampro.com)</p><p>• Help center / knowledge base (Notion, Gitbook, Intercom)</p><p>• In-app chat (Intercom, Crisp)</p><p></p><p><strong>Documentation:</strong></p><p>• Getting started guide</p><p>• Feature tutorials</p><p>• Keyboard shortcuts reference</p><p>• FAQ</p><p>• Troubleshooting</p><p></p><p><strong>Set SLA:</strong> Respond within 24 hours</p>",
+      "type": "task",
+      "parentId": "phase6",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "metadata": {
+        "isCompleted": false
+      }
+    },
+    "launch6": {
+      "id": "launch6",
+      "name": "Growth & Iteration (Ongoing)",
+      "content": "<p><strong>Metrics to track:</strong></p><p>• MRR (Monthly Recurring Revenue)</p><p>• Churn rate</p><p>• Customer acquisition cost (CAC)</p><p>• Lifetime value (LTV)</p><p>• Daily/monthly active users</p><p></p><p><strong>Growth tactics:</strong></p><p>• Referral program (give Pro month for referrals)</p><p>• Affiliate program (20% commission)</p><p>• Partnership with productivity influencers</p><p>• App Store optimization (ASO)</p><p>• Paid ads (Google, Facebook - test small budgets)</p><p></p><p><strong>Product roadmap:</strong></p><p>• Implement missing features (breadcrumbs, node templates)</p><p>• Cloud sync (if user demand)</p><p>• Collaboration features (Team plan)</p><p>• API for integrations</p>",
+      "type": "document",
+      "parentId": "phase6",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    }
+  }
+}

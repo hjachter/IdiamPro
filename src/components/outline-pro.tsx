@@ -945,26 +945,6 @@ export default function OutlinePro() {
     }
   }, [currentOutline, currentOutlineId, getAncestorPath, plan, toast]);
 
-  // Ingest external source - returns preview
-  const handleIngestSource = useCallback(async (source: ExternalSourceInput): Promise<IngestPreview> => {
-    // Build outline summary for context
-    const outlineSummary = currentOutline
-      ? `Outline: ${currentOutline.name}\nNodes: ${Object.keys(currentOutline.nodes).length}`
-      : undefined;
-
-    try {
-      const preview = await ingestExternalSourceAction(source, outlineSummary, plan);
-      return preview;
-    } catch (e) {
-      toast({
-        variant: "destructive",
-        title: "Ingest Error",
-        description: (e as Error).message || "Could not process external source.",
-      });
-      throw e;
-    }
-  }, [currentOutline, plan, toast]);
-
   // Apply ingest preview - creates nodes from preview
   const handleApplyIngestPreview = useCallback(async (preview: IngestPreview): Promise<void> => {
     if (preview.nodesToAdd.length === 0) {
@@ -1018,6 +998,36 @@ export default function OutlinePro() {
       description: `Added ${preview.nodesToAdd.length} new nodes to your outline.`,
     });
   }, [currentOutlineId, toast]);
+
+  // Ingest external source - auto-applies for MVP
+  const handleIngestSource = useCallback(async (source: ExternalSourceInput): Promise<void> => {
+    // Build outline summary for context
+    const outlineSummary = currentOutline
+      ? `Outline: ${currentOutline.name}\nNodes: ${Object.keys(currentOutline.nodes).length}`
+      : undefined;
+
+    setIsLoadingAI(true);
+    try {
+      const preview = await ingestExternalSourceAction(source, outlineSummary);
+
+      // For MVP, auto-apply the preview
+      await handleApplyIngestPreview(preview);
+
+      toast({
+        title: "Content Imported",
+        description: preview.summary,
+      });
+    } catch (e) {
+      toast({
+        variant: "destructive",
+        title: "Import Error",
+        description: (e as Error).message || "Could not process external source.",
+      });
+      throw e;
+    } finally {
+      setIsLoadingAI(false);
+    }
+  }, [currentOutline, handleApplyIngestPreview, toast]);
 
   // Refresh the User Guide to get latest version
   const handleRefreshGuide = useCallback(() => {
