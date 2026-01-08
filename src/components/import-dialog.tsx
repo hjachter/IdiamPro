@@ -20,6 +20,7 @@ import { Label } from './ui/label';
 import { Input } from './ui/input';
 import { FileJson, Youtube, FileUp, Loader2 } from 'lucide-react';
 import type { ExternalSourceInput } from '@/types';
+import { useToast } from '@/hooks/use-toast';
 
 interface ImportDialogProps {
   children: React.ReactNode;
@@ -33,6 +34,7 @@ export default function ImportDialog({ children, onIngestSource }: ImportDialogP
   const [file, setFile] = useState<File | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
 
   const openDialog = (type: 'pdf-url' | 'pdf-file' | 'youtube') => {
     setImportType(type);
@@ -81,7 +83,11 @@ export default function ImportDialog({ children, onIngestSource }: ImportDialogP
       setDialogOpen(false);
     } catch (error) {
       console.error('Import failed:', error);
-      // Show error to user (toast will be shown by outline-pro)
+      toast({
+        variant: "destructive",
+        title: "Import Failed",
+        description: error instanceof Error ? error.message : "Failed to import media. Please try again.",
+      });
     } finally {
       setIsAnalyzing(false);
     }
