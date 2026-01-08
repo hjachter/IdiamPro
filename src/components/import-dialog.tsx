@@ -65,20 +65,23 @@ export default function ImportDialog({ children, onIngestSource }: ImportDialogP
         });
       } else if (importType === 'pdf-file' && file) {
         // Read file as base64 for server transmission
-        const reader = new FileReader();
-        reader.onload = async () => {
-          const base64 = reader.result as string;
-          await onIngestSource({
-            type: 'pdf',
-            content: base64,
-            fileName: file.name,
-          });
-        };
-        reader.readAsDataURL(file);
+        const base64 = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = () => reject(new Error('Failed to read file'));
+          reader.readAsDataURL(file);
+        });
+
+        await onIngestSource({
+          type: 'pdf',
+          content: base64,
+          fileName: file.name,
+        });
       }
       setDialogOpen(false);
     } catch (error) {
       console.error('Import failed:', error);
+      // Show error to user (toast will be shown by outline-pro)
     } finally {
       setIsAnalyzing(false);
     }
