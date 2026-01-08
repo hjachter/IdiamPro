@@ -1,13 +1,8 @@
 'use server';
 
 import { YoutubeTranscript } from 'youtube-transcript';
-import * as pdfjsLib from 'pdfjs-dist';
-
-// Configure PDF.js worker
-if (typeof window === 'undefined') {
-  // Server-side: use node canvas for PDF rendering
-  pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
-}
+// @ts-ignore - pdf-parse is a CommonJS module
+const pdfParse = require('pdf-parse');
 
 /**
  * Extract text content from a PDF URL
@@ -21,7 +16,10 @@ export async function extractPdfFromUrl(url: string): Promise<string> {
     }
 
     const arrayBuffer = await response.arrayBuffer();
-    return extractPdfFromBuffer(arrayBuffer);
+    const buffer = Buffer.from(arrayBuffer);
+
+    const data = await pdfParse(buffer);
+    return data.text;
   } catch (error) {
     console.error('Error extracting PDF from URL:', error);
     throw new Error(`Failed to extract PDF from URL: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -33,56 +31,21 @@ export async function extractPdfFromUrl(url: string): Promise<string> {
  */
 export async function extractPdfFromFile(data: string | ArrayBuffer): Promise<string> {
   try {
-    let arrayBuffer: ArrayBuffer;
+    let buffer: Buffer;
 
     if (typeof data === 'string') {
       // Handle base64 data URL (from FileReader)
       const base64Data = data.split(',')[1];
-      const binaryString = atob(base64Data);
-      const bytes = new Uint8Array(binaryString.length);
-      for (let i = 0; i < binaryString.length; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-      }
-      arrayBuffer = bytes.buffer;
+      buffer = Buffer.from(base64Data, 'base64');
     } else {
-      arrayBuffer = data;
+      buffer = Buffer.from(data);
     }
 
-    return extractPdfFromBuffer(arrayBuffer);
+    const pdfData = await pdfParse(buffer);
+    return pdfData.text;
   } catch (error) {
     console.error('Error extracting PDF from file:', error);
     throw new Error(`Failed to extract PDF from file: ${error instanceof Error ? error.message : 'Unknown error'}`);
-  }
-}
-
-/**
- * Extract text from PDF ArrayBuffer using pdf.js
- */
-async function extractPdfFromBuffer(arrayBuffer: ArrayBuffer): Promise<string> {
-  try {
-    // Load the PDF document
-    const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
-    const pdf = await loadingTask.promise;
-
-    let fullText = '';
-
-    // Extract text from each page
-    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-      const page = await pdf.getPage(pageNum);
-      const textContent = await page.getTextContent();
-
-      // Combine text items from the page
-      const pageText = textContent.items
-        .map((item: any) => item.str)
-        .join(' ');
-
-      fullText += `\n\n--- Page ${pageNum} ---\n${pageText}`;
-    }
-
-    return fullText.trim();
-  } catch (error) {
-    console.error('Error extracting text from PDF buffer:', error);
-    throw new Error(`Failed to extract text from PDF: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
 
