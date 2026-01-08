@@ -1,52 +1,23 @@
 'use server';
 
 import { YoutubeTranscript } from 'youtube-transcript';
-// @ts-ignore - pdf-parse is a CommonJS module
-const pdfParse = require('pdf-parse');
 
 /**
  * Extract text content from a PDF URL
+ * TODO: Implement via Next.js API route with pdf-parse or similar library
  */
 export async function extractPdfFromUrl(url: string): Promise<string> {
-  try {
-    // Fetch the PDF
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch PDF: ${response.statusText}`);
-    }
-
-    const arrayBuffer = await response.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-
-    const data = await pdfParse(buffer);
-    return data.text;
-  } catch (error) {
-    console.error('Error extracting PDF from URL:', error);
-    throw new Error(`Failed to extract PDF from URL: ${error instanceof Error ? error.message : 'Unknown error'}`);
-  }
+  // Temporary stub - will implement via API route
+  throw new Error('PDF URL import is not yet implemented. Coming soon!');
 }
 
 /**
  * Extract text content from a PDF file (base64 data URL or ArrayBuffer)
+ * TODO: Implement via Next.js API route with pdf-parse or similar library
  */
 export async function extractPdfFromFile(data: string | ArrayBuffer): Promise<string> {
-  try {
-    let buffer: Buffer;
-
-    if (typeof data === 'string') {
-      // Handle base64 data URL (from FileReader)
-      const base64Data = data.split(',')[1];
-      buffer = Buffer.from(base64Data, 'base64');
-    } else {
-      buffer = Buffer.from(data);
-    }
-
-    const pdfData = await pdfParse(buffer);
-    return pdfData.text;
-  } catch (error) {
-    console.error('Error extracting PDF from file:', error);
-    throw new Error(`Failed to extract PDF from file: ${error instanceof Error ? error.message : 'Unknown error'}`);
-  }
+  // Temporary stub - will implement via API route
+  throw new Error('PDF file import is not yet implemented. Coming soon!');
 }
 
 /**
