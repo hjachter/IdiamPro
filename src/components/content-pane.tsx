@@ -140,6 +140,7 @@ const SearchHighlight = Extension.create({
 
             const decorations: Decoration[] = [];
             const lowerSearch = searchTerm.toLowerCase();
+            let matchCount = 0;
 
             // Search through document text
             tr.doc.descendants((node, pos) => {
@@ -158,9 +159,17 @@ const SearchHighlight = Extension.create({
                     class: 'search-highlight',
                   })
                 );
+                matchCount++;
 
                 index = lowerText.indexOf(lowerSearch, index + 1);
               }
+            });
+
+            console.log('[SearchHighlight] Created decorations:', {
+              searchTerm,
+              matchCount,
+              decorationCount: decorations.length,
+              docSize: tr.doc.content.size
             });
 
             return DecorationSet.create(tr.doc, decorations);
@@ -361,13 +370,21 @@ export default function ContentPane({
 
   // Update search highlighting when searchTerm changes
   useEffect(() => {
-    if (editor && shouldUseRichTextEditor) {
+    if (editor && shouldUseRichTextEditor && editor.view) {
+      console.log('[ContentPane] Applying search highlight:', {
+        nodeId: node?.id,
+        nodeName: node?.name,
+        searchTerm,
+        editorReady: !!editor.view,
+        hasContent: !!editor.getHTML()
+      });
+
       // Dispatch transaction with search term metadata to trigger highlight plugin
       editor.view.dispatch(
         editor.view.state.tr.setMeta('searchHighlight', searchTerm || '')
       );
     }
-  }, [editor, searchTerm, shouldUseRichTextEditor]);
+  }, [editor, searchTerm, shouldUseRichTextEditor, node?.id, node?.name]);
 
   // Insert transcript when speech recognition completes
   useEffect(() => {
