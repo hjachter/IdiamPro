@@ -2,22 +2,68 @@
 
 import { YoutubeTranscript } from 'youtube-transcript';
 
+// @ts-ignore - pdf-parse doesn't have proper ESM types
+const pdfParse = require('pdf-parse');
+
 /**
  * Extract text content from a PDF URL
- * TODO: Implement via Next.js API route with pdf-parse or similar library
  */
 export async function extractPdfFromUrl(url: string): Promise<string> {
-  // Temporary stub - will implement via API route
-  throw new Error('PDF URL import is not yet implemented. Coming soon!');
+  try {
+    // Fetch PDF from URL
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch PDF: ${response.statusText}`);
+    }
+
+    // Convert to buffer
+    const arrayBuffer = await response.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    // Parse PDF
+    const pdfData = await pdfParse(buffer);
+
+    if (!pdfData.text || pdfData.text.trim().length === 0) {
+      throw new Error('PDF contains no extractable text');
+    }
+
+    return pdfData.text;
+  } catch (error) {
+    console.error('Error extracting PDF from URL:', error);
+    throw new Error(`Failed to extract PDF: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
 }
 
 /**
  * Extract text content from a PDF file (base64 data URL or ArrayBuffer)
- * TODO: Implement via Next.js API route with pdf-parse or similar library
  */
 export async function extractPdfFromFile(data: string | ArrayBuffer): Promise<string> {
-  // Temporary stub - will implement via API route
-  throw new Error('PDF file import is not yet implemented. Coming soon!');
+  try {
+    let buffer: Buffer;
+
+    if (data instanceof ArrayBuffer) {
+      // Convert ArrayBuffer to Buffer
+      buffer = Buffer.from(data);
+    } else {
+      // Handle data URL format: data:application/pdf;base64,xxx
+      const base64Data = data.includes('base64,')
+        ? data.split('base64,')[1]
+        : data;
+      buffer = Buffer.from(base64Data, 'base64');
+    }
+
+    // Parse PDF
+    const pdfData = await pdfParse(buffer);
+
+    if (!pdfData.text || pdfData.text.trim().length === 0) {
+      throw new Error('PDF contains no extractable text');
+    }
+
+    return pdfData.text;
+  } catch (error) {
+    console.error('Error extracting PDF from file:', error);
+    throw new Error(`Failed to extract PDF: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
 }
 
 /**

@@ -26,6 +26,7 @@ import {
   RefreshCw,
   Maximize,
   Keyboard,
+  Library,
 } from 'lucide-react';
 import type { Outline } from '@/types';
 
@@ -48,6 +49,7 @@ interface CommandPaletteProps {
   onRefreshGuide?: () => void;
   onToggleFocusMode?: () => void;
   onShowShortcuts?: () => void;
+  onOpenBulkResearch?: () => void;
   isGuide: boolean;
   isFocusMode?: boolean;
 }
@@ -71,6 +73,7 @@ export default function CommandPalette({
   onRefreshGuide,
   onToggleFocusMode,
   onShowShortcuts,
+  onOpenBulkResearch,
   isGuide,
   isFocusMode,
 }: CommandPaletteProps) {
@@ -184,6 +187,12 @@ export default function CommandPalette({
             <CommandItem onSelect={() => runCommand(onImportOutline)}>
               <Upload className="mr-2 h-4 w-4" />
               <span>Import Outline</span>
+            </CommandItem>
+          )}
+          {onOpenBulkResearch && (
+            <CommandItem onSelect={() => runCommand(onOpenBulkResearch)}>
+              <Library className="mr-2 h-4 w-4" />
+              <span>Bulk Research Import (PREMIUM)</span>
             </CommandItem>
           )}
           {onRefreshGuide && (

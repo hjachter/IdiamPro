@@ -130,3 +130,16 @@ export interface IngestPreview {
   summary: string;
   rawOutlineData?: { rootNodeId: string; nodes: NodeMap };  // For applying changes
 }
+
+// Bulk research import (PREMIUM feature)
+export interface BulkResearchSources {
+  sources: ExternalSourceInput[];
+  includeExistingContent: boolean;  // Whether to include current outline content in synthesis
+  outlineName?: string;  // Optional name for regenerated outline
+}
+
+export interface BulkResearchResult {
+  outline: Outline;
+  summary: string;
+  sourcesProcessed: number;
+}

@@ -282,6 +282,37 @@ export function moveNode(
     return nodes;
 }
 
+/**
+ * Build a tree structure string for AI context
+ * Shows the hierarchical structure of all nodes (names only, not content)
+ */
+export function buildOutlineTreeString(nodes: NodeMap, rootNodeId: string, maxDepth: number = 5): string {
+  const lines: string[] = [];
+
+  function traverse(nodeId: string, depth: number) {
+    if (depth > maxDepth) return;
+
+    const node = nodes[nodeId];
+    if (!node) return;
+
+    // Skip the root node itself, but traverse its children
+    if (node.type !== 'root') {
+      const indent = '  '.repeat(depth - 1);
+      lines.push(`${indent}- ${node.name}`);
+    }
+
+    // Traverse children
+    if (node.childrenIds && node.childrenIds.length > 0) {
+      for (const childId of node.childrenIds) {
+        traverse(childId, depth + 1);
+      }
+    }
+  }
+
+  traverse(rootNodeId, 0);
+  return lines.join('\n');
+}
+
 export function parseMarkdownToNodes(markdown: string, topic: string): { rootNodeId: string, nodes: NodeMap } {
   const lines = markdown.split('\n').filter(line => line.trim().startsWith('- '));
   const rootId = uuidv4();

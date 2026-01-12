@@ -11,7 +11,12 @@ import type {
   NodeGenerationContext,
   ExternalSourceInput,
   IngestPreview,
+  BulkResearchSources,
+  BulkResearchResult,
+  Outline,
 } from '@/types';
+import { parseMarkdownToNodes } from '@/lib/outline-utils';
+import { v4 as uuidv4 } from 'uuid';
 
 // Plan-aware configuration (server-side)
 // function getPlanConfig(plan: SubscriptionPlan) {
@@ -116,7 +121,23 @@ export async function ingestExternalSourceAction(
 
     // Generate outline structure from content
     const outlinePrompt = existingOutlineSummary
-      ? `Based on the following content, suggest how to merge it into an existing outline.\n\nExisting outline structure:\n${existingOutlineSummary}\n\nNew content to integrate:\n${extractedContent}`
+      ? `You are helping build a research outline by integrating new source material into an existing structure.
+
+CRITICAL INSTRUCTIONS:
+1. Review the existing outline structure carefully
+2. For each topic in the new content, check if it matches or belongs under an existing category
+3. ONLY create new top-level categories if the content doesn't fit any existing category
+4. Prefer adding sub-topics under existing categories rather than creating duplicates
+5. If the new content overlaps with existing categories, merge it into those categories
+
+Existing outline structure:
+${existingOutlineSummary}
+
+New content to integrate:
+${extractedContent}
+
+Output a structured outline showing ONLY the new nodes to add (with their proper parent paths).
+Format: Use markdown list format with proper indentation to show hierarchy.`
       : `Create a structured outline from the following content:\n${extractedContent}`;
 
     const result = await generateOutlineFromTopic({ topic: outlinePrompt });
@@ -166,4 +187,117 @@ function parseMarkdownToPreviewNodes(markdown: string): IngestPreview['nodesToAd
   });
 
   return nodes;
+}
+
+/**
+ * Helper: Extract content from a single source
+ */
+async function extractContentFromSource(source: ExternalSourceInput): Promise<{ content: string; description: string }> {
+  let extractedContent = '';
+  let sourceDescription = '';
+
+  if (source.type === 'text' && source.content) {
+    extractedContent = source.content;
+    sourceDescription = 'Text input';
+  } else if (source.type === 'youtube' && source.url) {
+    extractedContent = await extractYoutubeTranscript(source.url);
+    sourceDescription = `YouTube Video: ${source.url}`;
+  } else if (source.type === 'pdf') {
+    if (source.url) {
+      extractedContent = await extractPdfFromUrl(source.url);
+      sourceDescription = `PDF: ${source.url}`;
+    } else if (source.content) {
+      extractedContent = await extractPdfFromFile(source.content);
+      sourceDescription = `PDF: ${source.fileName || 'Uploaded file'}`;
+    }
+  }
+
+  return { content: extractedContent, description: sourceDescription };
+}
+
+/**
+ * Bulk Research Import (PREMIUM Feature)
+ *
+ * Extract content from multiple sources, synthesize with existing outline,
+ * and regenerate entire outline with interrelationships.
+ */
+export async function bulkResearchIngestAction(
+  input: BulkResearchSources,
+  existingOutlineContent?: string
+): Promise<BulkResearchResult> {
+  try {
+    // Extract content from all sources
+    const extractedSources: Array<{ content: string; description: string }> = [];
+
+    for (const source of input.sources) {
+      try {
+        const extracted = await extractContentFromSource(source);
+        if (extracted.content) {
+          extractedSources.push(extracted);
+        }
+      } catch (error) {
+        console.error(`Failed to extract from source:`, error);
+        // Continue with other sources even if one fails
+      }
+    }
+
+    if (extractedSources.length === 0) {
+      throw new Error('No content could be extracted from any of the provided sources.');
+    }
+
+    // Build comprehensive research prompt
+    const sourcesList = extractedSources.map((s, idx) =>
+      `\n=== SOURCE ${idx + 1}: ${s.description} ===\n${s.content}`
+    ).join('\n\n');
+
+    const existingContentSection = input.includeExistingContent && existingOutlineContent
+      ? `\n\n=== EXISTING OUTLINE CONTENT (to integrate) ===\n${existingOutlineContent}\n`
+      : '';
+
+    const researchPrompt = `You are creating a comprehensive research outline by synthesizing multiple sources.
+
+TASK:
+1. Analyze ALL sources provided below
+2. Identify key themes, topics, and concepts across ALL sources
+3. Find connections and interrelationships between different sources
+4. Create a unified, hierarchical outline structure that:
+   - Organizes information by theme/topic (not by source)
+   - Shows relationships between concepts
+   - Avoids duplication while preserving unique insights
+   - Creates a logical flow for understanding the topic
+${input.includeExistingContent ? '5. Integrate the existing outline content into the new structure\n' : ''}
+OUTPUT FORMAT:
+- Use markdown list format with proper indentation
+- Each line should be a node name (brief and clear)
+- Use indentation to show hierarchy (2 spaces per level)
+- Focus on STRUCTURE - content will be generated later
+
+SOURCES TO SYNTHESIZE:
+${sourcesList}${existingContentSection}
+
+Generate the outline structure:`;
+
+    const result = await generateOutlineFromTopic({ topic: researchPrompt });
+
+    // Parse into full outline
+    const outlineName = input.outlineName || `Research Synthesis ${new Date().toLocaleDateString()}`;
+    const { rootNodeId, nodes } = parseMarkdownToNodes(result.outline, outlineName);
+
+    const outline: Outline = {
+      id: uuidv4(),
+      name: outlineName,
+      rootNodeId,
+      nodes,
+      lastModified: Date.now(),
+    };
+
+    return {
+      outline,
+      summary: `Successfully synthesized ${extractedSources.length} source${extractedSources.length > 1 ? 's' : ''} into a unified outline with ${Object.keys(nodes).length - 1} nodes.`,
+      sourcesProcessed: extractedSources.length,
+    };
+  } catch (error) {
+    console.error('Error in bulk research ingest:', error);
+    throw new Error('Failed to process bulk research import.');
+  }
 }

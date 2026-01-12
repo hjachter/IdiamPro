@@ -6,11 +6,11 @@ import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/componen
 import { useIsMobile } from "@/hooks/use-mobile";
 import type { Outline, OutlineNode, NodeType, NodeMap, NodeGenerationContext, ExternalSourceInput, IngestPreview } from '@/types';
 import { getInitialGuide } from '@/lib/initial-guide';
-import { addNode, addNodeAfter, removeNode, updateNode, moveNode, parseMarkdownToNodes, recalculatePrefixesForBranch } from '@/lib/outline-utils';
+import { addNode, addNodeAfter, removeNode, updateNode, moveNode, parseMarkdownToNodes, recalculatePrefixesForBranch, buildOutlineTreeString } from '@/lib/outline-utils';
 import OutlinePane from './outline-pane';
 import ContentPane from './content-pane';
 import { useToast } from "@/hooks/use-toast";
-import { generateOutlineAction, expandContentAction, generateContentForNodeAction, ingestExternalSourceAction } from '@/app/actions';
+import { generateOutlineAction, expandContentAction, generateContentForNodeAction, ingestExternalSourceAction, bulkResearchIngestAction } from '@/app/actions';
 import { useAI } from '@/contexts/ai-context';
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction } from './ui/alert-dialog';
 import { Button } from './ui/button';
@@ -18,7 +18,9 @@ import { loadStorageData, saveAllOutlines, migrateToFileSystem, type MigrationCo
 import CommandPalette from './command-palette';
 import EmptyState from './empty-state';
 import KeyboardShortcutsDialog, { useKeyboardShortcuts } from './keyboard-shortcuts-dialog';
+import BulkResearchDialog from './bulk-research-dialog';
 import { exportOutlineToJson } from '@/lib/export';
+import type { BulkResearchSources } from '@/types';
 
 type MobileView = 'stacked' | 'content'; // stacked = outline + preview, content = full screen content
 
@@ -79,6 +81,9 @@ export default function OutlinePro() {
   // Focus mode state
   const [isFocusMode, setIsFocusMode] = useState(false);
 
+  // Bulk research dialog state
+  const [isBulkResearchOpen, setIsBulkResearchOpen] = useState(false);
+
   // Multi-select state
   const [selectedNodeIds, setSelectedNodeIds] = useState<Set<string>>(new Set());
   const [lastSelectedNodeId, setLastSelectedNodeId] = useState<string | null>(null);
@@ -86,6 +91,7 @@ export default function OutlinePro() {
   // Search term state (for content pane highlighting)
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [currentMatchType, setCurrentMatchType] = useState<'name' | 'content' | 'both' | null>(null);
+  const [currentMatchIndex, setCurrentMatchIndex] = useState<number>(0);
 
   const { toast } = useToast();
   const isMobile = useIsMobile();
@@ -389,9 +395,10 @@ export default function OutlinePro() {
   }, [currentOutlineId]);
 
   // Handle search term change from OutlinePane (for content highlighting)
-  const handleSearchTermChange = useCallback((term: string, matchType?: 'name' | 'content' | 'both') => {
+  const handleSearchTermChange = useCallback((term: string, matchType?: 'name' | 'content' | 'both', matchIndex?: number) => {
     setSearchTerm(term);
     setCurrentMatchType(matchType || null);
+    setCurrentMatchIndex(matchIndex ?? 0);
   }, []);
 
   // handleCreateNode adds new node as sibling AFTER selected node (or as child if root is selected)
@@ -1003,9 +1010,9 @@ export default function OutlinePro() {
 
   // Ingest external source - auto-applies for MVP
   const handleIngestSource = useCallback(async (source: ExternalSourceInput): Promise<void> => {
-    // Build outline summary for context
+    // Build full outline structure for intelligent merging
     const outlineSummary = currentOutline
-      ? `Outline: ${currentOutline.name}\nNodes: ${Object.keys(currentOutline.nodes).length}`
+      ? `Outline: ${currentOutline.name}\n\nCurrent structure:\n${buildOutlineTreeString(currentOutline.nodes, currentOutline.rootNodeId)}`
       : undefined;
 
     setIsLoadingAI(true);
@@ -1030,6 +1037,48 @@ export default function OutlinePro() {
       setIsLoadingAI(false);
     }
   }, [currentOutline, handleApplyIngestPreview, toast]);
+
+  // Bulk Research Import (PREMIUM) - Synthesizes multiple sources
+  const handleBulkResearch = useCallback(async (input: BulkResearchSources): Promise<void> => {
+    setIsLoadingAI(true);
+    try {
+      // Build content from existing outline if requested
+      let existingContent: string | undefined;
+      if (input.includeExistingContent && currentOutline) {
+        // Extract all node names and content for context
+        const contentParts: string[] = [];
+        Object.values(currentOutline.nodes).forEach(node => {
+          if (node.type !== 'root') {
+            contentParts.push(`${node.name}${node.content ? ': ' + node.content : ''}`);
+          }
+        });
+        existingContent = contentParts.join('\n');
+      }
+
+      const result = await bulkResearchIngestAction(input, existingContent);
+
+      // Add the new outline to the list
+      setOutlines(currentOutlines => [...currentOutlines, result.outline]);
+
+      // Switch to the new outline
+      setCurrentOutlineId(result.outline.id);
+      setSelectedNodeId(result.outline.rootNodeId);
+
+      toast({
+        title: "Research Synthesized!",
+        description: result.summary,
+      });
+    } catch (e) {
+      toast({
+        variant: "destructive",
+        title: "Research Import Failed",
+        description: (e as Error).message || "Could not process bulk research import.",
+      });
+      throw e;
+    } finally {
+      setIsLoadingAI(false);
+    }
+  }, [currentOutline, toast]);
 
   // Refresh the User Guide to get latest version
   const handleRefreshGuide = useCallback(() => {
@@ -1686,6 +1735,7 @@ export default function OutlinePro() {
           onRefreshGuide={handleRefreshGuide}
           onToggleFocusMode={() => setIsFocusMode(prev => !prev)}
           onShowShortcuts={() => setIsShortcutsOpen(true)}
+          onOpenBulkResearch={() => setIsBulkResearchOpen(true)}
           isGuide={currentOutline?.isGuide ?? false}
           isFocusMode={isFocusMode}
         />
@@ -1694,6 +1744,13 @@ export default function OutlinePro() {
         <KeyboardShortcutsDialog
           open={isShortcutsOpen}
           onOpenChange={setIsShortcutsOpen}
+        />
+
+        <BulkResearchDialog
+          open={isBulkResearchOpen}
+          onOpenChange={setIsBulkResearchOpen}
+          onSubmit={handleBulkResearch}
+          currentOutlineName={currentOutline?.name}
         />
 
         <AlertDialog open={prefixDialogState.open} onOpenChange={(open) => setPrefixDialogState(s => ({ ...s, open }))}>
@@ -1854,6 +1911,8 @@ export default function OutlinePro() {
             onGenerateContent={handleGenerateContentForNode}
             isLoadingAI={isLoadingAI}
             searchTerm={searchTerm}
+            currentMatchIndex={currentMatchIndex}
+            currentMatchType={currentMatchType}
           />
         )}
       </div>
@@ -1891,6 +1950,7 @@ export default function OutlinePro() {
         onRefreshGuide={handleRefreshGuide}
         onToggleFocusMode={() => setIsFocusMode(prev => !prev)}
         onShowShortcuts={() => setIsShortcutsOpen(true)}
+        onOpenBulkResearch={() => setIsBulkResearchOpen(true)}
         isGuide={currentOutline?.isGuide ?? false}
         isFocusMode={isFocusMode}
       />
@@ -1899,6 +1959,13 @@ export default function OutlinePro() {
       <KeyboardShortcutsDialog
         open={isShortcutsOpen}
         onOpenChange={setIsShortcutsOpen}
+      />
+
+      <BulkResearchDialog
+        open={isBulkResearchOpen}
+        onOpenChange={setIsBulkResearchOpen}
+        onSubmit={handleBulkResearch}
+        currentOutlineName={currentOutline?.name}
       />
 
       <AlertDialog open={prefixDialogState.open} onOpenChange={(open) => setPrefixDialogState(s => ({ ...s, open }))}>
@@ -1980,6 +2047,8 @@ export default function OutlinePro() {
             onGenerateContent={handleGenerateContentForNode}
             isLoadingAI={isLoadingAI}
             searchTerm={searchTerm}
+            currentMatchIndex={currentMatchIndex}
+            currentMatchType={currentMatchType}
           />
         </div>
       ) : (
@@ -2047,6 +2116,8 @@ export default function OutlinePro() {
                 onGenerateContent={handleGenerateContentForNode}
                 isLoadingAI={isLoadingAI}
                 searchTerm={searchTerm}
+                currentMatchIndex={currentMatchIndex}
+                currentMatchType={currentMatchType}
               />
             </div>
           </ResizablePanel>
