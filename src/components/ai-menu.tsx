@@ -11,17 +11,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, FileText, Upload, Crown, Loader2 } from 'lucide-react';
+import { Sparkles, FileText, Library, Crown, Loader2 } from 'lucide-react';
 import { useAI, useAIFeature } from '@/contexts/ai-context';
 import AiGenerateDialog from './ai-generate-dialog';
 import AIPlanDialog from './ai-plan-dialog';
-import IngestSourceDialog from './ingest-source-dialog';
 import type { ExternalSourceInput, IngestPreview } from '@/types';
 
 interface AIMenuProps {
   onGenerateOutline: (topic: string) => Promise<void>;
-  onIngestSource: (source: ExternalSourceInput) => Promise<IngestPreview>;
-  onApplyIngestPreview: (preview: IngestPreview) => Promise<void>;
+  onOpenBulkResearch: () => void;
   outlineSummary?: string;
   isLoadingAI: boolean;
   disabled?: boolean;
@@ -29,8 +27,7 @@ interface AIMenuProps {
 
 export default function AIMenu({
   onGenerateOutline,
-  onIngestSource,
-  onApplyIngestPreview,
+  onOpenBulkResearch,
   outlineSummary,
   isLoadingAI,
   disabled,
@@ -92,16 +89,10 @@ export default function AIMenu({
         )}
 
         {ingestEnabled && (
-          <IngestSourceDialog
-            onIngest={onIngestSource}
-            onApplyPreview={onApplyIngestPreview}
-            outlineSummary={outlineSummary}
-          >
-            <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="cursor-pointer">
-              <Upload className="mr-2 h-4 w-4" />
-              Ingest External Source...
-            </DropdownMenuItem>
-          </IngestSourceDialog>
+          <DropdownMenuItem onSelect={onOpenBulkResearch} className="cursor-pointer">
+            <Library className="mr-2 h-4 w-4" />
+            Research Import...
+          </DropdownMenuItem>
         )}
 
         <DropdownMenuSeparator />

@@ -1837,8 +1837,7 @@ export default function OutlinePro() {
                 onCreateNode={handleCreateNode}
                 onDeleteNode={handleDeleteNode}
                 onGenerateOutline={handleGenerateOutline}
-                onIngestSource={handleIngestSource}
-                onApplyIngestPreview={handleApplyIngestPreview}
+                onOpenBulkResearch={() => setIsBulkResearchOpen(true)}
                 onUpdateNode={handleUpdateNode}
                 onImportOutline={handleImportOutline}
                 onImportAsChapter={handleImportAsChapter}
@@ -2072,8 +2071,7 @@ export default function OutlinePro() {
                 onCreateNode={handleCreateNode}
                 onDeleteNode={handleDeleteNode}
                 onGenerateOutline={handleGenerateOutline}
-                onIngestSource={handleIngestSource}
-                onApplyIngestPreview={handleApplyIngestPreview}
+                onOpenBulkResearch={() => setIsBulkResearchOpen(true)}
                 onUpdateNode={handleUpdateNode}
                 onImportOutline={handleImportOutline}
                 onImportAsChapter={handleImportAsChapter}

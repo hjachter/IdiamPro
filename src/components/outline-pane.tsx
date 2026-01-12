@@ -96,8 +96,7 @@ interface OutlinePaneProps {
   onCreateNode: (type?: NodeType, content?: string) => void;
   onDeleteNode: (nodeId: string) => void;
   onGenerateOutline: (topic: string) => Promise<void>;
-  onIngestSource: (source: ExternalSourceInput) => Promise<void>;
-  onApplyIngestPreview: (preview: IngestPreview) => Promise<void>;
+  onOpenBulkResearch: () => void;
   onUpdateNode: (nodeId: string, updates: Partial<OutlineNode>) => void;
   onImportOutline: (file: File) => void;
   onImportAsChapter: (file: File) => void;
@@ -134,7 +133,7 @@ interface OutlinePaneProps {
   onBulkChangeColor?: (color: string | undefined) => void;
   onBulkAddTag?: (tag: string) => void;
   // Search term for content highlighting
-  onSearchTermChange?: (searchTerm: string, matchType?: 'name' | 'content' | 'both') => void;
+  onSearchTermChange?: (searchTerm: string, matchType?: 'name' | 'content' | 'both', matchIndex?: number) => void;
 }
 
 export default function OutlinePane({
@@ -153,8 +152,7 @@ export default function OutlinePane({
   onCreateNode,
   onDeleteNode,
   onGenerateOutline,
-  onIngestSource,
-  onApplyIngestPreview,
+  onOpenBulkResearch,
   onUpdateNode,
   onImportOutline,
   onImportAsChapter,
@@ -259,10 +257,16 @@ export default function OutlinePane({
     if (term !== prevSearchTermRef.current) {
       setCurrentMatchIndex(0);
       prevSearchTermRef.current = term;
-    }
 
-    // Notify parent of search term change for content pane highlighting
-    if (onSearchTermChange) {
+      // Notify parent of search term change with first match info for scrolling
+      if (onSearchTermChange && matches.length > 0) {
+        const firstMatch = matches[0];
+        const matchType = firstMatch.type;
+        const localMatchIndex = 0; // First match always has local index 0
+        onSearchTermChange(term, matchType, localMatchIndex);
+      }
+    } else if (onSearchTermChange) {
+      // Term didn't change, just update highlighting
       onSearchTermChange(term);
     }
 
@@ -295,14 +299,46 @@ export default function OutlinePane({
     const nextIndex = (currentMatchIndex + 1) % searchMatches.length;
     setCurrentMatchIndex(nextIndex);
     handleNavigateToMatch(searchMatches[nextIndex]);
-  }, [searchMatches, currentMatchIndex, handleNavigateToMatch]);
+
+    // Calculate local match index within this node's content
+    if (onSearchTermChange && searchTerm) {
+      const currentMatch = searchMatches[nextIndex];
+      const matchType = currentMatch.type;
+
+      // Count how many content matches in the same node come before this one
+      let localMatchIndex = 0;
+      for (let i = 0; i < nextIndex; i++) {
+        if (searchMatches[i].nodeId === currentMatch.nodeId && searchMatches[i].type === 'content') {
+          localMatchIndex++;
+        }
+      }
+
+      onSearchTermChange(searchTerm, matchType, localMatchIndex);
+    }
+  }, [searchMatches, currentMatchIndex, handleNavigateToMatch, onSearchTermChange, searchTerm]);
 
   const handlePrevMatch = useCallback(() => {
     if (searchMatches.length === 0) return;
     const prevIndex = (currentMatchIndex - 1 + searchMatches.length) % searchMatches.length;
     setCurrentMatchIndex(prevIndex);
     handleNavigateToMatch(searchMatches[prevIndex]);
-  }, [searchMatches, currentMatchIndex, handleNavigateToMatch]);
+
+    // Calculate local match index within this node's content
+    if (onSearchTermChange && searchTerm) {
+      const currentMatch = searchMatches[prevIndex];
+      const matchType = currentMatch.type;
+
+      // Count how many content matches in the same node come before this one
+      let localMatchIndex = 0;
+      for (let i = 0; i < prevIndex; i++) {
+        if (searchMatches[i].nodeId === currentMatch.nodeId && searchMatches[i].type === 'content') {
+          localMatchIndex++;
+        }
+      }
+
+      onSearchTermChange(searchTerm, matchType, localMatchIndex);
+    }
+  }, [searchMatches, currentMatchIndex, handleNavigateToMatch, onSearchTermChange, searchTerm]);
 
   const handleCloseSearch = useCallback(() => {
     setIsSearchOpen(false);
@@ -700,8 +736,7 @@ export default function OutlinePane({
 
           <AIMenu
             onGenerateOutline={onGenerateOutline}
-            onIngestSource={onIngestSource}
-            onApplyIngestPreview={onApplyIngestPreview}
+            onOpenBulkResearch={onOpenBulkResearch}
             outlineSummary={currentOutline?.name}
             isLoadingAI={isLoadingAI}
           />
