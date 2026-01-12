@@ -104,7 +104,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import HorizontalRule from '@tiptap/extension-horizontal-rule';
 import ImageExt from '@tiptap/extension-image';
 import Youtube from '@tiptap/extension-youtube';
 import Placeholder from '@tiptap/extension-placeholder';
@@ -194,6 +193,8 @@ interface ContentPaneProps {
   onGenerateContent?: (context: NodeGenerationContext) => Promise<string>;  // Enhanced callback
   isLoadingAI: boolean;
   searchTerm?: string;  // Search term for highlighting matches
+  currentMatchIndex?: number;  // Which match to scroll to (for multiple matches in same content)
+  currentMatchType?: 'name' | 'content' | 'both' | null;  // Type of current match
 }
 
 const YouTubeEmbed = ({ url }: { url: string }) => {
@@ -235,7 +236,9 @@ export default function ContentPane({
   onExpandContent,
   onGenerateContent,
   isLoadingAI,
-  searchTerm
+  searchTerm,
+  currentMatchIndex = 0,
+  currentMatchType = null
 }: ContentPaneProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [conflictDialogOpen, setConflictDialogOpen] = useState(false);
@@ -270,7 +273,6 @@ export default function ContentPane({
     editable: shouldUseRichTextEditor,
     extensions: [
       StarterKit,
-      HorizontalRule,
       ImageExt,
       Youtube.configure({
         width: 640,
@@ -383,8 +385,47 @@ export default function ContentPane({
       editor.view.dispatch(
         editor.view.state.tr.setMeta('searchHighlight', searchTerm || '')
       );
+
+      // Auto-scroll to current match if search term exists and match is in content (not name)
+      if (searchTerm && searchTerm.length >= 2 && (currentMatchType === 'content' || currentMatchType === 'both')) {
+        // Small delay to let highlighting apply first
+        setTimeout(() => {
+          const doc = editor.view.state.doc;
+          const lowerSearch = searchTerm.toLowerCase();
+          const matchPositions: number[] = [];
+
+          // Find ALL matches in document
+          doc.descendants((node, pos) => {
+            if (!node.isText || !node.text) return;
+
+            const text = node.text;
+            const lowerText = text.toLowerCase();
+            let index = lowerText.indexOf(lowerSearch);
+
+            while (index !== -1) {
+              matchPositions.push(pos + index);
+              index = lowerText.indexOf(lowerSearch, index + 1);
+            }
+          });
+
+          // Scroll to the match at currentMatchIndex (local to this content)
+          if (matchPositions.length > 0 && currentMatchIndex < matchPositions.length) {
+            const targetPos = matchPositions[currentMatchIndex];
+            const coords = editor.view.coordsAtPos(targetPos);
+            const editorContainer = editor.view.dom.closest('.tiptap-container') as HTMLElement;
+
+            if (editorContainer) {
+              // Scroll with some padding from top
+              editorContainer.scrollTo({
+                top: coords.top - editorContainer.getBoundingClientRect().top - 100,
+                behavior: 'smooth'
+              });
+            }
+          }
+        }, 50);
+      }
     }
-  }, [editor, searchTerm, shouldUseRichTextEditor, node?.id, node?.name]);
+  }, [editor, searchTerm, currentMatchIndex, currentMatchType, shouldUseRichTextEditor, node?.id, node?.name]);
 
   // Insert transcript when speech recognition completes
   useEffect(() => {

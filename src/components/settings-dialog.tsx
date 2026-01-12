@@ -157,7 +157,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
           <div className="space-y-3">
             <h3 className="text-sm font-medium">Data Storage</h3>
 
-            {isCapacitor() ? (
+            {!isElectron() && isCapacitor() ? (
               /* Capacitor native app storage info */
               <div className="space-y-2">
                 <div className="flex items-center gap-2 p-3 bg-muted rounded-lg">
@@ -172,7 +172,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
                 </p>
               </div>
             ) : (
-              /* Desktop folder selection */
+              /* Desktop folder selection (Electron or web with File System Access API) */
               <div className="space-y-2">
                 <label className="text-sm text-muted-foreground">
                   User Data Folder
@@ -190,7 +190,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
                 <p className="text-xs text-muted-foreground flex items-start gap-1">
                   <Info className="h-3 w-3 mt-0.5 flex-shrink-0" />
                   <span>
-                    Select a folder where all your outlines will be saved. Currently using browser storage by default.
+                    Select a folder where all your outlines will be saved. {isElectron() ? 'Your outlines are saved as .idm files.' : 'Currently using browser storage by default.'}
                     {!isElectron() && !('showDirectoryPicker' in window) && (
                       <span className="block mt-1 text-amber-400">
                         Note: Folder selection is not supported in your browser. Use Chrome, Edge, or the Desktop app for this feature.
