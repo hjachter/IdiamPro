@@ -7,7 +7,7 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Checkbox } from './ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { X, Plus, FileText, Youtube, Type, Globe, Image as ImageIcon, FileArchive, Music, Video as VideoIcon } from 'lucide-react';
+import { X, Plus, FileText, Youtube, Type, Globe, Image as ImageIcon, FileArchive, Music, Video as VideoIcon, FolderOpen } from 'lucide-react';
 import type { ExternalSourceInput, BulkResearchSources } from '@/types';
 
 interface BulkResearchDialogProps {
@@ -46,13 +46,19 @@ export default function BulkResearchDialog({
   };
 
   // Handle file upload
-  const handleFileUpload = async (id: string, file: File) => {
+  const handleFileUpload = async (id: string, file: File, sourceType: ExternalSourceInput['type']) => {
     const reader = new FileReader();
     reader.onload = (e) => {
-      const dataUrl = e.target?.result as string;
-      handleUpdateSource(id, { content: dataUrl, fileName: file.name });
+      const content = e.target?.result as string;
+      handleUpdateSource(id, { content, fileName: file.name });
     };
-    reader.readAsDataURL(file);
+
+    // For outline files, read as text; for others, read as data URL
+    if (sourceType === 'outline') {
+      reader.readAsText(file);
+    } else {
+      reader.readAsDataURL(file);
+    }
   };
 
   // Submit
@@ -86,9 +92,9 @@ export default function BulkResearchDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Bulk Research Import (PREMIUM)</DialogTitle>
+          <DialogTitle>Research & Import</DialogTitle>
           <DialogDescription>
-            Import multiple sources and synthesize them into a comprehensive research outline.
+            Import multiple sources and merge them into a comprehensive outline.
             The AI will analyze all sources, find connections, and create a unified structure.
           </DialogDescription>
         </DialogHeader>
@@ -152,6 +158,7 @@ export default function BulkResearchDialog({
                     {source.type === 'doc' && <FileArchive className="w-4 h-4 text-orange-500" />}
                     {source.type === 'audio' && <Music className="w-4 h-4 text-pink-500" />}
                     {source.type === 'video' && <VideoIcon className="w-4 h-4 text-teal-500" />}
+                    {source.type === 'outline' && <FolderOpen className="w-4 h-4 text-amber-500" />}
                     <span className="text-sm font-medium">Source {idx + 1}</span>
                   </div>
                   <Button
@@ -173,6 +180,7 @@ export default function BulkResearchDialog({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="outline">Outline File (.idm/.json)</SelectItem>
                       <SelectItem value="youtube">YouTube Video</SelectItem>
                       <SelectItem value="pdf">PDF Document</SelectItem>
                       <SelectItem value="web">Web Page (URL)</SelectItem>
@@ -183,6 +191,24 @@ export default function BulkResearchDialog({
                       <SelectItem value="text">Text/Notes</SelectItem>
                     </SelectContent>
                   </Select>
+
+                  {source.type === 'outline' && (
+                    <div className="space-y-2">
+                      <Input
+                        type="file"
+                        accept=".json,.idm,application/json,application/octet-stream"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleFileUpload(source.id, file, 'outline');
+                        }}
+                      />
+                      {source.fileName && (
+                        <div className="text-xs text-muted-foreground">
+                          Uploaded: {source.fileName}
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   {source.type === 'youtube' && (
                     <Input
@@ -213,7 +239,7 @@ export default function BulkResearchDialog({
                         accept=".pdf"
                         onChange={(e) => {
                           const file = e.target.files?.[0];
-                          if (file) handleFileUpload(source.id, file);
+                          if (file) handleFileUpload(source.id, file, 'pdf');
                         }}
                       />
                       {source.fileName && (
@@ -231,7 +257,7 @@ export default function BulkResearchDialog({
                         accept="image/*"
                         onChange={(e) => {
                           const file = e.target.files?.[0];
-                          if (file) handleFileUpload(source.id, file);
+                          if (file) handleFileUpload(source.id, file, 'image');
                         }}
                       />
                       {source.fileName && (
@@ -249,7 +275,7 @@ export default function BulkResearchDialog({
                         accept=".doc,.docx,.xls,.xlsx,.ppt,.pptx"
                         onChange={(e) => {
                           const file = e.target.files?.[0];
-                          if (file) handleFileUpload(source.id, file);
+                          if (file) handleFileUpload(source.id, file, 'doc');
                         }}
                       />
                       {source.fileName && (
@@ -267,7 +293,7 @@ export default function BulkResearchDialog({
                         accept="audio/*"
                         onChange={(e) => {
                           const file = e.target.files?.[0];
-                          if (file) handleFileUpload(source.id, file);
+                          if (file) handleFileUpload(source.id, file, 'audio');
                         }}
                       />
                       {source.fileName && (
@@ -285,7 +311,7 @@ export default function BulkResearchDialog({
                         accept="video/*"
                         onChange={(e) => {
                           const file = e.target.files?.[0];
-                          if (file) handleFileUpload(source.id, file);
+                          if (file) handleFileUpload(source.id, file, 'video');
                         }}
                       />
                       {source.fileName && (

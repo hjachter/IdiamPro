@@ -260,6 +260,33 @@ async function extractContentFromSource(source: ExternalSourceInput): Promise<{ 
         sourceDescription = `Video: ${source.fileName || 'Uploaded video'}`;
       }
       break;
+
+    case 'outline':
+      if (source.content) {
+        try {
+          // Parse the outline file and extract all text content
+          const outline = JSON.parse(source.content);
+          const textParts: string[] = [];
+
+          // Extract node names and content from the outline
+          if (outline.nodes) {
+            Object.values(outline.nodes).forEach((node: any) => {
+              if (node.type !== 'root') {
+                textParts.push(node.name);
+                if (node.content) {
+                  textParts.push(node.content);
+                }
+              }
+            });
+          }
+
+          extractedContent = textParts.join('\n\n');
+          sourceDescription = `Outline File: ${source.fileName || 'Imported outline'}`;
+        } catch (error) {
+          throw new Error('Failed to parse outline file');
+        }
+      }
+      break;
   }
 
   return { content: extractedContent, description: sourceDescription };

@@ -8,11 +8,10 @@ import OutlineSearch, { type SearchMatch } from './outline-search';
 import { MultiSelectToolbar } from './multi-select-toolbar';
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { ChevronDown, FilePlus, Plus, Trash2, Edit, FileDown, FileUp, RotateCcw, ChevronsUp, ChevronsDown, Settings, Search, Command } from 'lucide-react';
+import { ChevronDown, FilePlus, Plus, Trash2, Edit, FileDown, Library, RotateCcw, ChevronsUp, ChevronsDown, Settings, Search, Command } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Input } from './ui/input';
-import ImportDialog from './import-dialog';
 import SettingsDialog from './settings-dialog';
 import type { NodeType } from '@/types';
 import { exportOutlineToJson, exportAllOutlinesToJson, shareBackupFile, shareOutlineFile } from '@/lib/export';
@@ -728,15 +727,23 @@ export default function OutlinePane({
             <TooltipContent>Expand outline (show all nodes)</TooltipContent>
           </Tooltip>
 
-          <ImportDialog onIngestSource={onIngestSource}>
-            <Button variant="outline" size="icon" disabled={!selectedNodeId} title="Import media (PDF, YouTube)" className="hover:bg-accent/20">
-              <FileUp className="h-4 w-4" />
-            </Button>
-          </ImportDialog>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={onOpenBulkResearch}
+                disabled={!currentOutline}
+                className="hover:bg-accent/20"
+              >
+                <Library className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Research & Import (merge multiple sources)</TooltipContent>
+          </Tooltip>
 
           <AIMenu
             onGenerateOutline={onGenerateOutline}
-            onOpenBulkResearch={onOpenBulkResearch}
             outlineSummary={currentOutline?.name}
             isLoadingAI={isLoadingAI}
           />

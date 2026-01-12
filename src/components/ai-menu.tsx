@@ -11,15 +11,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, FileText, Library, Crown, Loader2 } from 'lucide-react';
+import { Sparkles, FileText, Crown, Loader2 } from 'lucide-react';
 import { useAI, useAIFeature } from '@/contexts/ai-context';
 import AiGenerateDialog from './ai-generate-dialog';
 import AIPlanDialog from './ai-plan-dialog';
-import type { ExternalSourceInput, IngestPreview } from '@/types';
 
 interface AIMenuProps {
   onGenerateOutline: (topic: string) => Promise<void>;
-  onOpenBulkResearch: () => void;
   outlineSummary?: string;
   isLoadingAI: boolean;
   disabled?: boolean;
@@ -27,17 +25,15 @@ interface AIMenuProps {
 
 export default function AIMenu({
   onGenerateOutline,
-  onOpenBulkResearch,
   outlineSummary,
   isLoadingAI,
   disabled,
 }: AIMenuProps) {
   const { isPremium } = useAI();
   const contentGenEnabled = useAIFeature('enableAIContentGeneration');
-  const ingestEnabled = useAIFeature('enableIngestExternalSource');
 
   // Check if any AI features are enabled
-  const hasAnyFeature = contentGenEnabled || ingestEnabled;
+  const hasAnyFeature = contentGenEnabled;
 
   if (!hasAnyFeature) {
     return null;
@@ -86,13 +82,6 @@ export default function AIMenu({
               Generate Outline from Topic
             </DropdownMenuItem>
           </AiGenerateDialog>
-        )}
-
-        {ingestEnabled && (
-          <DropdownMenuItem onSelect={onOpenBulkResearch} className="cursor-pointer">
-            <Library className="mr-2 h-4 w-4" />
-            Research Import...
-          </DropdownMenuItem>
         )}
 
         <DropdownMenuSeparator />

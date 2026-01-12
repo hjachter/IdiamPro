@@ -101,7 +101,7 @@ export interface NodeGenerationContext {
 }
 
 // External source types for ingestion
-export type ExternalSourceType = 'youtube' | 'pdf' | 'text' | 'web' | 'image' | 'doc' | 'audio' | 'video';
+export type ExternalSourceType = 'youtube' | 'pdf' | 'text' | 'web' | 'image' | 'doc' | 'audio' | 'video' | 'outline';
 
 export interface ExternalSourceInput {
   type: ExternalSourceType;
