@@ -7,7 +7,7 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Checkbox } from './ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { X, Plus, FileText, Youtube, Type } from 'lucide-react';
+import { X, Plus, FileText, Youtube, Type, Globe, Image as ImageIcon, FileArchive, Music, Video as VideoIcon } from 'lucide-react';
 import type { ExternalSourceInput, BulkResearchSources } from '@/types';
 
 interface BulkResearchDialogProps {
@@ -147,6 +147,11 @@ export default function BulkResearchDialog({
                     {source.type === 'youtube' && <Youtube className="w-4 h-4 text-red-500" />}
                     {source.type === 'pdf' && <FileText className="w-4 h-4 text-blue-500" />}
                     {source.type === 'text' && <Type className="w-4 h-4 text-green-500" />}
+                    {source.type === 'web' && <Globe className="w-4 h-4 text-indigo-500" />}
+                    {source.type === 'image' && <ImageIcon className="w-4 h-4 text-purple-500" />}
+                    {source.type === 'doc' && <FileArchive className="w-4 h-4 text-orange-500" />}
+                    {source.type === 'audio' && <Music className="w-4 h-4 text-pink-500" />}
+                    {source.type === 'video' && <VideoIcon className="w-4 h-4 text-teal-500" />}
                     <span className="text-sm font-medium">Source {idx + 1}</span>
                   </div>
                   <Button
@@ -170,6 +175,11 @@ export default function BulkResearchDialog({
                     <SelectContent>
                       <SelectItem value="youtube">YouTube Video</SelectItem>
                       <SelectItem value="pdf">PDF Document</SelectItem>
+                      <SelectItem value="web">Web Page (URL)</SelectItem>
+                      <SelectItem value="image">Image (OCR)</SelectItem>
+                      <SelectItem value="doc">Document (Word/Excel/PowerPoint)</SelectItem>
+                      <SelectItem value="audio">Audio File</SelectItem>
+                      <SelectItem value="video">Video File</SelectItem>
                       <SelectItem value="text">Text/Notes</SelectItem>
                     </SelectContent>
                   </Select>
@@ -177,6 +187,14 @@ export default function BulkResearchDialog({
                   {source.type === 'youtube' && (
                     <Input
                       placeholder="YouTube URL"
+                      value={source.url || ''}
+                      onChange={(e) => handleUpdateSource(source.id, { url: e.target.value })}
+                    />
+                  )}
+
+                  {source.type === 'web' && (
+                    <Input
+                      placeholder="Web page URL (e.g., https://example.com/article)"
                       value={source.url || ''}
                       onChange={(e) => handleUpdateSource(source.id, { url: e.target.value })}
                     />
@@ -193,6 +211,78 @@ export default function BulkResearchDialog({
                       <Input
                         type="file"
                         accept=".pdf"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleFileUpload(source.id, file);
+                        }}
+                      />
+                      {source.fileName && (
+                        <div className="text-xs text-muted-foreground">
+                          Uploaded: {source.fileName}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {source.type === 'image' && (
+                    <div className="space-y-2">
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleFileUpload(source.id, file);
+                        }}
+                      />
+                      {source.fileName && (
+                        <div className="text-xs text-muted-foreground">
+                          Uploaded: {source.fileName}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {source.type === 'doc' && (
+                    <div className="space-y-2">
+                      <Input
+                        type="file"
+                        accept=".doc,.docx,.xls,.xlsx,.ppt,.pptx"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleFileUpload(source.id, file);
+                        }}
+                      />
+                      {source.fileName && (
+                        <div className="text-xs text-muted-foreground">
+                          Uploaded: {source.fileName}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {source.type === 'audio' && (
+                    <div className="space-y-2">
+                      <Input
+                        type="file"
+                        accept="audio/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleFileUpload(source.id, file);
+                        }}
+                      />
+                      {source.fileName && (
+                        <div className="text-xs text-muted-foreground">
+                          Uploaded: {source.fileName}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {source.type === 'video' && (
+                    <div className="space-y-2">
+                      <Input
+                        type="file"
+                        accept="video/*"
                         onChange={(e) => {
                           const file = e.target.files?.[0];
                           if (file) handleFileUpload(source.id, file);

@@ -6,6 +6,11 @@ import {
   extractPdfFromUrl,
   extractPdfFromFile,
   extractYoutubeTranscript,
+  extractTextFromWebUrl,
+  extractTextFromImage,
+  extractTextFromDocument,
+  transcribeAudio,
+  transcribeVideo,
 } from '@/lib/media-extractors';
 import type {
   NodeGenerationContext,
@@ -196,20 +201,65 @@ async function extractContentFromSource(source: ExternalSourceInput): Promise<{ 
   let extractedContent = '';
   let sourceDescription = '';
 
-  if (source.type === 'text' && source.content) {
-    extractedContent = source.content;
-    sourceDescription = 'Text input';
-  } else if (source.type === 'youtube' && source.url) {
-    extractedContent = await extractYoutubeTranscript(source.url);
-    sourceDescription = `YouTube Video: ${source.url}`;
-  } else if (source.type === 'pdf') {
-    if (source.url) {
-      extractedContent = await extractPdfFromUrl(source.url);
-      sourceDescription = `PDF: ${source.url}`;
-    } else if (source.content) {
-      extractedContent = await extractPdfFromFile(source.content);
-      sourceDescription = `PDF: ${source.fileName || 'Uploaded file'}`;
-    }
+  switch (source.type) {
+    case 'text':
+      if (source.content) {
+        extractedContent = source.content;
+        sourceDescription = 'Text input';
+      }
+      break;
+
+    case 'youtube':
+      if (source.url) {
+        extractedContent = await extractYoutubeTranscript(source.url);
+        sourceDescription = `YouTube Video: ${source.url}`;
+      }
+      break;
+
+    case 'pdf':
+      if (source.url) {
+        extractedContent = await extractPdfFromUrl(source.url);
+        sourceDescription = `PDF: ${source.url}`;
+      } else if (source.content) {
+        extractedContent = await extractPdfFromFile(source.content);
+        sourceDescription = `PDF: ${source.fileName || 'Uploaded file'}`;
+      }
+      break;
+
+    case 'web':
+      if (source.url) {
+        extractedContent = await extractTextFromWebUrl(source.url);
+        sourceDescription = `Web Page: ${source.url}`;
+      }
+      break;
+
+    case 'image':
+      if (source.content) {
+        extractedContent = await extractTextFromImage(source.content);
+        sourceDescription = `Image: ${source.fileName || 'Uploaded image'}`;
+      }
+      break;
+
+    case 'doc':
+      if (source.content && source.fileName) {
+        extractedContent = await extractTextFromDocument(source.content, source.fileName);
+        sourceDescription = `Document: ${source.fileName}`;
+      }
+      break;
+
+    case 'audio':
+      if (source.content) {
+        extractedContent = await transcribeAudio(source.content, source.fileName);
+        sourceDescription = `Audio: ${source.fileName || 'Uploaded audio'}`;
+      }
+      break;
+
+    case 'video':
+      if (source.content) {
+        extractedContent = await transcribeVideo(source.content, source.fileName);
+        sourceDescription = `Video: ${source.fileName || 'Uploaded video'}`;
+      }
+      break;
   }
 
   return { content: extractedContent, description: sourceDescription };

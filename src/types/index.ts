@@ -101,13 +101,14 @@ export interface NodeGenerationContext {
 }
 
 // External source types for ingestion
-export type ExternalSourceType = 'youtube' | 'pdf' | 'text';
+export type ExternalSourceType = 'youtube' | 'pdf' | 'text' | 'web' | 'image' | 'doc' | 'audio' | 'video';
 
 export interface ExternalSourceInput {
   type: ExternalSourceType;
   url?: string;
-  content?: string;  // For direct text input
+  content?: string;  // For direct text input or base64 file data
   fileName?: string;
+  mimeType?: string; // For file uploads to determine processing method
 }
 
 // Preview structure for ingest operations
