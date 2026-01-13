@@ -480,6 +480,47 @@ export default function OutlinePro() {
     });
   }, [currentOutlineId]);
 
+  // handleCreateSiblingNode adds new node as sibling after specified node (for double-click creation)
+  const handleCreateSiblingNode = useCallback((nodeId: string) => {
+    setOutlines(currentOutlines => {
+      let newNodeId: string | null = null;
+
+      const newOutlines = currentOutlines.map(o => {
+        if (o.id === currentOutlineId) {
+          const { newNodes, newNodeId: createdNodeId } = addNodeAfter(
+            o.nodes,
+            nodeId,
+            'document',
+            'New Node',
+            ''
+          );
+          newNodeId = createdNodeId;
+          return { ...o, nodes: newNodes };
+        }
+        return o;
+      });
+
+      // Schedule the selection update after this state update
+      if (newNodeId) {
+        const capturedNewNodeId = newNodeId;
+        // Track this as a just-created node for space-to-edit feature
+        justCreatedNodeIdRef.current = capturedNewNodeId;
+        // Clear the ref after 5 seconds (user has had enough time to press space)
+        setTimeout(() => {
+          if (justCreatedNodeIdRef.current === capturedNewNodeId) {
+            justCreatedNodeIdRef.current = null;
+          }
+        }, 5000);
+        setTimeout(() => {
+          setSelectedNodeId(capturedNewNodeId);
+          // On mobile, stay in outline view - user taps content preview to see content
+        }, 0);
+      }
+
+      return newOutlines;
+    });
+  }, [currentOutlineId]);
+
   const isDescendant = (nodes: NodeMap, childId: string, parentId: string): boolean => {
     let current = nodes[childId];
     while (current && current.parentId) {
@@ -1853,7 +1894,7 @@ export default function OutlinePro() {
                 onSearchOpenChange={setIsSearchOpen}
                 onGenerateContentForChildren={handleGenerateContentForChildren}
                 onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
-                onCreateChildNode={handleCreateChildNode}
+                onCreateChildNode={handleCreateSiblingNode}
                 justCreatedNodeId={justCreatedNodeIdRef.current}
                 editingNodeId={editingNodeId}
                 onEditingComplete={() => setEditingNodeId(null)}
@@ -2087,7 +2128,7 @@ export default function OutlinePro() {
                 onSearchOpenChange={setIsSearchOpen}
                 onGenerateContentForChildren={handleGenerateContentForChildren}
                 onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
-                onCreateChildNode={handleCreateChildNode}
+                onCreateChildNode={handleCreateSiblingNode}
                 justCreatedNodeId={justCreatedNodeIdRef.current}
                 editingNodeId={editingNodeId}
                 onEditingComplete={() => setEditingNodeId(null)}
