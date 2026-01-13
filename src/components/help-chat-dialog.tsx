@@ -1,0 +1,247 @@
+'use client';
+
+import React, { useState, useRef, useEffect } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { ScrollArea } from './ui/scroll-area';
+import { CircleHelp, Send, Sparkles, User, Loader2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+interface Message {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: number;
+}
+
+interface HelpChatDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+// App context for AI to understand what IdiamPro does
+const APP_CONTEXT = `You are a helpful assistant for IdiamPro, a professional outlining application with AI-powered features.
+
+KEY FEATURES:
+- Hierarchical outlining with drag & drop, indent/outdent
+- AI-powered outline generation from topics
+- Research & Import: Merge multiple sources (YouTube, PDFs, web pages, images, docs, audio, video, outline files) into unified outlines
+- Rich content editor with markdown support
+- Multi-select for bulk operations (delete, change color, add tags)
+- Tags and color-coding for organization
+- Cross-platform: Web, macOS Desktop (Electron), iOS (Capacitor)
+- File storage: iCloud Drive, Dropbox, Google Drive, local folders
+
+KEYBOARD SHORTCUTS:
+- Cmd+N: New outline
+- Enter/Return: Edit selected node name
+- Tab: Indent node
+- Shift+Tab: Outdent node
+- Cmd+K: Command palette
+- Cmd+/: Toggle collapse
+- Cmd+D: Duplicate node
+- Cmd+Backspace: Delete node
+- Double-click: Create sibling node
+- Cmd+Click: Multi-select nodes
+
+GESTURES (iOS):
+- Tap: Select node
+- Tap again (on selected): Edit name
+- Double-tap: Create sibling node
+- Swipe right: Indent
+- Swipe left: Outdent
+- Long-press: Context menu
+
+AI FEATURES:
+- Generate outline from topic (Free tier: 10/month, Premium: 100/month)
+- Expand node content with AI (Free: 50/month, Premium: 500/month)
+- Research & Import synthesis (Free: 3 sources, Premium: 50+ sources)
+
+Answer user questions clearly and concisely. If they ask how to do something, provide step-by-step instructions.`;
+
+export default function HelpChatDialog({ open, onOpenChange }: HelpChatDialogProps) {
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: '1',
+      role: 'assistant',
+      content: 'Hi! I\'m here to help you with IdiamPro. Ask me anything about features, keyboard shortcuts, or how to use the app!',
+      timestamp: Date.now(),
+    },
+  ]);
+  const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  // Focus input when dialog opens
+  useEffect(() => {
+    if (open && inputRef.current) {
+      setTimeout(() => inputRef.current?.focus(), 100);
+    }
+  }, [open]);
+
+  const handleSend = async () => {
+    if (!input.trim() || isLoading) return;
+
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      role: 'user',
+      content: input.trim(),
+      timestamp: Date.now(),
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    setInput('');
+    setIsLoading(true);
+
+    try {
+      // Call help chat action
+      const response = await fetch('/api/help-chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: [...messages, userMessage].map(m => ({
+            role: m.role,
+            content: m.content,
+          })),
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to get response');
+      }
+
+      const data = await response.json();
+
+      const assistantMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: data.response,
+        timestamp: Date.now(),
+      };
+
+      setMessages(prev => [...prev, assistantMessage]);
+    } catch (error) {
+      console.error('Help chat error:', error);
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: 'Sorry, I encountered an error. Please try again or contact support.',
+        timestamp: Date.now(),
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl h-[600px] flex flex-col p-0">
+        <DialogHeader className="px-6 pt-6 pb-4 border-b">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-red-500/10 rounded-lg">
+              <CircleHelp className="h-6 w-6 text-red-500" />
+            </div>
+            <div>
+              <DialogTitle>IdiamPro Help</DialogTitle>
+              <DialogDescription>
+                Ask me anything about features, shortcuts, or how to use the app
+              </DialogDescription>
+            </div>
+          </div>
+        </DialogHeader>
+
+        {/* Chat Messages */}
+        <ScrollArea className="flex-1 px-6 py-4" ref={scrollRef}>
+          <div className="space-y-4">
+            {messages.map((message) => (
+              <div
+                key={message.id}
+                className={cn(
+                  'flex gap-3',
+                  message.role === 'user' ? 'justify-end' : 'justify-start'
+                )}
+              >
+                {message.role === 'assistant' && (
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-violet-500/10 flex items-center justify-center">
+                    <Sparkles className="h-4 w-4 text-violet-500" />
+                  </div>
+                )}
+                <div
+                  className={cn(
+                    'max-w-[80%] rounded-lg px-4 py-2',
+                    message.role === 'user'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-muted'
+                  )}
+                >
+                  <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                </div>
+                {message.role === 'user' && (
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                    <User className="h-4 w-4 text-primary" />
+                  </div>
+                )}
+              </div>
+            ))}
+            {isLoading && (
+              <div className="flex gap-3 justify-start">
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-violet-500/10 flex items-center justify-center">
+                  <Loader2 className="h-4 w-4 text-violet-500 animate-spin" />
+                </div>
+                <div className="bg-muted rounded-lg px-4 py-2">
+                  <p className="text-sm text-muted-foreground">Thinking...</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </ScrollArea>
+
+        {/* Input Area */}
+        <div className="px-6 py-4 border-t">
+          <div className="flex gap-2">
+            <Input
+              ref={inputRef}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Ask about features, shortcuts, or how to..."
+              disabled={isLoading}
+              className="flex-1"
+            />
+            <Button
+              onClick={handleSend}
+              disabled={!input.trim() || isLoading}
+              size="icon"
+            >
+              {isLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Send className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground mt-2">
+            Press Enter to send, Shift+Enter for new line
+          </p>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}

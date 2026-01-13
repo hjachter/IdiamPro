@@ -8,7 +8,7 @@ import OutlineSearch, { type SearchMatch } from './outline-search';
 import { MultiSelectToolbar } from './multi-select-toolbar';
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { ChevronDown, FilePlus, Plus, Trash2, Edit, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, Settings, Search, Command } from 'lucide-react';
+import { ChevronDown, FilePlus, Plus, Trash2, Edit, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, Settings, Search, Command, CircleHelp } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Input } from './ui/input';
@@ -116,6 +116,8 @@ interface OutlinePaneProps {
   onGenerateContentForChildren?: (nodeId: string) => void;
   // Command palette
   onOpenCommandPalette?: () => void;
+  // Help chat
+  onOpenHelp?: () => void;
   // Double-click child node creation
   onCreateChildNode?: (parentId: string) => void;
   // Edit mode control
@@ -168,6 +170,7 @@ export default function OutlinePane({
   onSearchOpenChange,
   onGenerateContentForChildren,
   onOpenCommandPalette,
+  onOpenHelp,
   onCreateChildNode,
   justCreatedNodeId,
   editingNodeId,
@@ -770,6 +773,20 @@ export default function OutlinePane({
               <Settings className="h-4 w-4" />
             </Button>
           </SettingsDialog>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={onOpenHelp}
+                className="hover:bg-red-500/20 border-red-500/30"
+              >
+                <CircleHelp className="h-4 w-4 text-red-500" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Help & Support</TooltipContent>
+          </Tooltip>
         </div>
       </TooltipProvider>
 

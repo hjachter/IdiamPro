@@ -19,6 +19,7 @@ import CommandPalette from './command-palette';
 import EmptyState from './empty-state';
 import KeyboardShortcutsDialog, { useKeyboardShortcuts } from './keyboard-shortcuts-dialog';
 import BulkResearchDialog from './bulk-research-dialog';
+import HelpChatDialog from './help-chat-dialog';
 import { exportOutlineToJson } from '@/lib/export';
 import type { BulkResearchSources } from '@/types';
 
@@ -83,6 +84,9 @@ export default function OutlinePro() {
 
   // Bulk research dialog state
   const [isBulkResearchOpen, setIsBulkResearchOpen] = useState(false);
+
+  // Help chat dialog state
+  const [isHelpChatOpen, setIsHelpChatOpen] = useState(false);
 
   // Multi-select state
   const [selectedNodeIds, setSelectedNodeIds] = useState<Set<string>>(new Set());
@@ -1794,6 +1798,11 @@ export default function OutlinePro() {
           currentOutlineName={currentOutline?.name}
         />
 
+        <HelpChatDialog
+          open={isHelpChatOpen}
+          onOpenChange={setIsHelpChatOpen}
+        />
+
         <AlertDialog open={prefixDialogState.open} onOpenChange={(open) => setPrefixDialogState(s => ({ ...s, open }))}>
           <AlertDialogContent>
             <AlertDialogHeader>
@@ -1894,6 +1903,7 @@ export default function OutlinePro() {
                 onSearchOpenChange={setIsSearchOpen}
                 onGenerateContentForChildren={handleGenerateContentForChildren}
                 onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
+                onOpenHelp={() => setIsHelpChatOpen(true)}
                 onCreateChildNode={handleCreateSiblingNode}
                 justCreatedNodeId={justCreatedNodeIdRef.current}
                 editingNodeId={editingNodeId}
@@ -2128,6 +2138,7 @@ export default function OutlinePro() {
                 onSearchOpenChange={setIsSearchOpen}
                 onGenerateContentForChildren={handleGenerateContentForChildren}
                 onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
+                onOpenHelp={() => setIsHelpChatOpen(true)}
                 onCreateChildNode={handleCreateSiblingNode}
                 justCreatedNodeId={justCreatedNodeIdRef.current}
                 editingNodeId={editingNodeId}
