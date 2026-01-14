@@ -2018,6 +2018,11 @@ export default function OutlinePro() {
         currentOutlineName={currentOutline?.name}
       />
 
+      <HelpChatDialog
+        open={isHelpChatOpen}
+        onOpenChange={setIsHelpChatOpen}
+      />
+
       <AlertDialog open={prefixDialogState.open} onOpenChange={(open) => setPrefixDialogState(s => ({ ...s, open }))}>
         <AlertDialogContent>
           <AlertDialogHeader>
