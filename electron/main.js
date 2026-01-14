@@ -1,6 +1,80 @@
 const { app, BrowserWindow, Menu, dialog, ipcMain } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const { spawn } = require('child_process');
+const net = require('net');
+
+// Track dev server process
+let devServerProcess = null;
+
+// Check if a port is in use
+function isPortInUse(port) {
+  return new Promise((resolve) => {
+    const server = net.createServer();
+    server.once('error', () => resolve(true));
+    server.once('listening', () => {
+      server.close();
+      resolve(false);
+    });
+    server.listen(port);
+  });
+}
+
+// Wait for port to be available
+function waitForPort(port, timeout = 30000) {
+  const startTime = Date.now();
+  return new Promise((resolve, reject) => {
+    const check = () => {
+      const socket = new net.Socket();
+      socket.setTimeout(1000);
+      socket.once('connect', () => {
+        socket.destroy();
+        resolve(true);
+      });
+      socket.once('error', () => {
+        socket.destroy();
+        if (Date.now() - startTime > timeout) {
+          reject(new Error('Timeout waiting for dev server'));
+        } else {
+          setTimeout(check, 500);
+        }
+      });
+      socket.once('timeout', () => {
+        socket.destroy();
+        setTimeout(check, 500);
+      });
+      socket.connect(port, 'localhost');
+    };
+    check();
+  });
+}
+
+// Start the dev server
+async function startDevServer() {
+  const projectPath = path.join(__dirname, '..');
+  console.log('Starting dev server from:', projectPath);
+
+  devServerProcess = spawn('npm', ['run', 'dev'], {
+    cwd: projectPath,
+    shell: true,
+    stdio: 'inherit',
+    env: { ...process.env, FORCE_COLOR: '1' }
+  });
+
+  devServerProcess.on('error', (err) => {
+    console.error('Failed to start dev server:', err);
+  });
+
+  devServerProcess.on('exit', (code) => {
+    console.log('Dev server exited with code:', code);
+    devServerProcess = null;
+  });
+
+  // Wait for server to be ready
+  console.log('Waiting for dev server to be ready on port 9002...');
+  await waitForPort(9002);
+  console.log('Dev server is ready!');
+}
 
 // Set app name based on environment
 if (process.env.NODE_ENV === 'development') {
@@ -54,7 +128,18 @@ function getOutlineFileName(outline) {
 
 let mainWindow;
 
-function createWindow() {
+async function createWindow() {
+  // In development mode, check if dev server is running and start it if not
+  if (process.env.NODE_ENV === 'development') {
+    const portInUse = await isPortInUse(9002);
+    if (!portInUse) {
+      console.log('Dev server not running, starting it...');
+      await startDevServer();
+    } else {
+      console.log('Dev server already running on port 9002');
+    }
+  }
+
   mainWindow = new BrowserWindow({
     width: 1400,
     height: 900,
@@ -371,5 +456,14 @@ app.on('activate', () => {
   // On macOS, re-create window when dock icon is clicked
   if (mainWindow === null) {
     createWindow();
+  }
+});
+
+// Clean up dev server when app quits
+app.on('before-quit', () => {
+  if (devServerProcess) {
+    console.log('Stopping dev server...');
+    devServerProcess.kill();
+    devServerProcess = null;
   }
 });
