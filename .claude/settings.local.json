@@ -62,7 +62,8 @@
       "Bash(find:*)",
       "Bash(node:*)",
       "Bash(kill:*)",
-      "Bash(CSC_IDENTITY_AUTO_DISCOVERY=false npm run electron:build:mac:*)"
+      "Bash(CSC_IDENTITY_AUTO_DISCOVERY=false npm run electron:build:mac:*)",
+      "Bash(npx tsc:*)"
     ]
   }
 }

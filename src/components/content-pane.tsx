@@ -7,13 +7,20 @@ import type { OutlineNode, NodeGenerationContext } from '@/types';
 
 /**
  * Detect if text appears to be tabular/aligned data that would benefit from monospace formatting.
- * Checks for: markdown tables, multiple consecutive spaces, tab-separated values, ASCII art tables.
+ * Checks for: markdown tables, multiple consecutive spaces, tab-separated values, ASCII art tables,
+ * and Unicode box-drawing tables (from terminal output).
  */
 function isTabularData(text: string): boolean {
   const lines = text.split('\n').filter(line => line.trim().length > 0);
 
   // Need at least 2 lines to be considered tabular
   if (lines.length < 2) return false;
+
+  // Check for Unicode box-drawing characters (terminal-rendered tables)
+  // Characters: ┌ ┬ ┐ ├ ┼ ┤ └ ┴ ┘ │ ─ ═ ║ ╔ ╗ ╚ ╝ ╠ ╣ ╦ ╩ ╬
+  const boxDrawingPattern = /[┌┬┐├┼┤└┴┘│─═║╔╗╚╝╠╣╦╩╬]/;
+  const linesWithBoxDrawing = lines.filter(line => boxDrawingPattern.test(line));
+  if (linesWithBoxDrawing.length >= 2) return true;
 
   // Check for markdown table (pipes with consistent structure)
   const markdownTablePattern = /^\|.*\|$/;

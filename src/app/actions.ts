@@ -12,6 +12,10 @@ import {
   transcribeAudio,
   transcribeVideo,
 } from '@/lib/media-extractors';
+import {
+  transcribeWithDiarization,
+  formatTranscriptForSource,
+} from '@/lib/transcription-service';
 import type {
   NodeGenerationContext,
   ExternalSourceInput,
@@ -19,6 +23,8 @@ import type {
   BulkResearchSources,
   BulkResearchResult,
   Outline,
+  DiarizedTranscript,
+  TranscriptionOptions,
 } from '@/types';
 import { parseMarkdownToNodes } from '@/lib/outline-utils';
 import { v4 as uuidv4 } from 'uuid';
@@ -261,6 +267,14 @@ async function extractContentFromSource(source: ExternalSourceInput): Promise<{ 
       }
       break;
 
+    case 'recording':
+      // Recording source - content is already the formatted transcript with speaker labels
+      if (source.content) {
+        extractedContent = source.content;
+        sourceDescription = `Meeting Recording: ${source.fileName || 'Conversation transcript'}`;
+      }
+      break;
+
     case 'outline':
       if (source.content) {
         try {
@@ -376,5 +390,42 @@ Generate the outline structure:`;
   } catch (error) {
     console.error('Error in bulk research ingest:', error);
     throw new Error('Failed to process bulk research import.');
+  }
+}
+
+/**
+ * Transcribe Recording with Speaker Diarization (PREMIUM Feature)
+ *
+ * Takes recorded audio and returns a transcript with speaker labels
+ * using AssemblyAI for transcription with diarization.
+ */
+export async function transcribeRecordingAction(
+  audioData: string,
+  mimeType: string,
+  options: TranscriptionOptions = {}
+): Promise<{
+  success: boolean;
+  transcript?: DiarizedTranscript;
+  formattedText?: string;
+  error?: string;
+}> {
+  try {
+    // Transcribe with diarization
+    const transcript = await transcribeWithDiarization(audioData, mimeType, options);
+
+    // Format for source integration
+    const formattedText = formatTranscriptForSource(transcript);
+
+    return {
+      success: true,
+      transcript,
+      formattedText,
+    };
+  } catch (error) {
+    console.error('Error in transcription:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Transcription failed',
+    };
   }
 }
