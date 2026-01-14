@@ -8,7 +8,7 @@ import OutlineSearch, { type SearchMatch } from './outline-search';
 import { MultiSelectToolbar } from './multi-select-toolbar';
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { ChevronDown, FilePlus, Plus, Trash2, Edit, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, Settings, Search, Command, CircleHelp } from 'lucide-react';
+import { ChevronDown, FilePlus, Plus, Trash2, Edit, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, Settings, Search, Command } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Input } from './ui/input';
@@ -782,7 +782,7 @@ export default function OutlinePane({
                 onClick={onOpenHelp}
                 className="hover:bg-red-500/20 border-red-500/30"
               >
-                <CircleHelp className="h-4 w-4 text-red-500" />
+                <span className="text-red-500 font-bold text-lg leading-none">?</span>
               </Button>
             </TooltipTrigger>
             <TooltipContent>Help & Support</TooltipContent>
