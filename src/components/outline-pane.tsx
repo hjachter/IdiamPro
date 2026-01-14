@@ -224,6 +224,7 @@ export default function OutlinePane({
 
   // Handle indent (Tab) - move node inside its previous sibling
   const handleIndent = useCallback((nodeId?: string) => {
+    if (currentOutline?.isGuide) return; // Protect guide from modifications
     const targetNodeId = nodeId || selectedNodeId;
     if (!targetNodeId || !currentOutline) return;
     const nodes = currentOutline.nodes;
@@ -238,6 +239,7 @@ export default function OutlinePane({
 
   // Handle outdent (Shift+Tab) - move node to be after its parent
   const handleOutdent = useCallback((nodeId?: string) => {
+    if (currentOutline?.isGuide) return; // Protect guide from modifications
     const targetNodeId = nodeId || selectedNodeId;
     if (!targetNodeId || !currentOutline) return;
     const nodes = currentOutline.nodes;
@@ -654,11 +656,11 @@ export default function OutlinePane({
         <div className="flex-shrink-0 flex items-center justify-center gap-1.5 px-2 py-1.5 bg-[hsl(var(--toolbar-bg))] rounded-xl border border-border/30">
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="outline" size="icon" onClick={() => onCreateNode()} disabled={!selectedNodeId} className="hover:bg-accent/20">
+              <Button variant="outline" size="icon" onClick={() => onCreateNode()} disabled={!selectedNodeId || currentOutline?.isGuide} className="hover:bg-accent/20">
                 <Plus className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Add sibling node</TooltipContent>
+            <TooltipContent>{currentOutline?.isGuide ? 'Cannot modify User Guide' : 'Add sibling node'}</TooltipContent>
           </Tooltip>
 
           <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
@@ -667,9 +669,10 @@ export default function OutlinePane({
                 <Button
                   variant="outline"
                   size="icon"
-                  disabled={!selectedNodeId || isSelectedNodeRoot}
+                  disabled={!selectedNodeId || isSelectedNodeRoot || currentOutline?.isGuide}
                   className="text-destructive hover:bg-destructive/20"
                   onClick={() => {
+                    if (currentOutline?.isGuide) return;
                     const confirmDelete = localStorage.getItem('confirmDelete') !== 'false';
                     if (confirmDelete) {
                       setShowDeleteDialog(true);
@@ -681,7 +684,7 @@ export default function OutlinePane({
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>Delete node</TooltipContent>
+              <TooltipContent>{currentOutline?.isGuide ? 'Cannot modify User Guide' : 'Delete node'}</TooltipContent>
             </Tooltip>
             <AlertDialogContent>
               <AlertDialogHeader>
@@ -814,24 +817,24 @@ export default function OutlinePane({
               level={0}
               selectedNodeId={selectedNodeId}
               onSelectNode={onSelectNode}
-              onMoveNode={onMoveNode}
+              onMoveNode={currentOutline.isGuide ? () => {} : onMoveNode}
               onToggleCollapse={onToggleCollapse}
-              onUpdateNode={onUpdateNode}
-              onCreateNode={onCreateNode}
-              onDeleteNode={onDeleteNode}
+              onUpdateNode={currentOutline.isGuide ? () => {} : onUpdateNode}
+              onCreateNode={currentOutline.isGuide ? () => {} : onCreateNode}
+              onDeleteNode={currentOutline.isGuide ? () => {} : onDeleteNode}
               onCopySubtree={onCopySubtree}
-              onCutSubtree={onCutSubtree}
-              onPasteSubtree={onPasteSubtree}
-              onDuplicateNode={onDuplicateNode}
+              onCutSubtree={currentOutline.isGuide ? () => {} : onCutSubtree}
+              onPasteSubtree={currentOutline.isGuide ? () => {} : onPasteSubtree}
+              onDuplicateNode={currentOutline.isGuide ? () => {} : onDuplicateNode}
               hasClipboard={hasClipboard}
               isRoot={true}
               onIndent={handleIndent}
               onOutdent={handleOutdent}
               searchTerm={searchTerm}
               highlightedNodeIds={currentOutlineHighlights}
-              onGenerateContentForChildren={onGenerateContentForChildren}
-              onCreateChildNode={onCreateChildNode}
-              editingNodeId={editingNodeId}
+              onGenerateContentForChildren={currentOutline.isGuide ? undefined : onGenerateContentForChildren}
+              onCreateChildNode={currentOutline.isGuide ? () => {} : onCreateChildNode}
+              editingNodeId={currentOutline.isGuide ? null : editingNodeId}
               onEditingComplete={onEditingComplete}
               selectedNodeIds={selectedNodeIds}
               onToggleNodeSelection={onToggleNodeSelection}

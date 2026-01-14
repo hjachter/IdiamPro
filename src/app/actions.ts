@@ -351,22 +351,29 @@ TASK:
 1. Analyze ALL sources provided below
 2. Identify key themes, topics, and concepts across ALL sources
 3. Find connections and interrelationships between different sources
-4. Create a unified, hierarchical outline structure that:
+4. Create a unified, hierarchical outline WITH CONTENT that:
    - Organizes information by theme/topic (not by source)
    - Shows relationships between concepts
    - Avoids duplication while preserving unique insights
    - Creates a logical flow for understanding the topic
+   - INCLUDES substantive content for each node from the source material
 ${input.includeExistingContent ? '5. Integrate the existing outline content into the new structure\n' : ''}
 OUTPUT FORMAT:
 - Use markdown list format with proper indentation
-- Each line should be a node name (brief and clear)
+- Format: "- Node Title: Detailed content from the sources relevant to this topic"
+- The content after the colon should include key points, quotes, facts, or discussion from the sources
 - Use indentation to show hierarchy (2 spaces per level)
-- Focus on STRUCTURE - content will be generated later
+- Each node MUST have content - do not leave any node without substantive information
+
+EXAMPLE:
+- Project Goals: The team discussed three main objectives for Q1. First, improving user onboarding by 30%. Second, reducing churn rate. Third, launching the mobile app beta.
+  - User Onboarding: Speaker A emphasized the importance of simplifying the signup flow. Current data shows 40% drop-off at step 3.
+  - Mobile App: The beta launch is scheduled for March. Key features include offline mode and push notifications.
 
 SOURCES TO SYNTHESIZE:
 ${sourcesList}${existingContentSection}
 
-Generate the outline structure:`;
+Generate the outline with content:`;
 
     const result = await generateOutlineFromTopic({ topic: researchPrompt });
 

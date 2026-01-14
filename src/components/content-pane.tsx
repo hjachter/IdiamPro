@@ -202,6 +202,8 @@ interface ContentPaneProps {
   searchTerm?: string;  // Search term for highlighting matches
   currentMatchIndex?: number;  // Which match to scroll to (for multiple matches in same content)
   currentMatchType?: 'name' | 'content' | 'both' | null;  // Type of current match
+  isGuide?: boolean;  // Whether viewing the User Guide (read-only)
+  onCopyOutline?: () => void;  // Callback to copy the current outline
 }
 
 const YouTubeEmbed = ({ url }: { url: string }) => {
@@ -245,7 +247,9 @@ export default function ContentPane({
   isLoadingAI,
   searchTerm,
   currentMatchIndex = 0,
-  currentMatchType = null
+  currentMatchType = null,
+  isGuide = false,
+  onCopyOutline,
 }: ContentPaneProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [conflictDialogOpen, setConflictDialogOpen] = useState(false);
@@ -277,7 +281,7 @@ export default function ContentPane({
 
   const editor = useEditor({
     immediatelyRender: false,
-    editable: shouldUseRichTextEditor,
+    editable: shouldUseRichTextEditor && !isGuide,
     extensions: [
       StarterKit,
       ImageExt,
@@ -296,7 +300,8 @@ export default function ContentPane({
     ],
     content: '',  // Start empty, useEffect will set content
     onUpdate: ({ editor }) => {
-      if (node && shouldUseRichTextEditor) {
+      // Don't save updates when viewing the User Guide (read-only)
+      if (node && shouldUseRichTextEditor && !isGuide) {
         const html = editor.getHTML();
         // Defer update to avoid flushSync during render
         queueMicrotask(() => {
@@ -376,6 +381,13 @@ export default function ContentPane({
       });
     }
   }, [editor, fontSize, shouldUseRichTextEditor]);
+
+  // Update editor editable state when isGuide changes
+  useEffect(() => {
+    if (editor) {
+      editor.setEditable(shouldUseRichTextEditor && !isGuide);
+    }
+  }, [editor, isGuide, shouldUseRichTextEditor]);
 
   // Update search highlighting when searchTerm changes
   useEffect(() => {
@@ -866,6 +878,27 @@ export default function ContentPane({
         onClose={() => setIsDrawingOpen(false)}
         onSave={handleSaveDrawing}
       />
+
+      {/* Read-only banner for User Guide */}
+      {isGuide && (
+        <div className="flex-shrink-0 px-4 py-2 bg-blue-50 dark:bg-blue-950/30 border-b border-blue-200 dark:border-blue-800 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 text-sm text-blue-700 dark:text-blue-300">
+            <span className="text-lg">📖</span>
+            <span>This is the <strong>User Guide</strong> (read-only)</span>
+          </div>
+          {onCopyOutline && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onCopyOutline}
+              className="text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-700 hover:bg-blue-100 dark:hover:bg-blue-900"
+            >
+              <Copy className="w-4 h-4 mr-1" />
+              Copy Outline
+            </Button>
+          )}
+        </div>
+      )}
 
       <header className="flex-shrink-0 p-4 border-b" style={{ paddingTop: 'max(1rem, env(safe-area-inset-top))' }}>
         <div className="flex items-center gap-2 min-w-0">

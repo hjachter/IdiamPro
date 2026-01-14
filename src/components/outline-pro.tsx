@@ -815,6 +815,66 @@ export default function OutlinePro() {
     });
   }, []);
 
+  // Copy the current outline (useful for copying the User Guide)
+  const handleCopyOutline = useCallback(() => {
+    setOutlines(currentOutlines => {
+      const outlineToCopy = currentOutlines.find(o => o.id === currentOutlineId);
+      if (!outlineToCopy) return currentOutlines;
+
+      // Deep copy the outline with new IDs
+      const newOutlineId = uuidv4();
+      const idMap: Record<string, string> = {};
+
+      // Create new IDs for all nodes
+      Object.keys(outlineToCopy.nodes).forEach(oldId => {
+        idMap[oldId] = uuidv4();
+      });
+
+      // Copy nodes with new IDs and updated references
+      const newNodes: NodeMap = {};
+      Object.entries(outlineToCopy.nodes).forEach(([oldId, node]) => {
+        const newId = idMap[oldId];
+        newNodes[newId] = {
+          ...node,
+          id: newId,
+          parentId: node.parentId ? idMap[node.parentId] : null,
+          childrenIds: node.childrenIds.map(cId => idMap[cId]),
+        };
+      });
+
+      const newRootNodeId = idMap[outlineToCopy.rootNodeId];
+      const copyName = outlineToCopy.isGuide
+        ? outlineToCopy.name.replace('User Guide', 'My Guide')
+        : `${outlineToCopy.name} (Copy)`;
+
+      // Update root node name to match
+      if (newNodes[newRootNodeId]) {
+        newNodes[newRootNodeId].name = copyName;
+      }
+
+      const newOutline: Outline = {
+        id: newOutlineId,
+        name: copyName,
+        rootNodeId: newRootNodeId,
+        nodes: newNodes,
+        isGuide: false, // Copy is never a guide
+        lastModified: Date.now(),
+      };
+
+      // Schedule switching to the new outline
+      setTimeout(() => {
+        setCurrentOutlineId(newOutlineId);
+        setSelectedNodeId(newRootNodeId);
+        toast({
+          title: 'Outline Copied',
+          description: `Created "${copyName}" from the original outline.`,
+        });
+      }, 0);
+
+      return [...currentOutlines, newOutline];
+    });
+  }, [currentOutlineId, toast]);
+
   // FIXED: handleGenerateOutline uses functional update pattern
   const handleGenerateOutline = useCallback(async (topic: string) => {
     setIsLoadingAI(true);
@@ -1963,6 +2023,8 @@ export default function OutlinePro() {
             searchTerm={searchTerm}
             currentMatchIndex={currentMatchIndex}
             currentMatchType={currentMatchType}
+            isGuide={currentOutline?.isGuide ?? false}
+            onCopyOutline={handleCopyOutline}
           />
         )}
       </div>
@@ -2104,6 +2166,8 @@ export default function OutlinePro() {
             searchTerm={searchTerm}
             currentMatchIndex={currentMatchIndex}
             currentMatchType={currentMatchType}
+            isGuide={currentOutline?.isGuide ?? false}
+            onCopyOutline={handleCopyOutline}
           />
         </div>
       ) : (
@@ -2173,6 +2237,8 @@ export default function OutlinePro() {
                 searchTerm={searchTerm}
                 currentMatchIndex={currentMatchIndex}
                 currentMatchType={currentMatchType}
+                isGuide={currentOutline?.isGuide ?? false}
+                onCopyOutline={handleCopyOutline}
               />
             </div>
           </ResizablePanel>

@@ -1,5 +1,3 @@
-'use client';
-
 import { v4 as uuidv4 } from 'uuid';
 import type { OutlineNode, NodeMap, NodeType } from '@/types';
 
@@ -324,7 +322,20 @@ export function parseMarkdownToNodes(markdown: string, topic: string): { rootNod
   lines.forEach(line => {
     const indentation = line.search(/\S|$/);
     const level = Math.floor(indentation / 2);
-    const name = line.trim().substring(2);
+    const rawText = line.trim().substring(2); // Remove "- " prefix
+
+    // Parse "Name: Content" format, or just "Name" if no colon
+    let name: string;
+    let content: string;
+    const colonIndex = rawText.indexOf(':');
+    if (colonIndex > 0 && colonIndex < 80) {
+      // Only treat as name:content if colon is within first 80 chars (likely a title)
+      name = rawText.substring(0, colonIndex).trim();
+      content = rawText.substring(colonIndex + 1).trim();
+    } else {
+      name = rawText;
+      content = '';
+    }
 
     while (level < parentStack.length - 1) {
       parentStack.pop();
@@ -345,7 +356,7 @@ export function parseMarkdownToNodes(markdown: string, topic: string): { rootNod
     const newNode: OutlineNode = {
       id: newNodeId,
       name,
-      content: '',
+      content,
       type: 'document',
       parentId: parentId,
       childrenIds: [],
