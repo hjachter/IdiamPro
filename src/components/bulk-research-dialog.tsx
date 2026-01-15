@@ -352,78 +352,102 @@ export default function BulkResearchDialog({
         </DialogHeader>
 
         <div className="space-y-4 py-4">
-          {/* Outline Name */}
-          <div className="space-y-2">
-            <Label htmlFor="outline-name">Outline Name (optional)</Label>
-            <Input
-              id="outline-name"
-              placeholder="Research Synthesis"
-              value={outlineName}
-              onChange={(e) => setOutlineName(e.target.value)}
-            />
-          </div>
-
-          {/* Include Existing Content */}
+          {/* Merge destination - default is current outline */}
           {currentOutlineName && (
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="include-existing"
-                checked={includeExisting}
-                onCheckedChange={(checked) => setIncludeExisting(checked === true)}
+            <div className="p-3 bg-muted/50 rounded-md space-y-3">
+              <div className="text-sm">
+                Merging into: <span className="font-medium">&quot;{currentOutlineName}&quot;</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="create-new"
+                  checked={!includeExisting}
+                  onCheckedChange={(checked) => setIncludeExisting(checked !== true)}
+                />
+                <Label htmlFor="create-new" className="text-sm font-normal cursor-pointer">
+                  Create new outline instead
+                </Label>
+              </div>
+              {/* Only show outline name when creating new */}
+              {!includeExisting && (
+                <div className="space-y-2 pt-2">
+                  <Label htmlFor="outline-name" className="text-xs text-muted-foreground">New Outline Name</Label>
+                  <Input
+                    id="outline-name"
+                    placeholder="Will auto-generate from source title"
+                    value={outlineName}
+                    onChange={(e) => setOutlineName(e.target.value)}
+                  />
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* No current outline - always creating new */}
+          {!currentOutlineName && (
+            <div className="space-y-2">
+              <Label htmlFor="outline-name">Outline Name (optional)</Label>
+              <Input
+                id="outline-name"
+                placeholder="Will auto-generate from source title"
+                value={outlineName}
+                onChange={(e) => setOutlineName(e.target.value)}
               />
-              <Label htmlFor="include-existing" className="text-sm font-normal cursor-pointer">
-                Include existing content from &quot;{currentOutlineName}&quot;
-              </Label>
             </div>
           )}
 
           {/* Sources List */}
           <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <Label>Sources ({sources.filter(isSourceValid).length} ready)</Label>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handleAddSource}
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Add Source
-              </Button>
-            </div>
-
-            {sources.length === 0 && (
-              <div className="text-sm text-muted-foreground text-center py-8 border border-dashed rounded-md">
-                No sources added yet. Click &quot;Add Source&quot; to begin.
+            {/* Only show header with Add Source button when we have at least one configured source */}
+            {sources.some(s => s.type) && (
+              <div className="flex items-center justify-between">
+                <Label>Sources ({sources.filter(isSourceValid).length} ready)</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleAddSource}
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Another
+                </Button>
               </div>
             )}
 
-            {sources.map((source, idx) => (
+            {sources.map((source, idx) => {
+              // Check if this is the initial empty source (first source, no type)
+              const isInitialSource = idx === 0 && !source.type && sources.length === 1;
+
+              return (
               <div key={source.id} className="border rounded-md p-4 space-y-3">
-                {/* Header with source number and remove button */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    {getSourceIcon(source.type as keyof typeof SOURCE_TYPES)}
-                    <span className="text-sm font-medium">
-                      {source.sourceName || `Source ${idx + 1}`}
-                    </span>
-                    {isSourceValid(source) && (
-                      <span className="text-xs text-green-600 dark:text-green-400">✓ Ready</span>
-                    )}
+                {/* Header - simplified for initial source, full for configured sources */}
+                {!isInitialSource && (
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      {getSourceIcon(source.type as keyof typeof SOURCE_TYPES)}
+                      <span className="text-sm font-medium">
+                        {source.sourceName || `Source ${idx + 1}`}
+                      </span>
+                      {isSourceValid(source) && (
+                        <span className="text-xs text-green-600 dark:text-green-400">✓ Ready</span>
+                      )}
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleRemoveSource(source.id)}
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
                   </div>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleRemoveSource(source.id)}
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                </div>
+                )}
 
                 {/* Source Type Selection */}
                 <div className="space-y-2">
-                  <Label className="text-xs text-muted-foreground">Source Type</Label>
+                  <Label className="text-xs text-muted-foreground">
+                    {isInitialSource ? 'What would you like to import?' : 'Source Type'}
+                  </Label>
                   <Select
                     value={source.type || ''}
                     onValueChange={(type) => {
@@ -886,7 +910,8 @@ export default function BulkResearchDialog({
                   </div>
                 )}
               </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 

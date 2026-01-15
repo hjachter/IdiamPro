@@ -63,7 +63,10 @@
       "Bash(node:*)",
       "Bash(kill:*)",
       "Bash(CSC_IDENTITY_AUTO_DISCOVERY=false npm run electron:build:mac:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(npm view:*)",
+      "WebFetch(domain:www.npmjs.com)",
+      "WebFetch(domain:github.com)"
     ]
   }
 }

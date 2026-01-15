@@ -1,6 +1,6 @@
 'use server';
 
-import { YoutubeTranscript } from 'youtube-transcript';
+import { YoutubeTranscript } from 'youtube-transcript-plus';
 import { ai } from '@/ai/genkit';
 
 // @ts-ignore - pdf-parse doesn't have proper ESM types
@@ -68,18 +68,34 @@ export async function extractPdfFromFile(data: string | ArrayBuffer): Promise<st
 }
 
 /**
- * Extract transcript from a YouTube video URL
+ * Result from YouTube extraction including transcript and metadata
  */
-export async function extractYoutubeTranscript(url: string): Promise<string> {
+export interface YouTubeExtractionResult {
+  transcript: string;
+  title: string;
+  videoId: string;
+}
+
+/**
+ * Extract transcript and metadata from a YouTube video URL
+ */
+export async function extractYoutubeTranscript(url: string): Promise<YouTubeExtractionResult> {
   try {
     // Extract video ID from URL
     const videoId = extractYoutubeVideoId(url);
+    console.log(`YouTube extraction: URL="${url}", extracted videoId="${videoId}"`);
     if (!videoId) {
       throw new Error('Invalid YouTube URL. Could not extract video ID.');
     }
 
     // Fetch the transcript
+    console.log(`Fetching transcript for video ID: ${videoId}`);
     const transcriptItems = await YoutubeTranscript.fetchTranscript(videoId);
+    console.log(`Got ${transcriptItems?.length || 0} transcript items`);
+
+    if (!transcriptItems || transcriptItems.length === 0) {
+      throw new Error('No transcript available for this video. The video may not have captions enabled, or captions may be disabled by the creator.');
+    }
 
     // Combine transcript items into a single text
     const fullTranscript = transcriptItems
@@ -89,7 +105,31 @@ export async function extractYoutubeTranscript(url: string): Promise<string> {
       .replace(/\s+/g, ' ') // Normalize whitespace
       .trim();
 
-    return fullTranscript;
+    if (!fullTranscript) {
+      throw new Error('Transcript was empty after processing.');
+    }
+
+    // Fetch video title from YouTube oEmbed API (no API key required)
+    let title = `YouTube Video ${videoId}`;
+    try {
+      const oembedUrl = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`;
+      const response = await fetch(oembedUrl);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.title) {
+          title = data.title;
+          console.log(`Got YouTube title: "${title}"`);
+        }
+      }
+    } catch (titleError) {
+      console.warn('Could not fetch YouTube title:', titleError);
+    }
+
+    return {
+      transcript: fullTranscript,
+      title,
+      videoId,
+    };
   } catch (error) {
     console.error('Error extracting YouTube transcript:', error);
     throw new Error(`Failed to extract YouTube transcript: ${error instanceof Error ? error.message : 'Unknown error'}`);

@@ -28,6 +28,7 @@ import type {
 } from '@/types';
 import { parseMarkdownToNodes } from '@/lib/outline-utils';
 import { v4 as uuidv4 } from 'uuid';
+import { ai } from '@/ai/genkit';
 
 // Plan-aware configuration (server-side)
 // function getPlanConfig(plan: SubscriptionPlan) {
@@ -201,11 +202,31 @@ function parseMarkdownToPreviewNodes(markdown: string): IngestPreview['nodesToAd
 }
 
 /**
- * Helper: Extract content from a single source
+ * Helper: Generate a concise title from content using AI
  */
-async function extractContentFromSource(source: ExternalSourceInput): Promise<{ content: string; description: string }> {
+async function generateTitleFromContent(content: string): Promise<string> {
+  try {
+    const { text } = await ai.generate({
+      model: 'googleai/gemini-2.0-flash',
+      prompt: `Generate a concise, descriptive title (5-10 words max) for the following content. Return ONLY the title, no quotes or explanation:
+
+${content.substring(0, 3000)}`,
+    });
+    return text.trim().replace(/^["']|["']$/g, ''); // Remove any quotes
+  } catch (error) {
+    console.warn('Failed to generate title:', error);
+    return 'Imported Content';
+  }
+}
+
+/**
+ * Helper: Extract content from a single source
+ * Returns content, description, and optional title for naming
+ */
+async function extractContentFromSource(source: ExternalSourceInput): Promise<{ content: string; description: string; title?: string }> {
   let extractedContent = '';
   let sourceDescription = '';
+  let sourceTitle: string | undefined;
 
   switch (source.type) {
     case 'text':
@@ -217,8 +238,10 @@ async function extractContentFromSource(source: ExternalSourceInput): Promise<{ 
 
     case 'youtube':
       if (source.url) {
-        extractedContent = await extractYoutubeTranscript(source.url);
-        sourceDescription = `YouTube Video: ${source.url}`;
+        const ytResult = await extractYoutubeTranscript(source.url);
+        extractedContent = ytResult.transcript;
+        sourceTitle = ytResult.title;
+        sourceDescription = `YouTube Video: ${ytResult.title}`;
       }
       break;
 
@@ -303,7 +326,7 @@ async function extractContentFromSource(source: ExternalSourceInput): Promise<{ 
       break;
   }
 
-  return { content: extractedContent, description: sourceDescription };
+  return { content: extractedContent, description: sourceDescription, title: sourceTitle };
 }
 
 /**
@@ -318,22 +341,44 @@ export async function bulkResearchIngestAction(
 ): Promise<BulkResearchResult> {
   try {
     // Extract content from all sources
-    const extractedSources: Array<{ content: string; description: string }> = [];
+    const extractedSources: Array<{ content: string; description: string; title?: string }> = [];
 
     for (const source of input.sources) {
       try {
+        console.log(`Extracting from source type: ${source.type}, url: ${source.url || 'N/A'}`);
         const extracted = await extractContentFromSource(source);
         if (extracted.content) {
+          console.log(`Successfully extracted ${extracted.content.length} chars from ${source.type}`);
           extractedSources.push(extracted);
+        } else {
+          console.log(`No content extracted from source type: ${source.type}`);
         }
       } catch (error) {
-        console.error(`Failed to extract from source:`, error);
+        console.error(`Failed to extract from source type ${source.type}:`, error instanceof Error ? error.message : error);
         // Continue with other sources even if one fails
       }
     }
 
     if (extractedSources.length === 0) {
       throw new Error('No content could be extracted from any of the provided sources.');
+    }
+
+    // Determine default outline name from first source's title, or generate one via AI
+    let defaultOutlineName: string;
+    if (input.includeExistingContent) {
+      // When merging, use date-based name as we're adding to existing
+      defaultOutlineName = `Research Synthesis ${new Date().toLocaleDateString()}`;
+    } else {
+      // For new outlines, use first source's title or generate one
+      const firstSourceTitle = extractedSources[0]?.title;
+      if (firstSourceTitle) {
+        defaultOutlineName = firstSourceTitle;
+      } else {
+        // Generate title from first source content using AI
+        console.log('Generating AI title from first source content...');
+        defaultOutlineName = await generateTitleFromContent(extractedSources[0].content);
+        console.log(`Generated title: "${defaultOutlineName}"`);
+      }
     }
 
     // Build comprehensive research prompt
@@ -356,19 +401,20 @@ TASK:
    - Shows relationships between concepts
    - Avoids duplication while preserving unique insights
    - Creates a logical flow for understanding the topic
-   - INCLUDES substantive content for each node from the source material
+   - INCLUDES substantive content for EVERY node from the source material
 ${input.includeExistingContent ? '5. Integrate the existing outline content into the new structure\n' : ''}
 OUTPUT FORMAT:
 - Use markdown list format with proper indentation
 - Format: "- Node Title: Detailed content from the sources relevant to this topic"
 - The content after the colon should include key points, quotes, facts, or discussion from the sources
 - Use indentation to show hierarchy (2 spaces per level)
-- Each node MUST have content - do not leave any node without substantive information
+- CRITICAL: Every node MUST have substantive content, INCLUDING parent/chapter nodes
+- Parent nodes should INTRODUCE and SUMMARIZE what their child nodes cover - they are not just headers!
 
 EXAMPLE:
-- Project Goals: The team discussed three main objectives for Q1. First, improving user onboarding by 30%. Second, reducing churn rate. Third, launching the mobile app beta.
-  - User Onboarding: Speaker A emphasized the importance of simplifying the signup flow. Current data shows 40% drop-off at step 3.
-  - Mobile App: The beta launch is scheduled for March. Key features include offline mode and push notifications.
+- Project Goals: The team outlined three strategic priorities for Q1, focusing on growth and product expansion. These goals represent a shift toward user retention and mobile-first strategy.
+  - User Onboarding: Speaker A emphasized the importance of simplifying the signup flow. Current data shows 40% drop-off at step 3. The target is a 30% improvement.
+  - Mobile App: The beta launch is scheduled for March. Key features include offline mode and push notifications. This addresses the #1 user request from surveys.
 
 SOURCES TO SYNTHESIZE:
 ${sourcesList}${existingContentSection}
@@ -377,9 +423,57 @@ Generate the outline with content:`;
 
     const result = await generateOutlineFromTopic({ topic: researchPrompt });
 
-    // Parse into full outline
-    const outlineName = input.outlineName || `Research Synthesis ${new Date().toLocaleDateString()}`;
+    // Parse into full outline - use provided name, first source title, or date-based default
+    const outlineName = input.outlineName || defaultOutlineName;
     const { rootNodeId, nodes } = parseMarkdownToNodes(result.outline, outlineName);
+
+    // For NEW outlines (not merging), generate a summary for the root node
+    if (!input.includeExistingContent) {
+      // Collect all child node content for summarization
+      const childContent = Object.values(nodes)
+        .filter(n => n.id !== rootNodeId && n.content)
+        .map(n => `${n.name}: ${n.content}`)
+        .join('\n');
+
+      if (childContent) {
+        console.log('Generating root node summary...');
+        // Retry with exponential backoff for rate limits
+        for (let attempt = 0; attempt < 3; attempt++) {
+          try {
+            if (attempt > 0) {
+              const delay = Math.pow(2, attempt) * 1000; // 2s, 4s
+              console.log(`Retry attempt ${attempt + 1}, waiting ${delay}ms...`);
+              await new Promise(resolve => setTimeout(resolve, delay));
+            }
+            const { text: rootSummary } = await ai.generate({
+              model: 'googleai/gemini-2.0-flash',
+              prompt: `Write a brief, non-technical introduction (2-4 sentences) that summarizes the following outline content. This will help readers quickly understand what this document covers. Be conversational and accessible:
+
+${childContent.substring(0, 5000)}`,
+            });
+            nodes[rootNodeId].content = rootSummary.trim();
+            console.log('Root summary generated successfully');
+            break; // Success, exit retry loop
+          } catch (summaryError: any) {
+            const isRateLimit = summaryError?.message?.includes('429') || summaryError?.message?.includes('Resource exhausted');
+            if (isRateLimit && attempt < 2) {
+              console.warn(`Rate limited, will retry (attempt ${attempt + 1}/3)`);
+            } else {
+              console.warn('Failed to generate root summary:', summaryError);
+              // Set a better fallback than the generic template
+              const topicNames = Object.values(nodes)
+                .filter(n => n.parentId === rootNodeId)
+                .map(n => n.name)
+                .slice(0, 5);
+              if (topicNames.length > 0) {
+                nodes[rootNodeId].content = `This outline covers ${topicNames.join(', ')}${topicNames.length < Object.values(nodes).filter(n => n.parentId === rootNodeId).length ? ', and more' : ''}.`;
+              }
+              break;
+            }
+          }
+        }
+      }
+    }
 
     const outline: Outline = {
       id: uuidv4(),
@@ -396,7 +490,8 @@ Generate the outline with content:`;
     };
   } catch (error) {
     console.error('Error in bulk research ingest:', error);
-    throw new Error('Failed to process bulk research import.');
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    throw new Error(`Failed to process bulk research import: ${message}`);
   }
 }
 
