@@ -72,6 +72,13 @@ export default function BulkResearchDialog({
 
   const audioRecorder = useAudioRecorder();
 
+  // Auto-add first source when dialog opens
+  useEffect(() => {
+    if (open && sources.length === 0) {
+      setSources([{ id: crypto.randomUUID(), type: undefined as any }]);
+    }
+  }, [open, sources.length]);
+
   // Cleanup audio URLs on unmount
   useEffect(() => {
     return () => {
