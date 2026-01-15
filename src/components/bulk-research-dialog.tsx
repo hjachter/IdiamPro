@@ -1,16 +1,24 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from './ui/dialog';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Checkbox } from './ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { X, Plus, FileText, Youtube, Type, Globe, Image as ImageIcon, FileArchive, Music, Video as VideoIcon, FolderOpen, Mic, Square, Pause, Play, Loader2, Upload, MessageSquare } from 'lucide-react';
+import { X, Plus, FileText, Youtube, Type, Globe, Image as ImageIcon, FileArchive, Music, Video as VideoIcon, FolderOpen, Mic, Square, Pause, Play, Loader2, Upload, MessageSquare, RotateCcw, Send } from 'lucide-react';
 import type { ExternalSourceInput, BulkResearchSources, DiarizedTranscript } from '@/types';
 import { useAudioRecorder } from '@/lib/use-audio-recorder';
 import { transcribeRecordingAction } from '@/app/actions';
+
+// Type for stored recording data
+interface RecordingData {
+  audioUrl: string;
+  audioData: string; // base64
+  mimeType: string;
+  duration: number;
+}
 
 interface BulkResearchDialogProps {
   open: boolean;
@@ -55,8 +63,23 @@ export default function BulkResearchDialog({
   const [recordingTranscripts, setRecordingTranscripts] = useState<Record<string, DiarizedTranscript>>({});
   // Track which input method is selected for recording sources
   const [recordingInputMode, setRecordingInputMode] = useState<Record<string, 'record' | 'upload' | 'paste'>>({});
+  // Store recorded audio for playback before transcription
+  const [recordedAudio, setRecordedAudio] = useState<Record<string, RecordingData>>({});
+  // Playback state
+  const [playingId, setPlayingId] = useState<string | null>(null);
+  const [playbackTime, setPlaybackTime] = useState<Record<string, number>>({});
+  const audioRefs = useRef<Record<string, HTMLAudioElement | null>>({});
 
   const audioRecorder = useAudioRecorder();
+
+  // Cleanup audio URLs on unmount
+  useEffect(() => {
+    return () => {
+      Object.values(recordedAudio).forEach(data => {
+        URL.revokeObjectURL(data.audioUrl);
+      });
+    };
+  }, [recordedAudio]);
 
   // Add new source (without type - user must choose)
   const handleAddSource = () => {
@@ -104,23 +127,117 @@ export default function BulkResearchDialog({
   // Start recording for a source
   const handleStartRecording = async (id: string) => {
     if (audioRecorder.isRecording) return;
+    // Clear any previous recording for this source
+    if (recordedAudio[id]) {
+      URL.revokeObjectURL(recordedAudio[id].audioUrl);
+      setRecordedAudio(prev => {
+        const updated = { ...prev };
+        delete updated[id];
+        return updated;
+      });
+    }
     setActiveRecordingId(id);
     await audioRecorder.startRecording();
   };
 
-  // Stop recording and transcribe
+  // Stop recording - store audio for playback (don't transcribe yet)
   const handleStopRecording = async (id: string) => {
     const result = await audioRecorder.stopRecording();
     setActiveRecordingId(null);
 
     if (!result) return;
 
-    // Start transcription
+    // Create audio URL for playback
+    const audioUrl = URL.createObjectURL(result.audioBlob);
+
+    // Store recording data for playback
+    setRecordedAudio(prev => ({
+      ...prev,
+      [id]: {
+        audioUrl,
+        audioData: result.audioData,
+        mimeType: result.mimeType,
+        duration: result.duration,
+      }
+    }));
+
+    // Initialize playback time
+    setPlaybackTime(prev => ({ ...prev, [id]: 0 }));
+  };
+
+  // Play/pause audio
+  const handlePlayPause = useCallback((id: string) => {
+    const audio = audioRefs.current[id];
+    if (!audio) return;
+
+    if (playingId === id) {
+      audio.pause();
+      setPlayingId(null);
+    } else {
+      // Pause any currently playing audio
+      if (playingId && audioRefs.current[playingId]) {
+        audioRefs.current[playingId]?.pause();
+      }
+      audio.play();
+      setPlayingId(id);
+    }
+  }, [playingId]);
+
+  // Handle audio time update
+  const handleTimeUpdate = useCallback((id: string) => {
+    const audio = audioRefs.current[id];
+    if (audio) {
+      setPlaybackTime(prev => ({ ...prev, [id]: audio.currentTime }));
+    }
+  }, []);
+
+  // Handle audio ended
+  const handleAudioEnded = useCallback((id: string) => {
+    setPlayingId(null);
+    setPlaybackTime(prev => ({ ...prev, [id]: 0 }));
+    const audio = audioRefs.current[id];
+    if (audio) {
+      audio.currentTime = 0;
+    }
+  }, []);
+
+  // Seek audio
+  const handleSeek = useCallback((id: string, time: number) => {
+    const audio = audioRefs.current[id];
+    if (audio) {
+      audio.currentTime = time;
+      setPlaybackTime(prev => ({ ...prev, [id]: time }));
+    }
+  }, []);
+
+  // Clear recording and start over
+  const handleClearRecording = useCallback((id: string) => {
+    if (recordedAudio[id]) {
+      URL.revokeObjectURL(recordedAudio[id].audioUrl);
+    }
+    setRecordedAudio(prev => {
+      const updated = { ...prev };
+      delete updated[id];
+      return updated;
+    });
+    setPlaybackTime(prev => {
+      const updated = { ...prev };
+      delete updated[id];
+      return updated;
+    });
+    setPlayingId(prev => prev === id ? null : prev);
+  }, [recordedAudio]);
+
+  // Transcribe the recorded audio
+  const handleTranscribeRecording = async (id: string) => {
+    const recording = recordedAudio[id];
+    if (!recording) return;
+
     setIsTranscribing(id);
     try {
       const transcriptionResult = await transcribeRecordingAction(
-        result.audioData,
-        result.mimeType,
+        recording.audioData,
+        recording.mimeType,
         { enableDiarization: true }
       );
 
@@ -129,7 +246,14 @@ export default function BulkResearchDialog({
         setRecordingTranscripts(prev => ({ ...prev, [id]: transcriptionResult.transcript! }));
         handleUpdateSource(id, {
           content: transcriptionResult.formattedText,
-          fileName: `Recording (${formatDuration(result.duration)}, ${transcriptionResult.transcript!.speakers.length} speakers)`,
+          fileName: `Recording (${formatDuration(recording.duration)}, ${transcriptionResult.transcript!.speakers.length} speakers)`,
+        });
+        // Clean up the audio URL since we have the transcript now
+        URL.revokeObjectURL(recording.audioUrl);
+        setRecordedAudio(prev => {
+          const updated = { ...prev };
+          delete updated[id];
+          return updated;
         });
       } else {
         alert(`Transcription failed: ${transcriptionResult.error || 'Unknown error'}`);
@@ -145,7 +269,7 @@ export default function BulkResearchDialog({
   // Format duration as MM:SS
   const formatDuration = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
+    const secs = Math.floor(seconds % 60);
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
@@ -465,8 +589,8 @@ export default function BulkResearchDialog({
                         {/* Live Recording */}
                         {recordingInputMode[source.id] === 'record' && (
                           <div className="space-y-3">
-                            {/* Recording not started */}
-                            {!source.content && !activeRecordingId && isTranscribing !== source.id && (
+                            {/* Recording not started (and no recording saved) */}
+                            {!source.content && !activeRecordingId && isTranscribing !== source.id && !recordedAudio[source.id] && (
                               <div className="flex flex-col items-center py-4 space-y-3">
                                 {audioRecorder.isSupported ? (
                                   <>
@@ -518,6 +642,89 @@ export default function BulkResearchDialog({
                                     <Square className="w-4 h-4 mr-1" /> Stop
                                   </Button>
                                 </div>
+                              </div>
+                            )}
+
+                            {/* Recording complete - playback controls */}
+                            {recordedAudio[source.id] && isTranscribing !== source.id && !source.content && (
+                              <div className="space-y-3 p-3 bg-green-50 dark:bg-green-950/20 rounded-lg">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-sm font-medium text-green-700 dark:text-green-300">
+                                    Recording complete ({formatDuration(recordedAudio[source.id].duration)})
+                                  </span>
+                                </div>
+
+                                {/* Hidden audio element */}
+                                <audio
+                                  ref={(el) => { audioRefs.current[source.id] = el; }}
+                                  src={recordedAudio[source.id].audioUrl}
+                                  onTimeUpdate={() => handleTimeUpdate(source.id)}
+                                  onEnded={() => handleAudioEnded(source.id)}
+                                />
+
+                                {/* Playback controls */}
+                                <div className="flex items-center gap-2">
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="icon"
+                                    className="h-10 w-10"
+                                    onClick={() => handlePlayPause(source.id)}
+                                  >
+                                    {playingId === source.id ? (
+                                      <Pause className="w-5 h-5" />
+                                    ) : (
+                                      <Play className="w-5 h-5" />
+                                    )}
+                                  </Button>
+
+                                  {/* Progress bar */}
+                                  <div className="flex-1 flex items-center gap-2">
+                                    <span className="text-xs font-mono w-10">
+                                      {formatDuration(playbackTime[source.id] || 0)}
+                                    </span>
+                                    <input
+                                      type="range"
+                                      min={0}
+                                      max={recordedAudio[source.id].duration}
+                                      step={0.1}
+                                      value={playbackTime[source.id] || 0}
+                                      onChange={(e) => handleSeek(source.id, parseFloat(e.target.value))}
+                                      className="flex-1 h-2 accent-primary cursor-pointer"
+                                    />
+                                    <span className="text-xs font-mono w-10">
+                                      {formatDuration(recordedAudio[source.id].duration)}
+                                    </span>
+                                  </div>
+                                </div>
+
+                                {/* Action buttons */}
+                                <div className="flex gap-2">
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleClearRecording(source.id)}
+                                    className="flex-1"
+                                  >
+                                    <RotateCcw className="w-4 h-4 mr-1" />
+                                    Re-record
+                                  </Button>
+                                  <Button
+                                    type="button"
+                                    variant="default"
+                                    size="sm"
+                                    onClick={() => handleTranscribeRecording(source.id)}
+                                    className="flex-1 bg-green-600 hover:bg-green-700"
+                                  >
+                                    <Send className="w-4 h-4 mr-1" />
+                                    Transcribe
+                                  </Button>
+                                </div>
+
+                                <p className="text-xs text-muted-foreground text-center">
+                                  Review your recording, then click Transcribe to process with speaker identification.
+                                </p>
                               </div>
                             )}
 
