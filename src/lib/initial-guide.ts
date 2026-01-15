@@ -23,7 +23,36 @@ function createGuideNodes(): { rootNodeId: string, nodes: NodeMap } {
   const nodes: NodeMap = {};
 
   const rootId = 'guide-root';
-  createNode(nodes, rootId, null, "Outline Pro User Guide", "Welcome to Outline Pro! This is your complete guide to all features. Click any item in the outline to see details. This guide is restored automatically and cannot be deleted. Your own outlines are saved automatically as you work.", []);
+  createNode(nodes, rootId, null, "Outline Pro User Guide", `Welcome to Outline Pro - an AI-native outlining platform that transforms scattered information into structured, actionable knowledge.
+
+**What Makes Outline Pro Different**
+
+Unlike traditional note-taking apps, Outline Pro combines hierarchical outlining with powerful AI synthesis. Import content from multiple sources - YouTube videos, PDFs, web pages, audio recordings, documents - and let AI find connections, identify themes, and create unified outlines automatically.
+
+**Key Workflow Applications**
+
+HIGH IMPACT:
+• Meeting & Interview Synthesis - Record conversations, transcribe with speaker identification, get structured notes. Merge multiple meetings into a unified knowledge base.
+• Video Course Note-Taking - Import YouTube lectures, get structured outlines automatically. Combine multiple videos on the same topic into comprehensive study guides.
+• Research Aggregation - Import multiple PDFs, articles, and videos. AI finds connections across sources and creates unified research documents.
+• Competitive Intelligence - Ingest competitor websites, product videos, press releases. Synthesize into strategic overviews.
+
+PROFESSIONAL APPLICATIONS:
+• Legal Discovery & Case Prep - Import depositions, documents, evidence into structured case outlines.
+• Content Repurposing - Turn podcasts and videos into written outlines for blogs, courses, or books.
+• Onboarding Documentation - Merge existing docs, wikis, and recorded tribal knowledge into structured guides.
+• Client Project Briefs - Combine emails, calls, and reference materials into unified project scopes.
+
+SPECIALIZED USES:
+• Investment Analysis - Earnings calls, SEC filings, news articles synthesized into investment theses.
+• Book/Thesis Writing - Import research sources, interviews, prior drafts into structured outlines.
+• Event Planning - Vendor proposals, venue info, stakeholder requirements unified into event plans.
+
+**Getting Started**
+
+Click any item in the outline pane (left) to see details in the content pane (right). Use the Research & Import button (upload icon) to bring in external content. All your work saves automatically.
+
+This guide cannot be deleted, but you can copy it to create your own customized version.`, []);
 
   // === GETTING STARTED ===
   const gettingStartedId = uuidv4();
@@ -107,11 +136,11 @@ function createGuideNodes(): { rootNodeId: string, nodes: NodeMap } {
   createNode(nodes, aiGenerateContextId, aiGenerateContentId, "Context & Input", "The AI uses:\n- The node's name/title\n- The path of ancestor nodes (for context)\n- Any existing content (as a draft to consider)\n\nThis helps AI generate relevant, contextual content that fits your outline structure.");
   createNode(nodes, aiGenerateConflictId, aiGenerateContentId, "Replace vs Append", "If the node already has content, you'll see options:\n\n- Replace: Overwrite existing content with AI content\n- Append Below: Add AI content after existing content\n- Cancel: Keep existing content unchanged\n\nYour content is never changed without your explicit choice.");
 
-  // Ingest External Source
-  createNode(nodes, aiIngestId, aiId, "Ingest External Source", "Import content from external sources to create or extend your outlines.\n\nThe AI analyzes source material, extracts key concepts, and proposes a structured outline that integrates with your existing work.\n\nSupported sources:\n- Text (paste directly)\n- YouTube URLs\n- PDF URLs\n\nYou'll see a preview before any changes are applied.", []);
-  createNode(nodes, aiIngestSourcesId, aiIngestId, "Supported Sources", "Currently supported:\n\n- Text: Paste any text content directly\n- YouTube: Enter a video URL (transcript extraction coming soon)\n- PDF: Enter a PDF URL (text extraction coming soon)\n\nFor YouTube and PDF, you can paste the transcript or content manually in the Text tab.");
-  createNode(nodes, aiIngestPreviewId, aiIngestId, "Preview Before Apply", "When you ingest content:\n\n1. AI analyzes the source and proposes an outline structure\n2. A preview shows exactly what will be added:\n   - Nodes to be created\n   - Where each node will be placed\n3. You review and click 'Apply Changes' to confirm\n4. Or click 'Cancel' to discard\n\nNo changes are made until you explicitly approve them.");
-  createNode(nodes, aiIngestMergeId, aiIngestId, "Merge Behavior", "- If your outline is empty: AI creates a new structure from scratch\n- If your outline has content: AI adds new nodes to complement existing structure\n\nThe merge is always additive - existing nodes are preserved.");
+  // Research & Import (formerly Ingest External Source)
+  createNode(nodes, aiIngestId, aiId, "Research & Import", "The Research & Import feature is the heart of Outline Pro's power. Import content from multiple sources simultaneously, and AI will synthesize them into a unified, structured outline.\n\n**Key Capabilities:**\n• Multi-source synthesis - Import multiple sources at once, AI finds connections\n• Smart defaults - YouTube titles, AI-generated names, automatic introductions\n• Merge or create new - Default merges into current outline, or create fresh\n• Speaker diarization - Audio recordings identify different speakers\n\n**Access:** Click the upload arrow icon in the toolbar, or AI menu > 'Research & Import'", []);
+  createNode(nodes, aiIngestSourcesId, aiIngestId, "Supported Sources", "**YouTube Videos**\n• Paste any YouTube URL\n• Transcript extracted automatically\n• Video title becomes default outline name\n\n**Conversation/Audio**\n• Paste transcript directly\n• Upload audio file for transcription\n• Record live with microphone\n• Speaker diarization identifies who said what\n\n**Documents**\n• PDF files (URL or upload)\n• Word, Excel, PowerPoint\n• Images with OCR text extraction\n\n**Other**\n• Web pages (URL)\n• Plain text/notes\n• Existing outline files (.idm)\n• Video files (audio extracted)");
+  createNode(nodes, aiIngestPreviewId, aiIngestId, "Smart Naming & Summaries", "**Automatic Outline Naming:**\n• YouTube videos → Uses video title\n• Other sources → AI generates concise title from content\n• Fallback → Date-based name\n\n**Root Node Introduction:**\nWhen creating a new outline (not merging), the root node automatically gets an AI-generated introduction that summarizes all the content below it. This helps readers quickly understand the context.\n\n**Chapter Introductions:**\nParent/chapter nodes include introductory content that previews their children - no empty headers.");
+  createNode(nodes, aiIngestMergeId, aiIngestId, "Merge vs New Outline", "**Default: Merge into Current Outline**\n• New content is synthesized with your existing outline\n• AI finds connections between old and new material\n• Preserves your existing structure\n\n**Option: Create New Outline**\n• Check 'Create new outline instead'\n• Provide a name or let AI generate one\n• Your current outline is unchanged\n\nThe merge behavior ensures you can continuously build knowledge on a topic from multiple sources over time.");
 
   // Safety & Control
   createNode(nodes, aiSafetyId, aiId, "Safety & Control", "You're always in control:\n\n- All AI content is fully editable - change or delete anything\n- Preview mode shows changes before they're applied\n- No automatic modifications to your content\n- Auto-save preserves all changes (including AI content)\n- Undo by using browser back or editing content\n\nAI is a tool to help you - the final decisions are always yours.");
