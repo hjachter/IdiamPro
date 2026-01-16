@@ -5,7 +5,7 @@ import type { OutlineNode, NodeMap } from '@/types';
 import NodeIcon from './node-icon';
 import { TagBadge } from './tag-badge';
 import { TagManager } from './tag-manager';
-import { ChevronRight, Plus, Trash2, Edit3, ChevronDown, ChevronUp, Copy, Scissors, ClipboardPaste, CopyPlus, Sparkles, CheckSquare2, Square, Palette, Check, Star, Tag } from 'lucide-react';
+import { ChevronRight, Plus, Trash2, Edit3, ChevronDown, ChevronUp, Copy, Scissors, ClipboardPaste, CopyPlus, Sparkles, CheckSquare2, Square, Palette, Check, Star, Tag, FileOutput } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import {
@@ -57,6 +57,8 @@ interface NodeItemProps {
   selectedNodeIds?: Set<string>;
   onToggleNodeSelection?: (nodeId: string, isCtrlClick: boolean) => void;
   onRangeSelect?: (nodeId: string) => void;
+  // PDF export
+  onExportSubtreePdf?: (nodeId: string) => void;
 }
 
 // Helper to highlight search matches in text
@@ -155,6 +157,7 @@ export default function NodeItem({
   selectedNodeIds,
   onToggleNodeSelection,
   onRangeSelect,
+  onExportSubtreePdf,
 }: NodeItemProps) {
   const node = nodes[nodeId];
   const [isEditing, setIsEditing] = React.useState(false);
@@ -699,6 +702,16 @@ export default function NodeItem({
               </ContextMenuItem>
             )}
 
+            {onExportSubtreePdf && (
+              <>
+                <ContextMenuSeparator />
+                <ContextMenuItem onClick={(e) => { e.stopPropagation(); onExportSubtreePdf(node.id); }}>
+                  <FileOutput className="mr-2 h-4 w-4" />
+                  Export to PDF
+                </ContextMenuItem>
+              </>
+            )}
+
             {!isRoot && (
               <>
                 <ContextMenuSeparator />
@@ -932,6 +945,7 @@ export default function NodeItem({
                     selectedNodeIds={selectedNodeIds}
                     onToggleNodeSelection={onToggleNodeSelection}
                     onRangeSelect={onRangeSelect}
+                    onExportSubtreePdf={onExportSubtreePdf}
                 />
             ))}
             </ul>

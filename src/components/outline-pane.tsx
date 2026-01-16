@@ -135,6 +135,8 @@ interface OutlinePaneProps {
   onBulkAddTag?: (tag: string) => void;
   // Search term for content highlighting
   onSearchTermChange?: (searchTerm: string, matchType?: 'name' | 'content' | 'both', matchIndex?: number) => void;
+  // PDF export
+  onExportSubtreePdf?: (nodeId: string) => void;
 }
 
 export default function OutlinePane({
@@ -184,6 +186,7 @@ export default function OutlinePane({
   onBulkChangeColor,
   onBulkAddTag,
   onSearchTermChange,
+  onExportSubtreePdf,
 }: OutlinePaneProps) {
   const [renameId, setRenameId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
@@ -839,6 +842,7 @@ export default function OutlinePane({
               selectedNodeIds={selectedNodeIds}
               onToggleNodeSelection={onToggleNodeSelection}
               onRangeSelect={onRangeSelect}
+              onExportSubtreePdf={onExportSubtreePdf}
             />
           </ul>
         )}

@@ -20,7 +20,9 @@ import EmptyState from './empty-state';
 import KeyboardShortcutsDialog, { useKeyboardShortcuts } from './keyboard-shortcuts-dialog';
 import BulkResearchDialog from './bulk-research-dialog';
 import HelpChatDialog from './help-chat-dialog';
+import PdfExportDialog from './pdf-export-dialog';
 import { exportOutlineToJson } from '@/lib/export';
+import { exportSubtreeToPdf } from '@/lib/pdf-export';
 import type { BulkResearchSources } from '@/types';
 
 type MobileView = 'stacked' | 'content'; // stacked = outline + preview, content = full screen content
@@ -87,6 +89,10 @@ export default function OutlinePro() {
 
   // Help chat dialog state
   const [isHelpChatOpen, setIsHelpChatOpen] = useState(false);
+
+  // PDF export dialog state
+  const [pdfExportDialogOpen, setPdfExportDialogOpen] = useState(false);
+  const [pdfExportNodeId, setPdfExportNodeId] = useState<string | null>(null);
 
   // Multi-select state
   const [selectedNodeIds, setSelectedNodeIds] = useState<Set<string>>(new Set());
@@ -1787,6 +1793,39 @@ export default function OutlinePro() {
     });
   }, [selectedNodeIds, currentOutlineId, toast]);
 
+  // PDF Export handlers
+  const handleExportSubtreePdf = useCallback((nodeId: string) => {
+    setPdfExportNodeId(nodeId);
+    setPdfExportDialogOpen(true);
+  }, []);
+
+  const handlePdfExportConfirm = useCallback(async (filename: string) => {
+    if (!currentOutline || !pdfExportNodeId) return;
+
+    try {
+      await exportSubtreeToPdf(currentOutline.nodes, pdfExportNodeId, filename);
+      toast({
+        title: "PDF Exported",
+        description: `Successfully exported to ${filename}`,
+      });
+    } catch (error) {
+      console.error('PDF export failed:', error);
+      toast({
+        variant: "destructive",
+        title: "Export Failed",
+        description: (error as Error).message || "Could not export PDF.",
+      });
+    } finally {
+      setPdfExportDialogOpen(false);
+      setPdfExportNodeId(null);
+    }
+  }, [currentOutline, pdfExportNodeId, toast]);
+
+  const handlePdfExportCancel = useCallback(() => {
+    setPdfExportDialogOpen(false);
+    setPdfExportNodeId(null);
+  }, []);
+
   if (!isClient || !currentOutline) {
     return (
       <div className="flex items-center justify-center h-screen w-full">
@@ -1861,6 +1900,13 @@ export default function OutlinePro() {
         <HelpChatDialog
           open={isHelpChatOpen}
           onOpenChange={setIsHelpChatOpen}
+        />
+
+        <PdfExportDialog
+          open={pdfExportDialogOpen}
+          nodeName={pdfExportNodeId ? currentOutline.nodes[pdfExportNodeId]?.name || '' : ''}
+          onExport={handlePdfExportConfirm}
+          onCancel={handlePdfExportCancel}
         />
 
         <AlertDialog open={prefixDialogState.open} onOpenChange={(open) => setPrefixDialogState(s => ({ ...s, open }))}>
@@ -1977,6 +2023,7 @@ export default function OutlinePro() {
                 onBulkChangeColor={handleBulkChangeColor}
                 onBulkAddTag={handleBulkAddTag}
                 onSearchTermChange={handleSearchTermChange}
+                onExportSubtreePdf={handleExportSubtreePdf}
               />
             </div>
             {/* Content Preview - takes ~30%, tap to expand */}
@@ -2083,6 +2130,13 @@ export default function OutlinePro() {
       <HelpChatDialog
         open={isHelpChatOpen}
         onOpenChange={setIsHelpChatOpen}
+      />
+
+      <PdfExportDialog
+        open={pdfExportDialogOpen}
+        nodeName={pdfExportNodeId ? currentOutline.nodes[pdfExportNodeId]?.name || '' : ''}
+        onExport={handlePdfExportConfirm}
+        onCancel={handlePdfExportCancel}
       />
 
       <AlertDialog open={prefixDialogState.open} onOpenChange={(open) => setPrefixDialogState(s => ({ ...s, open }))}>
@@ -2221,6 +2275,7 @@ export default function OutlinePro() {
                 onBulkChangeColor={handleBulkChangeColor}
                 onBulkAddTag={handleBulkAddTag}
                 onSearchTermChange={handleSearchTermChange}
+                onExportSubtreePdf={handleExportSubtreePdf}
               />
             </div>
           </ResizablePanel>
