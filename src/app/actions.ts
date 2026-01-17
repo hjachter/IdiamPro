@@ -66,24 +66,30 @@ export async function expandContentAction(
 
 /**
  * Generate content for a node with full context (ancestors, existing content)
+ * Supports both context-based and custom prompt-based generation
  */
 export async function generateContentForNodeAction(
   context: NodeGenerationContext
 ): Promise<string> {
   try {
-    // const config = getPlanConfig(plan);
-
-    // Build a rich prompt with context
+    // Build context information
     const ancestorContext = context.ancestorPath.length > 0
       ? `This node is located at: ${context.ancestorPath.join(' > ')} > ${context.nodeName}`
       : `This is a top-level node named: ${context.nodeName}`;
 
     const draftContext = context.existingContent
-      ? `\n\nExisting draft content to consider:\n${context.existingContent}`
+      ? `\n\nExisting content:\n${context.existingContent}`
       : '';
 
-    // For now, use the existing expandNodeContent flow with enhanced title
-    const enhancedTitle = `${ancestorContext}${draftContext}\n\nGenerate detailed content for: ${context.nodeName}`;
+    let enhancedTitle: string;
+
+    if (context.customPrompt) {
+      // User provided a custom prompt - use it with context
+      enhancedTitle = `${ancestorContext}${draftContext}\n\nUser request: ${context.customPrompt}\n\nGenerate content based on the user's request for the node "${context.nodeName}".`;
+    } else {
+      // Default context-based generation
+      enhancedTitle = `${ancestorContext}${draftContext}\n\nGenerate detailed content for: ${context.nodeName}`;
+    }
 
     const result = await expandNodeContent({ title: enhancedTitle });
     return result.content;

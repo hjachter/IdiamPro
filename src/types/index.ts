@@ -98,6 +98,7 @@ export interface NodeGenerationContext {
   nodeName: string;
   ancestorPath: string[];  // Names of ancestors from root to parent
   existingContent: string;
+  customPrompt?: string;  // Optional custom prompt for user-directed generation
 }
 
 // External source types for ingestion

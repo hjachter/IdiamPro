@@ -90,6 +90,15 @@ import { Card, CardContent } from './ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Breadcrumbs } from './breadcrumbs';
 import ContentConflictDialog, { type ContentConflictAction } from './content-conflict-dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
 import EmbedUrlDialog, { type EmbedType } from './embed-url-dialog';
 import { useAIFeature } from '@/contexts/ai-context';
 import {
@@ -108,7 +117,12 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
 } from '@/components/ui/dropdown-menu';
+import { ChevronDown } from 'lucide-react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import ImageExt from '@tiptap/extension-image';
@@ -261,6 +275,40 @@ export default function ContentPane({
   const [pendingTabularPaste, setPendingTabularPaste] = useState<string | null>(null);
   const [fontSize, setFontSize] = useState<'xs' | 'sm' | 'base' | 'lg' | 'xl'>('base');
   const [contextMenuReady, setContextMenuReady] = useState(true);
+
+  // AI Generate preferences (sticky)
+  type GenerateSource = 'context' | 'prompt';
+  type GeneratePlacement = 'append' | 'prepend' | 'replace';
+
+  const [generateSource, setGenerateSource] = useState<GenerateSource>(() => {
+    if (typeof window !== 'undefined') {
+      return (localStorage.getItem('idiampro-generate-source') as GenerateSource) || 'context';
+    }
+    return 'context';
+  });
+
+  const [generatePlacement, setGeneratePlacement] = useState<GeneratePlacement>(() => {
+    if (typeof window !== 'undefined') {
+      return (localStorage.getItem('idiampro-generate-placement') as GeneratePlacement) || 'append';
+    }
+    return 'append';
+  });
+
+  const [promptDialogOpen, setPromptDialogOpen] = useState(false);
+  const [customPrompt, setCustomPrompt] = useState('');
+
+  // Persist preferences to localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('idiampro-generate-source', generateSource);
+    }
+  }, [generateSource]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('idiampro-generate-placement', generatePlacement);
+    }
+  }, [generatePlacement]);
 
   const aiContentEnabled = useAIFeature('enableAIContentGeneration');
   const { toast } = useToast();
@@ -498,10 +546,34 @@ export default function ContentPane({
     }
   }, [pendingTabularPaste, editor, toast, handleConvertToCodeBlock]);
 
-  const handleGenerateContent = async () => {
+  // Apply generated content based on placement preference
+  const applyGeneratedContent = useCallback((generatedContent: string, placement: GeneratePlacement) => {
+    if (!editor) return;
+
+    if (placement === 'replace') {
+      editor.commands.setContent(generatedContent);
+    } else if (placement === 'prepend') {
+      editor.commands.focus('start');
+      editor.commands.insertContent('<p>' + generatedContent + '</p><p></p>');
+    } else {
+      // append
+      editor.commands.focus('end');
+      editor.commands.insertContent('<p></p><p>' + generatedContent + '</p>');
+    }
+  }, [editor]);
+
+  const handleGenerateContent = async (sourceOverride?: GenerateSource) => {
     if (!node || isGenerating || isLoadingAI || !editor) return;
 
-    // Use enhanced generation if available, otherwise fall back to legacy
+    const source = sourceOverride || generateSource;
+
+    // If source is 'prompt', open the prompt dialog
+    if (source === 'prompt') {
+      setPromptDialogOpen(true);
+      return;
+    }
+
+    // Generate from context
     if (onGenerateContent) {
       setIsGenerating(true);
       try {
@@ -514,15 +586,14 @@ export default function ContentPane({
 
         const generatedContent = await onGenerateContent(context);
 
-        // Check if content exists
+        // Apply based on placement preference
         const currentText = editor.getText().trim();
-        if (currentText) {
-          // Show conflict dialog
-          setPendingAIContent(generatedContent);
-          setConflictDialogOpen(true);
+        if (!currentText || generatePlacement === 'replace') {
+          // No existing content or replace mode - apply directly
+          applyGeneratedContent(generatedContent, generatePlacement);
         } else {
-          // Insert directly
-          editor.commands.setContent(generatedContent);
+          // Has content and not replace - apply with placement
+          applyGeneratedContent(generatedContent, generatePlacement);
         }
       } finally {
         setIsGenerating(false);
@@ -530,6 +601,29 @@ export default function ContentPane({
     } else {
       // Fall back to legacy behavior
       await onExpandContent();
+    }
+  };
+
+  const handleGenerateFromPrompt = async () => {
+    if (!node || !editor || !customPrompt.trim() || !onGenerateContent) return;
+
+    setPromptDialogOpen(false);
+    setIsGenerating(true);
+
+    try {
+      const context: NodeGenerationContext = {
+        nodeId: node.id,
+        nodeName: node.name,
+        ancestorPath,
+        existingContent: editor.getText(),
+        customPrompt: customPrompt.trim(),
+      };
+
+      const generatedContent = await onGenerateContent(context);
+      applyGeneratedContent(generatedContent, generatePlacement);
+      setCustomPrompt('');
+    } finally {
+      setIsGenerating(false);
     }
   };
 
@@ -879,6 +973,56 @@ export default function ContentPane({
         onSave={handleSaveDrawing}
       />
 
+      {/* Custom Prompt Dialog */}
+      <Dialog open={promptDialogOpen} onOpenChange={setPromptDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Generate from Prompt</DialogTitle>
+            <DialogDescription>
+              Describe what content you want to generate for "{node?.name}".
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Textarea
+              placeholder="e.g., Write a summary of the key points... or Create a comparison table... or Explain this concept for beginners..."
+              value={customPrompt}
+              onChange={(e) => setCustomPrompt(e.target.value)}
+              className="min-h-[120px] resize-none"
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+                  handleGenerateFromPrompt();
+                }
+              }}
+            />
+            <p className="text-xs text-muted-foreground mt-2">
+              Press ⌘+Enter to generate
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPromptDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleGenerateFromPrompt}
+              disabled={!customPrompt.trim() || isGenerating}
+            >
+              {isGenerating ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  Generate
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Read-only banner for User Guide */}
       {isGuide && (
         <div className="flex-shrink-0 px-4 py-2 bg-blue-50 dark:bg-blue-950/30 border-b border-blue-200 dark:border-blue-800 flex items-center justify-between gap-2">
@@ -1013,25 +1157,60 @@ export default function ContentPane({
             </Tooltip>
           )}
 
-          {/* AI Generate Content Button */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={handleGenerateContent}
-                disabled={isGenerating || isLoadingAI || !aiContentEnabled}
-                className="text-primary hover:bg-primary/20"
-              >
-                {(isGenerating || isLoadingAI) ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Sparkles className="h-4 w-4" />
-                )}
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Generate content with AI</TooltipContent>
-          </Tooltip>
+          {/* AI Generate Content Dropdown Button */}
+          <DropdownMenu>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleGenerateContent()}
+                    disabled={isGenerating || isLoadingAI || !aiContentEnabled}
+                    className="text-primary hover:bg-primary/20 rounded-r-none border-r-0 px-2"
+                  >
+                    {(isGenerating || isLoadingAI) ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Sparkles className="h-4 w-4" />
+                    )}
+                    <span className="ml-1.5 text-xs hidden sm:inline">
+                      {generateSource === 'context' ? 'Generate' : 'Prompt'}
+                    </span>
+                  </Button>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={isGenerating || isLoadingAI || !aiContentEnabled}
+                      className="text-primary hover:bg-primary/20 rounded-l-none px-1"
+                    >
+                      <ChevronDown className="h-3 w-3" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                {generateSource === 'context'
+                  ? 'Generate content from outline context'
+                  : 'Generate content from custom prompt'}
+              </TooltipContent>
+            </Tooltip>
+            <DropdownMenuContent align="start" className="w-48">
+              <DropdownMenuLabel className="text-xs text-muted-foreground">Source</DropdownMenuLabel>
+              <DropdownMenuRadioGroup value={generateSource} onValueChange={(v) => setGenerateSource(v as GenerateSource)}>
+                <DropdownMenuRadioItem value="context">From context</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="prompt">From prompt...</DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuLabel className="text-xs text-muted-foreground">Placement</DropdownMenuLabel>
+              <DropdownMenuRadioGroup value={generatePlacement} onValueChange={(v) => setGeneratePlacement(v as GeneratePlacement)}>
+                <DropdownMenuRadioItem value="append">Append (below)</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="prepend">Prepend (above)</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="replace">Replace</DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </TooltipProvider>
 
         {/* Interim transcript indicator */}

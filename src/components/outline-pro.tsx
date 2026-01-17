@@ -103,6 +103,22 @@ export default function OutlinePro() {
   const [currentMatchType, setCurrentMatchType] = useState<'name' | 'content' | 'both' | null>(null);
   const [currentMatchIndex, setCurrentMatchIndex] = useState<number>(0);
 
+  // Panel size preference (sticky)
+  const [outlinePanelSize, setOutlinePanelSize] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('idiampro-outline-panel-size');
+      return saved ? parseFloat(saved) : 30;
+    }
+    return 30;
+  });
+
+  const handlePanelResize = useCallback((sizes: number[]) => {
+    if (sizes[0] && typeof window !== 'undefined') {
+      setOutlinePanelSize(sizes[0]);
+      localStorage.setItem('idiampro-outline-panel-size', sizes[0].toString());
+    }
+  }, []);
+
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const isInitialLoadDone = useRef(false);
@@ -2079,7 +2095,7 @@ export default function OutlinePro() {
   }
 
   return (
-    <ResizablePanelGroup direction="horizontal" className="h-screen w-full rounded-none border-none">
+    <ResizablePanelGroup direction="horizontal" className="h-screen w-full rounded-none border-none" onLayout={handlePanelResize}>
       {/* Hidden file input for import */}
       <input
         type="file"
@@ -2226,7 +2242,7 @@ export default function OutlinePro() {
         </div>
       ) : (
         <>
-          <ResizablePanel defaultSize={30} minSize={20}>
+          <ResizablePanel defaultSize={outlinePanelSize} minSize={20}>
             <div className="h-full overflow-hidden">
               <OutlinePane
                 outlines={outlines}
@@ -2280,7 +2296,7 @@ export default function OutlinePro() {
             </div>
           </ResizablePanel>
           <ResizableHandle withHandle />
-          <ResizablePanel defaultSize={70} minSize={30}>
+          <ResizablePanel defaultSize={100 - outlinePanelSize} minSize={30}>
             <div className="h-full overflow-hidden">
               <ContentPane
                 node={selectedNode}
