@@ -9,7 +9,7 @@
       "content": "<p>A practical roadmap for launching IdiamPro as a solo developer with minimal upfront investment. This plan focuses on building momentum before spending money, validating market demand, and scaling only when revenue supports it.</p>",
       "type": "root",
       "parentId": null,
-      "childrenIds": ["phase-1", "phase-2", "phase-3", "phase-4", "phase-5", "legal-structures", "revenue-strategy"],
+      "childrenIds": ["phase-1", "phase-2", "phase-3", "phase-4", "phase-5", "legal-structures", "revenue-strategy", "ai-provider-costs"],
       "isCollapsed": false,
       "prefix": ""
     },
@@ -362,6 +362,56 @@
       "childrenIds": [],
       "isCollapsed": false,
       "prefix": "7.4"
+    },
+    "ai-provider-costs": {
+      "id": "ai-provider-costs",
+      "name": "AI Provider Costs and Optimization",
+      "content": "<p>Understanding AI API costs is critical for pricing your subscription tiers. IdiamPro uses AI for content generation, and these costs directly impact your margins.</p>",
+      "type": "chapter",
+      "parentId": "root-bootstrap",
+      "childrenIds": ["ai-current-pricing", "ai-volume-discounts", "ai-optimization", "ai-subscription-design"],
+      "isCollapsed": false,
+      "prefix": "8"
+    },
+    "ai-current-pricing": {
+      "id": "ai-current-pricing",
+      "name": "Current API Pricing (2026)",
+      "content": "<p><strong>Google Gemini (currently used by IdiamPro):</strong></p><table><tr><th>Model</th><th>Input</th><th>Output</th><th>Best For</th></tr><tr><td>Gemini 2.0 Flash</td><td>~$0.10/1M tokens</td><td>~$0.40/1M tokens</td><td>Fast, cheap, good quality</td></tr><tr><td>Gemini 1.5 Pro</td><td>~$1.25/1M</td><td>~$5.00/1M</td><td>Complex reasoning</td></tr></table><p><strong>Anthropic Claude (potential alternative):</strong></p><table><tr><th>Model</th><th>Input</th><th>Output</th><th>Best For</th></tr><tr><td>Claude Haiku</td><td>$1.00/1M tokens</td><td>$5.00/1M tokens</td><td>Fast responses, simple tasks</td></tr><tr><td>Claude Sonnet</td><td>$3.00/1M tokens</td><td>$15.00/1M tokens</td><td>Best balance of cost/quality</td></tr><tr><td>Claude Opus</td><td>$5.00/1M tokens</td><td>$25.00/1M tokens</td><td>Complex analysis, premium tier</td></tr></table><p><strong>Key insight:</strong> Gemini Flash is ~10x cheaper than Claude Haiku. This significantly impacts margin calculations.</p>",
+      "type": "document",
+      "parentId": "ai-provider-costs",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "8.1"
+    },
+    "ai-volume-discounts": {
+      "id": "ai-volume-discounts",
+      "name": "Volume Discount Programs",
+      "content": "<p><strong>Google Cloud / Gemini:</strong></p><ul><li>Committed use discounts start at ~$10,000/month</li><li>Contact Google Cloud sales for negotiated pricing</li><li>Typical discounts: 10-30% based on commitment</li><li>Free tier: Up to 15 requests/minute on Gemini API</li></ul><p><strong>Anthropic / Claude:</strong></p><ul><li>Volume discounts are negotiated case-by-case</li><li>No published threshold; contact sales</li><li>Typically requires consistent high-volume usage</li><li>Enterprise plans include dedicated support</li></ul><p><strong>How to contact for discounts:</strong></p><ul><li><strong>Google:</strong> Google Cloud Console → Support → Contact Sales</li><li><strong>Anthropic:</strong> anthropic.com → Contact Sales or sales@anthropic.com</li></ul><p><strong>When to negotiate:</strong> Once you're spending $1,000+/month consistently, it's worth having the conversation.</p>",
+      "type": "document",
+      "parentId": "ai-provider-costs",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "8.2"
+    },
+    "ai-optimization": {
+      "id": "ai-optimization",
+      "name": "Cost Optimization Strategies",
+      "content": "<p><strong>Batch API (both providers):</strong></p><ul><li>50% discount for non-time-sensitive requests</li><li>Results delivered within 24 hours</li><li>Good for: Bulk content generation, background processing</li><li>Not good for: Interactive user requests</li></ul><p><strong>Prompt Caching (Claude):</strong></p><ul><li>Cache frequently-used system prompts</li><li>Up to 90% savings on cached content</li><li>Requires consistent prompt prefixes</li></ul><p><strong>Token optimization:</strong></p><ul><li>Keep prompts concise - every token costs money</li><li>Use smaller models for simple tasks</li><li>Set reasonable max_tokens limits</li></ul><p><strong>Usage limits per tier:</strong></p><ul><li>Free tier: 10-20 generations/month</li><li>Pro tier: 200-500 generations/month</li><li>Unlimited: Consider fair use policy to prevent abuse</li></ul>",
+      "type": "document",
+      "parentId": "ai-provider-costs",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "8.3"
+    },
+    "ai-subscription-design": {
+      "id": "ai-subscription-design",
+      "name": "Designing Subscription Tiers with 20% Margin",
+      "content": "<p><strong>Cost calculation per user (example with Gemini Flash):</strong></p><ul><li>Average generation: ~1,000 input tokens + ~500 output tokens</li><li>Cost per generation: ~$0.0003</li><li>100 generations/month: ~$0.03 per user</li><li>Even heavy users (~500 gens): ~$0.15 per user</li></ul><p><strong>Recommended tier structure with 20% margin:</strong></p><table><tr><th>Tier</th><th>AI Cost/User</th><th>With 20% Margin</th><th>Suggested Price</th></tr><tr><td>Free (10 gens)</td><td>$0.003</td><td>-</td><td>$0</td></tr><tr><td>Basic (100 gens)</td><td>$0.03</td><td>$0.036</td><td>$5/month</td></tr><tr><td>Pro (500 gens)</td><td>$0.15</td><td>$0.18</td><td>$10/month</td></tr><tr><td>Power (unlimited*)</td><td>~$0.50 avg</td><td>$0.60</td><td>$20/month</td></tr></table><p><strong>Key insight:</strong> With Gemini Flash, AI costs are negligible compared to subscription prices. The 20% margin is easily achieved. Your main costs will be hosting, not AI.</p><p><strong>If adding Claude as premium option:</strong></p><ul><li>Claude Sonnet at 500 gens/month ≈ $2.70 cost</li><li>With 20% margin: $3.24 minimum</li><li>Suggested premium tier: $15-20/month for Claude access</li></ul><p><strong>Strategy:</strong> Offer Gemini as default (high margin), Claude as optional upgrade (premium positioning).</p>",
+      "type": "document",
+      "parentId": "ai-provider-costs",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "8.4"
     }
   }
 }
