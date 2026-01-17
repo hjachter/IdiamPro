@@ -555,7 +555,7 @@ export default function OutlinePane({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="w-[var(--radix-dropdown-menu-trigger-width)] min-w-[280px]">
                 <DropdownMenuLabel>Switch Outline</DropdownMenuLabel>
-                {outlines.map(outline => {
+                {[...outlines].sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })).map(outline => {
                     const nodeCount = Object.keys(outline.nodes).length;
                     const lastMod = outline.lastModified;
                     const timeAgo = lastMod ? formatTimeAgo(lastMod) : null;
