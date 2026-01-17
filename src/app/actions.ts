@@ -81,14 +81,26 @@ export async function generateContentForNodeAction(
       ? `\n\nExisting content:\n${context.existingContent}`
       : '';
 
+    // Diagram generation instructions when enabled
+    const diagramInstructions = context.includeDiagram
+      ? `\n\nIMPORTANT: If this content would benefit from a visual diagram (process flow, hierarchy, comparison, timeline, sequence, or relationships), include a Mermaid diagram. Use this exact format:
+
+\`\`\`mermaid
+[diagram code here]
+\`\`\`
+
+Supported diagram types: flowchart, sequenceDiagram, mindmap, gantt, pie, classDiagram, stateDiagram, erDiagram.
+Only include a diagram if it genuinely helps explain the content - don't force one where text alone is clearer.`
+      : '';
+
     let enhancedTitle: string;
 
     if (context.customPrompt) {
       // User provided a custom prompt - use it with context
-      enhancedTitle = `${ancestorContext}${draftContext}\n\nUser request: ${context.customPrompt}\n\nGenerate content based on the user's request for the node "${context.nodeName}".`;
+      enhancedTitle = `${ancestorContext}${draftContext}${diagramInstructions}\n\nUser request: ${context.customPrompt}\n\nGenerate content based on the user's request for the node "${context.nodeName}".`;
     } else {
       // Default context-based generation
-      enhancedTitle = `${ancestorContext}${draftContext}\n\nGenerate detailed content for: ${context.nodeName}`;
+      enhancedTitle = `${ancestorContext}${draftContext}${diagramInstructions}\n\nGenerate detailed content for: ${context.nodeName}`;
     }
 
     const result = await expandNodeContent({ title: enhancedTitle });

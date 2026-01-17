@@ -1,34 +1,21 @@
 'use client';
 
 import type { NodeMap, OutlineNode } from '@/types';
+import pdfMake from 'pdfmake/build/pdfmake';
+import pdfFonts from 'pdfmake/build/vfs_fonts';
+import mermaid from 'mermaid';
 
-// html2pdf.js doesn't play nice with webpack, so we load it from CDN
-let html2pdfPromise: Promise<any> | null = null;
+// Initialize pdfMake with fonts
+pdfMake.vfs = pdfFonts.vfs;
 
-async function getHtml2Pdf(): Promise<any> {
-  if ((window as any).html2pdf) {
-    return (window as any).html2pdf;
-  }
-
-  if (html2pdfPromise) {
-    return html2pdfPromise;
-  }
-
-  html2pdfPromise = new Promise((resolve, reject) => {
-    const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
-    script.onload = () => {
-      if ((window as any).html2pdf) {
-        resolve((window as any).html2pdf);
-      } else {
-        reject(new Error('html2pdf failed to load'));
-      }
-    };
-    script.onerror = () => reject(new Error('Failed to load html2pdf.js'));
-    document.head.appendChild(script);
+// Initialize mermaid for PDF rendering
+function initMermaidForPdf() {
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: 'neutral',
+    securityLevel: 'loose',
+    fontFamily: 'Helvetica, Arial, sans-serif',
   });
-
-  return html2pdfPromise;
 }
 
 // Check if running in Capacitor native app
@@ -37,195 +24,263 @@ function isCapacitorNative(): boolean {
 }
 
 /**
- * Convert a subtree of nodes to formatted HTML for PDF generation
+ * Convert mermaid code to a PNG data URL
  */
-function subtreeToHtml(nodes: NodeMap, rootId: string, baseDepth: number = 0): string {
-  const node = nodes[rootId];
-  if (!node) return '';
+async function renderMermaidToPng(code: string, index: number): Promise<string | null> {
+  try {
+    initMermaidForPdf();
+    const id = `mermaid-pdf-${index}-${Date.now()}`;
+    const { svg } = await mermaid.render(id, code);
 
-  const htmlParts: string[] = [];
+    // Parse SVG to get dimensions
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = svg;
+    const svgElement = tempDiv.querySelector('svg');
 
-  // Add CSS styles
-  htmlParts.push(`
-    <style>
-      body {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-        font-size: 12pt;
-        line-height: 1.6;
-        color: #333;
-        max-width: 100%;
-        padding: 20px;
+    if (!svgElement) return null;
+
+    // Get dimensions
+    let svgWidth = 400;
+    let svgHeight = 300;
+
+    const viewBox = svgElement.getAttribute('viewBox');
+    if (viewBox) {
+      const parts = viewBox.split(/\s+|,/).map(parseFloat);
+      if (parts.length >= 4) {
+        svgWidth = parts[2];
+        svgHeight = parts[3];
       }
-      h1 { font-size: 24pt; margin-top: 24pt; margin-bottom: 12pt; color: #1a1a1a; }
-      h2 { font-size: 20pt; margin-top: 20pt; margin-bottom: 10pt; color: #2a2a2a; }
-      h3 { font-size: 16pt; margin-top: 16pt; margin-bottom: 8pt; color: #3a3a3a; }
-      h4 { font-size: 14pt; margin-top: 14pt; margin-bottom: 6pt; color: #4a4a4a; }
-      h5 { font-size: 12pt; margin-top: 12pt; margin-bottom: 4pt; color: #5a5a5a; }
-      .prefix { color: #888; font-weight: normal; margin-right: 8px; }
-      .content { margin-bottom: 16pt; }
-      pre {
-        background: #f5f5f5;
-        padding: 12px;
-        border-radius: 4px;
-        overflow-x: auto;
-        font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
-        font-size: 10pt;
-      }
-      code {
-        background: #f0f0f0;
-        padding: 2px 4px;
-        border-radius: 2px;
-        font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
-        font-size: 10pt;
-      }
-      blockquote {
-        border-left: 4px solid #ddd;
-        padding-left: 16px;
-        margin-left: 0;
-        color: #666;
-        font-style: italic;
-      }
-      .task { margin: 8pt 0; }
-      .task-checkbox { margin-right: 8px; }
-      .task-completed { text-decoration: line-through; color: #888; }
-      .link { color: #0066cc; text-decoration: underline; }
-      .indent-1 { margin-left: 20px; }
-      .indent-2 { margin-left: 40px; }
-      .indent-3 { margin-left: 60px; }
-      ul, ol { margin: 8pt 0; padding-left: 24px; }
-      li { margin: 4pt 0; }
-      p { margin: 8pt 0; }
-      a { color: #0066cc; }
-      img { max-width: 100%; height: auto; }
-    </style>
-  `);
-
-  // Recursively build HTML for the subtree
-  buildNodeHtml(nodes, rootId, 0, baseDepth, htmlParts);
-
-  return htmlParts.join('\n');
-}
-
-/**
- * Recursively build HTML for a node and its children
- */
-function buildNodeHtml(
-  nodes: NodeMap,
-  nodeId: string,
-  depth: number,
-  baseDepth: number,
-  htmlParts: string[]
-): void {
-  const node = nodes[nodeId];
-  if (!node) return;
-
-  const effectiveDepth = depth;
-
-  // Determine heading level based on depth (H1-H5, then H5 with indentation)
-  let headingTag = 'h1';
-  let indentClass = '';
-
-  if (effectiveDepth === 0) {
-    headingTag = 'h1';
-  } else if (effectiveDepth === 1) {
-    headingTag = 'h2';
-  } else if (effectiveDepth === 2) {
-    headingTag = 'h3';
-  } else if (effectiveDepth === 3) {
-    headingTag = 'h4';
-  } else {
-    headingTag = 'h5';
-    const extraIndent = effectiveDepth - 4;
-    if (extraIndent > 0) {
-      indentClass = ` class="indent-${Math.min(extraIndent, 3)}"`;
+    } else {
+      const widthAttr = svgElement.getAttribute('width');
+      const heightAttr = svgElement.getAttribute('height');
+      if (widthAttr) svgWidth = parseFloat(widthAttr.replace(/[^0-9.]/g, '')) || 400;
+      if (heightAttr) svgHeight = parseFloat(heightAttr.replace(/[^0-9.]/g, '')) || 300;
     }
-  }
 
-  // Build the heading with optional prefix
-  const prefix = node.prefix ? `<span class="prefix">${escapeHtml(node.prefix)}</span>` : '';
-  htmlParts.push(`<${headingTag}${indentClass}>${prefix}${escapeHtml(node.name)}</${headingTag}>`);
+    // Scale to target width
+    const targetWidth = 500;
+    const aspectRatio = svgHeight / svgWidth;
+    const targetHeight = Math.round(targetWidth * aspectRatio);
 
-  // Render node content based on type
-  if (node.content && node.content.trim()) {
-    const contentHtml = renderNodeContent(node);
-    if (contentHtml) {
-      htmlParts.push(`<div class="content">${contentHtml}</div>`);
+    // Set viewBox and dimensions
+    if (!svgElement.getAttribute('viewBox')) {
+      svgElement.setAttribute('viewBox', `0 0 ${svgWidth} ${svgHeight}`);
     }
-  }
+    svgElement.setAttribute('width', String(targetWidth));
+    svgElement.setAttribute('height', String(targetHeight));
 
-  // Recursively process children
-  if (node.childrenIds && node.childrenIds.length > 0) {
-    for (const childId of node.childrenIds) {
-      buildNodeHtml(nodes, childId, depth + 1, baseDepth, htmlParts);
-    }
-  }
-}
+    // Convert to PNG via canvas using data URL
+    const svgString = new XMLSerializer().serializeToString(svgElement);
+    const svgBase64 = btoa(unescape(encodeURIComponent(svgString)));
+    const svgDataUrl = `data:image/svg+xml;base64,${svgBase64}`;
 
-/**
- * Render node content based on its type
- */
-function renderNodeContent(node: OutlineNode): string {
-  // TipTap content is already HTML, but we need to handle special node types
-  switch (node.type) {
-    case 'code':
-      // Wrap in pre/code if not already wrapped
-      if (!node.content.includes('<pre>') && !node.content.includes('<code>')) {
-        const language = node.metadata?.codeLanguage || '';
-        return `<pre><code class="language-${language}">${escapeHtml(stripHtml(node.content))}</code></pre>`;
-      }
-      return node.content;
+    const canvas = document.createElement('canvas');
+    const dpr = 2;
+    canvas.width = targetWidth * dpr;
+    canvas.height = targetHeight * dpr;
 
-    case 'quote':
-      // Wrap in blockquote if not already wrapped
-      if (!node.content.includes('<blockquote>')) {
-        return `<blockquote>${node.content}</blockquote>`;
-      }
-      return node.content;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
 
-    case 'task':
-      const isCompleted = node.metadata?.isCompleted;
-      const checkbox = isCompleted ? '[x]' : '[ ]';
-      const completedClass = isCompleted ? ' task-completed' : '';
-      return `<div class="task"><span class="task-checkbox">${checkbox}</span><span class="${completedClass}">${node.content}</span></div>`;
+    ctx.fillStyle = '#fafafa';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    case 'link':
-      const url = node.metadata?.url || '#';
-      return `<div><a href="${escapeHtml(url)}" class="link">${node.content || escapeHtml(url)}</a></div>`;
+    const img = new Image();
+    await new Promise<void>((resolve, reject) => {
+      img.onload = () => {
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve();
+      };
+      img.onerror = reject;
+      img.src = svgDataUrl;
+    });
 
-    case 'youtube':
-    case 'image':
-    case 'video':
-    case 'audio':
-    case 'pdf':
-      // For media embeds, show a link to the resource
-      const mediaUrl = node.metadata?.url;
-      if (mediaUrl) {
-        return `<div><a href="${escapeHtml(mediaUrl)}" class="link">[${node.type}: ${escapeHtml(mediaUrl)}]</a></div>`;
-      }
-      return node.content || '';
-
-    default:
-      // Default: return TipTap HTML content as-is
-      return node.content;
+    return canvas.toDataURL('image/png');
+  } catch (err) {
+    console.error('Failed to render mermaid diagram:', err);
+    return null;
   }
 }
 
 /**
- * Escape HTML special characters
- */
-function escapeHtml(text: string): string {
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
-}
-
-/**
- * Strip HTML tags from content
+ * Strip HTML tags and get plain text
  */
 function stripHtml(html: string): string {
   const div = document.createElement('div');
   div.innerHTML = html;
   return div.textContent || div.innerText || '';
+}
+
+/**
+ * Parse HTML content into pdfmake content array
+ */
+function parseHtmlContent(html: string): any[] {
+  const content: any[] = [];
+  const div = document.createElement('div');
+  div.innerHTML = html;
+
+  function processNode(node: Node): void {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const text = node.textContent?.trim();
+      if (text) {
+        content.push({ text, margin: [0, 2, 0, 2] });
+      }
+    } else if (node.nodeType === Node.ELEMENT_NODE) {
+      const el = node as HTMLElement;
+      const tagName = el.tagName.toLowerCase();
+
+      // Check for mermaid block
+      if (el.hasAttribute('data-mermaid-block')) {
+        const code = el.getAttribute('data-mermaid-code') || '';
+        content.push({ mermaidCode: code, margin: [0, 8, 0, 8] });
+        return;
+      }
+
+      switch (tagName) {
+        case 'p':
+          const pText = stripHtml(el.innerHTML);
+          if (pText) {
+            content.push({ text: pText, margin: [0, 4, 0, 4] });
+          }
+          break;
+
+        case 'strong':
+        case 'b':
+          content.push({ text: stripHtml(el.innerHTML), bold: true });
+          break;
+
+        case 'em':
+        case 'i':
+          content.push({ text: stripHtml(el.innerHTML), italics: true });
+          break;
+
+        case 'ul':
+          const ulItems: any[] = [];
+          el.querySelectorAll(':scope > li').forEach(li => {
+            ulItems.push({ text: stripHtml(li.innerHTML) });
+          });
+          if (ulItems.length > 0) {
+            content.push({ ul: ulItems, margin: [0, 4, 0, 4] });
+          }
+          break;
+
+        case 'ol':
+          const olItems: any[] = [];
+          el.querySelectorAll(':scope > li').forEach(li => {
+            olItems.push({ text: stripHtml(li.innerHTML) });
+          });
+          if (olItems.length > 0) {
+            content.push({ ol: olItems, margin: [0, 4, 0, 4] });
+          }
+          break;
+
+        case 'blockquote':
+          content.push({
+            text: stripHtml(el.innerHTML),
+            italics: true,
+            color: '#666666',
+            margin: [20, 4, 0, 4],
+          });
+          break;
+
+        case 'pre':
+        case 'code':
+          content.push({
+            text: stripHtml(el.innerHTML),
+            font: 'Courier',
+            fontSize: 9,
+            background: '#f5f5f5',
+            margin: [0, 4, 0, 4],
+          });
+          break;
+
+        case 'a':
+          content.push({
+            text: stripHtml(el.innerHTML),
+            link: el.getAttribute('href') || '',
+            color: '#0066cc',
+            decoration: 'underline',
+          });
+          break;
+
+        case 'br':
+          content.push({ text: '\n' });
+          break;
+
+        default:
+          // Process children
+          el.childNodes.forEach(child => processNode(child));
+      }
+    }
+  }
+
+  div.childNodes.forEach(child => processNode(child));
+  return content;
+}
+
+/**
+ * Build pdfmake content from node tree
+ */
+async function buildPdfContent(
+  nodes: NodeMap,
+  nodeId: string,
+  depth: number = 0
+): Promise<any[]> {
+  const node = nodes[nodeId];
+  if (!node) return [];
+
+  const content: any[] = [];
+
+  // Determine heading style based on depth
+  let style = 'h1';
+  if (depth === 0) style = 'h1';
+  else if (depth === 1) style = 'h2';
+  else if (depth === 2) style = 'h3';
+  else if (depth === 3) style = 'h4';
+  else style = 'h5';
+
+  // Add heading
+  const headingText = node.prefix ? `${node.prefix} ${node.name}` : node.name;
+  content.push({ text: headingText, style, margin: [0, depth === 0 ? 0 : 12, 0, 6] });
+
+  // Add content
+  if (node.content && node.content.trim()) {
+    const parsedContent = parseHtmlContent(node.content);
+
+    // Process any mermaid blocks
+    for (let i = 0; i < parsedContent.length; i++) {
+      const item = parsedContent[i];
+      if (item.mermaidCode) {
+        const pngDataUrl = await renderMermaidToPng(item.mermaidCode, i);
+        if (pngDataUrl) {
+          content.push({
+            image: pngDataUrl,
+            width: 450,
+            alignment: 'center',
+            margin: [0, 8, 0, 8],
+          });
+        } else {
+          content.push({
+            text: '[Diagram could not be rendered]',
+            color: '#cc0000',
+            margin: [0, 4, 0, 4],
+          });
+        }
+      } else {
+        content.push(item);
+      }
+    }
+  }
+
+  // Process children
+  if (node.childrenIds && node.childrenIds.length > 0) {
+    for (const childId of node.childrenIds) {
+      const childContent = await buildPdfContent(nodes, childId, depth + 1);
+      content.push(...childContent);
+    }
+  }
+
+  return content;
 }
 
 /**
@@ -236,58 +291,33 @@ export async function exportSubtreeToPdf(
   rootId: string,
   filename: string
 ): Promise<void> {
-  // Get html2pdf library (loads on first use)
-  const html2pdf = await getHtml2Pdf();
+  const content = await buildPdfContent(nodes, rootId);
 
-  const html = subtreeToHtml(nodes, rootId);
-
-  // Create a container for the HTML
-  const container = document.createElement('div');
-  container.innerHTML = html;
-
-  const opt = {
-    margin: [10, 10, 10, 10], // mm
-    filename: filename.endsWith('.pdf') ? filename : `${filename}.pdf`,
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: {
-      scale: 2,
-      useCORS: true,
-      logging: false,
+  const docDefinition: any = {
+    content,
+    styles: {
+      h1: { fontSize: 22, bold: true, margin: [0, 0, 0, 10] },
+      h2: { fontSize: 18, bold: true, margin: [0, 16, 0, 8] },
+      h3: { fontSize: 14, bold: true, margin: [0, 12, 0, 6] },
+      h4: { fontSize: 12, bold: true, margin: [0, 10, 0, 4] },
+      h5: { fontSize: 11, bold: true, margin: [0, 8, 0, 4] },
     },
-    jsPDF: {
-      unit: 'mm',
-      format: 'a4',
-      orientation: 'portrait' as const,
+    defaultStyle: {
+      fontSize: 11,
+      lineHeight: 1.4,
     },
-    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+    pageSize: 'A4',
+    pageMargins: [40, 40, 40, 40],
   };
+
+  const pdfName = filename.endsWith('.pdf') ? filename : `${filename}.pdf`;
 
   if (isCapacitorNative()) {
     // For iOS: Generate blob and share
     await shareSubtreePdf(nodes, rootId, filename);
-  } else if ('showSaveFilePicker' in window) {
-    // Chrome/Edge: Use native file picker
-    try {
-      const pdfBlob = await html2pdf().set(opt).from(container).outputPdf('blob');
-      const handle = await (window as any).showSaveFilePicker({
-        suggestedName: opt.filename,
-        types: [{
-          description: 'PDF Document',
-          accept: { 'application/pdf': ['.pdf'] },
-        }],
-      });
-      const writable = await handle.createWritable();
-      await writable.write(pdfBlob);
-      await writable.close();
-    } catch (err: any) {
-      if (err.name !== 'AbortError') {
-        // Fallback to blob download if user cancels or API fails
-        await html2pdf().set(opt).from(container).save();
-      }
-    }
   } else {
-    // Safari/Firefox: Use blob download
-    await html2pdf().set(opt).from(container).save();
+    // Download PDF
+    pdfMake.createPdf(docDefinition).download(pdfName);
   }
 }
 
@@ -299,81 +329,66 @@ export async function shareSubtreePdf(
   rootId: string,
   filename: string
 ): Promise<void> {
-  const html2pdf = await getHtml2Pdf();
-  const html = subtreeToHtml(nodes, rootId);
+  const content = await buildPdfContent(nodes, rootId);
 
-  const container = document.createElement('div');
-  container.innerHTML = html;
-
-  const opt = {
-    margin: [10, 10, 10, 10],
-    filename: filename.endsWith('.pdf') ? filename : `${filename}.pdf`,
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: {
-      scale: 2,
-      useCORS: true,
-      logging: false,
+  const docDefinition: any = {
+    content,
+    styles: {
+      h1: { fontSize: 22, bold: true, margin: [0, 0, 0, 10] },
+      h2: { fontSize: 18, bold: true, margin: [0, 16, 0, 8] },
+      h3: { fontSize: 14, bold: true, margin: [0, 12, 0, 6] },
+      h4: { fontSize: 12, bold: true, margin: [0, 10, 0, 4] },
+      h5: { fontSize: 11, bold: true, margin: [0, 8, 0, 4] },
     },
-    jsPDF: {
-      unit: 'mm',
-      format: 'a4',
-      orientation: 'portrait' as const,
+    defaultStyle: {
+      fontSize: 11,
+      lineHeight: 1.4,
     },
+    pageSize: 'A4',
+    pageMargins: [40, 40, 40, 40],
   };
 
+  const pdfName = filename.endsWith('.pdf') ? filename : `${filename}.pdf`;
+
   // Generate PDF as base64
-  const pdfBase64 = await html2pdf().set(opt).from(container).outputPdf('datauristring');
+  pdfMake.createPdf(docDefinition).getBase64(async (base64Data: string) => {
+    const Capacitor = (window as any).Capacitor;
+    if (Capacitor?.Plugins?.Filesystem && Capacitor?.Plugins?.Share) {
+      try {
+        const Filesystem = Capacitor.Plugins.Filesystem;
+        const Share = Capacitor.Plugins.Share;
 
-  // On iOS, use Capacitor's Share or Filesystem plugin
-  const Capacitor = (window as any).Capacitor;
-  if (Capacitor?.Plugins?.Share) {
-    try {
-      // Convert base64 to blob and share
-      const base64Data = pdfBase64.split(',')[1];
-
-      // Use Filesystem to write file then share
-      const Filesystem = Capacitor.Plugins.Filesystem;
-      const Share = Capacitor.Plugins.Share;
-
-      if (Filesystem && Share) {
         // Write to cache directory
         const result = await Filesystem.writeFile({
-          path: opt.filename,
+          path: pdfName,
           data: base64Data,
           directory: 'CACHE',
         });
 
         // Share the file
         await Share.share({
-          title: opt.filename,
+          title: pdfName,
           url: result.uri,
         });
+      } catch (error) {
+        console.error('Failed to share PDF:', error);
+        // Fallback to download
+        pdfMake.createPdf(docDefinition).download(pdfName);
       }
-    } catch (error) {
-      console.error('Failed to share PDF:', error);
-      // Fallback to download
-      const link = document.createElement('a');
-      link.href = pdfBase64;
-      link.download = opt.filename;
-      link.click();
+    } else {
+      // Fallback: download directly
+      pdfMake.createPdf(docDefinition).download(pdfName);
     }
-  } else {
-    // Fallback: download directly
-    const link = document.createElement('a');
-    link.href = pdfBase64;
-    link.download = opt.filename;
-    link.click();
-  }
+  });
 }
 
 /**
  * Get a suggested filename for the PDF based on the node name
  */
 export function getSuggestedPdfFilename(nodeName: string): string {
-  // Clean up the name for use as a filename
   return nodeName
-    .replace(/[<>:"/\\|?*]/g, '') // Remove invalid filename characters
-    .replace(/\s+/g, '_') // Replace spaces with underscores
-    .substring(0, 100) // Limit length
+    .replace(/[<>:"/\\|?*]/g, '')
+    .replace(/\s+/g, '_')
+    .substring(0, 100)
     .trim() || 'outline';
 }

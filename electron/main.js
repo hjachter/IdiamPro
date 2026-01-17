@@ -150,7 +150,7 @@ async function createWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      webSecurity: true,
+      webSecurity: process.env.NODE_ENV !== 'development', // Allow canvas operations in dev
       sandbox: true,
       preload: path.join(__dirname, 'preload.js'),
     },

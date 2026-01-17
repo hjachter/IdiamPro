@@ -99,6 +99,7 @@ export interface NodeGenerationContext {
   ancestorPath: string[];  // Names of ancestors from root to parent
   existingContent: string;
   customPrompt?: string;  // Optional custom prompt for user-directed generation
+  includeDiagram?: boolean;  // Whether to include Mermaid diagrams in generated content
 }
 
 // External source types for ingestion

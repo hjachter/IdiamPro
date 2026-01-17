@@ -121,6 +121,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
+  DropdownMenuCheckboxItem,
 } from '@/components/ui/dropdown-menu';
 import { ChevronDown } from 'lucide-react';
 import { useEditor, EditorContent } from '@tiptap/react';
@@ -128,7 +129,7 @@ import StarterKit from '@tiptap/starter-kit';
 import ImageExt from '@tiptap/extension-image';
 import Youtube from '@tiptap/extension-youtube';
 import Placeholder from '@tiptap/extension-placeholder';
-import { GoogleDocs, GoogleSheets, GoogleSlides, GoogleMaps } from './tiptap-extensions';
+import { GoogleDocs, GoogleSheets, GoogleSlides, GoogleMaps, MermaidBlock } from './tiptap-extensions';
 import { useSpeechRecognition } from '@/lib/use-speech-recognition';
 import { Extension } from '@tiptap/core';
 import { Decoration, DecorationSet } from '@tiptap/pm/view';
@@ -204,6 +205,59 @@ const SearchHighlight = Extension.create({
     ];
   },
 });
+
+/**
+ * Convert plain text with newlines to proper HTML paragraphs.
+ * Only processes content that doesn't already have block-level HTML structure.
+ */
+function convertToHtml(content: string): string {
+  // If content already has block-level HTML structure (paragraphs, lists, divs),
+  // assume it's already formatted properly
+  if (/<(p|div|ul|ol|h[1-6]|blockquote|pre)[\s>]/i.test(content)) {
+    return content;
+  }
+
+  // If no newlines at all, wrap in a paragraph
+  if (!content.includes('\n')) {
+    return `<p>${content}</p>`;
+  }
+
+  // Split by double newlines (paragraph breaks)
+  const paragraphs = content.split(/\n\n+/);
+
+  return paragraphs
+    .map(para => {
+      const trimmed = para.trim();
+      if (!trimmed) return '';
+
+      // Check if this looks like a list (starts with -, *, or number.)
+      const lines = trimmed.split('\n');
+      const isUnorderedList = lines.every(line => /^\s*[-*]\s+/.test(line) || !line.trim());
+      const isOrderedList = lines.every(line => /^\s*\d+[.)]\s+/.test(line) || !line.trim());
+
+      if (isUnorderedList) {
+        const items = lines
+          .filter(line => line.trim())
+          .map(line => `<li>${line.replace(/^\s*[-*]\s+/, '')}</li>`)
+          .join('');
+        return `<ul>${items}</ul>`;
+      }
+
+      if (isOrderedList) {
+        const items = lines
+          .filter(line => line.trim())
+          .map(line => `<li>${line.replace(/^\s*\d+[.)]\s+/, '')}</li>`)
+          .join('');
+        return `<ol>${items}</ol>`;
+      }
+
+      // Regular paragraph - convert single newlines to <br>
+      const htmlContent = trimmed.replace(/\n/g, '<br>');
+      return `<p>${htmlContent}</p>`;
+    })
+    .filter(p => p)
+    .join('');
+}
 
 interface ContentPaneProps {
   node: OutlineNode | null;
@@ -294,6 +348,13 @@ export default function ContentPane({
     return 'append';
   });
 
+  const [includeDiagram, setIncludeDiagram] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('idiampro-include-diagram') === 'true';
+    }
+    return false;
+  });
+
   const [promptDialogOpen, setPromptDialogOpen] = useState(false);
   const [customPrompt, setCustomPrompt] = useState('');
 
@@ -309,6 +370,12 @@ export default function ContentPane({
       localStorage.setItem('idiampro-generate-placement', generatePlacement);
     }
   }, [generatePlacement]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('idiampro-include-diagram', String(includeDiagram));
+    }
+  }, [includeDiagram]);
 
   const aiContentEnabled = useAIFeature('enableAIContentGeneration');
   const { toast } = useToast();
@@ -344,6 +411,7 @@ export default function ContentPane({
       GoogleSheets,
       GoogleSlides,
       GoogleMaps,
+      MermaidBlock,
       SearchHighlight,
     ],
     content: '',  // Start empty, useEffect will set content
@@ -397,7 +465,9 @@ export default function ContentPane({
     // Update editor content when node changes
     if (editor && node) {
       const currentContent = editor.getHTML();
-      const newContent = node.content || '';
+      const rawContent = node.content || '';
+      // Process content to convert plain text with newlines to proper HTML
+      const newContent = convertToHtml(rawContent);
       if (currentContent !== newContent) {
         // Defer to avoid flushSync during render
         queueMicrotask(() => {
@@ -546,21 +616,57 @@ export default function ContentPane({
     }
   }, [pendingTabularPaste, editor, toast, handleConvertToCodeBlock]);
 
+  // Convert mermaid code blocks to MermaidBlock nodes and format text as HTML
+  const processGeneratedContent = useCallback((content: string): string => {
+    // First, extract mermaid blocks and replace with placeholders
+    const mermaidBlocks: string[] = [];
+    const mermaidBlockRegex = /```mermaid\s*([\s\S]*?)```/g;
+
+    let processed = content.replace(mermaidBlockRegex, (_match, code) => {
+      const trimmedCode = code.trim();
+      // Escape HTML entities in the code for the attribute
+      const escapedCode = trimmedCode
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+
+      const placeholder = `__MERMAID_${mermaidBlocks.length}__`;
+      mermaidBlocks.push(`<div data-mermaid-block data-mermaid-code="${escapedCode}"></div>`);
+      return placeholder;
+    });
+
+    // Convert text to HTML with proper paragraphs
+    processed = convertToHtml(processed);
+
+    // Restore mermaid blocks
+    mermaidBlocks.forEach((block, index) => {
+      processed = processed.replace(`__MERMAID_${index}__`, block);
+      // Also handle case where placeholder ended up inside a <p> tag
+      processed = processed.replace(`<p>__MERMAID_${index}__</p>`, block);
+    });
+
+    return processed;
+  }, [convertToHtml]);
+
   // Apply generated content based on placement preference
   const applyGeneratedContent = useCallback((generatedContent: string, placement: GeneratePlacement) => {
     if (!editor) return;
 
+    // Process content: convert to HTML and parse mermaid blocks
+    const processedContent = processGeneratedContent(generatedContent);
+
     if (placement === 'replace') {
-      editor.commands.setContent(generatedContent);
+      editor.commands.setContent(processedContent);
     } else if (placement === 'prepend') {
       editor.commands.focus('start');
-      editor.commands.insertContent('<p>' + generatedContent + '</p><p></p>');
+      editor.commands.insertContent(processedContent + '<p></p>');
     } else {
       // append
       editor.commands.focus('end');
-      editor.commands.insertContent('<p></p><p>' + generatedContent + '</p>');
+      editor.commands.insertContent('<p></p>' + processedContent);
     }
-  }, [editor]);
+  }, [editor, processGeneratedContent]);
 
   const handleGenerateContent = async (sourceOverride?: GenerateSource) => {
     if (!node || isGenerating || isLoadingAI || !editor) return;
@@ -582,6 +688,7 @@ export default function ContentPane({
           nodeName: node.name,
           ancestorPath,
           existingContent: editor.getText(),
+          includeDiagram,
         };
 
         const generatedContent = await onGenerateContent(context);
@@ -617,6 +724,7 @@ export default function ContentPane({
         ancestorPath,
         existingContent: editor.getText(),
         customPrompt: customPrompt.trim(),
+        includeDiagram,
       };
 
       const generatedContent = await onGenerateContent(context);
@@ -1209,6 +1317,14 @@ export default function ContentPane({
                 <DropdownMenuRadioItem value="prepend">Prepend (above)</DropdownMenuRadioItem>
                 <DropdownMenuRadioItem value="replace">Replace</DropdownMenuRadioItem>
               </DropdownMenuRadioGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuLabel className="text-xs text-muted-foreground">Enhancements</DropdownMenuLabel>
+              <DropdownMenuCheckboxItem
+                checked={includeDiagram}
+                onCheckedChange={setIncludeDiagram}
+              >
+                Include diagram
+              </DropdownMenuCheckboxItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </TooltipProvider>
