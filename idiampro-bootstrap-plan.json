@@ -9,7 +9,7 @@
       "content": "<p>A practical roadmap for launching IdiamPro as a solo developer with minimal upfront investment. This plan focuses on building momentum before spending money, validating market demand, and scaling only when revenue supports it.</p>",
       "type": "root",
       "parentId": null,
-      "childrenIds": ["phase-1", "phase-2", "phase-3", "phase-4", "phase-5", "legal-structures", "revenue-strategy", "ai-provider-costs"],
+      "childrenIds": ["phase-1", "phase-2", "phase-3", "phase-4", "phase-5", "legal-structures", "revenue-strategy", "ai-provider-costs", "profitability-model"],
       "isCollapsed": false,
       "prefix": ""
     },
@@ -412,6 +412,66 @@
       "childrenIds": [],
       "isCollapsed": false,
       "prefix": "8.4"
+    },
+    "profitability-model": {
+      "id": "profitability-model",
+      "name": "Profitability Model: Running at a Profit",
+      "content": "<p>This chapter consolidates all costs and revenue considerations to ensure IdiamPro always operates profitably. The goal is a <strong>minimum 60% gross margin</strong> after all costs, which is healthy for a solo-developer SaaS business.</p>",
+      "type": "chapter",
+      "parentId": "root-bootstrap",
+      "childrenIds": ["prof-infrastructure", "prof-app-store-cuts", "prof-cross-platform", "prof-tier-design", "prof-break-even"],
+      "isCollapsed": false,
+      "prefix": "9"
+    },
+    "prof-infrastructure": {
+      "id": "prof-infrastructure",
+      "name": "Infrastructure Running Costs",
+      "content": "<p><strong>Fixed Annual Costs:</strong></p><table><tr><th>Item</th><th>Cost</th><th>Notes</th></tr><tr><td>Apple Developer Program</td><td>$99/year</td><td>Required for iOS + Mac App Store</td></tr><tr><td>Domain Registration</td><td>$12/year</td><td>idiampro.com or similar</td></tr><tr><td>Google Play (one-time)</td><td>$25</td><td>Amortize over 5 years = $5/year</td></tr><tr><td><strong>Total Fixed</strong></td><td><strong>~$116/year</strong></td><td>~$10/month</td></tr></table><p><strong>Variable/Scaling Costs:</strong></p><table><tr><th>Service</th><th>Free Tier</th><th>Paid Tier</th><th>When to Upgrade</th></tr><tr><td>Vercel Hosting</td><td>100GB bandwidth</td><td>$20/month</td><td>>1,000 daily users</td></tr><tr><td>AI APIs (Gemini)</td><td>Limited</td><td>~$0.03-0.50/user/mo</td><td>Scales with usage</td></tr><tr><td>Email (Google Workspace)</td><td>Gmail works</td><td>$6/month</td><td>When you need @idiampro.com</td></tr><tr><td>Analytics (PostHog/Mixpanel)</td><td>Generous free</td><td>$0-50/month</td><td>>10,000 events/month</td></tr></table><p><strong>First Year Budget (Conservative):</strong></p><ul><li>Fixed costs: $116</li><li>Hosting (assuming upgrade): $240</li><li>Email: $72</li><li>AI APIs (100 users avg): ~$60</li><li><strong>Total: ~$500/year or ~$42/month</strong></li></ul><p><strong>Break-even:</strong> Just 5 subscribers at $10/month covers all infrastructure.</p>",
+      "type": "document",
+      "parentId": "profitability-model",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "9.1"
+    },
+    "prof-app-store-cuts": {
+      "id": "prof-app-store-cuts",
+      "name": "App Store Revenue Shares",
+      "content": "<p><strong>What You Actually Receive:</strong></p><table><tr><th>Platform</th><th>Standard Cut</th><th>Small Business Rate</th><th>You Receive</th></tr><tr><td>Apple App Store</td><td>30%</td><td>15% (under $1M/year)</td><td>85% of price</td></tr><tr><td>Google Play</td><td>30%</td><td>15% (first $1M/year)</td><td>85% of price</td></tr><tr><td>Web (Stripe)</td><td>2.9% + $0.30</td><td>Same</td><td>~94-97% of price</td></tr><tr><td>Web (Paddle)</td><td>5% + $0.50</td><td>Same</td><td>~90-95% of price</td></tr></table><p><strong>Revenue by Channel (at $10/month subscription):</strong></p><table><tr><th>Channel</th><th>User Pays</th><th>Platform Takes</th><th>You Receive</th></tr><tr><td>iOS App Store</td><td>$10.00</td><td>$1.50</td><td>$8.50</td></tr><tr><td>Google Play</td><td>$10.00</td><td>$1.50</td><td>$8.50</td></tr><tr><td>Web (Stripe)</td><td>$10.00</td><td>$0.59</td><td>$9.41</td></tr></table><p><strong>Small Business Program Requirements:</strong></p><ul><li><strong>Apple:</strong> Enroll at developer.apple.com/programs/small-business - auto-qualifies if under $1M previous year</li><li><strong>Google:</strong> Automatic for first $1M in each calendar year</li></ul><p><strong>Strategy:</strong> Web subscriptions yield 10-11% more revenue than app store subscriptions. Consider offering a small discount for web signups to encourage this path.</p>",
+      "type": "document",
+      "parentId": "profitability-model",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "9.2"
+    },
+    "prof-cross-platform": {
+      "id": "prof-cross-platform",
+      "name": "Cross-Platform Subscription Model",
+      "content": "<p><strong>Best Practice: One Subscription = All Platforms</strong></p><p>Modern users expect their subscription to work everywhere. Charging separately per platform creates friction and frustration.</p><p><strong>Recommended Model:</strong></p><ul><li>User subscribes once (via any platform)</li><li>Subscription unlocks iOS, Mac, Web, and future Android</li><li>Account-based authentication syncs subscription status</li></ul><p><strong>Implementation:</strong></p><ul><li>Create user accounts (email + password or OAuth)</li><li>Store subscription status on your server</li><li>Each platform checks subscription status via API</li><li>Use RevenueCat or similar to unify app store subscriptions</li></ul><p><strong>RevenueCat (Recommended):</strong></p><ul><li>Free up to $2,500 MTR (monthly tracked revenue)</li><li>Unifies Apple, Google, and Stripe subscriptions</li><li>Handles receipt validation, subscription status</li><li>$0.01 per transaction after free tier</li></ul><p><strong>Why This Works:</strong></p><ul><li>Users feel they're getting value (all platforms included)</li><li>Reduces support burden (no \"why doesn't it work on my Mac?\")</li><li>Enables family/device flexibility</li><li>Competitive with Notion, Obsidian, etc.</li></ul>",
+      "type": "document",
+      "parentId": "profitability-model",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "9.3"
+    },
+    "prof-tier-design": {
+      "id": "prof-tier-design",
+      "name": "Final Subscription Tier Design",
+      "content": "<p><strong>Recommended Tiers (All Platforms Included):</strong></p><table><tr><th>Tier</th><th>Monthly</th><th>Annual</th><th>Features</th></tr><tr><td><strong>Free</strong></td><td>$0</td><td>$0</td><td>3 outlines, 10 AI gens/month, local storage only</td></tr><tr><td><strong>Pro</strong></td><td>$9.99</td><td>$99/year (save 17%)</td><td>Unlimited outlines, 200 AI gens/month, cloud sync, PDF export</td></tr><tr><td><strong>Power</strong></td><td>$19.99</td><td>$199/year (save 17%)</td><td>Everything in Pro + unlimited AI, Claude access, priority support</td></tr></table><p><strong>Cost & Margin Analysis (Pro Tier at $9.99):</strong></p><table><tr><th>Item</th><th>App Store</th><th>Web</th></tr><tr><td>Revenue received</td><td>$8.49</td><td>$9.40</td></tr><tr><td>AI cost (avg user)</td><td>-$0.15</td><td>-$0.15</td></tr><tr><td>Infrastructure (per user share)</td><td>-$0.50</td><td>-$0.50</td></tr><tr><td><strong>Gross Profit</strong></td><td><strong>$7.84 (78%)</strong></td><td><strong>$8.75 (88%)</strong></td></tr></table><p><strong>Cost & Margin Analysis (Power Tier at $19.99):</strong></p><table><tr><th>Item</th><th>App Store</th><th>Web</th></tr><tr><td>Revenue received</td><td>$16.99</td><td>$19.11</td></tr><tr><td>AI cost (heavy user + Claude)</td><td>-$3.00</td><td>-$3.00</td></tr><tr><td>Infrastructure (per user share)</td><td>-$0.50</td><td>-$0.50</td></tr><tr><td><strong>Gross Profit</strong></td><td><strong>$13.49 (68%)</strong></td><td><strong>$15.61 (78%)</strong></td></tr></table><p><strong>Key Insight:</strong> Even the Power tier with Claude access maintains 68%+ gross margin. The business is highly profitable at any scale.</p>",
+      "type": "document",
+      "parentId": "profitability-model",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "9.4"
+    },
+    "prof-break-even": {
+      "id": "prof-break-even",
+      "name": "Break-Even Analysis & Profit Targets",
+      "content": "<p><strong>Monthly Fixed Costs (After Launch):</strong></p><ul><li>Infrastructure: ~$42/month (see 9.1)</li><li>Your time: Priceless (but free at bootstrap stage)</li></ul><p><strong>Break-Even Points:</strong></p><table><tr><th>Scenario</th><th>Pro Users Needed</th><th>Power Users Needed</th><th>Mixed (70/30)</th></tr><tr><td>Cover infrastructure ($42)</td><td>6 users</td><td>3 users</td><td>5 users</td></tr><tr><td>Side income ($500/mo)</td><td>64 users</td><td>32 users</td><td>52 users</td></tr><tr><td>Serious income ($2,000/mo)</td><td>256 users</td><td>128 users</td><td>207 users</td></tr><tr><td>Full-time potential ($5,000/mo)</td><td>640 users</td><td>320 users</td><td>518 users</td></tr></table><p><strong>Recommended Profit Targets:</strong></p><ul><li><strong>Minimum gross margin:</strong> 60% (you're achieving 68-88%)</li><li><strong>Target gross margin:</strong> 70%+ (easily achievable)</li><li><strong>Reserve fund:</strong> Keep 3 months of operating costs in reserve</li></ul><p><strong>Profit Allocation Strategy:</strong></p><ul><li>First $500/month: Reinvest in infrastructure reliability</li><li>$500-2,000/month: 50% take home, 50% marketing/growth</li><li>$2,000+/month: Consider part-time transition, hire help</li></ul><p><strong>Bottom Line:</strong> With ~200 paying subscribers at a 70/30 Pro/Power mix, you'll earn ~$2,000/month profit. The math works. Focus on building a product people love and the revenue will follow.</p>",
+      "type": "document",
+      "parentId": "profitability-model",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "9.5"
     }
   }
 }
