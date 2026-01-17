@@ -1,0 +1,367 @@
+{
+  "id": "bootstrap-plan-2024",
+  "name": "IdiamPro Bootstrap Plan",
+  "rootNodeId": "root-bootstrap",
+  "nodes": {
+    "root-bootstrap": {
+      "id": "root-bootstrap",
+      "name": "IdiamPro Bootstrap Plan",
+      "content": "<p>A practical roadmap for launching IdiamPro as a solo developer with minimal upfront investment. This plan focuses on building momentum before spending money, validating market demand, and scaling only when revenue supports it.</p>",
+      "type": "root",
+      "parentId": null,
+      "childrenIds": ["phase-1", "phase-2", "phase-3", "phase-4", "phase-5", "legal-structures", "revenue-strategy"],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "phase-1": {
+      "id": "phase-1",
+      "name": "Phase 1: Establish Web Presence (Cost: ~$50/year)",
+      "content": "<p>Focus on creating a professional online presence with minimal investment. The goal is to have a landing page that can capture interest and validate demand before investing in development infrastructure.</p>",
+      "type": "chapter",
+      "parentId": "root-bootstrap",
+      "childrenIds": ["p1-domain", "p1-landing", "p1-social", "p1-analytics"],
+      "isCollapsed": false,
+      "prefix": "1"
+    },
+    "p1-domain": {
+      "id": "p1-domain",
+      "name": "Register Domain (~$12/year)",
+      "content": "<p><strong>Action:</strong> Register idiampro.com (or similar) through a registrar like Namecheap, Porkbun, or Google Domains.</p><p><strong>Why it matters:</strong> A professional domain establishes credibility. Use it for your website and email.</p><p><strong>Budget tip:</strong> Avoid premium domains. A .com is ideal, but .app or .io work for tech products.</p>",
+      "type": "document",
+      "parentId": "phase-1",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "1.1"
+    },
+    "p1-landing": {
+      "id": "p1-landing",
+      "name": "Create Landing Page (Free)",
+      "content": "<p><strong>Free options:</strong></p><ul><li><strong>GitHub Pages:</strong> Host your Next.js export for free</li><li><strong>Vercel:</strong> Free tier for personal projects, includes SSL</li><li><strong>Netlify:</strong> Similar free tier with good performance</li></ul><p><strong>What to include:</strong></p><ul><li>Clear value proposition (AI-native outlining)</li><li>Feature highlights with screenshots</li><li>Email signup for waitlist/updates</li><li>Link to app store when ready</li></ul><p><strong>Tool recommendations:</strong> Use the existing Next.js codebase to create a marketing site, or use a simple HTML template.</p>",
+      "type": "document",
+      "parentId": "phase-1",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "1.2"
+    },
+    "p1-social": {
+      "id": "p1-social",
+      "name": "Social Media Presence (Free)",
+      "content": "<p><strong>Essential platforms:</strong></p><ul><li><strong>Twitter/X:</strong> Best for developer tools and tech products</li><li><strong>LinkedIn:</strong> Professional network, good for B2B features</li><li><strong>Product Hunt:</strong> Create profile now, plan launch later</li></ul><p><strong>Content strategy:</strong></p><ul><li>Share development progress (build in public)</li><li>Post tips about outlining/productivity</li><li>Engage with productivity tool communities</li></ul><p><strong>Time investment:</strong> 30 min/day maximum at start</p>",
+      "type": "document",
+      "parentId": "phase-1",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "1.3"
+    },
+    "p1-analytics": {
+      "id": "p1-analytics",
+      "name": "Set Up Analytics (Free)",
+      "content": "<p><strong>Free tools:</strong></p><ul><li><strong>Google Analytics 4:</strong> Industry standard, free forever</li><li><strong>Plausible/Fathom:</strong> Privacy-focused alternatives (paid but cheap)</li><li><strong>Hotjar free tier:</strong> For understanding user behavior</li></ul><p><strong>What to track:</strong></p><ul><li>Landing page visits and bounce rate</li><li>Email signups</li><li>Geographic distribution of interest</li></ul><p><strong>Why it matters:</strong> Data helps validate demand before spending on development.</p>",
+      "type": "document",
+      "parentId": "phase-1",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "1.4"
+    },
+    "phase-2": {
+      "id": "phase-2",
+      "name": "Phase 2: App Store Preparation (Cost: $99-$125/year)",
+      "content": "<p>Before submitting to app stores, understand the requirements and costs. Start with one platform to minimize upfront investment.</p>",
+      "type": "chapter",
+      "parentId": "root-bootstrap",
+      "childrenIds": ["p2-apple", "p2-mac", "p2-web-first", "p2-android"],
+      "isCollapsed": false,
+      "prefix": "2"
+    },
+    "p2-apple": {
+      "id": "p2-apple",
+      "name": "Apple Developer Program ($99/year)",
+      "content": "<p><strong>What you get:</strong></p><ul><li>iOS App Store distribution</li><li>Mac App Store distribution (same membership)</li><li>TestFlight for beta testing</li><li>Access to Apple frameworks and APIs</li></ul><p><strong>Requirements:</strong></p><ul><li>Apple ID (personal is fine to start)</li><li>Any Mac for development (even a Mac Mini)</li><li>No business entity required initially</li></ul><p><strong>Key insight:</strong> Many successful indie apps are published under personal developer accounts. You can transfer to a company later.</p><p><strong>Review process:</strong> Apple review typically takes 24-48 hours. Budget extra time for first submission.</p>",
+      "type": "document",
+      "parentId": "phase-2",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "2.1"
+    },
+    "p2-mac": {
+      "id": "p2-mac",
+      "name": "Mac App Store vs Direct Distribution",
+      "content": "<p><strong>Mac App Store pros:</strong></p><ul><li>Built-in discovery and trust</li><li>Automatic updates</li><li>Same $99 developer fee as iOS</li></ul><p><strong>Mac App Store cons:</strong></p><ul><li>30% revenue share</li><li>Sandboxing restrictions</li><li>Review delays</li></ul><p><strong>Direct distribution alternative:</strong></p><ul><li>Sell through your website (Gumroad, Paddle, etc.)</li><li>Only 5-10% payment processing fee</li><li>Requires notarization ($99 Apple Developer still needed)</li><li>More control over updates and pricing</li></ul><p><strong>Recommendation:</strong> Start with Mac App Store for credibility, add direct sales later for better margins.</p>",
+      "type": "document",
+      "parentId": "phase-2",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "2.2"
+    },
+    "p2-web-first": {
+      "id": "p2-web-first",
+      "name": "Web App Strategy (Free/Cheap)",
+      "content": "<p><strong>Why start with web:</strong></p><ul><li>No app store approval required</li><li>Instant updates without review</li><li>Works on all platforms immediately</li><li>Can validate product-market fit before native investment</li></ul><p><strong>Hosting options:</strong></p><ul><li><strong>Vercel:</strong> Free tier generous for starting out</li><li><strong>Railway:</strong> $5/month after free tier</li><li><strong>Fly.io:</strong> Free tier with good performance</li></ul><p><strong>Monetization:</strong></p><ul><li>Stripe for payments (2.9% + 30¢ per transaction)</li><li>No platform fee beyond payment processing</li></ul><p><strong>Strategy:</strong> Launch web app first, gather feedback, then package for app stores.</p>",
+      "type": "document",
+      "parentId": "phase-2",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "2.3"
+    },
+    "p2-android": {
+      "id": "p2-android",
+      "name": "Google Play Store ($25 one-time)",
+      "content": "<p><strong>Cost:</strong> One-time $25 registration fee (much cheaper than Apple's annual fee)</p><p><strong>When to consider:</strong></p><ul><li>After iOS version is stable</li><li>If analytics show Android user demand</li><li>Capacitor makes cross-platform relatively easy</li></ul><p><strong>Caution:</strong> Android fragmentation can increase support burden. Consider delaying until you have revenue to justify the time investment.</p><p><strong>Alternative:</strong> Web app (PWA) works well on Android without Play Store presence.</p>",
+      "type": "document",
+      "parentId": "phase-2",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "2.4"
+    },
+    "phase-3": {
+      "id": "phase-3",
+      "name": "Phase 3: Validate Before Scaling",
+      "content": "<p>The most expensive mistake is building something nobody wants. This phase focuses on validation with minimal spend.</p>",
+      "type": "chapter",
+      "parentId": "root-bootstrap",
+      "childrenIds": ["p3-beta", "p3-feedback", "p3-pricing", "p3-metrics"],
+      "isCollapsed": false,
+      "prefix": "3"
+    },
+    "p3-beta": {
+      "id": "p3-beta",
+      "name": "Beta Testing Strategy",
+      "content": "<p><strong>TestFlight (iOS):</strong></p><ul><li>Up to 10,000 external testers free</li><li>90-day builds, then need to update</li><li>Great for gathering feedback before public launch</li></ul><p><strong>Finding beta testers:</strong></p><ul><li>Productivity tool subreddits (r/productivity, r/getdisciplined)</li><li>Twitter build-in-public community</li><li>Indie Hackers forum</li><li>Friends and family (but be cautious of biased feedback)</li></ul><p><strong>What to ask:</strong></p><ul><li>What's confusing?</li><li>What's missing?</li><li>Would you pay for this? How much?</li></ul>",
+      "type": "document",
+      "parentId": "phase-3",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "3.1"
+    },
+    "p3-feedback": {
+      "id": "p3-feedback",
+      "name": "Feedback Collection (Free)",
+      "content": "<p><strong>Free tools:</strong></p><ul><li><strong>Google Forms:</strong> Simple surveys</li><li><strong>Typeform free tier:</strong> More engaging surveys</li><li><strong>In-app feedback:</strong> Simple email link works</li><li><strong>GitHub Issues:</strong> For bug reports and feature requests</li></ul><p><strong>What to track:</strong></p><ul><li>Most requested features</li><li>Friction points in onboarding</li><li>Use cases you didn't anticipate</li></ul><p><strong>Key insight:</strong> Pay attention to what users DO, not just what they SAY. Usage analytics matter more than surveys.</p>",
+      "type": "document",
+      "parentId": "phase-3",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "3.2"
+    },
+    "p3-pricing": {
+      "id": "p3-pricing",
+      "name": "Pricing Validation",
+      "content": "<p><strong>Before committing to a price:</strong></p><ul><li>Research competitor pricing (Notion, Obsidian, Roam)</li><li>Test different price points with different beta groups</li><li>Consider freemium vs paid-only</li></ul><p><strong>Common indie pricing models:</strong></p><ul><li><strong>Freemium:</strong> Free basic, $5-15/month premium</li><li><strong>One-time purchase:</strong> $29-99 (Mac apps)</li><li><strong>Annual subscription:</strong> $49-99/year</li></ul><p><strong>Recommendation for bootstrap:</strong> Start with a simple free tier + one paid tier. You can always add complexity later.</p>",
+      "type": "document",
+      "parentId": "phase-3",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "3.3"
+    },
+    "p3-metrics": {
+      "id": "p3-metrics",
+      "name": "Key Metrics to Track",
+      "content": "<p><strong>Before spending money, validate these:</strong></p><ul><li><strong>Daily Active Users (DAU):</strong> Are people coming back?</li><li><strong>Retention:</strong> What % return after Day 1, Day 7, Day 30?</li><li><strong>Feature usage:</strong> What features actually get used?</li><li><strong>Conversion intent:</strong> How many ask about pricing?</li></ul><p><strong>Tools (all have free tiers):</strong></p><ul><li>Mixpanel, Amplitude, or PostHog for product analytics</li><li>Simple server-side logging if privacy is a concern</li></ul><p><strong>Rule of thumb:</strong> If 10% of free users show buying intent, you have something worth investing in.</p>",
+      "type": "document",
+      "parentId": "phase-3",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "3.4"
+    },
+    "phase-4": {
+      "id": "phase-4",
+      "name": "Phase 4: Launch and Early Revenue",
+      "content": "<p>Once validated, focus on generating revenue to fund further development. Stay lean until revenue consistently covers costs.</p>",
+      "type": "chapter",
+      "parentId": "root-bootstrap",
+      "childrenIds": ["p4-soft-launch", "p4-product-hunt", "p4-content-marketing", "p4-first-revenue"],
+      "isCollapsed": false,
+      "prefix": "4"
+    },
+    "p4-soft-launch": {
+      "id": "p4-soft-launch",
+      "name": "Soft Launch Strategy",
+      "content": "<p><strong>What is a soft launch:</strong> Release to a limited audience before the big marketing push.</p><p><strong>Benefits:</strong></p><ul><li>Catch bugs before they hurt reviews</li><li>Refine onboarding based on real usage</li><li>Build initial reviews/ratings</li><li>Test payment flow with real transactions</li></ul><p><strong>How to soft launch:</strong></p><ul><li>iOS: Release to specific countries first (e.g., Canada)</li><li>Web: Share only with beta testers and email list</li><li>Gather 20-50 reviews before full marketing push</li></ul>",
+      "type": "document",
+      "parentId": "phase-4",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "4.1"
+    },
+    "p4-product-hunt": {
+      "id": "p4-product-hunt",
+      "name": "Product Hunt Launch (Free)",
+      "content": "<p><strong>Why Product Hunt matters:</strong></p><ul><li>Free exposure to early adopters</li><li>Credibility boost (\"Featured on Product Hunt\")</li><li>Potential press coverage</li><li>Backlinks for SEO</li></ul><p><strong>Preparation:</strong></p><ul><li>Have polished screenshots and video ready</li><li>Prepare for traffic spike (ensure servers can handle it)</li><li>Line up supporters to upvote at launch</li><li>Be available to answer comments all day</li></ul><p><strong>Timing:</strong> Launch on Tuesday-Thursday for best visibility. Avoid Mondays and weekends.</p>",
+      "type": "document",
+      "parentId": "phase-4",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "4.2"
+    },
+    "p4-content-marketing": {
+      "id": "p4-content-marketing",
+      "name": "Content Marketing (Free)",
+      "content": "<p><strong>Free distribution channels:</strong></p><ul><li><strong>Blog posts:</strong> Host on your site, share on Medium</li><li><strong>YouTube:</strong> Tutorial videos, feature walkthroughs</li><li><strong>Reddit:</strong> Provide value first, promote subtly</li><li><strong>Hacker News:</strong> Launch blog post or Show HN</li></ul><p><strong>Content ideas:</strong></p><ul><li>\"How I built X feature\" (dev community loves this)</li><li>Productivity tips using outlining</li><li>Comparison guides (IdiamPro vs Notion, etc.)</li></ul><p><strong>Key principle:</strong> Provide value first. Direct promotion without value gets downvoted.</p>",
+      "type": "document",
+      "parentId": "phase-4",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "4.3"
+    },
+    "p4-first-revenue": {
+      "id": "p4-first-revenue",
+      "name": "Path to First $1,000 MRR",
+      "content": "<p><strong>Revenue milestones:</strong></p><ul><li><strong>$0-100/month:</strong> Validation phase - are people willing to pay?</li><li><strong>$100-500/month:</strong> Cover basic costs (hosting, tools)</li><li><strong>$500-1000/month:</strong> Sustainable indie project</li><li><strong>$1000+/month:</strong> Consider reinvesting in growth</li></ul><p><strong>To reach $1000 MRR at $10/month:</strong></p><ul><li>Need 100 paying customers</li><li>At 2% conversion from free, need 5,000 free users</li><li>Focus on retention as much as acquisition</li></ul><p><strong>Key insight:</strong> 100 happy paying customers is better than 1,000 unhappy free users.</p>",
+      "type": "document",
+      "parentId": "phase-4",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "4.4"
+    },
+    "phase-5": {
+      "id": "phase-5",
+      "name": "Phase 5: Scale When Revenue Supports It",
+      "content": "<p>Only invest in these when revenue consistently exceeds basic costs. Premature scaling kills bootstrapped businesses.</p>",
+      "type": "chapter",
+      "parentId": "root-bootstrap",
+      "childrenIds": ["p5-when-llc", "p5-when-paid", "p5-when-hire", "p5-reinvest"],
+      "isCollapsed": false,
+      "prefix": "5"
+    },
+    "p5-when-llc": {
+      "id": "p5-when-llc",
+      "name": "When to Form an LLC",
+      "content": "<p><strong>You DON'T need an LLC to:</strong></p><ul><li>Publish on App Store (personal developer account is fine)</li><li>Accept payments (Stripe works with individuals)</li><li>Have a website and business presence</li></ul><p><strong>Consider an LLC when:</strong></p><ul><li>Revenue exceeds $5,000/month consistently</li><li>You want liability protection</li><li>Business bank account becomes necessary</li><li>Tax benefits outweigh formation costs</li></ul><p><strong>LLC costs:</strong></p><ul><li>Formation: $50-500 depending on state</li><li>Annual fees: $0-800 depending on state (California is expensive)</li><li>Registered agent: $50-150/year if needed</li></ul><p><strong>Cheapest states:</strong> Wyoming, Delaware, New Mexico (for non-residents)</p>",
+      "type": "document",
+      "parentId": "phase-5",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.1"
+    },
+    "p5-when-paid": {
+      "id": "p5-when-paid",
+      "name": "When to Pay for Tools",
+      "content": "<p><strong>Stay free as long as possible:</strong></p><ul><li>Free tiers are generous for small projects</li><li>Paid features often aren't needed at low scale</li><li>Upgrading is easy when you need to</li></ul><p><strong>Worth paying for early:</strong></p><ul><li>Domain name (~$12/year) - non-negotiable</li><li>Apple Developer ($99/year) - if doing iOS</li><li>Reliable email (Google Workspace $6/month) - when you need custom domain email</li></ul><p><strong>Delay until revenue supports:</strong></p><ul><li>Premium analytics tools</li><li>Advanced monitoring</li><li>Paid marketing/advertising</li><li>Professional services (legal, accounting)</li></ul>",
+      "type": "document",
+      "parentId": "phase-5",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.2"
+    },
+    "p5-when-hire": {
+      "id": "p5-when-hire",
+      "name": "When to Get Help",
+      "content": "<p><strong>Before hiring/contracting:</strong></p><ul><li>Revenue should cover the cost 3x over</li><li>You should be turning away work/opportunities</li><li>The task should be clearly defined</li></ul><p><strong>First hires/contracts (in order):</strong></p><ol><li><strong>Bookkeeper:</strong> When taxes become complex ($50-200/month)</li><li><strong>Customer support:</strong> When support takes >10 hrs/week</li><li><strong>Designer:</strong> For marketing assets (project-based)</li><li><strong>Developer:</strong> Only when you're the bottleneck</li></ol><p><strong>Alternatives to hiring:</strong></p><ul><li>Automate with tools before hiring humans</li><li>Use AI for first-draft content, support responses</li><li>Outsource one-time tasks on Fiverr/Upwork</li></ul>",
+      "type": "document",
+      "parentId": "phase-5",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.3"
+    },
+    "p5-reinvest": {
+      "id": "p5-reinvest",
+      "name": "Reinvestment Priority",
+      "content": "<p><strong>When you have profit, reinvest in this order:</strong></p><ol><li><strong>Reliability:</strong> Better hosting, monitoring, backups</li><li><strong>User experience:</strong> Design improvements, performance</li><li><strong>Marketing:</strong> Content, SEO, selective ads</li><li><strong>Features:</strong> Only features users are asking for</li><li><strong>Platform expansion:</strong> Android, new markets</li></ol><p><strong>The bootstrap mindset:</strong></p><ul><li>Every dollar should generate more than a dollar back</li><li>Measure ROI on every expense</li><li>Stay profitable even while growing</li></ul>",
+      "type": "document",
+      "parentId": "phase-5",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.4"
+    },
+    "legal-structures": {
+      "id": "legal-structures",
+      "name": "Legal Structures: What You Actually Need",
+      "content": "<p>Many developers over-complicate legal setup. Here's what actually matters at each stage.</p>",
+      "type": "chapter",
+      "parentId": "root-bootstrap",
+      "childrenIds": ["legal-solo", "legal-llc", "legal-corp", "legal-mistakes"],
+      "isCollapsed": false,
+      "prefix": "6"
+    },
+    "legal-solo": {
+      "id": "legal-solo",
+      "name": "Sole Proprietor (Starting Out)",
+      "content": "<p><strong>What it means:</strong> You and your business are the same legal entity. No formation required.</p><p><strong>For App Store:</strong></p><ul><li>Apple accepts individual developers</li><li>Your personal name appears as \"seller\"</li><li>This is fine for starting out</li></ul><p><strong>Pros:</strong></p><ul><li>Zero cost to start</li><li>Simplest tax filing (Schedule C)</li><li>No annual fees or filings</li></ul><p><strong>Cons:</strong></p><ul><li>No liability protection</li><li>Harder to get business credit</li><li>Less \"professional\" appearance</li></ul><p><strong>When it works:</strong> Revenue under $5K/month, no significant liability concerns, just you working on it.</p>",
+      "type": "document",
+      "parentId": "legal-structures",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "6.1"
+    },
+    "legal-llc": {
+      "id": "legal-llc",
+      "name": "LLC (Growth Stage)",
+      "content": "<p><strong>What it means:</strong> A separate legal entity that provides liability protection while being tax-efficient for small businesses.</p><p><strong>Benefits:</strong></p><ul><li>Personal assets protected from business liability</li><li>Pass-through taxation (no double tax)</li><li>Professional appearance</li><li>Easier to get business banking</li></ul><p><strong>Costs:</strong></p><ul><li>Formation: $50-500 (state filing fees)</li><li>Annual fees: Vary by state ($0-$800)</li><li>Operating agreement: DIY is fine for single-member</li></ul><p><strong>Best states for single-member LLC:</strong></p><ul><li><strong>Wyoming:</strong> No state income tax, $100 formation, $60/year</li><li><strong>New Mexico:</strong> $50 formation, no annual report</li><li><strong>Delaware:</strong> Good case law, but $300/year fee</li></ul><p><strong>Note:</strong> If you live in a state with LLC tax (like California $800/year), you may need to file there regardless of where you form.</p>",
+      "type": "document",
+      "parentId": "legal-structures",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "6.2"
+    },
+    "legal-corp": {
+      "id": "legal-corp",
+      "name": "Corporation (When You Need It)",
+      "content": "<p><strong>When to consider a C-Corp:</strong></p><ul><li>Taking venture capital investment</li><li>Offering stock options to employees</li><li>Revenue exceeding $100K+ and complex tax situation</li></ul><p><strong>Why NOT to start as a C-Corp:</strong></p><ul><li>Double taxation on profits</li><li>More expensive to maintain ($1,000+/year)</li><li>Annual meetings, board minutes required</li><li>Overkill for solo bootstrapped business</li></ul><p><strong>The conversion path:</strong></p><ul><li>Start as sole proprietor</li><li>Form LLC when revenue justifies it</li><li>Convert to C-Corp only if raising investment</li></ul><p>This path lets you stay lean while preserving options.</p>",
+      "type": "document",
+      "parentId": "legal-structures",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "6.3"
+    },
+    "legal-mistakes": {
+      "id": "legal-mistakes",
+      "name": "Expensive Mistakes to Avoid",
+      "content": "<p><strong>Don't do these too early:</strong></p><ul><li><strong>Forming in Delaware when you live elsewhere:</strong> You'll need to register in your home state anyway, doubling fees</li><li><strong>Paying lawyers for boilerplate:</strong> Standard Terms of Service and Privacy Policy templates are fine to start</li><li><strong>Getting a trademark before validating:</strong> $250-400 per class, wait until you're sure of the name</li><li><strong>Over-engineering contracts:</strong> Simple agreements work until you have significant revenue</li></ul><p><strong>Do protect yourself:</strong></p><ul><li>Keep business and personal finances separate</li><li>Document decisions and agreements (even informal ones)</li><li>Have basic Terms of Service and Privacy Policy</li><li>Get liability insurance when you can afford it ($300-500/year)</li></ul>",
+      "type": "document",
+      "parentId": "legal-structures",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "6.4"
+    },
+    "revenue-strategy": {
+      "id": "revenue-strategy",
+      "name": "Revenue Strategy for Solo Developer",
+      "content": "<p>Focus on sustainable revenue that doesn't require massive scale to be worthwhile.</p>",
+      "type": "chapter",
+      "parentId": "root-bootstrap",
+      "childrenIds": ["rev-pricing", "rev-payment", "rev-free-vs-paid", "rev-goals"],
+      "isCollapsed": false,
+      "prefix": "7"
+    },
+    "rev-pricing": {
+      "id": "rev-pricing",
+      "name": "Pricing Strategy",
+      "content": "<p><strong>Pricing philosophy for indie apps:</strong></p><ul><li>Price for sustainability, not maximum revenue</li><li>Higher price = fewer customers = less support burden</li><li>It's easier to lower prices than raise them</li></ul><p><strong>Recommended starting point:</strong></p><ul><li><strong>Free tier:</strong> Core features, limited AI usage</li><li><strong>Pro tier:</strong> $8-12/month or $79-99/year</li><li><strong>Annual discount:</strong> Equivalent to 2 months free</li></ul><p><strong>Comparison:</strong></p><ul><li>Notion: Free / $8/month / $15/month</li><li>Obsidian: Free / $50/year sync / $25/year publish</li><li>Roam: $15/month (no free tier)</li></ul><p><strong>Key insight:</strong> 100 customers at $10/month = $12,000/year. That's a meaningful side income with manageable support load.</p>",
+      "type": "document",
+      "parentId": "revenue-strategy",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "7.1"
+    },
+    "rev-payment": {
+      "id": "rev-payment",
+      "name": "Payment Processing",
+      "content": "<p><strong>Platforms and their cuts:</strong></p><ul><li><strong>App Store (iOS/Mac):</strong> 30% (15% for small business program under $1M)</li><li><strong>Stripe (web):</strong> 2.9% + 30¢ per transaction</li><li><strong>Paddle:</strong> 5% + 50¢ (handles sales tax/VAT)</li><li><strong>Gumroad:</strong> 10% + 30¢</li></ul><p><strong>Recommendation:</strong></p><ul><li>Use App Store for iOS (required) and Mac (convenient)</li><li>Use Stripe for web subscriptions (much lower fees)</li><li>Consider Paddle if international sales tax is overwhelming</li></ul><p><strong>Small Business Program:</strong> Apple reduces cut to 15% if you made <$1M in the previous year. Apply as soon as you enroll.</p>",
+      "type": "document",
+      "parentId": "revenue-strategy",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "7.2"
+    },
+    "rev-free-vs-paid": {
+      "id": "rev-free-vs-paid",
+      "name": "Free vs Paid Features",
+      "content": "<p><strong>What to include in free tier:</strong></p><ul><li>Core outlining functionality</li><li>Local storage (no server costs)</li><li>Basic export (JSON, Markdown)</li><li>Limited AI (e.g., 10 generations/month)</li></ul><p><strong>What to reserve for paid:</strong></p><ul><li>Unlimited AI features (they cost you money)</li><li>Cloud sync (requires infrastructure)</li><li>PDF export (nice-to-have premium feel)</li><li>Advanced organization (tags, multiple workspaces)</li></ul><p><strong>Philosophy:</strong> Free tier should be genuinely useful. Paid tier should be \"worth it\" for power users. Don't cripple free just to force upgrades.</p>",
+      "type": "document",
+      "parentId": "revenue-strategy",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "7.3"
+    },
+    "rev-goals": {
+      "id": "rev-goals",
+      "name": "Revenue Goals and Reality Check",
+      "content": "<p><strong>Realistic timeline for bootstrapped app:</strong></p><ul><li><strong>Month 1-3:</strong> Building and soft launch. $0 revenue is normal.</li><li><strong>Month 4-6:</strong> First paying customers. Goal: $100-500 MRR</li><li><strong>Month 6-12:</strong> Product-market fit. Goal: $500-2,000 MRR</li><li><strong>Year 2:</strong> Sustainable side income. Goal: $2,000-5,000 MRR</li></ul><p><strong>What these numbers mean:</strong></p><ul><li>$500/month: Covers hosting and tools</li><li>$2,000/month: Meaningful side income</li><li>$5,000/month: Could consider going full-time</li><li>$10,000/month: Solid indie business</li></ul><p><strong>Reality:</strong> Most indie apps never reach $1,000 MRR. Success requires persistence, iteration, and luck. Plan for the journey, not just the destination.</p>",
+      "type": "document",
+      "parentId": "revenue-strategy",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "7.4"
+    }
+  }
+}
