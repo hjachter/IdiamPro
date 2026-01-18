@@ -62,19 +62,19 @@ export default function SidebarPane({
   };
 
   return (
-    <div className="h-full w-64 flex flex-col border-r bg-muted/30">
+    <div className="h-full w-full flex flex-col bg-background/80 sidebar-shadow">
       {/* Header with commands */}
-      <div className="flex-shrink-0 p-3 border-b space-y-2">
+      <div className="flex-shrink-0 p-3 border-b border-border/60 space-y-3">
         <div className="flex items-center justify-between">
-          <span className="font-semibold text-sm">IdiamPro</span>
+          <span className="font-semibold text-sm tracking-tight">IdiamPro</span>
         </div>
 
         {/* Quick actions at top */}
-        <div className="space-y-1">
+        <div className="space-y-1.5">
           <Button
             variant="outline"
             size="sm"
-            className="w-full justify-start gap-2 h-8"
+            className="w-full justify-start gap-2 h-9 font-medium shadow-sm hover:shadow transition-all duration-150"
             onClick={onCreateOutline}
           >
             <Plus className="h-4 w-4" />
@@ -83,7 +83,7 @@ export default function SidebarPane({
           <Button
             variant="ghost"
             size="sm"
-            className="w-full justify-start gap-2 h-8"
+            className="w-full justify-start gap-2 h-9 text-muted-foreground hover:text-foreground transition-colors duration-150"
             onClick={onOpenGuide}
           >
             <BookOpen className="h-4 w-4" />
@@ -94,23 +94,21 @@ export default function SidebarPane({
         {/* Templates Section (collapsible) */}
         <Collapsible open={templatesOpen} onOpenChange={setTemplatesOpen}>
           <CollapsibleTrigger asChild>
-            <Button variant="ghost" className="w-full justify-start gap-2 h-8 px-2">
-              {templatesOpen ? (
-                <ChevronDown className="h-4 w-4" />
-              ) : (
+            <Button variant="ghost" className="w-full justify-start gap-2 h-8 px-2 text-muted-foreground hover:text-foreground transition-colors duration-150">
+              <span className="transition-transform duration-200" style={{ transform: templatesOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}>
                 <ChevronRight className="h-4 w-4" />
-              )}
+              </span>
               <LayoutTemplate className="h-4 w-4" />
               <span className="text-sm font-medium">Templates</span>
-              <span className="ml-auto text-xs text-muted-foreground">{templates.length}</span>
+              <span className="ml-auto text-xs text-muted-foreground/70">{templates.length}</span>
             </Button>
           </CollapsibleTrigger>
-          <CollapsibleContent className="mt-1">
-            <div className="grid grid-cols-1 gap-1 max-h-48 overflow-y-auto">
+          <CollapsibleContent className="mt-1 animate-in slide-in-from-top-1 duration-200">
+            <div className="grid grid-cols-1 gap-0.5 max-h-48 overflow-y-auto pl-2">
               {templates.map(template => (
                 <div
                   key={template.id}
-                  className="flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer text-sm hover:bg-muted"
+                  className="flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer text-sm transition-all duration-150 hover:bg-muted/80 hover:translate-x-0.5 active:bg-muted"
                   onClick={() => handleSelectTemplate(template)}
                 >
                   <span className="text-base">{template.icon}</span>
@@ -123,10 +121,10 @@ export default function SidebarPane({
       </div>
 
       {/* Outlines list header */}
-      <div className="flex items-center gap-2 px-3 py-2 border-b bg-muted/50">
-        <FileText className="h-4 w-4" />
-        <span className="text-sm font-medium">Outlines</span>
-        <span className="ml-auto text-xs text-muted-foreground">{userOutlines.length}</span>
+      <div className="flex items-center gap-2 px-3 py-2 border-b border-border/40 bg-muted/30">
+        <FileText className="h-4 w-4 text-muted-foreground" />
+        <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Outlines</span>
+        <span className="ml-auto text-xs text-muted-foreground/70 tabular-nums">{userOutlines.length}</span>
       </div>
 
       {/* Scrollable outline list at bottom */}
@@ -136,15 +134,15 @@ export default function SidebarPane({
           {guide && (
             <div
               className={cn(
-                "group flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer text-sm",
+                "group flex items-center gap-2 px-2 py-2 rounded-md cursor-pointer text-sm transition-all duration-150",
                 currentOutlineId === guide.id
-                  ? "bg-primary/10 text-primary"
-                  : "hover:bg-muted"
+                  ? "bg-primary/10 text-primary border-l-2 border-primary -ml-0.5 pl-[calc(0.5rem+2px)]"
+                  : "hover:bg-muted/60 hover:translate-x-0.5"
               )}
               onClick={() => onSelectOutline(guide.id)}
             >
               <BookOpen className="h-4 w-4 shrink-0" />
-              <span className="truncate italic">{guide.name}</span>
+              <span className="truncate italic font-medium">{guide.name}</span>
             </div>
           )}
 
@@ -153,10 +151,10 @@ export default function SidebarPane({
             <div
               key={outline.id}
               className={cn(
-                "group flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer text-sm",
+                "group flex items-center gap-2 px-2 py-2 rounded-md cursor-pointer text-sm transition-all duration-150",
                 currentOutlineId === outline.id
-                  ? "bg-primary/10 text-primary"
-                  : "hover:bg-muted"
+                  ? "bg-primary/10 text-primary font-medium border-l-2 border-primary -ml-0.5 pl-[calc(0.5rem+2px)]"
+                  : "hover:bg-muted/60 hover:translate-x-0.5"
               )}
               onClick={() => onSelectOutline(outline.id)}
             >
@@ -167,13 +165,13 @@ export default function SidebarPane({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-6 w-6 opacity-0 group-hover:opacity-100"
+                    className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity duration-150"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <MoreHorizontal className="h-3 w-3" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
+                <DropdownMenuContent align="end" className="elevation-2">
                   <DropdownMenuItem
                     className="text-destructive"
                     onClick={(e) => {
@@ -190,7 +188,7 @@ export default function SidebarPane({
           ))}
 
           {userOutlines.length === 0 && (
-            <p className="text-xs text-muted-foreground px-2 py-2">
+            <p className="text-xs text-muted-foreground/80 px-2 py-4 text-center">
               No outlines yet. Create one or use a template.
             </p>
           )}

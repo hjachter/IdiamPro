@@ -83,22 +83,22 @@ export default function MobileSidebarSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="h-[85vh] rounded-t-xl p-0 flex flex-col">
+      <SheetContent side="bottom" className="h-[85vh] rounded-t-xl p-0 flex flex-col elevation-3">
         {/* Header with title */}
-        <SheetHeader className="flex-shrink-0 px-4 py-3 border-b">
+        <SheetHeader className="flex-shrink-0 px-4 py-3 border-b border-border/60">
           <div className="flex items-center justify-between">
-            <SheetTitle>IdiamPro</SheetTitle>
+            <SheetTitle className="font-semibold tracking-tight">IdiamPro</SheetTitle>
           </div>
         </SheetHeader>
 
         {/* Commands section - fixed at top */}
-        <div className="flex-shrink-0 p-3 border-b space-y-2">
+        <div className="flex-shrink-0 p-3 border-b border-border/60 space-y-3">
           {/* Quick actions */}
           <div className="flex gap-2">
             <Button
               variant="outline"
               size="sm"
-              className="flex-1 justify-center gap-2 h-10"
+              className="flex-1 justify-center gap-2 h-11 font-medium shadow-sm hover:shadow transition-all duration-150"
               onClick={() => {
                 onCreateOutline();
                 onOpenChange(false);
@@ -110,7 +110,7 @@ export default function MobileSidebarSheet({
             <Button
               variant="ghost"
               size="sm"
-              className="flex-1 justify-center gap-2 h-10"
+              className="flex-1 justify-center gap-2 h-11 text-muted-foreground hover:text-foreground transition-colors duration-150"
               onClick={handleOpenGuide}
             >
               <BookOpen className="h-4 w-4" />
@@ -121,23 +121,21 @@ export default function MobileSidebarSheet({
           {/* Templates Section (collapsible) */}
           <Collapsible open={templatesOpen} onOpenChange={setTemplatesOpen}>
             <CollapsibleTrigger asChild>
-              <Button variant="ghost" className="w-full justify-start gap-2 h-10 px-3">
-                {templatesOpen ? (
-                  <ChevronDown className="h-4 w-4" />
-                ) : (
+              <Button variant="ghost" className="w-full justify-start gap-2 h-10 px-3 text-muted-foreground hover:text-foreground transition-colors duration-150">
+                <span className="transition-transform duration-200" style={{ transform: templatesOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}>
                   <ChevronRight className="h-4 w-4" />
-                )}
+                </span>
                 <LayoutTemplate className="h-4 w-4" />
                 <span className="font-medium">Templates</span>
-                <span className="ml-auto text-xs text-muted-foreground">{templates.length}</span>
+                <span className="ml-auto text-xs text-muted-foreground/70">{templates.length}</span>
               </Button>
             </CollapsibleTrigger>
-            <CollapsibleContent className="mt-1">
-              <div className="grid grid-cols-2 gap-2 px-1 max-h-48 overflow-y-auto">
+            <CollapsibleContent className="mt-1 animate-in slide-in-from-top-1 duration-200">
+              <div className="grid grid-cols-2 gap-1.5 px-1 max-h-48 overflow-y-auto">
                 {templates.map(template => (
                   <div
                     key={template.id}
-                    className="flex items-center gap-2 px-3 py-2.5 rounded-lg cursor-pointer hover:bg-muted active:bg-muted"
+                    className="flex items-center gap-2 px-3 py-2.5 rounded-lg cursor-pointer transition-all duration-150 hover:bg-muted/80 active:bg-muted active:scale-[0.98]"
                     onClick={() => handleSelectTemplate(template)}
                   >
                     <span className="text-xl">{template.icon}</span>
@@ -150,28 +148,28 @@ export default function MobileSidebarSheet({
         </div>
 
         {/* Outlines list header */}
-        <div className="flex-shrink-0 flex items-center gap-2 px-4 py-2 border-b bg-muted/50">
-          <FileText className="h-4 w-4" />
-          <span className="text-sm font-medium">Outlines</span>
-          <span className="ml-auto text-xs text-muted-foreground">{userOutlines.length}</span>
+        <div className="flex-shrink-0 flex items-center gap-2 px-4 py-2 border-b border-border/40 bg-muted/30">
+          <FileText className="h-4 w-4 text-muted-foreground" />
+          <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Outlines</span>
+          <span className="ml-auto text-xs text-muted-foreground/70 tabular-nums">{userOutlines.length}</span>
         </div>
 
         {/* Scrollable outline list */}
         <ScrollArea className="flex-1">
-          <div className="p-2 space-y-1">
+          <div className="p-2 space-y-0.5">
             {/* User Guide */}
             {guide && (
               <div
                 className={cn(
-                  "group flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer",
+                  "group flex items-center gap-3 px-3 py-3 rounded-lg cursor-pointer transition-all duration-150",
                   currentOutlineId === guide.id
-                    ? "bg-primary/10 text-primary"
-                    : "hover:bg-muted active:bg-muted"
+                    ? "bg-primary/10 text-primary border-l-2 border-primary -ml-0.5 pl-[calc(0.75rem+2px)]"
+                    : "hover:bg-muted/60 active:bg-muted"
                 )}
                 onClick={() => handleSelectOutline(guide.id)}
               >
                 <BookOpen className="h-5 w-5 shrink-0" />
-                <span className="truncate italic">{guide.name}</span>
+                <span className="truncate italic font-medium">{guide.name}</span>
               </div>
             )}
 
@@ -180,10 +178,10 @@ export default function MobileSidebarSheet({
               <div
                 key={outline.id}
                 className={cn(
-                  "group flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer",
+                  "group flex items-center gap-3 px-3 py-3 rounded-lg cursor-pointer transition-all duration-150",
                   currentOutlineId === outline.id
-                    ? "bg-primary/10 text-primary"
-                    : "hover:bg-muted active:bg-muted"
+                    ? "bg-primary/10 text-primary font-medium border-l-2 border-primary -ml-0.5 pl-[calc(0.75rem+2px)]"
+                    : "hover:bg-muted/60 active:bg-muted"
                 )}
                 onClick={() => handleSelectOutline(outline.id)}
               >
@@ -194,13 +192,13 @@ export default function MobileSidebarSheet({
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8 shrink-0"
+                      className="h-8 w-8 shrink-0 opacity-70"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <MoreHorizontal className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
+                  <DropdownMenuContent align="end" className="elevation-2">
                     <DropdownMenuItem
                       className="text-destructive"
                       onClick={(e) => {

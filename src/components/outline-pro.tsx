@@ -147,6 +147,16 @@ export default function OutlinePro() {
   const hasUnsavedChangesRef = useRef(false);
   const saveDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Sidebar width state (persisted to localStorage)
+  const [sidebarWidth, setSidebarWidth] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('idiampro-sidebar-width');
+      return saved ? parseInt(saved, 10) : 240;
+    }
+    return 240;
+  });
+  const isResizingSidebar = useRef(false);
+
   // Track just-created node for space-to-edit feature
   const justCreatedNodeIdRef = useRef<string | null>(null);
   // Trigger edit mode on a specific node (set by keyboard shortcuts)
@@ -876,6 +886,42 @@ export default function OutlinePro() {
       }
     });
   }, [currentOutlineId, handleCreateOutline]);
+
+  // Save sidebar width to localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('idiampro-sidebar-width', sidebarWidth.toString());
+    }
+  }, [sidebarWidth]);
+
+  // Handle sidebar resize drag
+  const handleSidebarMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    isResizingSidebar.current = true;
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+
+    const startX = e.clientX;
+    const startWidth = sidebarWidth;
+
+    const handleMouseMove = (moveEvent: MouseEvent) => {
+      if (!isResizingSidebar.current) return;
+      const delta = moveEvent.clientX - startX;
+      const newWidth = Math.min(400, Math.max(180, startWidth + delta));
+      setSidebarWidth(newWidth);
+    };
+
+    const handleMouseUp = () => {
+      isResizingSidebar.current = false;
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  }, [sidebarWidth]);
 
   // FIXED: handleSelectOutline uses functional update to read fresh state
   const handleSelectOutline = useCallback((outlineId: string) => {
@@ -1936,8 +1982,32 @@ export default function OutlinePro() {
 
   if (!isClient || !currentOutline) {
     return (
-      <div className="flex items-center justify-center h-screen w-full">
-        <p>Loading IdiamPro...</p>
+      <div className="flex h-screen w-full bg-background">
+        {/* Skeleton sidebar */}
+        <div className="w-64 border-r bg-muted/20 p-3 space-y-4 hidden md:block">
+          <div className="skeleton h-5 w-24" />
+          <div className="skeleton h-9 w-full" />
+          <div className="skeleton h-9 w-full" />
+          <div className="space-y-2 mt-6">
+            <div className="skeleton h-4 w-20" />
+            <div className="skeleton h-8 w-full" />
+            <div className="skeleton h-8 w-full" />
+            <div className="skeleton h-8 w-3/4" />
+          </div>
+        </div>
+        {/* Skeleton main content */}
+        <div className="flex-1 flex flex-col">
+          <div className="border-b p-3 flex items-center gap-3">
+            <div className="skeleton h-9 w-48" />
+            <div className="skeleton h-8 w-8 rounded-full" />
+          </div>
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-center space-y-3">
+              <div className="skeleton h-8 w-8 rounded-full mx-auto" />
+              <p className="text-sm text-muted-foreground">Loading IdiamPro...</p>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -2211,15 +2281,22 @@ export default function OutlinePro() {
     <div className="flex h-screen w-full">
       {/* Collapsible Sidebar */}
       {isSidebarOpen && (
-        <SidebarPane
-          outlines={outlines}
-          currentOutlineId={currentOutlineId}
-          onSelectOutline={handleSelectOutline}
-          onCreateOutline={handleCreateOutline}
-          onCreateFromTemplate={handleCreateFromTemplate}
-          onDeleteOutline={handleDeleteOutline}
-          onOpenGuide={handleOpenGuide}
-        />
+        <div className="relative flex-shrink-0" style={{ width: sidebarWidth }}>
+          <SidebarPane
+            outlines={outlines}
+            currentOutlineId={currentOutlineId}
+            onSelectOutline={handleSelectOutline}
+            onCreateOutline={handleCreateOutline}
+            onCreateFromTemplate={handleCreateFromTemplate}
+            onDeleteOutline={handleDeleteOutline}
+            onOpenGuide={handleOpenGuide}
+          />
+          {/* Resize handle */}
+          <div
+            className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-primary/30 active:bg-primary/50 transition-colors"
+            onMouseDown={handleSidebarMouseDown}
+          />
+        </div>
       )}
 
       {/* Main content area */}

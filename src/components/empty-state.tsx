@@ -19,26 +19,26 @@ export default function EmptyState({
   onOpenGuide,
 }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center h-full p-6 space-y-8 bg-background">
+    <div className="flex flex-col items-center justify-center h-full p-6 space-y-8 bg-gradient-to-b from-background to-muted/20">
       {/* Welcome Header */}
-      <div className="text-center space-y-3 max-w-md">
+      <div className="text-center space-y-4 max-w-md animate-in fade-in slide-in-from-bottom-4 duration-500">
         <div className="flex items-center justify-center mb-4">
-          <div className="p-3 rounded-2xl bg-primary/10">
-            <Sparkles className="h-10 w-10 text-primary" />
+          <div className="p-4 rounded-2xl bg-primary/10 shadow-lg shadow-primary/5">
+            <Sparkles className="h-12 w-12 text-primary" />
           </div>
         </div>
         <h1 className="text-3xl font-bold tracking-tight">Welcome to IdiamPro</h1>
-        <p className="text-muted-foreground text-lg">
+        <p className="text-muted-foreground text-lg leading-relaxed">
           Create structured outlines for your ideas, projects, and notes.
         </p>
       </div>
 
       {/* Quick Actions */}
-      <div className="flex flex-col sm:flex-row gap-3 w-full max-w-md">
+      <div className="flex flex-col sm:flex-row gap-3 w-full max-w-md animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
         <Button
           variant="default"
           size="lg"
-          className="flex-1 h-14 text-base"
+          className="flex-1 h-14 text-base shadow-md hover:shadow-lg transition-all duration-200"
           onClick={onCreateBlankOutline}
         >
           <Plus className="h-5 w-5 mr-2" />
@@ -47,7 +47,7 @@ export default function EmptyState({
         <Button
           variant="outline"
           size="lg"
-          className="flex-1 h-14 text-base"
+          className="flex-1 h-14 text-base hover:bg-muted/50 transition-all duration-200"
           onClick={onOpenGuide}
         >
           <BookOpen className="h-5 w-5 mr-2" />
@@ -56,22 +56,23 @@ export default function EmptyState({
       </div>
 
       {/* Templates Grid */}
-      <div className="w-full max-w-3xl">
-        <h2 className="text-lg font-semibold mb-4 text-center">Start from a Template</h2>
+      <div className="w-full max-w-3xl animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
+        <h2 className="text-sm font-medium uppercase tracking-wider text-muted-foreground mb-4 text-center">Start from a Template</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {templates.map(template => (
+          {templates.map((template, index) => (
             <TemplateCard
               key={template.id}
               template={template}
               onSelect={() => onCreateFromTemplate(template.create())}
+              index={index}
             />
           ))}
         </div>
       </div>
 
       {/* Keyboard Shortcut Hint */}
-      <p className="text-sm text-muted-foreground">
-        Press <kbd className="px-1.5 py-0.5 bg-muted rounded text-xs font-mono">⌘K</kbd> anytime for quick actions
+      <p className="text-sm text-muted-foreground/70 animate-in fade-in duration-500 delay-300">
+        Press <kbd className="px-2 py-1 bg-muted/80 border border-border/50 rounded-md text-xs font-mono shadow-sm">⌘K</kbd> anytime for quick actions
       </p>
     </div>
   );
@@ -80,22 +81,24 @@ export default function EmptyState({
 interface TemplateCardProps {
   template: Template;
   onSelect: () => void;
+  index?: number;
 }
 
-function TemplateCard({ template, onSelect }: TemplateCardProps) {
+function TemplateCard({ template, onSelect, index = 0 }: TemplateCardProps) {
   return (
     <Card
-      className="cursor-pointer transition-all duration-150 hover:border-primary/50 hover:shadow-md active:scale-[0.98]"
+      className="cursor-pointer transition-all duration-200 hover:border-primary/40 hover:shadow-lg hover:-translate-y-0.5 active:scale-[0.98] active:shadow-md bg-card/80 backdrop-blur-sm"
       onClick={onSelect}
+      style={{ animationDelay: `${index * 50}ms` }}
     >
       <CardHeader className="pb-2">
         <div className="flex items-center gap-3">
           <span className="text-2xl">{template.icon}</span>
-          <CardTitle className="text-base">{template.name}</CardTitle>
+          <CardTitle className="text-base font-medium">{template.name}</CardTitle>
         </div>
       </CardHeader>
       <CardContent>
-        <CardDescription className="text-sm line-clamp-2">
+        <CardDescription className="text-sm line-clamp-2 leading-relaxed">
           {template.description}
         </CardDescription>
       </CardContent>
