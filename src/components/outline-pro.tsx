@@ -466,6 +466,7 @@ export default function OutlinePro() {
         const capturedNewNodeId = newNodeId;
         setTimeout(() => {
           setSelectedNodeId(capturedNewNodeId);
+          setEditingNodeId(capturedNewNodeId); // Auto-enter edit mode for new nodes
           // On mobile, stay in outline view - user taps content preview to see content
         }, 0);
       }
@@ -507,6 +508,7 @@ export default function OutlinePro() {
         }, 5000);
         setTimeout(() => {
           setSelectedNodeId(capturedNewNodeId);
+          setEditingNodeId(capturedNewNodeId); // Auto-enter edit mode for new nodes
           // On mobile, stay in outline view - user taps content preview to see content
         }, 0);
       }
@@ -548,6 +550,7 @@ export default function OutlinePro() {
         }, 5000);
         setTimeout(() => {
           setSelectedNodeId(capturedNewNodeId);
+          setEditingNodeId(capturedNewNodeId); // Auto-enter edit mode for new nodes
           // On mobile, stay in outline view - user taps content preview to see content
         }, 0);
       }
