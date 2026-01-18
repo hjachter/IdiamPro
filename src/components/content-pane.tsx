@@ -359,6 +359,7 @@ export default function ContentPane({
 
   const [promptDialogOpen, setPromptDialogOpen] = useState(false);
   const [customPrompt, setCustomPrompt] = useState('');
+  const [aiResponse, setAiResponse] = useState<string | null>(null);
 
   // Persist preferences to localStorage
   useEffect(() => {
@@ -836,7 +837,6 @@ export default function ContentPane({
   const handleGenerateFromPrompt = async () => {
     if (!node || !editor || !customPrompt.trim() || !onGenerateContent) return;
 
-    setPromptDialogOpen(false);
     setIsGenerating(true);
 
     try {
@@ -850,11 +850,32 @@ export default function ContentPane({
       };
 
       const generatedContent = await onGenerateContent(context);
-      applyGeneratedContent(generatedContent, generatePlacement);
-      setCustomPrompt('');
+      setAiResponse(generatedContent);
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  const handleSaveAiResponse = () => {
+    if (!aiResponse || !editor) return;
+    applyGeneratedContent(aiResponse, generatePlacement);
+    setAiResponse(null);
+    setCustomPrompt('');
+    setPromptDialogOpen(false);
+    toast({
+      title: "Saved to Node",
+      description: "AI response added to content.",
+    });
+  };
+
+  const handleDiscardAiResponse = () => {
+    setAiResponse(null);
+  };
+
+  const handleClosePromptDialog = () => {
+    setPromptDialogOpen(false);
+    setAiResponse(null);
+    setCustomPrompt('');
   };
 
   const handleConflictAction = (action: ContentConflictAction) => {
@@ -1204,8 +1225,8 @@ export default function ContentPane({
       />
 
       {/* Ask AI Dialog */}
-      <Dialog open={promptDialogOpen} onOpenChange={setPromptDialogOpen}>
-        <DialogContent className="sm:max-w-[500px]">
+      <Dialog open={promptDialogOpen} onOpenChange={handleClosePromptDialog}>
+        <DialogContent className="sm:max-w-[600px] max-h-[80vh] flex flex-col">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <MessageSquare className="h-5 w-5 text-purple-600" />
@@ -1215,44 +1236,152 @@ export default function ContentPane({
               Tell me what you'd like for "{node?.name}" - I can write, expand, summarize, reformat, or answer general questions.
             </DialogDescription>
           </DialogHeader>
-          <div className="py-4">
-            <Textarea
-              placeholder="Try: 'Write 3 bullet points summarizing this...' or 'Explain this concept simply...' or 'Add a pros and cons section...' or 'What are the key takeaways?'"
-              value={customPrompt}
-              onChange={(e) => setCustomPrompt(e.target.value)}
-              className="min-h-[120px] resize-none"
-              autoFocus
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
-                  handleGenerateFromPrompt();
-                }
-              }}
-            />
-            <p className="text-xs text-muted-foreground mt-2">
-              ⌘+Enter to send
-            </p>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setPromptDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button
-              onClick={handleGenerateFromPrompt}
-              disabled={!customPrompt.trim() || isGenerating}
-              className="bg-purple-600 hover:bg-purple-700"
-            >
-              {isGenerating ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Thinking...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="mr-2 h-4 w-4" />
-                  Send
-                </>
+
+          <div className="flex-1 overflow-y-auto py-4 space-y-4">
+            {/* User's question */}
+            <div>
+              <Textarea
+                placeholder="Try: 'Write 3 bullet points summarizing this...' or 'Explain this concept simply...' or 'Add a pros and cons section...' or 'What are the key takeaways?'"
+                value={customPrompt}
+                onChange={(e) => setCustomPrompt(e.target.value)}
+                className="min-h-[100px] resize-none"
+                autoFocus={!aiResponse}
+                disabled={isGenerating || !!aiResponse}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && (e.metaKey || e.ctrlKey) && !aiResponse) {
+                    handleGenerateFromPrompt();
+                  }
+                }}
+              />
+              {!aiResponse && !isGenerating && (
+                <p className="text-xs text-muted-foreground mt-2">
+                  ⌘+Enter to send
+                </p>
               )}
-            </Button>
+            </div>
+
+            {/* AI Response */}
+            {(isGenerating || aiResponse) && (
+              <div className="border rounded-lg p-4 bg-purple-50 dark:bg-purple-950/30">
+                <div className="flex items-center gap-2 mb-2 text-sm font-medium text-purple-700 dark:text-purple-300">
+                  <Sparkles className="h-4 w-4" />
+                  AI Response
+                </div>
+                {isGenerating ? (
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Thinking...
+                  </div>
+                ) : (
+                  <div className="prose prose-sm dark:prose-invert max-w-none max-h-[300px] overflow-y-auto">
+                    <div dangerouslySetInnerHTML={{ __html: processGeneratedContent(aiResponse || '') }} />
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          <DialogFooter className="flex-shrink-0">
+            {aiResponse ? (
+              <div className="flex gap-2 w-full justify-between">
+                <div className="flex gap-2">
+                  <Button variant="outline" onClick={handleClosePromptDialog}>
+                    Cancel
+                  </Button>
+                  <Button variant="outline" onClick={handleDiscardAiResponse}>
+                    Ask Another
+                  </Button>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      if (aiResponse) {
+                        // Copy plain text version
+                        const tempDiv = document.createElement('div');
+                        tempDiv.innerHTML = processGeneratedContent(aiResponse);
+                        navigator.clipboard.writeText(tempDiv.textContent || tempDiv.innerText || '');
+                        toast({
+                          title: "Copied",
+                          description: "Response copied to clipboard.",
+                        });
+                      }
+                    }}
+                  >
+                    <Copy className="mr-2 h-4 w-4" />
+                    Copy
+                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button className="bg-green-600 hover:bg-green-700">
+                        <Check className="mr-2 h-4 w-4" />
+                        Save to Node
+                        <ChevronDown className="ml-2 h-3 w-3" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => {
+                        if (aiResponse && editor) {
+                          applyGeneratedContent(aiResponse, 'append');
+                          setAiResponse(null);
+                          setCustomPrompt('');
+                          setPromptDialogOpen(false);
+                          toast({ title: "Saved", description: "Added below existing content." });
+                        }
+                      }}>
+                        Append (below existing)
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => {
+                        if (aiResponse && editor) {
+                          applyGeneratedContent(aiResponse, 'prepend');
+                          setAiResponse(null);
+                          setCustomPrompt('');
+                          setPromptDialogOpen(false);
+                          toast({ title: "Saved", description: "Added above existing content." });
+                        }
+                      }}>
+                        Prepend (above existing)
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => {
+                        if (aiResponse && editor) {
+                          applyGeneratedContent(aiResponse, 'replace');
+                          setAiResponse(null);
+                          setCustomPrompt('');
+                          setPromptDialogOpen(false);
+                          toast({ title: "Saved", description: "Replaced existing content." });
+                        }
+                      }} className="text-destructive">
+                        Replace all content
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </div>
+            ) : (
+              <>
+                <Button variant="outline" onClick={handleClosePromptDialog}>
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleGenerateFromPrompt}
+                  disabled={!customPrompt.trim() || isGenerating}
+                  className="bg-purple-600 hover:bg-purple-700"
+                >
+                  {isGenerating ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Thinking...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="mr-2 h-4 w-4" />
+                      Send
+                    </>
+                  )}
+                </Button>
+              </>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
