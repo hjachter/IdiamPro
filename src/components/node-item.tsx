@@ -245,7 +245,7 @@ export default function NodeItem({
     setName(node.name);
   }, [node.name]);
 
-  // Watch for external edit trigger (Space after creation, F2)
+  // Watch for external edit trigger (editingNodeId set by parent)
   React.useEffect(() => {
     if (editingNodeId === nodeId && !isEditing) {
       setIsEditing(true);

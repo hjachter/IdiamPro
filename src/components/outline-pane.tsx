@@ -256,6 +256,49 @@ export default function OutlinePane({
     }
   }, [selectedNodeId, currentOutline, onMoveNode]);
 
+  // Handle bulk indent - indent all selected nodes
+  // Find the first non-selected previous sibling as the target for all selected nodes
+  const handleBulkIndent = useCallback(() => {
+    if (!selectedNodeIds || selectedNodeIds.size === 0 || !currentOutline) return;
+    if (currentOutline.isGuide) return;
+
+    const nodes = currentOutline.nodes;
+    const nodeIdsArray = Array.from(selectedNodeIds);
+
+    // For each selected node, find anchor and indent
+    for (const nodeId of nodeIdsArray) {
+      if (!canIndent(nodes, nodeId)) continue;
+
+      // Find first non-selected previous sibling
+      let anchor = getPreviousSibling(nodes, nodeId);
+      while (anchor && selectedNodeIds.has(anchor)) {
+        anchor = getPreviousSibling(nodes, anchor);
+      }
+
+      if (anchor) {
+        onMoveNode(nodeId, anchor, 'inside');
+      }
+    }
+  }, [selectedNodeIds, currentOutline, onMoveNode]);
+
+  // Handle bulk outdent - outdent all selected nodes
+  const handleBulkOutdent = useCallback(() => {
+    if (!selectedNodeIds || selectedNodeIds.size === 0 || !currentOutline) return;
+    if (currentOutline.isGuide) return;
+
+    const nodes = currentOutline.nodes;
+    const nodeIdsArray = Array.from(selectedNodeIds);
+
+    for (const nodeId of nodeIdsArray) {
+      if (!canOutdent(nodes, nodeId, currentOutline.rootNodeId)) continue;
+
+      const node = nodes[nodeId];
+      if (node && node.parentId) {
+        onMoveNode(nodeId, node.parentId, 'after');
+      }
+    }
+  }, [selectedNodeIds, currentOutline, onMoveNode]);
+
   // Search handlers
   const handleSearchResults = useCallback((matches: SearchMatch[], term: string) => {
     setSearchMatches(matches);
@@ -367,6 +410,15 @@ export default function OutlinePane({
       const target = e.target as HTMLElement;
       if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) return;
 
+      // Handle Escape to clear multi-selection
+      if (e.key === 'Escape') {
+        if (selectedNodeIds && selectedNodeIds.size > 0) {
+          e.preventDefault();
+          onClearSelection?.();
+          return;
+        }
+      }
+
       // Handle Tab for indent/outdent
       if (e.key === 'Tab') {
         if (!selectedNodeId || !currentOutline) return;
@@ -422,7 +474,7 @@ export default function OutlinePane({
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [selectedNodeId, currentOutline, handleIndent, handleOutdent, hasClipboard, onCopySubtree, onCutSubtree, onPasteSubtree, onDuplicateNode, justCreatedNodeId, onTriggerEdit]);
+  }, [selectedNodeId, currentOutline, handleIndent, handleOutdent, hasClipboard, onCopySubtree, onCutSubtree, onPasteSubtree, onDuplicateNode, justCreatedNodeId, onTriggerEdit, selectedNodeIds, onClearSelection]);
 
   const handleStartRename = (id: string, currentName: string) => {
     setRenameId(id);
@@ -856,9 +908,25 @@ export default function OutlinePane({
         onPrevMatch={handlePrevMatch}
       />
 
-      <div className="flex-grow overflow-y-auto pr-2">
+      <div
+        className="flex-grow overflow-y-auto pr-2"
+        onClick={(e) => {
+          // Clear multi-selection when clicking on empty space (not on a node)
+          if (e.target === e.currentTarget && selectedNodeIds && selectedNodeIds.size > 0) {
+            onClearSelection?.();
+          }
+        }}
+      >
         {rootNode && currentOutline && (
-          <ul className="select-none">
+          <ul
+            className="select-none"
+            onClick={(e) => {
+              // Also handle clicks on the ul but not on nodes
+              if (e.target === e.currentTarget && selectedNodeIds && selectedNodeIds.size > 0) {
+                onClearSelection?.();
+              }
+            }}
+          >
             <NodeItem
               key={rootNode.id}
               nodeId={rootNode.id}
@@ -902,6 +970,8 @@ export default function OutlinePane({
           onBulkDelete={onBulkDelete || (() => {})}
           onBulkChangeColor={onBulkChangeColor || (() => {})}
           onBulkAddTag={onBulkAddTag || (() => {})}
+          onBulkIndent={handleBulkIndent}
+          onBulkOutdent={handleBulkOutdent}
         />
       )}
     </div>

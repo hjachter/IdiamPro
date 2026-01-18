@@ -477,6 +477,9 @@ export default function OutlinePro() {
 
   // handleCreateChildNode adds new node as child of specified parent (for double-click creation)
   const handleCreateChildNode = useCallback((parentId: string) => {
+    // Clear multi-select to ensure single selection (same as handleCreateNode)
+    setSelectedNodeIds(new Set());
+
     setOutlines(currentOutlines => {
       let newNodeId: string | null = null;
 
@@ -500,17 +503,17 @@ export default function OutlinePro() {
         const capturedNewNodeId = newNodeId;
         // Track this as a just-created node for space-to-edit feature
         justCreatedNodeIdRef.current = capturedNewNodeId;
-        // Clear the ref after 5 seconds (user has had enough time to press space)
+        // Clear the ref after 5 seconds
         setTimeout(() => {
           if (justCreatedNodeIdRef.current === capturedNewNodeId) {
             justCreatedNodeIdRef.current = null;
           }
         }, 5000);
-        setTimeout(() => {
+        // Use requestAnimationFrame to ensure DOM has updated before setting edit mode
+        requestAnimationFrame(() => {
           setSelectedNodeId(capturedNewNodeId);
           setEditingNodeId(capturedNewNodeId); // Auto-enter edit mode for new nodes
-          // On mobile, stay in outline view - user taps content preview to see content
-        }, 0);
+        });
       }
 
       return newOutlines;
@@ -519,6 +522,9 @@ export default function OutlinePro() {
 
   // handleCreateSiblingNode adds new node as sibling after specified node (for double-click creation)
   const handleCreateSiblingNode = useCallback((nodeId: string) => {
+    // Clear multi-select to ensure single selection (same as handleCreateNode)
+    setSelectedNodeIds(new Set());
+
     setOutlines(currentOutlines => {
       let newNodeId: string | null = null;
 
@@ -542,17 +548,17 @@ export default function OutlinePro() {
         const capturedNewNodeId = newNodeId;
         // Track this as a just-created node for space-to-edit feature
         justCreatedNodeIdRef.current = capturedNewNodeId;
-        // Clear the ref after 5 seconds (user has had enough time to press space)
+        // Clear the ref after 5 seconds
         setTimeout(() => {
           if (justCreatedNodeIdRef.current === capturedNewNodeId) {
             justCreatedNodeIdRef.current = null;
           }
         }, 5000);
-        setTimeout(() => {
+        // Use requestAnimationFrame to ensure DOM has updated before setting edit mode
+        requestAnimationFrame(() => {
           setSelectedNodeId(capturedNewNodeId);
           setEditingNodeId(capturedNewNodeId); // Auto-enter edit mode for new nodes
-          // On mobile, stay in outline view - user taps content preview to see content
-        }, 0);
+        });
       }
 
       return newOutlines;
@@ -1708,22 +1714,23 @@ export default function OutlinePro() {
 
   // Multi-select handlers
   const handleToggleNodeSelection = useCallback((nodeId: string, isCtrlClick: boolean) => {
-    setSelectedNodeIds(prev => {
-      const newSelection = new Set(prev);
-      if (isCtrlClick) {
-        // Ctrl/Cmd+Click: toggle node in selection
+    if (isCtrlClick) {
+      // Ctrl/Cmd+Click: clear single selection and toggle in multi-selection
+      setSelectedNodeId(null); // Clear single selection when multi-selecting
+      setSelectedNodeIds(prev => {
+        const newSelection = new Set(prev);
         if (newSelection.has(nodeId)) {
           newSelection.delete(nodeId);
         } else {
           newSelection.add(nodeId);
         }
-      } else {
-        // Regular click: clear selection
-        newSelection.clear();
-      }
+        return newSelection;
+      });
       setLastSelectedNodeId(nodeId);
-      return newSelection;
-    });
+    } else {
+      // Regular click: clear multi-selection
+      setSelectedNodeIds(new Set());
+    }
   }, []);
 
   const handleRangeSelect = useCallback((nodeId: string) => {

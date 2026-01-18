@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Button } from './ui/button';
-import { X, Trash2, Palette, Tag, Move } from 'lucide-react';
+import { X, Trash2, Palette, Tag, Move, IndentIncrease, IndentDecrease } from 'lucide-react';
 import { ColorPicker } from './color-picker';
 import type { NodeColor } from '@/types';
 import {
@@ -18,6 +18,8 @@ interface MultiSelectToolbarProps {
   onBulkDelete: () => void;
   onBulkChangeColor: (color: NodeColor | undefined) => void;
   onBulkAddTag: (tag: string) => void;
+  onBulkIndent?: () => void;
+  onBulkOutdent?: () => void;
 }
 
 export function MultiSelectToolbar({
@@ -26,6 +28,8 @@ export function MultiSelectToolbar({
   onBulkDelete,
   onBulkChangeColor,
   onBulkAddTag,
+  onBulkIndent,
+  onBulkOutdent,
 }: MultiSelectToolbarProps) {
   const [newTag, setNewTag] = useState('');
   const [isColorPickerOpen, setIsColorPickerOpen] = useState(false);
@@ -97,6 +101,40 @@ export function MultiSelectToolbar({
             />
           </PopoverContent>
         </Popover>
+
+        {/* Indent */}
+        {onBulkIndent && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onBulkIndent();
+            }}
+          >
+            <IndentIncrease className="h-4 w-4" />
+            Indent
+          </Button>
+        )}
+
+        {/* Outdent */}
+        {onBulkOutdent && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onBulkOutdent();
+            }}
+          >
+            <IndentDecrease className="h-4 w-4" />
+            Outdent
+          </Button>
+        )}
 
         {/* Move (placeholder for future implementation) */}
         <Button variant="outline" size="sm" className="gap-2" disabled>
