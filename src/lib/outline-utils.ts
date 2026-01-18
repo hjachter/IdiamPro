@@ -372,3 +372,70 @@ export function parseMarkdownToNodes(markdown: string, topic: string): { rootNod
 
   return { rootNodeId: rootId, nodes };
 }
+
+/**
+ * Generate a Mermaid mindmap diagram from a subtree
+ */
+export function generateMindmapFromSubtree(rootNode: OutlineNode, allNodes: NodeMap): string {
+  const sanitizeName = (name: string) => {
+    // Remove special characters that break Mermaid syntax
+    return name.replace(/[()[\]{}"`]/g, '').trim();
+  };
+
+  const buildMindmapTree = (nodeId: string, depth: number): string => {
+    const currentNode = allNodes[nodeId];
+    if (!currentNode) return '';
+
+    const indent = '  '.repeat(depth);
+    const name = sanitizeName(currentNode.name);
+
+    // Root node uses double parentheses, others use plain text
+    let line = depth === 0 ? `${indent}root((${name}))` : `${indent}${name}`;
+
+    const children = currentNode.childrenIds
+      .map(childId => buildMindmapTree(childId, depth + 1))
+      .filter(Boolean)
+      .join('\n');
+
+    return children ? `${line}\n${children}` : line;
+  };
+
+  return `mindmap\n${buildMindmapTree(rootNode.id, 0)}`;
+}
+
+/**
+ * Generate a Mermaid flowchart diagram from a subtree
+ */
+export function generateFlowchartFromSubtree(rootNode: OutlineNode, allNodes: NodeMap): string {
+  const sanitizeName = (name: string) => {
+    // Remove special characters that break Mermaid syntax
+    return name.replace(/[()[\]{}"`]/g, '').replace(/\n/g, ' ').trim();
+  };
+
+  const lines: string[] = ['flowchart TD'];
+  const connections: string[] = [];
+  let nodeCounter = 0;
+  const nodeIds: Record<string, string> = {};
+
+  const processNode = (nodeId: string) => {
+    const currentNode = allNodes[nodeId];
+    if (!currentNode) return;
+
+    // Create a short ID for Mermaid
+    const mermaidId = `N${nodeCounter++}`;
+    nodeIds[nodeId] = mermaidId;
+
+    const name = sanitizeName(currentNode.name);
+    lines.push(`  ${mermaidId}["${name}"]`);
+
+    // Process children and create connections
+    currentNode.childrenIds.forEach(childId => {
+      processNode(childId);
+      connections.push(`  ${mermaidId} --> ${nodeIds[childId]}`);
+    });
+  };
+
+  processNode(rootNode.id);
+
+  return [...lines, ...connections].join('\n');
+}

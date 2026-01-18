@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
-import type { OutlineNode, NodeGenerationContext } from '@/types';
+import type { OutlineNode, NodeGenerationContext, NodeMap } from '@/types';
 
 /**
  * Detect if text appears to be tabular/aligned data that would benefit from monospace formatting.
@@ -72,7 +72,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Image from 'next/image';
-import { ArrowLeft, Sparkles, Loader2, Eraser, Scissors, Copy, Clipboard, Type, Undo, Redo, List, ListOrdered, ListX, Minus, FileText, Sheet, Presentation, Video, Map, AppWindow, Plus, Bold, Italic, Strikethrough, Code, Heading1, Heading2, Heading3, Mic, MicOff, ChevronRight, Home, Pencil, ALargeSmall, Check, Calendar, Brush } from 'lucide-react';
+import { ArrowLeft, Sparkles, Loader2, Eraser, Scissors, Copy, Clipboard, Type, Undo, Redo, List, ListOrdered, ListX, Minus, FileText, Sheet, Presentation, Video, Map, AppWindow, Plus, Bold, Italic, Strikethrough, Code, Heading1, Heading2, Heading3, Mic, MicOff, ChevronRight, Home, Pencil, ALargeSmall, Check, Calendar, Brush, Network, GitBranch, MessageSquare } from 'lucide-react';
 import dynamic from 'next/dynamic';
 
 // Dynamically import DrawingCanvas to avoid SSR issues with tldraw
@@ -261,6 +261,7 @@ function convertToHtml(content: string): string {
 
 interface ContentPaneProps {
   node: OutlineNode | null;
+  nodes?: NodeMap;  // Full node map for subtree diagram generation
   ancestorPath: string[];  // Names of ancestors from root to parent
   onUpdate: (nodeId: string, updates: Partial<OutlineNode>) => void;
   onBack?: () => void;
@@ -307,6 +308,7 @@ const isUrl = (str: string) => {
 
 export default function ContentPane({
   node,
+  nodes,
   ancestorPath,
   onUpdate,
   onBack,
@@ -616,6 +618,126 @@ export default function ContentPane({
     }
   }, [pendingTabularPaste, editor, toast, handleConvertToCodeBlock]);
 
+  // Sanitize Mermaid code to fix common syntax errors from AI generation
+  const sanitizeMermaidCode = useCallback((code: string): string => {
+    let sanitized = code;
+
+    // Fix participant names with parentheses: "participant Platform (iOS, Mac)" -> "participant Platform"
+    sanitized = sanitized.replace(
+      /participant\s+(\w+)\s*\([^)]+\)/g,
+      'participant $1'
+    );
+
+    // Fix node names with parentheses in flowcharts: "A(some text)" is OK, but "A (stuff, more)" is not
+    // Remove parenthetical content after identifiers in arrows
+    sanitized = sanitized.replace(
+      /(\w+)\s*\([^)]*,[^)]*\)\s*(-->|-->>|->|-.->|==>)/g,
+      '$1 $2'
+    );
+
+    // Fix labels in sequence diagrams with special chars
+    // "User->>Platform: Subscribe (via any platform)" is actually OK in the label part
+
+    return sanitized;
+  }, []);
+
+  // Generate Mermaid "mindmap" as horizontal flowchart (LR layout - looks like a tree)
+  const generateMindmap = useCallback((rootNode: OutlineNode, allNodes: NodeMap): string => {
+    const sanitizeName = (name: string) => {
+      // Remove special characters that break Mermaid syntax
+      return name.replace(/[()[\]{}"`]/g, '').replace(/\n/g, ' ').trim();
+    };
+
+    const lines: string[] = ['flowchart LR']; // Left-to-right for tree-like layout
+    const connections: string[] = [];
+    let nodeCounter = 0;
+    const nodeIds: Record<string, string> = {};
+
+    const processNode = (nodeId: string, isRoot: boolean = false) => {
+      const currentNode = allNodes[nodeId];
+      if (!currentNode) return;
+
+      const mermaidId = `N${nodeCounter++}`;
+      nodeIds[nodeId] = mermaidId;
+
+      const name = sanitizeName(currentNode.name);
+      // Use rounded box for root, regular for others
+      const shape = isRoot ? `((${name}))` : `["${name}"]`;
+      lines.push(`  ${mermaidId}${shape}`);
+
+      currentNode.childrenIds.forEach(childId => {
+        processNode(childId, false);
+        connections.push(`  ${mermaidId} --> ${nodeIds[childId]}`);
+      });
+    };
+
+    processNode(rootNode.id, true);
+
+    return [...lines, ...connections].join('\n');
+  }, []);
+
+  // Generate Mermaid flowchart from subtree
+  const generateFlowchart = useCallback((rootNode: OutlineNode, allNodes: NodeMap): string => {
+    const sanitizeName = (name: string) => {
+      // Remove special characters that break Mermaid syntax
+      return name.replace(/[()[\]{}"`]/g, '').replace(/\n/g, ' ').trim();
+    };
+
+    const lines: string[] = ['flowchart TD'];
+    const connections: string[] = [];
+    let nodeCounter = 0;
+    const nodeIds: Record<string, string> = {};
+
+    const processNode = (nodeId: string) => {
+      const currentNode = allNodes[nodeId];
+      if (!currentNode) return;
+
+      // Create a short ID for Mermaid
+      const mermaidId = `N${nodeCounter++}`;
+      nodeIds[nodeId] = mermaidId;
+
+      const name = sanitizeName(currentNode.name);
+      lines.push(`  ${mermaidId}["${name}"]`);
+
+      // Process children and create connections
+      currentNode.childrenIds.forEach(childId => {
+        processNode(childId);
+        connections.push(`  ${mermaidId} --> ${nodeIds[childId]}`);
+      });
+    };
+
+    processNode(rootNode.id);
+
+    return [...lines, ...connections].join('\n');
+  }, []);
+
+  // Generate and insert subtree diagram
+  const handleGenerateSubtreeDiagram = useCallback((type: 'mindmap' | 'flowchart') => {
+    if (!node || !nodes || !editor) return;
+
+    const mermaidCode = type === 'mindmap'
+      ? generateMindmap(node, nodes)
+      : generateFlowchart(node, nodes);
+
+    // Escape for HTML attribute
+    const escapedCode = mermaidCode
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+
+    const diagramHtml = `<div data-mermaid-block data-mermaid-code="${escapedCode}"></div>`;
+
+    // Insert at the beginning of the content
+    editor.commands.focus('start');
+    editor.commands.insertContent(diagramHtml + '<p></p>');
+
+    toast({
+      title: `${type === 'mindmap' ? 'Mind Map' : 'Flowchart'} Generated`,
+      description: `Diagram of "${node.name}" subtree added to content.`,
+    });
+  }, [node, nodes, editor, generateMindmap, generateFlowchart, toast]);
+
   // Convert mermaid code blocks to MermaidBlock nodes and format text as HTML
   const processGeneratedContent = useCallback((content: string): string => {
     // First, extract mermaid blocks and replace with placeholders
@@ -623,7 +745,7 @@ export default function ContentPane({
     const mermaidBlockRegex = /```mermaid\s*([\s\S]*?)```/g;
 
     let processed = content.replace(mermaidBlockRegex, (_match, code) => {
-      const trimmedCode = code.trim();
+      const trimmedCode = sanitizeMermaidCode(code.trim());
       // Escape HTML entities in the code for the attribute
       const escapedCode = trimmedCode
         .replace(/&/g, '&amp;')
@@ -647,7 +769,7 @@ export default function ContentPane({
     });
 
     return processed;
-  }, [convertToHtml]);
+  }, [convertToHtml, sanitizeMermaidCode]);
 
   // Apply generated content based on placement preference
   const applyGeneratedContent = useCallback((generatedContent: string, placement: GeneratePlacement) => {
@@ -1081,18 +1203,21 @@ export default function ContentPane({
         onSave={handleSaveDrawing}
       />
 
-      {/* Custom Prompt Dialog */}
+      {/* Ask AI Dialog */}
       <Dialog open={promptDialogOpen} onOpenChange={setPromptDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>Generate from Prompt</DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              <MessageSquare className="h-5 w-5 text-purple-600" />
+              Ask AI
+            </DialogTitle>
             <DialogDescription>
-              Describe what content you want to generate for "{node?.name}".
+              Tell me what you'd like for "{node?.name}" - I can write, expand, summarize, reformat, or answer general questions.
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
             <Textarea
-              placeholder="e.g., Write a summary of the key points... or Create a comparison table... or Explain this concept for beginners..."
+              placeholder="Try: 'Write 3 bullet points summarizing this...' or 'Explain this concept simply...' or 'Add a pros and cons section...' or 'What are the key takeaways?'"
               value={customPrompt}
               onChange={(e) => setCustomPrompt(e.target.value)}
               className="min-h-[120px] resize-none"
@@ -1104,7 +1229,7 @@ export default function ContentPane({
               }}
             />
             <p className="text-xs text-muted-foreground mt-2">
-              Press ⌘+Enter to generate
+              ⌘+Enter to send
             </p>
           </div>
           <DialogFooter>
@@ -1114,16 +1239,17 @@ export default function ContentPane({
             <Button
               onClick={handleGenerateFromPrompt}
               disabled={!customPrompt.trim() || isGenerating}
+              className="bg-purple-600 hover:bg-purple-700"
             >
               {isGenerating ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Generating...
+                  Thinking...
                 </>
               ) : (
                 <>
                   <Sparkles className="mr-2 h-4 w-4" />
-                  Generate
+                  Send
                 </>
               )}
             </Button>
@@ -1265,6 +1391,25 @@ export default function ContentPane({
             </Tooltip>
           )}
 
+          {/* Ask AI Button - opens prompt dialog directly */}
+          {aiContentEnabled && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPromptDialogOpen(true)}
+                  disabled={isGenerating || isLoadingAI}
+                  className="text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-950 px-2"
+                >
+                  <MessageSquare className="h-4 w-4" />
+                  <span className="ml-1.5 text-xs hidden sm:inline">Ask AI</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Chat with AI about this content</TooltipContent>
+            </Tooltip>
+          )}
+
           {/* AI Generate Content Dropdown Button */}
           <DropdownMenu>
             <Tooltip>
@@ -1327,6 +1472,41 @@ export default function ContentPane({
               </DropdownMenuCheckboxItem>
             </DropdownMenuContent>
           </DropdownMenu>
+
+          {/* Subtree Diagram Button */}
+          {nodes && node && node.childrenIds.length > 0 && (
+            <DropdownMenu>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-green-600 hover:bg-green-50 dark:hover:bg-green-950 px-2"
+                    >
+                      <Network className="h-4 w-4" />
+                      <span className="ml-1.5 text-xs hidden sm:inline">Diagram</span>
+                      <ChevronDown className="h-3 w-3 ml-1" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                </TooltipTrigger>
+                <TooltipContent>Generate diagram of this subtree</TooltipContent>
+              </Tooltip>
+              <DropdownMenuContent align="start" className="w-48">
+                <DropdownMenuLabel className="text-xs text-muted-foreground">
+                  Generate Subtree Diagram
+                </DropdownMenuLabel>
+                <DropdownMenuItem onClick={() => handleGenerateSubtreeDiagram('mindmap')}>
+                  <GitBranch className="h-4 w-4 mr-2" />
+                  Mind Map
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleGenerateSubtreeDiagram('flowchart')}>
+                  <Network className="h-4 w-4 mr-2" />
+                  Flowchart
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </TooltipProvider>
 
         {/* Interim transcript indicator */}

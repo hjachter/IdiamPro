@@ -90,6 +90,14 @@ export async function generateContentForNodeAction(
 \`\`\`
 
 Supported diagram types: flowchart, sequenceDiagram, mindmap, gantt, pie, classDiagram, stateDiagram, erDiagram.
+
+MERMAID SYNTAX RULES (critical - diagrams will fail if violated):
+- Node/participant names must be simple identifiers (letters, numbers, underscores only)
+- NO parentheses, commas, or special characters in names
+- Use short names like "Platform" not "Platform (iOS, Mac, Web)"
+- For descriptive labels in flowcharts, use: NodeID[Descriptive Label]
+- Keep the diagram simple and focused
+
 Only include a diagram if it genuinely helps explain the content - don't force one where text alone is clearer.`
       : '';
 

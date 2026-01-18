@@ -4,19 +4,57 @@ import React, { useEffect, useRef, useState } from 'react';
 import mermaid from 'mermaid';
 
 // Initialize mermaid with configuration that avoids canvas issues
+// Using bright green (#16a34a) for arrows - visible in both light and dark modes
 mermaid.initialize({
   startOnLoad: false,
-  theme: 'neutral',
+  theme: 'base',
   securityLevel: 'loose',
   fontFamily: 'system-ui, -apple-system, sans-serif',
+  themeVariables: {
+    // Make arrows and lines highly visible - bright green
+    lineColor: '#16a34a', // Green-600 - visible in light & dark
+    arrowheadColor: '#16a34a',
+    // Sequence diagram specific
+    signalColor: '#16a34a', // Bright green for sequence arrows
+    signalTextColor: '#15803d', // Slightly darker green for labels
+    actorLineColor: '#9ca3af', // Medium gray for actor lifelines
+    // Flowchart specific
+    edgeLabelBackground: 'transparent',
+    // General text - using colors that work in both modes
+    textColor: '#374151', // Gray-700 for light mode readability
+    primaryTextColor: '#1f2937',
+    secondaryTextColor: '#4b5563',
+    // Node colors - subtle backgrounds
+    primaryColor: '#f0fdf4', // Green-50 - very light green
+    primaryBorderColor: '#16a34a', // Green-600
+    secondaryColor: '#f9fafb', // Gray-50
+    tertiaryColor: '#f3f4f6', // Gray-100
+    // Note background
+    noteBkgColor: '#fefce8', // Yellow-50
+    noteBorderColor: '#ca8a04', // Yellow-600
+  },
   flowchart: {
     useMaxWidth: true,
     htmlLabels: false, // Use SVG text instead of foreignObject/HTML
+    curve: 'basis',
   },
   sequence: {
     useMaxWidth: true,
+    actorMargin: 80,
+    messageMargin: 40,
   },
 });
+
+// Sanitize Mermaid code to fix common syntax errors
+const sanitizeMermaidCode = (code: string): string => {
+  let sanitized = code;
+  // Fix participant names with parentheses: "participant Platform (iOS, Mac)" -> "participant Platform"
+  sanitized = sanitized.replace(
+    /participant\s+(\w+)\s*\([^)]+\)/g,
+    'participant $1'
+  );
+  return sanitized;
+};
 
 // Mermaid diagram renderer component
 const MermaidRenderer = ({ code }: { code: string }) => {
@@ -32,9 +70,10 @@ const MermaidRenderer = ({ code }: { code: string }) => {
       try {
         setError(null);
         const id = `mermaid-${Math.random().toString(36).substring(2, 9)}`;
+        const sanitizedCode = sanitizeMermaidCode(code);
 
         // Just call render without a container - mermaid will handle it
-        const { svg } = await mermaid.render(id, code);
+        const { svg } = await mermaid.render(id, sanitizedCode);
 
         if (!cancelled) {
           setSvgContent(svg);

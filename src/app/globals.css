@@ -374,3 +374,38 @@ div[class*="code"] textarea,
   background-color: hsl(50 90% 50%); /* Slightly darker yellow for dark mode */
   color: hsl(0 0% 0%); /* Black text on yellow for better contrast */
 }
+
+/* Mermaid diagram styling - make loop labels and text visible */
+.mermaid-diagram .loopText,
+.mermaid-diagram .loopText tspan,
+.mermaid-diagram text.loopText {
+  fill: #16a34a !important; /* Bright green */
+  font-weight: 600 !important;
+}
+
+.mermaid-diagram .labelBox {
+  fill: #f0fdf4 !important; /* Light green background */
+  stroke: #16a34a !important;
+}
+
+.mermaid-diagram .labelText,
+.mermaid-diagram .labelText tspan {
+  fill: #15803d !important; /* Dark green */
+}
+
+/* Dark mode adjustments for Mermaid */
+.dark .mermaid-diagram .loopText,
+.dark .mermaid-diagram .loopText tspan,
+.dark .mermaid-diagram text.loopText {
+  fill: #4ade80 !important; /* Brighter green for dark mode */
+}
+
+.dark .mermaid-diagram .labelBox {
+  fill: #14532d !important; /* Dark green background */
+  stroke: #22c55e !important;
+}
+
+.dark .mermaid-diagram .labelText,
+.dark .mermaid-diagram .labelText tspan {
+  fill: #86efac !important; /* Light green for dark mode */
+}

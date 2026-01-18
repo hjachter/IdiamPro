@@ -6,7 +6,7 @@ import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/componen
 import { useIsMobile } from "@/hooks/use-mobile";
 import type { Outline, OutlineNode, NodeType, NodeMap, NodeGenerationContext, ExternalSourceInput, IngestPreview } from '@/types';
 import { getInitialGuide } from '@/lib/initial-guide';
-import { addNode, addNodeAfter, removeNode, updateNode, moveNode, parseMarkdownToNodes, recalculatePrefixesForBranch, buildOutlineTreeString } from '@/lib/outline-utils';
+import { addNode, addNodeAfter, removeNode, updateNode, moveNode, parseMarkdownToNodes, recalculatePrefixesForBranch, buildOutlineTreeString, generateMindmapFromSubtree, generateFlowchartFromSubtree } from '@/lib/outline-utils';
 import OutlinePane from './outline-pane';
 import ContentPane from './content-pane';
 import { useToast } from "@/hooks/use-toast";
@@ -1065,12 +1065,47 @@ export default function OutlinePro() {
       }
     }
 
+    // Also generate a subtree diagram for the parent node (using flowchart - more reliable)
+    try {
+      const mindmapCode = generateFlowchartFromSubtree(parentNode, nodes);
+      const escapedCode = mindmapCode
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+
+      const diagramHtml = `<div data-mermaid-block data-mermaid-code="${escapedCode}"></div>`;
+
+      // Add the diagram to the parent node's content
+      setOutlines(currentOutlines => {
+        return currentOutlines.map(o => {
+          if (o.id === currentOutlineId) {
+            const currentParentContent = o.nodes[parentNodeId]?.content || '';
+            return {
+              ...o,
+              lastModified: Date.now(),
+              nodes: {
+                ...o.nodes,
+                [parentNodeId]: {
+                  ...o.nodes[parentNodeId],
+                  content: diagramHtml + '<p></p>' + currentParentContent,
+                },
+              },
+            };
+          }
+          return o;
+        });
+      });
+    } catch (e) {
+      console.error('Failed to generate subtree diagram:', e);
+    }
+
     setIsLoadingAI(false);
 
     if (errorCount === 0) {
       toast({
         title: "Content Generated",
-        description: `Successfully created content for ${successCount} node${successCount > 1 ? 's' : ''}.`,
+        description: `Successfully created content for ${successCount} node${successCount > 1 ? 's' : ''}, with subtree diagram.`,
       });
     } else {
       toast({
@@ -2077,6 +2112,7 @@ export default function OutlinePro() {
           /* Full screen content view */
           <ContentPane
             node={selectedNode}
+            nodes={currentOutline?.nodes}
             ancestorPath={selectedNodeAncestorPath}
             onUpdate={handleUpdateNode}
             onBack={() => setMobileView('stacked')}
@@ -2228,6 +2264,7 @@ export default function OutlinePro() {
           </div>
           <ContentPane
             node={selectedNode}
+            nodes={currentOutline?.nodes}
             ancestorPath={selectedNodeAncestorPath}
             onUpdate={handleUpdateNode}
             onExpandContent={handleExpandContent}
@@ -2300,6 +2337,7 @@ export default function OutlinePro() {
             <div className="h-full overflow-hidden">
               <ContentPane
                 node={selectedNode}
+                nodes={currentOutline?.nodes}
                 ancestorPath={selectedNodeAncestorPath}
                 onUpdate={handleUpdateNode}
                 onExpandContent={handleExpandContent}

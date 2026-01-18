@@ -191,6 +191,7 @@ export default function OutlinePane({
   const [renameId, setRenameId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [outlineSearch, setOutlineSearch] = useState('');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   // const outlinePaneRef = useRef<HTMLDivElement>(null);
@@ -543,7 +544,10 @@ export default function OutlinePane({
     <div className="flex flex-col h-full bg-card p-3 space-y-3" style={{ paddingTop: 'max(0.75rem, env(safe-area-inset-top))' }}>
       <div className="flex-shrink-0 flex items-center space-x-2 px-2">
 
-        <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
+        <DropdownMenu open={dropdownOpen} onOpenChange={(open) => {
+            setDropdownOpen(open);
+            if (!open) setOutlineSearch('');
+        }}>
             <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="flex-grow font-headline text-lg font-bold truncate justify-between">
                     <span className="truncate">
@@ -553,43 +557,14 @@ export default function OutlinePane({
                     <ChevronDown className="h-4 w-4 shrink-0" />
                 </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-[var(--radix-dropdown-menu-trigger-width)] min-w-[280px]">
-                <DropdownMenuLabel>Switch Outline</DropdownMenuLabel>
-                {[...outlines].sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })).map(outline => {
-                    const nodeCount = Object.keys(outline.nodes).length;
-                    const lastMod = outline.lastModified;
-                    const timeAgo = lastMod ? formatTimeAgo(lastMod) : null;
-                    return (
-                        <DropdownMenuItem
-                            key={outline.id}
-                            onSelect={() => onSelectOutline(outline.id)}
-                            className="cursor-pointer flex justify-between items-center"
-                        >
-                            <span className="truncate">
-                                {outline.isGuide && '📖 '}{outline.name}
-                            </span>
-                            <span className="text-xs text-muted-foreground ml-2 flex-shrink-0">
-                                {nodeCount} {nodeCount === 1 ? 'node' : 'nodes'}
-                                {timeAgo && ` · ${timeAgo}`}
-                            </span>
-                        </DropdownMenuItem>
-                    );
-                })}
-                <DropdownMenuSeparator />
+            <DropdownMenuContent align="start" className="w-[var(--radix-dropdown-menu-trigger-width)] min-w-[280px] max-h-[80vh] flex flex-col">
+                {/* Commands at top - always visible */}
                 <DropdownMenuItem onSelect={onCreateOutline} className="cursor-pointer"><FilePlus className="mr-2 h-4 w-4" />New Outline</DropdownMenuItem>
                 <DropdownMenuItem onSelect={handleImportClick} className="cursor-pointer">
                     <FileUp className="mr-2 h-4 w-4" /> Import Outline
                 </DropdownMenuItem>
                 <DropdownMenuItem onSelect={handleExport} disabled={!currentOutline} className="cursor-pointer">
                     <FileDown className="mr-2 h-4 w-4" /> Export Current Outline
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuLabel>Backup & Restore</DropdownMenuLabel>
-                <DropdownMenuItem onSelect={handleBackupAll} className="cursor-pointer">
-                    <FileDown className="mr-2 h-4 w-4" /> Backup All Outlines
-                </DropdownMenuItem>
-                <DropdownMenuItem onSelect={handleRestoreAllClick} className="cursor-pointer">
-                    <FileUp className="mr-2 h-4 w-4" /> Restore All Outlines
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuLabel>Manage Current Outline</DropdownMenuLabel>
@@ -619,9 +594,80 @@ export default function OutlinePane({
                     </AlertDialogContent>
                 </AlertDialog>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onSelect={onRefreshGuide} className="cursor-pointer">
-                    <RotateCcw className="mr-2 h-4 w-4" /> Refresh Guide
+                <DropdownMenuLabel>Backup & Restore</DropdownMenuLabel>
+                <DropdownMenuItem onSelect={handleBackupAll} className="cursor-pointer">
+                    <FileDown className="mr-2 h-4 w-4" /> Backup All Outlines
                 </DropdownMenuItem>
+                <DropdownMenuItem onSelect={handleRestoreAllClick} className="cursor-pointer">
+                    <FileUp className="mr-2 h-4 w-4" /> Restore All Outlines
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={onRefreshGuide} className="cursor-pointer">
+                    <RotateCcw className="mr-2 h-4 w-4" /> Refresh User Guide
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+
+                {/* Search field */}
+                <div className="px-2 py-1.5">
+                    <div className="flex items-center gap-2 px-2 py-1.5 rounded-md border bg-background">
+                        <Search className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                        <input
+                            type="text"
+                            placeholder="Search outlines..."
+                            value={outlineSearch}
+                            onChange={(e) => setOutlineSearch(e.target.value)}
+                            className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                            onClick={(e) => e.stopPropagation()}
+                            onKeyDown={(e) => e.stopPropagation()}
+                        />
+                    </div>
+                </div>
+
+                {/* Scrollable outline list */}
+                <DropdownMenuLabel className="text-xs">
+                    Outlines ({outlines.filter(o =>
+                        outlineSearch === '' ||
+                        o.name.toLowerCase().includes(outlineSearch.toLowerCase())
+                    ).length})
+                </DropdownMenuLabel>
+                <div className="overflow-y-auto max-h-[40vh] flex-1">
+                    {[...outlines]
+                        .filter(outline =>
+                            outlineSearch === '' ||
+                            outline.name.toLowerCase().includes(outlineSearch.toLowerCase())
+                        )
+                        .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }))
+                        .map(outline => {
+                            const nodeCount = Object.keys(outline.nodes).length;
+                            const lastMod = outline.lastModified;
+                            const timeAgo = lastMod ? formatTimeAgo(lastMod) : null;
+                            return (
+                                <DropdownMenuItem
+                                    key={outline.id}
+                                    onSelect={() => {
+                                        onSelectOutline(outline.id);
+                                        setOutlineSearch('');
+                                    }}
+                                    className="cursor-pointer flex justify-between items-center"
+                                >
+                                    <span className="truncate">
+                                        {outline.isGuide && '📖 '}{outline.name}
+                                    </span>
+                                    <span className="text-xs text-muted-foreground ml-2 flex-shrink-0">
+                                        {nodeCount} {nodeCount === 1 ? 'node' : 'nodes'}
+                                        {timeAgo && ` · ${timeAgo}`}
+                                    </span>
+                                </DropdownMenuItem>
+                            );
+                        })}
+                    {outlines.filter(o =>
+                        outlineSearch !== '' &&
+                        o.name.toLowerCase().includes(outlineSearch.toLowerCase())
+                    ).length === 0 && outlineSearch !== '' && (
+                        <div className="px-2 py-3 text-sm text-muted-foreground text-center">
+                            No outlines match "{outlineSearch}"
+                        </div>
+                    )}
+                </div>
             </DropdownMenuContent>
         </DropdownMenu>
 
