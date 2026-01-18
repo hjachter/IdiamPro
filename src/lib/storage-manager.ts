@@ -1,4 +1,5 @@
 import type { Outline } from '@/types';
+import { v4 as uuidv4 } from 'uuid';
 import {
   getDirectoryHandle,
   verifyDirectoryPermission,
@@ -28,6 +29,10 @@ const LOCAL_STORAGE_KEY = 'outline-pro-data';
 export interface StorageData {
   outlines: Outline[];
   currentOutlineId: string;
+  /** Number of outlines that had duplicate IDs fixed during load */
+  fixedDuplicateCount?: number;
+  /** Names of outlines that were fixed */
+  fixedDuplicateNames?: string[];
 }
 
 /**
@@ -149,33 +154,41 @@ async function repairCorruptOutlines(outlines: Outline[]): Promise<Outline[]> {
 }
 
 /**
- * Deduplicate outlines by ID (keep first occurrence)
- * Returns both deduplicated list and duplicate outlines to delete
+ * Fix duplicate outline IDs by assigning new UUIDs to duplicates
+ * Instead of deleting duplicates, we preserve them with new unique IDs
+ * Returns the fixed list and outlines that need to be re-saved
  */
-function deduplicateOutlines(outlines: Outline[]): {
-  deduplicated: Outline[];
-  duplicates: Outline[];
+function fixDuplicateOutlineIds(outlines: Outline[]): {
+  fixed: Outline[];
+  needsSave: Outline[];
 } {
   const seen = new Set<string>();
-  const deduplicated: Outline[] = [];
-  const duplicates: Outline[] = [];
-  const duplicateNames: string[] = [];
+  const fixed: Outline[] = [];
+  const needsSave: Outline[] = [];
 
   for (const outline of outlines) {
     if (seen.has(outline.id)) {
-      duplicates.push(outline);
-      duplicateNames.push(`"${outline.name}" (${outline.id})`);
+      // Duplicate ID found - assign a new UUID
+      const newId = uuidv4();
+      const fixedOutline: Outline = {
+        ...outline,
+        id: newId,
+        lastModified: Date.now(),
+      };
+      fixed.push(fixedOutline);
+      needsSave.push(fixedOutline);
+      console.warn(`⚠️  Fixed duplicate ID: "${outline.name}" - changed ID from ${outline.id} to ${newId}`);
     } else {
       seen.add(outline.id);
-      deduplicated.push(outline);
+      fixed.push(outline);
     }
   }
 
-  if (duplicates.length > 0) {
-    console.warn(`⚠️  Removed ${duplicates.length} duplicate outline(s): ${duplicateNames.join(', ')}`);
+  if (needsSave.length > 0) {
+    console.warn(`🔧 Fixed ${needsSave.length} outline(s) with duplicate IDs`);
   }
 
-  return { deduplicated, duplicates };
+  return { fixed, needsSave };
 }
 
 export async function loadStorageData(): Promise<StorageData> {
@@ -187,42 +200,70 @@ export async function loadStorageData(): Promise<StorageData> {
 
   if (fileSystemAvailable) {
     let fileOutlines = await loadFromFileSystem();
-    // Deduplicate outlines first (in case of duplicate IDs)
-    const { deduplicated, duplicates } = deduplicateOutlines(fileOutlines);
-    fileOutlines = deduplicated;
 
-    // Delete duplicate files from Electron storage
-    if (duplicates.length > 0 && isElectron()) {
-      try {
-        const { electronDeleteOutlineFile } = await import('./electron-storage');
-        for (const duplicate of duplicates) {
-          await electronDeleteOutlineFile(duplicate);
+    // Fix duplicate IDs first (assign new UUIDs to duplicates)
+    const { fixed, needsSave } = fixDuplicateOutlineIds(fileOutlines);
+    fileOutlines = fixed;
+
+    // Save outlines that had their IDs fixed
+    if (needsSave.length > 0) {
+      console.log(`💾 Saving ${needsSave.length} outline(s) with corrected IDs...`);
+      for (const outline of needsSave) {
+        try {
+          await saveOutline(outline, fileOutlines);
+          console.log(`  ✓ Saved "${outline.name}" with new ID ${outline.id}`);
+        } catch (error) {
+          console.error(`  ✗ Failed to save corrected outline "${outline.name}":`, error);
         }
-        console.log(`🗑️  Deleted ${duplicates.length} duplicate file(s) from disk`);
-      } catch (error) {
-        console.error('Failed to delete duplicate files:', error);
       }
     }
 
-    // Repair any corrupt outlines
+    // Repair any corrupt outlines (e.g., duplicate children)
     fileOutlines = await repairCorruptOutlines(fileOutlines);
+
     // Use saved currentOutlineId, or fall back to first outline
     const currentOutlineId = savedCurrentOutlineId || fileOutlines[0]?.id || '';
     console.log('Using file system storage');
-    return { outlines: fileOutlines, currentOutlineId };
+    return {
+      outlines: fileOutlines,
+      currentOutlineId,
+      fixedDuplicateCount: needsSave.length,
+      fixedDuplicateNames: needsSave.map(o => o.name),
+    };
   }
 
   // Fall back to localStorage
   let localOutlines = loadFromLocalStorage();
-  // Deduplicate outlines first (in case of duplicate IDs)
-  const { deduplicated: deduplicatedLocal } = deduplicateOutlines(localOutlines);
-  localOutlines = deduplicatedLocal;
+
+  // Fix duplicate IDs
+  const { fixed: fixedLocal, needsSave: needsSaveLocal } = fixDuplicateOutlineIds(localOutlines);
+  localOutlines = fixedLocal;
+
+  // Save corrected outlines back to localStorage
+  if (needsSaveLocal.length > 0) {
+    try {
+      const dataToSave = JSON.stringify({
+        outlines: localOutlines,
+        currentOutlineId: savedCurrentOutlineId,
+      });
+      localStorage.setItem(LOCAL_STORAGE_KEY, dataToSave);
+      console.log(`💾 Saved ${needsSaveLocal.length} outline(s) with corrected IDs to localStorage`);
+    } catch (error) {
+      console.error('Failed to save corrected outlines to localStorage:', error);
+    }
+  }
+
   // Repair any corrupt outlines
   localOutlines = await repairCorruptOutlines(localOutlines);
   const savedData = localStorage.getItem(LOCAL_STORAGE_KEY);
   const currentOutlineId = savedCurrentOutlineId || (savedData ? JSON.parse(savedData).currentOutlineId || localOutlines[0]?.id || '' : '');
   console.log('Using localStorage');
-  return { outlines: localOutlines, currentOutlineId };
+  return {
+    outlines: localOutlines,
+    currentOutlineId,
+    fixedDuplicateCount: needsSaveLocal.length,
+    fixedDuplicateNames: needsSaveLocal.map(o => o.name),
+  };
 }
 
 /**
@@ -276,6 +317,31 @@ export async function saveOutline(outline: Outline, allOutlines: Outline[]): Pro
 }
 
 /**
+ * Validate outlines before saving - check for duplicate IDs
+ * Returns true if valid, logs errors if not
+ */
+function validateOutlinesBeforeSave(outlines: Outline[]): boolean {
+  const ids = new Set<string>();
+  const duplicates: string[] = [];
+
+  for (const outline of outlines) {
+    if (ids.has(outline.id)) {
+      duplicates.push(`"${outline.name}" (${outline.id})`);
+    } else {
+      ids.add(outline.id);
+    }
+  }
+
+  if (duplicates.length > 0) {
+    console.error(`🚨 DUPLICATE IDs DETECTED before save: ${duplicates.join(', ')}`);
+    console.error('This should not happen - the app may have a bug. Please report this issue.');
+    return false;
+  }
+
+  return true;
+}
+
+/**
  * Save all outlines to storage
  */
 export async function saveAllOutlines(outlines: Outline[], currentOutlineId: string): Promise<void> {
@@ -284,6 +350,9 @@ export async function saveAllOutlines(outlines: Outline[], currentOutlineId: str
 
   // Filter out the guide
   const userOutlines = outlines.filter(o => !o.isGuide);
+
+  // Validate - warn but don't block save (we still want to persist data)
+  validateOutlinesBeforeSave(userOutlines);
 
   // Try Electron storage first
   if (isElectron() && await isElectronStorageAvailable()) {

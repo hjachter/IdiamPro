@@ -214,7 +214,7 @@ export default function OutlinePro() {
       const guide = getInitialGuide();
 
       try {
-        const { outlines: userOutlines, currentOutlineId: loadedCurrentOutlineId } = await loadStorageData();
+        const { outlines: userOutlines, currentOutlineId: loadedCurrentOutlineId, fixedDuplicateCount, fixedDuplicateNames } = await loadStorageData();
         const validOutlines = userOutlines.filter(o => o && isValidOutline(o));
         const loadedOutlines = [guide, ...validOutlines];
 
@@ -223,6 +223,15 @@ export default function OutlinePro() {
         const outlineToLoad = loadedOutlines.find(o => o.id === loadedCurrentOutlineId) || validOutlines[0] || guide;
         setCurrentOutlineId(outlineToLoad.id);
         setSelectedNodeId(outlineToLoad.rootNodeId || null);
+
+        // Notify user if duplicate IDs were fixed
+        if (fixedDuplicateCount && fixedDuplicateCount > 0) {
+          toast({
+            title: "Fixed Duplicate Outline IDs",
+            description: `${fixedDuplicateCount} outline(s) had duplicate IDs that were automatically fixed: ${fixedDuplicateNames?.join(', ')}`,
+            duration: 8000,
+          });
+        }
       } catch (error) {
         console.error("Failed to load data, initializing with guide:", error);
         setOutlines([guide]);
