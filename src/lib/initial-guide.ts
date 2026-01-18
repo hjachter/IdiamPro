@@ -23,11 +23,11 @@ function createGuideNodes(): { rootNodeId: string, nodes: NodeMap } {
   const nodes: NodeMap = {};
 
   const rootId = 'guide-root';
-  createNode(nodes, rootId, null, "Outline Pro User Guide", `Welcome to Outline Pro - an AI-native outlining platform that transforms scattered information into structured, actionable knowledge.
+  createNode(nodes, rootId, null, "IdiamPro User Guide", `Welcome to IdiamPro - an AI-native outlining platform that transforms scattered information into structured, actionable knowledge.
 
-**What Makes Outline Pro Different**
+**What Makes IdiamPro Different**
 
-Unlike traditional note-taking apps, Outline Pro combines hierarchical outlining with powerful AI synthesis. Import content from multiple sources - YouTube videos, PDFs, web pages, audio recordings, documents - and let AI find connections, identify themes, and create unified outlines automatically.
+Unlike traditional note-taking apps, IdiamPro combines hierarchical outlining with powerful AI synthesis. Import content from multiple sources - YouTube videos, PDFs, web pages, audio recordings, documents - and let AI find connections, identify themes, and create unified outlines automatically.
 
 **Key Workflow Applications**
 
@@ -59,7 +59,7 @@ This guide cannot be deleted, but you can copy it to create your own customized 
   const autoSaveId = uuidv4();
   const toolbarId = uuidv4();
 
-  createNode(nodes, gettingStartedId, rootId, "Getting Started", "Outline Pro helps you organize your thoughts into structured outlines. The interface has two main areas: the outline pane on the left shows your hierarchical structure, and the content pane on the right lets you edit the selected node's content. Everything saves automatically to your browser - just start working and your changes are preserved.", []);
+  createNode(nodes, gettingStartedId, rootId, "Getting Started", "IdiamPro helps you organize your thoughts into structured outlines. The interface has two main areas: the outline pane on the left shows your hierarchical structure, and the content pane on the right lets you edit the selected node's content. Everything saves automatically to your browser - just start working and your changes are preserved.", []);
   createNode(nodes, autoSaveId, gettingStartedId, "Auto-Save", "All changes are saved automatically to your browser's storage. No save button needed - your work is always preserved. Just refresh the page to confirm your outline persists.");
   createNode(nodes, toolbarId, gettingStartedId, "Toolbar Icons", "The toolbar uses icon buttons with hover tooltips:\n\n+ (Plus) - Add a new sibling node\n\nTrash (Red) - Delete selected node\n\nUpload Arrow - Import media (PDF, YouTube)\n\nSparkles (Violet) - AI features");
 
@@ -71,7 +71,7 @@ This guide cannot be deleted, but you can copy it to create your own customized 
   const deleteOutlineId = uuidv4();
   const importExportId = uuidv4();
 
-  createNode(nodes, manageId, rootId, "Managing Outlines", "Outline Pro supports multiple outlines, each stored separately. Use the dropdown menu at the top of the outline pane (showing the current outline name) to switch between outlines, create new ones, rename, delete, or import/export. The guide outline is special - it's restored automatically and cannot be deleted or renamed.", []);
+  createNode(nodes, manageId, rootId, "Managing Outlines", "IdiamPro supports multiple outlines, each stored separately. Use the dropdown menu at the top of the outline pane (showing the current outline name) to switch between outlines, create new ones, rename, delete, or import/export. The guide outline is special - it's restored automatically and cannot be deleted or renamed.", []);
   createNode(nodes, createNewId, manageId, "Creating a New Outline", "Click the dropdown menu (shows current outline name) and select 'New Outline'. A new untitled outline is created and becomes your active outline. It starts with just a root node - add children to build your structure.");
   createNode(nodes, switchId, manageId, "Switching Outlines", "Click the dropdown menu to see all your outlines. Click any outline name to switch to it. The app remembers which outline you were working on.");
   createNode(nodes, renameOutlineId, manageId, "Renaming an Outline", "Two ways to rename:\n\n1. Use the dropdown menu > 'Rename' option\n\n2. Double-click the root node name - this updates both the node and outline name");
@@ -119,10 +119,10 @@ This guide cannot be deleted, but you can copy it to create your own customized 
   const aiIngestMergeId = uuidv4();
   const aiSafetyId = uuidv4();
 
-  createNode(nodes, aiId, rootId, "AI Features", "Outline Pro includes powerful AI capabilities to help you generate content and build outlines faster. All AI features are accessed through the violet sparkles icon in the toolbar.", []);
+  createNode(nodes, aiId, rootId, "AI Features", "IdiamPro includes powerful AI capabilities to help you generate content and build outlines faster. All AI features are accessed through the violet sparkles icon in the toolbar.", []);
 
   // AI Plans
-  createNode(nodes, aiPlansId, aiId, "AI Plans (FREE vs PREMIUM)", "Outline Pro offers two AI plans:\n\nFREE Plan:\n- AI content generation\n- External source ingestion\n- Standard AI processing\n\nPREMIUM Plan ($9.99/month):\n- All FREE features\n- Advanced AI model\n- Subtree summaries\n- Teach mode\n- Consistency checks\n- Priority processing\n\nTo manage your plan: Click the AI menu (sparkles icon) > 'Manage AI Plan...'");
+  createNode(nodes, aiPlansId, aiId, "AI Plans (FREE vs PREMIUM)", "IdiamPro offers two AI plans:\n\nFREE Plan:\n- AI content generation\n- External source ingestion\n- Standard AI processing\n\nPREMIUM Plan ($9.99/month):\n- All FREE features\n- Advanced AI model\n- Subtree summaries\n- Teach mode\n- Consistency checks\n- Priority processing\n\nTo manage your plan: Click the AI menu (sparkles icon) > 'Manage AI Plan...'");
 
   // AI Menu
   createNode(nodes, aiMenuId, aiId, "AI Menu & Settings", "Access all AI features from a single menu:\n\n1. Click the violet sparkles icon in the toolbar\n2. The AI menu shows:\n   - Generate Outline from Topic\n   - Ingest External Source...\n   - Manage AI Plan...\n\nYour current plan (Free or Premium) is shown in the menu header.");
@@ -137,7 +137,7 @@ This guide cannot be deleted, but you can copy it to create your own customized 
   createNode(nodes, aiGenerateConflictId, aiGenerateContentId, "Replace vs Append", "If the node already has content, you'll see options:\n\n- Replace: Overwrite existing content with AI content\n- Append Below: Add AI content after existing content\n- Cancel: Keep existing content unchanged\n\nYour content is never changed without your explicit choice.");
 
   // Research & Import (formerly Ingest External Source)
-  createNode(nodes, aiIngestId, aiId, "Research & Import", "The Research & Import feature is the heart of Outline Pro's power. Import content from multiple sources simultaneously, and AI will synthesize them into a unified, structured outline.\n\n**Key Capabilities:**\n• Multi-source synthesis - Import multiple sources at once, AI finds connections\n• Smart defaults - YouTube titles, AI-generated names, automatic introductions\n• Merge or create new - Default merges into current outline, or create fresh\n• Speaker diarization - Audio recordings identify different speakers\n\n**Access:** Click the upload arrow icon in the toolbar, or AI menu > 'Research & Import'", []);
+  createNode(nodes, aiIngestId, aiId, "Research & Import", "The Research & Import feature is the heart of IdiamPro's power. Import content from multiple sources simultaneously, and AI will synthesize them into a unified, structured outline.\n\n**Key Capabilities:**\n• Multi-source synthesis - Import multiple sources at once, AI finds connections\n• Smart defaults - YouTube titles, AI-generated names, automatic introductions\n• Merge or create new - Default merges into current outline, or create fresh\n• Speaker diarization - Audio recordings identify different speakers\n\n**Access:** Click the upload arrow icon in the toolbar, or AI menu > 'Research & Import'", []);
   createNode(nodes, aiIngestSourcesId, aiIngestId, "Supported Sources", "**YouTube Videos**\n• Paste any YouTube URL\n• Transcript extracted automatically\n• Video title becomes default outline name\n\n**Conversation/Audio**\n• Paste transcript directly\n• Upload audio file for transcription\n• Record live with microphone\n• Speaker diarization identifies who said what\n\n**Documents**\n• PDF files (URL or upload)\n• Word, Excel, PowerPoint\n• Images with OCR text extraction\n\n**Other**\n• Web pages (URL)\n• Plain text/notes\n• Existing outline files (.idm)\n• Video files (audio extracted)");
   createNode(nodes, aiIngestPreviewId, aiIngestId, "Smart Naming & Summaries", "**Automatic Outline Naming:**\n• YouTube videos → Uses video title\n• Other sources → AI generates concise title from content\n• Fallback → Date-based name\n\n**Root Node Introduction:**\nWhen creating a new outline (not merging), the root node automatically gets an AI-generated introduction that summarizes all the content below it. This helps readers quickly understand the context.\n\n**Chapter Introductions:**\nParent/chapter nodes include introductory content that previews their children - no empty headers.");
   createNode(nodes, aiIngestMergeId, aiIngestId, "Merge vs New Outline", "**Default: Merge into Current Outline**\n• New content is synthesized with your existing outline\n• AI finds connections between old and new material\n• Preserves your existing structure\n\n**Option: Create New Outline**\n• Check 'Create new outline instead'\n• Provide a name or let AI generate one\n• Your current outline is unchanged\n\nThe merge behavior ensures you can continuously build knowledge on a topic from multiple sources over time.");
@@ -166,9 +166,9 @@ This guide cannot be deleted, but you can copy it to create your own customized 
   const colorsId = uuidv4();
   const pinningId = uuidv4();
 
-  createNode(nodes, advancedId, rootId, "Advanced Node Features", "Outline Pro supports specialized node types, organization tools like tags and colors, and pinning important nodes. These features help you create more structured and visually organized outlines.", []);
+  createNode(nodes, advancedId, rootId, "Advanced Node Features", "IdiamPro supports specialized node types, organization tools like tags and colors, and pinning important nodes. These features help you create more structured and visually organized outlines.", []);
 
-  createNode(nodes, nodeTypesId, advancedId, "Node Types", "Beyond standard document and chapter nodes, Outline Pro supports several specialized node types, each with unique editors and functionality. Access these by right-clicking a node and selecting 'Set Type' from the context menu.", []);
+  createNode(nodes, nodeTypesId, advancedId, "Node Types", "Beyond standard document and chapter nodes, IdiamPro supports several specialized node types, each with unique editors and functionality. Access these by right-clicking a node and selecting 'Set Type' from the context menu.", []);
 
   createNode(nodes, taskNodesId, nodeTypesId, "Task/Checklist Nodes", "Task nodes display a checkbox that you can click to mark items as complete. Completed tasks show strikethrough text.\n\nFeatures:\n- Click the checkbox to toggle completion\n- Completed tasks are visually distinguished\n- Perfect for to-do lists and action items\n- Can still have full rich text content");
 
@@ -221,7 +221,7 @@ export function getInitialGuide(): Outline {
   const { rootNodeId, nodes } = createGuideNodes();
   return {
     id: 'guide',
-    name: 'Outline Pro User Guide',
+    name: 'IdiamPro User Guide',
     rootNodeId,
     nodes,
     isGuide: true,

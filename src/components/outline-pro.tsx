@@ -17,6 +17,9 @@ import { Button } from './ui/button';
 import { loadStorageData, saveAllOutlines, migrateToFileSystem, type MigrationConflict, type ConflictResolution } from '@/lib/storage-manager';
 import CommandPalette from './command-palette';
 import EmptyState from './empty-state';
+import TemplatesDialog from './templates-dialog';
+import SidebarPane from './sidebar-pane';
+import MobileSidebarSheet from './mobile-sidebar-sheet';
 import KeyboardShortcutsDialog, { useKeyboardShortcuts } from './keyboard-shortcuts-dialog';
 import BulkResearchDialog from './bulk-research-dialog';
 import HelpChatDialog from './help-chat-dialog';
@@ -76,6 +79,7 @@ export default function OutlinePro() {
   // Command palette state
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isTemplatesDialogOpen, setIsTemplatesDialogOpen] = useState(false);
   const importFileInputRef = useRef<HTMLInputElement>(null);
 
   // Keyboard shortcuts dialog
@@ -83,6 +87,23 @@ export default function OutlinePro() {
 
   // Focus mode state
   const [isFocusMode, setIsFocusMode] = useState(false);
+
+  // Sidebar state (persisted to localStorage)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('idiampro-sidebar-open');
+      return saved !== null ? saved === 'true' : true; // Default open
+    }
+    return true;
+  });
+
+  // Persist sidebar state
+  useEffect(() => {
+    localStorage.setItem('idiampro-sidebar-open', String(isSidebarOpen));
+  }, [isSidebarOpen]);
+
+  // Mobile sidebar sheet state
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   // Bulk research dialog state
   const [isBulkResearchOpen, setIsBulkResearchOpen] = useState(false);
@@ -124,6 +145,7 @@ export default function OutlinePro() {
   const isInitialLoadDone = useRef(false);
   const pendingSaveRef = useRef<Promise<void> | null>(null);
   const hasUnsavedChangesRef = useRef(false);
+  const saveDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Track just-created node for space-to-edit feature
   const justCreatedNodeIdRef = useRef<string | null>(null);
@@ -160,6 +182,7 @@ export default function OutlinePro() {
 
   // Auto-save: Save to persistent storage whenever outlines change
   // Also update lastModified timestamp for current outline
+  // Uses debouncing to prevent rapid saves
   useEffect(() => {
     // Skip saving during initial load
     if (!isInitialLoadDone.current) return;
@@ -169,27 +192,42 @@ export default function OutlinePro() {
     // Mark as having unsaved changes
     hasUnsavedChangesRef.current = true;
 
-    // Update lastModified for current outline before saving
-    const updatedOutlines = outlines.map(o => {
-      if (o.id === currentOutlineId && !o.isGuide) {
-        return { ...o, lastModified: Date.now() };
-      }
-      return o;
-    });
+    // Clear any existing debounce timer
+    if (saveDebounceRef.current) {
+      clearTimeout(saveDebounceRef.current);
+    }
 
-    // Save to storage (file system or localStorage)
-    const savePromise = saveAllOutlines(updatedOutlines, currentOutlineId)
-      .then(() => {
-        hasUnsavedChangesRef.current = false;
-      })
-      .catch(error => {
-        console.error("Auto-save failed:", error);
-      })
-      .finally(() => {
-        pendingSaveRef.current = null;
+    // Debounce saves to prevent rapid repeated saves
+    saveDebounceRef.current = setTimeout(() => {
+      // Update lastModified for current outline before saving
+      const updatedOutlines = outlines.map(o => {
+        if (o.id === currentOutlineId && !o.isGuide) {
+          return { ...o, lastModified: Date.now() };
+        }
+        return o;
       });
 
-    pendingSaveRef.current = savePromise;
+      // Save to storage (file system or localStorage)
+      const savePromise = saveAllOutlines(updatedOutlines, currentOutlineId)
+        .then(() => {
+          hasUnsavedChangesRef.current = false;
+        })
+        .catch(error => {
+          console.error("Auto-save failed:", error);
+        })
+        .finally(() => {
+          pendingSaveRef.current = null;
+        });
+
+      pendingSaveRef.current = savePromise;
+    }, 500); // 500ms debounce
+
+    // Cleanup on unmount or when effect re-runs
+    return () => {
+      if (saveDebounceRef.current) {
+        clearTimeout(saveDebounceRef.current);
+      }
+    };
   }, [outlines, currentOutlineId]);
 
   // Warn user before leaving if there are unsaved changes
@@ -884,7 +922,7 @@ export default function OutlinePro() {
 
       const newRootNodeId = idMap[outlineToCopy.rootNodeId];
       const copyName = outlineToCopy.isGuide
-        ? outlineToCopy.name.replace('User Guide', 'My Guide')
+        ? 'My Guide'
         : `${outlineToCopy.name} (Copy)`;
 
       // Update root node name to match
@@ -1899,7 +1937,7 @@ export default function OutlinePro() {
   if (!isClient || !currentOutline) {
     return (
       <div className="flex items-center justify-center h-screen w-full">
-        <p>Loading Outline Pro...</p>
+        <p>Loading IdiamPro...</p>
       </div>
     );
   }
@@ -1950,6 +1988,7 @@ export default function OutlinePro() {
           onToggleFocusMode={() => setIsFocusMode(prev => !prev)}
           onShowShortcuts={() => setIsShortcutsOpen(true)}
           onOpenBulkResearch={() => setIsBulkResearchOpen(true)}
+          onOpenTemplates={() => setIsTemplatesDialogOpen(true)}
           isGuide={currentOutline?.isGuide ?? false}
           isFocusMode={isFocusMode}
         />
@@ -1977,6 +2016,24 @@ export default function OutlinePro() {
           nodeName={pdfExportNodeId ? currentOutline.nodes[pdfExportNodeId]?.name || '' : ''}
           onExport={handlePdfExportConfirm}
           onCancel={handlePdfExportCancel}
+        />
+
+        <TemplatesDialog
+          open={isTemplatesDialogOpen}
+          onOpenChange={setIsTemplatesDialogOpen}
+          onCreateFromTemplate={handleCreateFromTemplate}
+        />
+
+        <MobileSidebarSheet
+          open={isMobileSidebarOpen}
+          onOpenChange={setIsMobileSidebarOpen}
+          outlines={outlines}
+          currentOutlineId={currentOutlineId}
+          onSelectOutline={handleSelectOutline}
+          onCreateOutline={handleCreateOutline}
+          onCreateFromTemplate={handleCreateFromTemplate}
+          onDeleteOutline={handleDeleteOutline}
+          onOpenGuide={handleOpenGuide}
         />
 
         <AlertDialog open={prefixDialogState.open} onOpenChange={(open) => setPrefixDialogState(s => ({ ...s, open }))}>
@@ -2094,6 +2151,7 @@ export default function OutlinePro() {
                 onBulkAddTag={handleBulkAddTag}
                 onSearchTermChange={handleSearchTermChange}
                 onExportSubtreePdf={handleExportSubtreePdf}
+                onOpenMobileSidebar={() => setIsMobileSidebarOpen(true)}
               />
             </div>
             {/* Content Preview - takes ~30%, tap to expand */}
@@ -2150,7 +2208,22 @@ export default function OutlinePro() {
   }
 
   return (
-    <ResizablePanelGroup direction="horizontal" className="h-screen w-full rounded-none border-none" onLayout={handlePanelResize}>
+    <div className="flex h-screen w-full">
+      {/* Collapsible Sidebar */}
+      {isSidebarOpen && (
+        <SidebarPane
+          outlines={outlines}
+          currentOutlineId={currentOutlineId}
+          onSelectOutline={handleSelectOutline}
+          onCreateOutline={handleCreateOutline}
+          onCreateFromTemplate={handleCreateFromTemplate}
+          onDeleteOutline={handleDeleteOutline}
+          onOpenGuide={handleOpenGuide}
+        />
+      )}
+
+      {/* Main content area */}
+      <ResizablePanelGroup direction="horizontal" className="h-screen flex-1 rounded-none border-none" onLayout={handlePanelResize}>
       {/* Hidden file input for import */}
       <input
         type="file"
@@ -2181,6 +2254,7 @@ export default function OutlinePro() {
         onToggleFocusMode={() => setIsFocusMode(prev => !prev)}
         onShowShortcuts={() => setIsShortcutsOpen(true)}
         onOpenBulkResearch={() => setIsBulkResearchOpen(true)}
+        onOpenTemplates={() => setIsTemplatesDialogOpen(true)}
         isGuide={currentOutline?.isGuide ?? false}
         isFocusMode={isFocusMode}
       />
@@ -2196,6 +2270,12 @@ export default function OutlinePro() {
         onOpenChange={setIsBulkResearchOpen}
         onSubmit={handleBulkResearch}
         currentOutlineName={currentOutline?.name}
+      />
+
+      <TemplatesDialog
+        open={isTemplatesDialogOpen}
+        onOpenChange={setIsTemplatesDialogOpen}
+        onCreateFromTemplate={handleCreateFromTemplate}
       />
 
       <HelpChatDialog
@@ -2348,6 +2428,8 @@ export default function OutlinePro() {
                 onBulkAddTag={handleBulkAddTag}
                 onSearchTermChange={handleSearchTermChange}
                 onExportSubtreePdf={handleExportSubtreePdf}
+                isSidebarOpen={isSidebarOpen}
+                onToggleSidebar={() => setIsSidebarOpen(prev => !prev)}
               />
             </div>
           </ResizablePanel>
@@ -2373,5 +2455,6 @@ export default function OutlinePro() {
         </>
       )}
     </ResizablePanelGroup>
+    </div>
   );
 }

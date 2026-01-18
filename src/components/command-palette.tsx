@@ -27,6 +27,7 @@ import {
   Maximize,
   Keyboard,
   Library,
+  LayoutTemplate,
 } from 'lucide-react';
 import type { Outline } from '@/types';
 
@@ -50,6 +51,7 @@ interface CommandPaletteProps {
   onToggleFocusMode?: () => void;
   onShowShortcuts?: () => void;
   onOpenBulkResearch?: () => void;
+  onOpenTemplates?: () => void;
   isGuide: boolean;
   isFocusMode?: boolean;
 }
@@ -74,6 +76,7 @@ export default function CommandPalette({
   onToggleFocusMode,
   onShowShortcuts,
   onOpenBulkResearch,
+  onOpenTemplates,
   isGuide,
   isFocusMode,
 }: CommandPaletteProps) {
@@ -124,6 +127,12 @@ export default function CommandPalette({
             <FileText className="mr-2 h-4 w-4" />
             <span>New Outline</span>
           </CommandItem>
+          {onOpenTemplates && (
+            <CommandItem onSelect={() => runCommand(onOpenTemplates)}>
+              <LayoutTemplate className="mr-2 h-4 w-4" />
+              <span>New from Template</span>
+            </CommandItem>
+          )}
           {selectedNodeId && onDuplicateNode && !isGuide && (
             <CommandItem onSelect={() => runCommand(() => onDuplicateNode(selectedNodeId))}>
               <Copy className="mr-2 h-4 w-4" />

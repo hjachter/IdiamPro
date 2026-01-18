@@ -8,7 +8,7 @@ import OutlineSearch, { type SearchMatch } from './outline-search';
 import { MultiSelectToolbar } from './multi-select-toolbar';
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { ChevronDown, FilePlus, Plus, Trash2, Edit, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, Settings, Search, Command } from 'lucide-react';
+import { ChevronDown, FilePlus, Plus, Trash2, Edit, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, Settings, Search, Command, PanelLeft, PanelLeftClose } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Input } from './ui/input';
@@ -137,6 +137,11 @@ interface OutlinePaneProps {
   onSearchTermChange?: (searchTerm: string, matchType?: 'name' | 'content' | 'both', matchIndex?: number) => void;
   // PDF export
   onExportSubtreePdf?: (nodeId: string) => void;
+  // Sidebar toggle (desktop)
+  isSidebarOpen?: boolean;
+  onToggleSidebar?: () => void;
+  // Mobile sidebar sheet
+  onOpenMobileSidebar?: () => void;
 }
 
 export default function OutlinePane({
@@ -187,6 +192,9 @@ export default function OutlinePane({
   onBulkAddTag,
   onSearchTermChange,
   onExportSubtreePdf,
+  isSidebarOpen,
+  onToggleSidebar,
+  onOpenMobileSidebar,
 }: OutlinePaneProps) {
   const [renameId, setRenameId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
@@ -616,6 +624,42 @@ export default function OutlinePane({
   return (
     <div className="flex flex-col h-full bg-card p-3 space-y-3" style={{ paddingTop: 'max(0.75rem, env(safe-area-inset-top))' }}>
       <div className="flex-shrink-0 flex items-center space-x-2 px-2">
+        {/* Sidebar toggle button (desktop) */}
+        {onToggleSidebar && (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 shrink-0"
+                  onClick={onToggleSidebar}
+                >
+                  {isSidebarOpen ? (
+                    <PanelLeftClose className="h-4 w-4" />
+                  ) : (
+                    <PanelLeft className="h-4 w-4" />
+                  )}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">
+                {isSidebarOpen ? 'Hide sidebar' : 'Show sidebar'}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
+
+        {/* Mobile sidebar button */}
+        {onOpenMobileSidebar && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 shrink-0"
+            onClick={onOpenMobileSidebar}
+          >
+            <PanelLeft className="h-4 w-4" />
+          </Button>
+        )}
 
         <DropdownMenu open={dropdownOpen} onOpenChange={(open) => {
             setDropdownOpen(open);
