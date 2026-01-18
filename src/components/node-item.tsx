@@ -161,7 +161,7 @@ export default function NodeItem({
 }: NodeItemProps) {
   const node = nodes[nodeId];
   const [isEditing, setIsEditing] = React.useState(false);
-  const [name, setName] = React.useState(node.name);
+  const [name, setName] = React.useState(node?.name ?? '');
   const [dropPosition, setDropPosition] = React.useState<DropPosition>(null);
   const [isDragging, setIsDragging] = React.useState(false);
   const isMultiSelected = selectedNodeIds?.has(nodeId) || false;
@@ -242,8 +242,10 @@ export default function NodeItem({
   }, [isEditing]);
 
   React.useEffect(() => {
-    setName(node.name);
-  }, [node.name]);
+    if (node) {
+      setName(node.name);
+    }
+  }, [node?.name]);
 
   // Watch for external edit trigger (editingNodeId set by parent)
   React.useEffect(() => {
