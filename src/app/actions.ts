@@ -29,6 +29,7 @@ import type {
 import { parseMarkdownToNodes } from '@/lib/outline-utils';
 import { v4 as uuidv4 } from 'uuid';
 import { ai } from '@/ai/genkit';
+import { GoogleGenAI } from '@google/genai';
 
 // Plan-aware configuration (server-side)
 // function getPlanConfig(plan: SubscriptionPlan) {
@@ -554,6 +555,65 @@ export async function transcribeRecordingAction(
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Transcription failed',
+    };
+  }
+}
+
+/**
+ * Generate an AI Image using Google Imagen 3 (PREMIUM Feature)
+ *
+ * Takes a text prompt and returns a base64-encoded image.
+ * Uses the Imagen 3 model through the Google GenAI API.
+ */
+export async function generateImageAction(
+  prompt: string,
+  options: {
+    aspectRatio?: '1:1' | '16:9' | '9:16' | '4:3' | '3:4';
+  } = {}
+): Promise<{
+  success: boolean;
+  imageBase64?: string;
+  mimeType?: string;
+  error?: string;
+}> {
+  try {
+    const apiKey = process.env.GOOGLE_API_KEY;
+    if (!apiKey) {
+      throw new Error('GOOGLE_API_KEY is not configured');
+    }
+
+    const genai = new GoogleGenAI({ apiKey });
+
+    const response = await genai.models.generateImages({
+      model: 'imagen-3.0-generate-002',
+      prompt: prompt,
+      config: {
+        numberOfImages: 1,
+        aspectRatio: options.aspectRatio || '1:1',
+      },
+    });
+
+    if (!response.generatedImages || response.generatedImages.length === 0) {
+      throw new Error('No image was generated');
+    }
+
+    const generatedImage = response.generatedImages[0];
+    const imageBytes = generatedImage.image?.imageBytes;
+
+    if (!imageBytes) {
+      throw new Error('Generated image has no data');
+    }
+
+    return {
+      success: true,
+      imageBase64: imageBytes,
+      mimeType: 'image/png',
+    };
+  } catch (error) {
+    console.error('Error generating image:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Image generation failed',
     };
   }
 }

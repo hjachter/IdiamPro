@@ -72,7 +72,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Image from 'next/image';
-import { ArrowLeft, Sparkles, Loader2, Eraser, Scissors, Copy, Clipboard, Type, Undo, Redo, List, ListOrdered, ListX, Minus, FileText, Sheet, Presentation, Video, Map, AppWindow, Plus, Bold, Italic, Strikethrough, Code, Heading1, Heading2, Heading3, Mic, MicOff, ChevronRight, Home, Pencil, ALargeSmall, Check, Calendar, Brush, Network, GitBranch, MessageSquare } from 'lucide-react';
+import { ArrowLeft, Sparkles, Loader2, Eraser, Scissors, Copy, Clipboard, Type, Undo, Redo, List, ListOrdered, ListX, Minus, FileText, Sheet, Presentation, Video, Map, AppWindow, Plus, Bold, Italic, Strikethrough, Code, Heading1, Heading2, Heading3, Mic, MicOff, ChevronRight, Home, Pencil, ALargeSmall, Check, Calendar, Brush, Network, GitBranch, MessageSquare, ImagePlus, Table } from 'lucide-react';
+import { generateImageAction } from '@/app/actions';
 import dynamic from 'next/dynamic';
 
 // Dynamically import DrawingCanvas to avoid SSR issues with tldraw
@@ -85,6 +86,12 @@ const DrawingCanvas = dynamic(() => import('./drawing-canvas'), {
 const TldrawEditor = dynamic(() => import('./tldraw-editor'), {
   ssr: false,
   loading: () => <div className="flex items-center justify-center h-[500px] text-muted-foreground">Loading canvas...</div>,
+});
+
+// Dynamically import SpreadsheetEditor for inline spreadsheets
+const SpreadsheetEditor = dynamic(() => import('./spreadsheet-editor'), {
+  ssr: false,
+  loading: () => <div className="flex items-center justify-center h-[400px] text-muted-foreground">Loading spreadsheet...</div>,
 });
 import { Card, CardContent } from './ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -361,6 +368,12 @@ export default function ContentPane({
   const [customPrompt, setCustomPrompt] = useState('');
   const [aiResponse, setAiResponse] = useState<string | null>(null);
 
+  // Image generation state
+  const [imagePromptDialogOpen, setImagePromptDialogOpen] = useState(false);
+  const [imagePrompt, setImagePrompt] = useState('');
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [imageAspectRatio, setImageAspectRatio] = useState<'1:1' | '16:9' | '9:16' | '4:3' | '3:4'>('1:1');
+
   // Persist preferences to localStorage
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -395,7 +408,7 @@ export default function ContentPane({
   } = useSpeechRecognition();
 
   // Only create editor for node types that need rich text editing
-  const shouldUseRichTextEditor = !['canvas', 'code', 'link', 'quote', 'date'].includes(node?.type || '');
+  const shouldUseRichTextEditor = !['canvas', 'code', 'link', 'quote', 'date', 'spreadsheet'].includes(node?.type || '');
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -878,6 +891,60 @@ export default function ContentPane({
     setCustomPrompt('');
   };
 
+  // Image generation handlers
+  const handleOpenImageDialog = () => {
+    // Pre-fill with a suggestion based on the node name
+    if (node) {
+      setImagePrompt(`An illustration of ${node.name}`);
+    }
+    setImagePromptDialogOpen(true);
+  };
+
+  const handleGenerateImage = async () => {
+    if (!imagePrompt.trim() || !editor) return;
+
+    setIsGeneratingImage(true);
+    try {
+      const result = await generateImageAction(imagePrompt.trim(), {
+        aspectRatio: imageAspectRatio,
+      });
+
+      if (result.success && result.imageBase64) {
+        // Insert image into editor as base64 data URL
+        const dataUrl = `data:${result.mimeType};base64,${result.imageBase64}`;
+        editor.chain().focus().setImage({ src: dataUrl }).run();
+
+        toast({
+          title: "Image Generated",
+          description: "AI image has been added to your content.",
+        });
+
+        setImagePromptDialogOpen(false);
+        setImagePrompt('');
+      } else {
+        toast({
+          title: "Image Generation Failed",
+          description: result.error || "Could not generate image. Please try again.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error generating image:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate image. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingImage(false);
+    }
+  };
+
+  const handleCloseImageDialog = () => {
+    setImagePromptDialogOpen(false);
+    setImagePrompt('');
+  };
+
   const handleConflictAction = (action: ContentConflictAction) => {
     if (!node || !editor) return;
 
@@ -1065,6 +1132,17 @@ export default function ContentPane({
       title: "Switched to Text",
       description: "This node is now a text document.",
       duration: 2000,
+    });
+  };
+
+  const handleConvertToSpreadsheet = () => {
+    if (!node) return;
+    // Convert this node to a spreadsheet type with empty data
+    onUpdate(node.id, { type: 'spreadsheet', content: '' });
+    toast({
+      title: "Switched to Spreadsheet",
+      description: "This node is now an inline spreadsheet. Add data, formulas, and more!",
+      duration: 3000,
     });
   };
 
@@ -1386,6 +1464,78 @@ export default function ContentPane({
         </DialogContent>
       </Dialog>
 
+      {/* Generate Image Dialog */}
+      <Dialog open={imagePromptDialogOpen} onOpenChange={handleCloseImageDialog}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <ImagePlus className="h-5 w-5 text-violet-600" />
+              Generate AI Image
+            </DialogTitle>
+            <DialogDescription>
+              Describe the image you want to create. Be specific about style, colors, and composition.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="py-4 space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Image Description</label>
+              <Textarea
+                placeholder="E.g., A serene mountain landscape at sunset with soft pastel colors, digital art style"
+                value={imagePrompt}
+                onChange={(e) => setImagePrompt(e.target.value)}
+                className="min-h-[100px] resize-none"
+                autoFocus
+                disabled={isGeneratingImage}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Aspect Ratio</label>
+              <Select
+                value={imageAspectRatio}
+                onValueChange={(v) => setImageAspectRatio(v as typeof imageAspectRatio)}
+                disabled={isGeneratingImage}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1:1">Square (1:1)</SelectItem>
+                  <SelectItem value="16:9">Landscape (16:9)</SelectItem>
+                  <SelectItem value="9:16">Portrait (9:16)</SelectItem>
+                  <SelectItem value="4:3">Standard (4:3)</SelectItem>
+                  <SelectItem value="3:4">Portrait Standard (3:4)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={handleCloseImageDialog} disabled={isGeneratingImage}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleGenerateImage}
+              disabled={!imagePrompt.trim() || isGeneratingImage}
+              className="bg-violet-600 hover:bg-violet-700"
+            >
+              {isGeneratingImage ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <ImagePlus className="mr-2 h-4 w-4" />
+                  Generate Image
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Read-only banner for User Guide */}
       {isGuide && (
         <div className="flex-shrink-0 px-4 py-2 bg-blue-50 dark:bg-blue-950/30 border-b border-blue-200 dark:border-blue-800 flex items-center justify-between gap-2">
@@ -1461,13 +1611,19 @@ export default function ContentPane({
               </TooltipTrigger>
               <TooltipContent>Add content</TooltipContent>
               <DropdownMenuContent align="start">
-                {node.type !== 'canvas' && (
-                  <DropdownMenuItem onClick={handleConvertToCanvas}>
-                    <Brush className="mr-2 h-4 w-4" />
-                    Canvas (Freeform)
-                  </DropdownMenuItem>
+                {node.type !== 'canvas' && node.type !== 'spreadsheet' && (
+                  <>
+                    <DropdownMenuItem onClick={handleConvertToCanvas}>
+                      <Brush className="mr-2 h-4 w-4" />
+                      Canvas (Freeform)
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleConvertToSpreadsheet}>
+                      <Table className="mr-2 h-4 w-4" />
+                      Spreadsheet
+                    </DropdownMenuItem>
+                  </>
                 )}
-                {node.type === 'canvas' && (
+                {(node.type === 'canvas' || node.type === 'spreadsheet') && (
                   <DropdownMenuItem onClick={handleConvertToText}>
                     <FileText className="mr-2 h-4 w-4" />
                     Switch to Text
@@ -1602,6 +1758,27 @@ export default function ContentPane({
             </DropdownMenuContent>
           </DropdownMenu>
 
+          {/* Generate Image Button */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleOpenImageDialog}
+                disabled={isGeneratingImage || isGuide}
+                className="text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-950 px-2"
+              >
+                {isGeneratingImage ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <ImagePlus className="h-4 w-4" />
+                )}
+                <span className="ml-1.5 text-xs hidden sm:inline">Image</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Generate AI image</TooltipContent>
+          </Tooltip>
+
           {/* Subtree Diagram Button */}
           {nodes && node && node.childrenIds.length > 0 && (
             <DropdownMenu>
@@ -1679,6 +1856,25 @@ export default function ContentPane({
               onSnapshotChange={(snapshot) => {
                 onUpdate(node.id, { content: JSON.stringify(snapshot) });
               }}
+            />
+          </div>
+        )}
+
+        {/* Spreadsheet node - inline spreadsheet editor */}
+        {node.type === 'spreadsheet' && (
+          <div className="h-[calc(100vh-200px)] min-h-[400px] rounded-lg border overflow-hidden">
+            <SpreadsheetEditor
+              data={node.content ? (() => {
+                try {
+                  return JSON.parse(node.content);
+                } catch {
+                  return null;
+                }
+              })() : null}
+              onChange={(data) => {
+                onUpdate(node.id, { content: JSON.stringify(data) });
+              }}
+              readOnly={isGuide}
             />
           </div>
         )}
@@ -2051,6 +2247,11 @@ export default function ContentPane({
                 <ContextMenuItem onClick={handleConvertToCanvas}>
                   <Brush className="mr-2 h-4 w-4" />
                   Canvas (Freeform)
+                </ContextMenuItem>
+
+                <ContextMenuItem onClick={handleConvertToSpreadsheet}>
+                  <Table className="mr-2 h-4 w-4" />
+                  Spreadsheet
                 </ContextMenuItem>
 
                 <ContextMenuSeparator />
