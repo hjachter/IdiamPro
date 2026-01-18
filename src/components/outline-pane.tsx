@@ -397,6 +397,36 @@ export default function OutlinePane({
   }, []);
 
   // Keyboard event handler for Tab/Shift+Tab, clipboard shortcuts, and search
+  // Separate useEffect for multi-selection keyboard shortcuts (Escape and Tab)
+  useEffect(() => {
+    const handleMultiSelectKeys = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) return;
+
+      // Handle Escape to clear multi-selection
+      if (e.key === 'Escape') {
+        if (selectedNodeIds && selectedNodeIds.size > 0 && onClearSelection) {
+          e.preventDefault();
+          onClearSelection();
+        }
+        return;
+      }
+
+      // Handle Tab for multi-select indent/outdent
+      if (e.key === 'Tab' && selectedNodeIds && selectedNodeIds.size > 0) {
+        e.preventDefault();
+        if (e.shiftKey) {
+          handleBulkOutdent();
+        } else {
+          handleBulkIndent();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleMultiSelectKeys);
+    return () => document.removeEventListener('keydown', handleMultiSelectKeys);
+  }, [selectedNodeIds, onClearSelection, handleBulkIndent, handleBulkOutdent]);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Handle Ctrl+F for search (works even in input fields)
@@ -410,16 +440,7 @@ export default function OutlinePane({
       const target = e.target as HTMLElement;
       if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) return;
 
-      // Handle Escape to clear multi-selection
-      if (e.key === 'Escape') {
-        if (selectedNodeIds && selectedNodeIds.size > 0) {
-          e.preventDefault();
-          onClearSelection?.();
-          return;
-        }
-      }
-
-      // Handle Tab for indent/outdent
+      // Handle Tab for single-node indent/outdent (multi-select handled in separate useEffect)
       if (e.key === 'Tab') {
         if (!selectedNodeId || !currentOutline) return;
         e.preventDefault();
@@ -474,7 +495,7 @@ export default function OutlinePane({
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [selectedNodeId, currentOutline, handleIndent, handleOutdent, hasClipboard, onCopySubtree, onCutSubtree, onPasteSubtree, onDuplicateNode, justCreatedNodeId, onTriggerEdit, selectedNodeIds, onClearSelection]);
+  }, [selectedNodeId, currentOutline, handleIndent, handleOutdent, hasClipboard, onCopySubtree, onCutSubtree, onPasteSubtree, onDuplicateNode, justCreatedNodeId, onTriggerEdit]);
 
   const handleStartRename = (id: string, currentName: string) => {
     setRenameId(id);
