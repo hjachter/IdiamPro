@@ -98,22 +98,38 @@ const MermaidRenderer = ({ code }: { code: string }) => {
     if (diagramRef.current) {
       const svg = diagramRef.current.querySelector('svg');
       if (svg) {
-        const rect = svg.getBoundingClientRect();
+        // Get the viewBox which defines the true content boundaries
+        const viewBox = svg.getAttribute('viewBox');
+        let contentWidth: number, contentHeight: number;
+
+        if (viewBox) {
+          const parts = viewBox.split(/\s+|,/).map(parseFloat);
+          contentWidth = parts[2]; // viewBox width
+          contentHeight = parts[3]; // viewBox height
+        } else {
+          // Fall back to rendered dimensions
+          const rect = svg.getBoundingClientRect();
+          contentWidth = rect.width;
+          contentHeight = rect.height;
+        }
+
         const targetWidth = window.innerWidth * 0.9;
         const targetHeight = window.innerHeight * 0.9;
 
-        // Scale to fill viewport
-        const scaleX = targetWidth / rect.width;
-        const scaleY = targetHeight / rect.height;
+        // Scale to fill viewport while preserving aspect ratio
+        const scaleX = targetWidth / contentWidth;
+        const scaleY = targetHeight / contentHeight;
         const fillScale = Math.max(scaleX, scaleY, 1.5);
 
-        const newWidth = Math.round(rect.width * fillScale);
-        const newHeight = Math.round(rect.height * fillScale);
+        const newWidth = Math.round(contentWidth * fillScale);
+        const newHeight = Math.round(contentHeight * fillScale);
 
-        // Modify SVG to set new dimensions
+        // Keep original viewBox intact, just scale dimensions
+        // Add overflow:hidden to ensure SVG clips to viewBox boundaries
         let modifiedSvg = svgContent
           .replace(/width="[^"]*"/, `width="${newWidth}"`)
-          .replace(/height="[^"]*"/, `height="${newHeight}"`);
+          .replace(/height="[^"]*"/, `height="${newHeight}"`)
+          .replace(/<svg([^>]*)>/, '<svg$1 style="overflow:hidden">');
 
         setScaledSvg(modifiedSvg);
       } else {
@@ -300,7 +316,7 @@ const MermaidRenderer = ({ code }: { code: string }) => {
           background: rgba(0, 0, 0, 0.85);
           overflow-x: auto;
           overflow-y: auto;
-          padding: 20px;
+          padding: 20px 20px 60px 20px;
           -webkit-overflow-scrolling: touch;
         }
         .mermaid-fullscreen-overlay::-webkit-scrollbar {
@@ -324,7 +340,8 @@ const MermaidRenderer = ({ code }: { code: string }) => {
           position: relative;
           background: #f8fafc;
           border-radius: 8px;
-          padding: 50px 20px 20px 20px;
+          padding: 50px 20px 40px 20px;
+          margin-bottom: 60px;
           display: inline-block;
         }
         .dark .mermaid-fullscreen-content {
@@ -386,6 +403,8 @@ const MermaidRenderer = ({ code }: { code: string }) => {
             </button>
             <div dangerouslySetInnerHTML={{ __html: scaledSvg }} />
           </div>
+          {/* Spacer to ensure bottom border is visible when scrolling */}
+          <div style={{ height: '80px', flexShrink: 0 }} />
         </div>
       )}
     </>
