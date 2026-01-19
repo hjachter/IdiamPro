@@ -89,6 +89,42 @@ const sanitizeMermaidCode = (code: string): string => {
 const MermaidRenderer = ({ code }: { code: string }) => {
   const [error, setError] = useState<string | null>(null);
   const [svgContent, setSvgContent] = useState<string>('');
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [scaledSvg, setScaledSvg] = useState<string>('');
+  const diagramRef = useRef<HTMLDivElement>(null);
+
+  // Create a scaled version of the SVG for fullscreen
+  const openFullscreen = () => {
+    if (diagramRef.current) {
+      const svg = diagramRef.current.querySelector('svg');
+      if (svg) {
+        const rect = svg.getBoundingClientRect();
+        const targetWidth = window.innerWidth * 0.9;
+        const targetHeight = window.innerHeight * 0.9;
+
+        // Scale to fill viewport
+        const scaleX = targetWidth / rect.width;
+        const scaleY = targetHeight / rect.height;
+        const fillScale = Math.max(scaleX, scaleY, 1.5);
+
+        const newWidth = Math.round(rect.width * fillScale);
+        const newHeight = Math.round(rect.height * fillScale);
+
+        // Modify SVG to set new dimensions
+        let modifiedSvg = svgContent
+          .replace(/width="[^"]*"/, `width="${newWidth}"`)
+          .replace(/height="[^"]*"/, `height="${newHeight}"`);
+
+        setScaledSvg(modifiedSvg);
+      } else {
+        setScaledSvg(svgContent);
+      }
+    } else {
+      setScaledSvg(svgContent);
+    }
+    setIsFullscreen(true);
+  };
+
 
   useEffect(() => {
     let cancelled = false;
@@ -256,11 +292,102 @@ const MermaidRenderer = ({ code }: { code: string }) => {
         .dark .mermaid-diagram svg .flowchart-link {
           stroke: #16a34a !important;
         }
+        /* Fullscreen overlay - scrollable both directions */
+        .mermaid-fullscreen-overlay {
+          position: fixed;
+          inset: 0;
+          z-index: 9999;
+          background: rgba(0, 0, 0, 0.85);
+          overflow-x: auto;
+          overflow-y: auto;
+          padding: 20px;
+          -webkit-overflow-scrolling: touch;
+        }
+        .mermaid-fullscreen-overlay::-webkit-scrollbar {
+          width: 14px;
+          height: 14px;
+        }
+        .mermaid-fullscreen-overlay::-webkit-scrollbar-track {
+          background: rgba(255, 255, 255, 0.2);
+        }
+        .mermaid-fullscreen-overlay::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.5);
+          border-radius: 7px;
+        }
+        .mermaid-fullscreen-overlay::-webkit-scrollbar-thumb:hover {
+          background: rgba(255, 255, 255, 0.7);
+        }
+        .mermaid-fullscreen-overlay::-webkit-scrollbar-corner {
+          background: rgba(255, 255, 255, 0.2);
+        }
+        .mermaid-fullscreen-content {
+          position: relative;
+          background: #f8fafc;
+          border-radius: 8px;
+          padding: 50px 20px 20px 20px;
+          display: inline-block;
+        }
+        .dark .mermaid-fullscreen-content {
+          background: #1e293b;
+        }
+        .mermaid-fullscreen-close {
+          position: absolute;
+          top: 10px;
+          right: 10px;
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          background: #ef4444;
+          color: white;
+          border: none;
+          cursor: pointer;
+          font-size: 18px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 10;
+        }
+        .mermaid-fullscreen-close:hover {
+          background: #dc2626;
+        }
+        .mermaid-fullscreen-hint {
+          position: absolute;
+          bottom: -24px;
+          left: 50%;
+          transform: translateX(-50%);
+          font-size: 11px;
+          color: #9ca3af;
+          white-space: nowrap;
+        }
       `}</style>
       <div
-        className="mermaid-diagram my-4 flex justify-center"
+        ref={diagramRef}
+        className="mermaid-diagram my-4 flex justify-center cursor-zoom-in relative group"
         dangerouslySetInnerHTML={{ __html: svgContent }}
+        onDoubleClick={openFullscreen}
+        title="Double-click to enlarge"
       />
+      {/* Fullscreen overlay */}
+      {isFullscreen && (
+        <div
+          className="mermaid-fullscreen-overlay"
+          onClick={() => setIsFullscreen(false)}
+        >
+          <div
+            className="mermaid-fullscreen-content mermaid-diagram"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="mermaid-fullscreen-close"
+              onClick={() => setIsFullscreen(false)}
+              aria-label="Close fullscreen"
+            >
+              ×
+            </button>
+            <div dangerouslySetInnerHTML={{ __html: scaledSvg }} />
+          </div>
+        </div>
+      )}
     </>
   );
 };
