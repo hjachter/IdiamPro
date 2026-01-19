@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu, dialog, ipcMain } = require('electron');
+const { app, BrowserWindow, Menu, dialog, ipcMain, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const { spawn } = require('child_process');
@@ -434,6 +434,111 @@ ipcMain.handle('load-outline-from-file', async (event, dirPath, fileName) => {
     return { success: true, outline };
   } catch (error) {
     console.error('Failed to load outline from file:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+// Open file with default application
+ipcMain.handle('open-file', async (event, filePath) => {
+  try {
+    const result = await shell.openPath(filePath);
+    if (result) {
+      console.error('Failed to open file:', result);
+      return { success: false, error: result };
+    }
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to open file:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+// Save file dialog and return the chosen path
+ipcMain.handle('save-file-dialog', async (event, options) => {
+  const result = await dialog.showSaveDialog(mainWindow, {
+    title: options.title || 'Save File',
+    defaultPath: options.defaultPath,
+    filters: options.filters || [{ name: 'All Files', extensions: ['*'] }],
+  });
+
+  if (result.canceled) {
+    return null;
+  }
+  return result.filePath;
+});
+
+// Write file to disk
+ipcMain.handle('write-file', async (event, filePath, data, encoding) => {
+  console.log('write-file called:', filePath, 'encoding:', encoding, 'data length:', data?.length || 0);
+  try {
+    if (encoding === 'base64') {
+      // Decode base64 and write as binary
+      const buffer = Buffer.from(data, 'base64');
+      console.log('Decoded buffer size:', buffer.length, 'bytes');
+      fs.writeFileSync(filePath, buffer);
+      console.log('File written successfully');
+    } else {
+      fs.writeFileSync(filePath, data, encoding || 'utf-8');
+    }
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to write file:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+// Print HTML content to PDF using Electron's native PDF engine
+ipcMain.handle('print-to-pdf', async (event, htmlContent, filePath) => {
+  console.log('print-to-pdf called, filePath:', filePath);
+
+  try {
+    // Create a hidden window to render the HTML
+    const printWindow = new BrowserWindow({
+      width: 800,
+      height: 600,
+      show: false,
+      webPreferences: {
+        nodeIntegration: false,
+        contextIsolation: true,
+      },
+    });
+
+    // Load the HTML content
+    await printWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(htmlContent)}`);
+
+    // Wait for content to render
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    // Generate PDF
+    const pdfData = await printWindow.webContents.printToPDF({
+      pageSize: 'A4',
+      printBackground: true,
+      margins: {
+        top: 0.5,
+        bottom: 0.5,
+        left: 0.5,
+        right: 0.5,
+      },
+    });
+
+    console.log('PDF generated, size:', pdfData.length, 'bytes');
+
+    // Write PDF to file
+    fs.writeFileSync(filePath, pdfData);
+    console.log('PDF saved to:', filePath);
+
+    // Close the print window
+    printWindow.close();
+
+    // Open in Preview
+    const openResult = await shell.openPath(filePath);
+    if (openResult) {
+      console.warn('Could not open PDF:', openResult);
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error('print-to-pdf failed:', error);
     return { success: false, error: error.message };
   }
 });

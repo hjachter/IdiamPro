@@ -70,8 +70,14 @@ const sanitizeMermaidCode = (code: string): string => {
     }
   );
 
-  // Also handle curly braces in labels (diamond shapes with nested content)
-  // e.g., E{Is DAU Stable?} is fine, but nested braces cause issues
+  // Fix flowchart decision diamonds with parentheses inside curly braces
+  // e.g., B{Build MVP (Minimum Viable Product)} -> B{Build MVP - Minimum Viable Product}
+  sanitized = sanitized.replace(
+    /(\w+)\{([^}]*)\(([^)]*)\)([^}]*)\}/g,
+    (match, id, before, parens, after) => {
+      return `${id}{${before}- ${parens}${after}}`;
+    }
+  );
 
   // Remove semicolons at end of lines (not needed and can cause issues)
   sanitized = sanitized.replace(/;$/gm, '');

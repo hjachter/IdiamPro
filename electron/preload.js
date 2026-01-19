@@ -23,4 +23,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
   renameOutlineFile: (dirPath, oldFileName, newOutline) => ipcRenderer.invoke('rename-outline-file', dirPath, oldFileName, newOutline),
   checkOutlineExists: (dirPath, fileName) => ipcRenderer.invoke('check-outline-exists', dirPath, fileName),
   loadOutlineFromFile: (dirPath, fileName) => ipcRenderer.invoke('load-outline-from-file', dirPath, fileName),
+
+  // File operations for PDF export
+  openFile: (filePath) => ipcRenderer.invoke('open-file', filePath),
+  saveFileDialog: (options) => ipcRenderer.invoke('save-file-dialog', options),
+  writeFile: (filePath, data, encoding) => ipcRenderer.invoke('write-file', filePath, data, encoding),
+
+  // Native print-to-PDF (handles large documents)
+  printToPdf: (htmlContent, filePath) => ipcRenderer.invoke('print-to-pdf', htmlContent, filePath),
 });

@@ -669,14 +669,14 @@ export default function ContentPane({
     return sanitized;
   }, []);
 
-  // Generate Mermaid "mindmap" as horizontal flowchart (LR layout - looks like a tree)
+  // Generate Mermaid "mindmap" as vertical flowchart (TD layout - better for many nodes)
   const generateMindmap = useCallback((rootNode: OutlineNode, allNodes: NodeMap): string => {
     const sanitizeName = (name: string) => {
       // Remove special characters that break Mermaid syntax
       return name.replace(/[()[\]{}"`]/g, '').replace(/\n/g, ' ').trim();
     };
 
-    const lines: string[] = ['flowchart LR']; // Left-to-right for tree-like layout
+    const lines: string[] = ['flowchart TD']; // Top-down for better readability with many nodes
     const connections: string[] = [];
     let nodeCounter = 0;
     const nodeIds: Record<string, string> = {};
