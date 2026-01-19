@@ -1138,16 +1138,26 @@ export default function OutlinePro() {
     }
 
     setIsLoadingAI(true);
-    const estimatedMinutes = Math.ceil(totalDescendants * 6.5 / 60);
+
+    // Premium users get faster generation (higher rate limits)
+    const isPremium = plan === 'PREMIUM';
+    const delayMs = isPremium ? 1000 : 6500; // Premium: 1s, Free: 6.5s
+    const errorDelayMs = isPremium ? 2000 : 10000; // Premium: 2s, Free: 10s
+
+    const estimatedSeconds = totalDescendants * (delayMs / 1000);
+    const estimatedMinutes = Math.ceil(estimatedSeconds / 60);
+
     toast({
       title: "Generating Content",
-      description: `Creating content for ${totalDescendants} descendants (~${estimatedMinutes} min due to API limits)...`,
+      description: isPremium
+        ? `Creating content for ${totalDescendants} descendants (~${estimatedMinutes} min)...`
+        : `Creating content for ${totalDescendants} descendants (~${estimatedMinutes} min due to API limits)...`,
     });
 
     let successCount = 0;
     let errorCount = 0;
 
-    // Helper to delay between requests (rate limit: 10 req/min = 1 every 6 seconds)
+    // Helper to delay between requests
     const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
     // Process descendants sequentially with rate limiting
@@ -1194,10 +1204,9 @@ export default function OutlinePro() {
 
         successCount++;
 
-        // Rate limit: wait 6.5 seconds between requests (allows ~9 req/min, under 10 limit)
-        // Skip delay on last item
+        // Rate limit delay - skip on last item
         if (i < allDescendantIds.length - 1) {
-          await delay(6500);
+          await delay(delayMs);
         }
       } catch (e) {
         console.error(`Failed to generate content for ${descendantNode.name}:`, e);
@@ -1205,7 +1214,7 @@ export default function OutlinePro() {
 
         // On rate limit error, wait longer before next attempt
         if (i < allDescendantIds.length - 1) {
-          await delay(10000); // Wait 10 seconds after error
+          await delay(errorDelayMs);
         }
       }
     }
@@ -1248,10 +1257,19 @@ export default function OutlinePro() {
     setIsLoadingAI(false);
 
     if (errorCount === 0) {
-      toast({
-        title: "Content Generated",
-        description: `Successfully created content for ${successCount} descendant${successCount > 1 ? 's' : ''}, with subtree diagram.`,
-      });
+      if (isPremium) {
+        toast({
+          title: "Content Generated",
+          description: `Successfully created content for ${successCount} descendant${successCount > 1 ? 's' : ''}, with subtree diagram.`,
+        });
+      } else {
+        // Show premium upsell for free users
+        toast({
+          title: "Content Generated",
+          description: `Created content for ${successCount} descendant${successCount > 1 ? 's' : ''}. Upgrade to Premium for 6x faster generation!`,
+          duration: 8000,
+        });
+      }
     } else {
       toast({
         variant: "destructive",

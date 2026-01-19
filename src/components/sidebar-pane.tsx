@@ -49,11 +49,9 @@ export default function SidebarPane({
   const guide = outlines.find(o => o.isGuide);
   const userOutlines = outlines.filter(o => !o.isGuide);
 
-  // Sort user outlines by lastModified (most recent first)
+  // Sort user outlines alphabetically by name (case-insensitive)
   const sortedOutlines = [...userOutlines].sort((a, b) => {
-    const aTime = a.lastModified || 0;
-    const bTime = b.lastModified || 0;
-    return bTime - aTime;
+    return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
   });
 
   const handleSelectTemplate = (template: Template) => {

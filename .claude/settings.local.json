@@ -70,7 +70,8 @@
       "Bash(git push:*)",
       "Bash(# Kill all related processes pkill -9 -f \"\"Electron\"\" pkill -9 -f \"\"next dev\"\" pkill -9 -f \"\"node.*9002\"\" lsof -ti:9002)",
       "Bash(xargs kill -9 echo \"All processes killed. Ready for fresh start.\")",
-      "Bash(npm ls:*)"
+      "Bash(npm ls:*)",
+      "WebFetch(domain:ai.google.dev)"
     ]
   }
 }
