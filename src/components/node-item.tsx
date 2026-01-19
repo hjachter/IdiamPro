@@ -668,7 +668,7 @@ export default function NodeItem({
             {isChapter && onGenerateContentForChildren && (
               <ContextMenuItem onClick={(e) => { e.stopPropagation(); onGenerateContentForChildren(node.id); }}>
                 <Sparkles className="mr-2 h-4 w-4" />
-                Create Content for Children
+                Create Content for Descendants
               </ContextMenuItem>
             )}
 

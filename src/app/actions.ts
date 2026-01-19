@@ -94,7 +94,9 @@ Supported diagram types: flowchart, sequenceDiagram, mindmap, gantt, pie, classD
 
 MERMAID SYNTAX RULES (critical - diagrams will fail if violated):
 - Node/participant names must be simple identifiers (letters, numbers, underscores only)
-- NO parentheses, commas, or special characters in names
+- NO parentheses () inside node labels - they break the parser!
+- WRONG: B[Retention (D1, D7, D30)] - this will FAIL
+- RIGHT: B[Retention D1 D7 D30] or B[Retention Metrics]
 - Use short names like "Platform" not "Platform (iOS, Mac, Web)"
 - For descriptive labels in flowcharts, use: NodeID[Descriptive Label]
 - Keep the diagram simple and focused

@@ -72,7 +72,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Image from 'next/image';
-import { ArrowLeft, Sparkles, Loader2, Eraser, Scissors, Copy, Clipboard, Type, Undo, Redo, List, ListOrdered, ListX, Minus, FileText, Sheet, Presentation, Video, Map, AppWindow, Plus, Bold, Italic, Strikethrough, Code, Heading1, Heading2, Heading3, Mic, MicOff, ChevronRight, Home, Pencil, ALargeSmall, Check, Calendar, Brush, Network, GitBranch, MessageSquare, ImagePlus, Table } from 'lucide-react';
+import { ArrowLeft, Sparkles, Loader2, Eraser, Scissors, Copy, Clipboard, Type, Undo, Redo, List, ListOrdered, ListX, Minus, FileText, Sheet, Presentation, Video, Map, AppWindow, Plus, Bold, Italic, Strikethrough, Code, Heading1, Heading2, Heading3, Mic, MicOff, ChevronRight, Home, Pencil, ALargeSmall, Check, Calendar, Brush, Network, GitBranch, MessageSquare, ImagePlus, Table, Layers } from 'lucide-react';
 import { generateImageAction } from '@/app/actions';
 import dynamic from 'next/dynamic';
 
@@ -274,6 +274,7 @@ interface ContentPaneProps {
   onBack?: () => void;
   onExpandContent: () => Promise<void>;  // Legacy callback (kept for compatibility)
   onGenerateContent?: (context: NodeGenerationContext) => Promise<string>;  // Enhanced callback
+  onGenerateContentForDescendants?: (nodeId: string) => void;  // Generate content for all descendants
   isLoadingAI: boolean;
   searchTerm?: string;  // Search term for highlighting matches
   currentMatchIndex?: number;  // Which match to scroll to (for multiple matches in same content)
@@ -321,6 +322,7 @@ export default function ContentPane({
   onBack,
   onExpandContent,
   onGenerateContent,
+  onGenerateContentForDescendants,
   isLoadingAI,
   searchTerm,
   currentMatchIndex = 0,
@@ -1755,6 +1757,19 @@ export default function ContentPane({
               >
                 Include diagram
               </DropdownMenuCheckboxItem>
+              {onGenerateContentForDescendants && node && node.childrenIds.length > 0 && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuLabel className="text-xs text-muted-foreground">Bulk Actions</DropdownMenuLabel>
+                  <DropdownMenuItem
+                    onClick={() => onGenerateContentForDescendants(node.id)}
+                    className="text-amber-600"
+                  >
+                    <Layers className="h-4 w-4 mr-2" />
+                    Generate for Descendants
+                  </DropdownMenuItem>
+                </>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
 

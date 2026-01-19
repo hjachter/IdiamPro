@@ -1106,52 +1106,84 @@ export default function OutlinePro() {
     const parentNode = nodes[parentNodeId];
     if (!parentNode || !parentNode.childrenIds || parentNode.childrenIds.length === 0) {
       toast({
-        title: "No Children",
-        description: "This node has no children to generate content for.",
+        title: "No Descendants",
+        description: "This node has no descendants to generate content for.",
       });
       return;
     }
 
-    const childIds = parentNode.childrenIds;
-    const totalChildren = childIds.length;
+    // Helper function to collect all descendant IDs recursively
+    const collectAllDescendants = (nodeId: string): string[] => {
+      const node = nodes[nodeId];
+      if (!node || !node.childrenIds || node.childrenIds.length === 0) {
+        return [];
+      }
+      const descendants: string[] = [];
+      for (const childId of node.childrenIds) {
+        descendants.push(childId);
+        descendants.push(...collectAllDescendants(childId));
+      }
+      return descendants;
+    };
+
+    const allDescendantIds = collectAllDescendants(parentNodeId);
+    const totalDescendants = allDescendantIds.length;
+
+    if (totalDescendants === 0) {
+      toast({
+        title: "No Descendants",
+        description: "This node has no descendants to generate content for.",
+      });
+      return;
+    }
 
     setIsLoadingAI(true);
+    const estimatedMinutes = Math.ceil(totalDescendants * 6.5 / 60);
     toast({
       title: "Generating Content",
-      description: `Creating content for ${totalChildren} child node${totalChildren > 1 ? 's' : ''}...`,
+      description: `Creating content for ${totalDescendants} descendants (~${estimatedMinutes} min due to API limits)...`,
     });
 
     let successCount = 0;
     let errorCount = 0;
 
-    // Process children sequentially to avoid rate limits
-    for (const childId of childIds) {
-      const childNode = nodes[childId];
-      if (!childNode) continue;
+    // Helper to delay between requests (rate limit: 10 req/min = 1 every 6 seconds)
+    const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+    // Process descendants sequentially with rate limiting
+    for (let i = 0; i < allDescendantIds.length; i++) {
+      const descendantId = allDescendantIds[i];
+      const descendantNode = nodes[descendantId];
+      if (!descendantNode) continue;
 
       try {
-        const ancestorPath = getAncestorPath(nodes, childId);
+        const ancestorPath = getAncestorPath(nodes, descendantId);
         const context: NodeGenerationContext = {
-          nodeId: childId,
-          nodeName: childNode.name,
+          nodeId: descendantId,
+          nodeName: descendantNode.name,
           ancestorPath,
-          existingContent: childNode.content || '',
+          existingContent: descendantNode.content || '',
         };
 
         const generatedContent = await generateContentForNodeAction(context, plan);
 
-        // Update the node with generated content
+        // Update the node - APPEND new content after existing content
         setOutlines(currentOutlines => {
           return currentOutlines.map(o => {
             if (o.id === currentOutlineId) {
+              const existingContent = o.nodes[descendantId]?.content || '';
+              // Only append if there's existing content, otherwise just use generated
+              const newContent = existingContent.trim()
+                ? existingContent + '<hr class="my-4"/>' + generatedContent
+                : generatedContent;
               return {
                 ...o,
                 lastModified: Date.now(),
                 nodes: {
                   ...o.nodes,
-                  [childId]: {
-                    ...o.nodes[childId],
-                    content: generatedContent,
+                  [descendantId]: {
+                    ...o.nodes[descendantId],
+                    content: newContent,
                   },
                 },
               };
@@ -1161,9 +1193,20 @@ export default function OutlinePro() {
         });
 
         successCount++;
+
+        // Rate limit: wait 6.5 seconds between requests (allows ~9 req/min, under 10 limit)
+        // Skip delay on last item
+        if (i < allDescendantIds.length - 1) {
+          await delay(6500);
+        }
       } catch (e) {
-        console.error(`Failed to generate content for ${childNode.name}:`, e);
+        console.error(`Failed to generate content for ${descendantNode.name}:`, e);
         errorCount++;
+
+        // On rate limit error, wait longer before next attempt
+        if (i < allDescendantIds.length - 1) {
+          await delay(10000); // Wait 10 seconds after error
+        }
       }
     }
 
@@ -1207,13 +1250,13 @@ export default function OutlinePro() {
     if (errorCount === 0) {
       toast({
         title: "Content Generated",
-        description: `Successfully created content for ${successCount} node${successCount > 1 ? 's' : ''}, with subtree diagram.`,
+        description: `Successfully created content for ${successCount} descendant${successCount > 1 ? 's' : ''}, with subtree diagram.`,
       });
     } else {
       toast({
         variant: "destructive",
         title: "Partial Success",
-        description: `Generated ${successCount} of ${totalChildren} nodes. ${errorCount} failed.`,
+        description: `Generated ${successCount} of ${totalDescendants} descendants. ${errorCount} failed.`,
       });
     }
   }, [currentOutline, currentOutlineId, getAncestorPath, plan, toast]);
@@ -2265,6 +2308,7 @@ export default function OutlinePro() {
             onBack={() => setMobileView('stacked')}
             onExpandContent={handleExpandContent}
             onGenerateContent={handleGenerateContentForNode}
+            onGenerateContentForDescendants={handleGenerateContentForChildren}
             isLoadingAI={isLoadingAI}
             searchTerm={searchTerm}
             currentMatchIndex={currentMatchIndex}
@@ -2445,6 +2489,7 @@ export default function OutlinePro() {
             onUpdate={handleUpdateNode}
             onExpandContent={handleExpandContent}
             onGenerateContent={handleGenerateContentForNode}
+            onGenerateContentForDescendants={handleGenerateContentForChildren}
             isLoadingAI={isLoadingAI}
             searchTerm={searchTerm}
             currentMatchIndex={currentMatchIndex}
@@ -2520,6 +2565,7 @@ export default function OutlinePro() {
                 onUpdate={handleUpdateNode}
                 onExpandContent={handleExpandContent}
                 onGenerateContent={handleGenerateContentForNode}
+                onGenerateContentForDescendants={handleGenerateContentForChildren}
                 isLoadingAI={isLoadingAI}
                 searchTerm={searchTerm}
                 currentMatchIndex={currentMatchIndex}

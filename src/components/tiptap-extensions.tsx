@@ -16,22 +16,26 @@ mermaid.initialize({
     arrowheadColor: '#16a34a',
     // Sequence diagram specific
     signalColor: '#16a34a', // Bright green for sequence arrows
-    signalTextColor: '#15803d', // Slightly darker green for labels
+    signalTextColor: '#374151', // Gray-700 for labels
     actorLineColor: '#9ca3af', // Medium gray for actor lifelines
     // Flowchart specific
     edgeLabelBackground: 'transparent',
-    // General text - using colors that work in both modes
-    textColor: '#374151', // Gray-700 for light mode readability
-    primaryTextColor: '#1f2937',
-    secondaryTextColor: '#4b5563',
-    // Node colors - subtle backgrounds
-    primaryColor: '#f0fdf4', // Green-50 - very light green
+    // General text
+    textColor: '#374151', // Gray-700
+    primaryTextColor: '#1f2937', // Gray-800
+    secondaryTextColor: '#4b5563', // Gray-600
+    // Node colors - neutral grays (NO PINK)
+    primaryColor: '#f1f5f9', // Slate-100 - light neutral gray
     primaryBorderColor: '#16a34a', // Green-600
-    secondaryColor: '#f9fafb', // Gray-50
-    tertiaryColor: '#f3f4f6', // Gray-100
+    secondaryColor: '#e2e8f0', // Slate-200
+    tertiaryColor: '#cbd5e1', // Slate-300
     // Note background
     noteBkgColor: '#fefce8', // Yellow-50
     noteBorderColor: '#ca8a04', // Yellow-600
+    // Explicitly set node colors
+    nodeBkg: '#f1f5f9', // Slate-100
+    mainBkg: '#f1f5f9', // Slate-100
+    nodeBorder: '#16a34a', // Green-600
   },
   flowchart: {
     useMaxWidth: true,
@@ -48,11 +52,30 @@ mermaid.initialize({
 // Sanitize Mermaid code to fix common syntax errors
 const sanitizeMermaidCode = (code: string): string => {
   let sanitized = code;
+
   // Fix participant names with parentheses: "participant Platform (iOS, Mac)" -> "participant Platform"
   sanitized = sanitized.replace(
     /participant\s+(\w+)\s*\([^)]+\)/g,
     'participant $1'
   );
+
+  // Fix flowchart node labels with parentheses inside square brackets
+  // e.g., B[Retention (D1, D7, D30)] -> B[Retention - D1, D7, D30]
+  // This regex matches: ID[label with (stuff) inside]
+  sanitized = sanitized.replace(
+    /(\w+)\[([^\]]*)\(([^)]*)\)([^\]]*)\]/g,
+    (match, id, before, parens, after) => {
+      // Replace parentheses content with dash-separated
+      return `${id}[${before}${parens}${after}]`;
+    }
+  );
+
+  // Also handle curly braces in labels (diamond shapes with nested content)
+  // e.g., E{Is DAU Stable?} is fine, but nested braces cause issues
+
+  // Remove semicolons at end of lines (not needed and can cause issues)
+  sanitized = sanitized.replace(/;$/gm, '');
+
   return sanitized;
 };
 
@@ -73,7 +96,29 @@ const MermaidRenderer = ({ code }: { code: string }) => {
         const sanitizedCode = sanitizeMermaidCode(code);
 
         // Just call render without a container - mermaid will handle it
-        const { svg } = await mermaid.render(id, sanitizedCode);
+        let { svg } = await mermaid.render(id, sanitizedCode);
+
+        // Post-process SVG: Add a class to node shapes so CSS can style them
+        // Replace problematic fill colors with a CSS variable
+        const keepColors = ['none', 'transparent', '#16a34a', '#ffffff', '#000000', '#fff', '#000'];
+
+        // Replace fill="..." attributes with CSS variable
+        svg = svg.replace(/fill="([^"]*)"/gi, (match, color) => {
+          const c = color.toLowerCase().trim();
+          if (keepColors.includes(c) || c === '') return match;
+          // Keep greens for arrows
+          if (c.startsWith('#1') && c.includes('a3')) return match;
+          // Use CSS variable for node fills
+          return 'fill="var(--mermaid-node-bg, #f1f5f9)"';
+        });
+
+        // Replace fill: ... in style attributes
+        svg = svg.replace(/fill:\s*([^;}"'\s]+)/gi, (match, color) => {
+          const c = color.toLowerCase().trim();
+          if (keepColors.includes(c) || c === '') return match;
+          if (c.startsWith('#1') && c.includes('a3')) return match;
+          return 'fill: var(--mermaid-node-bg, #f1f5f9)';
+        });
 
         if (!cancelled) {
           setSvgContent(svg);
@@ -112,10 +157,105 @@ const MermaidRenderer = ({ code }: { code: string }) => {
   }
 
   return (
-    <div
-      className="mermaid-diagram my-4 flex justify-center"
-      dangerouslySetInnerHTML={{ __html: svgContent }}
-    />
+    <>
+      <style>{`
+        /* CSS variables for light/dark mode */
+        .mermaid-diagram {
+          --mermaid-node-bg: #f1f5f9;
+          --mermaid-text: #1f2937;
+        }
+        .dark .mermaid-diagram {
+          --mermaid-node-bg: #334155;
+          --mermaid-text: #f1f5f9;
+        }
+        /* Light mode text - all text elements */
+        .mermaid-diagram svg text,
+        .mermaid-diagram svg .nodeLabel,
+        .mermaid-diagram svg .edgeLabel,
+        .mermaid-diagram svg .label,
+        .mermaid-diagram svg .labelText,
+        .mermaid-diagram svg .cluster-label,
+        .mermaid-diagram svg foreignObject div,
+        .mermaid-diagram svg foreignObject span,
+        .mermaid-diagram svg foreignObject p,
+        .mermaid-diagram svg tspan {
+          fill: #1f2937 !important; /* Gray-800 for light mode */
+          color: #1f2937 !important;
+        }
+        /* Dark mode text - override everything */
+        .dark .mermaid-diagram svg text,
+        .dark .mermaid-diagram svg .nodeLabel,
+        .dark .mermaid-diagram svg .edgeLabel,
+        .dark .mermaid-diagram svg .label,
+        .dark .mermaid-diagram svg .labelText,
+        .dark .mermaid-diagram svg .cluster-label,
+        .dark .mermaid-diagram svg foreignObject div,
+        .dark .mermaid-diagram svg foreignObject span,
+        .dark .mermaid-diagram svg foreignObject p,
+        .dark .mermaid-diagram svg tspan,
+        .dark .mermaid-diagram svg g.label text,
+        .dark .mermaid-diagram svg g text {
+          fill: #f3f4f6 !important; /* Gray-100 for dark mode - very light */
+          color: #f3f4f6 !important;
+        }
+        /* Node backgrounds - light mode - target ALL rect and polygon in nodes */
+        .mermaid-diagram svg .node rect,
+        .mermaid-diagram svg .node polygon,
+        .mermaid-diagram svg .node circle,
+        .mermaid-diagram svg .node path,
+        .mermaid-diagram svg .flowchart-label rect,
+        .mermaid-diagram svg .label-container,
+        .mermaid-diagram svg rect[class*="basic"],
+        .mermaid-diagram svg rect,
+        .mermaid-diagram svg polygon {
+          fill: #f1f5f9 !important; /* Slate-100 */
+          stroke: #16a34a !important; /* Green-600 */
+        }
+        /* Dark mode backgrounds */
+        .dark .mermaid-diagram svg .node rect,
+        .dark .mermaid-diagram svg .node polygon,
+        .dark .mermaid-diagram svg .node circle,
+        .dark .mermaid-diagram svg .node path,
+        .dark .mermaid-diagram svg .flowchart-label rect,
+        .dark .mermaid-diagram svg .label-container,
+        .dark .mermaid-diagram svg rect[class*="basic"],
+        .dark .mermaid-diagram svg rect,
+        .dark .mermaid-diagram svg polygon {
+          fill: #1e293b !important; /* Slate-800 */
+          stroke: #16a34a !important; /* Green-600 */
+        }
+        /* Override any inline styles on specific flowchart elements */
+        .mermaid-diagram svg [style*="fill"] {
+          fill: #f1f5f9 !important;
+        }
+        .dark .mermaid-diagram svg [style*="fill"] {
+          fill: #1e293b !important;
+        }
+        /* Keep arrows green */
+        .mermaid-diagram svg .edge-pattern-solid,
+        .mermaid-diagram svg .flowchart-link,
+        .mermaid-diagram svg path.path,
+        .dark .mermaid-diagram svg .edge-pattern-solid,
+        .dark .mermaid-diagram svg .flowchart-link,
+        .dark .mermaid-diagram svg path.path {
+          stroke: #16a34a !important;
+          fill: none !important;
+        }
+        .mermaid-diagram svg marker path,
+        .dark .mermaid-diagram svg marker path {
+          fill: #16a34a !important;
+          stroke: #16a34a !important;
+        }
+        /* Flowchart specific nodes */
+        .dark .mermaid-diagram svg .flowchart-link {
+          stroke: #16a34a !important;
+        }
+      `}</style>
+      <div
+        className="mermaid-diagram my-4 flex justify-center"
+        dangerouslySetInnerHTML={{ __html: svgContent }}
+      />
+    </>
   );
 };
 
