@@ -153,6 +153,7 @@ async function createWindow() {
       webSecurity: process.env.NODE_ENV !== 'development', // Allow canvas operations in dev
       sandbox: true,
       preload: path.join(__dirname, 'preload.js'),
+      webviewTag: true, // Enable webview tag for in-app YouTube/Google browsing
     },
     show: false,
   });

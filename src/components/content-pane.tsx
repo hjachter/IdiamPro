@@ -107,6 +107,8 @@ import {
 } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import EmbedUrlDialog, { type EmbedType } from './embed-url-dialog';
+import YouTubePickerDialog from './youtube-picker-dialog';
+import { isElectron } from '@/lib/electron-storage';
 import { useAIFeature } from '@/contexts/ai-context';
 import {
   ContextMenu,
@@ -335,6 +337,7 @@ export default function ContentPane({
   const [pendingAIContent, setPendingAIContent] = useState('');
   const [embedDialogOpen, setEmbedDialogOpen] = useState(false);
   const [embedType, setEmbedType] = useState<EmbedType>(null);
+  const [youtubePickerOpen, setYoutubePickerOpen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [isDrawingOpen, setIsDrawingOpen] = useState(false);
   const [pendingTabularPaste, setPendingTabularPaste] = useState<string | null>(null);
@@ -1107,8 +1110,19 @@ export default function ContentPane({
   };
 
   const handleInsertYouTube = () => {
-    setEmbedType('youtube');
-    setEmbedDialogOpen(true);
+    // Use the YouTube picker in Electron, otherwise fall back to URL dialog
+    if (isElectron()) {
+      setYoutubePickerOpen(true);
+    } else {
+      setEmbedType('youtube');
+      setEmbedDialogOpen(true);
+    }
+  };
+
+  const handleYouTubeVideoSelected = (url: string) => {
+    if (!editor) return;
+    // Insert the YouTube video using the YouTube extension
+    editor.commands.setYoutubeVideo({ src: url });
   };
 
   const handleInsertGoogleMaps = () => {
@@ -1351,6 +1365,12 @@ export default function ContentPane({
         embedType={embedType}
         onSubmit={handleEmbedSubmit}
         onCancel={handleEmbedCancel}
+      />
+
+      <YouTubePickerDialog
+        open={youtubePickerOpen}
+        onOpenChange={setYoutubePickerOpen}
+        onSelectVideo={handleYouTubeVideoSelected}
       />
 
       <DrawingCanvas
