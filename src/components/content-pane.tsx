@@ -374,6 +374,12 @@ export default function ContentPane({
   // File input refs for photo/video import
   const photoInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
+
+  // Track previous node to save content before switching
+  const prevNodeIdRef = useRef<string | null>(null);
+  const editorRef = useRef<any>(null);
+  // Flag to suppress onUpdate while loading content (prevents race condition)
+  const isLoadingContentRef = useRef(false);
   const [customPrompt, setCustomPrompt] = useState('');
   const [aiResponse, setAiResponse] = useState<string | null>(null);
 
@@ -443,7 +449,8 @@ export default function ContentPane({
     content: '',  // Start empty, useEffect will set content
     onUpdate: ({ editor }) => {
       // Don't save updates when viewing the User Guide (read-only)
-      if (node && shouldUseRichTextEditor && !isGuide) {
+      // Also skip if we're in the middle of loading content (prevents race condition)
+      if (node && shouldUseRichTextEditor && !isGuide && !isLoadingContentRef.current) {
         const html = editor.getHTML();
         // Defer update to avoid flushSync during render
         queueMicrotask(() => {
@@ -487,20 +494,52 @@ export default function ContentPane({
     },
   });
 
+  // Store editor reference for use in cleanup
+  useEffect(() => {
+    editorRef.current = editor;
+  }, [editor]);
+
+  // Save content immediately when navigating away from a node
+  useEffect(() => {
+    const prevNodeId = prevNodeIdRef.current;
+
+    // If we're switching to a different node, save the previous node's content first
+    if (prevNodeId && prevNodeId !== node?.id && editorRef.current && shouldUseRichTextEditor && !isGuide) {
+      const html = editorRef.current.getHTML();
+      // Save immediately (not deferred) to ensure content is captured before loading new node
+      onUpdate(prevNodeId, { content: html });
+    }
+
+    // Update the ref to track current node
+    prevNodeIdRef.current = node?.id || null;
+  }, [node?.id, onUpdate, shouldUseRichTextEditor, isGuide]);
+
+  // Track the last node ID we loaded content for
+  const lastLoadedNodeIdRef = useRef<string | null>(null);
+
   useEffect(() => {
     // Update editor content when node changes
     if (editor && node) {
-      const currentContent = editor.getHTML();
       const rawContent = node.content || '';
-      // Process content to convert plain text with newlines to proper HTML
       const newContent = convertToHtml(rawContent);
-      if (currentContent !== newContent) {
+      const nodeIdChanged = lastLoadedNodeIdRef.current !== node.id;
+
+      // Always set content when node ID changes (user navigated to different node)
+      // This ensures we load the correct content even if content strings happen to match
+      if (nodeIdChanged) {
+        lastLoadedNodeIdRef.current = node.id;
+        // Set flag to suppress onUpdate during content loading
+        isLoadingContentRef.current = true;
         // Defer to avoid flushSync during render
         queueMicrotask(() => {
           editor.commands.setContent(newContent, false);
 
+          // Clear the flag after a short delay to ensure TipTap has processed
+          setTimeout(() => {
+            isLoadingContentRef.current = false;
+          }, 100);
+
           // Reapply search highlighting after content update with a small delay
-          // to ensure the content is fully rendered
           setTimeout(() => {
             if (searchTerm && shouldUseRichTextEditor) {
               editor.view.dispatch(
@@ -536,14 +575,6 @@ export default function ContentPane({
   // Update search highlighting when searchTerm changes
   useEffect(() => {
     if (editor && shouldUseRichTextEditor && editor.view) {
-      console.log('[ContentPane] Applying search highlight:', {
-        nodeId: node?.id,
-        nodeName: node?.name,
-        searchTerm,
-        editorReady: !!editor.view,
-        hasContent: !!editor.getHTML()
-      });
-
       // Dispatch transaction with search term metadata to trigger highlight plugin
       editor.view.dispatch(
         editor.view.state.tr.setMeta('searchHighlight', searchTerm || '')
