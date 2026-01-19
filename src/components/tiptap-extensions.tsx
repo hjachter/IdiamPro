@@ -694,3 +694,74 @@ export const GoogleMaps = Node.create({
     };
   },
 });
+
+// Video Block Extension - for local video files
+export const VideoBlock = Node.create({
+  name: 'videoBlock',
+  group: 'block',
+  atom: true,
+
+  addAttributes() {
+    return {
+      src: {
+        default: null,
+      },
+      mimeType: {
+        default: 'video/mp4',
+      },
+    };
+  },
+
+  parseHTML() {
+    return [
+      {
+        tag: 'div[data-video-block]',
+        getAttrs: (dom) => ({
+          src: (dom as HTMLElement).getAttribute('data-video-src') || '',
+          mimeType: (dom as HTMLElement).getAttribute('data-video-type') || 'video/mp4',
+        }),
+      },
+    ];
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    return ['div', mergeAttributes(HTMLAttributes, {
+      'data-video-block': '',
+      'data-video-src': HTMLAttributes.src,
+      'data-video-type': HTMLAttributes.mimeType,
+    })];
+  },
+
+  addNodeView() {
+    return ReactNodeViewRenderer(({ node }) => {
+      return (
+        <NodeViewWrapper as="div">
+          <div className="video-embed my-4">
+            <video
+              src={node.attrs.src}
+              controls
+              className="w-full max-h-[500px] rounded-md bg-black"
+              preload="metadata"
+            >
+              <source src={node.attrs.src} type={node.attrs.mimeType} />
+              Your browser does not support the video tag.
+            </video>
+          </div>
+        </NodeViewWrapper>
+      );
+    }, { as: 'div' });
+  },
+
+  addCommands() {
+    return {
+      setVideoBlock:
+        (src: string, mimeType?: string) =>
+        ({ commands }) => {
+          return commands.insertContent({
+            type: this.name,
+            attrs: { src, mimeType: mimeType || 'video/mp4' },
+          });
+        },
+    };
+  },
+});

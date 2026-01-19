@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
 import type { OutlineNode, NodeGenerationContext, NodeMap } from '@/types';
@@ -72,7 +72,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Image from 'next/image';
-import { ArrowLeft, Sparkles, Loader2, Eraser, Scissors, Copy, Clipboard, Type, Undo, Redo, List, ListOrdered, ListX, Minus, FileText, Sheet, Presentation, Video, Map, AppWindow, Plus, Bold, Italic, Strikethrough, Code, Heading1, Heading2, Heading3, Mic, MicOff, ChevronRight, Home, Pencil, ALargeSmall, Check, Calendar, Brush, Network, GitBranch, MessageSquare, ImagePlus, Table, Layers } from 'lucide-react';
+import { ArrowLeft, Sparkles, Loader2, Eraser, Scissors, Copy, Clipboard, Type, Undo, Redo, List, ListOrdered, ListX, Minus, FileText, Sheet, Presentation, Video, Map, AppWindow, Plus, Bold, Italic, Strikethrough, Code, Heading1, Heading2, Heading3, Mic, MicOff, ChevronRight, Home, Pencil, ALargeSmall, Check, Calendar, Brush, Network, GitBranch, MessageSquare, ImagePlus, Table, Layers, Image as ImageIcon, Film } from 'lucide-react';
 import { generateImageAction } from '@/app/actions';
 import dynamic from 'next/dynamic';
 
@@ -136,7 +136,7 @@ import StarterKit from '@tiptap/starter-kit';
 import ImageExt from '@tiptap/extension-image';
 import Youtube from '@tiptap/extension-youtube';
 import Placeholder from '@tiptap/extension-placeholder';
-import { GoogleDocs, GoogleSheets, GoogleSlides, GoogleMaps, MermaidBlock } from './tiptap-extensions';
+import { GoogleDocs, GoogleSheets, GoogleSlides, GoogleMaps, MermaidBlock, VideoBlock } from './tiptap-extensions';
 import { useSpeechRecognition } from '@/lib/use-speech-recognition';
 import { Extension } from '@tiptap/core';
 import { Decoration, DecorationSet } from '@tiptap/pm/view';
@@ -367,6 +367,10 @@ export default function ContentPane({
   });
 
   const [promptDialogOpen, setPromptDialogOpen] = useState(false);
+
+  // File input refs for photo/video import
+  const photoInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
   const [customPrompt, setCustomPrompt] = useState('');
   const [aiResponse, setAiResponse] = useState<string | null>(null);
 
@@ -430,6 +434,7 @@ export default function ContentPane({
       GoogleSlides,
       GoogleMaps,
       MermaidBlock,
+      VideoBlock,
       SearchHighlight,
     ],
     content: '',  // Start empty, useEffect will set content
@@ -1111,6 +1116,44 @@ export default function ContentPane({
     setEmbedDialogOpen(true);
   };
 
+  const handleImportPhoto = () => {
+    photoInputRef.current?.click();
+  };
+
+  const handleImportVideo = () => {
+    videoInputRef.current?.click();
+  };
+
+  const handlePhotoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !editor) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const dataUrl = event.target?.result as string;
+      editor.chain().focus().setImage({ src: dataUrl }).run();
+    };
+    reader.readAsDataURL(file);
+
+    // Reset input so same file can be selected again
+    e.target.value = '';
+  };
+
+  const handleVideoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !editor) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const dataUrl = event.target?.result as string;
+      (editor.commands as any).setVideoBlock(dataUrl, file.type);
+    };
+    reader.readAsDataURL(file);
+
+    // Reset input so same file can be selected again
+    e.target.value = '';
+  };
+
   const handleOpenDrawing = () => {
     setIsDrawingOpen(true);
   };
@@ -1646,6 +1689,14 @@ export default function ContentPane({
                 <DropdownMenuItem onClick={handleOpenDrawing}>
                   <Pencil className="mr-2 h-4 w-4" />
                   Drawing (Apple Pencil)
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleImportPhoto}>
+                  <ImageIcon className="mr-2 h-4 w-4" />
+                  Import Photo
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleImportVideo}>
+                  <Film className="mr-2 h-4 w-4" />
+                  Import Video
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleInsertYouTube}>
                   <Video className="mr-2 h-4 w-4" />
@@ -2264,11 +2315,11 @@ export default function ContentPane({
 
             <ContextMenuSeparator />
 
-            {/* Apps Submenu */}
+            {/* Media Submenu */}
             <ContextMenuSub>
               <ContextMenuSubTrigger>
                 <AppWindow className="mr-2 h-4 w-4" />
-                Insert App
+                Insert Media
               </ContextMenuSubTrigger>
               <ContextMenuSubContent>
                 <ContextMenuItem onClick={handleConvertToCanvas}>
@@ -2308,6 +2359,16 @@ export default function ContentPane({
                 <ContextMenuItem onClick={handleOpenDrawing}>
                   <Pencil className="mr-2 h-4 w-4" />
                   Drawing (Apple Pencil)
+                </ContextMenuItem>
+
+                <ContextMenuItem onClick={handleImportPhoto}>
+                  <ImageIcon className="mr-2 h-4 w-4" />
+                  Import Photo
+                </ContextMenuItem>
+
+                <ContextMenuItem onClick={handleImportVideo}>
+                  <Film className="mr-2 h-4 w-4" />
+                  Import Video
                 </ContextMenuItem>
 
                 <ContextMenuItem onClick={handleInsertGoogleMaps}>
@@ -2353,6 +2414,22 @@ export default function ContentPane({
         </ContextMenu>
         )}
       </main>
+
+      {/* Hidden file inputs for photo/video import */}
+      <input
+        type="file"
+        ref={photoInputRef}
+        accept="image/*"
+        onChange={handlePhotoFileChange}
+        className="hidden"
+      />
+      <input
+        type="file"
+        ref={videoInputRef}
+        accept="video/*"
+        onChange={handleVideoFileChange}
+        className="hidden"
+      />
     </div>
   );
 }
