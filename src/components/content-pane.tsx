@@ -603,8 +603,20 @@ export default function ContentPane({
   // Handle converting last paste to code block (undo + repaste as code)
   const handleConvertToCodeBlock = useCallback((text: string) => {
     if (!editor) return;
-    // Undo the plain text paste, then insert as code block
-    editor.chain().focus().undo().setCodeBlock().insertContent(text).run();
+    try {
+      // Undo the plain text paste, then insert as code block
+      editor.chain().focus().undo().run();
+      // Use setTimeout to let the undo settle before inserting
+      setTimeout(() => {
+        if (editor) {
+          editor.chain().focus().setCodeBlock().insertContent(text).run();
+        }
+      }, 10);
+    } catch (e) {
+      // If undo fails, just insert the code block at cursor
+      console.warn('Code block conversion error, inserting at cursor:', e);
+      editor.chain().focus().setCodeBlock().insertContent(text).run();
+    }
     setPendingTabularPaste(null);
   }, [editor]);
 

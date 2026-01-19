@@ -31,22 +31,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full overflow-hidden" suppressHydrationWarning>
+    <html lang="en" className="dark h-full overflow-hidden" suppressHydrationWarning>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-        <meta name="theme-color" content="#242424" media="(prefers-color-scheme: dark)" />
-        <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)" />
-        <script dangerouslySetInnerHTML={{
-          __html: `
-            (function() {
-              var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-              document.documentElement.classList.toggle('dark', prefersDark);
-              window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
-                document.documentElement.classList.toggle('dark', e.matches);
-              });
-            })();
-          `
-        }} />
+        <meta name="theme-color" content="#242424" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;700&family=Source+Code+Pro&display=swap" rel="stylesheet" />
