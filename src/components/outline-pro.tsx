@@ -2575,7 +2575,7 @@ export default function OutlinePro() {
           </ResizablePanel>
           <ResizableHandle withHandle />
           <ResizablePanel defaultSize={100 - outlinePanelSize} minSize={30}>
-            <div className="h-full overflow-hidden">
+            <div className="h-full overflow-auto">
               <ContentPane
                 node={selectedNode}
                 nodes={currentOutline?.nodes}

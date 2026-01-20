@@ -695,6 +695,286 @@ export const GoogleMaps = Node.create({
   },
 });
 
+// Image Block Extension - for local image files (handles large base64 better than default Image)
+// Image block view component with fullscreen support
+const ImageBlockView = ({ src, alt }: { src: string; alt: string }) => {
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const openFullscreen = () => {
+    setIsFullscreen(true);
+  };
+
+  return (
+    <>
+      <style>{`
+        .image-fullscreen-overlay {
+          position: fixed;
+          inset: 0;
+          z-index: 9999;
+          background: rgba(0, 0, 0, 0.9);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 20px;
+          overflow: auto;
+        }
+        .image-fullscreen-content {
+          position: relative;
+          max-width: 95vw;
+          max-height: 95vh;
+        }
+        .image-fullscreen-content img {
+          max-width: 95vw;
+          max-height: 90vh;
+          object-fit: contain;
+          border-radius: 8px;
+        }
+        .image-fullscreen-close {
+          position: absolute;
+          top: -40px;
+          right: 0;
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          background: #ef4444;
+          color: white;
+          border: none;
+          cursor: pointer;
+          font-size: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 10;
+        }
+        .image-fullscreen-close:hover {
+          background: #dc2626;
+        }
+        .image-fullscreen-hint {
+          position: absolute;
+          bottom: -24px;
+          left: 50%;
+          transform: translateX(-50%);
+          font-size: 11px;
+          color: #9ca3af;
+          white-space: nowrap;
+        }
+      `}</style>
+      <div
+        className="image-embed my-4 cursor-zoom-in"
+        onDoubleClick={openFullscreen}
+        title="Double-click to enlarge"
+      >
+        <img
+          src={src}
+          alt={alt || ''}
+          className="h-auto rounded-lg"
+          style={{
+            minWidth: '400px',
+            maxWidth: '800px',
+            width: 'auto',
+          }}
+        />
+      </div>
+      {isFullscreen && (
+        <div
+          className="image-fullscreen-overlay"
+          onClick={() => setIsFullscreen(false)}
+        >
+          <div
+            className="image-fullscreen-content"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="image-fullscreen-close"
+              onClick={() => setIsFullscreen(false)}
+              aria-label="Close fullscreen"
+            >
+              ×
+            </button>
+            <img src={src} alt={alt || ''} />
+            <div className="image-fullscreen-hint">Click outside or press × to close</div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
+
+// Image Block Extension - for local image files (handles large base64 better than default Image)
+export const ImageBlock = Node.create({
+  name: 'imageBlock',
+  group: 'block',
+  atom: true,
+
+  addAttributes() {
+    return {
+      src: {
+        default: null,
+      },
+      alt: {
+        default: '',
+      },
+    };
+  },
+
+  parseHTML() {
+    return [
+      {
+        tag: 'div[data-image-block]',
+        getAttrs: (dom) => ({
+          src: (dom as HTMLElement).getAttribute('data-image-src') || '',
+          alt: (dom as HTMLElement).getAttribute('data-image-alt') || '',
+        }),
+      },
+    ];
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    return ['div', mergeAttributes(HTMLAttributes, {
+      'data-image-block': '',
+      'data-image-src': HTMLAttributes.src,
+      'data-image-alt': HTMLAttributes.alt || '',
+    })];
+  },
+
+  addNodeView() {
+    return ReactNodeViewRenderer(({ node }) => {
+      return (
+        <NodeViewWrapper as="div">
+          <ImageBlockView src={node.attrs.src} alt={node.attrs.alt || ''} />
+        </NodeViewWrapper>
+      );
+    }, { as: 'div' });
+  },
+
+  addCommands() {
+    return {
+      setImageBlock:
+        (src: string, alt?: string) =>
+        ({ commands }) => {
+          return commands.insertContent({
+            type: this.name,
+            attrs: { src, alt: alt || '' },
+          });
+        },
+    };
+  },
+});
+
+// Video block view component with fullscreen support
+const VideoBlockView = ({ src, mimeType }: { src: string; mimeType: string }) => {
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const openFullscreen = () => {
+    setIsFullscreen(true);
+  };
+
+  return (
+    <>
+      <style>{`
+        .video-fullscreen-overlay {
+          position: fixed;
+          inset: 0;
+          z-index: 9999;
+          background: rgba(0, 0, 0, 0.95);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 20px;
+        }
+        .video-fullscreen-content {
+          position: relative;
+          max-width: 95vw;
+          max-height: 95vh;
+        }
+        .video-fullscreen-content video {
+          max-width: 95vw;
+          max-height: 85vh;
+          border-radius: 8px;
+        }
+        .video-fullscreen-close {
+          position: absolute;
+          top: -40px;
+          right: 0;
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          background: #ef4444;
+          color: white;
+          border: none;
+          cursor: pointer;
+          font-size: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 10;
+        }
+        .video-fullscreen-close:hover {
+          background: #dc2626;
+        }
+        .video-fullscreen-hint {
+          position: absolute;
+          bottom: -24px;
+          left: 50%;
+          transform: translateX(-50%);
+          font-size: 11px;
+          color: #9ca3af;
+          white-space: nowrap;
+        }
+      `}</style>
+      <div
+        className="video-embed my-4 cursor-zoom-in"
+        onDoubleClick={openFullscreen}
+        title="Double-click to enlarge"
+      >
+        <video
+          src={src}
+          controls
+          className="rounded-md bg-black"
+          style={{
+            minWidth: '400px',
+            maxWidth: '800px',
+            width: 'auto',
+            maxHeight: '500px',
+          }}
+          preload="metadata"
+        >
+          <source src={src} type={mimeType} />
+          Your browser does not support the video tag.
+        </video>
+      </div>
+      {isFullscreen && (
+        <div
+          className="video-fullscreen-overlay"
+          onClick={() => setIsFullscreen(false)}
+        >
+          <div
+            className="video-fullscreen-content"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="video-fullscreen-close"
+              onClick={() => setIsFullscreen(false)}
+              aria-label="Close fullscreen"
+            >
+              ×
+            </button>
+            <video
+              src={src}
+              controls
+              autoPlay
+              className="rounded-md bg-black"
+            >
+              <source src={src} type={mimeType} />
+            </video>
+            <div className="video-fullscreen-hint">Click outside or press × to close</div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
+
 // Video Block Extension - for local video files
 export const VideoBlock = Node.create({
   name: 'videoBlock',
@@ -736,17 +1016,7 @@ export const VideoBlock = Node.create({
     return ReactNodeViewRenderer(({ node }) => {
       return (
         <NodeViewWrapper as="div">
-          <div className="video-embed my-4">
-            <video
-              src={node.attrs.src}
-              controls
-              className="w-full max-h-[500px] rounded-md bg-black"
-              preload="metadata"
-            >
-              <source src={node.attrs.src} type={node.attrs.mimeType} />
-              Your browser does not support the video tag.
-            </video>
-          </div>
+          <VideoBlockView src={node.attrs.src} mimeType={node.attrs.mimeType} />
         </NodeViewWrapper>
       );
     }, { as: 'div' });

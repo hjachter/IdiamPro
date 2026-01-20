@@ -222,8 +222,7 @@ button:active:not(:disabled),
 }
 
 .tiptap .ProseMirror-selectednode {
-  outline: 2px solid hsl(var(--primary));
-  border-radius: 0.5rem;
+  outline: none;
 }
 
 /* Placeholder */

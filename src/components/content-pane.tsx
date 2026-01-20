@@ -138,7 +138,7 @@ import StarterKit from '@tiptap/starter-kit';
 import ImageExt from '@tiptap/extension-image';
 import Youtube from '@tiptap/extension-youtube';
 import Placeholder from '@tiptap/extension-placeholder';
-import { GoogleDocs, GoogleSheets, GoogleSlides, GoogleMaps, MermaidBlock, VideoBlock } from './tiptap-extensions';
+import { GoogleDocs, GoogleSheets, GoogleSlides, GoogleMaps, MermaidBlock, VideoBlock, ImageBlock } from './tiptap-extensions';
 import { useSpeechRecognition } from '@/lib/use-speech-recognition';
 import { Extension } from '@tiptap/core';
 import { Decoration, DecorationSet } from '@tiptap/pm/view';
@@ -425,6 +425,9 @@ export default function ContentPane({
   // Only create editor for node types that need rich text editing
   const shouldUseRichTextEditor = !['canvas', 'code', 'link', 'quote', 'date', 'spreadsheet'].includes(node?.type || '');
 
+  // Ref to store pending content to set on editor creation
+  const pendingContentRef = useRef<string | null>(null);
+
   const editor = useEditor({
     immediatelyRender: false,
     editable: shouldUseRichTextEditor && !isGuide,
@@ -444,17 +447,53 @@ export default function ContentPane({
       GoogleMaps,
       MermaidBlock,
       VideoBlock,
+      ImageBlock,
       SearchHighlight,
     ],
-    content: '',  // Start empty, useEffect will set content
+    content: '',  // Start empty, onCreate will set content
+    onCreate: ({ editor }) => {
+      // Set content when editor is fully created
+      if (pendingContentRef.current) {
+        console.log('[onCreate] Setting pending content:', {
+          contentLength: pendingContentRef.current.length,
+          hasImage: pendingContentRef.current.includes('<img'),
+        });
+        isLoadingContentRef.current = true;
+        editor.commands.setContent(pendingContentRef.current, false);
+        const afterContent = editor.getHTML();
+        console.log('[onCreate] After setContent:', {
+          editorHas: afterContent.length,
+          hasImage: afterContent.includes('<img'),
+        });
+        setTimeout(() => {
+          isLoadingContentRef.current = false;
+        }, 100);
+        pendingContentRef.current = null;
+      }
+    },
     onUpdate: ({ editor }) => {
       // Don't save updates when viewing the User Guide (read-only)
       // Also skip if we're in the middle of loading content (prevents race condition)
       if (node && shouldUseRichTextEditor && !isGuide && !isLoadingContentRef.current) {
         const html = editor.getHTML();
+        console.log('[onUpdate] Saving content:', {
+          nodeId: node.id,
+          contentLength: html.length,
+          hasVideo: html.includes('video-block') || html.includes('<video'),
+          hasImage: html.includes('<img'),
+          isLoadingContent: isLoadingContentRef.current,
+          preview: html.substring(0, 300),
+        });
         // Defer update to avoid flushSync during render
         queueMicrotask(() => {
           onUpdate(node.id, { content: html });
+        });
+      } else if (node) {
+        console.log('[onUpdate] SKIPPED:', {
+          nodeId: node.id,
+          isGuide,
+          isLoadingContent: isLoadingContentRef.current,
+          shouldUseRichText: shouldUseRichTextEditor,
         });
       }
     },
@@ -503,9 +542,22 @@ export default function ContentPane({
   useEffect(() => {
     const prevNodeId = prevNodeIdRef.current;
 
+    console.log('[Save-on-navigate] Effect triggered:', {
+      prevNodeId,
+      currentNodeId: node?.id,
+      hasEditorRef: !!editorRef.current,
+    });
+
     // If we're switching to a different node, save the previous node's content first
     if (prevNodeId && prevNodeId !== node?.id && editorRef.current && shouldUseRichTextEditor && !isGuide) {
       const html = editorRef.current.getHTML();
+      console.log('[Save-on-navigate] Saving previous node:', {
+        prevNodeId,
+        contentLength: html.length,
+        hasVideo: html.includes('video-block') || html.includes('<video'),
+        hasImage: html.includes('<img'),
+        preview: html.substring(0, 300),
+      });
       // Save immediately (not deferred) to ensure content is captured before loading new node
       onUpdate(prevNodeId, { content: html });
     }
@@ -524,20 +576,99 @@ export default function ContentPane({
       const newContent = convertToHtml(rawContent);
       const nodeIdChanged = lastLoadedNodeIdRef.current !== node.id;
 
+      console.log('[Load content] Effect triggered:', {
+        nodeId: node.id,
+        nodeName: node.name,
+        nodeIdChanged,
+        lastLoadedNodeId: lastLoadedNodeIdRef.current,
+        rawContentLength: rawContent.length,
+        hasVideo: rawContent.includes('video-block') || rawContent.includes('<video'),
+        hasImage: rawContent.includes('<img'),
+        preview: rawContent.substring(0, 300),
+      });
+
       // Always set content when node ID changes (user navigated to different node)
       // This ensures we load the correct content even if content strings happen to match
       if (nodeIdChanged) {
         lastLoadedNodeIdRef.current = node.id;
+
+        // Store content in pendingContentRef for onCreate to use if editor isn't ready
+        pendingContentRef.current = newContent;
+
         // Set flag to suppress onUpdate during content loading
         isLoadingContentRef.current = true;
-        // Defer to avoid flushSync during render
-        queueMicrotask(() => {
+        console.log('[Load content] Calling setContent:', {
+          nodeId: node.id,
+          contentLength: newContent.length,
+          hasImage: newContent.includes('<img'),
+        });
+
+        // Use a longer delay for large content (images)
+        const hasLargeContent = newContent.length > 100000;
+        const delay = hasLargeContent ? 100 : 0;
+
+        setTimeout(() => {
+          // Check if editor is still valid (component might have unmounted)
+          if (!editor || editor.isDestroyed) {
+            console.log('[Load content] Editor destroyed, skipping setContent');
+            return;
+          }
+
           editor.commands.setContent(newContent, false);
+          const afterContent = editor.getHTML();
+          console.log('[Load content] setContent completed:', {
+            contentSetLength: newContent.length,
+            editorNowHas: afterContent.length,
+            hasImageAfterSet: afterContent.includes('<img'),
+          });
+
+          // If setContent failed (editor has less content than expected), retry with longer delay
+          if (afterContent.length < newContent.length * 0.9) {
+            console.log('[Load content] setContent may have failed, retrying with longer delay...');
+            setTimeout(() => {
+              if (!editor || editor.isDestroyed) return;
+              editor.commands.setContent(newContent, false);
+              const retryContent = editor.getHTML();
+              console.log('[Load content] Retry result:', {
+                editorNowHas: retryContent.length,
+                hasImage: retryContent.includes('<img'),
+              });
+
+              // If still failing, try one more time with even longer delay
+              if (retryContent.length < newContent.length * 0.9) {
+                console.log('[Load content] Still failing, final retry...');
+                setTimeout(() => {
+                  if (!editor || editor.isDestroyed) return;
+                  editor.commands.setContent(newContent, false);
+                  const finalRetry = editor.getHTML();
+                  console.log('[Load content] Final retry result:', {
+                    editorNowHas: finalRetry.length,
+                    hasImage: finalRetry.includes('<img'),
+                  });
+                }, 200);
+              }
+            }, 100);
+          }
 
           // Clear the flag after a short delay to ensure TipTap has processed
           setTimeout(() => {
             isLoadingContentRef.current = false;
-          }, 100);
+            pendingContentRef.current = null;  // Clear pending content
+            const finalContent = editor.getHTML();
+            console.log('[Load content] isLoadingContentRef cleared:', {
+              editorFinalLength: finalContent.length,
+              hasImageFinal: finalContent.includes('<img'),
+            });
+          }, 150);
+
+          // Check content after a longer delay to catch any later clearing
+          setTimeout(() => {
+            const laterContent = editor.getHTML();
+            console.log('[Load content] 500ms check:', {
+              editorLength: laterContent.length,
+              hasImage: laterContent.includes('<img'),
+            });
+          }, 500);
 
           // Reapply search highlighting after content update with a small delay
           setTimeout(() => {
@@ -963,9 +1094,9 @@ export default function ContentPane({
       });
 
       if (result.success && result.imageBase64) {
-        // Insert image into editor as base64 data URL
+        // Insert image into editor as base64 data URL using ImageBlock for better persistence
         const dataUrl = `data:${result.mimeType};base64,${result.imageBase64}`;
-        editor.chain().focus().setImage({ src: dataUrl }).run();
+        (editor.commands as any).setImageBlock(dataUrl);
 
         toast({
           title: "Image Generated",
@@ -1176,7 +1307,8 @@ export default function ContentPane({
     const reader = new FileReader();
     reader.onload = (event) => {
       const dataUrl = event.target?.result as string;
-      editor.chain().focus().setImage({ src: dataUrl }).run();
+      // Use ImageBlock for better persistence with large base64 images
+      (editor.commands as any).setImageBlock(dataUrl, file.name);
     };
     reader.readAsDataURL(file);
 
@@ -1251,8 +1383,8 @@ export default function ContentPane({
   const handleSaveDrawing = (imageDataUrl: string) => {
     if (!editor) return;
 
-    // Insert the drawing image into the editor
-    editor.chain().focus().setImage({ src: imageDataUrl }).run();
+    // Insert the drawing image into the editor using ImageBlock for better persistence
+    (editor.commands as any).setImageBlock(imageDataUrl, 'Drawing');
     setIsDrawingOpen(false);
 
     toast({
@@ -1352,8 +1484,8 @@ export default function ContentPane({
       const dataUrl = event.target?.result as string;
 
       if (file.type.startsWith('image/')) {
-        // Insert image
-        editor.chain().focus().setImage({ src: dataUrl }).run();
+        // Insert image using ImageBlock for better persistence with large base64
+        (editor.commands as any).setImageBlock(dataUrl, file.name);
         queueMicrotask(() => {
           onUpdate(node.id, { type: 'image' });
         });
