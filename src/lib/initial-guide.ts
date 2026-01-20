@@ -61,7 +61,7 @@ This guide cannot be deleted, but you can copy it to create your own customized 
 
   createNode(nodes, gettingStartedId, rootId, "Getting Started", "IdiamPro helps you organize your thoughts into structured outlines. The interface has two main areas: the outline pane on the left shows your hierarchical structure, and the content pane on the right lets you edit the selected node's content. Everything saves automatically to your browser - just start working and your changes are preserved.", []);
   createNode(nodes, autoSaveId, gettingStartedId, "Auto-Save", "All changes are saved automatically to your browser's storage. No save button needed - your work is always preserved. Just refresh the page to confirm your outline persists.");
-  createNode(nodes, toolbarId, gettingStartedId, "Toolbar Icons", "The toolbar uses icon buttons with hover tooltips:\n\n+ (Plus) - Add a new sibling node\n\nTrash (Red) - Delete selected node\n\nUpload Arrow - Import media (PDF, YouTube)\n\nSparkles (Violet) - AI features");
+  createNode(nodes, toolbarId, gettingStartedId, "Toolbar Icons", "The toolbar uses icon buttons with hover tooltips:\n\n+ (Plus) - Add a new sibling node\n\nTrash (Red) - Delete selected node\n\nUpload Arrow - Import media (photos, videos, PDFs, YouTube)\n\nSparkles (Violet) - AI features\n\nImage (Violet) - Generate AI images (Premium)");
 
   // === MANAGING OUTLINES ===
   const manageId = uuidv4();
@@ -117,12 +117,13 @@ This guide cannot be deleted, but you can copy it to create your own customized 
   const aiIngestSourcesId = uuidv4();
   const aiIngestPreviewId = uuidv4();
   const aiIngestMergeId = uuidv4();
+  const aiImageGenId = uuidv4();
   const aiSafetyId = uuidv4();
 
-  createNode(nodes, aiId, rootId, "AI Features", "IdiamPro includes powerful AI capabilities to help you generate content and build outlines faster. All AI features are accessed through the violet sparkles icon in the toolbar.", []);
+  createNode(nodes, aiId, rootId, "AI Features", "IdiamPro includes powerful AI capabilities to help you generate content, create images, and build outlines faster. AI features are accessed through the violet sparkles icon and the image button in the toolbar.", []);
 
   // AI Plans
-  createNode(nodes, aiPlansId, aiId, "AI Plans (FREE vs PREMIUM)", "IdiamPro offers two AI plans:\n\nFREE Plan:\n- AI content generation\n- External source ingestion\n- Standard AI processing\n\nPREMIUM Plan ($9.99/month):\n- All FREE features\n- Advanced AI model\n- Subtree summaries\n- Teach mode\n- Consistency checks\n- Priority processing\n\nTo manage your plan: Click the AI menu (sparkles icon) > 'Manage AI Plan...'");
+  createNode(nodes, aiPlansId, aiId, "AI Plans (FREE vs PREMIUM)", "IdiamPro offers two AI plans:\n\nFREE Plan:\n- AI content generation\n- External source ingestion\n- Standard AI processing\n\nPREMIUM Plan ($9.99/month):\n- All FREE features\n- AI image generation\n- Advanced AI model\n- Subtree summaries\n- Teach mode\n- Consistency checks\n- Priority processing\n\nTo manage your plan: Click the AI menu (sparkles icon) > 'Manage AI Plan...'");
 
   // AI Menu
   createNode(nodes, aiMenuId, aiId, "AI Menu & Settings", "Access all AI features from a single menu:\n\n1. Click the violet sparkles icon in the toolbar\n2. The AI menu shows:\n   - Generate Outline from Topic\n   - Ingest External Source...\n   - Manage AI Plan...\n\nYour current plan (Free or Premium) is shown in the menu header.");
@@ -142,17 +143,28 @@ This guide cannot be deleted, but you can copy it to create your own customized 
   createNode(nodes, aiIngestPreviewId, aiIngestId, "Smart Naming & Summaries", "**Automatic Outline Naming:**\n• YouTube videos → Uses video title\n• Other sources → AI generates concise title from content\n• Fallback → Date-based name\n\n**Root Node Introduction:**\nWhen creating a new outline (not merging), the root node automatically gets an AI-generated introduction that summarizes all the content below it. This helps readers quickly understand the context.\n\n**Chapter Introductions:**\nParent/chapter nodes include introductory content that previews their children - no empty headers.");
   createNode(nodes, aiIngestMergeId, aiIngestId, "Merge vs New Outline", "**Default: Merge into Current Outline**\n• New content is synthesized with your existing outline\n• AI finds connections between old and new material\n• Preserves your existing structure\n\n**Option: Create New Outline**\n• Check 'Create new outline instead'\n• Provide a name or let AI generate one\n• Your current outline is unchanged\n\nThe merge behavior ensures you can continuously build knowledge on a topic from multiple sources over time.");
 
+  // AI Image Generation
+  createNode(nodes, aiImageGenId, aiId, "AI Image Generation (Premium)", "Create custom illustrations with AI:\n\n1. Click the violet Image button in the content toolbar\n2. Describe the image you want (be specific about style, colors, composition)\n3. Choose an aspect ratio (square, landscape, portrait)\n4. Click 'Generate Image'\n\nThe AI-generated image is inserted directly into your content.\n\n**Tips for better results:**\n• Be specific: 'A serene mountain lake at sunset with purple sky' vs 'a lake'\n• Mention style: 'digital art', 'watercolor', 'photorealistic', 'minimalist'\n• Include composition details: 'close-up', 'wide angle', 'from above'\n\n**Note:** This feature requires a Premium plan.");
+
   // Safety & Control
   createNode(nodes, aiSafetyId, aiId, "Safety & Control", "You're always in control:\n\n- All AI content is fully editable - change or delete anything\n- Preview mode shows changes before they're applied\n- No automatic modifications to your content\n- Auto-save preserves all changes (including AI content)\n- Undo by using browser back or editing content\n\nAI is a tool to help you - the final decisions are always yours.");
 
   // === IMPORTING MEDIA ===
   const mediaId = uuidv4();
-  const pdfId = uuidv4();
+  const photoId = uuidv4();
+  const videoId = uuidv4();
   const youtubeId = uuidv4();
+  const pdfId = uuidv4();
+  const drawingId = uuidv4();
+  const fullscreenId = uuidv4();
 
-  createNode(nodes, mediaId, rootId, "Importing Media", "Add external media to your outline using the upload button (arrow icon) in the toolbar. Currently supports PDF documents via URL and YouTube videos. Each imported item creates a new node with embedded content that displays inline when you select it.", []);
-  createNode(nodes, pdfId, mediaId, "PDF Documents", "Click the upload icon > 'PDF from URL'. Enter the full URL of a publicly accessible PDF file (must end in .pdf or be a direct PDF link). A new node is created as a sibling after your selected node, displaying the PDF in an embedded viewer.");
-  createNode(nodes, youtubeId, mediaId, "YouTube Videos", "Click the upload icon > 'YouTube Video'. Enter any YouTube URL (regular or shortened youtu.be links work). A new node is created as a sibling after your selected node, with an embedded video player that supports full playback controls.");
+  createNode(nodes, mediaId, rootId, "Importing Media", "Add photos, videos, PDFs, and other media to your content using the Insert menu (+ icon) or by dragging files directly into the content pane. Media is embedded inline and saved with your outline.", []);
+  createNode(nodes, photoId, mediaId, "Photos & Images", "Insert images from your device:\n\n1. Click the + (Insert) menu in the content toolbar\n2. Select 'Import Photo'\n3. Choose an image file (JPEG, PNG, etc.)\n\nOr simply drag and drop an image file into the content pane.\n\nImages are stored directly in your outline - no external hosting needed.");
+  createNode(nodes, videoId, mediaId, "Video Files", "Insert video files from your device:\n\n1. Click the + (Insert) menu in the content toolbar\n2. Select 'Import Video'\n3. Choose a video file (MP4, MOV, etc.)\n\nVideos include full playback controls (play, pause, seek, volume). Note: Large videos increase outline file size.");
+  createNode(nodes, youtubeId, mediaId, "YouTube Videos", "Embed YouTube videos that stream directly:\n\n1. Click the + (Insert) menu > 'YouTube Video'\n2. Paste any YouTube URL\n3. The video embeds with full playback controls\n\nYouTube videos stream from YouTube's servers - they don't increase your outline size.");
+  createNode(nodes, pdfId, mediaId, "PDF Documents", "Embed PDFs from the web:\n\n1. Click the + (Insert) menu > 'PDF from URL'\n2. Enter the full URL of a publicly accessible PDF\n3. The PDF displays in an embedded viewer\n\nNote: The PDF must be publicly accessible (direct link ending in .pdf).");
+  createNode(nodes, drawingId, mediaId, "Drawings & Sketches", "Create freehand drawings:\n\n1. Click the + (Insert) menu > 'Drawing'\n2. Use the drawing canvas to sketch\n3. Click 'Insert' to add to your content\n\nDrawings are saved as images in your outline.");
+  createNode(nodes, fullscreenId, mediaId, "Fullscreen Viewing", "Double-click any image, video, or diagram to view it fullscreen. This is especially useful for:\n\n- Reading details in photos\n- Viewing diagrams at full size\n- Watching videos without distraction\n\nClick outside the content or press the X button to close fullscreen view.");
 
   // === ADVANCED NODE FEATURES ===
   const advancedId = uuidv4();
