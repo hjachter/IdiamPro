@@ -114,14 +114,14 @@ import { ArrowLeft, Sparkles, Loader2, Eraser, Scissors, Copy, Clipboard, Type, 
 import { generateImageAction } from '@/app/actions';
 import dynamic from 'next/dynamic';
 
-// Dynamically import DrawingCanvas to avoid SSR issues with tldraw
-const DrawingCanvas = dynamic(() => import('./drawing-canvas'), {
+// Dynamically import DrawingCanvas to avoid SSR issues with Excalidraw
+const DrawingCanvas = dynamic(() => import('./excalidraw-drawing-canvas'), {
   ssr: false,
   loading: () => null,
 });
 
-// Dynamically import TldrawEditor for canvas nodes
-const TldrawEditor = dynamic(() => import('./tldraw-editor'), {
+// Dynamically import ExcalidrawEditor for canvas nodes
+const ExcalidrawEditor = dynamic(() => import('./excalidraw-editor'), {
   ssr: false,
   loading: () => <div className="flex items-center justify-center h-[500px] text-muted-foreground">Loading canvas...</div>,
 });
@@ -1324,7 +1324,7 @@ export default function ContentPane({
   const handleConvertToCanvas = () => {
     if (!node) return;
     // Convert this node to a canvas type with empty content
-    // The TldrawEditor will initialize a fresh canvas
+    // The ExcalidrawEditor will initialize a fresh canvas
     onUpdate(node.id, { type: 'canvas', content: '' });
     toast({
       title: "Switched to Canvas",
@@ -2083,19 +2083,19 @@ export default function ContentPane({
             </Card>
         )}
 
-        {/* Canvas node - full tldraw editor */}
+        {/* Canvas node - Excalidraw editor */}
         {node.type === 'canvas' && (
           <div className="h-[calc(100vh-200px)] min-h-[500px] rounded-lg border overflow-hidden">
-            <TldrawEditor
-              snapshot={node.content ? (() => {
+            <ExcalidrawEditor
+              data={node.content ? (() => {
                 try {
                   return JSON.parse(node.content);
                 } catch {
                   return null;
                 }
               })() : null}
-              onSnapshotChange={(snapshot) => {
-                onUpdate(node.id, { content: JSON.stringify(snapshot) });
+              onDataChange={(data) => {
+                onUpdate(node.id, { content: JSON.stringify(data) });
               }}
             />
           </div>

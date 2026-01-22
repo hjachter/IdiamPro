@@ -36,6 +36,7 @@
     "@capacitor/filesystem": "^8.0.0",
     "@capacitor/ios": "^8.0.0",
     "@capacitor/share": "^8.0.0",
+    "@excalidraw/excalidraw": "^0.18.0",
     "@fortune-sheet/core": "^1.0.4",
     "@fortune-sheet/react": "^1.0.4",
     "@genkit-ai/googleai": "^1.14.1",
@@ -99,7 +100,6 @@
     "recharts": "^2.15.1",
     "tailwind-merge": "^3.0.1",
     "tailwindcss-animate": "^1.0.7",
-    "tldraw": "^4.2.1",
     "uuid": "^9.0.1",
     "youtube-transcript-plus": "^1.1.2",
     "zod": "^3.24.2"
