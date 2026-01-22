@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
-import type { OutlineNode, NodeGenerationContext, NodeMap } from '@/types';
+import type { OutlineNode, NodeGenerationContext, NodeMap, NodeType } from '@/types';
 
 /**
  * Detect if text appears to be tabular/aligned data that would benefit from monospace formatting.
@@ -67,6 +67,44 @@ function isTabularData(text: string): boolean {
 
   return false;
 }
+
+/**
+ * Migrate old <img src="data:..."> tags to new ImageBlock format.
+ * TipTap's HTML parser fails on large base64 data URLs, so we need to
+ * convert them to <div data-image-block data-image-src="..."> format.
+ */
+function migrateOldImages(html: string): string {
+  if (!html.includes('<img')) return html;
+
+  let migratedCount = 0;
+
+  // Use replace with a callback function to handle each match
+  const migrated = html.replace(
+    /<img\s+([^>]*?)src=["']?(data:image\/[^"'\s]+;base64,[a-zA-Z0-9+/=]+)["']?([^>]*)>/gi,
+    (fullMatch, beforeSrc, src, afterSrc) => {
+      // Only migrate large base64 images (over 10KB)
+      if (src.length > 10000) {
+        // Extract alt attribute if present
+        const altMatch = (beforeSrc + afterSrc).match(/alt=["']?([^"']*?)["']?(?:\s|$|>)/i);
+        const alt = altMatch ? altMatch[1] : '';
+
+        migratedCount++;
+        console.log(`[Migration] Converting image ${migratedCount}: ${src.length} chars`);
+
+        // Create new ImageBlock format
+        return `<div data-image-block="" data-image-src="${src}" data-image-alt="${alt}"></div>`;
+      }
+      return fullMatch;
+    }
+  );
+
+  if (migratedCount > 0) {
+    console.log(`[Migration] Converted ${migratedCount} old <img> tags to ImageBlock format`);
+  }
+
+  return migrated;
+}
+
 import NodeIcon from './node-icon';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -334,6 +372,8 @@ export default function ContentPane({
 }: ContentPaneProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [conflictDialogOpen, setConflictDialogOpen] = useState(false);
+  // Track when we navigate to force SpreadsheetEditor remount
+  const [spreadsheetKey, setSpreadsheetKey] = useState(0);
   const [pendingAIContent, setPendingAIContent] = useState('');
   const [embedDialogOpen, setEmbedDialogOpen] = useState(false);
   const [embedType, setEmbedType] = useState<EmbedType>(null);
@@ -408,6 +448,12 @@ export default function ContentPane({
     }
   }, [includeDiagram]);
 
+  // Force SpreadsheetEditor to remount when navigating to a node
+  // This ensures Fortune Sheet loads fresh data from props
+  useEffect(() => {
+    setSpreadsheetKey(prev => prev + 1);
+  }, [node?.id]);
+
   const aiContentEnabled = useAIFeature('enableAIContentGeneration');
   const { toast } = useToast();
 
@@ -423,7 +469,10 @@ export default function ContentPane({
   } = useSpeechRecognition();
 
   // Only create editor for node types that need rich text editing
-  const shouldUseRichTextEditor = !['canvas', 'code', 'link', 'quote', 'date', 'spreadsheet'].includes(node?.type || '');
+  // Also check if content looks like spreadsheet JSON data - if so, don't use rich text editor
+  // Check for spreadsheet data format - must start with {"sheets": to be a valid spreadsheet JSON
+  const contentLooksLikeSpreadsheet = node?.content?.trim().startsWith('{"sheets":');
+  const shouldUseRichTextEditor = !['canvas', 'code', 'link', 'quote', 'date', 'spreadsheet'].includes(node?.type || '') && !contentLooksLikeSpreadsheet;
 
   // Ref to store pending content to set on editor creation
   const pendingContentRef = useRef<string | null>(null);
@@ -476,24 +525,9 @@ export default function ContentPane({
       // Also skip if we're in the middle of loading content (prevents race condition)
       if (node && shouldUseRichTextEditor && !isGuide && !isLoadingContentRef.current) {
         const html = editor.getHTML();
-        console.log('[onUpdate] Saving content:', {
-          nodeId: node.id,
-          contentLength: html.length,
-          hasVideo: html.includes('video-block') || html.includes('<video'),
-          hasImage: html.includes('<img'),
-          isLoadingContent: isLoadingContentRef.current,
-          preview: html.substring(0, 300),
-        });
         // Defer update to avoid flushSync during render
         queueMicrotask(() => {
           onUpdate(node.id, { content: html });
-        });
-      } else if (node) {
-        console.log('[onUpdate] SKIPPED:', {
-          nodeId: node.id,
-          isGuide,
-          isLoadingContent: isLoadingContentRef.current,
-          shouldUseRichText: shouldUseRichTextEditor,
         });
       }
     },
@@ -542,22 +576,10 @@ export default function ContentPane({
   useEffect(() => {
     const prevNodeId = prevNodeIdRef.current;
 
-    console.log('[Save-on-navigate] Effect triggered:', {
-      prevNodeId,
-      currentNodeId: node?.id,
-      hasEditorRef: !!editorRef.current,
-    });
-
     // If we're switching to a different node, save the previous node's content first
     if (prevNodeId && prevNodeId !== node?.id && editorRef.current && shouldUseRichTextEditor && !isGuide) {
       const html = editorRef.current.getHTML();
-      console.log('[Save-on-navigate] Saving previous node:', {
-        prevNodeId,
-        contentLength: html.length,
-        hasVideo: html.includes('video-block') || html.includes('<video'),
-        hasImage: html.includes('<img'),
-        preview: html.substring(0, 300),
-      });
+      console.log('[Save-on-navigate] Saving previous node:', prevNodeId, 'length:', html.length);
       // Save immediately (not deferred) to ensure content is captured before loading new node
       onUpdate(prevNodeId, { content: html });
     }
@@ -572,24 +594,16 @@ export default function ContentPane({
   useEffect(() => {
     // Update editor content when node changes
     if (editor && node) {
-      const rawContent = node.content || '';
-      const newContent = convertToHtml(rawContent);
       const nodeIdChanged = lastLoadedNodeIdRef.current !== node.id;
 
-      console.log('[Load content] Effect triggered:', {
-        nodeId: node.id,
-        nodeName: node.name,
-        nodeIdChanged,
-        lastLoadedNodeId: lastLoadedNodeIdRef.current,
-        rawContentLength: rawContent.length,
-        hasVideo: rawContent.includes('video-block') || rawContent.includes('<video'),
-        hasImage: rawContent.includes('<img'),
-        preview: rawContent.substring(0, 300),
-      });
-
-      // Always set content when node ID changes (user navigated to different node)
-      // This ensures we load the correct content even if content strings happen to match
+      // Only process when node ID actually changes (user navigated to different node)
       if (nodeIdChanged) {
+        const rawContent = node.content || '';
+        // Convert to HTML and migrate old image formats
+        const htmlContent = convertToHtml(rawContent);
+        const newContent = migrateOldImages(htmlContent);
+
+        console.log('[Load content] Loading node:', node.name, 'length:', newContent.length);
         lastLoadedNodeIdRef.current = node.id;
 
         // Store content in pendingContentRef for onCreate to use if editor isn't ready
@@ -597,54 +611,29 @@ export default function ContentPane({
 
         // Set flag to suppress onUpdate during content loading
         isLoadingContentRef.current = true;
-        console.log('[Load content] Calling setContent:', {
-          nodeId: node.id,
-          contentLength: newContent.length,
-          hasImage: newContent.includes('<img'),
-        });
 
         // Use a longer delay for large content (images)
         const hasLargeContent = newContent.length > 100000;
-        const delay = hasLargeContent ? 100 : 0;
 
         setTimeout(() => {
           // Check if editor is still valid (component might have unmounted)
-          if (!editor || editor.isDestroyed) {
-            console.log('[Load content] Editor destroyed, skipping setContent');
-            return;
-          }
+          if (!editor || editor.isDestroyed) return;
 
           editor.commands.setContent(newContent, false);
           const afterContent = editor.getHTML();
-          console.log('[Load content] setContent completed:', {
-            contentSetLength: newContent.length,
-            editorNowHas: afterContent.length,
-            hasImageAfterSet: afterContent.includes('<img'),
-          });
 
           // If setContent failed (editor has less content than expected), retry with longer delay
           if (afterContent.length < newContent.length * 0.9) {
-            console.log('[Load content] setContent may have failed, retrying with longer delay...');
             setTimeout(() => {
               if (!editor || editor.isDestroyed) return;
               editor.commands.setContent(newContent, false);
               const retryContent = editor.getHTML();
-              console.log('[Load content] Retry result:', {
-                editorNowHas: retryContent.length,
-                hasImage: retryContent.includes('<img'),
-              });
 
               // If still failing, try one more time with even longer delay
               if (retryContent.length < newContent.length * 0.9) {
-                console.log('[Load content] Still failing, final retry...');
                 setTimeout(() => {
                   if (!editor || editor.isDestroyed) return;
                   editor.commands.setContent(newContent, false);
-                  const finalRetry = editor.getHTML();
-                  console.log('[Load content] Final retry result:', {
-                    editorNowHas: finalRetry.length,
-                    hasImage: finalRetry.includes('<img'),
-                  });
                 }, 200);
               }
             }, 100);
@@ -653,22 +642,8 @@ export default function ContentPane({
           // Clear the flag after a short delay to ensure TipTap has processed
           setTimeout(() => {
             isLoadingContentRef.current = false;
-            pendingContentRef.current = null;  // Clear pending content
-            const finalContent = editor.getHTML();
-            console.log('[Load content] isLoadingContentRef cleared:', {
-              editorFinalLength: finalContent.length,
-              hasImageFinal: finalContent.includes('<img'),
-            });
+            pendingContentRef.current = null;
           }, 150);
-
-          // Check content after a longer delay to catch any later clearing
-          setTimeout(() => {
-            const laterContent = editor.getHTML();
-            console.log('[Load content] 500ms check:', {
-              editorLength: laterContent.length,
-              hasImage: laterContent.includes('<img'),
-            });
-          }, 500);
 
           // Reapply search highlighting after content update with a small delay
           setTimeout(() => {
@@ -678,10 +653,10 @@ export default function ContentPane({
               );
             }
           }, 50);
-        });
+        }, hasLargeContent ? 100 : 0);
       }
     }
-  }, [node, editor, searchTerm, shouldUseRichTextEditor]);
+  }, [node?.id, editor, searchTerm, shouldUseRichTextEditor]);
 
   // Update editor class when font size changes
   useEffect(() => {
@@ -2085,6 +2060,11 @@ export default function ContentPane({
       </div>
 
       <main className="flex-grow overflow-y-auto p-6 space-y-4">
+        {/* DEBUG: Small indicator - REMOVE AFTER DEBUGGING */}
+        <div className="text-xs text-red-500 font-mono bg-yellow-100 p-2 mb-2">
+          type={node.type} | shouldUseRichTextEditor={String(shouldUseRichTextEditor)} | willRenderSpreadsheet={String(node.type === 'spreadsheet' || contentLooksLikeSpreadsheet)}
+        </div>
+
         {node.type === 'image' && node.content && isUrl(node.content.trimEnd()) && (
             <Card>
                 <CardContent className="p-4">
@@ -2122,18 +2102,44 @@ export default function ContentPane({
         )}
 
         {/* Spreadsheet node - inline spreadsheet editor */}
-        {node.type === 'spreadsheet' && (
-          <div className="h-[calc(100vh-200px)] min-h-[400px] rounded-lg border overflow-hidden">
+        {/* Also render spreadsheet if content looks like spreadsheet data (fallback for type mismatch) */}
+        {(node.type === 'spreadsheet' || contentLooksLikeSpreadsheet) && (
+          <div className="h-[600px] rounded-lg border overflow-hidden bg-white">
             <SpreadsheetEditor
-              data={node.content ? (() => {
+              key={`${node.id}-${spreadsheetKey}`} // Remount when navigating to ensure fresh data
+              nodeId={node.id} // Used by cache to preserve data between remounts
+              data={(() => {
+                // Empty content = new spreadsheet, return null to use default
+                if (!node.content) return null;
+                // Try to parse as JSON
                 try {
+                  // Check if content starts with HTML tags (corrupted)
+                  if (node.content.trim().startsWith('<')) {
+                    // Try to extract JSON from HTML
+                    const jsonMatch = node.content.match(/\{[\s\S]*"sheets"[\s\S]*\}/);
+                    if (jsonMatch) {
+                      const recovered = JSON.parse(jsonMatch[0]);
+                      // Auto-fix the corrupted content
+                      queueMicrotask(() => {
+                        onUpdate(node.id, { content: JSON.stringify(recovered), type: 'spreadsheet' });
+                      });
+                      return recovered;
+                    }
+                    return null; // Can't recover, start fresh
+                  }
                   return JSON.parse(node.content);
                 } catch {
                   return null;
                 }
-              })() : null}
+              })()}
               onChange={(data) => {
-                onUpdate(node.id, { content: JSON.stringify(data) });
+                const jsonToSave = JSON.stringify(data);
+                // Auto-correct node type if it's not 'spreadsheet' (fixes type mismatch)
+                const updates: { content: string; type?: NodeType } = { content: jsonToSave };
+                if (node.type !== 'spreadsheet') {
+                  updates.type = 'spreadsheet';
+                }
+                onUpdate(node.id, updates);
               }}
               readOnly={isGuide}
             />
