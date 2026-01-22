@@ -146,6 +146,10 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import EmbedUrlDialog, { type EmbedType } from './embed-url-dialog';
 import YouTubePickerDialog from './youtube-picker-dialog';
+import GoogleDocsPickerDialog from './google-docs-picker-dialog';
+import GoogleSheetsPickerDialog from './google-sheets-picker-dialog';
+import GoogleSlidesPickerDialog from './google-slides-picker-dialog';
+import GoogleMapsPickerDialog from './google-maps-picker-dialog';
 import { isElectron } from '@/lib/electron-storage';
 import { useAIFeature } from '@/contexts/ai-context';
 import {
@@ -378,6 +382,10 @@ export default function ContentPane({
   const [embedDialogOpen, setEmbedDialogOpen] = useState(false);
   const [embedType, setEmbedType] = useState<EmbedType>(null);
   const [youtubePickerOpen, setYoutubePickerOpen] = useState(false);
+  const [googleDocsPickerOpen, setGoogleDocsPickerOpen] = useState(false);
+  const [googleSheetsPickerOpen, setGoogleSheetsPickerOpen] = useState(false);
+  const [googleSlidesPickerOpen, setGoogleSlidesPickerOpen] = useState(false);
+  const [googleMapsPickerOpen, setGoogleMapsPickerOpen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [isDrawingOpen, setIsDrawingOpen] = useState(false);
   const [pendingTabularPaste, setPendingTabularPaste] = useState<string | null>(null);
@@ -1232,28 +1240,43 @@ export default function ContentPane({
   };
 
   const handleInsertGoogleDoc = () => {
-    setEmbedType('googleDoc');
-    setEmbedDialogOpen(true);
+    setGoogleDocsPickerOpen(true);
+  };
+
+  const handleGoogleDocSelected = (url: string) => {
+    if (!editor) return;
+    editor.chain().focus().insertContent({
+      type: 'googleDocs',
+      attrs: { src: url },
+    }).run();
   };
 
   const handleInsertGoogleSheet = () => {
-    setEmbedType('googleSheet');
-    setEmbedDialogOpen(true);
+    setGoogleSheetsPickerOpen(true);
+  };
+
+  const handleGoogleSheetSelected = (url: string) => {
+    if (!editor) return;
+    editor.chain().focus().insertContent({
+      type: 'googleSheets',
+      attrs: { src: url },
+    }).run();
   };
 
   const handleInsertGoogleSlide = () => {
-    setEmbedType('googleSlide');
-    setEmbedDialogOpen(true);
+    setGoogleSlidesPickerOpen(true);
+  };
+
+  const handleGoogleSlidesSelected = (url: string) => {
+    if (!editor) return;
+    editor.chain().focus().insertContent({
+      type: 'googleSlides',
+      attrs: { src: url },
+    }).run();
   };
 
   const handleInsertYouTube = () => {
-    // Use the YouTube picker in Electron, otherwise fall back to URL dialog
-    if (isElectron()) {
-      setYoutubePickerOpen(true);
-    } else {
-      setEmbedType('youtube');
-      setEmbedDialogOpen(true);
-    }
+    setYoutubePickerOpen(true);
   };
 
   const handleYouTubeVideoSelected = (url: string) => {
@@ -1263,8 +1286,15 @@ export default function ContentPane({
   };
 
   const handleInsertGoogleMaps = () => {
-    setEmbedType('googleMaps');
-    setEmbedDialogOpen(true);
+    setGoogleMapsPickerOpen(true);
+  };
+
+  const handleGoogleMapSelected = (url: string) => {
+    if (!editor) return;
+    editor.chain().focus().insertContent({
+      type: 'googleMaps',
+      attrs: { src: url },
+    }).run();
   };
 
   const handleImportPhoto = () => {
@@ -1509,6 +1539,30 @@ export default function ContentPane({
         open={youtubePickerOpen}
         onOpenChange={setYoutubePickerOpen}
         onSelectVideo={handleYouTubeVideoSelected}
+      />
+
+      <GoogleDocsPickerDialog
+        open={googleDocsPickerOpen}
+        onOpenChange={setGoogleDocsPickerOpen}
+        onSelectDoc={handleGoogleDocSelected}
+      />
+
+      <GoogleSheetsPickerDialog
+        open={googleSheetsPickerOpen}
+        onOpenChange={setGoogleSheetsPickerOpen}
+        onSelectSheet={handleGoogleSheetSelected}
+      />
+
+      <GoogleSlidesPickerDialog
+        open={googleSlidesPickerOpen}
+        onOpenChange={setGoogleSlidesPickerOpen}
+        onSelectSlides={handleGoogleSlidesSelected}
+      />
+
+      <GoogleMapsPickerDialog
+        open={googleMapsPickerOpen}
+        onOpenChange={setGoogleMapsPickerOpen}
+        onSelectMap={handleGoogleMapSelected}
       />
 
       <DrawingCanvas
