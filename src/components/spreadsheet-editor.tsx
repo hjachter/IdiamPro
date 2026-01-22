@@ -35,7 +35,14 @@ export default function SpreadsheetEditor({
 }: SpreadsheetEditorProps) {
   const workbookRef = useRef<WorkbookInstance | null>(null);
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const pendingDataRef = useRef<Sheet[] | null>(null);
+  const onChangeRef = useRef(onChange);
   const [isReady, setIsReady] = useState(false);
+
+  // Keep onChange ref up to date
+  useEffect(() => {
+    onChangeRef.current = onChange;
+  }, [onChange]);
 
   // Initialize with data or default sheet
   const initialData: Sheet[] = data?.sheets?.length
@@ -46,24 +53,35 @@ export default function SpreadsheetEditor({
   const handleChange = useCallback((sheets: Sheet[]) => {
     if (readOnly) return;
 
+    // Store pending data so we can flush on unmount
+    pendingDataRef.current = sheets;
+
     // Debounce saves to avoid excessive updates
     if (saveTimeoutRef.current) {
       clearTimeout(saveTimeoutRef.current);
     }
 
     saveTimeoutRef.current = setTimeout(() => {
-      onChange({
+      pendingDataRef.current = null; // Clear pending since we're saving
+      onChangeRef.current({
         sheets,
         version: '1.0',
       });
     }, 500); // 500ms debounce
-  }, [onChange, readOnly]);
+  }, [readOnly]);
 
-  // Cleanup on unmount
+  // Cleanup on unmount - flush any pending data
   useEffect(() => {
     return () => {
       if (saveTimeoutRef.current) {
         clearTimeout(saveTimeoutRef.current);
+      }
+      // Flush pending data on unmount to prevent data loss
+      if (pendingDataRef.current) {
+        onChangeRef.current({
+          sheets: pendingDataRef.current,
+          version: '1.0',
+        });
       }
     };
   }, []);
