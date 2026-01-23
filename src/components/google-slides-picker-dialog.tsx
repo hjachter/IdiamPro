@@ -12,6 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ExternalLink, Presentation } from 'lucide-react';
+import { openExternalUrl } from '@/lib/electron-storage';
 
 interface GoogleSlidesPickerDialogProps {
   open: boolean;
@@ -37,10 +38,10 @@ export default function GoogleSlidesPickerDialog({
     );
   };
 
-  // Convert share URL to embed URL if needed
+  // Convert share URL to embed URL (embed works for shared presentations)
   const getEmbedUrl = (url: string): string => {
-    // If already an embed URL, return as-is
-    if (url.includes('/embed')) {
+    // If already an embed or preview URL, return as-is
+    if (url.includes('/embed') || url.includes('/preview')) {
       return url;
     }
     // Convert /presentation/d/ID/edit to /presentation/d/ID/embed
@@ -52,7 +53,7 @@ export default function GoogleSlidesPickerDialog({
   };
 
   const handleOpenGoogleSlides = () => {
-    window.open('https://slides.google.com', '_blank');
+    openExternalUrl('https://slides.google.com');
   };
 
   const handleInsert = () => {
@@ -81,7 +82,7 @@ export default function GoogleSlidesPickerDialog({
             Insert Google Slides
           </DialogTitle>
           <DialogDescription>
-            Open your Google Slides presentation, then copy its URL from the address bar. The presentation will be embedded for viewing.
+            Open your Google Slides and copy the URL from the address bar.
           </DialogDescription>
         </DialogHeader>
 

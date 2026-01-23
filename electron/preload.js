@@ -31,4 +31,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
   // Native print-to-PDF (handles large documents)
   printToPdf: (htmlContent, filePath) => ipcRenderer.invoke('print-to-pdf', htmlContent, filePath),
+
+  // Open URL in system default browser
+  openExternal: (url) => ipcRenderer.invoke('open-external', url),
 });

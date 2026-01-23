@@ -454,6 +454,17 @@ ipcMain.handle('open-file', async (event, filePath) => {
   }
 });
 
+// Open URL in system default browser
+ipcMain.handle('open-external', async (event, url) => {
+  try {
+    await shell.openExternal(url);
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to open external URL:', error);
+    return { success: false, error: error.message };
+  }
+});
+
 // Save file dialog and return the chosen path
 ipcMain.handle('save-file-dialog', async (event, options) => {
   const result = await dialog.showSaveDialog(mainWindow, {

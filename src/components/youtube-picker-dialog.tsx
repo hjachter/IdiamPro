@@ -12,6 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ExternalLink, Video } from 'lucide-react';
+import { openExternalUrl } from '@/lib/electron-storage';
 
 interface YouTubePickerDialogProps {
   open: boolean;
@@ -40,7 +41,7 @@ export default function YouTubePickerDialog({
 
   const handleOpenYouTube = () => {
     // Open YouTube in system browser
-    window.open('https://www.youtube.com', '_blank');
+    openExternalUrl('https://www.youtube.com');
   };
 
   const handleInsert = () => {

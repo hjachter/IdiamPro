@@ -12,6 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ExternalLink, Sheet } from 'lucide-react';
+import { openExternalUrl } from '@/lib/electron-storage';
 
 interface GoogleSheetsPickerDialogProps {
   open: boolean;
@@ -37,22 +38,22 @@ export default function GoogleSheetsPickerDialog({
     );
   };
 
-  // Convert share URL to embed URL if needed
+  // Convert share URL to htmlview URL (works with shared sheets)
   const getEmbedUrl = (url: string): string => {
-    // If already a pubhtml URL, return as-is
-    if (url.includes('/pubhtml')) {
+    // If already an embed-friendly URL, return as-is
+    if (url.includes('/htmlview') || url.includes('/pubhtml') || url.includes('/preview')) {
       return url;
     }
-    // Convert /spreadsheets/d/ID/edit to /spreadsheets/d/ID/pubhtml
+    // Convert /spreadsheets/d/ID/edit to /spreadsheets/d/ID/htmlview
     const match = url.match(/spreadsheets\/d\/([^\/]+)/);
     if (match) {
-      return `https://docs.google.com/spreadsheets/d/${match[1]}/pubhtml?widget=true&headers=false`;
+      return `https://docs.google.com/spreadsheets/d/${match[1]}/htmlview?widget=true`;
     }
     return url;
   };
 
   const handleOpenGoogleSheets = () => {
-    window.open('https://sheets.google.com', '_blank');
+    openExternalUrl('https://sheets.google.com');
   };
 
   const handleInsert = () => {
@@ -81,7 +82,7 @@ export default function GoogleSheetsPickerDialog({
             Insert Google Sheet
           </DialogTitle>
           <DialogDescription>
-            Open your Google Sheet, then copy its URL from the address bar. Make sure the spreadsheet is published (File → Share → Publish to web).
+            Open your Google Sheet and copy the URL from the address bar.
           </DialogDescription>
         </DialogHeader>
 

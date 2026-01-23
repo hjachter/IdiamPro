@@ -11,6 +11,7 @@ interface ElectronAPI {
   renameOutlineFile: (dirPath: string, oldFileName: string, newOutline: Outline) => Promise<{ success: boolean; error?: string }>;
   checkOutlineExists: (dirPath: string, fileName: string) => Promise<boolean>;
   loadOutlineFromFile: (dirPath: string, fileName: string) => Promise<{ success: boolean; outline?: Outline; error?: string }>;
+  openExternal: (url: string) => Promise<{ success: boolean; error?: string }>;
 }
 
 declare global {
@@ -24,6 +25,19 @@ declare global {
  */
 export function isElectron(): boolean {
   return typeof window !== 'undefined' && window.electronAPI?.isElectron === true;
+}
+
+/**
+ * Open a URL in the system's default browser
+ * In Electron, this uses shell.openExternal to open in the real browser with address bar
+ * In web, this uses window.open
+ */
+export async function openExternalUrl(url: string): Promise<void> {
+  if (isElectron() && window.electronAPI?.openExternal) {
+    await window.electronAPI.openExternal(url);
+  } else {
+    window.open(url, '_blank');
+  }
 }
 
 /**

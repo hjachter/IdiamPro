@@ -12,6 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ExternalLink, FileText } from 'lucide-react';
+import { openExternalUrl } from '@/lib/electron-storage';
 
 interface GoogleDocsPickerDialogProps {
   open: boolean;
@@ -37,22 +38,22 @@ export default function GoogleDocsPickerDialog({
     );
   };
 
-  // Convert share URL to embed URL if needed
+  // Convert share URL to preview URL (works without publishing)
   const getEmbedUrl = (url: string): string => {
-    // If already an embed URL, return as-is
-    if (url.includes('/pub')) {
+    // If already a preview or pub URL, return as-is
+    if (url.includes('/preview') || url.includes('/pub')) {
       return url;
     }
-    // Convert /document/d/ID/edit to /document/d/ID/pub
+    // Convert /document/d/ID/edit to /document/d/ID/preview
     const match = url.match(/docs\.google\.com\/document\/d\/([^\/]+)/);
     if (match) {
-      return `https://docs.google.com/document/d/${match[1]}/pub?embedded=true`;
+      return `https://docs.google.com/document/d/${match[1]}/preview`;
     }
     return url;
   };
 
   const handleOpenGoogleDocs = () => {
-    window.open('https://docs.google.com', '_blank');
+    openExternalUrl('https://docs.google.com');
   };
 
   const handleInsert = () => {
@@ -81,7 +82,7 @@ export default function GoogleDocsPickerDialog({
             Insert Google Doc
           </DialogTitle>
           <DialogDescription>
-            Open your Google Doc, then copy its URL from the address bar. Make sure the document is published (File → Share → Publish to web).
+            Open your Google Doc and copy the URL from the address bar.
           </DialogDescription>
         </DialogHeader>
 

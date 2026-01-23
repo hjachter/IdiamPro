@@ -12,6 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ExternalLink, Map } from 'lucide-react';
+import { openExternalUrl } from '@/lib/electron-storage';
 
 interface GoogleMapsPickerDialogProps {
   open: boolean;
@@ -72,7 +73,7 @@ export default function GoogleMapsPickerDialog({
   };
 
   const handleOpenGoogleMaps = () => {
-    window.open('https://maps.google.com', '_blank');
+    openExternalUrl('https://maps.google.com');
   };
 
   const handleInsert = () => {
@@ -101,7 +102,7 @@ export default function GoogleMapsPickerDialog({
             Insert Google Map
           </DialogTitle>
           <DialogDescription>
-            Open Google Maps, search for a location, then copy the URL from the address bar. For best results, click Share → Embed a map.
+            Open Google Maps, search for a location, and copy the URL from the address bar.
           </DialogDescription>
         </DialogHeader>
 
