@@ -12,13 +12,18 @@ export interface ExcalidrawData {
   version?: string;
 }
 
+// Module-level cache to preserve data between remounts (same fix as SpreadsheetEditor)
+const excalidrawDataCache = new Map<string, ExcalidrawData>();
+
 interface ExcalidrawEditorProps {
+  nodeId: string; // Used by cache to preserve data between remounts
   data: ExcalidrawData | null;
   onDataChange: (data: ExcalidrawData) => void;
   className?: string;
 }
 
 export default function ExcalidrawEditor({
+  nodeId,
   data,
   onDataChange,
   className = '',
@@ -28,6 +33,14 @@ export default function ExcalidrawEditor({
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isInitializedRef = useRef(false);
   const lastSavedJsonRef = useRef<string>('');
+  const nodeIdRef = useRef(nodeId);
+  const onDataChangeRef = useRef(onDataChange);
+
+  // Keep refs updated
+  useEffect(() => {
+    nodeIdRef.current = nodeId;
+    onDataChangeRef.current = onDataChange;
+  }, [nodeId, onDataChange]);
 
   // Detect dark mode
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -51,31 +64,35 @@ export default function ExcalidrawEditor({
         return;
       }
 
+      // Build save data
+      const saveData: ExcalidrawData = {
+        elements,
+        appState: {
+          viewBackgroundColor: appState.viewBackgroundColor,
+          gridSize: appState.gridSize,
+        },
+        files,
+        version: '1.0',
+      };
+
+      // Update cache FIRST (synchronous) so next mount sees latest data
+      excalidrawDataCache.set(nodeIdRef.current, saveData);
+
       // Clear existing timeout
       if (saveTimeoutRef.current) {
         clearTimeout(saveTimeoutRef.current);
       }
 
-      // Debounce save
+      // Debounce the React state update (async)
       saveTimeoutRef.current = setTimeout(() => {
-        const saveData: ExcalidrawData = {
-          elements,
-          appState: {
-            viewBackgroundColor: appState.viewBackgroundColor,
-            gridSize: appState.gridSize,
-          },
-          files,
-          version: '1.0',
-        };
-
         const json = JSON.stringify(saveData);
         if (json !== lastSavedJsonRef.current) {
           lastSavedJsonRef.current = json;
-          onDataChange(saveData);
+          onDataChangeRef.current(saveData);
         }
       }, 500);
     },
-    [onDataChange]
+    []
   );
 
   // Cleanup on unmount
@@ -87,14 +104,17 @@ export default function ExcalidrawEditor({
     };
   }, []);
 
-  // Initial data for the component
-  const initialData = data ? {
-    elements: data.elements || [],
+  // Get initial data - check cache first for fresh data (handles remount race condition)
+  const cachedData = excalidrawDataCache.get(nodeId);
+  const sourceData = cachedData || data;
+
+  const initialData = sourceData ? {
+    elements: sourceData.elements || [],
     appState: {
-      ...data.appState,
+      ...sourceData.appState,
       theme: isDarkMode ? 'dark' as const : 'light' as const,
     },
-    files: data.files,
+    files: sourceData.files,
   } : undefined;
 
   return (

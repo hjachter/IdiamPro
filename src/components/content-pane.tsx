@@ -2141,6 +2141,7 @@ export default function ContentPane({
         {node.type === 'canvas' && (
           <div className="h-[calc(100vh-200px)] min-h-[500px] rounded-lg border overflow-hidden">
             <ExcalidrawEditor
+              nodeId={node.id}
               data={node.content ? (() => {
                 try {
                   return JSON.parse(node.content);
