@@ -2114,11 +2114,6 @@ export default function ContentPane({
       </div>
 
       <main className="flex-grow overflow-y-auto p-6 space-y-4">
-        {/* DEBUG: Small indicator - REMOVE AFTER DEBUGGING */}
-        <div className="text-xs text-red-500 font-mono bg-yellow-100 p-2 mb-2">
-          type={node.type} | shouldUseRichTextEditor={String(shouldUseRichTextEditor)} | willRenderSpreadsheet={String(node.type === 'spreadsheet' || contentLooksLikeSpreadsheet)}
-        </div>
-
         {node.type === 'image' && node.content && isUrl(node.content.trimEnd()) && (
             <Card>
                 <CardContent className="p-4">
