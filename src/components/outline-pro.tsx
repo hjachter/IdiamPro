@@ -1394,10 +1394,18 @@ export default function OutlinePro() {
         description: result.summary,
       });
     } catch (e) {
+      const errorMsg = (e as Error).message || "Could not process bulk research import.";
+      // Truncate long error messages and make them more readable
+      let displayMsg = errorMsg;
+      if (errorMsg.includes('429') || errorMsg.includes('quota')) {
+        displayMsg = "API rate limit exceeded. Please wait a few minutes and try again.";
+      } else if (errorMsg.length > 100) {
+        displayMsg = errorMsg.substring(0, 100) + "...";
+      }
       toast({
         variant: "destructive",
         title: "Research Import Failed",
-        description: (e as Error).message || "Could not process bulk research import.",
+        description: displayMsg,
       });
       throw e;
     } finally {

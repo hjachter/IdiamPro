@@ -407,6 +407,9 @@ export async function bulkResearchIngestAction(
         console.log('Generating AI title from first source content...');
         defaultOutlineName = await generateTitleFromContent(extractedSources[0].content);
         console.log(`Generated title: "${defaultOutlineName}"`);
+        // Add delay after title generation to avoid rate limits
+        console.log('Waiting 3 seconds before generating outline (rate limit protection)...');
+        await new Promise(resolve => setTimeout(resolve, 3000));
       }
     }
 
@@ -465,6 +468,9 @@ Generate the outline with content:`;
         .join('\n');
 
       if (childContent) {
+        // Add delay before next AI call to avoid rate limits
+        console.log('Waiting 3 seconds before generating root summary (rate limit protection)...');
+        await new Promise(resolve => setTimeout(resolve, 3000));
         console.log('Generating root node summary...');
         // Retry with exponential backoff for rate limits
         for (let attempt = 0; attempt < 3; attempt++) {

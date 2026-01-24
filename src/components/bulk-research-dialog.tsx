@@ -7,10 +7,11 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Checkbox } from './ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { X, Plus, FileText, Youtube, Type, Globe, Image as ImageIcon, FileArchive, Music, Video as VideoIcon, FolderOpen, Mic, Square, Pause, Play, Loader2, Upload, MessageSquare, RotateCcw, Send } from 'lucide-react';
+import { X, Plus, FileText, Youtube, Type, Globe, Image as ImageIcon, FileArchive, Music, Video as VideoIcon, FolderOpen, Mic, Square, Pause, Play, Loader2, Upload, MessageSquare, RotateCcw, Send, ExternalLink } from 'lucide-react';
 import type { ExternalSourceInput, BulkResearchSources, DiarizedTranscript } from '@/types';
 import { useAudioRecorder } from '@/lib/use-audio-recorder';
 import { transcribeRecordingAction } from '@/app/actions';
+import { openExternalUrl } from '@/lib/electron-storage';
 
 // Type for stored recording data
 interface RecordingData {
@@ -496,25 +497,55 @@ export default function BulkResearchDialog({
 
                     {/* YouTube */}
                     {source.type === 'youtube' && (
-                      <div className="space-y-1">
-                        <Label className="text-xs text-muted-foreground">YouTube URL</Label>
-                        <Input
-                          placeholder="https://www.youtube.com/watch?v=..."
-                          value={source.url || ''}
-                          onChange={(e) => handleUpdateSource(source.id, { url: e.target.value })}
-                        />
+                      <div className="space-y-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="w-full gap-2"
+                          onClick={() => openExternalUrl('https://www.youtube.com')}
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                          Open YouTube in Browser
+                        </Button>
+                        <p className="text-xs text-center text-muted-foreground">
+                          Find a video and copy the URL from the address bar
+                        </p>
+                        <div className="space-y-1">
+                          <Label className="text-xs text-muted-foreground">YouTube URL</Label>
+                          <Input
+                            placeholder="https://www.youtube.com/watch?v=..."
+                            value={source.url || ''}
+                            onChange={(e) => handleUpdateSource(source.id, { url: e.target.value })}
+                          />
+                        </div>
                       </div>
                     )}
 
                     {/* Web Page */}
                     {source.type === 'web' && (
-                      <div className="space-y-1">
-                        <Label className="text-xs text-muted-foreground">Web Page URL</Label>
-                        <Input
-                          placeholder="https://example.com/article"
-                          value={source.url || ''}
-                          onChange={(e) => handleUpdateSource(source.id, { url: e.target.value })}
-                        />
+                      <div className="space-y-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="w-full gap-2"
+                          onClick={() => openExternalUrl('https://www.google.com')}
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                          Open Browser
+                        </Button>
+                        <p className="text-xs text-center text-muted-foreground">
+                          Navigate to an article and copy the URL from the address bar
+                        </p>
+                        <div className="space-y-1">
+                          <Label className="text-xs text-muted-foreground">Web Page URL</Label>
+                          <Input
+                            placeholder="https://example.com/article"
+                            value={source.url || ''}
+                            onChange={(e) => handleUpdateSource(source.id, { url: e.target.value })}
+                          />
+                        </div>
                       </div>
                     )}
 
