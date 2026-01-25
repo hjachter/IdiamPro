@@ -1674,25 +1674,37 @@ export default function OutlinePro() {
     } catch (e) {
       const errorMsg = (e as Error).message || "Could not process bulk research import.";
       // Use console.warn to avoid Next.js error overlay in dev mode
-      console.warn('[Research Import]', errorMsg);
+      console.warn('[Research Import] Full error:', errorMsg);
 
-      // Create user-friendly error messages
+      // Create user-friendly error messages with more detail
       let displayMsg: string;
+      let title = "Research Import Failed";
+
       if (errorMsg.includes('429') || errorMsg.includes('quota') || errorMsg.includes('rate')) {
-        displayMsg = "AI service is temporarily busy. Please wait 2-3 minutes and try again.";
+        title = "AI Service Busy";
+        displayMsg = "The AI service is temporarily overloaded. Please wait 2-3 minutes and try again. For large documents, consider importing in smaller pieces.";
       } else if (errorMsg.includes('transcript') || errorMsg.includes('captions')) {
-        displayMsg = "Could not get transcript from this video. It may not have captions enabled.";
-      } else if (errorMsg.includes('network') || errorMsg.includes('fetch')) {
-        displayMsg = "Network error. Please check your connection and try again.";
+        title = "Video Transcript Unavailable";
+        displayMsg = "Could not get transcript from this video. It may not have captions enabled, or captions may be disabled by the creator.";
+      } else if (errorMsg.includes('timeout') || errorMsg.includes('ETIMEDOUT') || errorMsg.includes('ECONNRESET')) {
+        title = "Request Timed Out";
+        displayMsg = "The import took too long and timed out. For large documents like books, try importing individual chapters or sections separately.";
+      } else if (errorMsg.includes('network') || errorMsg.includes('fetch') || errorMsg.includes('Failed to fetch')) {
+        title = "Connection Lost";
+        displayMsg = "Lost connection during import. For long imports (5+ minutes), the connection may have dropped. Check your network and try again.";
+      } else if (errorMsg.includes('JSON') || errorMsg.includes('parse')) {
+        title = "Processing Error";
+        displayMsg = "Error processing the AI response. This sometimes happens with very long documents. Try again or import in smaller sections.";
       } else {
-        // Generic message for other errors
-        displayMsg = "Something went wrong. Please try again.";
+        // Show actual error for debugging
+        displayMsg = `Error: ${errorMsg.substring(0, 200)}${errorMsg.length > 200 ? '...' : ''}`;
       }
 
       toast({
         variant: "destructive",
-        title: "Research Import Failed",
+        title,
         description: displayMsg,
+        duration: 15000, // 15 seconds for errors (much longer than default)
       });
       // Don't re-throw - we've handled the error with the toast
     } finally {

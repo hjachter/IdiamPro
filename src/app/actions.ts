@@ -842,14 +842,200 @@ Respond with ONLY one letter: A, B, or C`;
 }
 
 /**
+ * For very large bullet sets (500+), use a two-pass approach:
+ * Pass 1: Identify major themes from a sample of bullets
+ * Pass 2: Organize bullets by theme into sub-outlines
+ */
+async function organizeLargeBulletSet(
+  bullets: ContentBullet[],
+  outlineName: string
+): Promise<{ rootNodeId: string; nodes: Record<string, any> }> {
+  console.log(`[Bullet] Large set detected (${bullets.length} bullets). Using two-pass organization...`);
+
+  // Pass 1: Identify major themes from bullet topics
+  const topicSample = bullets
+    .map(b => b.topic)
+    .filter((v, i, a) => a.indexOf(v) === i) // unique topics
+    .slice(0, 100) // sample first 100 unique topics
+    .join(', ');
+
+  const themePrompt = `Analyze these topic keywords from a book/document and identify 10-15 MAJOR THEMES that would make good chapter headings.
+
+TOPICS: ${topicSample}
+
+Requirements:
+- Each theme should be broad enough to contain multiple related subtopics
+- Themes should be distinct and non-overlapping
+- Use clear, concise names (2-5 words each)
+- Order themes logically (introduction → details → conclusion if applicable)
+
+Return ONLY a JSON array of theme names, nothing else:
+["Theme 1", "Theme 2", "Theme 3", ...]`;
+
+  let themes: string[] = [];
+  try {
+    const { text } = await withRateLimitRetry(
+      () => ai.generate({
+        model: 'googleai/gemini-2.0-flash',
+        prompt: themePrompt,
+      }),
+      1,
+      'theme detection'
+    );
+
+    let jsonStr = text.trim();
+    if (jsonStr.startsWith('```')) {
+      jsonStr = jsonStr.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
+    }
+    themes = JSON.parse(jsonStr);
+    console.log(`[Bullet] Identified ${themes.length} themes:`, themes);
+  } catch (error) {
+    console.warn('[Bullet] Theme detection failed, using default themes:', error);
+    themes = ['Introduction', 'Core Concepts', 'Key Strategies', 'Practical Applications',
+              'Advanced Topics', 'Case Studies', 'Best Practices', 'Conclusions'];
+  }
+
+  // Pass 2: Assign bullets to themes and organize each
+  // Create a simpler bullet summary for assignment (to keep prompt manageable)
+  const bulletSummaries = bullets.map((b, idx) => `${idx}:${b.topic}`).join('|');
+
+  // Build the outline structure
+  const rootNodeId = uuidv4();
+  const nodes: Record<string, any> = {
+    [rootNodeId]: {
+      id: rootNodeId,
+      name: outlineName,
+      content: '',
+      type: 'root',
+      parentId: null,
+      childrenIds: [],
+      prefix: '',
+    },
+  };
+
+  // Process each theme
+  for (let themeIdx = 0; themeIdx < themes.length; themeIdx++) {
+    const theme = themes[themeIdx];
+    console.log(`[Bullet] Processing theme ${themeIdx + 1}/${themes.length}: "${theme}"`);
+
+    // Find bullets that match this theme (simple keyword matching)
+    const themeKeywords = theme.toLowerCase().split(/\s+/);
+    const themeBullets = bullets.filter(b => {
+      const bulletText = `${b.topic} ${b.content}`.toLowerCase();
+      return themeKeywords.some(kw => kw.length > 3 && bulletText.includes(kw));
+    });
+
+    // If no matches, take a proportional slice
+    let bulletsForTheme = themeBullets.length > 0
+      ? themeBullets
+      : bullets.slice(
+          Math.floor(themeIdx * bullets.length / themes.length),
+          Math.floor((themeIdx + 1) * bullets.length / themes.length)
+        );
+
+    if (bulletsForTheme.length === 0) continue;
+
+    // For very large themes, sample evenly to keep prompt manageable
+    const MAX_BULLETS_PER_THEME = 100;
+    if (bulletsForTheme.length > MAX_BULLETS_PER_THEME) {
+      console.log(`[Bullet] Theme "${theme}" has ${bulletsForTheme.length} bullets, sampling ${MAX_BULLETS_PER_THEME}`);
+      const step = Math.ceil(bulletsForTheme.length / MAX_BULLETS_PER_THEME);
+      bulletsForTheme = bulletsForTheme.filter((_, idx) => idx % step === 0).slice(0, MAX_BULLETS_PER_THEME);
+    }
+
+    // Create chapter node
+    const chapterId = uuidv4();
+    nodes[chapterId] = {
+      id: chapterId,
+      name: theme,
+      content: '',
+      type: 'chapter',
+      parentId: rootNodeId,
+      childrenIds: [],
+      prefix: '',
+    };
+    nodes[rootNodeId].childrenIds.push(chapterId);
+
+    // Organize this theme's bullets into subsections
+    const themeBulletList = bulletsForTheme.map((b, idx) =>
+      `- [${b.topic}] ${b.content}`
+    ).join('\n');
+
+    const subPrompt = `Organize these facts about "${theme}" into 3-6 coherent subsections.
+
+FACTS:
+${themeBulletList}
+
+OUTPUT FORMAT (markdown list with content):
+- Subsection Title: Synthesized content combining related facts into flowing prose.
+- Another Subsection: More synthesized content.
+
+RULES:
+- Each subsection has substantive content (2-4 sentences minimum)
+- Write flowing prose, not bullet lists
+- Combine related facts into coherent paragraphs`;
+
+    try {
+      await new Promise(resolve => setTimeout(resolve, 2000)); // Rate limit protection
+
+      const { text: subOutline } = await withRateLimitRetry(
+        () => ai.generate({
+          model: 'googleai/gemini-2.0-flash',
+          prompt: subPrompt,
+        }),
+        1,
+        `theme organization: ${theme}`
+      );
+
+      // Parse subsections and add to chapter
+      const lines = subOutline.split('\n').filter(l => l.trim().startsWith('- '));
+      for (const line of lines) {
+        const match = line.match(/^-\s+([^:]+):\s*(.+)$/);
+        if (match) {
+          const subId = uuidv4();
+          nodes[subId] = {
+            id: subId,
+            name: match[1].trim(),
+            content: match[2].trim(),
+            type: 'document',
+            parentId: chapterId,
+            childrenIds: [],
+            prefix: '',
+          };
+          nodes[chapterId].childrenIds.push(subId);
+        }
+      }
+
+      // If no subsections parsed, add the raw content as chapter content
+      if (nodes[chapterId].childrenIds.length === 0) {
+        nodes[chapterId].content = subOutline.replace(/^-\s+/gm, '').trim();
+      }
+    } catch (error) {
+      console.warn(`[Bullet] Failed to organize theme "${theme}":`, error);
+      // Add a placeholder
+      nodes[chapterId].content = `Content about ${theme} from ${bulletsForTheme.length} source facts.`;
+    }
+  }
+
+  console.log(`[Bullet] Two-pass organization complete. Created ${Object.keys(nodes).length - 1} nodes.`);
+  return { rootNodeId, nodes };
+}
+
+/**
  * Organize a flat list of bullets into a hierarchical outline
  * This is the key function that creates structure from atomic facts
+ * For large sets (500+), uses two-pass theme-based organization
  */
 async function organizeBulletsIntoOutline(
   bullets: ContentBullet[],
   outlineName: string,
   mergeStrategy: MergeStrategy = 'synthesize'
 ): Promise<{ rootNodeId: string; nodes: Record<string, any> }> {
+
+  // For very large bullet sets, use two-pass approach
+  if (bullets.length > 500 && mergeStrategy === 'synthesize') {
+    return organizeLargeBulletSet(bullets, outlineName);
+  }
 
   // Format bullets for the organization prompt (numbered for AI reference only)
   const bulletList = bullets.map((b, idx) =>

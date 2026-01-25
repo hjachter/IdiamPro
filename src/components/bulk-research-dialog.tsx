@@ -979,12 +979,18 @@ export default function BulkResearchDialog({
 
         {/* Processing status indicator */}
         {isSubmitting && (
-          <div className="flex items-center gap-3 p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800">
-            <Loader2 className="h-5 w-5 animate-spin text-blue-600 dark:text-blue-400 flex-shrink-0" />
+          <div className="flex items-center gap-3 p-4 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800">
+            <Loader2 className="h-6 w-6 animate-spin text-blue-600 dark:text-blue-400 flex-shrink-0" />
             <div className="text-sm">
-              <p className="font-medium text-blue-800 dark:text-blue-200">Synthesizing sources...</p>
-              <p className="text-blue-600 dark:text-blue-400 text-xs">
-                Extracting content, analyzing relationships, and generating outline. This may take 1-2 minutes.
+              <p className="font-medium text-blue-800 dark:text-blue-200">Processing your sources...</p>
+              <p className="text-blue-600 dark:text-blue-400 text-xs mt-1">
+                Extracting content and organizing into an outline.
+              </p>
+              <p className="text-blue-500 dark:text-blue-500 text-xs mt-2 font-medium">
+                Short content: 1-2 minutes • Long documents/books: 5-10 minutes
+              </p>
+              <p className="text-blue-400 dark:text-blue-600 text-xs mt-1">
+                Please keep this window open until complete.
               </p>
             </div>
           </div>
