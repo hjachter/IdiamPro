@@ -858,32 +858,38 @@ export default function OutlinePro() {
   }, []);
 
   // FIXED: handleDeleteOutline uses functional update pattern
-  const handleDeleteOutline = useCallback(() => {
+  // Now accepts optional outlineId parameter for bulk delete support
+  const handleDeleteOutline = useCallback((outlineId?: string) => {
+    const idToDelete = outlineId || currentOutlineId;
+
     setOutlines(currentOutlines => {
-      const outlineToDelete = currentOutlines.find(o => o.id === currentOutlineId);
+      const outlineToDelete = currentOutlines.find(o => o.id === idToDelete);
       if (!outlineToDelete || outlineToDelete.isGuide) return currentOutlines;
 
-      const nextOutlines = currentOutlines.filter(o => o.id !== currentOutlineId);
+      const nextOutlines = currentOutlines.filter(o => o.id !== idToDelete);
 
-      // Determine next outline to select
-      const nextOutlineToSelect = nextOutlines.find(o => !o.isGuide) || nextOutlines.find(o => o.isGuide);
+      // Only update selection if we're deleting the current outline
+      if (idToDelete === currentOutlineId) {
+        // Determine next outline to select
+        const nextOutlineToSelect = nextOutlines.find(o => !o.isGuide) || nextOutlines.find(o => o.isGuide);
 
-      if (nextOutlineToSelect) {
-        // Schedule these updates after the current state update
-        const capturedOutlineId = nextOutlineToSelect.id;
-        const capturedRootNodeId = nextOutlineToSelect.rootNodeId;
-        setTimeout(() => {
-          setCurrentOutlineId(capturedOutlineId);
-          setSelectedNodeId(capturedRootNodeId);
-        }, 0);
-        return nextOutlines;
-      } else {
-        // No outlines left, create a new one
-        setTimeout(() => {
-          handleCreateOutline();
-        }, 0);
-        return nextOutlines.length > 0 ? nextOutlines : currentOutlines;
+        if (nextOutlineToSelect) {
+          // Schedule these updates after the current state update
+          const capturedOutlineId = nextOutlineToSelect.id;
+          const capturedRootNodeId = nextOutlineToSelect.rootNodeId;
+          setTimeout(() => {
+            setCurrentOutlineId(capturedOutlineId);
+            setSelectedNodeId(capturedRootNodeId);
+          }, 0);
+        } else {
+          // No outlines left, create a new one
+          setTimeout(() => {
+            handleCreateOutline();
+          }, 0);
+        }
       }
+
+      return nextOutlines;
     });
   }, [currentOutlineId, handleCreateOutline]);
 
@@ -2634,6 +2640,7 @@ export default function OutlinePro() {
             onCreateOutline={handleCreateOutline}
             onCreateFromTemplate={handleCreateFromTemplate}
             onDeleteOutline={handleDeleteOutline}
+            onRenameOutline={handleRenameOutline}
             onOpenGuide={handleOpenGuide}
           />
           {/* Resize handle */}

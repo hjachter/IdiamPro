@@ -234,6 +234,29 @@ export default function OutlinePane({
     );
   }, [searchMatches, currentOutline, searchTerm]);
 
+  // Get visible nodes in display order (respects collapsed state)
+  const getVisibleNodeIds = useCallback((): string[] => {
+    if (!currentOutline) return [];
+    const result: string[] = [];
+
+    const traverse = (nodeId: string) => {
+      const node = currentOutline.nodes[nodeId];
+      if (!node) return;
+
+      result.push(nodeId);
+
+      // Only traverse children if node is not collapsed and has children
+      if (!node.isCollapsed && node.childrenIds && node.childrenIds.length > 0) {
+        for (const childId of node.childrenIds) {
+          traverse(childId);
+        }
+      }
+    };
+
+    traverse(currentOutline.rootNodeId);
+    return result;
+  }, [currentOutline]);
+
   // Handle indent (Tab) - move node inside its previous sibling
   const handleIndent = useCallback((nodeId?: string) => {
     if (currentOutline?.isGuide) return; // Protect guide from modifications
@@ -448,6 +471,30 @@ export default function OutlinePane({
       const target = e.target as HTMLElement;
       if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) return;
 
+      // Handle Arrow keys for navigation through nodes
+      if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+        if (!currentOutline) return;
+        e.preventDefault();
+
+        const visibleNodes = getVisibleNodeIds();
+        if (visibleNodes.length === 0) return;
+
+        const currentIndex = selectedNodeId ? visibleNodes.indexOf(selectedNodeId) : -1;
+        let newIndex: number;
+
+        if (e.key === 'ArrowUp') {
+          newIndex = currentIndex <= 0 ? visibleNodes.length - 1 : currentIndex - 1;
+        } else {
+          newIndex = currentIndex >= visibleNodes.length - 1 ? 0 : currentIndex + 1;
+        }
+
+        const newNodeId = visibleNodes[newIndex];
+        if (newNodeId) {
+          onSelectNode(newNodeId, false);
+        }
+        return;
+      }
+
       // Handle Tab for single-node indent/outdent (multi-select handled in separate useEffect)
       if (e.key === 'Tab') {
         if (!selectedNodeId || !currentOutline) return;
@@ -503,7 +550,7 @@ export default function OutlinePane({
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [selectedNodeId, currentOutline, handleIndent, handleOutdent, hasClipboard, onCopySubtree, onCutSubtree, onPasteSubtree, onDuplicateNode, justCreatedNodeId, onTriggerEdit]);
+  }, [selectedNodeId, currentOutline, handleIndent, handleOutdent, hasClipboard, onCopySubtree, onCutSubtree, onPasteSubtree, onDuplicateNode, justCreatedNodeId, onTriggerEdit, getVisibleNodeIds, onSelectNode]);
 
   const handleStartRename = (id: string, currentName: string) => {
     setRenameId(id);
