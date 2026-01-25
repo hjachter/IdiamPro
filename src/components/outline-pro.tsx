@@ -10,7 +10,7 @@ import { addNode, addNodeAfter, removeNode, updateNode, moveNode, parseMarkdownT
 import OutlinePane from './outline-pane';
 import ContentPane from './content-pane';
 import { useToast } from "@/hooks/use-toast";
-import { generateOutlineAction, expandContentAction, generateContentForNodeAction, ingestExternalSourceAction, bulkResearchIngestAction } from '@/app/actions';
+import { generateOutlineAction, expandContentAction, generateContentForNodeAction, ingestExternalSourceAction, bulkResearchIngestAction, bulletBasedResearchAction } from '@/app/actions';
 import { useAI } from '@/contexts/ai-context';
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction } from './ui/alert-dialog';
 import { Button } from './ui/button';
@@ -1371,43 +1371,318 @@ export default function OutlinePro() {
       let existingContent: string | undefined;
       if (input.includeExistingContent && currentOutline) {
         // Extract all node names and content for context
+        // Skip embedded media (base64 images, etc.) and limit content size
         const contentParts: string[] = [];
+        const maxNodeContentLength = 2000; // Skip nodes with huge content (likely embedded media)
+        const maxTotalLength = 15000; // Cap total existing content
+        let totalLength = 0;
+
         Object.values(currentOutline.nodes).forEach(node => {
-          if (node.type !== 'root') {
-            contentParts.push(`${node.name}${node.content ? ': ' + node.content : ''}`);
+          if (node.type !== 'root' && totalLength < maxTotalLength) {
+            let nodeContent = node.content || '';
+
+            // Skip base64 data (embedded images/media)
+            if (nodeContent.includes('data:image') || nodeContent.includes('data:video') || nodeContent.includes('data:audio')) {
+              nodeContent = '[media content]';
+            }
+
+            // Skip excessively long content (likely transcripts or embedded data)
+            if (nodeContent.length > maxNodeContentLength) {
+              nodeContent = nodeContent.substring(0, maxNodeContentLength) + '...';
+            }
+
+            const part = `${node.name}${nodeContent ? ': ' + nodeContent : ''}`;
+            if (totalLength + part.length < maxTotalLength) {
+              contentParts.push(part);
+              totalLength += part.length;
+            }
           }
         });
         existingContent = contentParts.join('\n');
+        console.log(`Existing outline content: ${existingContent.length} chars from ${contentParts.length} nodes`);
       }
 
-      const result = await bulkResearchIngestAction(input, existingContent);
+      // Always use bullet-based (content-first) approach for best results
+      const result = await bulletBasedResearchAction(input, existingContent);
 
-      // Add the new outline to the list
-      setOutlines(currentOutlines => [...currentOutlines, result.outline]);
+      if (input.includeExistingContent && currentOutline) {
+        // TRUE MERGE: Intelligently merge new nodes into existing outline
+        const newNodes = result.outline.nodes;
+        const newRootId = result.outline.rootNodeId;
+        const newTopLevelNodeIds = newNodes[newRootId]?.childrenIds || [];
 
-      // Switch to the new outline
-      setCurrentOutlineId(result.outline.id);
-      setSelectedNodeId(result.outline.rootNodeId);
+        // Create updated nodes map starting with current outline
+        const updatedNodes = { ...currentOutline.nodes };
+        const currentRootId = currentOutline.rootNodeId;
+        const existingChildIds = [...updatedNodes[currentRootId].childrenIds];
 
-      toast({
-        title: "Research Synthesized!",
-        description: result.summary,
-      });
+        // Helper: Normalize name for comparison (lowercase, remove numbers/punctuation)
+        const normalizeName = (name: string) =>
+          name.toLowerCase().replace(/[0-9\.\:\-\_\(\)\"\'\,]/g, '').trim();
+
+        // Helper: Shorten long titles intelligently
+        const shortenTitle = (title: string, maxLength = 80): string => {
+          if (title.length <= maxLength) return title;
+          // Try to break at sentence boundaries first (: or .)
+          const colonIdx = title.indexOf(':');
+          if (colonIdx > 10 && colonIdx < maxLength) {
+            return title.substring(0, colonIdx).trim();
+          }
+          const periodIdx = title.indexOf('.');
+          if (periodIdx > 10 && periodIdx < maxLength) {
+            return title.substring(0, periodIdx).trim();
+          }
+          // Fall back to word boundary
+          const truncated = title.substring(0, maxLength);
+          const lastSpace = truncated.lastIndexOf(' ');
+          if (lastSpace > maxLength * 0.5) {
+            return truncated.substring(0, lastSpace).trim();
+          }
+          return truncated.trim();
+        };
+
+        // Helper: Check if node has meaningful content
+        const hasContent = (content: string | undefined): boolean => {
+          if (!content) return false;
+          // Strip HTML tags and check for actual text
+          const text = content.replace(/<[^>]*>/g, '').trim();
+          return text.length > 10; // At least 10 chars of actual content
+        };
+
+        // Helper: Check if content is just a repeated header (AI artifact)
+        const isRepeatedHeader = (content: string, nodeName: string): boolean => {
+          const text = content.replace(/<[^>]*>/g, '').replace(/---/g, '').trim();
+          const normalized = normalizeName(text);
+          const normalizedName = normalizeName(nodeName);
+          // If the content is mostly just the node name repeated, it's not useful
+          return normalized.length < normalizedName.length * 3;
+        };
+
+        // Helper: Find existing node with similar name (searches ALL nodes, not just top-level)
+        const findMatchingNode = (newName: string) => {
+          const normalizedNew = normalizeName(newName);
+
+          // Search all existing nodes (except root)
+          const allExistingIds = Object.keys(updatedNodes).filter(id => id !== currentRootId);
+
+          // First try exact match
+          for (const existingId of allExistingIds) {
+            const existingNode = updatedNodes[existingId];
+            if (existingNode && normalizeName(existingNode.name) === normalizedNew) {
+              return existingId;
+            }
+          }
+          // Then try partial matching (new name contains existing or vice versa)
+          // Only for longer names (5+ chars after normalization) to avoid false matches
+          if (normalizedNew.length >= 5) {
+            for (const existingId of allExistingIds) {
+              const existingNode = updatedNodes[existingId];
+              if (existingNode) {
+                const normalizedExisting = normalizeName(existingNode.name);
+                if (normalizedExisting.length >= 5 &&
+                    (normalizedNew.includes(normalizedExisting) || normalizedExisting.includes(normalizedNew))) {
+                  return existingId;
+                }
+              }
+            }
+          }
+          return null;
+        };
+
+        let mergedCount = 0;
+        let addedCount = 0;
+        const newChildIds: string[] = [];
+
+        // Process each new top-level node
+        for (const newNodeId of newTopLevelNodeIds) {
+          const newNode = newNodes[newNodeId];
+          if (!newNode) continue;
+
+          const matchingExistingId = findMatchingNode(newNode.name);
+
+          if (matchingExistingId) {
+            // MERGE: Append content to existing node
+            const existingNode = updatedNodes[matchingExistingId];
+            if (newNode.content && newNode.content.trim()) {
+              const separator = existingNode.content ? '\n\n---\n\n' : '';
+              updatedNodes[matchingExistingId] = {
+                ...existingNode,
+                content: (existingNode.content || '') + separator + newNode.content,
+              };
+              console.log(`[Merge] Appended content to "${existingNode.name}" (now ${updatedNodes[matchingExistingId].content?.length} chars)`);
+            }
+
+            // Recursively merge children too
+            const newNodeChildren = newNode.childrenIds || [];
+            for (const childId of newNodeChildren) {
+              const childNode = newNodes[childId];
+              if (!childNode) continue;
+
+              // Check if this child matches an existing child of the matched node
+              const existingChildren = updatedNodes[matchingExistingId].childrenIds || [];
+              let matchedChildId: string | null = null;
+              const normalizedChildName = normalizeName(childNode.name);
+
+              for (const existingChildId of existingChildren) {
+                const existingChild = updatedNodes[existingChildId];
+                if (existingChild && normalizeName(existingChild.name) === normalizedChildName) {
+                  matchedChildId = existingChildId;
+                  break;
+                }
+              }
+
+              if (matchedChildId) {
+                // Merge child content (only if meaningful)
+                const existingChild = updatedNodes[matchedChildId];
+                if (hasContent(childNode.content) && !isRepeatedHeader(childNode.content, childNode.name)) {
+                  const childSeparator = existingChild.content ? '\n\n---\n\n' : '';
+                  updatedNodes[matchedChildId] = {
+                    ...existingChild,
+                    content: (existingChild.content || '') + childSeparator + childNode.content,
+                  };
+                  console.log(`[Merge] Appended child content to "${existingChild.name}"`);
+                }
+              } else {
+                // Only add as new child if it has meaningful content
+                if (hasContent(childNode.content) && !isRepeatedHeader(childNode.content, childNode.name)) {
+                  updatedNodes[childId] = {
+                    ...childNode,
+                    name: shortenTitle(childNode.name),
+                    parentId: matchingExistingId,
+                  };
+                  updatedNodes[matchingExistingId] = {
+                    ...updatedNodes[matchingExistingId],
+                    childrenIds: [...(updatedNodes[matchingExistingId].childrenIds || []), childId],
+                  };
+                } else {
+                  console.log(`[Merge] Skipped empty child node: "${childNode.name}"`);
+                }
+              }
+            }
+            mergedCount++;
+          } else {
+            // Only add top-level node if it has content or children with content
+            const nodeHasContent = hasContent(newNode.content) && !isRepeatedHeader(newNode.content, newNode.name);
+            const hasChildrenWithContent = (newNode.childrenIds || []).some(cid => {
+              const child = newNodes[cid];
+              return child && hasContent(child.content);
+            });
+
+            if (!nodeHasContent && !hasChildrenWithContent) {
+              console.log(`[Merge] Skipped empty top-level node: "${newNode.name}"`);
+              continue; // Skip this node entirely
+            }
+
+            // ADD: Create new top-level node with shortened title
+            updatedNodes[newNodeId] = {
+              ...newNode,
+              name: shortenTitle(newNode.name),
+              parentId: currentRootId,
+            };
+            newChildIds.push(newNodeId);
+
+            // Also add all descendants with shortened titles (filter empty nodes)
+            const addDescendants = (nodeId: string, parentId: string) => {
+              const node = updatedNodes[nodeId] || newNodes[nodeId];
+              if (!node) return;
+
+              const validChildIds: string[] = [];
+              for (const childId of node.childrenIds || []) {
+                const childNode = newNodes[childId];
+                if (!childNode) continue;
+
+                // Skip empty nodes
+                if (!hasContent(childNode.content) && (!childNode.childrenIds || childNode.childrenIds.length === 0)) {
+                  console.log(`[Merge] Skipped empty descendant: "${childNode.name}"`);
+                  continue;
+                }
+
+                updatedNodes[childId] = {
+                  ...childNode,
+                  name: shortenTitle(childNode.name),
+                  parentId: nodeId,
+                };
+                validChildIds.push(childId);
+                addDescendants(childId, nodeId);
+              }
+
+              // Update parent's children list to only include valid children
+              if (updatedNodes[nodeId]) {
+                updatedNodes[nodeId] = {
+                  ...updatedNodes[nodeId],
+                  childrenIds: validChildIds,
+                };
+              }
+            };
+            addDescendants(newNodeId, currentRootId);
+            addedCount++;
+          }
+        }
+
+        // Update root node to include only truly new children
+        if (newChildIds.length > 0) {
+          updatedNodes[currentRootId] = {
+            ...updatedNodes[currentRootId],
+            childrenIds: [...existingChildIds, ...newChildIds],
+          };
+        }
+
+        // Recalculate all prefixes to ensure proper numbering (1., 2., 3., etc.)
+        recalculatePrefixesForBranch(updatedNodes, currentRootId);
+
+        // Update the current outline with merged nodes
+        const mergedOutline: Outline = {
+          ...currentOutline,
+          nodes: updatedNodes,
+          lastModified: Date.now(),
+        };
+
+        // Update outlines list with the merged outline
+        setOutlines(currentOutlines =>
+          currentOutlines.map(o => o.id === currentOutline.id ? mergedOutline : o)
+        );
+
+        toast({
+          title: "Content Merged!",
+          description: `Merged ${mergedCount} existing sections, added ${addedCount} new sections.`,
+        });
+      } else {
+        // CREATE NEW: Add the new outline to the list
+        setOutlines(currentOutlines => [...currentOutlines, result.outline]);
+
+        // Switch to the new outline
+        setCurrentOutlineId(result.outline.id);
+        setSelectedNodeId(result.outline.rootNodeId);
+
+        toast({
+          title: "Research Synthesized!",
+          description: result.summary,
+        });
+      }
     } catch (e) {
       const errorMsg = (e as Error).message || "Could not process bulk research import.";
-      // Truncate long error messages and make them more readable
-      let displayMsg = errorMsg;
-      if (errorMsg.includes('429') || errorMsg.includes('quota')) {
-        displayMsg = "API rate limit exceeded. Please wait a few minutes and try again.";
-      } else if (errorMsg.length > 100) {
-        displayMsg = errorMsg.substring(0, 100) + "...";
+      // Use console.warn to avoid Next.js error overlay in dev mode
+      console.warn('[Research Import]', errorMsg);
+
+      // Create user-friendly error messages
+      let displayMsg: string;
+      if (errorMsg.includes('429') || errorMsg.includes('quota') || errorMsg.includes('rate')) {
+        displayMsg = "AI service is temporarily busy. Please wait 2-3 minutes and try again.";
+      } else if (errorMsg.includes('transcript') || errorMsg.includes('captions')) {
+        displayMsg = "Could not get transcript from this video. It may not have captions enabled.";
+      } else if (errorMsg.includes('network') || errorMsg.includes('fetch')) {
+        displayMsg = "Network error. Please check your connection and try again.";
+      } else {
+        // Generic message for other errors
+        displayMsg = "Something went wrong. Please try again.";
       }
+
       toast({
         variant: "destructive",
         title: "Research Import Failed",
         description: displayMsg,
       });
-      throw e;
+      // Don't re-throw - we've handled the error with the toast
     } finally {
       setIsLoadingAI(false);
     }

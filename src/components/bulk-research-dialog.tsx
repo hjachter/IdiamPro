@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { X, Plus, FileText, Youtube, Type, Globe, Image as ImageIcon, FileArchive, Music, Video as VideoIcon, FolderOpen, Mic, Square, Pause, Play, Loader2, Upload, MessageSquare, RotateCcw, Send, ExternalLink } from 'lucide-react';
 import type { ExternalSourceInput, BulkResearchSources, DiarizedTranscript } from '@/types';
 import { useAudioRecorder } from '@/lib/use-audio-recorder';
-import { transcribeRecordingAction } from '@/app/actions';
+import { transcribeRecordingAction, getYoutubeTitleAction } from '@/app/actions';
 import { openExternalUrl } from '@/lib/electron-storage';
 
 // Type for stored recording data
@@ -70,6 +70,8 @@ export default function BulkResearchDialog({
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [playbackTime, setPlaybackTime] = useState<Record<string, number>>({});
   const audioRefs = useRef<Record<string, HTMLAudioElement | null>>({});
+  // Track which sources are fetching YouTube titles
+  const [fetchingTitle, setFetchingTitle] = useState<Record<string, boolean>>({});
 
   const audioRecorder = useAudioRecorder();
 
@@ -105,9 +107,48 @@ export default function BulkResearchDialog({
     });
   };
 
-  // Update source
+  // Update source - uses functional update to avoid stale closure issues
   const handleUpdateSource = (id: string, updates: Partial<SourceEntry>) => {
-    setSources(sources.map(s => s.id === id ? { ...s, ...updates } : s));
+    setSources(prev => prev.map(s => s.id === id ? { ...s, ...updates } : s));
+  };
+
+  // Handle YouTube URL change - auto-fetch title
+  const handleYoutubeUrlChange = async (id: string, url: string) => {
+    // Update URL immediately
+    handleUpdateSource(id, { url });
+
+    // Check if it looks like a valid YouTube URL
+    const isYoutubeUrl = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/v\/)/);
+    if (!isYoutubeUrl) return;
+
+    // Check current source name (use ref-like pattern to get latest state)
+    let hasExistingName = false;
+    setSources(prev => {
+      const source = prev.find(s => s.id === id);
+      hasExistingName = !!source?.sourceName;
+      return prev; // Don't modify, just read
+    });
+    if (hasExistingName) return;
+
+    // Fetch the title
+    setFetchingTitle(prev => ({ ...prev, [id]: true }));
+    try {
+      const title = await getYoutubeTitleAction(url);
+      if (title) {
+        // Only update if the source name is still empty (user might have typed one)
+        setSources(prev => {
+          const source = prev.find(s => s.id === id);
+          if (!source?.sourceName) {
+            return prev.map(s => s.id === id ? { ...s, sourceName: title } : s);
+          }
+          return prev;
+        });
+      }
+    } catch (error) {
+      console.warn('[YouTube] Failed to fetch title:', error);
+    } finally {
+      setFetchingTitle(prev => ({ ...prev, [id]: false }));
+    }
   };
 
   // Handle file upload
@@ -327,7 +368,8 @@ export default function BulkResearchDialog({
       setRecordingInputMode({});
       onOpenChange(false);
     } catch (error) {
-      console.error('Bulk import failed:', error);
+      // Error is handled by parent component's toast
+      console.warn('[Bulk Import] Failed:', error);
     } finally {
       setIsSubmitting(false);
     }
@@ -513,11 +555,16 @@ export default function BulkResearchDialog({
                         </p>
                         <div className="space-y-1">
                           <Label className="text-xs text-muted-foreground">YouTube URL</Label>
-                          <Input
-                            placeholder="https://www.youtube.com/watch?v=..."
-                            value={source.url || ''}
-                            onChange={(e) => handleUpdateSource(source.id, { url: e.target.value })}
-                          />
+                          <div className="relative">
+                            <Input
+                              placeholder="https://www.youtube.com/watch?v=..."
+                              value={source.url || ''}
+                              onChange={(e) => handleYoutubeUrlChange(source.id, e.target.value)}
+                            />
+                            {fetchingTitle[source.id] && (
+                              <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
+                            )}
+                          </div>
                         </div>
                       </div>
                     )}
@@ -946,6 +993,19 @@ export default function BulkResearchDialog({
           </div>
         </div>
 
+        {/* Processing status indicator */}
+        {isSubmitting && (
+          <div className="flex items-center gap-3 p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800">
+            <Loader2 className="h-5 w-5 animate-spin text-blue-600 dark:text-blue-400 flex-shrink-0" />
+            <div className="text-sm">
+              <p className="font-medium text-blue-800 dark:text-blue-200">Synthesizing sources...</p>
+              <p className="text-blue-600 dark:text-blue-400 text-xs">
+                Extracting content, analyzing relationships, and generating outline. This may take 1-2 minutes.
+              </p>
+            </div>
+          </div>
+        )}
+
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
             Cancel
@@ -954,7 +1014,14 @@ export default function BulkResearchDialog({
             onClick={handleSubmit}
             disabled={isSubmitting || sources.filter(isSourceValid).length === 0}
           >
-            {isSubmitting ? 'Processing...' : `Synthesize ${sources.filter(isSourceValid).length} Source${sources.filter(isSourceValid).length !== 1 ? 's' : ''}`}
+            {isSubmitting ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              `Synthesize ${sources.filter(isSourceValid).length} Source${sources.filter(isSourceValid).length !== 1 ? 's' : ''}`
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>

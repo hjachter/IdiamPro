@@ -77,6 +77,39 @@ export interface YouTubeExtractionResult {
 }
 
 /**
+ * Get just the title of a YouTube video (lightweight, no transcript fetch)
+ */
+export async function getYoutubeTitle(url: string): Promise<string | null> {
+  // Extract video ID inline to avoid dependency on internal function
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/v\/)([^&\s?]+)/,
+    /^([a-zA-Z0-9_-]{11})$/, // Just the video ID
+  ];
+
+  let videoId: string | null = null;
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match && match[1]) {
+      videoId = match[1];
+      break;
+    }
+  }
+  if (!videoId) return null;
+
+  try {
+    const oembedUrl = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`;
+    const response = await fetch(oembedUrl);
+    if (response.ok) {
+      const data = await response.json();
+      return data.title || null;
+    }
+  } catch (error) {
+    console.warn('Could not fetch YouTube title:', error);
+  }
+  return null;
+}
+
+/**
  * Extract transcript and metadata from a YouTube video URL
  */
 export async function extractYoutubeTranscript(url: string): Promise<YouTubeExtractionResult> {

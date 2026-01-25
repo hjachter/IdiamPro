@@ -5,15 +5,18 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Folder, Info, Smartphone } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Folder, Info, Smartphone, Cpu, Cloud, Loader2, CheckCircle, XCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { storeDirectoryHandle, getDirectoryHandle, verifyDirectoryPermission } from '@/lib/file-storage';
 import { isElectron, electronSelectDirectory, electronGetStoredDirectoryPath } from '@/lib/electron-storage';
+import { checkOllamaStatusAction } from '@/app/actions';
+import type { AIProvider } from '@/types';
 
-// Check if running in Capacitor native app
+// Check if running in Capacitor native app (but NOT Electron)
 function isCapacitor(): boolean {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return typeof window !== 'undefined' && !!(window as any).Capacitor;
+  return typeof window !== 'undefined' && !!(window as any).Capacitor && !isElectron();
 }
 
 interface SettingsDialogProps {
@@ -26,6 +29,16 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
   const [dataFolder, setDataFolder] = useState<string>('Browser Storage (Default)');
   const [confirmDelete, setConfirmDelete] = useState<boolean>(true);
   const { toast } = useToast();
+
+  // Local AI (Ollama) state
+  const [aiProvider, setAiProvider] = useState<AIProvider>('cloud');
+  const [ollamaStatus, setOllamaStatus] = useState<{
+    checking: boolean;
+    available: boolean;
+    models: string[];
+    recommendedModel: string | null;
+  }>({ checking: false, available: false, models: [], recommendedModel: null });
+  const [selectedModel, setSelectedModel] = useState<string>('');
 
   // Load current folder and settings on mount
   useEffect(() => {
@@ -61,8 +74,54 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
       setConfirmDelete(savedConfirmDelete === 'true');
     }
 
+    // Load local AI settings
+    const savedAiProvider = localStorage.getItem('aiProvider') as AIProvider | null;
+    if (savedAiProvider) {
+      setAiProvider(savedAiProvider);
+    }
+    const savedModel = localStorage.getItem('ollamaModel');
+    if (savedModel) {
+      setSelectedModel(savedModel);
+    }
+
     loadCurrentFolder();
   }, []);
+
+  // Check Ollama status when dialog opens
+  useEffect(() => {
+    if (open) {
+      checkOllamaStatus();
+    }
+  }, [open]);
+
+  const checkOllamaStatus = async () => {
+    setOllamaStatus(prev => ({ ...prev, checking: true }));
+    try {
+      const status = await checkOllamaStatusAction();
+      setOllamaStatus({
+        checking: false,
+        available: status.available,
+        models: status.models.map(m => m.name),
+        recommendedModel: status.recommendedModel,
+      });
+      // Auto-select recommended model if none selected
+      if (status.recommendedModel && !selectedModel) {
+        setSelectedModel(status.recommendedModel);
+      }
+    } catch (error) {
+      setOllamaStatus({ checking: false, available: false, models: [], recommendedModel: null });
+    }
+  };
+
+  const handleAiProviderChange = (value: AIProvider) => {
+    setAiProvider(value);
+    localStorage.setItem('aiProvider', value);
+  };
+
+  const handleModelChange = (value: string) => {
+    setSelectedModel(value);
+    localStorage.setItem('ollamaModel', value);
+  };
 
   const handleConfirmDeleteChange = (checked: boolean) => {
     setConfirmDelete(checked);
@@ -220,19 +279,95 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
             </p>
           </div>
 
-          {/* Future Settings Sections */}
-          <div className="space-y-2 opacity-50">
-            <h3 className="text-sm font-medium">More Settings Coming Soon</h3>
-            <p className="text-xs text-muted-foreground">
-              Additional settings will be available in future updates:
-            </p>
-            <ul className="text-xs text-muted-foreground list-disc list-inside space-y-1">
-              <li>Auto-save intervals</li>
-              <li>Theme customization</li>
-              <li>Keyboard shortcuts</li>
-              <li>Export preferences</li>
-            </ul>
-          </div>
+          {/* Local AI (Ollama) Section - Desktop only, not available on iOS */}
+          {!isCapacitor() && (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-medium flex items-center gap-2">
+                  <Cpu className="h-4 w-4" />
+                  AI Provider
+                </h3>
+                {ollamaStatus.checking ? (
+                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                ) : ollamaStatus.available ? (
+                  <span className="text-xs text-green-600 dark:text-green-400 flex items-center gap-1">
+                    <CheckCircle className="h-3 w-3" />
+                    Ollama running
+                  </span>
+                ) : (
+                  <span className="text-xs text-muted-foreground flex items-center gap-1">
+                    <XCircle className="h-3 w-3" />
+                    Ollama not detected
+                  </span>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm text-muted-foreground">AI Mode</Label>
+                <Select value={aiProvider} onValueChange={handleAiProviderChange}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="cloud">
+                      <div className="flex items-center gap-2">
+                        <Cloud className="h-4 w-4" />
+                        <span>Cloud AI (Gemini)</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="local" disabled={!ollamaStatus.available}>
+                      <div className="flex items-center gap-2">
+                        <Cpu className="h-4 w-4" />
+                        <span>Local AI (Ollama)</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="auto">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs">⚡</span>
+                        <span>Auto (fallback to local on rate limit)</span>
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Model selection when local AI is enabled */}
+              {(aiProvider === 'local' || aiProvider === 'auto') && ollamaStatus.available && (
+                <div className="space-y-2">
+                  <Label className="text-sm text-muted-foreground">Local Model</Label>
+                  <Select value={selectedModel} onValueChange={handleModelChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a model..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ollamaStatus.models.map(model => (
+                        <SelectItem key={model} value={model}>
+                          {model}
+                          {model === ollamaStatus.recommendedModel && (
+                            <span className="ml-2 text-xs text-muted-foreground">(recommended)</span>
+                          )}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
+              <p className="text-xs text-muted-foreground flex items-start gap-1">
+                <Info className="h-3 w-3 mt-0.5 flex-shrink-0" />
+                <span>
+                  {aiProvider === 'cloud' && 'Uses Google Gemini for AI features. Requires internet.'}
+                  {aiProvider === 'local' && 'Uses Ollama for all AI features. No rate limits, works offline.'}
+                  {aiProvider === 'auto' && 'Uses cloud AI normally, falls back to local when rate limited.'}
+                  {!ollamaStatus.available && aiProvider !== 'cloud' && (
+                    <span className="block mt-1">
+                      Install Ollama from <strong>ollama.com</strong> and run <code className="bg-muted px-1 rounded">ollama pull llama3.2</code>
+                    </span>
+                  )}
+                </span>
+              </p>
+            </div>
+          )}
         </div>
 
         <div className="flex justify-end gap-2">

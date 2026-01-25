@@ -92,6 +92,15 @@ export interface AIConfig {
   features: AIFeatureFlags;
 }
 
+// Local AI (Ollama) settings
+export type AIProvider = 'cloud' | 'local' | 'auto';
+
+export interface LocalAISettings {
+  provider: AIProvider;           // 'cloud' = always use Gemini, 'local' = always use Ollama, 'auto' = fallback to local on rate limit
+  preferredModel?: string;        // e.g., 'llama3.2', 'mistral', etc.
+  ollamaEndpoint?: string;        // Custom endpoint if not localhost:11434
+}
+
 // Context for node content generation
 export interface NodeGenerationContext {
   nodeId: string;
@@ -149,6 +158,7 @@ export interface BulkResearchSources {
   sources: ExternalSourceInput[];
   includeExistingContent: boolean;  // Whether to include current outline content in synthesis
   outlineName?: string;  // Optional name for regenerated outline
+  useBulletMode?: boolean;  // Use content-first bullet extraction approach
 }
 
 export interface BulkResearchResult {
