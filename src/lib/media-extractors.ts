@@ -3,8 +3,10 @@
 import { YoutubeTranscript } from 'youtube-transcript-plus';
 import { ai } from '@/ai/genkit';
 
+// Import pdf-parse lib directly to avoid the debug test code in index.js
+// The main index.js runs a test parse when module.parent is undefined (which happens in webpack)
 // @ts-ignore - pdf-parse doesn't have proper ESM types
-const pdfParse = require('pdf-parse');
+const pdfParse = require('pdf-parse/lib/pdf-parse');
 
 /**
  * Extract text content from a PDF URL

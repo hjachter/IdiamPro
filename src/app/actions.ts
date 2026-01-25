@@ -26,6 +26,7 @@ import type {
   Outline,
   DiarizedTranscript,
   TranscriptionOptions,
+  MergeStrategy,
 } from '@/types';
 import { parseMarkdownToNodes } from '@/lib/outline-utils';
 import { v4 as uuidv4 } from 'uuid';
@@ -567,12 +568,23 @@ interface ContentBullet {
 }
 
 /**
- * Extract atomic bullets from all sources
- * This treats all information as independent facts to be organized later
+ * Maximum characters per chunk for bullet extraction
+ * Gemini 2.0 Flash can handle ~1M tokens, so we use larger chunks to reduce API calls
+ * 50k chars ≈ 12,500 tokens, well within limits but keeps extraction focused
  */
-async function extractBulletsFromSources(
-  extractedSources: Array<{ content: string; description: string; title?: string }>
+const BULLET_EXTRACTION_CHUNK_SIZE = 50000;
+
+/**
+ * Extract bullets from a single content chunk
+ */
+async function extractBulletsFromChunk(
+  content: string,
+  sourceDescription: string,
+  chunkIndex: number,
+  totalChunks: number
 ): Promise<ContentBullet[]> {
+  const chunkInfo = totalChunks > 1 ? ` (Part ${chunkIndex + 1}/${totalChunks})` : '';
+
   const extractionPrompt = `You are extracting ATOMIC FACTS from source content. Each fact should be:
 - Self-contained and understandable on its own
 - A single topic with its key information
@@ -585,18 +597,19 @@ OUTPUT FORMAT (JSON array):
 ]
 
 GUIDELINES:
-- Extract 10-30 bullets per source depending on content density
+- Extract ALL significant facts, concepts, and information from this content
+- For books/long documents: extract 50-80 bullets to capture key ideas thoroughly
+- For shorter content: extract 20-40 bullets
 - Topic names should be 2-6 words
 - Content should be 1-3 sentences capturing the essence
 - Include specific data, numbers, names, dates when present
 - Don't editorialize - extract what's actually stated
-- If multiple sources discuss the same topic, extract each perspective separately
+- Capture chapter themes, key arguments, examples, and actionable advice
 
-SOURCES TO EXTRACT FROM:
-${extractedSources.map((s, idx) => `
-=== SOURCE ${idx + 1}: ${s.description} ===
-${s.content.substring(0, 15000)}
-`).join('\n')}
+SOURCE: ${sourceDescription}${chunkInfo}
+===
+${content}
+===
 
 Extract the bullets (respond with ONLY the JSON array):`;
 
@@ -606,7 +619,7 @@ Extract the bullets (respond with ONLY the JSON array):`;
       prompt: extractionPrompt,
       system: 'You extract atomic facts from text. Output ONLY valid JSON array.',
       temperature: 0.5,
-      maxTokens: 4000,
+      maxTokens: 6000,
     });
     return { text: ollamaResult };
   };
@@ -617,25 +630,23 @@ Extract the bullets (respond with ONLY the JSON array):`;
       prompt: extractionPrompt,
     }),
     1,
-    'bullet extraction',
+    `bullet extraction chunk ${chunkIndex + 1}`,
     ollamaBulletFallback
   );
 
   // Parse the JSON response
   try {
-    // Extract JSON from response (handle markdown code blocks)
     let jsonStr = text.trim();
     if (jsonStr.startsWith('```')) {
       jsonStr = jsonStr.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
     }
     const bullets: ContentBullet[] = JSON.parse(jsonStr);
-    console.log(`Extracted ${bullets.length} bullets from sources`);
+    console.log(`[Chunk ${chunkIndex + 1}/${totalChunks}] Extracted ${bullets.length} bullets`);
     return bullets;
   } catch (parseError) {
-    console.warn('Failed to parse bullets JSON, falling back to text extraction:', parseError);
-    // Fallback: try to extract topic: content pairs from text
+    console.warn(`[Chunk ${chunkIndex + 1}] Failed to parse JSON, using text fallback:`, parseError);
     const lines = text.split('\n').filter(l => l.includes(':'));
-    return lines.slice(0, 30).map(line => {
+    return lines.slice(0, 50).map(line => {
       const colonIdx = line.indexOf(':');
       return {
         topic: line.substring(0, colonIdx).replace(/[-*"]/g, '').trim(),
@@ -643,6 +654,89 @@ Extract the bullets (respond with ONLY the JSON array):`;
       };
     });
   }
+}
+
+/**
+ * Split content into chunks at natural boundaries (paragraphs, sections)
+ */
+function splitContentIntoChunks(content: string, maxChunkSize: number): string[] {
+  if (content.length <= maxChunkSize) {
+    return [content];
+  }
+
+  const chunks: string[] = [];
+  let remaining = content;
+
+  while (remaining.length > 0) {
+    if (remaining.length <= maxChunkSize) {
+      chunks.push(remaining);
+      break;
+    }
+
+    // Find a good break point (paragraph boundary) near the max size
+    let breakPoint = maxChunkSize;
+
+    // Look for paragraph breaks (double newline) before the limit
+    const doubleNewline = remaining.lastIndexOf('\n\n', maxChunkSize);
+    if (doubleNewline > maxChunkSize * 0.7) {
+      breakPoint = doubleNewline;
+    } else {
+      // Fall back to single newline
+      const singleNewline = remaining.lastIndexOf('\n', maxChunkSize);
+      if (singleNewline > maxChunkSize * 0.7) {
+        breakPoint = singleNewline;
+      }
+    }
+
+    chunks.push(remaining.substring(0, breakPoint).trim());
+    remaining = remaining.substring(breakPoint).trim();
+  }
+
+  return chunks;
+}
+
+/**
+ * Extract atomic bullets from all sources
+ * This treats all information as independent facts to be organized later
+ * For long content (books, etc.), processes in chunks to capture full detail
+ */
+async function extractBulletsFromSources(
+  extractedSources: Array<{ content: string; description: string; title?: string }>
+): Promise<ContentBullet[]> {
+  const allBullets: ContentBullet[] = [];
+
+  for (const source of extractedSources) {
+    const chunks = splitContentIntoChunks(source.content, BULLET_EXTRACTION_CHUNK_SIZE);
+    console.log(`[Bullet] Source "${source.description}": ${source.content.length} chars → ${chunks.length} chunk(s)`);
+
+    for (let i = 0; i < chunks.length; i++) {
+      // Add delay between chunks to avoid rate limits
+      // Gemini free tier: 15 RPM, so we need ~4s between calls to stay safe
+      if (i > 0) {
+        const delayMs = 5000; // 5 seconds between chunks
+        console.log(`[Bullet] Waiting ${delayMs/1000}s between chunks (rate limit protection)...`);
+        await new Promise(resolve => setTimeout(resolve, delayMs));
+      }
+
+      const chunkBullets = await extractBulletsFromChunk(
+        chunks[i],
+        source.title || source.description,
+        i,
+        chunks.length
+      );
+
+      // Add source attribution for multi-source scenarios
+      const bulletsWithSource = chunkBullets.map(b => ({
+        ...b,
+        source: source.title || source.description,
+      }));
+
+      allBullets.push(...bulletsWithSource);
+    }
+  }
+
+  console.log(`[Bullet] Total extracted: ${allBullets.length} bullets from ${extractedSources.length} source(s)`);
+  return allBullets;
 }
 
 /**
@@ -670,18 +764,100 @@ function extractBulletsFromOutline(outlineContent: string): ContentBullet[] {
 }
 
 /**
+ * Auto-detect the best merge strategy based on source analysis
+ * Returns: 'synthesize' | 'separate' | 'architecture'
+ */
+async function detectMergeStrategy(
+  sources: Array<{ content: string; description: string; title?: string }>,
+  outlineName?: string,
+  existingContent?: string
+): Promise<{ strategy: MergeStrategy; hasUserContext: boolean }> {
+  // Single source always synthesizes
+  if (sources.length <= 1) {
+    return { strategy: 'synthesize', hasUserContext: false };
+  }
+
+  // Check if user provided architecture context in outline name or existing content
+  const contextHints = [outlineName, existingContent].filter(Boolean).join(' ').toLowerCase();
+  const architectureKeywords = ['architecture', 'system', 'suite', 'integration', 'platform', 'ecosystem', 'components', 'work together', 'combined'];
+  const hasUserContext = architectureKeywords.some(kw => contextHints.includes(kw));
+
+  // Build a summary of sources for analysis
+  const sourceSummaries = sources.map((s, i) => {
+    const title = s.title || s.description || `Source ${i + 1}`;
+    const preview = s.content.substring(0, 500);
+    return `Source ${i + 1}: "${title}"\nPreview: ${preview}...`;
+  }).join('\n\n');
+
+  const detectionPrompt = `Analyze these ${sources.length} sources and determine their relationship:
+
+${sourceSummaries}
+
+QUESTION: Are these sources about:
+A) The SAME topic/subject (just different perspectives or articles about one thing)
+B) DIFFERENT unrelated topics/products (completely separate subjects)
+C) RELATED components that work together (different products/parts of a larger system)
+
+Respond with ONLY one letter: A, B, or C`;
+
+  try {
+    const ollamaDetectionFallback = async () => {
+      const result = await generateWithOllama({
+        prompt: detectionPrompt,
+        system: 'You analyze content relationships. Respond with only A, B, or C.',
+        temperature: 0.3,
+        maxTokens: 10,
+      });
+      return { text: result };
+    };
+
+    const { text: response } = await withRateLimitRetry(
+      () => ai.generate({
+        model: 'googleai/gemini-2.0-flash',
+        prompt: detectionPrompt,
+      }),
+      1,
+      'strategy detection',
+      ollamaDetectionFallback
+    );
+
+    const answer = response.trim().toUpperCase().charAt(0);
+    console.log(`[Bullet] Auto-detected relationship: ${answer} (hasUserContext: ${hasUserContext})`);
+
+    if (answer === 'A') {
+      return { strategy: 'synthesize', hasUserContext };
+    } else if (answer === 'B') {
+      // Different topics - use separate, or architecture if user provided context
+      return { strategy: hasUserContext ? 'architecture' : 'separate', hasUserContext };
+    } else if (answer === 'C') {
+      // Related components - architecture mode
+      return { strategy: 'architecture', hasUserContext };
+    }
+  } catch (error) {
+    console.warn('[Bullet] Strategy detection failed, defaulting to synthesize:', error);
+  }
+
+  // Default to synthesize if detection fails
+  return { strategy: 'synthesize', hasUserContext: false };
+}
+
+/**
  * Organize a flat list of bullets into a hierarchical outline
  * This is the key function that creates structure from atomic facts
  */
 async function organizeBulletsIntoOutline(
   bullets: ContentBullet[],
-  outlineName: string
+  outlineName: string,
+  mergeStrategy: MergeStrategy = 'synthesize'
 ): Promise<{ rootNodeId: string; nodes: Record<string, any> }> {
 
   // Format bullets for the organization prompt (numbered for AI reference only)
   const bulletList = bullets.map((b, idx) =>
-    `#${idx + 1}. ${b.topic}: ${b.content}`
+    `#${idx + 1}. [${b.topic}] ${b.content}`
   ).join('\n');
+
+  // Get unique sources for separate/architecture strategies
+  const uniqueSources = [...new Set(bullets.map(b => b.topic))];
 
   // Dynamic chapter range based on content complexity (bullet count)
   const bulletCount = bullets.length;
@@ -692,11 +868,92 @@ async function organizeBulletsIntoOutline(
     chapterGuidance = 'For this content volume, aim for 5-8 chapters.';
   } else if (bulletCount <= 100) {
     chapterGuidance = 'For this content volume, aim for 7-12 chapters.';
+  } else if (bulletCount <= 200) {
+    chapterGuidance = 'For this substantial content (book-length), create 12-18 chapters. Each chapter should cover a major theme with 3-6 subsections.';
   } else {
-    chapterGuidance = 'For this complex content, create 10-15 chapters to properly cover all distinct topics.';
+    chapterGuidance = 'For this extensive content, create 15-25 chapters organized by major themes. Group related bullets into cohesive chapters with multiple subsections each.';
   }
 
-  const organizationPrompt = `You are organizing facts from MULTIPLE SOURCES into ONE UNIFIED OUTLINE.
+  // Generate different prompts based on merge strategy
+  let organizationPrompt: string;
+
+  if (mergeStrategy === 'separate') {
+    // SEPARATE: Keep each source as its own section
+    organizationPrompt = `You are organizing facts from MULTIPLE DISTINCT SOURCES into an outline with SEPARATE SECTIONS for each source.
+
+IMPORTANT: These sources are about DIFFERENT topics or products. Keep them SEPARATE - do NOT merge content across sources!
+
+SOURCES IDENTIFIED: ${uniqueSources.join(', ')}
+
+FACTS TO ORGANIZE (${bulletCount} total):
+${bulletList}
+
+STRUCTURE REQUIREMENTS:
+- Create ONE top-level chapter for EACH source (${uniqueSources.length} total)
+- Name each chapter after the source/product it covers
+- Within each source chapter, organize that source's content into logical subtopics
+- Do NOT mix content from different sources
+
+OUTPUT FORMAT:
+- [Source 1 Name]: Brief overview of this source.
+  - Subtopic A: Content from source 1 only.
+  - Subtopic B: More content from source 1.
+- [Source 2 Name]: Brief overview of this source.
+  - Subtopic A: Content from source 2 only.
+  - Subtopic B: More content from source 2.
+
+ABSOLUTE RULES:
+- Each top-level chapter = ONE source
+- Content stays within its source section
+- Each chapter has 2+ subtopics
+- Write flowing prose, not bullet lists
+
+Generate the separated outline:`;
+
+  } else if (mergeStrategy === 'architecture') {
+    // ARCHITECTURE: Introduction + separate product sections with cross-references
+    organizationPrompt = `You are organizing facts about RELATED PRODUCTS/COMPONENTS that work together as a system.
+
+SOURCES (products/components): ${uniqueSources.join(', ')}
+
+FACTS TO ORGANIZE (${bulletCount} total):
+${bulletList}
+
+STRUCTURE REQUIREMENTS:
+1. START with an "Overview" or "System Architecture" chapter that:
+   - Explains how these products/components relate to each other
+   - Describes the overall system or workflow
+   - Highlights integration points and dependencies
+
+2. Then create ONE chapter for EACH product/component (${uniqueSources.length} total)
+   - Name each chapter after the product/component
+   - Within each, organize into logical subtopics (features, specs, usage, etc.)
+   - Include cross-references where relevant (e.g., "integrates with [Other Product]'s API")
+
+3. Optionally end with "Integration" or "Workflow" chapter if there's significant cross-product content
+
+OUTPUT FORMAT:
+- System Overview: How these components work together as a unified solution.
+  - Architecture: High-level view of component relationships.
+  - Integration Points: Where components connect.
+- [Product 1 Name]: Overview of this component's role.
+  - Features: What it does.
+  - Specifications: Technical details.
+- [Product 2 Name]: Overview of this component's role.
+  - Features: What it does.
+  - Specifications: Technical details.
+
+ABSOLUTE RULES:
+- First chapter MUST be an overview explaining the system/relationships
+- Each product gets its own section
+- Include cross-references where products interact
+- Write flowing prose, not bullet lists
+
+Generate the product architecture outline:`;
+
+  } else {
+    // SYNTHESIZE (default): Deep merge into unified outline
+    organizationPrompt = `You are organizing facts from MULTIPLE SOURCES into ONE UNIFIED OUTLINE.
 
 IMPORTANT: These facts come from different sources about the SAME TOPIC. Your job is to MERGE them into a single coherent outline - NOT to create separate sections for each source!
 
@@ -709,7 +966,7 @@ Create as many chapters as needed to cover DISTINCT topics - but NEVER create du
 
 CRITICAL RULES - NO DUPLICATES:
 1. Each theme appears ONCE - merge all facts about that theme into ONE chapter
-2. Facts #1-30 and facts #31-60 might both discuss "setup" - put them ALL in ONE "Setup" chapter
+2. Facts from different sources about the same topic go in the SAME chapter
 3. NEVER create "Introduction from Source 1" and "Introduction from Source 2" - just ONE "Introduction"
 4. If two chapter titles could be merged (e.g., "Features" and "Capabilities"), MERGE THEM
 
@@ -717,8 +974,6 @@ THINK OF IT THIS WAY:
 - You're writing a Wikipedia article, not a collection of summaries
 - A reader should NOT be able to tell how many sources were used
 - Redundant information from different sources should be MERGED, not repeated
-- Complex topics (fusion reactors, software architecture) legitimately need many chapters
-- Simple topics (a product review) need fewer chapters
 
 OUTPUT FORMAT:
 - Chapter Title: Synthesized overview combining facts from ALL sources.
@@ -734,14 +989,17 @@ ABSOLUTE RULES:
 BEFORE OUTPUTTING: Review your chapter titles. If ANY two could be merged, MERGE THEM.
 
 Generate the unified outline:`;
+  }
 
   // Ollama fallback for organization
+  // Use higher token limit for book-length content
+  const ollamaMaxTokens = bulletCount > 100 ? 8000 : 4000;
   const ollamaOrgFallback = async () => {
     const ollamaResult = await generateWithOllama({
       prompt: organizationPrompt,
-      system: 'You organize information into clear hierarchical outlines.',
+      system: 'You organize information into clear hierarchical outlines with detailed content for each section.',
       temperature: 0.7,
-      maxTokens: 4000,
+      maxTokens: ollamaMaxTokens,
     });
     return { outline: ollamaResult };
   };
@@ -956,9 +1214,33 @@ export async function bulletBasedResearchAction(
     console.log('[Bullet] Waiting before organization step...');
     await new Promise(resolve => setTimeout(resolve, 3000));
 
-    // Step 4: Organize all bullets into hierarchical outline
-    console.log('[Bullet] Organizing bullets into outline...');
-    const { rootNodeId, nodes } = await organizeBulletsIntoOutline(allBullets, outlineName);
+    // Step 4: Auto-detect merge strategy (unless manually specified)
+    let strategy: MergeStrategy;
+    let hasUserContext = false;
+
+    if (input.mergeStrategy) {
+      // User manually specified a strategy
+      strategy = input.mergeStrategy;
+      hasUserContext = true;
+      console.log(`[Bullet] Using manual strategy: ${strategy}`);
+    } else {
+      // Auto-detect based on source analysis
+      console.log('[Bullet] Auto-detecting merge strategy...');
+      const detection = await detectMergeStrategy(extractedSources, outlineName, existingOutlineContent);
+      strategy = detection.strategy;
+      hasUserContext = detection.hasUserContext;
+      console.log(`[Bullet] Auto-detected strategy: ${strategy} (hasUserContext: ${hasUserContext})`);
+    }
+
+    // Step 5: Organize all bullets into hierarchical outline
+    console.log(`[Bullet] Organizing bullets into outline (strategy: ${strategy})...`);
+    const { rootNodeId, nodes } = await organizeBulletsIntoOutline(allBullets, outlineName, strategy);
+
+    // Step 6: For 'separate' strategy without user context, add stub intro
+    if (strategy === 'separate' && !hasUserContext && !input.includeExistingContent) {
+      const stubIntro = `[This outline contains information about multiple distinct topics. Consider adding an introduction here that explains how these topics relate to your goals, or leave them as separate reference sections.]`;
+      nodes[rootNodeId].content = stubIntro;
+    }
 
     // Generate root summary
     if (!input.includeExistingContent) {

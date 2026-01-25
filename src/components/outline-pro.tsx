@@ -14,7 +14,7 @@ import { generateOutlineAction, expandContentAction, generateContentForNodeActio
 import { useAI } from '@/contexts/ai-context';
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction } from './ui/alert-dialog';
 import { Button } from './ui/button';
-import { loadStorageData, saveAllOutlines, migrateToFileSystem, type MigrationConflict, type ConflictResolution } from '@/lib/storage-manager';
+import { loadStorageData, saveAllOutlines, migrateToFileSystem, deleteOutline, type MigrationConflict, type ConflictResolution } from '@/lib/storage-manager';
 import CommandPalette from './command-palette';
 import EmptyState from './empty-state';
 import TemplatesDialog from './templates-dialog';
@@ -859,12 +859,18 @@ export default function OutlinePro() {
 
   // FIXED: handleDeleteOutline uses functional update pattern
   // Now accepts optional outlineId parameter for bulk delete support
+  // Also deletes the file from disk storage
   const handleDeleteOutline = useCallback((outlineId?: string) => {
     const idToDelete = outlineId || currentOutlineId;
 
     setOutlines(currentOutlines => {
       const outlineToDelete = currentOutlines.find(o => o.id === idToDelete);
       if (!outlineToDelete || outlineToDelete.isGuide) return currentOutlines;
+
+      // Delete from disk storage (async, but we don't need to wait)
+      deleteOutline(outlineToDelete).catch(error => {
+        console.error('Failed to delete outline file:', error);
+      });
 
       const nextOutlines = currentOutlines.filter(o => o.id !== idToDelete);
 

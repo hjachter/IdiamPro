@@ -71,7 +71,21 @@
       "Bash(# Kill all related processes pkill -9 -f \"\"Electron\"\" pkill -9 -f \"\"next dev\"\" pkill -9 -f \"\"node.*9002\"\" lsof -ti:9002)",
       "Bash(xargs kill -9 echo \"All processes killed. Ready for fresh start.\")",
       "Bash(npm ls:*)",
-      "WebFetch(domain:ai.google.dev)"
+      "WebFetch(domain:ai.google.dev)",
+      "Bash(for f in \"/Users/howardjachter/Library/Mobile Documents/com~apple~CloudDocs/Aptometrix.idm\" \"/Users/howardjachter/Library/Mobile Documents/com~apple~CloudDocs/Notes.idm\" \"/Users/howardjachter/Library/Mobile Documents/com~apple~CloudDocs/Tutorial-Plus.idm\")",
+      "Bash(do)",
+      "Bash(if grep -q '\"\"sheets\"\":' \"$f\")",
+      "Bash(then)",
+      "Bash(echo:*)",
+      "Bash(fi)",
+      "Bash(claude --version:*)",
+      "WebFetch(domain:docs.excalidraw.com)",
+      "Bash(git rm:*)",
+      "Bash(git restore:*)",
+      "Bash(brew install:*)",
+      "Bash(sh:*)",
+      "Bash(/Applications/Ollama.app/Contents/Resources/ollama pull:*)",
+      "Bash(launchctl list:*)"
     ]
   }
 }

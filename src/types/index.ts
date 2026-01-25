@@ -153,12 +153,19 @@ export interface IngestPreview {
   rawOutlineData?: { rootNodeId: string; nodes: NodeMap };  // For applying changes
 }
 
+// Merge strategy for combining multiple sources
+export type MergeStrategy =
+  | 'synthesize'      // Deep merge - find connections, combine related content (default)
+  | 'separate'        // Keep each source as distinct section (unrelated topics)
+  | 'architecture';   // Product architecture - intro describing relationships + separate sections
+
 // Bulk research import (PREMIUM feature)
 export interface BulkResearchSources {
   sources: ExternalSourceInput[];
   includeExistingContent: boolean;  // Whether to include current outline content in synthesis
   outlineName?: string;  // Optional name for regenerated outline
   useBulletMode?: boolean;  // Use content-first bullet extraction approach
+  mergeStrategy?: MergeStrategy;  // How to organize multiple sources
 }
 
 export interface BulkResearchResult {

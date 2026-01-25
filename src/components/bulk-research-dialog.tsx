@@ -47,6 +47,54 @@ const SOURCE_TYPES = {
   audio: { label: 'Audio File', icon: Music, color: 'text-pink-500' },
 } as const;
 
+// Auto-detect source type from file extension/MIME type
+function detectFileType(file: File): ExternalSourceInput['type'] {
+  const ext = file.name.toLowerCase().split('.').pop() || '';
+  const mime = file.type.toLowerCase();
+
+  // PDF
+  if (ext === 'pdf' || mime === 'application/pdf') return 'pdf';
+
+  // Images
+  if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'].includes(ext) || mime.startsWith('image/')) return 'image';
+
+  // Audio
+  if (['mp3', 'wav', 'm4a', 'ogg', 'flac', 'aac', 'wma'].includes(ext) || mime.startsWith('audio/')) return 'audio';
+
+  // Video
+  if (['mp4', 'mov', 'avi', 'mkv', 'webm', 'wmv', 'flv'].includes(ext) || mime.startsWith('video/')) return 'video';
+
+  // Office documents
+  if (['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'].includes(ext)) return 'doc';
+
+  // Outline files
+  if (['idm', 'json'].includes(ext)) return 'outline';
+
+  // Text files
+  if (['txt', 'md', 'rtf', 'csv'].includes(ext) || mime.startsWith('text/')) return 'text';
+
+  // Default to doc for unknown
+  return 'doc';
+}
+
+// Auto-detect source type from URL
+function detectUrlType(url: string): ExternalSourceInput['type'] {
+  const urlLower = url.toLowerCase();
+
+  // YouTube
+  if (urlLower.match(/(?:youtube\.com\/watch|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/v\/)/)) {
+    return 'youtube';
+  }
+
+  // PDF URLs
+  if (urlLower.endsWith('.pdf') || urlLower.includes('.pdf?')) {
+    return 'pdf';
+  }
+
+  // Default to web
+  return 'web';
+}
+
 export default function BulkResearchDialog({
   open,
   onOpenChange,
@@ -110,6 +158,26 @@ export default function BulkResearchDialog({
   // Update source - uses functional update to avoid stale closure issues
   const handleUpdateSource = (id: string, updates: Partial<SourceEntry>) => {
     setSources(prev => prev.map(s => s.id === id ? { ...s, ...updates } : s));
+  };
+
+  // Handle smart URL input - auto-detect type from URL
+  const handleSmartUrlInput = async (id: string, url: string) => {
+    if (!url.trim()) return;
+
+    const detectedType = detectUrlType(url);
+    handleUpdateSource(id, { type: detectedType, url });
+
+    // If it's YouTube, fetch the title
+    if (detectedType === 'youtube') {
+      handleYoutubeUrlChange(id, url);
+    }
+  };
+
+  // Handle smart file upload - auto-detect type from file
+  const handleSmartFileUpload = async (id: string, file: File) => {
+    const detectedType = detectFileType(file);
+    handleUpdateSource(id, { type: detectedType });
+    handleFileUpload(id, file, detectedType);
   };
 
   // Handle YouTube URL change - auto-fetch title
@@ -359,6 +427,7 @@ export default function BulkResearchDialog({
         sources: validSources.map(({ id, sourceName, ...rest }) => rest),
         includeExistingContent: includeExisting,
         outlineName: outlineName.trim() || undefined,
+        // mergeStrategy is now auto-detected by the server
       });
 
       // Reset form
@@ -486,139 +555,145 @@ export default function BulkResearchDialog({
                   </div>
                 )}
 
-                {/* Source Type Selection */}
-                <div className="space-y-2">
-                  <Label className="text-xs text-muted-foreground">
-                    {isInitialSource ? 'What would you like to import?' : 'Source Type'}
-                  </Label>
-                  <Select
-                    value={source.type || ''}
-                    onValueChange={(type) => {
-                      handleUpdateSource(source.id, {
-                        type: type as any,
-                        // Clear previous content when changing type
-                        url: undefined,
-                        content: undefined,
-                        fileName: undefined,
-                      });
-                      // Reset recording input mode
-                      if (type === 'recording') {
-                        setRecordingInputMode(prev => ({ ...prev, [source.id]: 'paste' }));
-                      }
-                    }}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Choose source type..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Object.entries(SOURCE_TYPES).map(([key, config]) => (
-                        <SelectItem key={key} value={key}>
-                          <div className="flex items-center space-x-2">
-                            <config.icon className={`w-4 h-4 ${config.color}`} />
-                            <span>{config.label}</span>
+                {/* Smart Input Area (when no type selected) */}
+                {!source.type && (
+                  <div className="space-y-4">
+                    {/* Unified Smart Input - handles both files and URLs */}
+                    <div className="space-y-2">
+                      <div className="relative border-2 border-dashed rounded-lg hover:border-primary/50 hover:bg-muted/30 transition-colors">
+                        {/* Hidden file input */}
+                        <input
+                          type="file"
+                          id={`file-input-${source.id}`}
+                          accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.md,.jpg,.jpeg,.png,.gif,.webp,.mp3,.wav,.m4a,.mp4,.mov,.avi,.idm,.json"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) handleSmartFileUpload(source.id, file);
+                          }}
+                          className="sr-only"
+                        />
+
+                        {/* Main input area */}
+                        <div className="p-4">
+                          <div className="flex items-center gap-3">
+                            {/* File upload button */}
+                            <label
+                              htmlFor={`file-input-${source.id}`}
+                              className="flex-shrink-0 p-3 rounded-lg bg-muted hover:bg-muted/80 cursor-pointer transition-colors"
+                              title="Click to select a file"
+                            >
+                              <Upload className="w-5 h-5 text-muted-foreground" />
+                            </label>
+
+                            {/* URL/text input */}
+                            <Input
+                              placeholder="Paste URL or click icon to select file"
+                              className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 px-0"
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  const value = (e.target as HTMLInputElement).value.trim();
+                                  if (value) handleSmartUrlInput(source.id, value);
+                                }
+                              }}
+                              onBlur={(e) => {
+                                const value = e.target.value.trim();
+                                if (value) handleSmartUrlInput(source.id, value);
+                              }}
+                            />
                           </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+
+                          <p className="text-xs text-muted-foreground mt-3 text-center">
+                            YouTube, web pages, PDFs — or upload any file
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 h-px bg-border" />
+                      <span className="text-xs text-muted-foreground">or enter manually</span>
+                      <div className="flex-1 h-px bg-border" />
+                    </div>
+
+                    {/* Manual type selection for special cases */}
+                    <div className="flex flex-wrap gap-2 justify-center">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          handleUpdateSource(source.id, { type: 'text' });
+                        }}
+                      >
+                        <Type className="w-3 h-3 mr-1.5 text-green-500" />
+                        Text / Notes
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          handleUpdateSource(source.id, { type: 'recording' });
+                          setRecordingInputMode(prev => ({ ...prev, [source.id]: 'paste' }));
+                        }}
+                      >
+                        <Mic className="w-3 h-3 mr-1.5 text-red-600" />
+                        Conversation
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Source Type Badge (when type is selected) */}
+                {source.type && (
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      {getSourceIcon(source.type as keyof typeof SOURCE_TYPES)}
+                      <span className="text-sm font-medium">{SOURCE_TYPES[source.type as keyof typeof SOURCE_TYPES]?.label}</span>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 text-xs text-muted-foreground"
+                      onClick={() => {
+                        handleUpdateSource(source.id, {
+                          type: undefined as any,
+                          url: undefined,
+                          content: undefined,
+                          fileName: undefined,
+                          sourceName: undefined,
+                        });
+                      }}
+                    >
+                      Change
+                    </Button>
+                  </div>
+                )}
 
                 {/* Source-specific input panels */}
                 {source.type && (
                   <div className="space-y-3 pt-2 border-t">
-                    {/* Source Name */}
-                    <div className="space-y-1">
-                      <Label className="text-xs text-muted-foreground">Source Name</Label>
-                      <Input
-                        placeholder={`e.g., "${source.type === 'youtube' ? 'Product Demo Video' : source.type === 'recording' ? 'Team Meeting Jan 14' : 'My Source'}"...`}
-                        value={source.sourceName || ''}
-                        onChange={(e) => handleUpdateSource(source.id, { sourceName: e.target.value })}
-                        className="h-8 text-sm"
-                      />
-                    </div>
-
-                    {/* YouTube */}
-                    {source.type === 'youtube' && (
-                      <div className="space-y-2">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          className="w-full gap-2"
-                          onClick={() => openExternalUrl('https://www.youtube.com')}
-                        >
-                          <ExternalLink className="h-4 w-4" />
-                          Open YouTube in Browser
-                        </Button>
-                        <p className="text-xs text-center text-muted-foreground">
-                          Find a video and copy the URL from the address bar
-                        </p>
-                        <div className="space-y-1">
-                          <Label className="text-xs text-muted-foreground">YouTube URL</Label>
-                          <div className="relative">
-                            <Input
-                              placeholder="https://www.youtube.com/watch?v=..."
-                              value={source.url || ''}
-                              onChange={(e) => handleYoutubeUrlChange(source.id, e.target.value)}
-                            />
-                            {fetchingTitle[source.id] && (
-                              <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
-                            )}
-                          </div>
-                        </div>
+                    {/* Show what was captured (for file/URL sources) */}
+                    {(source.url || source.fileName) && source.type !== 'text' && source.type !== 'recording' && (
+                      <div className="text-sm text-green-600 dark:text-green-400 flex items-center gap-2">
+                        <span>✓</span>
+                        <span className="truncate">
+                          {source.fileName || source.url}
+                        </span>
                       </div>
                     )}
 
-                    {/* Web Page */}
-                    {source.type === 'web' && (
-                      <div className="space-y-2">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          className="w-full gap-2"
-                          onClick={() => openExternalUrl('https://www.google.com')}
-                        >
-                          <ExternalLink className="h-4 w-4" />
-                          Open Browser
-                        </Button>
-                        <p className="text-xs text-center text-muted-foreground">
-                          Navigate to an article and copy the URL from the address bar
-                        </p>
-                        <div className="space-y-1">
-                          <Label className="text-xs text-muted-foreground">Web Page URL</Label>
-                          <Input
-                            placeholder="https://example.com/article"
-                            value={source.url || ''}
-                            onChange={(e) => handleUpdateSource(source.id, { url: e.target.value })}
-                          />
-                        </div>
-                      </div>
-                    )}
-
-                    {/* PDF */}
-                    {source.type === 'pdf' && (
-                      <div className="space-y-2">
-                        <Label className="text-xs text-muted-foreground">PDF URL or File</Label>
+                    {/* Source Name - only show if we have content */}
+                    {(source.url || source.content || source.fileName) && (
+                      <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">Source Name (optional)</Label>
                         <Input
-                          placeholder="https://example.com/document.pdf"
-                          value={source.url || ''}
-                          onChange={(e) => handleUpdateSource(source.id, { url: e.target.value })}
+                          placeholder={source.sourceName ? '' : 'Give this source a friendly name...'}
+                          value={source.sourceName || ''}
+                          onChange={(e) => handleUpdateSource(source.id, { sourceName: e.target.value })}
+                          className="h-8 text-sm"
                         />
-                        <div className="text-xs text-center text-muted-foreground">— or upload a file —</div>
-                        <Input
-                          type="file"
-                          accept=".pdf"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) handleFileUpload(source.id, file, 'pdf');
-                          }}
-                        />
-                        {source.fileName && (
-                          <div className="text-xs text-green-600 dark:text-green-400">
-                            ✓ Uploaded: {source.fileName}
-                          </div>
-                        )}
                       </div>
                     )}
 
@@ -882,7 +957,7 @@ export default function BulkResearchDialog({
                       </div>
                     )}
 
-                    {/* Text/Notes */}
+                    {/* Text/Notes - needs textarea for manual input */}
                     {source.type === 'text' && (
                       <div className="space-y-1">
                         <Label className="text-xs text-muted-foreground">Text Content</Label>
@@ -892,97 +967,6 @@ export default function BulkResearchDialog({
                           value={source.content || ''}
                           onChange={(e) => handleUpdateSource(source.id, { content: e.target.value })}
                         />
-                      </div>
-                    )}
-
-                    {/* Image (OCR) */}
-                    {source.type === 'image' && (
-                      <div className="space-y-2">
-                        <Label className="text-xs text-muted-foreground">Image File (text will be extracted via OCR)</Label>
-                        <Input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) handleFileUpload(source.id, file, 'image');
-                          }}
-                        />
-                        {source.fileName && (
-                          <div className="text-xs text-green-600 dark:text-green-400">✓ Uploaded: {source.fileName}</div>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Office Document */}
-                    {source.type === 'doc' && (
-                      <div className="space-y-2">
-                        <Label className="text-xs text-muted-foreground">Office Document</Label>
-                        <Input
-                          type="file"
-                          accept=".doc,.docx,.xls,.xlsx,.ppt,.pptx"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) handleFileUpload(source.id, file, 'doc');
-                          }}
-                        />
-                        {source.fileName && (
-                          <div className="text-xs text-green-600 dark:text-green-400">✓ Uploaded: {source.fileName}</div>
-                        )}
-                        <p className="text-xs text-muted-foreground">Supports Word, Excel, and PowerPoint files.</p>
-                      </div>
-                    )}
-
-                    {/* Video File */}
-                    {source.type === 'video' && (
-                      <div className="space-y-2">
-                        <Label className="text-xs text-muted-foreground">Video File (audio will be transcribed)</Label>
-                        <Input
-                          type="file"
-                          accept="video/*"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) handleFileUpload(source.id, file, 'video');
-                          }}
-                        />
-                        {source.fileName && (
-                          <div className="text-xs text-green-600 dark:text-green-400">✓ Uploaded: {source.fileName}</div>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Audio File (standalone, not conversation) */}
-                    {source.type === 'audio' && (
-                      <div className="space-y-2">
-                        <Label className="text-xs text-muted-foreground">Audio File</Label>
-                        <Input
-                          type="file"
-                          accept="audio/*"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) handleFileUpload(source.id, file, 'audio');
-                          }}
-                        />
-                        {source.fileName && (
-                          <div className="text-xs text-green-600 dark:text-green-400">✓ Uploaded: {source.fileName}</div>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Outline File */}
-                    {source.type === 'outline' && (
-                      <div className="space-y-2">
-                        <Label className="text-xs text-muted-foreground">Outline File (.idm or .json)</Label>
-                        <Input
-                          type="file"
-                          accept=".json,.idm"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) handleFileUpload(source.id, file, 'outline');
-                          }}
-                        />
-                        {source.fileName && (
-                          <div className="text-xs text-green-600 dark:text-green-400">✓ Uploaded: {source.fileName}</div>
-                        )}
                       </div>
                     )}
                   </div>
