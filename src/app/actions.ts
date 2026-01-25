@@ -683,31 +683,42 @@ async function organizeBulletsIntoOutline(
     `#${idx + 1}. ${b.topic}: ${b.content}`
   ).join('\n');
 
+  // Dynamic chapter range based on content complexity (bullet count)
+  const bulletCount = bullets.length;
+  let chapterGuidance: string;
+  if (bulletCount <= 30) {
+    chapterGuidance = 'For this content volume, aim for 4-6 chapters.';
+  } else if (bulletCount <= 60) {
+    chapterGuidance = 'For this content volume, aim for 5-8 chapters.';
+  } else if (bulletCount <= 100) {
+    chapterGuidance = 'For this content volume, aim for 7-12 chapters.';
+  } else {
+    chapterGuidance = 'For this complex content, create 10-15 chapters to properly cover all distinct topics.';
+  }
+
   const organizationPrompt = `You are organizing facts from MULTIPLE SOURCES into ONE UNIFIED OUTLINE.
 
 IMPORTANT: These facts come from different sources about the SAME TOPIC. Your job is to MERGE them into a single coherent outline - NOT to create separate sections for each source!
 
-FACTS TO ORGANIZE:
+FACTS TO ORGANIZE (${bulletCount} total):
 ${bulletList}
 
-CRITICAL REQUIREMENTS:
-1. Create EXACTLY 5-7 chapters total - no more!
-2. Each theme appears ONCE - merge all facts about that theme into ONE chapter
-3. Facts #1-30 and facts #31-60 might both discuss "setup" - put them ALL in ONE "Setup" chapter
-4. NEVER create "Introduction from Source 1" and "Introduction from Source 2" - just ONE "Introduction"
+CHAPTER COUNT GUIDANCE:
+${chapterGuidance}
+Create as many chapters as needed to cover DISTINCT topics - but NEVER create duplicate or overlapping chapters.
+
+CRITICAL RULES - NO DUPLICATES:
+1. Each theme appears ONCE - merge all facts about that theme into ONE chapter
+2. Facts #1-30 and facts #31-60 might both discuss "setup" - put them ALL in ONE "Setup" chapter
+3. NEVER create "Introduction from Source 1" and "Introduction from Source 2" - just ONE "Introduction"
+4. If two chapter titles could be merged (e.g., "Features" and "Capabilities"), MERGE THEM
 
 THINK OF IT THIS WAY:
 - You're writing a Wikipedia article, not a collection of summaries
 - A reader should NOT be able to tell how many sources were used
 - Redundant information from different sources should be MERGED, not repeated
-
-REQUIRED CHAPTERS (combine ALL related facts into these):
-1. Introduction & Overview - ALL intro/overview facts from ALL sources
-2. Setup & Deployment - ALL setup/installation/hardware facts
-3. Features & Capabilities - ALL features/functions/skills facts
-4. Use Cases & Applications - ALL examples/applications facts
-5. Security & Best Practices - ALL security/risk facts (if present)
-6-7. Additional themes ONLY if truly distinct topics exist
+- Complex topics (fusion reactors, software architecture) legitimately need many chapters
+- Simple topics (a product review) need fewer chapters
 
 OUTPUT FORMAT:
 - Chapter Title: Synthesized overview combining facts from ALL sources.
@@ -715,13 +726,12 @@ OUTPUT FORMAT:
   - Another Subtopic: More synthesized content.
 
 ABSOLUTE RULES:
-- 5-7 chapters MAXIMUM
+- Each chapter covers a DISTINCT theme (no overlap!)
 - Each chapter has 2+ subtopics
-- NO duplicate themes (check your chapter titles - any overlap = MERGE)
 - NO source attribution or references
 - Write flowing prose, not bullet lists
 
-BEFORE OUTPUTTING: Count your chapters. If >7, find two that overlap and merge them.
+BEFORE OUTPUTTING: Review your chapter titles. If ANY two could be merged, MERGE THEM.
 
 Generate the unified outline:`;
 
