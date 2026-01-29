@@ -1830,16 +1830,16 @@ export default function ContentPane({
         <div className="flex items-center gap-2 min-w-0">
             {onBack && (
               <Button
-                variant="ghost"
-                size="icon"
+                variant="outline"
                 onClick={onBack}
                 onTouchEnd={(e) => {
                   e.preventDefault();
                   onBack();
                 }}
-                className="min-w-[44px] min-h-[44px] touch-manipulation flex-shrink-0"
+                className="min-w-[44px] min-h-[44px] touch-manipulation flex-shrink-0 gap-1 px-3"
               >
-                <ArrowLeft />
+                <ArrowLeft className="h-4 w-4" />
+                <span className="text-sm">Outline</span>
               </Button>
             )}
             <div className="min-w-0 flex-1">

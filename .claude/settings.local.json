@@ -85,7 +85,8 @@
       "Bash(brew install:*)",
       "Bash(sh:*)",
       "Bash(/Applications/Ollama.app/Contents/Resources/ollama pull:*)",
-      "Bash(launchctl list:*)"
+      "Bash(launchctl list:*)",
+      "Bash(npm run cap:open:ios:*)"
     ]
   }
 }

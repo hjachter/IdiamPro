@@ -15,12 +15,15 @@ import {
   isElectron,
   isElectronStorageAvailable,
   electronLoadOutlinesFromDirectory,
+  electronLoadOutlineMetadataFromDirectory,
+  electronLoadSingleOutline,
   electronSaveOutlineToFile,
   electronDeleteOutlineFile,
   electronRenameOutlineFile,
   electronOutlineFileExists,
   electronLoadExistingOutline,
   getElectronOutlineFileName,
+  type LazyOutline,
 } from './electron-storage';
 import { fixDuplicateChildren } from './fix-duplicates';
 
@@ -58,13 +61,14 @@ export async function isFileSystemStorageAvailable(): Promise<boolean> {
 }
 
 /**
- * Load outlines from file system
+ * Load outlines from file system (with lazy loading for large files)
  */
 async function loadFromFileSystem(): Promise<Outline[]> {
-  // Use Electron storage if available
+  // Use Electron storage if available - with lazy loading
   if (isElectron()) {
     try {
-      return await electronLoadOutlinesFromDirectory();
+      // Use lazy loading - large files won't be fully loaded until selected
+      return await electronLoadOutlineMetadataFromDirectory();
     } catch (error) {
       console.error('Failed to load from Electron storage:', error);
       return [];
@@ -348,8 +352,16 @@ export async function saveAllOutlines(outlines: Outline[], currentOutlineId: str
   // Always save currentOutlineId to dedicated key (works with all storage backends)
   localStorage.setItem(CURRENT_OUTLINE_KEY, currentOutlineId);
 
-  // Filter out the guide
-  const userOutlines = outlines.filter(o => !o.isGuide);
+  // Filter out the guide and lazy-loaded outlines (they have empty nodes and would corrupt the files)
+  const userOutlines = outlines.filter(o => {
+    if (o.isGuide) return false;
+    // Skip lazy-loaded outlines - they have empty nodes and shouldn't be saved
+    const lazyOutline = o as LazyOutline;
+    if (lazyOutline._isLazyLoaded) {
+      return false;
+    }
+    return true;
+  });
 
   // Validate - warn but don't block save (we still want to persist data)
   validateOutlinesBeforeSave(userOutlines);
@@ -620,5 +632,28 @@ export async function migrateToFileSystem(
   }
 }
 
-// Re-export isElectron for use in other components
-export { isElectron } from './electron-storage';
+/**
+ * Load a single outline fully on demand (for lazy-loaded outlines)
+ * Returns the fully loaded outline, or null if loading fails
+ */
+export async function loadSingleOutlineOnDemand(fileName: string): Promise<Outline | null> {
+  if (!isElectron()) {
+    console.error('loadSingleOutlineOnDemand is only available in Electron');
+    return null;
+  }
+
+  try {
+    const outline = await electronLoadSingleOutline(fileName);
+    if (outline) {
+      console.log(`Fully loaded outline on demand: ${fileName}`);
+      return outline;
+    }
+    return null;
+  } catch (error) {
+    console.error('Failed to load outline on demand:', error);
+    return null;
+  }
+}
+
+// Re-export isElectron and LazyOutline for use in other components
+export { isElectron, type LazyOutline } from './electron-storage';

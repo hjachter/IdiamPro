@@ -214,6 +214,67 @@ export default function OutlinePane({
   const prevSearchTermRef = useRef('');
   // const [highlightedNodeIds, setHighlightedNodeIds] = useState<Set<string>>(new Set());
 
+  // Progressive rendering for large outlines
+  const LARGE_OUTLINE_THRESHOLD = 1000; // Enable progressive rendering for outlines with 1000+ nodes
+  const INITIAL_RENDER_DEPTH = 2; // Start by rendering only 2 levels deep
+
+  // Detect large outlines and enable progressive rendering
+  const nodeCount = currentOutline ? Object.keys(currentOutline.nodes).length : 0;
+  const isLargeOutline = nodeCount > LARGE_OUTLINE_THRESHOLD;
+
+  // Track which outline we've started progressive rendering for
+  const [progressiveOutlineId, setProgressiveOutlineId] = useState<string | undefined>(undefined);
+  const [renderDepth, setRenderDepth] = useState<number>(INITIAL_RENDER_DEPTH);
+
+  // Compute effective maxRenderDepth - this ensures we NEVER try to render a large outline without limits
+  const maxRenderDepth = useMemo(() => {
+    if (!isLargeOutline) return undefined; // No limit for small outlines
+    if (progressiveOutlineId !== currentOutline?.id) {
+      // New large outline - force initial depth limit (state update will follow)
+      return INITIAL_RENDER_DEPTH;
+    }
+    return renderDepth;
+  }, [isLargeOutline, progressiveOutlineId, currentOutline?.id, renderDepth]);
+
+  // Reset render depth when switching to a new large outline
+  useEffect(() => {
+    if (isLargeOutline && progressiveOutlineId !== currentOutline?.id) {
+      console.log(`[Progressive] Large outline detected (${nodeCount} nodes), starting at depth ${INITIAL_RENDER_DEPTH}`);
+      setProgressiveOutlineId(currentOutline?.id);
+      setRenderDepth(INITIAL_RENDER_DEPTH);
+    } else if (!isLargeOutline && progressiveOutlineId) {
+      setProgressiveOutlineId(undefined);
+    }
+  }, [currentOutline?.id, progressiveOutlineId, isLargeOutline, nodeCount]);
+
+  // Progressively increase render depth for large outlines
+  // For very large outlines (10K+), keep the depth limit to prevent UI freeze
+  const VERY_LARGE_THRESHOLD = 10000;
+  const isVeryLargeOutline = nodeCount > VERY_LARGE_THRESHOLD;
+  const MAX_RENDER_DEPTH = isVeryLargeOutline ? 6 : 10; // Limit depth more for huge outlines
+
+  useEffect(() => {
+    if (!isLargeOutline || progressiveOutlineId !== currentOutline?.id) return;
+
+    // Progressively render deeper levels
+    const timer = setTimeout(() => {
+      if (renderDepth < MAX_RENDER_DEPTH) {
+        console.log(`[Progressive] Rendering depth ${renderDepth + 1}... (${nodeCount} nodes)`);
+        setRenderDepth(prev => prev + 1);
+      } else {
+        // For very large outlines, keep the depth limit to prevent freeze
+        if (isVeryLargeOutline) {
+          console.log(`[Progressive] Keeping depth limit at ${MAX_RENDER_DEPTH} for ${nodeCount} node outline`);
+        } else {
+          console.log('[Progressive] Full outline rendered');
+          setProgressiveOutlineId(undefined); // Remove limit only for moderately large outlines
+        }
+      }
+    }, 500); // Add 500ms between each level
+
+    return () => clearTimeout(timer);
+  }, [renderDepth, isLargeOutline, isVeryLargeOutline, MAX_RENDER_DEPTH, nodeCount, progressiveOutlineId, currentOutline?.id]);
+
   // Compute effective search open state (internal or external)
   const isSearchOpen = externalSearchOpen !== undefined ? externalSearchOpen : isSearchOpenInternal;
   const setIsSearchOpen = useCallback((open: boolean) => {
@@ -1069,6 +1130,7 @@ export default function OutlinePane({
               onToggleNodeSelection={onToggleNodeSelection}
               onRangeSelect={onRangeSelect}
               onExportSubtreePdf={onExportSubtreePdf}
+              maxRenderDepth={maxRenderDepth}
             />
           </ul>
         )}

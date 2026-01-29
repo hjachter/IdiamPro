@@ -8,10 +8,10 @@ import { Label } from './ui/label';
 import { Checkbox } from './ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { X, Plus, FileText, Youtube, Type, Globe, Image as ImageIcon, FileArchive, Music, Video as VideoIcon, FolderOpen, Mic, Square, Pause, Play, Loader2, Upload, MessageSquare, RotateCcw, Send, ExternalLink } from 'lucide-react';
-import type { ExternalSourceInput, BulkResearchSources, DiarizedTranscript } from '@/types';
+import type { ExternalSourceInput, BulkResearchSources, DiarizedTranscript, ExtractionDetailLevel } from '@/types';
 import { useAudioRecorder } from '@/lib/use-audio-recorder';
-import { transcribeRecordingAction, getYoutubeTitleAction } from '@/app/actions';
-import { openExternalUrl } from '@/lib/electron-storage';
+import { transcribeRecordingAction, getYoutubeTitleAction, checkOllamaStatusAction } from '@/app/actions';
+import { openExternalUrl, isElectron } from '@/lib/electron-storage';
 
 // Type for stored recording data
 interface RecordingData {
@@ -104,6 +104,9 @@ export default function BulkResearchDialog({
   const [sources, setSources] = useState<SourceEntry[]>([]);
   const [includeExisting, setIncludeExisting] = useState(true);
   const [outlineName, setOutlineName] = useState('');
+  const [detailLevel, setDetailLevel] = useState<ExtractionDetailLevel>('standard');
+  const [useLocalAI, setUseLocalAI] = useState(false);
+  const [ollamaStatus, setOllamaStatus] = useState<'checking' | 'available' | 'unavailable' | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Recording state
@@ -129,6 +132,25 @@ export default function BulkResearchDialog({
       setSources([{ id: crypto.randomUUID(), type: undefined as any }]);
     }
   }, [open, sources.length]);
+
+  // Check Ollama status when dialog opens (Electron/macOS only)
+  useEffect(() => {
+    if (open && isElectron() && ollamaStatus === null) {
+      setOllamaStatus('checking');
+      checkOllamaStatusAction()
+        .then((status) => {
+          setOllamaStatus(status.available ? 'available' : 'unavailable');
+        })
+        .catch(() => {
+          setOllamaStatus('unavailable');
+        });
+    }
+    // Reset status when dialog closes
+    if (!open) {
+      setOllamaStatus(null);
+      setUseLocalAI(false);
+    }
+  }, [open, ollamaStatus]);
 
   // Cleanup audio URLs on unmount
   useEffect(() => {
@@ -427,6 +449,8 @@ export default function BulkResearchDialog({
         sources: validSources.map(({ id, sourceName, ...rest }) => rest),
         includeExistingContent: includeExisting,
         outlineName: outlineName.trim() || undefined,
+        detailLevel,
+        useLocalAI: useLocalAI || undefined,
         // mergeStrategy is now auto-detected by the server
       });
 
@@ -434,6 +458,8 @@ export default function BulkResearchDialog({
       setSources([]);
       setIncludeExisting(true);
       setOutlineName('');
+      setDetailLevel('standard');
+      setUseLocalAI(false);
       setRecordingInputMode({});
       onOpenChange(false);
     } catch (error) {
@@ -508,6 +534,157 @@ export default function BulkResearchDialog({
             </div>
           )}
 
+          {/* Detail Level Selector */}
+          <div className="p-3 bg-muted/50 rounded-md space-y-2">
+            <Label className="text-sm font-medium">Extraction Detail Level</Label>
+            <Select value={detailLevel} onValueChange={(v) => setDetailLevel(v as ExtractionDetailLevel)}>
+              <SelectTrigger className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="overview">
+                  <div className="flex flex-col items-start">
+                    <span className="font-medium">Overview</span>
+                    <span className="text-xs text-muted-foreground">High-level summary, key concepts only</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="standard">
+                  <div className="flex flex-col items-start">
+                    <span className="font-medium">Standard</span>
+                    <span className="text-xs text-muted-foreground">Balanced detail, main points + supporting info</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="comprehensive">
+                  <div className="flex flex-col items-start">
+                    <span className="font-medium">Comprehensive</span>
+                    <span className="text-xs text-muted-foreground">Full detail - all facts, examples, evidence (PhD thesis level)</span>
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              {detailLevel === 'overview' && 'Quick understanding of the material. Best for initial exploration.'}
+              {detailLevel === 'standard' && 'Good balance of depth and readability. Suitable for most use cases.'}
+              {detailLevel === 'comprehensive' && 'Complete study guide capturing all nuances. Best for research & deep study.'}
+            </p>
+            {/* Time Estimate */}
+            {sources.filter(isSourceValid).length > 0 && (
+              <div className="mt-2 pt-2 border-t border-border/50">
+                <p className="text-xs font-medium text-amber-600 dark:text-amber-400">
+                  ⏱ Estimated time: {(() => {
+                    const validSources = sources.filter(isSourceValid);
+                    // Base time per source type (in minutes)
+                    const baseTimePerSource: Record<string, number> = {
+                      pdf: 5,       // PDFs take time to extract
+                      outline: 3,  // Outlines are structured
+                      youtube: 4,   // Transcription needed
+                      recording: 4, // Transcription needed
+                      web: 2,       // Web pages are usually shorter
+                      text: 1,      // Raw text is fast
+                      image: 2,     // OCR needed
+                      doc: 3,       // Document parsing
+                      video: 5,     // Video processing
+                      audio: 4,     // Audio transcription
+                    };
+                    // Detail level multiplier
+                    const detailMultiplier = detailLevel === 'overview' ? 0.5 : detailLevel === 'comprehensive' ? 2 : 1;
+                    // Calculate total time
+                    let totalMinutes = validSources.reduce((sum, s) => {
+                      return sum + (baseTimePerSource[s.type] || 2);
+                    }, 0);
+                    // Add organization time (increases with more sources)
+                    totalMinutes += Math.min(validSources.length * 2, 10);
+                    // Apply detail multiplier
+                    totalMinutes = Math.ceil(totalMinutes * detailMultiplier);
+
+                    if (totalMinutes < 1) return 'Under 1 minute';
+                    if (totalMinutes === 1) return '~1 minute';
+                    if (totalMinutes < 5) return `~${totalMinutes} minutes`;
+                    if (totalMinutes < 15) return `${Math.floor(totalMinutes / 5) * 5}-${Math.ceil(totalMinutes / 5) * 5} minutes`;
+                    if (totalMinutes < 60) return `${Math.floor(totalMinutes / 10) * 10}-${Math.ceil(totalMinutes / 10) * 10} minutes`;
+                    const hours = Math.floor(totalMinutes / 60);
+                    const mins = totalMinutes % 60;
+                    return `${hours}h ${mins > 0 ? `${Math.ceil(mins / 10) * 10}m` : ''}`;
+                  })()}
+                  {detailLevel === 'comprehensive' && ' (comprehensive extraction takes longer but captures everything)'}
+                </p>
+              </div>
+            )}
+
+            {/* Local AI Option - macOS only */}
+            {isElectron() && (
+              <div className="mt-3 pt-3 border-t border-border/50">
+                {ollamaStatus === 'checking' && (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Checking for local AI...
+                  </div>
+                )}
+
+                {ollamaStatus === 'available' && (
+                  <div className="flex items-start space-x-3">
+                    <Checkbox
+                      id="use-local-ai"
+                      checked={useLocalAI}
+                      onCheckedChange={(checked) => setUseLocalAI(checked === true)}
+                    />
+                    <div className="space-y-1">
+                      <Label htmlFor="use-local-ai" className="text-sm font-medium cursor-pointer">
+                        Use Local AI (Ollama)
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        Process locally with no rate limits or delays.
+                      </p>
+                      {useLocalAI && (
+                        <p className="text-xs text-green-600 dark:text-green-400">
+                          No API rate limiting - faster processing for large documents.
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {ollamaStatus === 'unavailable' && (
+                  <div className="space-y-2">
+                    <div className="flex items-start space-x-3">
+                      <Checkbox
+                        id="use-local-ai"
+                        checked={false}
+                        disabled
+                      />
+                      <div className="space-y-1">
+                        <Label htmlFor="use-local-ai" className="text-sm font-medium text-muted-foreground">
+                          Use Local AI (Ollama)
+                        </Label>
+                        <p className="text-xs text-amber-600 dark:text-amber-400">
+                          Ollama not detected on your Mac
+                        </p>
+                      </div>
+                    </div>
+                    <div className="ml-7 p-3 bg-muted/50 rounded-md space-y-2">
+                      <p className="text-xs text-muted-foreground">
+                        Install Ollama for faster processing with no rate limits. Your data stays on your Mac.
+                      </p>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="h-7 text-xs"
+                        onClick={() => openExternalUrl('https://ollama.com/download')}
+                      >
+                        <ExternalLink className="h-3 w-3 mr-1.5" />
+                        Install Ollama
+                      </Button>
+                      <p className="text-xs text-muted-foreground">
+                        After installing, run: <code className="bg-muted px-1 rounded">ollama pull llama3.2</code>
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
           {/* Sources List */}
           <div className="space-y-3">
             {/* Only show header with Add Source button when we have at least one configured source */}
@@ -532,17 +709,13 @@ export default function BulkResearchDialog({
 
               return (
               <div key={source.id} className="border rounded-md p-4 space-y-3">
-                {/* Header - simplified for initial source, full for configured sources */}
-                {!isInitialSource && (
+                {/* Header - for non-initial unconfigured sources (configured sources show X in type badge) */}
+                {!isInitialSource && !source.type && (
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
-                      {getSourceIcon(source.type as keyof typeof SOURCE_TYPES)}
                       <span className="text-sm font-medium">
-                        {source.sourceName || `Source ${idx + 1}`}
+                        Source {idx + 1}
                       </span>
-                      {isSourceValid(source) && (
-                        <span className="text-xs text-green-600 dark:text-green-400">✓ Ready</span>
-                      )}
                     </div>
                     <Button
                       type="button"
@@ -651,23 +824,36 @@ export default function BulkResearchDialog({
                       {getSourceIcon(source.type as keyof typeof SOURCE_TYPES)}
                       <span className="text-sm font-medium">{SOURCE_TYPES[source.type as keyof typeof SOURCE_TYPES]?.label}</span>
                     </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="h-6 text-xs text-muted-foreground"
-                      onClick={() => {
-                        handleUpdateSource(source.id, {
-                          type: undefined as any,
-                          url: undefined,
-                          content: undefined,
-                          fileName: undefined,
-                          sourceName: undefined,
-                        });
-                      }}
-                    >
-                      Change
-                    </Button>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 text-xs text-muted-foreground"
+                        onClick={() => {
+                          handleUpdateSource(source.id, {
+                            type: undefined as any,
+                            url: undefined,
+                            content: undefined,
+                            fileName: undefined,
+                            sourceName: undefined,
+                          });
+                        }}
+                      >
+                        Change
+                      </Button>
+                      {/* Always show X to remove the source - clearer than header X */}
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
+                        onClick={() => handleRemoveSource(source.id)}
+                        title="Remove this source"
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
                 )}
 

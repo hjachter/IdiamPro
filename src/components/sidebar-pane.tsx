@@ -42,6 +42,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { templates, type Template } from '@/lib/templates';
 import type { Outline } from '@/types';
+import type { LazyOutline } from '@/lib/storage-manager';
 import { cn } from '@/lib/utils';
 
 interface SidebarPaneProps {
@@ -78,8 +79,13 @@ export default function SidebarPane({
   const guide = outlines.find(o => o.isGuide);
   const userOutlines = outlines.filter(o => !o.isGuide);
 
+  // Deduplicate by ID (keep first occurrence) to prevent React key errors
+  const uniqueUserOutlines = userOutlines.filter((outline, index, self) =>
+    index === self.findIndex(o => o.id === outline.id)
+  );
+
   // Sort user outlines alphabetically by name (case-insensitive)
-  const sortedOutlines = [...userOutlines].sort((a, b) => {
+  const sortedOutlines = [...uniqueUserOutlines].sort((a, b) => {
     return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
   });
 
@@ -239,7 +245,7 @@ export default function SidebarPane({
       <div className="flex items-center gap-2 px-3 py-2 border-b border-border/40 bg-muted/30">
         <FileText className="h-4 w-4 text-muted-foreground" />
         <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Outlines</span>
-        <span className="ml-auto text-xs text-muted-foreground/70 tabular-nums">{userOutlines.length}</span>
+        <span className="ml-auto text-xs text-muted-foreground/70 tabular-nums">{uniqueUserOutlines.length}</span>
       </div>
 
       {/* Bulk action bar when items are selected - FIXED position above scroll */}
@@ -316,7 +322,22 @@ export default function SidebarPane({
                       autoFocus
                     />
                   ) : (
-                    <span className="truncate flex-1">{outline.name}</span>
+                    <>
+                      <span className="truncate flex-1">{outline.name}</span>
+                      {/* Show indicator for lazy-loaded (large) outlines */}
+                      {(outline as LazyOutline)._isLazyLoaded && (
+                        <span
+                          className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full shrink-0"
+                          title={`Large outline (~${((outline as LazyOutline)._estimatedNodeCount || 0).toLocaleString()} nodes)`}
+                        >
+                          {((outline as LazyOutline)._fileSize || 0) > 100_000_000
+                            ? `${Math.round(((outline as LazyOutline)._fileSize || 0) / 1_000_000)}MB`
+                            : ((outline as LazyOutline)._fileSize || 0) > 1_000_000
+                            ? `${(((outline as LazyOutline)._fileSize || 0) / 1_000_000).toFixed(1)}MB`
+                            : `${Math.round(((outline as LazyOutline)._fileSize || 0) / 1000)}KB`}
+                        </span>
+                      )}
+                    </>
                   )}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>

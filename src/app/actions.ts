@@ -39,6 +39,9 @@ import {
   getBestAvailableModel,
   type OllamaModel,
 } from '@/lib/ollama-service';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as os from 'os';
 
 /**
  * Extract retry delay from rate limit error messages
@@ -581,14 +584,53 @@ async function extractBulletsFromChunk(
   content: string,
   sourceDescription: string,
   chunkIndex: number,
-  totalChunks: number
+  totalChunks: number,
+  detailLevel: 'overview' | 'standard' | 'comprehensive' = 'standard',
+  useLocalAI: boolean = false
 ): Promise<ContentBullet[]> {
   const chunkInfo = totalChunks > 1 ? ` (Part ${chunkIndex + 1}/${totalChunks})` : '';
+
+  // Adjust extraction guidelines based on detail level
+  let detailGuidelines: string;
+  let bulletCountGuidance: string;
+
+  if (detailLevel === 'overview') {
+    detailGuidelines = `EXTRACTION MODE: HIGH-LEVEL OVERVIEW
+- Focus on main concepts, themes, and conclusions only
+- Skip supporting details, examples, and evidence
+- Capture the "big picture" - what are the key takeaways?
+- Each bullet should represent a major concept or conclusion`;
+    bulletCountGuidance = `- For books/long documents: extract 15-25 bullets capturing major themes
+- For shorter content: extract 8-15 bullets`;
+  } else if (detailLevel === 'comprehensive') {
+    detailGuidelines = `EXTRACTION MODE: COMPREHENSIVE (PhD THESIS LEVEL)
+- Extract EVERY significant fact, concept, argument, and piece of evidence
+- Include specific examples, case studies, and supporting data
+- Capture nuances, caveats, and counterarguments
+- Preserve methodological details and research findings
+- Include direct quotes when they contain key insights
+- Extract definitions, frameworks, and models in full detail
+- Nothing important should be left out - this is for deep study`;
+    bulletCountGuidance = `- For books/long documents: extract 100-150 bullets to capture everything significant
+- For shorter content: extract 50-80 bullets
+- When in doubt, include more detail rather than less`;
+  } else {
+    // Standard
+    detailGuidelines = `EXTRACTION MODE: STANDARD (BALANCED)
+- Extract main points and important supporting details
+- Include key examples that illustrate concepts
+- Capture important evidence and conclusions
+- Balance thoroughness with readability`;
+    bulletCountGuidance = `- For books/long documents: extract 50-80 bullets to capture key ideas thoroughly
+- For shorter content: extract 20-40 bullets`;
+  }
 
   const extractionPrompt = `You are extracting ATOMIC FACTS from source content. Each fact should be:
 - Self-contained and understandable on its own
 - A single topic with its key information
 - Neither too granular (avoid single sentences) nor too broad (avoid combining unrelated ideas)
+
+${detailGuidelines}
 
 OUTPUT FORMAT (JSON array):
 [
@@ -597,9 +639,7 @@ OUTPUT FORMAT (JSON array):
 ]
 
 GUIDELINES:
-- Extract ALL significant facts, concepts, and information from this content
-- For books/long documents: extract 50-80 bullets to capture key ideas thoroughly
-- For shorter content: extract 20-40 bullets
+${bulletCountGuidance}
 - Topic names should be 2-6 words
 - Content should be 1-3 sentences capturing the essence
 - Include specific data, numbers, names, dates when present
@@ -613,8 +653,8 @@ ${content}
 
 Extract the bullets (respond with ONLY the JSON array):`;
 
-  // Ollama fallback for bullet extraction
-  const ollamaBulletFallback = async () => {
+  // Ollama generation function
+  const generateWithOllamaLocal = async () => {
     const ollamaResult = await generateWithOllama({
       prompt: extractionPrompt,
       system: 'You extract atomic facts from text. Output ONLY valid JSON array.',
@@ -624,15 +664,26 @@ Extract the bullets (respond with ONLY the JSON array):`;
     return { text: ollamaResult };
   };
 
-  const { text } = await withRateLimitRetry(
-    () => ai.generate({
-      model: 'googleai/gemini-2.0-flash',
-      prompt: extractionPrompt,
-    }),
-    1,
-    `bullet extraction chunk ${chunkIndex + 1}`,
-    ollamaBulletFallback
-  );
+  let text: string;
+
+  if (useLocalAI) {
+    // Use Ollama directly - no rate limits, no delays needed
+    console.log(`[Chunk ${chunkIndex + 1}/${totalChunks}] Using local AI (Ollama)...`);
+    const result = await generateWithOllamaLocal();
+    text = result.text;
+  } else {
+    // Use Gemini with rate limit protection and Ollama fallback
+    const { text: geminiText } = await withRateLimitRetry(
+      () => ai.generate({
+        model: 'googleai/gemini-2.0-flash',
+        prompt: extractionPrompt,
+      }),
+      1,
+      `bullet extraction chunk ${chunkIndex + 1}`,
+      generateWithOllamaLocal
+    );
+    text = geminiText;
+  }
 
   // Parse the JSON response
   try {
@@ -701,18 +752,20 @@ function splitContentIntoChunks(content: string, maxChunkSize: number): string[]
  * For long content (books, etc.), processes in chunks to capture full detail
  */
 async function extractBulletsFromSources(
-  extractedSources: Array<{ content: string; description: string; title?: string }>
+  extractedSources: Array<{ content: string; description: string; title?: string }>,
+  detailLevel: 'overview' | 'standard' | 'comprehensive' = 'standard',
+  useLocalAI: boolean = false
 ): Promise<ContentBullet[]> {
   const allBullets: ContentBullet[] = [];
 
   for (const source of extractedSources) {
     const chunks = splitContentIntoChunks(source.content, BULLET_EXTRACTION_CHUNK_SIZE);
-    console.log(`[Bullet] Source "${source.description}": ${source.content.length} chars → ${chunks.length} chunk(s)`);
+    console.log(`[Bullet] Source "${source.description}": ${source.content.length} chars → ${chunks.length} chunk(s) [${detailLevel} detail]`);
 
     for (let i = 0; i < chunks.length; i++) {
-      // Add delay between chunks to avoid rate limits
+      // Add delay between chunks to avoid rate limits (skip if using local AI)
       // Gemini free tier: 15 RPM, so we need ~4s between calls to stay safe
-      if (i > 0) {
+      if (i > 0 && !useLocalAI) {
         const delayMs = 5000; // 5 seconds between chunks
         console.log(`[Bullet] Waiting ${delayMs/1000}s between chunks (rate limit protection)...`);
         await new Promise(resolve => setTimeout(resolve, delayMs));
@@ -722,7 +775,9 @@ async function extractBulletsFromSources(
         chunks[i],
         source.title || source.description,
         i,
-        chunks.length
+        chunks.length,
+        detailLevel,
+        useLocalAI
       );
 
       // Add source attribution for multi-source scenarios
@@ -842,15 +897,223 @@ Respond with ONLY one letter: A, B, or C`;
 }
 
 /**
+ * Recursively organize bullets into a hierarchical structure
+ * Creates deeper levels when there are many bullets in a category
+ */
+async function recursivelyOrganizeBullets(
+  bullets: ContentBullet[],
+  parentId: string,
+  nodes: Record<string, any>,
+  ai: any,
+  currentDepth: number = 1,
+  maxDepth: number = 5,
+  parentTheme: string = '',
+  useLocalAI: boolean = false
+): Promise<void> {
+  const BULLETS_FOR_SUBSECTIONS = 12; // Threshold to create sub-levels
+  const MIN_BULLETS_FOR_LEAF = 3; // Minimum bullets to warrant a node
+
+  // Base case: too few bullets or max depth reached
+  if (bullets.length < MIN_BULLETS_FOR_LEAF || currentDepth > maxDepth) {
+    // Add remaining bullets as content to parent
+    if (bullets.length > 0 && nodes[parentId]) {
+      const bulletContent = bullets.map(b => `• ${b.content}`).join('\n\n');
+      nodes[parentId].content = (nodes[parentId].content || '') +
+        (nodes[parentId].content ? '\n\n' : '') + bulletContent;
+    }
+    return;
+  }
+
+  // If few enough bullets, create leaf nodes directly
+  if (bullets.length < BULLETS_FOR_SUBSECTIONS) {
+    // Group into 2-4 small subsections with individual bullet content preserved
+    const groupSize = Math.ceil(bullets.length / Math.min(4, Math.ceil(bullets.length / 3)));
+    for (let i = 0; i < bullets.length; i += groupSize) {
+      const groupBullets = bullets.slice(i, Math.min(i + groupSize, bullets.length));
+      if (groupBullets.length === 0) continue;
+
+      // Use first bullet's topic as a hint for the subsection name
+      const subId = uuidv4();
+      const groupTopics = [...new Set(groupBullets.map(b => b.topic))];
+      const nodeName = groupTopics.length <= 2
+        ? groupTopics.join(' & ')
+        : groupTopics[0] + (groupTopics.length > 1 ? ` (+${groupTopics.length - 1} more)` : '');
+
+      nodes[subId] = {
+        id: subId,
+        name: nodeName,
+        content: groupBullets.map(b => `• ${b.content}`).join('\n\n'),
+        type: 'document',
+        parentId: parentId,
+        childrenIds: [],
+        prefix: '',
+      };
+      nodes[parentId].childrenIds.push(subId);
+    }
+    return;
+  }
+
+  // Many bullets: identify sub-themes and recursively organize
+  console.log(`[Recursive] Depth ${currentDepth}: Organizing ${bullets.length} bullets under "${parentTheme || 'root'}"...`);
+
+  const bulletSample = bullets.slice(0, 50).map(b => `[${b.topic}] ${b.content.substring(0, 100)}`).join('\n');
+
+  const subThemePrompt = `Identify 4-7 distinct SUB-THEMES within this content about "${parentTheme || 'the topic'}".
+
+CONTENT SAMPLE (${bullets.length} total facts):
+${bulletSample}
+
+Requirements:
+- Each sub-theme should be specific and focused
+- Sub-themes should cover different aspects (not overlap)
+- Use concise names (2-5 words)
+- These will become subsections, so be specific not generic
+
+Return ONLY a JSON array of sub-theme names:
+["Sub-theme 1", "Sub-theme 2", ...]`;
+
+  let subThemes: string[] = [];
+  try {
+    // Skip delay when using local AI
+    if (!useLocalAI) {
+      await new Promise(resolve => setTimeout(resolve, 1500)); // Rate limit
+    }
+
+    const generateWithOllamaLocal = async () => {
+      const result = await generateWithOllama({
+        prompt: subThemePrompt,
+        system: 'You identify sub-themes in content. Return only a JSON array.',
+        temperature: 0.5,
+        maxTokens: 500,
+      });
+      return { text: result };
+    };
+
+    let text: string;
+    if (useLocalAI) {
+      // Use Ollama directly - no rate limits
+      const result = await generateWithOllamaLocal();
+      text = result.text;
+    } else {
+      const { text: geminiText } = await withRateLimitRetry(
+        () => ai.generate({
+          model: 'googleai/gemini-2.0-flash',
+          prompt: subThemePrompt,
+        }),
+        1,
+        `sub-theme detection (depth ${currentDepth})`,
+        generateWithOllamaLocal
+      );
+      text = geminiText;
+    }
+
+    let jsonStr = text.trim();
+    if (jsonStr.startsWith('```')) {
+      jsonStr = jsonStr.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
+    }
+    subThemes = JSON.parse(jsonStr);
+    console.log(`[Recursive] Found ${subThemes.length} sub-themes at depth ${currentDepth}`);
+  } catch (error) {
+    console.warn(`[Recursive] Sub-theme detection failed at depth ${currentDepth}:`, error);
+    // Fallback: split bullets roughly equally
+    const numGroups = Math.min(5, Math.ceil(bullets.length / 15));
+    subThemes = Array.from({ length: numGroups }, (_, i) => `Section ${i + 1}`);
+  }
+
+  // Assign bullets to sub-themes and recurse
+  for (const subTheme of subThemes) {
+    const themeKeywords = subTheme.toLowerCase().split(/\s+/).filter(w => w.length > 2);
+
+    // Find bullets matching this sub-theme
+    const matchingBullets = bullets.filter(b => {
+      const bulletText = `${b.topic} ${b.content}`.toLowerCase();
+      return themeKeywords.some(kw => bulletText.includes(kw));
+    });
+
+    // If no matches, skip (bullets will be redistributed)
+    if (matchingBullets.length < MIN_BULLETS_FOR_LEAF) continue;
+
+    // Create node for this sub-theme
+    const subNodeId = uuidv4();
+    nodes[subNodeId] = {
+      id: subNodeId,
+      name: subTheme,
+      content: '',
+      type: currentDepth === 1 ? 'chapter' : 'document',
+      parentId: parentId,
+      childrenIds: [],
+      prefix: '',
+    };
+    nodes[parentId].childrenIds.push(subNodeId);
+
+    // Recursively organize this sub-theme's bullets
+    await recursivelyOrganizeBullets(
+      matchingBullets,
+      subNodeId,
+      nodes,
+      ai,
+      currentDepth + 1,
+      maxDepth,
+      subTheme,
+      useLocalAI
+    );
+  }
+
+  // Handle unassigned bullets (add to parent or create "Other" section)
+  const assignedBullets = new Set<ContentBullet>();
+  for (const subTheme of subThemes) {
+    const themeKeywords = subTheme.toLowerCase().split(/\s+/).filter(w => w.length > 2);
+    bullets.forEach(b => {
+      const bulletText = `${b.topic} ${b.content}`.toLowerCase();
+      if (themeKeywords.some(kw => bulletText.includes(kw))) {
+        assignedBullets.add(b);
+      }
+    });
+  }
+
+  const unassignedBullets = bullets.filter(b => !assignedBullets.has(b));
+  if (unassignedBullets.length >= MIN_BULLETS_FOR_LEAF) {
+    // Create an "Additional Topics" section for unassigned
+    const otherNodeId = uuidv4();
+    nodes[otherNodeId] = {
+      id: otherNodeId,
+      name: 'Additional Topics',
+      content: '',
+      type: 'document',
+      parentId: parentId,
+      childrenIds: [],
+      prefix: '',
+    };
+    nodes[parentId].childrenIds.push(otherNodeId);
+
+    // Recursively organize unassigned bullets (but with reduced depth)
+    await recursivelyOrganizeBullets(
+      unassignedBullets,
+      otherNodeId,
+      nodes,
+      ai,
+      currentDepth + 1,
+      Math.min(maxDepth, currentDepth + 2), // Limit depth for "other" section
+      'Additional Topics',
+      useLocalAI
+    );
+  }
+}
+
+/**
  * For very large bullet sets (500+), use a two-pass approach:
  * Pass 1: Identify major themes from a sample of bullets
- * Pass 2: Organize bullets by theme into sub-outlines
+ * Pass 2: Organize bullets by theme into sub-outlines (NOW WITH RECURSIVE DEPTH)
  */
 async function organizeLargeBulletSet(
   bullets: ContentBullet[],
-  outlineName: string
+  outlineName: string,
+  detailLevel: 'overview' | 'standard' | 'comprehensive' = 'standard',
+  useLocalAI: boolean = false
 ): Promise<{ rootNodeId: string; nodes: Record<string, any> }> {
-  console.log(`[Bullet] Large set detected (${bullets.length} bullets). Using two-pass organization...`);
+  // Determine max depth based on detail level
+  const maxDepth = detailLevel === 'overview' ? 3 : detailLevel === 'comprehensive' ? 6 : 5;
+  console.log(`[Bullet] Large set detected (${bullets.length} bullets). Using two-pass organization [${detailLevel} → ${maxDepth} levels]...`);
 
   // Pass 1: Identify major themes from bullet topics
   const topicSample = bullets
@@ -874,14 +1137,34 @@ Return ONLY a JSON array of theme names, nothing else:
 
   let themes: string[] = [];
   try {
-    const { text } = await withRateLimitRetry(
-      () => ai.generate({
-        model: 'googleai/gemini-2.0-flash',
+    const generateThemesWithOllama = async () => {
+      const result = await generateWithOllama({
         prompt: themePrompt,
-      }),
-      1,
-      'theme detection'
-    );
+        system: 'You identify major themes in content. Return only a JSON array.',
+        temperature: 0.5,
+        maxTokens: 500,
+      });
+      return { text: result };
+    };
+
+    let text: string;
+    if (useLocalAI) {
+      // Use Ollama directly - no rate limits
+      console.log('[Bullet] Using local AI for theme detection...');
+      const result = await generateThemesWithOllama();
+      text = result.text;
+    } else {
+      const { text: geminiText } = await withRateLimitRetry(
+        () => ai.generate({
+          model: 'googleai/gemini-2.0-flash',
+          prompt: themePrompt,
+        }),
+        1,
+        'theme detection',
+        generateThemesWithOllama
+      );
+      text = geminiText;
+    }
 
     let jsonStr = text.trim();
     if (jsonStr.startsWith('```')) {
@@ -956,64 +1239,31 @@ Return ONLY a JSON array of theme names, nothing else:
     };
     nodes[rootNodeId].childrenIds.push(chapterId);
 
-    // Organize this theme's bullets into subsections
-    const themeBulletList = bulletsForTheme.map((b, idx) =>
-      `- [${b.topic}] ${b.content}`
-    ).join('\n');
-
-    const subPrompt = `Organize these facts about "${theme}" into 3-6 coherent subsections.
-
-FACTS:
-${themeBulletList}
-
-OUTPUT FORMAT (markdown list with content):
-- Subsection Title: Synthesized content combining related facts into flowing prose.
-- Another Subsection: More synthesized content.
-
-RULES:
-- Each subsection has substantive content (2-4 sentences minimum)
-- Write flowing prose, not bullet lists
-- Combine related facts into coherent paragraphs`;
-
+    // Use RECURSIVE organization for deeper hierarchy (depth based on detail level)
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Rate limit protection
-
-      const { text: subOutline } = await withRateLimitRetry(
-        () => ai.generate({
-          model: 'googleai/gemini-2.0-flash',
-          prompt: subPrompt,
-        }),
-        1,
-        `theme organization: ${theme}`
+      await recursivelyOrganizeBullets(
+        bulletsForTheme,
+        chapterId,
+        nodes,
+        ai,
+        2, // Start at depth 2 (chapter is depth 1)
+        maxDepth, // Depth based on detail level: overview=3, standard=5, comprehensive=6
+        theme,
+        useLocalAI
       );
 
-      // Parse subsections and add to chapter
-      const lines = subOutline.split('\n').filter(l => l.trim().startsWith('- '));
-      for (const line of lines) {
-        const match = line.match(/^-\s+([^:]+):\s*(.+)$/);
-        if (match) {
-          const subId = uuidv4();
-          nodes[subId] = {
-            id: subId,
-            name: match[1].trim(),
-            content: match[2].trim(),
-            type: 'document',
-            parentId: chapterId,
-            childrenIds: [],
-            prefix: '',
-          };
-          nodes[chapterId].childrenIds.push(subId);
-        }
-      }
-
-      // If no subsections parsed, add the raw content as chapter content
+      // If recursive organization didn't create any children, add bullets directly
       if (nodes[chapterId].childrenIds.length === 0) {
-        nodes[chapterId].content = subOutline.replace(/^-\s+/gm, '').trim();
+        nodes[chapterId].content = bulletsForTheme
+          .map(b => `• ${b.content}`)
+          .join('\n\n');
       }
     } catch (error) {
       console.warn(`[Bullet] Failed to organize theme "${theme}":`, error);
-      // Add a placeholder
-      nodes[chapterId].content = `Content about ${theme} from ${bulletsForTheme.length} source facts.`;
+      // Add bullets directly as fallback
+      nodes[chapterId].content = bulletsForTheme
+        .map(b => `• ${b.content}`)
+        .join('\n\n');
     }
   }
 
@@ -1029,12 +1279,15 @@ RULES:
 async function organizeBulletsIntoOutline(
   bullets: ContentBullet[],
   outlineName: string,
-  mergeStrategy: MergeStrategy = 'synthesize'
+  mergeStrategy: MergeStrategy = 'synthesize',
+  detailLevel: 'overview' | 'standard' | 'comprehensive' = 'standard',
+  useLocalAI: boolean = false
 ): Promise<{ rootNodeId: string; nodes: Record<string, any> }> {
 
-  // For very large bullet sets, use two-pass approach
-  if (bullets.length > 500 && mergeStrategy === 'synthesize') {
-    return organizeLargeBulletSet(bullets, outlineName);
+  // For larger bullet sets (100+), use recursive two-pass approach for deeper hierarchy
+  // Depth varies by detail level: overview=3, standard=5, comprehensive=6
+  if (bullets.length > 100 && mergeStrategy === 'synthesize') {
+    return organizeLargeBulletSet(bullets, outlineName, detailLevel, useLocalAI);
   }
 
   // Format bullets for the organization prompt (numbered for AI reference only)
@@ -1177,10 +1430,10 @@ BEFORE OUTPUTTING: Review your chapter titles. If ANY two could be merged, MERGE
 Generate the unified outline:`;
   }
 
-  // Ollama fallback for organization
+  // Ollama generation for organization
   // Use higher token limit for book-length content
   const ollamaMaxTokens = bulletCount > 100 ? 8000 : 4000;
-  const ollamaOrgFallback = async () => {
+  const generateOrgWithOllama = async () => {
     const ollamaResult = await generateWithOllama({
       prompt: organizationPrompt,
       system: 'You organize information into clear hierarchical outlines with detailed content for each section.',
@@ -1190,12 +1443,19 @@ Generate the unified outline:`;
     return { outline: ollamaResult };
   };
 
-  const result = await withRateLimitRetry(
-    () => generateOutlineFromTopic({ topic: organizationPrompt }),
-    1,
-    'bullet organization',
-    ollamaOrgFallback
-  );
+  let result: { outline: string };
+  if (useLocalAI) {
+    // Use Ollama directly - no rate limits
+    console.log('[Bullet] Using local AI for bullet organization...');
+    result = await generateOrgWithOllama();
+  } else {
+    result = await withRateLimitRetry(
+      () => generateOutlineFromTopic({ topic: organizationPrompt }),
+      1,
+      'bullet organization',
+      generateOrgWithOllama
+    );
+  }
 
   // Parse the organized outline into nodes
   const { rootNodeId, nodes } = parseMarkdownToNodes(result.outline, outlineName);
@@ -1365,9 +1625,11 @@ export async function bulletBasedResearchAction(
       throw new Error('No content could be extracted from any sources.');
     }
 
-    // Step 1: Extract bullets from new sources
-    console.log('[Bullet] Extracting bullets from new sources...');
-    const newBullets = await extractBulletsFromSources(extractedSources);
+    // Step 1: Extract bullets from new sources (using specified detail level)
+    const detailLevel = input.detailLevel || 'standard';
+    const useLocalAI = input.useLocalAI || false;
+    console.log(`[Bullet] Extracting bullets from new sources (detail level: ${detailLevel}, local AI: ${useLocalAI})...`);
+    const newBullets = await extractBulletsFromSources(extractedSources, detailLevel, useLocalAI);
 
     // Step 2: If merging, extract bullets from existing outline
     let allBullets: ContentBullet[] = [];
@@ -1419,8 +1681,8 @@ export async function bulletBasedResearchAction(
     }
 
     // Step 5: Organize all bullets into hierarchical outline
-    console.log(`[Bullet] Organizing bullets into outline (strategy: ${strategy})...`);
-    const { rootNodeId, nodes } = await organizeBulletsIntoOutline(allBullets, outlineName, strategy);
+    console.log(`[Bullet] Organizing bullets into outline (strategy: ${strategy}, detail: ${detailLevel}, local AI: ${useLocalAI})...`);
+    const { rootNodeId, nodes } = await organizeBulletsIntoOutline(allBullets, outlineName, strategy, detailLevel, useLocalAI);
 
     // Step 6: For 'separate' strategy without user context, add stub intro
     if (strategy === 'separate' && !hasUserContext && !input.includeExistingContent) {
@@ -1475,6 +1737,39 @@ ${childContent.substring(0, 5000)}`;
       nodes,
       lastModified: Date.now(),
     };
+
+    // Save to pending results file in case HTTP response doesn't reach client
+    // This allows recovery of long-running imports that "time out"
+    console.log('[Bullet] Attempting to save pending result...');
+    try {
+      const pendingDir = path.join(os.homedir(), 'Documents', 'IDM Outlines', '.pending');
+      console.log(`[Bullet] Pending directory: ${pendingDir}`);
+
+      // Create pending directory if it doesn't exist
+      if (!fs.existsSync(pendingDir)) {
+        console.log('[Bullet] Creating pending directory...');
+        fs.mkdirSync(pendingDir, { recursive: true });
+      }
+
+      // Save the outline with timestamp and merge context
+      const pendingFile = path.join(pendingDir, `pending-${Date.now()}.json`);
+      const pendingData = {
+        outline,
+        summary: `[Bullet-Based] Extracted ${allBullets.length} atomic facts from ${extractedSources.length} source(s), organized into ${Object.keys(nodes).length - 1} nodes.`,
+        sourcesProcessed: extractedSources.length,
+        createdAt: Date.now(),
+        outlineName: outline.name,
+        // Merge context for recovery
+        mergeContext: {
+          includeExistingContent: input.includeExistingContent,
+          targetOutlineId: input.targetOutlineId,
+        },
+      };
+      fs.writeFileSync(pendingFile, JSON.stringify(pendingData, null, 2));
+      console.log(`[Bullet] ✅ Saved pending result to: ${pendingFile}`);
+    } catch (saveError) {
+      console.error('[Bullet] ❌ Could not save pending result:', saveError);
+    }
 
     return {
       outline,

@@ -326,7 +326,105 @@ ipcMain.handle('get-stored-directory-path', () => {
   return settings.outlinesDirectory || null;
 });
 
-// Read all outlines from directory
+// Read outline metadata only (for lazy loading - fast startup)
+// Returns lightweight metadata without loading full node content
+ipcMain.handle('read-outline-metadata-from-directory', async (event, dirPath) => {
+  try {
+    const files = fs.readdirSync(dirPath);
+    const metadataList = [];
+
+    for (const file of files) {
+      if (file.endsWith('.idm')) {
+        try {
+          const filePath = path.join(dirPath, file);
+          const stats = fs.statSync(filePath);
+
+          // For small files (<1MB), load fully - it's fast enough
+          // For large files, extract just the metadata we need
+          const LAZY_LOAD_THRESHOLD = 1 * 1024 * 1024; // 1MB
+
+          if (stats.size < LAZY_LOAD_THRESHOLD) {
+            // Small file - load fully
+            const content = fs.readFileSync(filePath, 'utf-8');
+            const outline = JSON.parse(content);
+            metadataList.push({
+              ...outline,
+              _fileSize: stats.size,
+              _fileName: file,
+              _isLazyLoaded: false,
+            });
+          } else {
+            // Large file - read only first chunk to extract metadata
+            const fd = fs.openSync(filePath, 'r');
+            const buffer = Buffer.alloc(4096); // Read first 4KB
+            fs.readSync(fd, buffer, 0, 4096, 0);
+            fs.closeSync(fd);
+
+            const partialContent = buffer.toString('utf-8');
+
+            // Extract id, name, rootNodeId from the beginning of the JSON
+            const idMatch = partialContent.match(/"id"\s*:\s*"([^"]+)"/);
+            const nameMatch = partialContent.match(/"name"\s*:\s*"([^"]+)"/);
+            const rootNodeIdMatch = partialContent.match(/"rootNodeId"\s*:\s*"([^"]+)"/);
+            const isGuideMatch = partialContent.match(/"isGuide"\s*:\s*(true|false)/);
+            const lastModifiedMatch = partialContent.match(/"lastModified"\s*:\s*(\d+)/);
+
+            // Estimate node count from file size (rough: ~5KB per node on average)
+            const estimatedNodeCount = Math.round(stats.size / 5000);
+
+            metadataList.push({
+              id: idMatch ? idMatch[1] : file.replace('.idm', ''),
+              name: nameMatch ? nameMatch[1] : file.replace('.idm', ''),
+              rootNodeId: rootNodeIdMatch ? rootNodeIdMatch[1] : 'root',
+              nodes: {}, // Empty - will be loaded on demand
+              isGuide: isGuideMatch ? isGuideMatch[1] === 'true' : false,
+              lastModified: lastModifiedMatch ? parseInt(lastModifiedMatch[1]) : stats.mtimeMs,
+              _fileSize: stats.size,
+              _fileName: file,
+              _isLazyLoaded: true,
+              _estimatedNodeCount: estimatedNodeCount,
+            });
+
+            console.log(`[Lazy] Deferred loading of ${file} (${(stats.size / 1024 / 1024).toFixed(1)}MB, ~${estimatedNodeCount} nodes)`);
+          }
+        } catch (error) {
+          console.error(`Failed to load metadata for ${file}:`, error);
+        }
+      }
+    }
+
+    return { success: true, outlines: metadataList };
+  } catch (error) {
+    console.error('Failed to read outline metadata from directory:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+// Load a single outline fully (for lazy-loaded outlines)
+ipcMain.handle('load-single-outline', async (event, dirPath, fileName) => {
+  try {
+    const filePath = path.join(dirPath, fileName);
+    console.log(`[Lazy] Loading full outline: ${fileName}`);
+    const content = fs.readFileSync(filePath, 'utf-8');
+    const outline = JSON.parse(content);
+    const stats = fs.statSync(filePath);
+    console.log(`[Lazy] Loaded ${fileName}: ${Object.keys(outline.nodes || {}).length} nodes`);
+    return {
+      success: true,
+      outline: {
+        ...outline,
+        _fileSize: stats.size,
+        _fileName: fileName,
+        _isLazyLoaded: false,
+      }
+    };
+  } catch (error) {
+    console.error(`Failed to load outline ${fileName}:`, error);
+    return { success: false, error: error.message };
+  }
+});
+
+// Read all outlines from directory (legacy - full load)
 ipcMain.handle('read-outlines-from-directory', async (event, dirPath) => {
   try {
     const files = fs.readdirSync(dirPath);
@@ -551,6 +649,73 @@ ipcMain.handle('print-to-pdf', async (event, htmlContent, filePath) => {
     return { success: true };
   } catch (error) {
     console.error('print-to-pdf failed:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+// ========== Pending Imports Recovery ==========
+
+// Check for pending import results (for long-running imports that timeout)
+ipcMain.handle('check-pending-imports', async () => {
+  try {
+    const settings = loadSettings();
+    const outlinesDir = settings.outlinesDirectory;
+    if (!outlinesDir) {
+      return { success: true, pendingImports: [] };
+    }
+
+    const pendingDir = path.join(outlinesDir, '.pending');
+    if (!fs.existsSync(pendingDir)) {
+      return { success: true, pendingImports: [] };
+    }
+
+    const files = fs.readdirSync(pendingDir);
+    const pendingImports = [];
+
+    for (const file of files) {
+      if (file.endsWith('.json')) {
+        try {
+          const filePath = path.join(pendingDir, file);
+          const content = fs.readFileSync(filePath, 'utf-8');
+          const data = JSON.parse(content);
+          pendingImports.push({
+            ...data,
+            fileName: file,
+          });
+        } catch (error) {
+          console.error(`Failed to load pending import ${file}:`, error);
+        }
+      }
+    }
+
+    console.log(`[Pending] Found ${pendingImports.length} pending import(s)`);
+    return { success: true, pendingImports };
+  } catch (error) {
+    console.error('Failed to check pending imports:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+// Delete a pending import file after recovery
+ipcMain.handle('delete-pending-import', async (event, fileName) => {
+  try {
+    const settings = loadSettings();
+    const outlinesDir = settings.outlinesDirectory;
+    if (!outlinesDir) {
+      return { success: false, error: 'No outlines directory configured' };
+    }
+
+    const pendingDir = path.join(outlinesDir, '.pending');
+    const filePath = path.join(pendingDir, fileName);
+
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+      console.log(`[Pending] Deleted pending import: ${fileName}`);
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to delete pending import:', error);
     return { success: false, error: error.message };
   }
 });

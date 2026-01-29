@@ -1,14 +1,22 @@
 #!/bin/sh
 
-# Pre-commit hook: Sync iOS before committing
-echo "[Pre-commit] Syncing iOS..."
+# Pre-commit hook: Build and sync iOS before committing
+echo "[Pre-commit] Building for production..."
 
 # Use Node 22 for Capacitor
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
 nvm use 22 > /dev/null 2>&1
 
-# Run cap sync
+# Build Next.js (produces the 'out' directory that cap sync copies)
+npm run build
+if [ $? -ne 0 ]; then
+  echo "[Pre-commit] Build failed! Aborting commit."
+  exit 1
+fi
+
+# Sync to iOS
+echo "[Pre-commit] Syncing iOS..."
 npx cap sync ios
 
 # Check if sync created changes that need to be staged
@@ -17,4 +25,4 @@ if [ -n "$(git status --porcelain ios/)" ]; then
   git add ios/
 fi
 
-echo "[Pre-commit] iOS sync complete!"
+echo "[Pre-commit] Build + iOS sync complete!"

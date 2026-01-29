@@ -159,6 +159,12 @@ export type MergeStrategy =
   | 'separate'        // Keep each source as distinct section (unrelated topics)
   | 'architecture';   // Product architecture - intro describing relationships + separate sections
 
+// Detail level for extraction - controls depth and granularity
+export type ExtractionDetailLevel =
+  | 'overview'        // High-level summary: key concepts only, 3 levels, synthesized prose
+  | 'standard'        // Balanced: main points + supporting details, 4 levels
+  | 'comprehensive';  // Full detail: ALL facts, examples, evidence, nuances, 5-6 levels, preserves granularity
+
 // Bulk research import (PREMIUM feature)
 export interface BulkResearchSources {
   sources: ExternalSourceInput[];
@@ -166,6 +172,9 @@ export interface BulkResearchSources {
   outlineName?: string;  // Optional name for regenerated outline
   useBulletMode?: boolean;  // Use content-first bullet extraction approach
   mergeStrategy?: MergeStrategy;  // How to organize multiple sources
+  targetOutlineId?: string;  // ID of outline to merge into (for pending recovery)
+  detailLevel?: ExtractionDetailLevel;  // Controls extraction depth and granularity
+  useLocalAI?: boolean;  // Force local Ollama processing (macOS only, no rate limits)
 }
 
 export interface BulkResearchResult {

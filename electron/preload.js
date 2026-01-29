@@ -18,6 +18,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
   // File operations
   readOutlinesFromDirectory: (dirPath) => ipcRenderer.invoke('read-outlines-from-directory', dirPath),
+  readOutlineMetadataFromDirectory: (dirPath) => ipcRenderer.invoke('read-outline-metadata-from-directory', dirPath),
+  loadSingleOutline: (dirPath, fileName) => ipcRenderer.invoke('load-single-outline', dirPath, fileName),
   saveOutlineToFile: (dirPath, outline) => ipcRenderer.invoke('save-outline-to-file', dirPath, outline),
   deleteOutlineFile: (dirPath, fileName) => ipcRenderer.invoke('delete-outline-file', dirPath, fileName),
   renameOutlineFile: (dirPath, oldFileName, newOutline) => ipcRenderer.invoke('rename-outline-file', dirPath, oldFileName, newOutline),
@@ -34,4 +36,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
   // Open URL in system default browser
   openExternal: (url) => ipcRenderer.invoke('open-external', url),
+
+  // Pending imports recovery (for long-running imports that timeout)
+  checkPendingImports: () => ipcRenderer.invoke('check-pending-imports'),
+  deletePendingImport: (fileName) => ipcRenderer.invoke('delete-pending-import', fileName),
+
 });

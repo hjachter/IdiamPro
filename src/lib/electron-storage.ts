@@ -1,17 +1,30 @@
 import type { Outline } from '@/types';
 
+// Extended outline type with lazy loading metadata
+export interface LazyOutline extends Outline {
+  _fileSize?: number;
+  _fileName?: string;
+  _isLazyLoaded?: boolean;
+  _estimatedNodeCount?: number;
+}
+
 // Type definition for the Electron API exposed via preload
 interface ElectronAPI {
   isElectron: boolean;
   selectDirectory: () => Promise<string | null>;
   getStoredDirectoryPath: () => Promise<string | null>;
   readOutlinesFromDirectory: (dirPath: string) => Promise<{ success: boolean; outlines?: Outline[]; error?: string }>;
+  readOutlineMetadataFromDirectory: (dirPath: string) => Promise<{ success: boolean; outlines?: LazyOutline[]; error?: string }>;
+  loadSingleOutline: (dirPath: string, fileName: string) => Promise<{ success: boolean; outline?: LazyOutline; error?: string }>;
   saveOutlineToFile: (dirPath: string, outline: Outline) => Promise<{ success: boolean; error?: string }>;
   deleteOutlineFile: (dirPath: string, fileName: string) => Promise<{ success: boolean; error?: string }>;
   renameOutlineFile: (dirPath: string, oldFileName: string, newOutline: Outline) => Promise<{ success: boolean; error?: string }>;
   checkOutlineExists: (dirPath: string, fileName: string) => Promise<boolean>;
   loadOutlineFromFile: (dirPath: string, fileName: string) => Promise<{ success: boolean; outline?: Outline; error?: string }>;
   openExternal: (url: string) => Promise<{ success: boolean; error?: string }>;
+  // Pending imports recovery
+  checkPendingImports?: () => Promise<{ success: boolean; pendingImports?: Array<{ outline: Outline; summary: string; sourcesProcessed: number; createdAt: number; outlineName: string; fileName: string }>; error?: string }>;
+  deletePendingImport?: (fileName: string) => Promise<{ success: boolean; error?: string }>;
 }
 
 declare global {
@@ -112,6 +125,52 @@ export async function electronLoadOutlinesFromDirectory(): Promise<Outline[]> {
 }
 
 /**
+ * Load outline metadata only (for lazy loading - fast startup)
+ * Large outlines (>1MB) are not fully loaded - only metadata is returned
+ */
+export async function electronLoadOutlineMetadataFromDirectory(): Promise<LazyOutline[]> {
+  const api = getElectronAPI();
+  const dirPath = await api.getStoredDirectoryPath();
+
+  if (!dirPath) {
+    return [];
+  }
+
+  const result = await api.readOutlineMetadataFromDirectory(dirPath);
+
+  if (result.success && result.outlines) {
+    const lazyCount = result.outlines.filter(o => o._isLazyLoaded).length;
+    console.log(`Loaded ${result.outlines.length} outlines (${lazyCount} deferred for lazy loading)`);
+    return result.outlines;
+  }
+
+  console.error('Failed to load outline metadata:', result.error);
+  return [];
+}
+
+/**
+ * Load a single outline fully (for lazy-loaded outlines)
+ */
+export async function electronLoadSingleOutline(fileName: string): Promise<LazyOutline | null> {
+  const api = getElectronAPI();
+  const dirPath = await api.getStoredDirectoryPath();
+
+  if (!dirPath) {
+    return null;
+  }
+
+  const result = await api.loadSingleOutline(dirPath, fileName);
+
+  if (result.success && result.outline) {
+    console.log(`Fully loaded outline: ${fileName} (${Object.keys(result.outline.nodes || {}).length} nodes)`);
+    return result.outline;
+  }
+
+  console.error('Failed to load single outline:', result.error);
+  return null;
+}
+
+/**
  * Save outline to file via Electron IPC
  */
 export async function electronSaveOutlineToFile(outline: Outline): Promise<void> {
@@ -201,4 +260,57 @@ export async function electronLoadExistingOutline(outline: Outline): Promise<Out
   }
 
   return null;
+}
+
+/**
+ * Pending import result structure
+ */
+export interface PendingImportResult {
+  outline: Outline;
+  summary: string;
+  sourcesProcessed: number;
+  createdAt: number;
+  outlineName: string;
+  fileName: string;
+  // Merge context for proper recovery
+  mergeContext?: {
+    includeExistingContent: boolean;
+    targetOutlineId?: string;
+  };
+}
+
+/**
+ * Check for and load pending import results
+ * Returns list of pending imports that can be recovered
+ */
+export async function electronCheckPendingImports(): Promise<PendingImportResult[]> {
+  const api = getElectronAPI();
+  if (!api.checkPendingImports) {
+    console.log('[Pending] checkPendingImports not available');
+    return [];
+  }
+
+  const result = await api.checkPendingImports();
+  if (result.success && result.pendingImports) {
+    console.log(`[Pending] Found ${result.pendingImports.length} pending import(s)`);
+    return result.pendingImports;
+  }
+
+  return [];
+}
+
+/**
+ * Delete a pending import file after it's been processed
+ */
+export async function electronDeletePendingImport(fileName: string): Promise<void> {
+  const api = getElectronAPI();
+  if (!api.deletePendingImport) {
+    console.log('[Pending] deletePendingImport not available');
+    return;
+  }
+
+  const result = await api.deletePendingImport(fileName);
+  if (!result.success) {
+    console.error('[Pending] Failed to delete pending import:', result.error);
+  }
 }

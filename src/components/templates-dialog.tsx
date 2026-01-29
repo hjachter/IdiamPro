@@ -9,7 +9,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
 import { templates, type Template } from '@/lib/templates';
 import type { Outline } from '@/types';
 
@@ -38,7 +38,7 @@ export default function TemplatesDialog({
             Choose a template to get started quickly with a pre-built outline structure.
           </DialogDescription>
         </DialogHeader>
-        <ScrollArea className="h-[60vh] pr-4">
+        <div className="overflow-y-auto -webkit-overflow-scrolling-touch max-h-[60vh] pr-4" style={{ WebkitOverflowScrolling: 'touch' }}>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pb-4">
             {templates.map(template => (
               <Card
@@ -60,7 +60,12 @@ export default function TemplatesDialog({
               </Card>
             ))}
           </div>
-        </ScrollArea>
+        </div>
+        <div className="flex justify-end pt-2">
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Skip
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );

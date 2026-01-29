@@ -59,6 +59,8 @@ interface NodeItemProps {
   onRangeSelect?: (nodeId: string) => void;
   // PDF export
   onExportSubtreePdf?: (nodeId: string) => void;
+  // Progressive rendering - max depth to render (for large outlines)
+  maxRenderDepth?: number;
 }
 
 // Helper to highlight search matches in text
@@ -158,6 +160,7 @@ export default function NodeItem({
   onToggleNodeSelection,
   onRangeSelect,
   onExportSubtreePdf,
+  maxRenderDepth,
 }: NodeItemProps) {
   const node = nodes[nodeId];
   const [isEditing, setIsEditing] = React.useState(false);
@@ -917,40 +920,53 @@ export default function NodeItem({
         </ContextMenu>
 
         {!node.isCollapsed && isChapter && Array.isArray(node.childrenIds) && (
-            <ul>
-            {node.childrenIds.map((childId) => (
-                <NodeItem
-                    key={childId}
-                    nodeId={childId}
-                    nodes={nodes}
-                    level={level + 1}
-                    selectedNodeId={selectedNodeId}
-                    onSelectNode={onSelectNode}
-                    onMoveNode={onMoveNode}
-                    onToggleCollapse={onToggleCollapse}
-                    onUpdateNode={onUpdateNode}
-                    onCreateNode={onCreateNode}
-                    onDeleteNode={onDeleteNode}
-                    onCopySubtree={onCopySubtree}
-                    onCutSubtree={onCutSubtree}
-                    onPasteSubtree={onPasteSubtree}
-                    onDuplicateNode={onDuplicateNode}
-                    hasClipboard={hasClipboard}
-                    onIndent={onIndent}
-                    onOutdent={onOutdent}
-                    searchTerm={searchTerm}
-                    highlightedNodeIds={highlightedNodeIds}
-                    onGenerateContentForChildren={onGenerateContentForChildren}
-                    onCreateChildNode={onCreateChildNode}
-                    editingNodeId={editingNodeId}
-                    onEditingComplete={onEditingComplete}
-                    selectedNodeIds={selectedNodeIds}
-                    onToggleNodeSelection={onToggleNodeSelection}
-                    onRangeSelect={onRangeSelect}
-                    onExportSubtreePdf={onExportSubtreePdf}
-                />
-            ))}
-            </ul>
+            <>
+              {/* Progressive rendering disabled - using collapse approach instead for large outlines */}
+              {false && maxRenderDepth !== undefined && level >= maxRenderDepth ? (
+                <div
+                  className="text-xs text-muted-foreground italic py-1"
+                  style={{ paddingLeft: `${(level + 1) * 1.5 + 0.5}rem` }}
+                >
+                  {node.childrenIds.length} items
+                </div>
+              ) : (
+                <ul>
+                {node.childrenIds.map((childId) => (
+                    <NodeItem
+                        key={childId}
+                        nodeId={childId}
+                        nodes={nodes}
+                        level={level + 1}
+                        selectedNodeId={selectedNodeId}
+                        onSelectNode={onSelectNode}
+                        onMoveNode={onMoveNode}
+                        onToggleCollapse={onToggleCollapse}
+                        onUpdateNode={onUpdateNode}
+                        onCreateNode={onCreateNode}
+                        onDeleteNode={onDeleteNode}
+                        onCopySubtree={onCopySubtree}
+                        onCutSubtree={onCutSubtree}
+                        onPasteSubtree={onPasteSubtree}
+                        onDuplicateNode={onDuplicateNode}
+                        hasClipboard={hasClipboard}
+                        onIndent={onIndent}
+                        onOutdent={onOutdent}
+                        searchTerm={searchTerm}
+                        highlightedNodeIds={highlightedNodeIds}
+                        onGenerateContentForChildren={onGenerateContentForChildren}
+                        onCreateChildNode={onCreateChildNode}
+                        editingNodeId={editingNodeId}
+                        onEditingComplete={onEditingComplete}
+                        selectedNodeIds={selectedNodeIds}
+                        onToggleNodeSelection={onToggleNodeSelection}
+                        onRangeSelect={onRangeSelect}
+                        onExportSubtreePdf={onExportSubtreePdf}
+                        maxRenderDepth={maxRenderDepth}
+                    />
+                ))}
+                </ul>
+              )}
+            </>
         )}
 
         {/* Tag Manager Dialog */}

@@ -44,16 +44,33 @@ function stripHtml(html: string): string {
 }
 
 // Search a single outline for matches
+// For large outlines (>5000 nodes), only search leaf nodes for performance
 function searchOutline(
   outline: Outline,
   searchTerm: string
 ): SearchMatch[] {
   const matches: SearchMatch[] = [];
   const lowerSearchTerm = searchTerm.toLowerCase();
+  const nodes = Object.values(outline.nodes);
+  const nodeCount = nodes.length;
+  const LARGE_OUTLINE_THRESHOLD = 5000;
+  const isLargeOutline = nodeCount > LARGE_OUTLINE_THRESHOLD;
 
-  Object.values(outline.nodes).forEach((node) => {
+  // For large outlines, only search leaf nodes (no children) for speed
+  const nodesToSearch = isLargeOutline
+    ? nodes.filter(node => !node.childrenIds || node.childrenIds.length === 0)
+    : nodes;
+
+  if (isLargeOutline) {
+    console.log(`[Search] Large outline: searching ${nodesToSearch.length} leaf nodes (of ${nodeCount} total)`);
+  }
+
+  for (const node of nodesToSearch) {
     const nameMatch = node.name.toLowerCase().includes(lowerSearchTerm);
-    const contentText = stripHtml(node.content || '');
+    // Only check content for leaf nodes or small outlines (content check is expensive)
+    const contentText = (!isLargeOutline || !node.childrenIds?.length)
+      ? stripHtml(node.content || '')
+      : '';
     const contentMatch = contentText.toLowerCase().includes(lowerSearchTerm);
 
     if (nameMatch || contentMatch) {
@@ -65,7 +82,7 @@ function searchOutline(
         matchType: nameMatch && contentMatch ? 'both' : nameMatch ? 'name' : 'content',
       });
     }
-  });
+  }
 
   return matches;
 }

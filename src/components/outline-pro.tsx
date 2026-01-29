@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef, startTransition } from 'react';
+import { flushSync, createPortal } from 'react-dom';
 import { v4 as uuidv4 } from 'uuid';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -14,7 +15,7 @@ import { generateOutlineAction, expandContentAction, generateContentForNodeActio
 import { useAI } from '@/contexts/ai-context';
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction } from './ui/alert-dialog';
 import { Button } from './ui/button';
-import { loadStorageData, saveAllOutlines, migrateToFileSystem, deleteOutline, type MigrationConflict, type ConflictResolution } from '@/lib/storage-manager';
+import { loadStorageData, saveAllOutlines, migrateToFileSystem, deleteOutline, loadSingleOutlineOnDemand, type MigrationConflict, type ConflictResolution, type LazyOutline } from '@/lib/storage-manager';
 import CommandPalette from './command-palette';
 import EmptyState from './empty-state';
 import TemplatesDialog from './templates-dialog';
@@ -26,6 +27,7 @@ import HelpChatDialog from './help-chat-dialog';
 import PdfExportDialog from './pdf-export-dialog';
 import { exportOutlineToJson } from '@/lib/export';
 import { exportSubtreeToPdf } from '@/lib/pdf-export';
+import { isElectron, electronCheckPendingImports, electronDeletePendingImport, electronSaveOutlineToFile, type PendingImportResult } from '@/lib/electron-storage';
 import type { BulkResearchSources } from '@/types';
 
 type MobileView = 'stacked' | 'content'; // stacked = outline + preview, content = full screen content
@@ -40,10 +42,18 @@ const isValidOutline = (data: any): data is Outline => {
         typeof data.rootNodeId !== 'string' ||
         typeof data.nodes !== 'object' ||
         data.nodes === null ||
-        Array.isArray(data.nodes) ||
-        Object.keys(data.nodes).length === 0 ||
-        !data.nodes[data.rootNodeId]
+        Array.isArray(data.nodes)
     ) {
+        return false;
+    }
+
+    // Allow lazy-loaded outlines with empty nodes (they'll be loaded on demand)
+    if (data._isLazyLoaded === true) {
+        return true;
+    }
+
+    // For regular outlines, require non-empty nodes with valid root
+    if (Object.keys(data.nodes).length === 0 || !data.nodes[data.rootNodeId]) {
         return false;
     }
 
@@ -59,6 +69,17 @@ export default function OutlinePro() {
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [mobileView, setMobileView] = useState<MobileView>('stacked');
   const [isLoadingAI, setIsLoadingAI] = useState(false);
+  const [isLoadingLazyOutline, setIsLoadingLazyOutline] = useState(false);
+  const [loadingOutlineInfo, setLoadingOutlineInfo] = useState<{
+    name: string;
+    fileSize: string;
+    estimatedNodes: number;
+    currentLevel?: number;
+    totalLevels?: number;
+    nodesLoaded?: number;
+    totalNodes?: number;
+    phase?: 'reading' | 'rendering' | 'complete';
+  } | null>(null);
   const [prefixDialogState, setPrefixDialogState] = useState<{ open: boolean, prefix: string, nodeName: string }>({ open: false, prefix: '', nodeName: '' });
 
   // Subtree clipboard state
@@ -114,6 +135,10 @@ export default function OutlinePro() {
   // PDF export dialog state
   const [pdfExportDialogOpen, setPdfExportDialogOpen] = useState(false);
   const [pdfExportNodeId, setPdfExportNodeId] = useState<string | null>(null);
+
+  // Pending imports recovery state
+  const [pendingImports, setPendingImports] = useState<PendingImportResult[]>([]);
+  const [pendingImportDialogOpen, setPendingImportDialogOpen] = useState(false);
 
   // Multi-select state
   const [selectedNodeIds, setSelectedNodeIds] = useState<Set<string>>(new Set());
@@ -293,6 +318,194 @@ export default function OutlinePro() {
 
     loadData();
   }, []);
+
+  // Check for pending imports after initial load (for recovering timed-out imports)
+  useEffect(() => {
+    if (!isClient) return;
+
+    const checkPendingImports = async () => {
+      if (!isElectron()) return;
+
+      try {
+        const pending = await electronCheckPendingImports();
+        if (pending.length > 0) {
+          console.log(`[Pending] Found ${pending.length} pending import(s) to recover`);
+          setPendingImports(pending);
+          setPendingImportDialogOpen(true);
+        }
+      } catch (error) {
+        console.error('[Pending] Failed to check pending imports:', error);
+      }
+    };
+
+    // Check after a short delay to let the app initialize
+    const timer = setTimeout(checkPendingImports, 2000);
+    return () => clearTimeout(timer);
+  }, [isClient]);
+
+  // Handle recovering a pending import
+  const handleRecoverPendingImport = async (pending: PendingImportResult) => {
+    try {
+      const recoveredOutline = pending.outline;
+      const mergeContext = pending.mergeContext;
+
+      // Check if this was supposed to be a merge into an existing outline
+      if (mergeContext?.includeExistingContent && mergeContext.targetOutlineId) {
+        const targetOutline = outlines.find(o => o.id === mergeContext.targetOutlineId);
+
+        if (targetOutline) {
+          // MERGE MODE: Merge recovered nodes into target outline
+          console.log(`[Pending] Merging into existing outline: ${targetOutline.name}`);
+
+          const newNodes = recoveredOutline.nodes;
+          const newRootId = recoveredOutline.rootNodeId;
+          const newTopLevelNodeIds = newNodes[newRootId]?.childrenIds || [];
+
+          // Create updated nodes map starting with target outline
+          const updatedNodes = { ...targetOutline.nodes };
+          const currentRootId = targetOutline.rootNodeId;
+          const existingChildIds = [...updatedNodes[currentRootId].childrenIds];
+
+          // Helper: Normalize name for comparison
+          const normalizeName = (name: string) =>
+            name.toLowerCase().replace(/[0-9\.\:\-\_\(\)\"\'\,]/g, '').trim();
+
+          // Add new top-level nodes (avoiding duplicates)
+          for (const newNodeId of newTopLevelNodeIds) {
+            const newNode = newNodes[newNodeId];
+            if (!newNode) continue;
+
+            const normalizedNewName = normalizeName(newNode.name);
+            const existingMatch = existingChildIds.find(existingId => {
+              const existingNode = updatedNodes[existingId];
+              return existingNode && normalizeName(existingNode.name) === normalizedNewName;
+            });
+
+            if (!existingMatch) {
+              // Add new node with unique ID
+              const uniqueId = uuidv4();
+              updatedNodes[uniqueId] = {
+                ...newNode,
+                id: uniqueId,
+                parentId: currentRootId,
+              };
+              existingChildIds.push(uniqueId);
+
+              // Add children recursively
+              const addChildren = (parentId: string, originalParentId: string) => {
+                const originalNode = newNodes[originalParentId];
+                if (!originalNode?.childrenIds) return;
+                const newChildIds: string[] = [];
+                for (const childId of originalNode.childrenIds) {
+                  const childNode = newNodes[childId];
+                  if (childNode) {
+                    const newChildId = uuidv4();
+                    updatedNodes[newChildId] = {
+                      ...childNode,
+                      id: newChildId,
+                      parentId,
+                    };
+                    newChildIds.push(newChildId);
+                    addChildren(newChildId, childId);
+                  }
+                }
+                updatedNodes[parentId].childrenIds = newChildIds;
+              };
+              addChildren(uniqueId, newNodeId);
+            }
+          }
+
+          // Update root's children
+          updatedNodes[currentRootId] = {
+            ...updatedNodes[currentRootId],
+            childrenIds: existingChildIds,
+          };
+
+          // Update the target outline
+          const mergedOutline: Outline = {
+            ...targetOutline,
+            nodes: updatedNodes,
+            lastModified: Date.now(),
+          };
+
+          setOutlines(prev => prev.map(o => o.id === targetOutline.id ? mergedOutline : o));
+
+          // Save to file system
+          if (isElectron()) {
+            await electronSaveOutlineToFile(mergedOutline);
+            await electronDeletePendingImport(pending.fileName);
+          }
+
+          // Remove from pending list
+          setPendingImports(prev => prev.filter(p => p.fileName !== pending.fileName));
+
+          // Select the merged outline
+          setCurrentOutlineId(targetOutline.id);
+
+          toast({
+            title: "Import Merged!",
+            description: `${newTopLevelNodeIds.length} sections merged into "${targetOutline.name}".`,
+            duration: 8000,
+          });
+
+          if (pendingImports.length <= 1) {
+            setPendingImportDialogOpen(false);
+          }
+          return;
+        }
+      }
+
+      // DEFAULT: Create as new outline (no merge or target not found)
+      setOutlines(prev => [...prev, recoveredOutline]);
+
+      // Save to file system
+      if (isElectron()) {
+        await electronSaveOutlineToFile(recoveredOutline);
+        await electronDeletePendingImport(pending.fileName);
+      }
+
+      // Remove from pending list
+      setPendingImports(prev => prev.filter(p => p.fileName !== pending.fileName));
+
+      // Select the recovered outline
+      setCurrentOutlineId(recoveredOutline.id);
+      setSelectedNodeId(recoveredOutline.rootNodeId);
+
+      toast({
+        title: "Import Recovered!",
+        description: `"${recoveredOutline.name}" (${Object.keys(recoveredOutline.nodes).length - 1} nodes) has been recovered and saved.`,
+        duration: 8000,
+      });
+
+      // Close dialog if no more pending imports
+      if (pendingImports.length <= 1) {
+        setPendingImportDialogOpen(false);
+      }
+    } catch (error) {
+      console.error('[Pending] Failed to recover import:', error);
+      toast({
+        variant: "destructive",
+        title: "Recovery Failed",
+        description: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  };
+
+  // Handle dismissing a pending import
+  const handleDismissPendingImport = async (pending: PendingImportResult) => {
+    try {
+      if (isElectron()) {
+        await electronDeletePendingImport(pending.fileName);
+      }
+      setPendingImports(prev => prev.filter(p => p.fileName !== pending.fileName));
+
+      if (pendingImports.length <= 1) {
+        setPendingImportDialogOpen(false);
+      }
+    } catch (error) {
+      console.error('[Pending] Failed to dismiss import:', error);
+    }
+  };
 
   // Keyboard shortcuts (Command Palette, Focus Mode)
   useEffect(() => {
@@ -687,7 +900,9 @@ export default function OutlinePro() {
     });
   }, [currentOutlineId]);
 
-  // Collapse all nodes - show only top-level (chapter) nodes
+  // Collapse all nodes - simply collapse chapters (direct children of root)
+  // This is fast because we only modify a handful of nodes, not the entire tree.
+  // Descendants stay in their current state but are visually hidden.
   const handleCollapseAll = useCallback(() => {
     setOutlines(currentOutlines => {
       return currentOutlines.map(o => {
@@ -696,7 +911,8 @@ export default function OutlinePro() {
           const rootNode = newNodes[o.rootNodeId];
           if (!rootNode) return o;
 
-          // Collapse all direct children of root (top-level/chapter nodes)
+          // Just collapse all chapters (immediate children of root)
+          // This hides everything visually without modifying thousands of nodes
           rootNode.childrenIds.forEach(childId => {
             if (newNodes[childId]) {
               newNodes[childId] = { ...newNodes[childId], isCollapsed: true };
@@ -710,26 +926,71 @@ export default function OutlinePro() {
     });
   }, [currentOutlineId]);
 
-  // Expand all nodes - show complete outline
+  // Expand all nodes
+  // Small outlines: expands entire outline. Large outlines: scoped to selected node's subtree (3 levels max).
   const handleExpandAll = useCallback(() => {
+    if (!selectedNodeId) return;
+
+    const currentOutline = outlines.find(o => o.id === currentOutlineId);
+    if (!currentOutline) return;
+
+    const nodeCount = Object.keys(currentOutline.nodes).length;
+    const LARGE_OUTLINE_THRESHOLD = 5000;
+    const isLargeOutline = nodeCount > LARGE_OUTLINE_THRESHOLD;
+
     setOutlines(currentOutlines => {
       return currentOutlines.map(o => {
         if (o.id === currentOutlineId) {
           const newNodes = { ...o.nodes };
 
-          // Expand all nodes in the outline
-          Object.keys(newNodes).forEach(nodeId => {
-            if (newNodes[nodeId].isCollapsed) {
-              newNodes[nodeId] = { ...newNodes[nodeId], isCollapsed: false };
+          if (!isLargeOutline) {
+            // Small outline: expand everything
+            Object.keys(newNodes).forEach(nodeId => {
+              if (newNodes[nodeId].isCollapsed) {
+                newNodes[nodeId] = { ...newNodes[nodeId], isCollapsed: false };
+              }
+            });
+          } else {
+            // Large outline: scope to selected node, max 3 levels
+            const nodeDepths = new Map<string, number>();
+            const queue: { id: string; depth: number }[] = [{ id: selectedNodeId, depth: 0 }];
+
+            while (queue.length > 0) {
+              const { id, depth } = queue.shift()!;
+              if (nodeDepths.has(id)) continue;
+              nodeDepths.set(id, depth);
+
+              const node = newNodes[id];
+              if (node?.childrenIds) {
+                for (const childId of node.childrenIds) {
+                  if (!nodeDepths.has(childId)) {
+                    queue.push({ id: childId, depth: depth + 1 });
+                  }
+                }
+              }
             }
-          });
+
+            // Expand only nodes within 3 levels of selected node
+            nodeDepths.forEach((depth, nodeId) => {
+              if (depth < 3 && newNodes[nodeId]?.isCollapsed) {
+                newNodes[nodeId] = { ...newNodes[nodeId], isCollapsed: false };
+              }
+            });
+          }
 
           return { ...o, nodes: newNodes };
         }
         return o;
       });
     });
-  }, [currentOutlineId]);
+
+    if (isLargeOutline) {
+      toast({
+        title: 'Expanded 3 Levels',
+        description: `Large outline - expanded 3 levels from "${currentOutline.nodes[selectedNodeId]?.name || 'selected node'}".`,
+      });
+    }
+  }, [currentOutlineId, outlines, selectedNodeId, toast]);
 
   // Expand specific ancestor nodes (for search results)
   const handleExpandAncestors = useCallback((nodeIds: string[]) => {
@@ -857,47 +1118,45 @@ export default function OutlinePro() {
     });
   }, []);
 
-  // FIXED: handleDeleteOutline uses functional update pattern
-  // Now accepts optional outlineId parameter for bulk delete support
-  // Also deletes the file from disk storage
-  const handleDeleteOutline = useCallback((outlineId?: string) => {
+  // FIXED: handleDeleteOutline - deletes file FIRST, then updates state
+  // This prevents race conditions where auto-save might recreate the file
+  const handleDeleteOutline = useCallback(async (outlineId?: string) => {
     const idToDelete = outlineId || currentOutlineId;
 
+    // Find the outline to delete from current state
+    const outlineToDelete = outlines.find(o => o.id === idToDelete);
+    if (!outlineToDelete || outlineToDelete.isGuide) return;
+
+    // IMPORTANT: Delete file from disk FIRST, before updating state
+    // This prevents auto-save from recreating the file
+    try {
+      await deleteOutline(outlineToDelete);
+      console.log('Successfully deleted outline file:', outlineToDelete.name);
+    } catch (error) {
+      console.error('Failed to delete outline file:', error);
+      // Still proceed with removing from state even if file delete fails
+    }
+
+    // Now update state (which will trigger auto-save, but file is already gone)
     setOutlines(currentOutlines => {
-      const outlineToDelete = currentOutlines.find(o => o.id === idToDelete);
-      if (!outlineToDelete || outlineToDelete.isGuide) return currentOutlines;
-
-      // Delete from disk storage (async, but we don't need to wait)
-      deleteOutline(outlineToDelete).catch(error => {
-        console.error('Failed to delete outline file:', error);
-      });
-
       const nextOutlines = currentOutlines.filter(o => o.id !== idToDelete);
-
-      // Only update selection if we're deleting the current outline
-      if (idToDelete === currentOutlineId) {
-        // Determine next outline to select
-        const nextOutlineToSelect = nextOutlines.find(o => !o.isGuide) || nextOutlines.find(o => o.isGuide);
-
-        if (nextOutlineToSelect) {
-          // Schedule these updates after the current state update
-          const capturedOutlineId = nextOutlineToSelect.id;
-          const capturedRootNodeId = nextOutlineToSelect.rootNodeId;
-          setTimeout(() => {
-            setCurrentOutlineId(capturedOutlineId);
-            setSelectedNodeId(capturedRootNodeId);
-          }, 0);
-        } else {
-          // No outlines left, create a new one
-          setTimeout(() => {
-            handleCreateOutline();
-          }, 0);
-        }
-      }
-
       return nextOutlines;
     });
-  }, [currentOutlineId, handleCreateOutline]);
+
+    // Update selection if we deleted the current outline
+    if (idToDelete === currentOutlineId) {
+      const remainingOutlines = outlines.filter(o => o.id !== idToDelete);
+      const nextOutlineToSelect = remainingOutlines.find(o => !o.isGuide) || remainingOutlines.find(o => o.isGuide);
+
+      if (nextOutlineToSelect) {
+        setCurrentOutlineId(nextOutlineToSelect.id);
+        setSelectedNodeId(nextOutlineToSelect.rootNodeId);
+      } else {
+        // No outlines left, create a new one
+        handleCreateOutline();
+      }
+    }
+  }, [currentOutlineId, outlines, handleCreateOutline]);
 
   // Save sidebar width to localStorage
   useEffect(() => {
@@ -936,20 +1195,192 @@ export default function OutlinePro() {
   }, [sidebarWidth]);
 
   // FIXED: handleSelectOutline uses functional update to read fresh state
-  const handleSelectOutline = useCallback((outlineId: string) => {
-    setOutlines(currentOutlines => {
-      const newOutline = currentOutlines.find(o => o.id === outlineId);
-      if (newOutline) {
-        // Schedule these updates
-        setTimeout(() => {
-          setCurrentOutlineId(outlineId);
-          setSelectedNodeId(newOutline.rootNodeId);
-        }, 0);
+  // Now also handles lazy-loaded outlines - loads progressively with visual feedback
+  const handleSelectOutline = useCallback(async (outlineId: string) => {
+    // Get the outline from current state
+    const outlineToSelect = outlines.find(o => o.id === outlineId) as LazyOutline | undefined;
+
+    if (!outlineToSelect) {
+      return;
+    }
+
+    // Check if this is a lazy-loaded outline that needs to be fully loaded
+    if (outlineToSelect._isLazyLoaded && outlineToSelect._fileName) {
+      console.log(`Loading lazy outline: ${outlineToSelect._fileName}`);
+
+      // Format file size for display
+      const fileSizeBytes = outlineToSelect._fileSize || 0;
+      const fileSizeMB = (fileSizeBytes / (1024 * 1024)).toFixed(1);
+      const fileSizeDisplay = fileSizeBytes > 1024 * 1024
+        ? `${fileSizeMB} MB`
+        : `${(fileSizeBytes / 1024).toFixed(0)} KB`;
+
+      // Show loading dialog - phase 1: reading from disk
+      // Use flushSync to ensure the UI updates immediately before async work
+      console.log('[Progress] Setting loading state - phase: reading');
+      flushSync(() => {
+        setLoadingOutlineInfo({
+          name: outlineToSelect.name,
+          fileSize: fileSizeDisplay,
+          estimatedNodes: outlineToSelect._estimatedNodeCount || 0,
+          phase: 'reading',
+        });
+        setIsLoadingLazyOutline(true);
+      });
+      console.log('[Progress] isLoadingLazyOutline set to true');
+
+      try {
+        const fullOutline = await loadSingleOutlineOnDemand(outlineToSelect._fileName);
+
+        if (fullOutline) {
+          const totalNodes = Object.keys(fullOutline.nodes).length;
+          const PROGRESSIVE_THRESHOLD = 5000; // Only progressive load for large outlines
+
+          if (totalNodes > PROGRESSIVE_THRESHOLD) {
+            // Progressive loading: show outline growing level by level
+            console.log(`[Progressive] Loading ${totalNodes} nodes progressively`);
+
+            // Calculate depth levels
+            const nodesByLevel: Map<number, string[]> = new Map();
+            const nodeDepths: Map<string, number> = new Map();
+
+            // BFS to assign levels
+            const queue: { nodeId: string; depth: number }[] = [{ nodeId: fullOutline.rootNodeId, depth: 0 }];
+            while (queue.length > 0) {
+              const { nodeId, depth } = queue.shift()!;
+              if (nodeDepths.has(nodeId)) continue;
+              nodeDepths.set(nodeId, depth);
+
+              if (!nodesByLevel.has(depth)) {
+                nodesByLevel.set(depth, []);
+              }
+              nodesByLevel.get(depth)!.push(nodeId);
+
+              const node = fullOutline.nodes[nodeId];
+              if (node?.childrenIds) {
+                for (const childId of node.childrenIds) {
+                  if (!nodeDepths.has(childId)) {
+                    queue.push({ nodeId: childId, depth: depth + 1 });
+                  }
+                }
+              }
+            }
+
+            const maxDepth = Math.max(...nodesByLevel.keys());
+            console.log(`[Progressive] Found ${maxDepth + 1} levels`);
+
+            // Update phase to rendering
+            setLoadingOutlineInfo(prev => prev ? {
+              ...prev,
+              phase: 'rendering',
+              totalLevels: maxDepth + 1,
+              totalNodes: totalNodes,
+              currentLevel: 0,
+              nodesLoaded: 0,
+            } : null);
+
+            // Start with empty outline structure
+            let currentNodes: typeof fullOutline.nodes = {};
+            let nodesLoaded = 0;
+
+            // Progressively add levels
+            for (let level = 0; level <= maxDepth; level++) {
+              const levelNodeIds = nodesByLevel.get(level) || [];
+
+              // Add nodes at this level
+              for (const nodeId of levelNodeIds) {
+                const node = fullOutline.nodes[nodeId];
+                if (node) {
+                  // Collapse nodes at level 2+ for better visual
+                  currentNodes[nodeId] = { ...node, isCollapsed: level >= 2 };
+                  nodesLoaded++;
+                }
+              }
+
+              // Update state to show progress
+              const outlineSnapshot = { ...fullOutline, nodes: { ...currentNodes } };
+
+              // Update progress info
+              setLoadingOutlineInfo(prev => prev ? {
+                ...prev,
+                currentLevel: level + 1,
+                nodesLoaded: nodesLoaded,
+              } : null);
+
+              // Update the outline in state
+              setOutlines(currentOutlines => {
+                return currentOutlines.map(o =>
+                  o.id === outlineId ? outlineSnapshot : o
+                );
+              });
+
+              // Set current outline and selection on first level
+              if (level === 0) {
+                setCurrentOutlineId(outlineId);
+                setSelectedNodeId(fullOutline.rootNodeId);
+              }
+
+              // Small delay between levels to show progress visually
+              // Shorter delays for deeper levels (they have fewer nodes typically)
+              const delay = level < 3 ? 100 : 50;
+              await new Promise(resolve => setTimeout(resolve, delay));
+            }
+
+            // Recalculate prefixes to ensure proper numbering
+            recalculatePrefixesForBranch(currentNodes, fullOutline.rootNodeId);
+
+            // Final update with recalculated prefixes
+            const finalOutline = { ...fullOutline, nodes: { ...currentNodes } };
+            setOutlines(currentOutlines => {
+              return currentOutlines.map(o =>
+                o.id === outlineId ? finalOutline : o
+              );
+            });
+
+            // Show completion in the progress indicator
+            setLoadingOutlineInfo(prev => prev ? {
+              ...prev,
+              phase: 'complete',
+              nodesLoaded: totalNodes,
+            } : null);
+
+            // Keep the completion message visible briefly
+            await new Promise(resolve => setTimeout(resolve, 1500));
+          } else {
+            // Small outline - load directly (no progress needed)
+            setOutlines(currentOutlines => {
+              return currentOutlines.map(o =>
+                o.id === outlineId ? fullOutline : o
+              );
+            });
+            setCurrentOutlineId(outlineId);
+            setSelectedNodeId(fullOutline.rootNodeId);
+            // No toast for small outlines - they load instantly
+          }
+        } else {
+          toast({
+            variant: 'destructive',
+            title: 'Failed to Load Outline',
+            description: 'Could not load the outline file.',
+          });
+        }
+      } catch (error) {
+        console.error('Error loading lazy outline:', error);
+        toast({
+          variant: 'destructive',
+          title: 'Error Loading Outline',
+          description: (error as Error).message || 'An error occurred.',
+        });
+      } finally {
+        setIsLoadingLazyOutline(false);
+        setLoadingOutlineInfo(null);
       }
-      // Return unchanged - we're just reading and triggering side effects
-      return currentOutlines;
-    });
-  }, []);
+    } else {
+      // Not lazy-loaded, just select it normally
+      setCurrentOutlineId(outlineId);
+      setSelectedNodeId(outlineToSelect.rootNodeId);
+    }
+  }, [outlines, toast]);
 
   // Copy the current outline (useful for copying the User Guide)
   const handleCopyOutline = useCallback(() => {
@@ -1414,8 +1845,14 @@ export default function OutlinePro() {
         console.log(`Existing outline content: ${existingContent.length} chars from ${contentParts.length} nodes`);
       }
 
+      // Add target outline ID for pending recovery if merging
+      const inputWithTarget: BulkResearchSources = {
+        ...input,
+        targetOutlineId: input.includeExistingContent && currentOutline ? currentOutline.id : undefined,
+      };
+
       // Always use bullet-based (content-first) approach for best results
-      const result = await bulletBasedResearchAction(input, existingContent);
+      const result = await bulletBasedResearchAction(inputWithTarget, existingContent);
 
       if (input.includeExistingContent && currentOutline) {
         // TRUE MERGE: Intelligently merge new nodes into existing outline
@@ -2348,9 +2785,100 @@ export default function OutlinePro() {
     setPdfExportNodeId(null);
   }, []);
 
+  // Progress indicator for large outline loading - use Portal to render to document.body
+  const progressIndicatorContent = isLoadingLazyOutline && loadingOutlineInfo ? (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 99999 }}>
+      {/* Semi-transparent overlay */}
+      <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)' }} />
+
+      {/* Progress panel at bottom - using inline styles to guarantee visibility */}
+      <div style={{
+        position: 'absolute',
+        bottom: '16px',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        width: '100%',
+        maxWidth: '400px',
+        padding: '0 16px',
+        boxSizing: 'border-box',
+      }}>
+        <div style={{
+          backgroundColor: 'white',
+          border: '1px solid #e5e7eb',
+          borderRadius: '8px',
+          boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
+          padding: '16px',
+        }}>
+          {/* Header with spinner */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+            {loadingOutlineInfo.phase === 'complete' ? (
+              <svg style={{ width: '20px', height: '20px', color: '#22c55e' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            ) : (
+              <svg style={{ width: '20px', height: '20px', animation: 'spin 1s linear infinite' }} viewBox="0 0 24 24">
+                <circle style={{ opacity: 0.25 }} cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
+                <path style={{ opacity: 0.75 }} fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            )}
+            <span style={{ fontWeight: 500, color: '#111' }}>
+              {loadingOutlineInfo.phase === 'complete'
+                ? 'Outline Loaded!'
+                : `Loading: ${loadingOutlineInfo.name}`}
+            </span>
+          </div>
+
+          {/* Phase content */}
+          {loadingOutlineInfo.phase === 'reading' && (
+            <div style={{ fontSize: '14px', color: '#666' }}>
+              Reading {loadingOutlineInfo.fileSize} from disk...
+            </div>
+          )}
+
+          {loadingOutlineInfo.phase === 'rendering' && loadingOutlineInfo.totalNodes && (
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '6px' }}>
+                <span style={{ color: '#666' }}>Level {loadingOutlineInfo.currentLevel || 0} / {loadingOutlineInfo.totalLevels || 0}</span>
+                <span style={{ fontWeight: 500, color: '#111' }}>{(loadingOutlineInfo.nodesLoaded || 0).toLocaleString()} / {loadingOutlineInfo.totalNodes.toLocaleString()} nodes</span>
+              </div>
+              <div style={{ height: '10px', backgroundColor: '#e5e7eb', borderRadius: '5px', overflow: 'hidden' }}>
+                <div style={{
+                  height: '100%',
+                  backgroundColor: '#3b82f6',
+                  width: `${Math.round(((loadingOutlineInfo.nodesLoaded || 0) / loadingOutlineInfo.totalNodes) * 100)}%`,
+                  transition: 'width 0.1s ease-out',
+                }} />
+              </div>
+            </div>
+          )}
+
+          {loadingOutlineInfo.phase === 'complete' && loadingOutlineInfo.totalNodes && (
+            <div>
+              <div style={{ height: '10px', backgroundColor: '#e5e7eb', borderRadius: '5px', overflow: 'hidden', marginBottom: '8px' }}>
+                <div style={{ height: '100%', backgroundColor: '#22c55e', width: '100%' }} />
+              </div>
+              <div style={{ fontSize: '14px', color: '#666' }}>
+                {loadingOutlineInfo.totalNodes.toLocaleString()} nodes loaded successfully
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* CSS for spinner animation */}
+      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
+    </div>
+  ) : null;
+
+  // Use portal to render progress indicator directly to document.body
+  const progressIndicator = typeof document !== 'undefined' && progressIndicatorContent
+    ? createPortal(progressIndicatorContent, document.body)
+    : null;
+
   if (!isClient || !currentOutline) {
     return (
       <div className="flex h-screen w-full bg-background">
+        {progressIndicator}
         {/* Skeleton sidebar */}
         <div className="w-64 border-r bg-muted/20 p-3 space-y-4 hidden md:block">
           <div className="skeleton h-5 w-24" />
@@ -2384,6 +2912,7 @@ export default function OutlinePro() {
   if (!hasUserOutlines) {
     return (
       <div className="h-screen w-full">
+        {progressIndicator}
         <EmptyState
           onCreateBlankOutline={handleCreateOutline}
           onCreateFromTemplate={handleCreateFromTemplate}
@@ -2488,20 +3017,25 @@ export default function OutlinePro() {
           </AlertDialogContent>
         </AlertDialog>
 
+        {/* Loading Large Outline progress indicator */}
+        {progressIndicator}
+
         {/* Migration Conflict Dialog */}
         <AlertDialog open={conflictDialog.open}>
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>File Already Exists</AlertDialogTitle>
-              <AlertDialogDescription className="space-y-2">
-                <p><strong>{conflictDialog.conflict?.fileName}</strong> already exists in the target folder.</p>
-                <p className="text-sm">
-                  <strong>Your version:</strong> {conflictDialog.conflict?.localOutline.name}
-                </p>
-                <p className="text-sm">
-                  <strong>Existing version:</strong> {conflictDialog.conflict?.existingOutline.name}
-                </p>
-                <p className="mt-2">What would you like to do?</p>
+              <AlertDialogDescription asChild>
+                <div className="space-y-2 text-sm text-muted-foreground">
+                  <div><strong>{conflictDialog.conflict?.fileName}</strong> already exists in the target folder.</div>
+                  <div className="text-sm">
+                    <strong>Your version:</strong> {conflictDialog.conflict?.localOutline.name}
+                  </div>
+                  <div className="text-sm">
+                    <strong>Existing version:</strong> {conflictDialog.conflict?.existingOutline.name}
+                  </div>
+                  <div className="mt-2">What would you like to do?</div>
+                </div>
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter className="flex-col sm:flex-row gap-2">
@@ -2531,6 +3065,64 @@ export default function OutlinePro() {
                 }}
               >
                 Keep Both
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        {/* Pending Imports Recovery Dialog */}
+        <AlertDialog open={pendingImportDialogOpen} onOpenChange={setPendingImportDialogOpen}>
+          <AlertDialogContent className="max-w-lg">
+            <AlertDialogHeader>
+              <AlertDialogTitle>Recovered Import{pendingImports.length > 1 ? 's' : ''}</AlertDialogTitle>
+              <AlertDialogDescription asChild>
+                <div className="space-y-3 text-sm text-muted-foreground">
+                  <div>
+                    {pendingImports.length === 1
+                      ? 'A previously timed-out import has been recovered:'
+                      : `${pendingImports.length} previously timed-out imports have been recovered:`
+                    }
+                  </div>
+                  {pendingImports.map((pending) => {
+                    const mergeTarget = pending.mergeContext?.includeExistingContent && pending.mergeContext.targetOutlineId
+                      ? outlines.find(o => o.id === pending.mergeContext?.targetOutlineId)
+                      : null;
+                    return (
+                    <div key={pending.fileName} className="p-3 bg-muted rounded-lg space-y-2">
+                      <div className="font-medium text-foreground">{pending.outlineName}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {Object.keys(pending.outline.nodes).length - 1} nodes •
+                        Completed {new Date(pending.createdAt).toLocaleString()}
+                      </div>
+                      {mergeTarget && (
+                        <div className="text-xs text-blue-600 dark:text-blue-400">
+                          → Will merge into &quot;{mergeTarget.name}&quot;
+                        </div>
+                      )}
+                      <div className="flex gap-2 mt-2">
+                        <Button
+                          size="sm"
+                          onClick={() => handleRecoverPendingImport(pending)}
+                        >
+                          {mergeTarget ? 'Merge' : 'Recover'}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleDismissPendingImport(pending)}
+                        >
+                          Dismiss
+                        </Button>
+                      </div>
+                    </div>
+                    );
+                  })}
+                </div>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <Button variant="ghost" onClick={() => setPendingImportDialogOpen(false)}>
+                Close
               </Button>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -2756,15 +3348,17 @@ export default function OutlinePro() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>File Already Exists</AlertDialogTitle>
-            <AlertDialogDescription className="space-y-2">
-              <p><strong>{conflictDialog.conflict?.fileName}</strong> already exists in the target folder.</p>
-              <p className="text-sm">
-                <strong>Your version:</strong> {conflictDialog.conflict?.localOutline.name}
-              </p>
-              <p className="text-sm">
-                <strong>Existing version:</strong> {conflictDialog.conflict?.existingOutline.name}
-              </p>
-              <p className="mt-2">What would you like to do?</p>
+            <AlertDialogDescription asChild>
+              <div className="space-y-2 text-sm text-muted-foreground">
+                <div><strong>{conflictDialog.conflict?.fileName}</strong> already exists in the target folder.</div>
+                <div className="text-sm">
+                  <strong>Your version:</strong> {conflictDialog.conflict?.localOutline.name}
+                </div>
+                <div className="text-sm">
+                  <strong>Existing version:</strong> {conflictDialog.conflict?.existingOutline.name}
+                </div>
+                <div className="mt-2">What would you like to do?</div>
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-col sm:flex-row gap-2">
@@ -2794,6 +3388,64 @@ export default function OutlinePro() {
               }}
             >
               Keep Both
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Pending Imports Recovery Dialog */}
+      <AlertDialog open={pendingImportDialogOpen} onOpenChange={setPendingImportDialogOpen}>
+        <AlertDialogContent className="max-w-lg">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Recovered Import{pendingImports.length > 1 ? 's' : ''}</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-3 text-sm text-muted-foreground">
+                <div>
+                  {pendingImports.length === 1
+                    ? 'A previously timed-out import has been recovered:'
+                    : `${pendingImports.length} previously timed-out imports have been recovered:`
+                  }
+                </div>
+                {pendingImports.map((pending) => {
+                  const mergeTarget = pending.mergeContext?.includeExistingContent && pending.mergeContext.targetOutlineId
+                    ? outlines.find(o => o.id === pending.mergeContext?.targetOutlineId)
+                    : null;
+                  return (
+                  <div key={pending.fileName} className="p-3 bg-muted rounded-lg space-y-2">
+                    <div className="font-medium text-foreground">{pending.outlineName}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {Object.keys(pending.outline.nodes).length - 1} nodes •
+                      Completed {new Date(pending.createdAt).toLocaleString()}
+                    </div>
+                    {mergeTarget && (
+                      <div className="text-xs text-blue-600 dark:text-blue-400">
+                        → Will merge into &quot;{mergeTarget.name}&quot;
+                      </div>
+                    )}
+                    <div className="flex gap-2 mt-2">
+                      <Button
+                        size="sm"
+                        onClick={() => handleRecoverPendingImport(pending)}
+                      >
+                        {mergeTarget ? 'Merge' : 'Recover'}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleDismissPendingImport(pending)}
+                      >
+                        Dismiss
+                      </Button>
+                    </div>
+                  </div>
+                  );
+                })}
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <Button variant="ghost" onClick={() => setPendingImportDialogOpen(false)}>
+              Close
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
