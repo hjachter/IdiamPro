@@ -12,6 +12,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Listen for new document events
   onNewDocument: (callback) => ipcRenderer.on('new-document', callback),
 
+  // Listen for window focus events (external file change detection)
+  onWindowFocus: (callback) => ipcRenderer.on('window-focus', callback),
+  removeWindowFocusListener: (callback) => ipcRenderer.removeListener('window-focus', callback),
+
   // Directory selection
   selectDirectory: () => ipcRenderer.invoke('select-directory'),
   getStoredDirectoryPath: () => ipcRenderer.invoke('get-stored-directory-path'),

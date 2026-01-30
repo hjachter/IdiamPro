@@ -22,6 +22,8 @@ interface ElectronAPI {
   checkOutlineExists: (dirPath: string, fileName: string) => Promise<boolean>;
   loadOutlineFromFile: (dirPath: string, fileName: string) => Promise<{ success: boolean; outline?: Outline; error?: string }>;
   getOutlineMtime: (dirPath: string, fileName: string) => Promise<{ success: boolean; mtimeMs?: number; error?: string }>;
+  onWindowFocus?: (callback: (...args: unknown[]) => void) => void;
+  removeWindowFocusListener?: (callback: (...args: unknown[]) => void) => void;
   openExternal: (url: string) => Promise<{ success: boolean; error?: string }>;
   // Pending imports recovery
   checkPendingImports?: () => Promise<{ success: boolean; pendingImports?: Array<{ outline: Outline; summary: string; sourcesProcessed: number; createdAt: number; outlineName: string; fileName: string }>; error?: string }>;
@@ -283,6 +285,19 @@ export async function electronGetOutlineMtime(outline: Outline): Promise<number 
   }
 
   return null;
+}
+
+/**
+ * Register a callback for when the Electron window regains focus.
+ * Returns an unsubscribe function for useEffect cleanup.
+ */
+export function onElectronWindowFocus(callback: () => void): (() => void) | null {
+  if (!isElectron() || !window.electronAPI?.onWindowFocus) return null;
+  const handler = () => callback();
+  window.electronAPI.onWindowFocus(handler);
+  return () => {
+    window.electronAPI?.removeWindowFocusListener?.(handler);
+  };
 }
 
 /**

@@ -179,6 +179,11 @@ async function createWindow() {
     mainWindow = null;
   });
 
+  // Notify renderer when window regains focus (for external file change detection)
+  mainWindow.on('focus', () => {
+    mainWindow.webContents.send('window-focus');
+  });
+
   // Create application menu
   createMenu();
 }

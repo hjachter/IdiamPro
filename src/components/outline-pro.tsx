@@ -27,7 +27,7 @@ import HelpChatDialog from './help-chat-dialog';
 import PdfExportDialog from './pdf-export-dialog';
 import { exportOutlineToJson } from '@/lib/export';
 import { exportSubtreeToPdf } from '@/lib/pdf-export';
-import { isElectron, electronCheckPendingImports, electronDeletePendingImport, electronSaveOutlineToFile, electronGetOutlineMtime, type PendingImportResult } from '@/lib/electron-storage';
+import { isElectron, electronCheckPendingImports, electronDeletePendingImport, electronSaveOutlineToFile, electronGetOutlineMtime, onElectronWindowFocus, type PendingImportResult } from '@/lib/electron-storage';
 import type { BulkResearchSources } from '@/types';
 
 type MobileView = 'stacked' | 'content'; // stacked = outline + preview, content = full screen content
@@ -323,6 +323,53 @@ export default function OutlinePro() {
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, []);
+
+  // Reload current outline from disk when Electron window regains focus (external edit detection)
+  useEffect(() => {
+    if (!isClient) return;
+
+    let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const handleWindowFocus = () => {
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(async () => {
+        const currentOutline = outlines.find(o => o.id === currentOutlineId) as LazyOutline | undefined;
+        if (!currentOutline) return;
+        if (currentOutline.isGuide) return;
+        if (currentOutline._isLazyLoaded) return;
+        if (!currentOutline._fileName) return;
+
+        try {
+          const diskMtime = await electronGetOutlineMtime(currentOutline);
+          const lastKnown = lastKnownMtimeRef.current.get(currentOutlineId);
+
+          if (diskMtime && lastKnown && diskMtime > lastKnown + 1000) {
+            console.log(`[Focus] External change detected for "${currentOutline.name}" (disk: ${diskMtime}, known: ${lastKnown})`);
+            const freshOutline = await loadSingleOutlineOnDemand(currentOutline._fileName);
+            if (freshOutline) {
+              setOutlinesFromDisk(current =>
+                current.map(o => o.id === currentOutlineId ? freshOutline : o)
+              );
+              lastKnownMtimeRef.current.set(currentOutlineId, diskMtime);
+              toast({
+                title: 'Outline Reloaded',
+                description: `"${currentOutline.name}" was modified externally and has been refreshed.`,
+              });
+            }
+          }
+        } catch (error) {
+          console.error('[Focus] Error checking file mtime:', error);
+        }
+      }, 300);
+    };
+
+    const unsubscribe = onElectronWindowFocus(handleWindowFocus);
+
+    return () => {
+      if (debounceTimer) clearTimeout(debounceTimer);
+      unsubscribe?.();
+    };
+  }, [isClient, currentOutlineId, outlines, toast, setOutlinesFromDisk]);
 
   // Initial load: Load data from storage
   useEffect(() => {
