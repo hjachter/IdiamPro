@@ -348,7 +348,7 @@ function validateOutlinesBeforeSave(outlines: Outline[]): boolean {
 /**
  * Save all outlines to storage
  */
-export async function saveAllOutlines(outlines: Outline[], currentOutlineId: string): Promise<void> {
+export async function saveAllOutlines(outlines: Outline[], currentOutlineId: string, dirtyIds?: Set<string>): Promise<void> {
   // Always save currentOutlineId to dedicated key (works with all storage backends)
   localStorage.setItem(CURRENT_OUTLINE_KEY, currentOutlineId);
 
@@ -363,14 +363,23 @@ export async function saveAllOutlines(outlines: Outline[], currentOutlineId: str
     return true;
   });
 
+  // If dirty IDs provided, only save those outlines (prevents overwriting external file modifications)
+  let outlinesToSave = userOutlines;
+  if (dirtyIds && dirtyIds.size > 0) {
+    outlinesToSave = userOutlines.filter(o => dirtyIds.has(o.id));
+  }
+  if (outlinesToSave.length === 0) {
+    return;
+  }
+
   // Validate - warn but don't block save (we still want to persist data)
-  validateOutlinesBeforeSave(userOutlines);
+  validateOutlinesBeforeSave(outlinesToSave);
 
   // Try Electron storage first
   if (isElectron() && await isElectronStorageAvailable()) {
     try {
-      await Promise.all(userOutlines.map(outline => electronSaveOutlineToFile(outline)));
-      console.log('Saved all outlines to Electron storage');
+      await Promise.all(outlinesToSave.map(outline => electronSaveOutlineToFile(outline)));
+      console.log(`Saved ${outlinesToSave.length} outline(s) to Electron storage`);
       return;
     } catch (error) {
       console.error('Failed to save to Electron storage, falling back to localStorage:', error);
@@ -385,8 +394,8 @@ export async function saveAllOutlines(outlines: Outline[], currentOutlineId: str
       const dirHandle = await getDirectoryHandle();
       if (dirHandle) {
         // Save each outline to a file
-        await Promise.all(userOutlines.map(outline => saveOutlineToFile(dirHandle, outline)));
-        console.log('Saved all outlines to file system');
+        await Promise.all(outlinesToSave.map(outline => saveOutlineToFile(dirHandle, outline)));
+        console.log(`Saved ${outlinesToSave.length} outline(s) to file system`);
         return;
       }
     } catch (error) {
@@ -394,7 +403,7 @@ export async function saveAllOutlines(outlines: Outline[], currentOutlineId: str
     }
   }
 
-  // Fall back to localStorage
+  // Fall back to localStorage (saves all outlines as a single blob)
   try {
     const dataToSave = JSON.stringify({
       outlines: userOutlines,

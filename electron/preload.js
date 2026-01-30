@@ -25,6 +25,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   renameOutlineFile: (dirPath, oldFileName, newOutline) => ipcRenderer.invoke('rename-outline-file', dirPath, oldFileName, newOutline),
   checkOutlineExists: (dirPath, fileName) => ipcRenderer.invoke('check-outline-exists', dirPath, fileName),
   loadOutlineFromFile: (dirPath, fileName) => ipcRenderer.invoke('load-outline-from-file', dirPath, fileName),
+  getOutlineMtime: (dirPath, fileName) => ipcRenderer.invoke('get-outline-mtime', dirPath, fileName),
 
   // File operations for PDF export
   openFile: (filePath) => ipcRenderer.invoke('open-file', filePath),

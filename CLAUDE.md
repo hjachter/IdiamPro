@@ -35,6 +35,18 @@ When the user proposes features, WARN them if any of these iOS-reserved gestures
 
 ---
 
+## Outline File Safety - CRITICAL
+
+Before saving/writing to any `.idm` file in the active outlines directory (`~/Documents/IDM Outlines/`):
+
+1. **Check if that outline is currently loaded** in a running IdiamPro instance.
+2. **If it is loaded, STOP and say:** "I can't save because that outline is already loaded."
+3. **Wait for the user to switch away** from that outline before saving.
+
+This prevents the app from overwriting your changes with its in-memory version. Never skip this check.
+
+---
+
 ## Development Notes
 
 - **Capacitor** requires Node >= 22 for CLI commands (`npx cap sync`, `npx cap run`)

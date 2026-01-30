@@ -110,7 +110,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Image from 'next/image';
-import { ArrowLeft, Sparkles, Loader2, Eraser, Scissors, Copy, Clipboard, Type, Undo, Redo, List, ListOrdered, ListX, Minus, FileText, Sheet, Presentation, Video, Map, AppWindow, Plus, Bold, Italic, Strikethrough, Code, Heading1, Heading2, Heading3, Mic, MicOff, ChevronRight, Home, Pencil, ALargeSmall, Check, Calendar, Brush, Network, GitBranch, MessageSquare, ImagePlus, Table, Layers, Image as ImageIcon, Film } from 'lucide-react';
+import { ArrowLeft, Sparkles, Loader2, Eraser, Scissors, Copy, Clipboard, Type, Undo, Redo, List, ListOrdered, ListX, Minus, FileText, Sheet, Presentation, Video, Map, AppWindow, Plus, Bold, Italic, Strikethrough, Code, Heading1, Heading2, Heading3, Mic, MicOff, ChevronRight, Home, Pencil, ALargeSmall, Check, Calendar, Brush, Network, GitBranch, MessageSquare, ImagePlus, Table, Layers, Image as ImageIcon, Film, CheckSquare } from 'lucide-react';
 import { generateImageAction } from '@/app/actions';
 import dynamic from 'next/dynamic';
 
@@ -181,6 +181,8 @@ import ImageExt from '@tiptap/extension-image';
 import Youtube from '@tiptap/extension-youtube';
 import Placeholder from '@tiptap/extension-placeholder';
 import { GoogleDocs, GoogleSheets, GoogleSlides, GoogleMaps, MermaidBlock, VideoBlock, ImageBlock } from './tiptap-extensions';
+import { TaskList } from '@tiptap/extension-list/task-list';
+import { TaskItem } from '@tiptap/extension-list/task-item';
 import { useSpeechRecognition } from '@/lib/use-speech-recognition';
 import { Extension } from '@tiptap/core';
 import { Decoration, DecorationSet } from '@tiptap/pm/view';
@@ -490,6 +492,8 @@ export default function ContentPane({
     editable: shouldUseRichTextEditor && !isGuide,
     extensions: [
       StarterKit,
+      TaskList,
+      TaskItem.configure({ nested: true }),
       ImageExt,
       Youtube.configure({
         width: 640,
@@ -1190,6 +1194,11 @@ export default function ContentPane({
   const handleNumberedList = () => {
     if (!editor) return;
     editor.chain().focus().toggleOrderedList().run();
+  };
+
+  const handleCheckboxList = () => {
+    if (!editor) return;
+    editor.chain().focus().toggleTaskList().run();
   };
 
   const handleHorizontalLine = () => {
@@ -2535,6 +2544,11 @@ export default function ContentPane({
             <ContextMenuItem onClick={handleNumberedList}>
               <ListOrdered className="mr-2 h-4 w-4" />
               Numbered List
+            </ContextMenuItem>
+
+            <ContextMenuItem onClick={handleCheckboxList}>
+              <CheckSquare className="mr-2 h-4 w-4" />
+              Checkbox List
             </ContextMenuItem>
 
             <ContextMenuItem onClick={handleHorizontalLine}>

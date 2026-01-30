@@ -21,6 +21,7 @@ interface ElectronAPI {
   renameOutlineFile: (dirPath: string, oldFileName: string, newOutline: Outline) => Promise<{ success: boolean; error?: string }>;
   checkOutlineExists: (dirPath: string, fileName: string) => Promise<boolean>;
   loadOutlineFromFile: (dirPath: string, fileName: string) => Promise<{ success: boolean; outline?: Outline; error?: string }>;
+  getOutlineMtime: (dirPath: string, fileName: string) => Promise<{ success: boolean; mtimeMs?: number; error?: string }>;
   openExternal: (url: string) => Promise<{ success: boolean; error?: string }>;
   // Pending imports recovery
   checkPendingImports?: () => Promise<{ success: boolean; pendingImports?: Array<{ outline: Outline; summary: string; sourcesProcessed: number; createdAt: number; outlineName: string; fileName: string }>; error?: string }>;
@@ -257,6 +258,28 @@ export async function electronLoadExistingOutline(outline: Outline): Promise<Out
 
   if (result.success && result.outline) {
     return result.outline;
+  }
+
+  return null;
+}
+
+/**
+ * Get the modification time of an outline file via Electron IPC.
+ * Used to detect external file modifications.
+ */
+export async function electronGetOutlineMtime(outline: Outline): Promise<number | null> {
+  const api = getElectronAPI();
+  const dirPath = await api.getStoredDirectoryPath();
+
+  if (!dirPath) {
+    return null;
+  }
+
+  const fileName = getElectronOutlineFileName(outline);
+  const result = await api.getOutlineMtime(dirPath, fileName);
+
+  if (result.success && result.mtimeMs !== undefined) {
+    return result.mtimeMs;
   }
 
   return null;

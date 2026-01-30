@@ -27,7 +27,7 @@ import HelpChatDialog from './help-chat-dialog';
 import PdfExportDialog from './pdf-export-dialog';
 import { exportOutlineToJson } from '@/lib/export';
 import { exportSubtreeToPdf } from '@/lib/pdf-export';
-import { isElectron, electronCheckPendingImports, electronDeletePendingImport, electronSaveOutlineToFile, type PendingImportResult } from '@/lib/electron-storage';
+import { isElectron, electronCheckPendingImports, electronDeletePendingImport, electronSaveOutlineToFile, electronGetOutlineMtime, type PendingImportResult } from '@/lib/electron-storage';
 import type { BulkResearchSources } from '@/types';
 
 type MobileView = 'stacked' | 'content'; // stacked = outline + preview, content = full screen content
@@ -64,7 +64,34 @@ const isValidOutline = (data: any): data is Outline => {
 
 export default function OutlinePro() {
   const [isClient, setIsClient] = useState(false);
-  const [outlines, setOutlines] = useState<Outline[]>([]);
+  const [outlines, rawSetOutlines] = useState<Outline[]>([]);
+
+  // Dirty tracking: only save outlines that were actually modified in-app
+  // This prevents overwriting externally-modified .idm files
+  const dirtyOutlineIdsRef = useRef<Set<string>>(new Set());
+
+  // Wrapper around setState that auto-detects which outlines changed via reference equality
+  const setOutlines = useCallback((updater: React.SetStateAction<Outline[]>) => {
+    rawSetOutlines(prev => {
+      const next = typeof updater === 'function' ? updater(prev) : updater;
+      for (const outline of next) {
+        const prevOutline = prev.find(o => o.id === outline.id);
+        if (!prevOutline || prevOutline !== outline) {
+          dirtyOutlineIdsRef.current.add(outline.id);
+        }
+      }
+      return next;
+    });
+  }, []);
+
+  // For loading outlines from disk — does NOT mark dirty
+  const setOutlinesFromDisk = useCallback((updater: React.SetStateAction<Outline[]>) => {
+    rawSetOutlines(updater);
+  }, []);
+
+  // Track last-known file mtime for external modification detection
+  // Map: outlineId -> mtimeMs (time of our last save or load)
+  const lastKnownMtimeRef = useRef<Map<string, number>>(new Map());
   const [currentOutlineId, setCurrentOutlineId] = useState<string>('');
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [mobileView, setMobileView] = useState<MobileView>('stacked');
@@ -234,21 +261,39 @@ export default function OutlinePro() {
 
     // Debounce saves to prevent rapid repeated saves
     saveDebounceRef.current = setTimeout(() => {
-      // Update lastModified for current outline before saving
+      // Capture and clear the dirty set atomically
+      const dirtyIds = new Set(dirtyOutlineIdsRef.current);
+      dirtyOutlineIdsRef.current.clear();
+
+      // Skip save if nothing was modified in-app
+      if (dirtyIds.size === 0) {
+        return;
+      }
+
+      // Update lastModified only for dirty outlines before saving
       const updatedOutlines = outlines.map(o => {
-        if (o.id === currentOutlineId && !o.isGuide) {
+        if (dirtyIds.has(o.id) && !o.isGuide) {
           return { ...o, lastModified: Date.now() };
         }
         return o;
       });
 
-      // Save to storage (file system or localStorage)
-      const savePromise = saveAllOutlines(updatedOutlines, currentOutlineId)
+      // Save only dirty outlines to storage (preserves external file modifications)
+      const savePromise = saveAllOutlines(updatedOutlines, currentOutlineId, dirtyIds)
         .then(() => {
           hasUnsavedChangesRef.current = false;
+          // Record mtime for saved outlines so mtime detection knows our last save time
+          const saveTime = Date.now();
+          for (const id of dirtyIds) {
+            lastKnownMtimeRef.current.set(id, saveTime);
+          }
         })
         .catch(error => {
           console.error("Auto-save failed:", error);
+          // Re-add failed IDs for retry on next save cycle
+          for (const id of dirtyIds) {
+            dirtyOutlineIdsRef.current.add(id);
+          }
         })
         .finally(() => {
           pendingSaveRef.current = null;
@@ -291,7 +336,15 @@ export default function OutlinePro() {
         const validOutlines = userOutlines.filter(o => o && isValidOutline(o));
         const loadedOutlines = [guide, ...validOutlines];
 
-        setOutlines(loadedOutlines);
+        setOutlinesFromDisk(loadedOutlines);
+
+        // Record initial mtime baseline for all loaded outlines
+        const now = Date.now();
+        for (const o of validOutlines) {
+          if (!o.isGuide) {
+            lastKnownMtimeRef.current.set(o.id, now);
+          }
+        }
 
         const outlineToLoad = loadedOutlines.find(o => o.id === loadedCurrentOutlineId) || validOutlines[0] || guide;
         setCurrentOutlineId(outlineToLoad.id);
@@ -307,7 +360,7 @@ export default function OutlinePro() {
         }
       } catch (error) {
         console.error("Failed to load data, initializing with guide:", error);
-        setOutlines([guide]);
+        setOutlinesFromDisk([guide]);
         setCurrentOutlineId(guide.id);
         setSelectedNodeId(guide.rootNodeId);
       }
@@ -1083,7 +1136,7 @@ export default function OutlinePro() {
       const validOutlines = userOutlines.filter(o => o && isValidOutline(o));
       const loadedOutlines = [guide, ...validOutlines];
 
-      setOutlines(loadedOutlines);
+      setOutlinesFromDisk(loadedOutlines);
 
       const outlineToLoad = loadedOutlines.find(o => o.id === loadedCurrentOutlineId) || validOutlines[0] || guide;
       setCurrentOutlineId(outlineToLoad.id);
@@ -1307,8 +1360,8 @@ export default function OutlinePro() {
                 nodesLoaded: nodesLoaded,
               } : null);
 
-              // Update the outline in state
-              setOutlines(currentOutlines => {
+              // Update the outline in state (loaded from disk, not dirty)
+              setOutlinesFromDisk(currentOutlines => {
                 return currentOutlines.map(o =>
                   o.id === outlineId ? outlineSnapshot : o
                 );
@@ -1329,9 +1382,9 @@ export default function OutlinePro() {
             // Recalculate prefixes to ensure proper numbering
             recalculatePrefixesForBranch(currentNodes, fullOutline.rootNodeId);
 
-            // Final update with recalculated prefixes
+            // Final update with recalculated prefixes (loaded from disk, not dirty)
             const finalOutline = { ...fullOutline, nodes: { ...currentNodes } };
-            setOutlines(currentOutlines => {
+            setOutlinesFromDisk(currentOutlines => {
               return currentOutlines.map(o =>
                 o.id === outlineId ? finalOutline : o
               );
@@ -1346,16 +1399,20 @@ export default function OutlinePro() {
 
             // Keep the completion message visible briefly
             await new Promise(resolve => setTimeout(resolve, 1500));
+
+            // Record mtime after lazy load
+            lastKnownMtimeRef.current.set(outlineId, Date.now());
           } else {
-            // Small outline - load directly (no progress needed)
-            setOutlines(currentOutlines => {
+            // Small outline - load directly (loaded from disk, not dirty)
+            setOutlinesFromDisk(currentOutlines => {
               return currentOutlines.map(o =>
                 o.id === outlineId ? fullOutline : o
               );
             });
             setCurrentOutlineId(outlineId);
             setSelectedNodeId(fullOutline.rootNodeId);
-            // No toast for small outlines - they load instantly
+            // Record mtime after lazy load
+            lastKnownMtimeRef.current.set(outlineId, Date.now());
           }
         } else {
           toast({
@@ -1376,11 +1433,40 @@ export default function OutlinePro() {
         setLoadingOutlineInfo(null);
       }
     } else {
-      // Not lazy-loaded, just select it normally
+      // Not lazy-loaded — check if the file was modified externally before selecting
+      if (isElectron() && (outlineToSelect as LazyOutline)._fileName && !outlineToSelect.isGuide) {
+        try {
+          const diskMtime = await electronGetOutlineMtime(outlineToSelect);
+          const lastKnown = lastKnownMtimeRef.current.get(outlineId);
+
+          if (diskMtime && lastKnown && diskMtime > lastKnown + 1000) {
+            // File was modified externally — reload from disk
+            console.log(`[Mtime] External change detected for ${outlineToSelect.name} (disk: ${diskMtime}, known: ${lastKnown})`);
+            const fileName = (outlineToSelect as LazyOutline)._fileName!;
+            const freshOutline = await loadSingleOutlineOnDemand(fileName);
+            if (freshOutline) {
+              setOutlinesFromDisk(currentOutlines =>
+                currentOutlines.map(o => o.id === outlineId ? freshOutline : o)
+              );
+              lastKnownMtimeRef.current.set(outlineId, diskMtime);
+              setCurrentOutlineId(outlineId);
+              setSelectedNodeId(freshOutline.rootNodeId);
+              toast({
+                title: 'Outline Reloaded',
+                description: `"${outlineToSelect.name}" was modified externally and has been refreshed.`,
+              });
+              return;
+            }
+          }
+        } catch (error) {
+          console.error('[Mtime] Error checking file mtime:', error);
+        }
+      }
+      // Normal selection (no external changes or not in Electron)
       setCurrentOutlineId(outlineId);
       setSelectedNodeId(outlineToSelect.rootNodeId);
     }
-  }, [outlines, toast]);
+  }, [outlines, toast, setOutlinesFromDisk]);
 
   // Copy the current outline (useful for copying the User Guide)
   const handleCopyOutline = useCallback(() => {

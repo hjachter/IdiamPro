@@ -424,6 +424,21 @@ ipcMain.handle('load-single-outline', async (event, dirPath, fileName) => {
   }
 });
 
+// Get file modification time for an outline (for external change detection)
+ipcMain.handle('get-outline-mtime', async (event, dirPath, fileName) => {
+  try {
+    const filePath = path.join(dirPath, fileName);
+    if (!fs.existsSync(filePath)) {
+      return { success: false, error: 'File not found' };
+    }
+    const stats = fs.statSync(filePath);
+    return { success: true, mtimeMs: stats.mtimeMs };
+  } catch (error) {
+    console.error('Failed to get outline mtime:', error);
+    return { success: false, error: error.message };
+  }
+});
+
 // Read all outlines from directory (legacy - full load)
 ipcMain.handle('read-outlines-from-directory', async (event, dirPath) => {
   try {
