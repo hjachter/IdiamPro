@@ -28,22 +28,41 @@ KEY FEATURES:
 - AI-powered outline generation from topics
 - Research & Import: Merge multiple sources (YouTube, PDFs, web pages, images, docs, audio, video, outline files) into unified outlines
 - Rich content editor with markdown support
-- Multi-select for bulk operations (delete, change color, add tags)
+- Multi-select nodes for bulk operations (delete, change color, add tags)
+- Sidebar multi-select: Cmd/Ctrl+Click or Shift+Click outlines in the sidebar to select multiple, then bulk delete
 - Tags and color-coding for organization
 - Cross-platform: Web, macOS Desktop (Electron), iOS (Capacitor)
 - File storage: iCloud Drive, Dropbox, Google Drive, local folders
+- Google Docs/Sheets/Slides/Maps embedding via Insert menu
+- Speech-to-text recording in the content pane via Web Speech API
+- Export subtree to PDF: Right-click any node > "Export to PDF"
+- Canvas/Drawing nodes (Excalidraw-based): Right-click > Set Type > Canvas
+- Spreadsheet nodes (Fortune Sheet): Right-click > Set Type > Spreadsheet
+
+CONTENT EDITOR:
+- Rich text: Bold (Cmd+B), Italic (Cmd+I), Strikethrough, Headings (H1-H3)
+- Lists: Ordered, unordered, and checklist lists
+- Code blocks
+- Undo (Cmd+Z), Redo (Cmd+Shift+Z)
+- Google Docs/Sheets/Slides/Maps embedding via Insert menu (paste URL)
+- Speech-to-text: Click microphone button, speak, text is transcribed locally
 
 KEYBOARD SHORTCUTS:
 - Cmd+N: New outline
 - Enter/Return: Edit selected node name
 - Tab: Indent node
 - Shift+Tab: Outdent node
-- Cmd+K: Command palette
+- Cmd+K: Command palette (also: Expand All, Collapse All)
 - Cmd+/: Toggle collapse
 - Cmd+D: Duplicate node
 - Cmd+Backspace: Delete node
+- Cmd+Shift+F: Focus Mode (isolate subtree, Esc to exit)
+- Ctrl+F: Search (current outline or all outlines)
+- Up/Down arrows: Navigate between nodes
+- Left/Right arrows: Collapse/expand nodes
 - Double-click: Create sibling node
 - Cmd+Click: Multi-select nodes
+- Cmd+Click / Shift+Click in sidebar: Select multiple outlines for bulk delete
 
 GESTURES (iOS):
 - Tap: Select node
@@ -56,7 +75,15 @@ GESTURES (iOS):
 AI FEATURES:
 - Generate outline from topic (Free tier: 10/month, Premium: 100/month)
 - Expand node content with AI (Free: 50/month, Premium: 500/month)
+- Create Content for Descendants: Right-click a parent > generates content for all children at once
 - Research & Import synthesis (Free: 3 sources, Premium: 50+ sources)
+- Local AI / Ollama: Settings > AI Provider. Choose Cloud, Local (Ollama on localhost:11434), or Auto. Recommended models: llama3.2, phi3, llama3.1
+- Pending Import Recovery (Desktop): If import times out or app closes, result is saved and recovery dialog appears on next launch
+
+MOBILE:
+- Stacked View: outline + content side by side
+- Content View: full-screen editor mode
+- Toggle between views with the toolbar button
 
 Answer user questions clearly and concisely. If they ask how to do something, provide step-by-step instructions.`;
 

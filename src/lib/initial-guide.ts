@@ -104,6 +104,22 @@ This guide cannot be deleted, but you can copy it to create your own customized 
   createNode(nodes, keyboardId, organizeId, "Keyboard Shortcuts", "Tab - Indent node (move inside previous sibling)\n\nShift+Tab - Outdent node (move after parent)\n\nThese only work when a node is selected and the action is valid.");
   createNode(nodes, visualFeedbackId, organizeId, "Visual Feedback", "While dragging:\n\n- Blue line shows before/after position\n- Dashed border shows inside (nesting) position\n- Dragged node becomes semi-transparent\n- Cursor changes to grab hand");
 
+  const focusModeId = uuidv4();
+  const searchFeaturesId = uuidv4();
+  const expandCollapseAllId = uuidv4();
+  const arrowNavId = uuidv4();
+  const exportPdfId = uuidv4();
+
+  createNode(nodes, focusModeId, organizeId, "Focus Mode", "Isolate a subtree to work without distraction.\n\nHow to use:\n1. Select any node\n2. Press Cmd+Shift+F to enter Focus Mode\n3. Only the selected node and its descendants are visible\n4. Press Esc to exit Focus Mode and return to the full outline\n\nFocus Mode is useful when working on one section of a large outline. All editing features work normally while focused.");
+
+  createNode(nodes, searchFeaturesId, organizeId, "Search", "Find nodes across your outlines.\n\nHow to use:\n1. Press Ctrl+F to open the search panel\n2. Type your search query\n3. Results appear as you type\n\n**Scope Toggle:**\n- Search the current outline only\n- Search across all outlines\n\n**What's Searched:**\n- Node names\n- Node content\n\n**Navigation:**\n- Use Prev/Next buttons to jump between results\n- Click any result to select that node");
+
+  createNode(nodes, expandCollapseAllId, organizeId, "Expand All / Collapse All", "Quickly expand or collapse every node in your outline.\n\nHow to use:\n1. Press Cmd+K to open the Command Palette\n2. Type 'Expand All' or 'Collapse All'\n3. Select the action\n\nExpand All opens every collapsed node so you can see the full hierarchy. Collapse All folds everything to show only top-level nodes.");
+
+  createNode(nodes, arrowNavId, organizeId, "Arrow Key Navigation", "Navigate your outline quickly with arrow keys.\n\n- Up Arrow: Move selection to the previous visible node\n- Down Arrow: Move selection to the next visible node\n- Left Arrow: Collapse the selected node (if expanded) or move to parent\n- Right Arrow: Expand the selected node (if collapsed) or move to first child\n\nCombine with other shortcuts for fast editing: navigate with arrows, then press Enter to rename, Tab to indent, or Delete to remove.");
+
+  createNode(nodes, exportPdfId, organizeId, "Export Subtree to PDF", "Export any node and its descendants as a formatted PDF.\n\nHow to use:\n1. Right-click any node\n2. Select 'Export to PDF'\n3. A PDF file is generated and downloaded\n\nThe PDF includes the selected node and all its descendants, formatted with headings based on hierarchy depth. Useful for sharing sections of your outline as standalone documents.");
+
   // === AI FEATURES (Expanded) ===
   const aiId = uuidv4();
   const aiPlansId = uuidv4();
@@ -143,8 +159,20 @@ This guide cannot be deleted, but you can copy it to create your own customized 
   createNode(nodes, aiIngestPreviewId, aiIngestId, "Smart Naming & Summaries", "**Automatic Outline Naming:**\n• YouTube videos → Uses video title\n• Other sources → AI generates concise title from content\n• Fallback → Date-based name\n\n**Root Node Introduction:**\nWhen creating a new outline (not merging), the root node automatically gets an AI-generated introduction that summarizes all the content below it. This helps readers quickly understand the context.\n\n**Chapter Introductions:**\nParent/chapter nodes include introductory content that previews their children - no empty headers.");
   createNode(nodes, aiIngestMergeId, aiIngestId, "Merge vs New Outline", "**Default: Merge into Current Outline**\n• New content is synthesized with your existing outline\n• AI finds connections between old and new material\n• Preserves your existing structure\n\n**Option: Create New Outline**\n• Check 'Create new outline instead'\n• Provide a name or let AI generate one\n• Your current outline is unchanged\n\nThe merge behavior ensures you can continuously build knowledge on a topic from multiple sources over time.");
 
+  // Pending Import Recovery
+  const pendingImportId = uuidv4();
+  createNode(nodes, pendingImportId, aiIngestId, "Pending Import Recovery", "On the desktop (Electron) app, if a Research & Import operation times out or the app closes during an import, the result is saved automatically.\n\nOn next launch:\n1. A recovery dialog appears\n2. It shows the pending import that was interrupted\n3. You can choose to apply the import or discard it\n\nThis ensures you never lose a long-running import due to network issues or accidental app closure.");
+
   // AI Image Generation
   createNode(nodes, aiImageGenId, aiId, "AI Image Generation (Premium)", "Create custom illustrations with AI:\n\n1. Click the violet Image button in the content toolbar\n2. Describe the image you want (be specific about style, colors, composition)\n3. Choose an aspect ratio (square, landscape, portrait)\n4. Click 'Generate Image'\n\nThe AI-generated image is inserted directly into your content.\n\n**Tips for better results:**\n• Be specific: 'A serene mountain lake at sunset with purple sky' vs 'a lake'\n• Mention style: 'digital art', 'watercolor', 'photorealistic', 'minimalist'\n• Include composition details: 'close-up', 'wide angle', 'from above'\n\n**Note:** This feature requires a Premium plan.");
+
+  // Create Content for Descendants
+  const aiDescendantsId = uuidv4();
+  createNode(nodes, aiDescendantsId, aiId, "Create Content for Descendants", "Generate AI content for all child nodes of a parent at once.\n\nHow to use:\n1. Right-click a parent node (one that has children)\n2. Select 'Create Content for Descendants'\n3. AI generates content for every child node based on its title and context\n\nThis is a fast way to flesh out an entire section of your outline. Each child node receives content tailored to its title and position in the hierarchy. Existing content in child nodes is preserved - only empty nodes get new content.");
+
+  // Local AI / Ollama
+  const aiOllamaId = uuidv4();
+  createNode(nodes, aiOllamaId, aiId, "Local AI / Ollama", "Run AI features using a local model instead of cloud services.\n\nSetup:\n1. Install Ollama (ollama.ai) on your machine\n2. Pull a model: ollama pull llama3.2\n3. In IdiamPro: Settings > AI Provider\n4. Choose 'Local (Ollama)' or 'Auto'\n\n**Provider Options:**\n- Cloud: Uses cloud AI (default)\n- Local (Ollama): Uses your local Ollama instance on localhost:11434\n- Auto: Tries local first, falls back to cloud if unavailable\n\n**Recommended Models:**\n- llama3.2 — Fast, good general quality\n- phi3 — Lightweight, quick responses\n- llama3.1 — Higher quality, slower\n\nLocal AI keeps your data on your machine and works offline.");
 
   // Safety & Control
   createNode(nodes, aiSafetyId, aiId, "Safety & Control", "You're always in control:\n\n- All AI content is fully editable - change or delete anything\n- Preview mode shows changes before they're applied\n- No automatic modifications to your content\n- Auto-save preserves all changes (including AI content)\n- Undo by using browser back or editing content\n\nAI is a tool to help you - the final decisions are always yours.");
@@ -165,6 +193,25 @@ This guide cannot be deleted, but you can copy it to create your own customized 
   createNode(nodes, pdfId, mediaId, "PDF Documents", "Embed PDFs from the web:\n\n1. Click the + (Insert) menu > 'PDF from URL'\n2. Enter the full URL of a publicly accessible PDF\n3. The PDF displays in an embedded viewer\n\nNote: The PDF must be publicly accessible (direct link ending in .pdf).");
   createNode(nodes, drawingId, mediaId, "Drawings & Sketches", "Create freehand drawings:\n\n1. Click the + (Insert) menu > 'Drawing'\n2. Use the drawing canvas to sketch\n3. Click 'Insert' to add to your content\n\nDrawings are saved as images in your outline.");
   createNode(nodes, fullscreenId, mediaId, "Fullscreen Viewing", "Double-click any image, video, or diagram to view it fullscreen. This is especially useful for:\n\n- Reading details in photos\n- Viewing diagrams at full size\n- Watching videos without distraction\n\nClick outside the content or press the X button to close fullscreen view.");
+
+  const richTextId = uuidv4();
+  const googleDocsId = uuidv4();
+  const googleSheetsId = uuidv4();
+  const googleSlidesId = uuidv4();
+  const googleMapsId = uuidv4();
+  const speechToTextId = uuidv4();
+
+  createNode(nodes, richTextId, mediaId, "Rich Text Formatting", "The content editor supports full rich text formatting:\n\n**Text Styling:**\n- Bold: Cmd+B (Ctrl+B on Windows)\n- Italic: Cmd+I (Ctrl+I on Windows)\n- Strikethrough\n\n**Headings:**\n- H1, H2, H3 heading levels\n\n**Lists:**\n- Ordered (numbered) lists\n- Unordered (bullet) lists\n- Checklist (task) lists with checkboxes\n\n**Code:**\n- Code blocks with syntax formatting\n\n**Undo/Redo:**\n- Undo: Cmd+Z (Ctrl+Z)\n- Redo: Cmd+Shift+Z (Ctrl+Shift+Z)\n\nAll formatting is preserved when you switch between nodes or close the app.");
+
+  createNode(nodes, googleDocsId, mediaId, "Google Docs Embedding", "Embed Google Docs directly in your content:\n\n1. Click the + (Insert) menu in the content toolbar\n2. Paste a Google Docs URL\n3. The document renders as an inline preview\n\nThe embedded doc displays within your content pane. The document must be publicly shared or shared with you.");
+
+  createNode(nodes, googleSheetsId, mediaId, "Google Sheets Embedding", "Embed Google Sheets directly in your content:\n\n1. Click the + (Insert) menu in the content toolbar\n2. Paste a Google Sheets URL\n3. The spreadsheet renders as an inline preview\n\nUseful for referencing live data, shared budgets, or tracking sheets within your outline.");
+
+  createNode(nodes, googleSlidesId, mediaId, "Google Slides Embedding", "Embed Google Slides presentations directly in your content:\n\n1. Click the + (Insert) menu in the content toolbar\n2. Paste a Google Slides URL\n3. The presentation renders as an inline preview\n\nGreat for referencing presentations alongside your outline notes.");
+
+  createNode(nodes, googleMapsId, mediaId, "Google Maps Embedding", "Embed Google Maps directly in your content:\n\n1. Click the + (Insert) menu in the content toolbar\n2. Paste a Google Maps URL\n3. The map renders as an inline preview\n\nUseful for event planning, travel outlines, or location-based research.");
+
+  createNode(nodes, speechToTextId, mediaId, "Speech-to-Text", "Record audio and have it transcribed to text directly in the content pane.\n\nHow to use:\n1. Click the microphone button in the content toolbar\n2. Speak into your microphone\n3. Your speech is transcribed to text in real time via the Web Speech API\n\nNote: Requires browser microphone permission. Works best in Chrome and Edge. Transcription happens locally in your browser - no audio is sent to external servers.");
 
   // === ADVANCED NODE FEATURES ===
   const advancedId = uuidv4();
@@ -192,6 +239,13 @@ This guide cannot be deleted, but you can copy it to create your own customized 
 
   createNode(nodes, dateNodesId, nodeTypesId, "Date/Event Nodes", "Date nodes help you track important dates and events.\n\nFeatures:\n- Date picker interface\n- Formatted date display (e.g., 'Monday, January 5, 2026')\n- Store notes about the event\n- Orange icon for visibility\n- Useful for timelines and planning");
 
+  const canvasNodesId = uuidv4();
+  const spreadsheetNodesId = uuidv4();
+
+  createNode(nodes, canvasNodesId, nodeTypesId, "Canvas/Drawing Nodes", "Canvas nodes provide a full freeform drawing surface powered by Excalidraw.\n\nHow to use:\n1. Right-click a node > 'Set Type' > 'Canvas'\n2. The content pane becomes a drawing canvas\n3. Use the drawing tools to sketch, diagram, or annotate\n\nFeatures:\n- Full Excalidraw drawing tools (shapes, arrows, text, freehand)\n- Dark mode support\n- Saves as image data within your outline\n- Great for diagrams, flowcharts, wireframes, and visual notes");
+
+  createNode(nodes, spreadsheetNodesId, nodeTypesId, "Spreadsheet Nodes", "Spreadsheet nodes embed a full spreadsheet editor powered by Fortune Sheet.\n\nHow to use:\n1. Right-click a node > 'Set Type' > 'Spreadsheet'\n2. The content pane becomes a spreadsheet grid\n3. Edit cells, enter formulas, and organize data\n\nFeatures:\n- 50 rows × 26 columns (A-Z)\n- Full cell editing with formulas\n- Data persists with your outline\n- Useful for budgets, tables, comparisons, and structured data");
+
   createNode(nodes, tagsId, advancedId, "Tags", "Organize nodes with colored tags. Tags help you categorize and filter content across your outline.\n\nFeatures:\n- Add multiple tags to any node\n- Colored badges appear next to node names\n- Click 'x' on a badge to remove a tag\n- Tag Manager dialog for managing all tags\n- Each tag automatically gets a distinct color\n- Future: Filter outline by tags");
 
   createNode(nodes, colorsId, advancedId, "Node Colors", "Add visual distinction to nodes with custom colors displayed as a left border.\n\nHow to use:\n- Right-click any node > 'Set Color'\n- Choose from 8 colors + default\n- 4px colored left border appears on the node\n- Great for prioritizing or categorizing\n- Works alongside chapter colors\n\nColors: Red, Orange, Yellow, Green, Blue, Purple, Pink");
@@ -209,10 +263,19 @@ This guide cannot be deleted, but you can copy it to create your own customized 
 
   createNode(nodes, bulkOperationsId, multiSelectId, "Bulk Operations Toolbar", "When nodes are selected, a floating toolbar appears at the bottom with bulk actions:\n\n**Tag**: Add a tag to all selected nodes at once\n- Click Tag button\n- Enter tag name\n- Tag is added to all selected nodes\n\n**Color**: Change color of all selected nodes\n- Click Color button\n- Choose from 8 colors\n- All selected nodes get the new color\n\n**Delete**: Remove all selected nodes\n- Click Delete button\n- Confirmation dialog appears\n- All selected nodes and their children are deleted\n\n**Clear**: Deselect all nodes\n- Returns to normal selection mode\n\nThe toolbar shows how many nodes are selected (e.g., \"3 nodes selected\")");
 
+  // === SIDEBAR MULTI-SELECT ===
+  const sidebarMultiSelectId = uuidv4();
+
+  createNode(nodes, sidebarMultiSelectId, advancedId, "Sidebar Multi-Select & Bulk Delete", "You can select multiple outlines in the sidebar and delete them in one step.\n\n**Selecting outlines:**\n- **Cmd/Ctrl + Click** an outline to toggle it in/out of selection\n- **Shift + Click** to select a range of outlines between the current and clicked outline\n\n**Bulk action bar:**\nWhen outlines are selected, a bar appears showing the count (e.g., \"3 selected\") along with Clear and Delete buttons.\n- **Clear** deselects all outlines\n- **Delete** opens a single confirmation dialog for the entire batch\n\n**Note:** The delete confirmation setting in Settings applies to both node deletion and outline deletion. If you have turned off confirmations, bulk delete will proceed immediately.");
+
   // === NODE NUMBERING ===
   const numberingId = uuidv4();
 
   createNode(nodes, numberingId, rootId, "Node Numbering", "Each node displays a numeric prefix (like 1.2.3) showing its position in the hierarchy. Prefixes update automatically when you reorganize nodes. The root node has no prefix.");
+
+  // === MOBILE & iOS ===
+  const mobileId = uuidv4();
+  createNode(nodes, mobileId, rootId, "Mobile & iOS", "On mobile devices and iOS, IdiamPro adapts its interface to work well on smaller screens.\n\n**View Modes:**\nToggle between two view modes using the view switcher:\n\n- **Stacked View**: Shows both the outline pane and content pane side by side (or stacked vertically on narrow screens). Good for quick navigation between nodes.\n- **Content View**: Shows only the content editor in full-screen mode. Ideal for focused writing and editing on mobile.\n\nSwitch between views using the toggle button in the toolbar. Your selected view mode is remembered across sessions.");
 
   // Set types and prefixes
   Object.keys(nodes).forEach(nodeId => {
