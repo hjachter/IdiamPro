@@ -155,6 +155,7 @@ export default function KnowledgeChatDialog({
           })),
           context,
           mode,
+          aiProvider: localStorage.getItem('aiProvider') || 'auto',
         }),
       });
 
