@@ -221,7 +221,7 @@ export default function HelpChatDialog({ open, onOpenChange }: HelpChatDialogPro
                       : 'bg-muted'
                   )}
                 >
-                  <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                  <p className="text-sm whitespace-pre-wrap select-text cursor-text">{message.content}</p>
                 </div>
                 {message.role === 'user' && (
                   <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
