@@ -78,6 +78,7 @@ export default function OutlinePro() {
         const prevOutline = prev.find(o => o.id === outline.id);
         if (!prevOutline || prevOutline !== outline) {
           dirtyOutlineIdsRef.current.add(outline.id);
+          lastEditTimeRef.current.set(outline.id, Date.now());
         }
       }
       return next;
@@ -92,6 +93,9 @@ export default function OutlinePro() {
   // Track last-known file mtime for external modification detection
   // Map: outlineId -> mtimeMs (time of our last save or load)
   const lastKnownMtimeRef = useRef<Map<string, number>>(new Map());
+
+  // Track last in-app edit time per outline (for focus reload conflict protection)
+  const lastEditTimeRef = useRef<Map<string, number>>(new Map());
   const [currentOutlineId, setCurrentOutlineId] = useState<string>('');
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [mobileView, setMobileView] = useState<MobileView>('stacked');
@@ -338,6 +342,10 @@ export default function OutlinePro() {
         if (currentOutline.isGuide) return;
         if (currentOutline._isLazyLoaded) return;
         if (!currentOutline._fileName) return;
+
+        // Skip reload if the user recently edited this outline in-app (their work takes priority)
+        const lastEdit = lastEditTimeRef.current.get(currentOutlineId) || 0;
+        if (Date.now() - lastEdit < 10000) return;
 
         try {
           const diskMtime = await electronGetOutlineMtime(currentOutline);
