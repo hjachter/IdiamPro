@@ -244,6 +244,8 @@ function rebuildKnowledgeBase(dirPath, throttle = true) {
     const files = fs.readdirSync(dirPath);
     const sections = [];
 
+    const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB — skip very large files (likely embedded media)
+
     for (const file of files) {
       if (!file.endsWith('.idm')) continue;
       if (file === KNOWLEDGE_BASE_FILE) continue;
@@ -251,6 +253,11 @@ function rebuildKnowledgeBase(dirPath, throttle = true) {
 
       try {
         const filePath = path.join(dirPath, file);
+        const stats = fs.statSync(filePath);
+        if (stats.size > MAX_FILE_SIZE) {
+          console.log(`[KnowledgeBase] Skipping ${file} (${(stats.size / 1024 / 1024).toFixed(0)}MB exceeds 100MB limit)`);
+          continue;
+        }
         const content = fs.readFileSync(filePath, 'utf-8');
         const outline = JSON.parse(content);
 
