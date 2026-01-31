@@ -121,7 +121,7 @@ export async function POST(request: NextRequest) {
 
     // Generate response using Gemini
     const { text } = await ai.generate({
-      model: 'googleai/gemini-2.0-flash-exp',
+      model: 'googleai/gemini-2.0-flash',
       prompt: `${APP_CONTEXT}
 
 Conversation history:

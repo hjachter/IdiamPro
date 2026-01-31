@@ -89,7 +89,7 @@ Be concise but thorough. Use markdown formatting for clarity.`;
     let text: string;
     try {
       const result = await ai.generate({
-        model: 'googleai/gemini-2.0-flash-exp',
+        model: 'googleai/gemini-2.0-flash',
         prompt: `${systemPrompt}\n\n${userPrompt}`,
       });
       text = result.text;
