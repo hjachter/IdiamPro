@@ -315,7 +315,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
                         <span>Cloud AI (Gemini)</span>
                       </div>
                     </SelectItem>
-                    <SelectItem value="local" disabled={!ollamaStatus.available}>
+                    <SelectItem value="local">
                       <div className="flex items-center gap-2">
                         <Cpu className="h-4 w-4" />
                         <span>Local AI (Ollama)</span>
@@ -332,7 +332,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
               </div>
 
               {/* Model selection when local AI is enabled */}
-              {(aiProvider === 'local' || aiProvider === 'auto') && ollamaStatus.available && (
+              {(aiProvider === 'local' || aiProvider === 'auto') && (ollamaStatus.available || ollamaStatus.models.length > 0) && (
                 <div className="space-y-2">
                   <Label className="text-sm text-muted-foreground">Local Model</Label>
                   <Select value={selectedModel} onValueChange={handleModelChange}>
