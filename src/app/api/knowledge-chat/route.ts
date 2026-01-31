@@ -87,12 +87,14 @@ Be concise but thorough. Use markdown formatting for clarity.`;
 
     // Try Gemini first, fall back to Ollama
     let text: string;
+    let provider: string;
     try {
       const result = await ai.generate({
         model: 'googleai/gemini-2.0-flash',
         prompt: `${systemPrompt}\n\n${userPrompt}`,
       });
       text = result.text;
+      provider = 'Gemini 2.0 Flash';
       console.log('[KnowledgeChat] Response via Gemini');
     } catch (geminiError) {
       console.warn('[KnowledgeChat] Gemini failed, trying Ollama:', (geminiError as Error).message);
@@ -104,6 +106,7 @@ Be concise but thorough. Use markdown formatting for clarity.`;
           console.log(`[KnowledgeChat] Context truncated from ${context.length} to ${truncatedContext.length} chars for Ollama`);
         }
         text = await generateWithOllama(systemPrompt, ollamaPrompt);
+        provider = 'Ollama llama3.2';
         if (truncated) {
           text += '\n\n*Note: Using local AI with truncated context. Some outlines may not be included. For full coverage, ensure your cloud AI key is configured.*';
         }
@@ -117,7 +120,7 @@ Be concise but thorough. Use markdown formatting for clarity.`;
       }
     }
 
-    return NextResponse.json({ response: text });
+    return NextResponse.json({ response: text, provider });
   } catch (error) {
     console.error('Knowledge chat error:', error);
     return NextResponse.json(

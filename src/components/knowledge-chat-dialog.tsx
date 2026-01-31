@@ -15,6 +15,7 @@ interface Message {
   role: 'user' | 'assistant';
   content: string;
   timestamp: number;
+  provider?: string;
 }
 
 type ChatMode = 'current' | 'all';
@@ -168,6 +169,7 @@ export default function KnowledgeChatDialog({
         role: 'assistant',
         content: data.response,
         timestamp: Date.now(),
+        provider: data.provider,
       };
 
       setMessages(prev => [...prev, assistantMessage]);
@@ -298,15 +300,22 @@ export default function KnowledgeChatDialog({
                     <Brain className="h-4 w-4 text-blue-500" />
                   </div>
                 )}
-                <div
-                  className={cn(
-                    'max-w-[80%] rounded-lg px-4 py-2',
-                    message.role === 'user'
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted'
+                <div className="max-w-[80%]">
+                  <div
+                    className={cn(
+                      'rounded-lg px-4 py-2',
+                      message.role === 'user'
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted'
+                    )}
+                  >
+                    <p className="text-sm whitespace-pre-wrap select-text cursor-text">{message.content}</p>
+                  </div>
+                  {message.role === 'assistant' && message.provider && (
+                    <p className="text-[10px] text-muted-foreground/60 mt-0.5 ml-1">
+                      via {message.provider}
+                    </p>
                   )}
-                >
-                  <p className="text-sm whitespace-pre-wrap select-text cursor-text">{message.content}</p>
                 </div>
                 {message.role === 'user' && (
                   <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
