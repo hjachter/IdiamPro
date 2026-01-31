@@ -8,7 +8,7 @@ import OutlineSearch, { type SearchMatch } from './outline-search';
 import { MultiSelectToolbar } from './multi-select-toolbar';
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { ChevronDown, FilePlus, Plus, Trash2, Edit, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, Settings, Search, Command, PanelLeft, PanelLeftClose } from 'lucide-react';
+import { ChevronDown, FilePlus, Plus, Trash2, Edit, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, Settings, Search, Command, PanelLeft, PanelLeftClose, Brain } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Input } from './ui/input';
@@ -118,6 +118,8 @@ interface OutlinePaneProps {
   onOpenCommandPalette?: () => void;
   // Help chat
   onOpenHelp?: () => void;
+  // Knowledge chat
+  onOpenKnowledgeChat?: () => void;
   // Double-click child node creation
   onCreateChildNode?: (parentId: string) => void;
   // Edit mode control
@@ -178,6 +180,7 @@ export default function OutlinePane({
   onGenerateContentForChildren,
   onOpenCommandPalette,
   onOpenHelp,
+  onOpenKnowledgeChat,
   onCreateChildNode,
   justCreatedNodeId,
   editingNodeId,
@@ -1050,6 +1053,20 @@ export default function OutlinePane({
               <Settings className="h-4 w-4" />
             </Button>
           </SettingsDialog>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={onOpenKnowledgeChat}
+                className="hover:bg-blue-500/20 border-blue-500/30"
+              >
+                <Brain className="h-4 w-4 text-blue-500" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Knowledge Chat — Query Your Outlines</TooltipContent>
+          </Tooltip>
 
           <Tooltip>
             <TooltipTrigger asChild>

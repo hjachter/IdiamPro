@@ -46,4 +46,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   checkPendingImports: () => ipcRenderer.invoke('check-pending-imports'),
   deletePendingImport: (fileName) => ipcRenderer.invoke('delete-pending-import', fileName),
 
+  // Knowledge base (superoutline)
+  buildKnowledgeBase: (dirPath) => ipcRenderer.invoke('build-knowledge-base', dirPath),
+  readKnowledgeBase: (dirPath) => ipcRenderer.invoke('read-knowledge-base', dirPath),
+
 });

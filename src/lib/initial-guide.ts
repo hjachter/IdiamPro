@@ -141,7 +141,7 @@ This guide cannot be deleted, but you can copy it to create your own customized 
   createNode(nodes, aiId, rootId, "AI Features", "IdiamPro includes powerful AI capabilities to help you generate content, create images, and build outlines faster. AI features are accessed through the violet sparkles icon and the image button in the toolbar.", []);
 
   // AI Plans
-  createNode(nodes, aiPlansId, aiId, "AI Plans (FREE vs PREMIUM)", "IdiamPro offers two AI plans:\n\nFREE Plan:\n- AI content generation\n- External source ingestion\n- Standard AI processing\n\nPREMIUM Plan ($9.99/month):\n- All FREE features\n- AI image generation\n- Advanced AI model\n- Subtree summaries\n- Teach mode\n- Consistency checks\n- Priority processing\n\nTo manage your plan: Click the AI menu (sparkles icon) > 'Manage AI Plan...'");
+  createNode(nodes, aiPlansId, aiId, "AI Plans (FREE vs PREMIUM)", "IdiamPro offers two AI plans:\n\nFREE Plan:\n- AI content generation\n- External source ingestion\n- Standard AI processing\n\nPREMIUM Plan ($9.99/month):\n- All FREE features\n- AI image generation\n- Advanced AI model\n- Subtree summaries\n- Teach mode\n- Consistency checks\n- Priority processing\n- RAG-powered knowledge base (coming soon): Semantic search across all your outlines using vector embeddings for faster, more accurate cross-outline queries\n\nTo manage your plan: Click the AI menu (sparkles icon) > 'Manage AI Plan...'");
 
   // AI Menu
   createNode(nodes, aiMenuId, aiId, "AI Menu & Settings", "Access all AI features from a single menu:\n\n1. Click the violet sparkles icon in the toolbar\n2. The AI menu shows:\n   - Generate Outline from Topic\n   - Ingest External Source...\n   - Manage AI Plan...\n\nYour current plan (Free or Premium) is shown in the menu header.");
@@ -178,6 +178,23 @@ This guide cannot be deleted, but you can copy it to create your own customized 
 
   // Safety & Control
   createNode(nodes, aiSafetyId, aiId, "Safety & Control", "You're always in control:\n\n- All AI content is fully editable - change or delete anything\n- Preview mode shows changes before they're applied\n- No automatic modifications to your content\n- Auto-save preserves all changes (including AI content)\n- Undo by using browser back or editing content\n\nAI is a tool to help you - the final decisions are always yours.");
+
+  // Knowledge Chat
+  const knowledgeChatId = uuidv4();
+  const kcQueryId = uuidv4();
+  const kcCurrentModeId = uuidv4();
+  const kcAllModeId = uuidv4();
+  const kcTipsId = uuidv4();
+
+  createNode(nodes, knowledgeChatId, aiId, "Knowledge Chat", "Query your outlines with natural language. Ask questions, find information, and discover connections across your content using AI.\n\n**Access:** Click the brain icon (blue) in the toolbar.\n\n**Two Modes:**\n- Current Outline — queries only the active outline\n- All Outlines (Second Brain) — queries all your outlines at once\n\nThe AI answers based only on your outline content, referencing specific sections and making cross-outline connections.", []);
+
+  createNode(nodes, kcQueryId, knowledgeChatId, "Querying Your Outlines", "How to use Knowledge Chat:\n\n1. Click the brain icon (blue) in the toolbar\n2. The chat dialog opens with your current outline loaded\n3. Type a question in natural language\n4. The AI responds using information from your outlines\n\n**Example questions:**\n- 'What are the key findings from my research?'\n- 'Summarize the Q1 goals'\n- 'What connections exist between marketing and product?'\n- 'Find everything related to budget constraints'");
+
+  createNode(nodes, kcCurrentModeId, knowledgeChatId, "Current Outline Mode", "Queries only the currently selected outline.\n\nBest for:\n- Focused questions about one topic\n- Finding specific details within a document\n- Working with very large outlines\n\nThe context info bar shows the outline name, node count, and estimated token usage.");
+
+  createNode(nodes, kcAllModeId, knowledgeChatId, "Second Brain Mode (All Outlines)", "Queries all your outlines simultaneously.\n\nBest for:\n- Finding connections across different topics\n- Research synthesis — 'What do my sources say about X?'\n- Memory recall — 'Where did I write about Y?'\n- Cross-referencing information\n\n**Desktop (Electron):** Uses a pre-built knowledge base file that's automatically kept in sync when you save, rename, or delete outlines.\n\n**Web:** Serializes all in-memory outlines on the fly.\n\nThe context info bar shows how many outlines and nodes are included.");
+
+  createNode(nodes, kcTipsId, knowledgeChatId, "Tips & Use Cases", "**Research Synthesis:**\nImport multiple sources with Research & Import, then use Knowledge Chat to ask cross-cutting questions.\n\n**Memory Recall:**\nCan't remember where you wrote something? Ask 'Where did I mention...' in All Outlines mode.\n\n**Finding Connections:**\nAsk 'What connections exist between [topic A] and [topic B]?' to discover relationships you might have missed.\n\n**Token Limits:**\n- A warning appears if context exceeds 500K tokens\n- If it exceeds 1M tokens, switch to Current Outline mode\n- Most outlines are well within limits");
 
   // === IMPORTING MEDIA ===
   const mediaId = uuidv4();

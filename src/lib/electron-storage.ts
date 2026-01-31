@@ -28,6 +28,9 @@ interface ElectronAPI {
   // Pending imports recovery
   checkPendingImports?: () => Promise<{ success: boolean; pendingImports?: Array<{ outline: Outline; summary: string; sourcesProcessed: number; createdAt: number; outlineName: string; fileName: string }>; error?: string }>;
   deletePendingImport?: (fileName: string) => Promise<{ success: boolean; error?: string }>;
+  // Knowledge base (superoutline)
+  buildKnowledgeBase?: (dirPath: string) => Promise<{ success: boolean; error?: string }>;
+  readKnowledgeBase?: (dirPath: string) => Promise<{ success: boolean; content?: string; error?: string }>;
 }
 
 declare global {
@@ -351,4 +354,35 @@ export async function electronDeletePendingImport(fileName: string): Promise<voi
   if (!result.success) {
     console.error('[Pending] Failed to delete pending import:', result.error);
   }
+}
+
+/**
+ * Force rebuild the knowledge base (superoutline)
+ */
+export async function electronBuildKnowledgeBase(): Promise<boolean> {
+  const api = getElectronAPI();
+  if (!api.buildKnowledgeBase) return false;
+
+  const dirPath = await api.getStoredDirectoryPath();
+  if (!dirPath) return false;
+
+  const result = await api.buildKnowledgeBase(dirPath);
+  return result.success;
+}
+
+/**
+ * Read the knowledge base (superoutline) content
+ */
+export async function electronReadKnowledgeBase(): Promise<string | null> {
+  const api = getElectronAPI();
+  if (!api.readKnowledgeBase) return null;
+
+  const dirPath = await api.getStoredDirectoryPath();
+  if (!dirPath) return null;
+
+  const result = await api.readKnowledgeBase(dirPath);
+  if (result.success && result.content !== undefined) {
+    return result.content;
+  }
+  return null;
 }

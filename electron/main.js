@@ -167,6 +167,113 @@ function pruneBackups(backupDir, outlineName) {
   }
 }
 
+// ========== Knowledge Base (Superoutline) ==========
+const KNOWLEDGE_BASE_FILE = '.knowledge-base.idm';
+const lastKnowledgeBaseRebuildTime = new Map(); // dirPath -> timestamp
+const KNOWLEDGE_BASE_THROTTLE_MS = 5 * 60 * 1000; // Same 5-minute throttle as backups
+
+function stripHtmlForKB(html) {
+  if (!html) return '';
+  return html
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/p>/gi, '\n')
+    .replace(/<\/div>/gi, '\n')
+    .replace(/<\/li>/gi, '\n')
+    .replace(/<li[^>]*>/gi, '- ')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&nbsp;/g, ' ')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
+function serializeOutlineForKB(outline) {
+  const parts = [];
+  parts.push(`# ${outline.name}`);
+  if (outline.lastModified) {
+    const date = new Date(outline.lastModified).toISOString().split('T')[0];
+    parts.push(`Last modified: ${date}`);
+  }
+  parts.push('');
+
+  function walkNode(nodeId, depth) {
+    const node = outline.nodes[nodeId];
+    if (!node) return;
+    if (node.type === 'canvas' || node.type === 'spreadsheet') return;
+
+    const prefix = node.prefix ? `${node.prefix} ` : '';
+    const level = Math.min(depth + 2, 6);
+    const heading = '#'.repeat(level);
+
+    if (node.type !== 'root') {
+      parts.push(`${heading} ${prefix}${node.name}`);
+    }
+
+    const text = stripHtmlForKB(node.content);
+    if (text) {
+      parts.push(text);
+    }
+    parts.push('');
+
+    if (node.childrenIds && node.childrenIds.length > 0) {
+      for (const childId of node.childrenIds) {
+        walkNode(childId, depth + 1);
+      }
+    }
+  }
+
+  walkNode(outline.rootNodeId, 0);
+  return parts.join('\n');
+}
+
+function rebuildKnowledgeBase(dirPath, throttle = true) {
+  try {
+    if (throttle) {
+      const now = Date.now();
+      const lastTime = lastKnowledgeBaseRebuildTime.get(dirPath) || 0;
+      if (now - lastTime < KNOWLEDGE_BASE_THROTTLE_MS) {
+        return; // Throttled
+      }
+      lastKnowledgeBaseRebuildTime.set(dirPath, now);
+    }
+
+    const files = fs.readdirSync(dirPath);
+    const sections = [];
+
+    for (const file of files) {
+      if (!file.endsWith('.idm')) continue;
+      if (file === KNOWLEDGE_BASE_FILE) continue;
+      if (file.startsWith('.')) continue;
+
+      try {
+        const filePath = path.join(dirPath, file);
+        const content = fs.readFileSync(filePath, 'utf-8');
+        const outline = JSON.parse(content);
+
+        // Skip guide outlines
+        if (outline.isGuide) continue;
+        // Skip outlines with no nodes
+        if (!outline.nodes || Object.keys(outline.nodes).length === 0) continue;
+
+        sections.push(serializeOutlineForKB(outline));
+      } catch (err) {
+        console.warn(`[KnowledgeBase] Skipping ${file}:`, err.message);
+      }
+    }
+
+    const combined = sections.join('\n---\n\n');
+    const kbPath = path.join(dirPath, KNOWLEDGE_BASE_FILE);
+    fs.writeFileSync(kbPath, combined, 'utf-8');
+    console.log(`[KnowledgeBase] Rebuilt: ${sections.length} outlines`);
+  } catch (error) {
+    console.warn('[KnowledgeBase] Failed to rebuild:', error.message);
+  }
+}
+
 // Sanitize filename (same logic as frontend, plus path traversal protection)
 function sanitizeFileName(name) {
   return name
@@ -554,6 +661,7 @@ ipcMain.handle('save-outline-to-file', async (event, dirPath, outline) => {
     fs.writeFileSync(filePath, content, 'utf-8');
     console.log(`Saved outline: ${fileName}`);
     createBackupIfNeeded(dirPath, outline.name, content);
+    setImmediate(() => rebuildKnowledgeBase(dirPath));
     return { success: true };
   } catch (error) {
     console.error('Failed to save outline:', error);
@@ -569,6 +677,7 @@ ipcMain.handle('delete-outline-file', async (event, dirPath, fileName) => {
       fs.unlinkSync(filePath);
       console.log(`Deleted outline: ${fileName}`);
     }
+    setImmediate(() => rebuildKnowledgeBase(dirPath, false));
     return { success: true };
   } catch (error) {
     console.error('Failed to delete outline:', error);
@@ -601,6 +710,7 @@ ipcMain.handle('rename-outline-file', async (event, dirPath, oldFileName, newOut
     fs.writeFileSync(newFilePath, content, 'utf-8');
     console.log(`Renamed: ${oldFileName} -> ${newFileName}`);
     createBackupIfNeeded(dirPath, newOutline.name, content);
+    setImmediate(() => rebuildKnowledgeBase(dirPath));
     return { success: true };
   } catch (error) {
     console.error('Failed to rename outline:', error);
@@ -747,6 +857,38 @@ ipcMain.handle('print-to-pdf', async (event, htmlContent, filePath) => {
     return { success: true };
   } catch (error) {
     console.error('print-to-pdf failed:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+// ========== Knowledge Base IPC Handlers ==========
+
+// Force rebuild the knowledge base
+ipcMain.handle('build-knowledge-base', async (event, dirPath) => {
+  try {
+    rebuildKnowledgeBase(dirPath, false); // unthrottled
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to build knowledge base:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+// Read the knowledge base file
+ipcMain.handle('read-knowledge-base', async (event, dirPath) => {
+  try {
+    const kbPath = path.join(dirPath, KNOWLEDGE_BASE_FILE);
+    if (!fs.existsSync(kbPath)) {
+      // Build it first if missing
+      rebuildKnowledgeBase(dirPath, false);
+    }
+    if (fs.existsSync(kbPath)) {
+      const content = fs.readFileSync(kbPath, 'utf-8');
+      return { success: true, content };
+    }
+    return { success: true, content: '' };
+  } catch (error) {
+    console.error('Failed to read knowledge base:', error);
     return { success: false, error: error.message };
   }
 });

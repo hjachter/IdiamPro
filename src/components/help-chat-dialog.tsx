@@ -79,6 +79,7 @@ AI FEATURES:
 - Expand node content with AI (Free: 50/month, Premium: 500/month)
 - Create Content for Descendants: Right-click a parent > generates content for all children at once
 - Research & Import synthesis (Free: 3 sources, Premium: 50+ sources)
+- Knowledge Chat: Query your outlines with natural language. Click the brain icon (blue) in the toolbar. Two modes: Current Outline (queries active outline) or All Outlines / Second Brain (queries all outlines at once). AI answers based only on your outline content, referencing specific sections.
 - Local AI / Ollama: Settings > AI Provider. Choose Cloud, Local (Ollama on localhost:11434), or Auto. Recommended models: llama3.2, phi3, llama3.1
 - Pending Import Recovery (Desktop): If import times out or app closes, result is saved and recovery dialog appears on next launch
 

@@ -25,6 +25,7 @@ import MobileSidebarSheet from './mobile-sidebar-sheet';
 import KeyboardShortcutsDialog, { useKeyboardShortcuts } from './keyboard-shortcuts-dialog';
 import BulkResearchDialog from './bulk-research-dialog';
 import HelpChatDialog from './help-chat-dialog';
+import KnowledgeChatDialog from './knowledge-chat-dialog';
 import PdfExportDialog from './pdf-export-dialog';
 import { exportOutlineToJson } from '@/lib/export';
 import { exportSubtreeToPdf } from '@/lib/pdf-export';
@@ -163,6 +164,9 @@ export default function OutlinePro() {
 
   // Help chat dialog state
   const [isHelpChatOpen, setIsHelpChatOpen] = useState(false);
+
+  // Knowledge chat dialog state
+  const [isKnowledgeChatOpen, setIsKnowledgeChatOpen] = useState(false);
 
   // PDF export dialog state
   const [pdfExportDialogOpen, setPdfExportDialogOpen] = useState(false);
@@ -3137,6 +3141,13 @@ export default function OutlinePro() {
           onOpenChange={setIsHelpChatOpen}
         />
 
+        <KnowledgeChatDialog
+          open={isKnowledgeChatOpen}
+          onOpenChange={setIsKnowledgeChatOpen}
+          outlines={outlines}
+          currentOutlineId={currentOutlineId}
+        />
+
         <PdfExportDialog
           open={pdfExportDialogOpen}
           nodeName={pdfExportNodeId ? currentOutline.nodes[pdfExportNodeId]?.name || '' : ''}
@@ -3326,6 +3337,7 @@ export default function OutlinePro() {
                 onGenerateContentForChildren={handleGenerateContentForChildren}
                 onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
                 onOpenHelp={() => setIsHelpChatOpen(true)}
+                onOpenKnowledgeChat={() => setIsKnowledgeChatOpen(true)}
                 onCreateChildNode={handleCreateSiblingNode}
                 justCreatedNodeId={justCreatedNodeIdRef.current}
                 editingNodeId={editingNodeId}
@@ -3481,6 +3493,13 @@ export default function OutlinePro() {
       <HelpChatDialog
         open={isHelpChatOpen}
         onOpenChange={setIsHelpChatOpen}
+      />
+
+      <KnowledgeChatDialog
+        open={isKnowledgeChatOpen}
+        onOpenChange={setIsKnowledgeChatOpen}
+        outlines={outlines}
+        currentOutlineId={currentOutlineId}
       />
 
       <PdfExportDialog
@@ -3675,6 +3694,7 @@ export default function OutlinePro() {
                 onGenerateContentForChildren={handleGenerateContentForChildren}
                 onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
                 onOpenHelp={() => setIsHelpChatOpen(true)}
+                onOpenKnowledgeChat={() => setIsKnowledgeChatOpen(true)}
                 onCreateChildNode={handleCreateSiblingNode}
                 justCreatedNodeId={justCreatedNodeIdRef.current}
                 editingNodeId={editingNodeId}
