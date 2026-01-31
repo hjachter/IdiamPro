@@ -7,6 +7,20 @@ interface Message {
 }
 
 const OLLAMA_BASE_URL = 'http://localhost:11434';
+// llama3.2 context window is 128K tokens but quality degrades past ~8K.
+// Truncate context to keep total prompt under ~6K tokens (~24K chars).
+const OLLAMA_MAX_CONTEXT_CHARS = 24000;
+
+function truncateForOllama(context: string): { text: string; truncated: boolean } {
+  if (context.length <= OLLAMA_MAX_CONTEXT_CHARS) {
+    return { text: context, truncated: false };
+  }
+  const truncated = context.slice(0, OLLAMA_MAX_CONTEXT_CHARS);
+  // Cut at last complete section (---) to avoid mid-sentence breaks
+  const lastSeparator = truncated.lastIndexOf('\n---\n');
+  const cutPoint = lastSeparator > OLLAMA_MAX_CONTEXT_CHARS / 2 ? lastSeparator : OLLAMA_MAX_CONTEXT_CHARS;
+  return { text: truncated.slice(0, cutPoint) + '\n\n[... remaining outlines truncated for local AI ...]', truncated: true };
+}
 
 async function generateWithOllama(systemPrompt: string, fullPrompt: string): Promise<string> {
   const response = await fetch(`${OLLAMA_BASE_URL}/api/chat`, {
@@ -19,7 +33,7 @@ async function generateWithOllama(systemPrompt: string, fullPrompt: string): Pro
         { role: 'user', content: fullPrompt },
       ],
       stream: false,
-      options: { temperature: 0.7, num_predict: 2000 },
+      options: { temperature: 0.7, num_predict: 2000, num_ctx: 8192 },
     }),
   });
 
@@ -83,7 +97,16 @@ Be concise but thorough. Use markdown formatting for clarity.`;
     } catch (geminiError) {
       console.warn('[KnowledgeChat] Gemini failed, trying Ollama:', (geminiError as Error).message);
       try {
-        text = await generateWithOllama(systemPrompt, userPrompt);
+        // Truncate context for Ollama's smaller context window
+        const { text: truncatedContext, truncated } = truncateForOllama(context);
+        const ollamaPrompt = `OUTLINE CONTENT:\n${truncatedContext}\n\nConversation:\n${conversationHistory}\n\nProvide a helpful, clear response grounded in the outline content above.`;
+        if (truncated) {
+          console.log(`[KnowledgeChat] Context truncated from ${context.length} to ${truncatedContext.length} chars for Ollama`);
+        }
+        text = await generateWithOllama(systemPrompt, ollamaPrompt);
+        if (truncated) {
+          text += '\n\n*Note: Using local AI with truncated context. Some outlines may not be included. For full coverage, ensure your cloud AI key is configured.*';
+        }
         console.log('[KnowledgeChat] Response via Ollama');
       } catch (ollamaError) {
         console.error('[KnowledgeChat] Ollama also failed:', (ollamaError as Error).message);
