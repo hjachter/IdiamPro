@@ -467,6 +467,39 @@ export const MermaidBlock = Node.create({
   },
 });
 
+// URL validation for Google embed iframes
+function isAllowedEmbedUrl(url: string | null, service: 'docs' | 'sheets' | 'slides' | 'maps'): boolean {
+  if (!url) return false;
+  try {
+    const parsed = new URL(url);
+    const hostname = parsed.hostname.toLowerCase();
+    switch (service) {
+      case 'docs':
+        return hostname === 'docs.google.com';
+      case 'sheets':
+        return hostname === 'docs.google.com' && parsed.pathname.startsWith('/spreadsheets');
+      case 'slides':
+        return hostname === 'docs.google.com' && parsed.pathname.startsWith('/presentation');
+      case 'maps':
+        return hostname === 'www.google.com' && parsed.pathname.startsWith('/maps') ||
+               hostname === 'maps.google.com' ||
+               hostname === 'google.com' && parsed.pathname.startsWith('/maps');
+      default:
+        return false;
+    }
+  } catch {
+    return false;
+  }
+}
+
+const EmbedBlockedWarning = ({ url }: { url: string | null }) => (
+  <NodeViewWrapper as="div">
+    <div className="my-4 p-4 border border-yellow-400 bg-yellow-50 dark:bg-yellow-950/30 rounded-md text-sm text-yellow-800 dark:text-yellow-300">
+      <strong>Blocked embed:</strong> The URL &ldquo;{url || '(none)'}&rdquo; is not a recognized Google service URL.
+    </div>
+  </NodeViewWrapper>
+);
+
 // Google Docs Extension
 export const GoogleDocs = Node.create({
   name: 'googleDocs',
@@ -495,6 +528,9 @@ export const GoogleDocs = Node.create({
 
   addNodeView() {
     return ReactNodeViewRenderer(({ node }) => {
+      if (!isAllowedEmbedUrl(node.attrs.src, 'docs')) {
+        return <EmbedBlockedWarning url={node.attrs.src} />;
+      }
       return (
         <NodeViewWrapper as="div">
           <div className="google-docs-embed my-4">
@@ -503,6 +539,7 @@ export const GoogleDocs = Node.create({
               className="w-full h-[600px] border rounded-md"
               frameBorder="0"
               allowFullScreen
+              sandbox="allow-scripts allow-same-origin allow-popups"
             />
           </div>
         </NodeViewWrapper>
@@ -552,6 +589,9 @@ export const GoogleSheets = Node.create({
 
   addNodeView() {
     return ReactNodeViewRenderer(({ node }) => {
+      if (!isAllowedEmbedUrl(node.attrs.src, 'sheets')) {
+        return <EmbedBlockedWarning url={node.attrs.src} />;
+      }
       return (
         <NodeViewWrapper as="div">
           <div className="google-sheets-embed my-4">
@@ -560,6 +600,7 @@ export const GoogleSheets = Node.create({
               className="w-full h-[600px] border rounded-md"
               frameBorder="0"
               allowFullScreen
+              sandbox="allow-scripts allow-same-origin allow-popups"
             />
           </div>
         </NodeViewWrapper>
@@ -609,6 +650,9 @@ export const GoogleSlides = Node.create({
 
   addNodeView() {
     return ReactNodeViewRenderer(({ node }) => {
+      if (!isAllowedEmbedUrl(node.attrs.src, 'slides')) {
+        return <EmbedBlockedWarning url={node.attrs.src} />;
+      }
       return (
         <NodeViewWrapper as="div">
           <div className="google-slides-embed my-4">
@@ -617,6 +661,7 @@ export const GoogleSlides = Node.create({
               className="w-full h-[480px] border rounded-md"
               frameBorder="0"
               allowFullScreen
+              sandbox="allow-scripts allow-same-origin allow-popups"
             />
           </div>
         </NodeViewWrapper>
@@ -666,6 +711,9 @@ export const GoogleMaps = Node.create({
 
   addNodeView() {
     return ReactNodeViewRenderer(({ node }) => {
+      if (!isAllowedEmbedUrl(node.attrs.src, 'maps')) {
+        return <EmbedBlockedWarning url={node.attrs.src} />;
+      }
       return (
         <NodeViewWrapper as="div">
           <div className="google-maps-embed my-4">
@@ -674,6 +722,7 @@ export const GoogleMaps = Node.create({
               className="w-full h-[450px] border rounded-md"
               frameBorder="0"
               allowFullScreen
+              sandbox="allow-scripts allow-same-origin allow-popups"
             />
           </div>
         </NodeViewWrapper>

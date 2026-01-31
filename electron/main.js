@@ -116,9 +116,23 @@ function saveSettings(settings) {
   }
 }
 
-// Sanitize filename (same logic as frontend)
+// Sanitize filename (same logic as frontend, plus path traversal protection)
 function sanitizeFileName(name) {
-  return name.replace(/[<>:"/\\|?*\x00-\x1F]/g, '_');
+  return name
+    .replace(/\.\./g, '_')           // Strip directory traversal sequences
+    .replace(/[/\\]/g, '_')          // Strip path separators
+    .replace(/[<>:"|?*\x00-\x1F]/g, '_');
+}
+
+// Validate that a resolved file path stays within the expected base directory.
+// Prevents path traversal attacks (e.g. ../../etc/passwd).
+function validateFilePath(basePath, ...segments) {
+  const resolvedBase = path.resolve(basePath);
+  const resolvedTarget = path.resolve(basePath, ...segments);
+  if (!resolvedTarget.startsWith(resolvedBase + path.sep) && resolvedTarget !== resolvedBase) {
+    throw new Error(`Path traversal blocked: ${segments.join('/')} escapes ${basePath}`);
+  }
+  return resolvedTarget;
 }
 
 // Get outline filename
@@ -174,6 +188,16 @@ async function createWindow() {
   if (process.env.NODE_ENV === 'development') {
     mainWindow.webContents.openDevTools();
   }
+
+  // Capture browser console errors to a debug file
+  const debugLogPath = path.join(app.getPath('home'), 'Documents', 'IDM Outlines', '.browser-errors.log');
+  mainWindow.webContents.on('console-message', (event, level, message, line, sourceId) => {
+    // Capture all console messages (level 0=log, 1=info, 2=warn, 3=error)
+    if (level >= 0) {
+      const entry = `[${new Date().toISOString()}] L${level}: ${message}\n  at ${sourceId}:${line}\n`;
+      try { fs.appendFileSync(debugLogPath, entry); } catch {}
+    }
+  });
 
   mainWindow.on('closed', () => {
     mainWindow = null;
@@ -408,7 +432,7 @@ ipcMain.handle('read-outline-metadata-from-directory', async (event, dirPath) =>
 // Load a single outline fully (for lazy-loaded outlines)
 ipcMain.handle('load-single-outline', async (event, dirPath, fileName) => {
   try {
-    const filePath = path.join(dirPath, fileName);
+    const filePath = validateFilePath(dirPath, fileName);
     console.log(`[Lazy] Loading full outline: ${fileName}`);
     const content = fs.readFileSync(filePath, 'utf-8');
     const outline = JSON.parse(content);
@@ -432,7 +456,7 @@ ipcMain.handle('load-single-outline', async (event, dirPath, fileName) => {
 // Get file modification time for an outline (for external change detection)
 ipcMain.handle('get-outline-mtime', async (event, dirPath, fileName) => {
   try {
-    const filePath = path.join(dirPath, fileName);
+    const filePath = validateFilePath(dirPath, fileName);
     if (!fs.existsSync(filePath)) {
       return { success: false, error: 'File not found' };
     }
@@ -488,7 +512,7 @@ ipcMain.handle('save-outline-to-file', async (event, dirPath, outline) => {
 // Delete outline file
 ipcMain.handle('delete-outline-file', async (event, dirPath, fileName) => {
   try {
-    const filePath = path.join(dirPath, fileName);
+    const filePath = validateFilePath(dirPath, fileName);
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);
       console.log(`Deleted outline: ${fileName}`);
@@ -504,8 +528,8 @@ ipcMain.handle('delete-outline-file', async (event, dirPath, fileName) => {
 ipcMain.handle('rename-outline-file', async (event, dirPath, oldFileName, newOutline) => {
   try {
     const newFileName = getOutlineFileName(newOutline);
-    const oldFilePath = path.join(dirPath, oldFileName);
-    const newFilePath = path.join(dirPath, newFileName);
+    const oldFilePath = validateFilePath(dirPath, oldFileName);
+    const newFilePath = validateFilePath(dirPath, newFileName);
 
     // If names are the same, just update content
     if (oldFileName === newFileName) {
@@ -533,7 +557,7 @@ ipcMain.handle('rename-outline-file', async (event, dirPath, oldFileName, newOut
 // Check if outline file exists
 ipcMain.handle('check-outline-exists', async (event, dirPath, fileName) => {
   try {
-    const filePath = path.join(dirPath, fileName);
+    const filePath = validateFilePath(dirPath, fileName);
     return fs.existsSync(filePath);
   } catch (error) {
     console.error('Failed to check outline exists:', error);
@@ -544,7 +568,7 @@ ipcMain.handle('check-outline-exists', async (event, dirPath, fileName) => {
 // Load a specific outline from file
 ipcMain.handle('load-outline-from-file', async (event, dirPath, fileName) => {
   try {
-    const filePath = path.join(dirPath, fileName);
+    const filePath = validateFilePath(dirPath, fileName);
     if (!fs.existsSync(filePath)) {
       return { success: false, error: 'File not found' };
     }
@@ -726,7 +750,7 @@ ipcMain.handle('delete-pending-import', async (event, fileName) => {
     }
 
     const pendingDir = path.join(outlinesDir, '.pending');
-    const filePath = path.join(pendingDir, fileName);
+    const filePath = validateFilePath(pendingDir, fileName);
 
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);

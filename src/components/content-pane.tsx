@@ -1,9 +1,16 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import DOMPurify from 'dompurify';
 import { useToast } from '@/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
 import type { OutlineNode, NodeGenerationContext, NodeMap, NodeType } from '@/types';
+
+// DOMPurify config for AI-generated content: allow formatting tags + mermaid data attributes
+const SANITIZE_CONFIG: DOMPurify.Config = {
+  ALLOWED_TAGS: ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'strong', 'em', 'code', 'pre', 'br', 'blockquote', 'del', 'a', 'div', 'span', 'img'],
+  ALLOWED_ATTR: ['href', 'target', 'rel', 'src', 'alt', 'class', 'data-mermaid-block', 'data-mermaid-code'],
+};
 
 /**
  * Detect if text appears to be tabular/aligned data that would benefit from monospace formatting.
@@ -953,7 +960,7 @@ export default function ContentPane({
       processed = processed.replace(`<p>__MERMAID_${index}__</p>`, block);
     });
 
-    return processed;
+    return DOMPurify.sanitize(processed, SANITIZE_CONFIG);
   }, [convertToHtml, sanitizeMermaidCode]);
 
   // Apply generated content based on placement preference

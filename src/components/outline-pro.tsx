@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo, useRef, startTransition } from 'react';
 import { flushSync, createPortal } from 'react-dom';
+import DOMPurify from 'dompurify';
 import { v4 as uuidv4 } from 'uuid';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -1995,6 +1996,10 @@ export default function OutlinePro() {
       // Always use bullet-based (content-first) approach for best results
       const result = await bulletBasedResearchAction(inputWithTarget, existingContent);
 
+      if (!result?.outline?.nodes || !result?.outline?.rootNodeId) {
+        throw new Error('The AI returned an incomplete outline. Please try again.');
+      }
+
       if (input.includeExistingContent && currentOutline) {
         // TRUE MERGE: Intelligently merge new nodes into existing outline
         const newNodes = result.outline.nodes;
@@ -2232,10 +2237,19 @@ export default function OutlinePro() {
           currentOutlines.map(o => o.id === currentOutline.id ? mergedOutline : o)
         );
 
-        toast({
-          title: "Content Merged!",
-          description: `Merged ${mergedCount} existing sections, added ${addedCount} new sections.`,
-        });
+        if (mergedCount === 0 && addedCount === 0) {
+          toast({
+            variant: "destructive",
+            title: "Nothing to Merge",
+            description: "The source didn't produce enough content to add to your outline. Try a different URL or a content-rich page.",
+            duration: 10000,
+          });
+        } else {
+          toast({
+            title: "Content Merged!",
+            description: `Merged ${mergedCount} existing sections, added ${addedCount} new sections.`,
+          });
+        }
       } else {
         // CREATE NEW: Add the new outline to the list
         setOutlines(currentOutlines => [...currentOutlines, result.outline]);
@@ -2278,10 +2292,14 @@ export default function OutlinePro() {
         displayMsg = `Error: ${errorMsg.substring(0, 200)}${errorMsg.length > 200 ? '...' : ''}`;
       }
 
+      // Auto-copy error to clipboard so user can paste it
+      const fullError = `${title}: ${displayMsg}`;
+      try { navigator.clipboard.writeText(fullError); } catch {}
+
       toast({
         variant: "destructive",
         title,
-        description: displayMsg,
+        description: `${displayMsg}\n(Error copied to clipboard)`,
         duration: 15000, // 15 seconds for errors (much longer than default)
       });
       // Don't re-throw - we've handled the error with the toast
@@ -3347,7 +3365,7 @@ export default function OutlinePro() {
                   <div
                     className="text-sm text-muted-foreground line-clamp-4"
                     dangerouslySetInnerHTML={{
-                      __html: selectedNode?.content || '<p class="italic">No content yet</p>'
+                      __html: DOMPurify.sanitize(selectedNode?.content || '<p class="italic">No content yet</p>')
                     }}
                   />
                   {/* Fade overlay at bottom */}
