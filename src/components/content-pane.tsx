@@ -12,6 +12,13 @@ const SANITIZE_CONFIG: DOMPurify.Config = {
   ALLOWED_ATTR: ['href', 'target', 'rel', 'src', 'alt', 'class', 'data-mermaid-block', 'data-mermaid-code'],
 };
 
+// Safe wrapper: DOMPurify requires a DOM, so pass through during SSR (server output
+// is trusted and gets re-sanitized on the client after hydration).
+function sanitizeHtml(html: string, config?: DOMPurify.Config): string {
+  if (typeof window === 'undefined') return html;
+  return DOMPurify.sanitize(html, config);
+}
+
 /**
  * Detect if text appears to be tabular/aligned data that would benefit from monospace formatting.
  * Checks for: markdown tables, multiple consecutive spaces, tab-separated values, ASCII art tables,
@@ -960,7 +967,7 @@ export default function ContentPane({
       processed = processed.replace(`<p>__MERMAID_${index}__</p>`, block);
     });
 
-    return DOMPurify.sanitize(processed, SANITIZE_CONFIG);
+    return sanitizeHtml(processed, SANITIZE_CONFIG);
   }, [convertToHtml, sanitizeMermaidCode]);
 
   // Apply generated content based on placement preference

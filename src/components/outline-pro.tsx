@@ -3365,7 +3365,9 @@ export default function OutlinePro() {
                   <div
                     className="text-sm text-muted-foreground line-clamp-4"
                     dangerouslySetInnerHTML={{
-                      __html: DOMPurify.sanitize(selectedNode?.content || '<p class="italic">No content yet</p>')
+                      __html: typeof window !== 'undefined'
+                        ? DOMPurify.sanitize(selectedNode?.content || '<p class="italic">No content yet</p>')
+                        : (selectedNode?.content || '<p class="italic">No content yet</p>')
                     }}
                   />
                   {/* Fade overlay at bottom */}
