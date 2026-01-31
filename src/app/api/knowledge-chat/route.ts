@@ -6,6 +6,31 @@ interface Message {
   content: string;
 }
 
+const OLLAMA_BASE_URL = 'http://localhost:11434';
+
+async function generateWithOllama(systemPrompt: string, fullPrompt: string): Promise<string> {
+  const response = await fetch(`${OLLAMA_BASE_URL}/api/chat`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'llama3.2',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: fullPrompt },
+      ],
+      stream: false,
+      options: { temperature: 0.7, num_predict: 2000 },
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Ollama failed: ${await response.text()}`);
+  }
+
+  const data = await response.json();
+  return data.message?.content || '';
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { messages, context, mode } = await request.json() as {
@@ -44,19 +69,30 @@ Be concise but thorough. Use markdown formatting for clarity.`;
       `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}`
     ).join('\n\n');
 
-    // Generate response using Gemini
-    const { text } = await ai.generate({
-      model: 'googleai/gemini-2.0-flash-exp',
-      prompt: `${systemPrompt}
+    const userPrompt = `OUTLINE CONTENT:\n${context}\n\nConversation:\n${conversationHistory}\n\nProvide a helpful, clear response grounded in the outline content above.`;
 
-OUTLINE CONTENT:
-${context}
-
-Conversation:
-${conversationHistory}
-
-Provide a helpful, clear response grounded in the outline content above.`,
-    });
+    // Try Gemini first, fall back to Ollama
+    let text: string;
+    try {
+      const result = await ai.generate({
+        model: 'googleai/gemini-2.0-flash-exp',
+        prompt: `${systemPrompt}\n\n${userPrompt}`,
+      });
+      text = result.text;
+      console.log('[KnowledgeChat] Response via Gemini');
+    } catch (geminiError) {
+      console.warn('[KnowledgeChat] Gemini failed, trying Ollama:', (geminiError as Error).message);
+      try {
+        text = await generateWithOllama(systemPrompt, userPrompt);
+        console.log('[KnowledgeChat] Response via Ollama');
+      } catch (ollamaError) {
+        console.error('[KnowledgeChat] Ollama also failed:', (ollamaError as Error).message);
+        return NextResponse.json(
+          { error: 'Both cloud and local AI are unavailable. Check your Gemini API key or ensure Ollama is running.' },
+          { status: 500 }
+        );
+      }
+    }
 
     return NextResponse.json({ response: text });
   } catch (error) {

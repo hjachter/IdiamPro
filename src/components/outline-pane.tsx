@@ -531,9 +531,10 @@ export default function OutlinePane({
         return;
       }
 
-      // Don't interfere with input fields for other shortcuts
+      // Don't interfere with input fields or dialogs
       const target = e.target as HTMLElement;
       if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) return;
+      if (target.closest('[role="dialog"]')) return;
 
       // Handle Arrow keys for navigation through nodes
       if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
