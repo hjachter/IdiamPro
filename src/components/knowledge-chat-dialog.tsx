@@ -4,8 +4,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
-import { ScrollArea } from './ui/scroll-area';
-import { Brain, Send, Sparkles, User, Loader2, AlertTriangle } from 'lucide-react';
+import { Brain, Send, User, Loader2, AlertTriangle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Outline } from '@/types';
 import { serializeOutline, serializeOutlines } from '@/lib/outline-serializer';
@@ -121,9 +120,9 @@ export default function KnowledgeChatDialog({
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      scrollRef.current.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
     }
-  }, [messages]);
+  }, [messages, isLoading]);
 
   const handleModeChange = (newMode: ChatMode) => {
     setMode(newMode);
@@ -219,13 +218,13 @@ export default function KnowledgeChatDialog({
           </div>
 
           {/* Mode Toggle */}
-          <div className="flex gap-1 mt-3 p-1 bg-muted rounded-lg">
+          <div className="flex gap-1 mt-3 p-1 bg-muted/50 rounded-lg border border-border/50">
             <button
               onClick={() => handleModeChange('current')}
               className={cn(
                 'flex-1 px-3 py-1.5 text-sm rounded-md transition-colors',
                 mode === 'current'
-                  ? 'bg-background shadow-sm font-medium'
+                  ? 'bg-blue-500 text-white shadow-sm font-medium'
                   : 'text-muted-foreground hover:text-foreground'
               )}
             >
@@ -236,7 +235,7 @@ export default function KnowledgeChatDialog({
               className={cn(
                 'flex-1 px-3 py-1.5 text-sm rounded-md transition-colors',
                 mode === 'all'
-                  ? 'bg-background shadow-sm font-medium'
+                  ? 'bg-blue-500 text-white shadow-sm font-medium'
                   : 'text-muted-foreground hover:text-foreground'
               )}
             >
@@ -284,7 +283,7 @@ export default function KnowledgeChatDialog({
         )}
 
         {/* Chat Messages */}
-        <ScrollArea className="flex-1 px-6 py-4" ref={scrollRef}>
+        <div className="flex-1 overflow-y-auto px-6 py-4" ref={scrollRef}>
           <div className="space-y-4">
             {messages.map((message) => (
               <div
@@ -327,7 +326,7 @@ export default function KnowledgeChatDialog({
               </div>
             )}
           </div>
-        </ScrollArea>
+        </div>
 
         {/* Input Area */}
         <div className="px-6 py-4 border-t">
