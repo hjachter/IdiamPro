@@ -70,6 +70,7 @@ This guide cannot be deleted, but you can copy it to create your own customized 
   const renameOutlineId = uuidv4();
   const deleteOutlineId = uuidv4();
   const importExportId = uuidv4();
+  const autoBackupId = uuidv4();
 
   createNode(nodes, manageId, rootId, "Managing Outlines", "IdiamPro supports multiple outlines, each stored separately. Use the dropdown menu at the top of the outline pane (showing the current outline name) to switch between outlines, create new ones, rename, delete, or import/export. The guide outline is special - it's restored automatically and cannot be deleted or renamed.", []);
   createNode(nodes, createNewId, manageId, "Creating a New Outline", "Click the dropdown menu (shows current outline name) and select 'New Outline'. A new untitled outline is created and becomes your active outline. It starts with just a root node - add children to build your structure.");
@@ -77,6 +78,7 @@ This guide cannot be deleted, but you can copy it to create your own customized 
   createNode(nodes, renameOutlineId, manageId, "Renaming an Outline", "Two ways to rename:\n\n1. Use the dropdown menu > 'Rename' option\n\n2. Double-click the root node name - this updates both the node and outline name");
   createNode(nodes, deleteOutlineId, manageId, "Deleting an Outline", "Use the dropdown menu > 'Delete' option. A confirmation dialog appears before deletion. You cannot delete the guide outline or your last remaining outline - the app always keeps at least one user outline.");
   createNode(nodes, importExportId, manageId, "Import/Export", "From the dropdown menu:\n\n'Export Current Outline' - Downloads as JSON file\n\n'Import Outline' - Load a previously exported JSON file");
+  createNode(nodes, autoBackupId, manageId, "Automatic Backups", "On the desktop (Electron) app, IdiamPro automatically creates timestamped backups every time you save an outline.\n\n**How it works:**\n- A backup copy is saved to the 'backups' folder inside your outlines directory\n- Backups are named like: MyOutline_backup_2026-01-31T04-38-12.idm\n- Backups are throttled to at most one every 5 minutes per outline, so rapid edits don't flood your disk\n- The last 10 backups per outline are kept; older ones are automatically pruned\n\n**Recovery:**\nIf you need to recover a previous version, open Finder and navigate to your outlines folder > backups. Find the backup file with the timestamp you want and rename it to replace the original .idm file (remove the _backup_timestamp part).\n\n**Note:** Automatic backups are only available in the desktop Electron app. The web version relies on browser storage.");
 
   // === WORKING WITH NODES ===
   const workingId = uuidv4();
@@ -263,10 +265,13 @@ This guide cannot be deleted, but you can copy it to create your own customized 
 
   createNode(nodes, bulkOperationsId, multiSelectId, "Bulk Operations Toolbar", "When nodes are selected, a floating toolbar appears at the bottom with bulk actions:\n\n**Tag**: Add a tag to all selected nodes at once\n- Click Tag button\n- Enter tag name\n- Tag is added to all selected nodes\n\n**Color**: Change color of all selected nodes\n- Click Color button\n- Choose from 8 colors\n- All selected nodes get the new color\n\n**Delete**: Remove all selected nodes\n- Click Delete button\n- Confirmation dialog appears\n- All selected nodes and their children are deleted\n\n**Clear**: Deselect all nodes\n- Returns to normal selection mode\n\nThe toolbar shows how many nodes are selected (e.g., \"3 nodes selected\")");
 
-  // === SIDEBAR MULTI-SELECT ===
+  // === SIDEBAR FEATURES ===
   const sidebarMultiSelectId = uuidv4();
+  const sidebarSearchId = uuidv4();
 
   createNode(nodes, sidebarMultiSelectId, advancedId, "Sidebar Multi-Select & Bulk Delete", "You can select multiple outlines in the sidebar and delete them in one step.\n\n**Selecting outlines:**\n- **Cmd/Ctrl + Click** an outline to toggle it in/out of selection\n- **Shift + Click** to select a range of outlines between the current and clicked outline\n\n**Bulk action bar:**\nWhen outlines are selected, a bar appears showing the count (e.g., \"3 selected\") along with Clear and Delete buttons.\n- **Clear** deselects all outlines\n- **Delete** opens a single confirmation dialog for the entire batch\n\n**Note:** The delete confirmation setting in Settings applies to both node deletion and outline deletion. If you have turned off confirmations, bulk delete will proceed immediately.");
+
+  createNode(nodes, sidebarSearchId, advancedId, "Sidebar Search", "Quickly find outlines by name using the search field in the sidebar.\n\n**How to use:**\n1. Type in the search field below the Outlines header\n2. The list filters in real time to show only matching outlines\n3. The count updates to show matches vs total (e.g., \"5 / 42\")\n4. Click the X button or clear the text to show all outlines again\n\n**Details:**\n- Search is case-insensitive\n- The User Guide is also filtered by search\n- Available in both the desktop sidebar and the mobile sidebar sheet\n- On mobile, the search clears automatically when you select an outline");
 
   // === NODE NUMBERING ===
   const numberingId = uuidv4();

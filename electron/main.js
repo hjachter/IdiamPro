@@ -116,6 +116,57 @@ function saveSettings(settings) {
   }
 }
 
+// ========== Automatic Backup System ==========
+const BACKUP_THROTTLE_MS = 5 * 60 * 1000; // 5 minutes between backups per outline
+const MAX_BACKUPS_PER_OUTLINE = 10;
+const lastBackupTime = new Map(); // outlineName -> timestamp
+
+function createBackupIfNeeded(dirPath, outlineName, content) {
+  try {
+    const now = Date.now();
+    const lastTime = lastBackupTime.get(outlineName) || 0;
+    if (now - lastTime < BACKUP_THROTTLE_MS) {
+      return; // Throttled — too soon since last backup
+    }
+
+    const backupDir = path.join(dirPath, 'backups');
+    fs.mkdirSync(backupDir, { recursive: true });
+
+    const timestamp = new Date().toISOString().replace(/:/g, '-');
+    const safeName = sanitizeFileName(outlineName);
+    const backupFileName = `${safeName}_backup_${timestamp}.idm`;
+    const backupPath = path.join(backupDir, backupFileName);
+
+    fs.writeFileSync(backupPath, content, 'utf-8');
+    lastBackupTime.set(outlineName, now);
+    console.log(`[Backup] Created: ${backupFileName}`);
+
+    // Prune old backups asynchronously (non-blocking)
+    setImmediate(() => pruneBackups(backupDir, outlineName));
+  } catch (error) {
+    console.warn('[Backup] Failed to create backup:', error.message);
+  }
+}
+
+function pruneBackups(backupDir, outlineName) {
+  try {
+    const safeName = sanitizeFileName(outlineName);
+    const prefix = `${safeName}_backup_`;
+    const files = fs.readdirSync(backupDir)
+      .filter(f => f.startsWith(prefix) && f.endsWith('.idm'))
+      .sort()
+      .reverse(); // Newest first (ISO timestamps sort lexicographically)
+
+    const toDelete = files.slice(MAX_BACKUPS_PER_OUTLINE);
+    for (const file of toDelete) {
+      fs.unlinkSync(path.join(backupDir, file));
+      console.log(`[Backup] Pruned old backup: ${file}`);
+    }
+  } catch (error) {
+    console.warn('[Backup] Failed to prune backups:', error.message);
+  }
+}
+
 // Sanitize filename (same logic as frontend, plus path traversal protection)
 function sanitizeFileName(name) {
   return name
@@ -502,6 +553,7 @@ ipcMain.handle('save-outline-to-file', async (event, dirPath, outline) => {
     const content = JSON.stringify(outline, null, 2);
     fs.writeFileSync(filePath, content, 'utf-8');
     console.log(`Saved outline: ${fileName}`);
+    createBackupIfNeeded(dirPath, outline.name, content);
     return { success: true };
   } catch (error) {
     console.error('Failed to save outline:', error);
@@ -535,6 +587,7 @@ ipcMain.handle('rename-outline-file', async (event, dirPath, oldFileName, newOut
     if (oldFileName === newFileName) {
       const content = JSON.stringify(newOutline, null, 2);
       fs.writeFileSync(newFilePath, content, 'utf-8');
+      createBackupIfNeeded(dirPath, newOutline.name, content);
       return { success: true };
     }
 
@@ -547,6 +600,7 @@ ipcMain.handle('rename-outline-file', async (event, dirPath, oldFileName, newOut
     const content = JSON.stringify(newOutline, null, 2);
     fs.writeFileSync(newFilePath, content, 'utf-8');
     console.log(`Renamed: ${oldFileName} -> ${newFileName}`);
+    createBackupIfNeeded(dirPath, newOutline.name, content);
     return { success: true };
   } catch (error) {
     console.error('Failed to rename outline:', error);

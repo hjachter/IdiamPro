@@ -30,7 +30,9 @@ KEY FEATURES:
 - Rich content editor with markdown support
 - Multi-select nodes for bulk operations (delete, change color, add tags)
 - Sidebar multi-select: Cmd/Ctrl+Click or Shift+Click outlines in the sidebar to select multiple, then bulk delete
+- Sidebar search: Type in the search field below the Outlines header to filter outlines by name (works on desktop and mobile)
 - Tags and color-coding for organization
+- Automatic backups (Desktop): Every save creates a timestamped backup in the backups/ folder. Throttled to one per 5 minutes per outline. Last 10 backups kept per outline. Recover by renaming a backup file in Finder.
 - Cross-platform: Web, macOS Desktop (Electron), iOS (Capacitor)
 - File storage: iCloud Drive, Dropbox, Google Drive, local folders
 - Google Docs/Sheets/Slides/Maps embedding via Insert menu
