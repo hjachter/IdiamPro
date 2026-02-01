@@ -68,6 +68,12 @@ This includes: new keyboard shortcuts, new node types, new toolbar/menu items, n
 
 ---
 
+## Git Workflow
+
+When the user says "commit it" or "push it" (in any form), **always do both**: commit and push. Never ask to push after already pushing, or to commit after already committing.
+
+---
+
 ## Active Until Reversed
 
 These guidelines are active for ALL conversations until the user explicitly reverses them.
