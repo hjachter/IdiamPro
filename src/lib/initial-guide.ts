@@ -165,6 +165,10 @@ This guide cannot be deleted, but you can copy it to create your own customized 
   const pendingImportId = uuidv4();
   createNode(nodes, pendingImportId, aiIngestId, "Pending Import Recovery", "On the desktop (Electron) app, if a Research & Import operation times out or the app closes during an import, the result is saved automatically.\n\nOn next launch:\n1. A recovery dialog appears\n2. It shows the pending import that was interrupted\n3. You can choose to apply the import or discard it\n\nThis ensures you never lose a long-running import due to network issues or accidental app closure.");
 
+  // Undo Merge
+  const undoMergeId = uuidv4();
+  createNode(nodes, undoMergeId, aiIngestId, "Undo Merge", "When merging research into an existing outline, a snapshot is taken before the merge begins.\n\nAfter the merge completes, the success toast includes an **Undo** button (visible for 15 seconds). Clicking it restores your outline to its exact pre-merge state.\n\nThis lets you safely try a merge and revert if the results aren't what you expected. Only the most recent merge can be undone.");
+
   // AI Image Generation
   createNode(nodes, aiImageGenId, aiId, "AI Image Generation (Premium)", "Create custom illustrations with AI:\n\n1. Click the violet Image button in the content toolbar\n2. Describe the image you want (be specific about style, colors, composition)\n3. Choose an aspect ratio (square, landscape, portrait)\n4. Click 'Generate Image'\n\nThe AI-generated image is inserted directly into your content.\n\n**Tips for better results:**\n• Be specific: 'A serene mountain lake at sunset with purple sky' vs 'a lake'\n• Mention style: 'digital art', 'watercolor', 'photorealistic', 'minimalist'\n• Include composition details: 'close-up', 'wide angle', 'from above'\n\n**Note:** This feature requires a Premium plan.");
 
@@ -186,7 +190,7 @@ This guide cannot be deleted, but you can copy it to create your own customized 
   const kcAllModeId = uuidv4();
   const kcTipsId = uuidv4();
 
-  createNode(nodes, knowledgeChatId, aiId, "Knowledge Chat", "Query your outlines with natural language. Ask questions, find information, and discover connections across your content using AI.\n\n**Access:** Click the brain icon (blue) in the toolbar.\n\n**Two Modes:**\n- Current Outline — queries only the active outline\n- All Outlines (Second Brain) — queries all your outlines at once\n\nThe AI answers based only on your outline content, referencing specific sections and making cross-outline connections.", []);
+  createNode(nodes, knowledgeChatId, aiId, "Knowledge Chat", "Query your outlines with natural language. Ask questions, find information, and discover connections across your content using AI.\n\n**Access:** Click the brain icon (blue) in the toolbar.\n\n**Two Modes:**\n- Current Outline — queries only the active outline\n- All Outlines (Second Brain) — queries all your outlines at once\n\nThe AI answers based only on your outline content, referencing specific sections and making cross-outline connections.\n\n**Streaming Responses:** Answers appear word-by-word as they're generated, so you see the first words within 1-2 seconds instead of waiting for the full response.", []);
 
   createNode(nodes, kcQueryId, knowledgeChatId, "Querying Your Outlines", "How to use Knowledge Chat:\n\n1. Click the brain icon (blue) in the toolbar\n2. The chat dialog opens with your current outline loaded\n3. Type a question in natural language\n4. The AI responds using information from your outlines\n\n**Example questions:**\n- 'What are the key findings from my research?'\n- 'Summarize the Q1 goals'\n- 'What connections exist between marketing and product?'\n- 'Find everything related to budget constraints'");
 

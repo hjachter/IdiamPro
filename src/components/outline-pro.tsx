@@ -12,6 +12,7 @@ import { addNode, addNodeAfter, removeNode, updateNode, moveNode, parseMarkdownT
 import OutlinePane from './outline-pane';
 import ContentPane from './content-pane';
 import { useToast } from "@/hooks/use-toast";
+import { ToastAction } from '@/components/ui/toast';
 import { generateOutlineAction, expandContentAction, generateContentForNodeAction, ingestExternalSourceAction, bulkResearchIngestAction, bulletBasedResearchAction } from '@/app/actions';
 import { useAI } from '@/contexts/ai-context';
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction } from './ui/alert-dialog';
@@ -135,6 +136,7 @@ export default function OutlinePro() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isTemplatesDialogOpen, setIsTemplatesDialogOpen] = useState(false);
   const importFileInputRef = useRef<HTMLInputElement>(null);
+  const preMergeSnapshotRef = useRef<Outline | null>(null);
 
   // Keyboard shortcuts dialog
   const { isOpen: isShortcutsOpen, setIsOpen: setIsShortcutsOpen } = useKeyboardShortcuts();
@@ -2004,6 +2006,11 @@ export default function OutlinePro() {
         throw new Error('The AI returned an incomplete outline. Please try again.');
       }
 
+      // Snapshot for undo
+      if (input.includeExistingContent && currentOutline) {
+        preMergeSnapshotRef.current = JSON.parse(JSON.stringify(currentOutline));
+      }
+
       if (input.includeExistingContent && currentOutline) {
         // TRUE MERGE: Intelligently merge new nodes into existing outline
         const newNodes = result.outline.nodes;
@@ -2252,6 +2259,19 @@ export default function OutlinePro() {
           toast({
             title: "Content Merged!",
             description: `Merged ${mergedCount} existing sections, added ${addedCount} new sections.`,
+            duration: 15000,
+            action: (
+              <ToastAction altText="Undo merge" onClick={() => {
+                const snapshot = preMergeSnapshotRef.current;
+                if (snapshot) {
+                  setOutlines(prev => prev.map(o => o.id === snapshot.id ? snapshot : o));
+                  preMergeSnapshotRef.current = null;
+                  toast({ title: "Merge Undone", description: "Outline restored to its pre-merge state." });
+                }
+              }}>
+                Undo
+              </ToastAction>
+            ),
           });
         }
       } else {
