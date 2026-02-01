@@ -23,7 +23,11 @@ import {
   electronOutlineFileExists,
   electronLoadExistingOutline,
   getElectronOutlineFileName,
+  electronSaveUnmergeBackup,
+  electronLoadUnmergeBackup,
+  electronDeleteUnmergeBackup,
   type LazyOutline,
+  type UnmergeBackupData,
 } from './electron-storage';
 import { fixDuplicateChildren } from './fix-duplicates';
 
@@ -664,5 +668,84 @@ export async function loadSingleOutlineOnDemand(fileName: string): Promise<Outli
   }
 }
 
+// ========== Unmerge Backup Persistence ==========
+
+const UNMERGE_BACKUP_KEY = 'idiampro-unmerge-backup';
+
+/**
+ * Save a pre-merge snapshot so the Unmerge button survives app restarts.
+ * Uses Electron IPC when available, falls back to localStorage.
+ */
+export async function saveUnmergeBackup(outline: Outline): Promise<void> {
+  const backup: UnmergeBackupData = {
+    outlineId: outline.id,
+    outlineName: outline.name,
+    snapshot: outline,
+    timestamp: Date.now(),
+  };
+
+  if (isElectron()) {
+    try {
+      await electronSaveUnmergeBackup(backup);
+      return;
+    } catch (error) {
+      console.error('[Unmerge] Electron save failed, falling back to localStorage:', error);
+    }
+  }
+
+  try {
+    localStorage.setItem(UNMERGE_BACKUP_KEY, JSON.stringify(backup));
+  } catch (error) {
+    console.error('[Unmerge] Failed to save backup to localStorage:', error);
+  }
+}
+
+/**
+ * Load the unmerge backup (returns the full Outline snapshot or null).
+ * Uses Electron IPC when available, falls back to localStorage.
+ */
+export async function loadUnmergeBackup(): Promise<UnmergeBackupData | null> {
+  if (isElectron()) {
+    try {
+      const backup = await electronLoadUnmergeBackup();
+      if (backup) return backup;
+    } catch (error) {
+      console.error('[Unmerge] Electron load failed, falling back to localStorage:', error);
+    }
+  }
+
+  try {
+    const raw = localStorage.getItem(UNMERGE_BACKUP_KEY);
+    if (raw) {
+      return JSON.parse(raw) as UnmergeBackupData;
+    }
+  } catch (error) {
+    console.error('[Unmerge] Failed to load backup from localStorage:', error);
+  }
+
+  return null;
+}
+
+/**
+ * Delete the unmerge backup after a successful unmerge or when no longer needed.
+ * Uses Electron IPC when available, falls back to localStorage.
+ */
+export async function deleteUnmergeBackup(): Promise<void> {
+  if (isElectron()) {
+    try {
+      await electronDeleteUnmergeBackup();
+    } catch (error) {
+      console.error('[Unmerge] Electron delete failed, falling back to localStorage:', error);
+    }
+  }
+
+  try {
+    localStorage.removeItem(UNMERGE_BACKUP_KEY);
+  } catch {
+    // Ignore localStorage errors on cleanup
+  }
+}
+
 // Re-export isElectron and LazyOutline for use in other components
 export { isElectron, type LazyOutline } from './electron-storage';
+export type { UnmergeBackupData } from './electron-storage';

@@ -50,4 +50,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   buildKnowledgeBase: (dirPath) => ipcRenderer.invoke('build-knowledge-base', dirPath),
   readKnowledgeBase: (dirPath) => ipcRenderer.invoke('read-knowledge-base', dirPath),
 
+  // Unmerge backup persistence
+  saveUnmergeBackup: (backupData) => ipcRenderer.invoke('save-unmerge-backup', backupData),
+  loadUnmergeBackup: () => ipcRenderer.invoke('load-unmerge-backup'),
+  deleteUnmergeBackup: () => ipcRenderer.invoke('delete-unmerge-backup'),
+
 });

@@ -967,6 +967,75 @@ ipcMain.handle('delete-pending-import', async (event, fileName) => {
   }
 });
 
+// ========== Unmerge Backup ==========
+
+// Save a pre-merge snapshot so the Unmerge button survives app restarts
+ipcMain.handle('save-unmerge-backup', async (event, backupData) => {
+  try {
+    const settings = loadSettings();
+    const outlinesDir = settings.outlinesDirectory;
+    if (!outlinesDir) {
+      return { success: false, error: 'No outlines directory configured' };
+    }
+
+    const unmergeDir = path.join(outlinesDir, '.unmerge');
+    fs.mkdirSync(unmergeDir, { recursive: true });
+
+    const filePath = path.join(unmergeDir, 'backup.json');
+    fs.writeFileSync(filePath, JSON.stringify(backupData), 'utf-8');
+    console.log('[Unmerge] Saved backup for outline:', backupData.outlineName);
+    return { success: true };
+  } catch (error) {
+    console.error('[Unmerge] Failed to save backup:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+// Load the unmerge backup (or null if none exists)
+ipcMain.handle('load-unmerge-backup', async () => {
+  try {
+    const settings = loadSettings();
+    const outlinesDir = settings.outlinesDirectory;
+    if (!outlinesDir) {
+      return { success: true, backup: null };
+    }
+
+    const filePath = path.join(outlinesDir, '.unmerge', 'backup.json');
+    if (!fs.existsSync(filePath)) {
+      return { success: true, backup: null };
+    }
+
+    const content = fs.readFileSync(filePath, 'utf-8');
+    const backup = JSON.parse(content);
+    console.log('[Unmerge] Loaded backup for outline:', backup.outlineName);
+    return { success: true, backup };
+  } catch (error) {
+    console.error('[Unmerge] Failed to load backup:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+// Delete the unmerge backup
+ipcMain.handle('delete-unmerge-backup', async () => {
+  try {
+    const settings = loadSettings();
+    const outlinesDir = settings.outlinesDirectory;
+    if (!outlinesDir) {
+      return { success: true };
+    }
+
+    const filePath = path.join(outlinesDir, '.unmerge', 'backup.json');
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+      console.log('[Unmerge] Deleted backup');
+    }
+    return { success: true };
+  } catch (error) {
+    console.error('[Unmerge] Failed to delete backup:', error);
+    return { success: false, error: error.message };
+  }
+});
+
 // ========== App Lifecycle ==========
 
 // This method will be called when Electron has finished

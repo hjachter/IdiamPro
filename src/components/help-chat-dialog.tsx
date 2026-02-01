@@ -82,7 +82,7 @@ AI FEATURES:
 - Knowledge Chat: Query your outlines with natural language. Click the brain icon (blue) in the toolbar. Two modes: Current Outline (queries active outline) or All Outlines / Second Brain (queries all outlines at once). AI answers based only on your outline content, referencing specific sections. Responses stream in word-by-word for immediate feedback.
 - Local AI / Ollama: Settings > AI Provider. Choose Cloud, Local (Ollama on localhost:11434), or Auto. Recommended models: llama3.2, phi3, llama3.1
 - Pending Import Recovery (Desktop): If import times out or app closes, result is saved and recovery dialog appears on next launch
-- Undo Merge: After merging research into an existing outline, the success toast shows an "Undo" button for 15 seconds. Click it to restore the outline to its pre-merge state. Only the most recent merge can be undone.
+- Unmerge: After merging research into an existing outline, reopen the Research & Import dialog to find an "Unmerge" button at the bottom left. Click it to restore the outline to its pre-merge state. The backup persists across app restarts. Only the most recent merge can be unmerged.
 
 MOBILE:
 - Stacked View: outline + content side by side

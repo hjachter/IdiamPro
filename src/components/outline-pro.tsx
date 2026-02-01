@@ -12,12 +12,11 @@ import { addNode, addNodeAfter, removeNode, updateNode, moveNode, parseMarkdownT
 import OutlinePane from './outline-pane';
 import ContentPane from './content-pane';
 import { useToast } from "@/hooks/use-toast";
-import { ToastAction } from '@/components/ui/toast';
 import { generateOutlineAction, expandContentAction, generateContentForNodeAction, ingestExternalSourceAction, bulkResearchIngestAction, bulletBasedResearchAction } from '@/app/actions';
 import { useAI } from '@/contexts/ai-context';
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction } from './ui/alert-dialog';
 import { Button } from './ui/button';
-import { loadStorageData, saveAllOutlines, migrateToFileSystem, deleteOutline, loadSingleOutlineOnDemand, type MigrationConflict, type ConflictResolution, type LazyOutline } from '@/lib/storage-manager';
+import { loadStorageData, saveAllOutlines, migrateToFileSystem, deleteOutline, loadSingleOutlineOnDemand, saveUnmergeBackup, loadUnmergeBackup, deleteUnmergeBackup, type MigrationConflict, type ConflictResolution, type LazyOutline } from '@/lib/storage-manager';
 import CommandPalette from './command-palette';
 import EmptyState from './empty-state';
 import TemplatesDialog from './templates-dialog';
@@ -137,6 +136,7 @@ export default function OutlinePro() {
   const [isTemplatesDialogOpen, setIsTemplatesDialogOpen] = useState(false);
   const importFileInputRef = useRef<HTMLInputElement>(null);
   const preMergeSnapshotRef = useRef<Outline | null>(null);
+  const [hasUnmergeBackup, setHasUnmergeBackup] = useState(false);
 
   // Keyboard shortcuts dialog
   const { isOpen: isShortcutsOpen, setIsOpen: setIsShortcutsOpen } = useKeyboardShortcuts();
@@ -393,8 +393,18 @@ export default function OutlinePro() {
     const loadData = async () => {
       const guide = getInitialGuide();
 
+      // Show guide immediately so the app is never stuck on a blank screen
+      setOutlinesFromDisk([guide]);
+      setCurrentOutlineId(guide.id);
+      setSelectedNodeId(guide.rootNodeId);
+
       try {
-        const { outlines: userOutlines, currentOutlineId: loadedCurrentOutlineId, fixedDuplicateCount, fixedDuplicateNames } = await loadStorageData();
+        // Timeout: if storage takes too long, the guide is already showing
+        const storagePromise = loadStorageData();
+        const timeoutPromise = new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('Storage load timed out')), 8000)
+        );
+        const { outlines: userOutlines, currentOutlineId: loadedCurrentOutlineId, fixedDuplicateCount, fixedDuplicateNames } = await Promise.race([storagePromise, timeoutPromise]);
         const validOutlines = userOutlines.filter(o => o && isValidOutline(o));
         const loadedOutlines = [guide, ...validOutlines];
 
@@ -422,9 +432,15 @@ export default function OutlinePro() {
         }
       } catch (error) {
         console.error("Failed to load data, initializing with guide:", error);
-        setOutlinesFromDisk([guide]);
-        setCurrentOutlineId(guide.id);
-        setSelectedNodeId(guide.rootNodeId);
+        // Guide is already showing — no action needed, but warn user if it was a timeout
+        if ((error as Error).message?.includes('timed out')) {
+          toast({
+            variant: "destructive",
+            title: "Storage Load Slow",
+            description: "Your outlines are taking a while to load. They may appear shortly, or try refreshing again.",
+            duration: 10000,
+          });
+        }
       }
 
       // Mark initial load as complete so auto-save can start
@@ -433,6 +449,26 @@ export default function OutlinePro() {
 
     loadData();
   }, []);
+
+  // Restore unmerge backup on startup so the Unmerge button survives restarts
+  useEffect(() => {
+    if (!isClient || !isInitialLoadDone.current) return;
+
+    const restoreUnmergeBackup = async () => {
+      try {
+        const backup = await loadUnmergeBackup();
+        if (backup?.snapshot) {
+          preMergeSnapshotRef.current = backup.snapshot;
+          setHasUnmergeBackup(true);
+          console.log('[Unmerge] Restored backup for outline:', backup.outlineName);
+        }
+      } catch (error) {
+        console.error('[Unmerge] Failed to restore backup:', error);
+      }
+    };
+
+    restoreUnmergeBackup();
+  }, [isClient, outlines]); // outlines dep ensures we run after initial load populates outlines
 
   // Check for pending imports after initial load (for recovering timed-out imports)
   useEffect(() => {
@@ -1954,6 +1990,20 @@ export default function OutlinePro() {
     }
   }, [currentOutline, handleApplyIngestPreview, toast]);
 
+  // Unmerge: restore the pre-merge snapshot and delete the persisted backup
+  const handleUnmerge = useCallback(() => {
+    const snapshot = preMergeSnapshotRef.current;
+    if (snapshot) {
+      setOutlines(prev => prev.map(o => o.id === snapshot.id ? snapshot : o));
+      preMergeSnapshotRef.current = null;
+      setHasUnmergeBackup(false);
+      deleteUnmergeBackup().catch(err =>
+        console.error('[Unmerge] Failed to delete backup:', err)
+      );
+      toast({ title: "Merge Reverted", description: "Outline restored to its pre-merge state." });
+    }
+  }, [setOutlines, toast]);
+
   // Bulk Research Import (PREMIUM) - Synthesizes multiple sources
   const handleBulkResearch = useCallback(async (input: BulkResearchSources): Promise<void> => {
     setIsLoadingAI(true);
@@ -2006,9 +2056,14 @@ export default function OutlinePro() {
         throw new Error('The AI returned an incomplete outline. Please try again.');
       }
 
-      // Snapshot for undo
+      // Snapshot for undo (in-memory + persisted to disk)
       if (input.includeExistingContent && currentOutline) {
-        preMergeSnapshotRef.current = JSON.parse(JSON.stringify(currentOutline));
+        const snapshot = JSON.parse(JSON.stringify(currentOutline));
+        preMergeSnapshotRef.current = snapshot;
+        setHasUnmergeBackup(true);
+        saveUnmergeBackup(snapshot).catch(err =>
+          console.error('[Unmerge] Failed to persist backup:', err)
+        );
       }
 
       if (input.includeExistingContent && currentOutline) {
@@ -2258,20 +2313,7 @@ export default function OutlinePro() {
         } else {
           toast({
             title: "Content Merged!",
-            description: `Merged ${mergedCount} existing sections, added ${addedCount} new sections.`,
-            duration: 15000,
-            action: (
-              <ToastAction altText="Undo merge" onClick={() => {
-                const snapshot = preMergeSnapshotRef.current;
-                if (snapshot) {
-                  setOutlines(prev => prev.map(o => o.id === snapshot.id ? snapshot : o));
-                  preMergeSnapshotRef.current = null;
-                  toast({ title: "Merge Undone", description: "Outline restored to its pre-merge state." });
-                }
-              }}>
-                Undo
-              </ToastAction>
-            ),
+            description: `Merged ${mergedCount} existing sections, added ${addedCount} new sections. Open Research & Import to unmerge.`,
           });
         }
       } else {
@@ -3154,6 +3196,8 @@ export default function OutlinePro() {
           onOpenChange={setIsBulkResearchOpen}
           onSubmit={handleBulkResearch}
           currentOutlineName={currentOutline?.name}
+          canUnmerge={hasUnmergeBackup}
+          onUnmerge={handleUnmerge}
         />
 
         <HelpChatDialog

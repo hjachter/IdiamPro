@@ -8,6 +8,14 @@ export interface LazyOutline extends Outline {
   _estimatedNodeCount?: number;
 }
 
+// Unmerge backup data persisted to disk
+export interface UnmergeBackupData {
+  outlineId: string;
+  outlineName: string;
+  snapshot: Outline;
+  timestamp: number;
+}
+
 // Type definition for the Electron API exposed via preload
 interface ElectronAPI {
   isElectron: boolean;
@@ -31,6 +39,10 @@ interface ElectronAPI {
   // Knowledge base (superoutline)
   buildKnowledgeBase?: (dirPath: string) => Promise<{ success: boolean; error?: string }>;
   readKnowledgeBase?: (dirPath: string) => Promise<{ success: boolean; content?: string; error?: string }>;
+  // Unmerge backup persistence
+  saveUnmergeBackup?: (backupData: UnmergeBackupData) => Promise<{ success: boolean; error?: string }>;
+  loadUnmergeBackup?: () => Promise<{ success: boolean; backup?: UnmergeBackupData | null; error?: string }>;
+  deleteUnmergeBackup?: () => Promise<{ success: boolean; error?: string }>;
 }
 
 declare global {
@@ -385,4 +397,44 @@ export async function electronReadKnowledgeBase(): Promise<string | null> {
     return result.content;
   }
   return null;
+}
+
+/**
+ * Save an unmerge backup to disk via Electron IPC
+ */
+export async function electronSaveUnmergeBackup(backup: UnmergeBackupData): Promise<void> {
+  const api = getElectronAPI();
+  if (!api.saveUnmergeBackup) return;
+
+  const result = await api.saveUnmergeBackup(backup);
+  if (!result.success) {
+    console.error('[Unmerge] Failed to save backup:', result.error);
+  }
+}
+
+/**
+ * Load the unmerge backup from disk via Electron IPC
+ */
+export async function electronLoadUnmergeBackup(): Promise<UnmergeBackupData | null> {
+  const api = getElectronAPI();
+  if (!api.loadUnmergeBackup) return null;
+
+  const result = await api.loadUnmergeBackup();
+  if (result.success && result.backup) {
+    return result.backup;
+  }
+  return null;
+}
+
+/**
+ * Delete the unmerge backup from disk via Electron IPC
+ */
+export async function electronDeleteUnmergeBackup(): Promise<void> {
+  const api = getElectronAPI();
+  if (!api.deleteUnmergeBackup) return;
+
+  const result = await api.deleteUnmergeBackup();
+  if (!result.success) {
+    console.error('[Unmerge] Failed to delete backup:', result.error);
+  }
 }
