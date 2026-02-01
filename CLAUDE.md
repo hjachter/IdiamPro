@@ -47,8 +47,21 @@ This prevents the app from overwriting your changes with its in-memory version. 
 
 ---
 
+## Feature Documentation - MANDATORY
+
+Every time a new user-facing feature is implemented, it **must** also be documented in all three places before the work is considered complete:
+
+1. **User Guide** (`src/lib/initial-guide.ts`) — Add a new node or update an existing one
+2. **Help Chat context** (`src/components/help-chat-dialog.tsx`) — Update the `APP_CONTEXT` string
+3. **Help Chat API context** (`src/app/api/help-chat/route.ts`) — Update the duplicated `APP_CONTEXT` string
+
+This includes: new keyboard shortcuts, new node types, new toolbar/menu items, new settings, new gestures, new dialogs, and any change to existing feature behavior. Never merge a feature without its documentation.
+
+---
+
 ## Development Notes
 
+- **All app development and testing is done on Electron** (`npm run electron:dev`)
 - **Capacitor** requires Node >= 22 for CLI commands (`npx cap sync`, `npx cap run`)
 - **iCloud Drive** causes code signing issues - use `xattr -cr` to strip resource forks before signing
 - **DerivedData** should be outside iCloud Drive to avoid build failures
