@@ -182,3 +182,32 @@ export interface BulkResearchResult {
   summary: string;
   sourcesProcessed: number;
 }
+
+// ============================================
+// PODCAST GENERATION
+// ============================================
+
+export type PodcastStyle = 'two-host' | 'narrator' | 'interview' | 'debate';
+export type OpenAIVoice = 'alloy' | 'echo' | 'fable' | 'nova' | 'onyx' | 'shimmer';
+export type PodcastLength = 'brief' | 'standard' | 'detailed';
+
+export interface PodcastScriptSegment {
+  speaker: string;
+  voice: OpenAIVoice;
+  text: string;
+}
+
+export interface PodcastConfig {
+  style: PodcastStyle;
+  length: PodcastLength;
+  voices: Record<string, OpenAIVoice>;
+  ttsModel: 'tts-1' | 'tts-1-hd';
+}
+
+export interface PodcastProgress {
+  phase: 'script' | 'tts' | 'combining' | 'done' | 'error';
+  message: string;
+  segmentIndex?: number;
+  totalSegments?: number;
+  percent: number;
+}

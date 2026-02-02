@@ -27,6 +27,7 @@ import BulkResearchDialog from './bulk-research-dialog';
 import HelpChatDialog from './help-chat-dialog';
 import KnowledgeChatDialog from './knowledge-chat-dialog';
 import PdfExportDialog from './pdf-export-dialog';
+import PodcastDialog from './podcast-dialog';
 import { exportOutlineToJson } from '@/lib/export';
 import { exportSubtreeToPdf } from '@/lib/pdf-export';
 import { isElectron, electronCheckPendingImports, electronDeletePendingImport, electronSaveOutlineToFile, electronGetOutlineMtime, onElectronWindowFocus, type PendingImportResult } from '@/lib/electron-storage';
@@ -173,6 +174,10 @@ export default function OutlinePro() {
   // PDF export dialog state
   const [pdfExportDialogOpen, setPdfExportDialogOpen] = useState(false);
   const [pdfExportNodeId, setPdfExportNodeId] = useState<string | null>(null);
+
+  // Podcast generation dialog state
+  const [podcastDialogOpen, setPodcastDialogOpen] = useState(false);
+  const [podcastNodeId, setPodcastNodeId] = useState<string | null>(null);
 
   // Pending imports recovery state
   const [pendingImports, setPendingImports] = useState<PendingImportResult[]>([]);
@@ -3010,6 +3015,12 @@ export default function OutlinePro() {
     setPdfExportNodeId(null);
   }, []);
 
+  // Podcast generation handler
+  const handleGeneratePodcast = useCallback((nodeId: string) => {
+    setPodcastNodeId(nodeId);
+    setPodcastDialogOpen(true);
+  }, []);
+
   // Progress indicator for large outline loading - use Portal to render to document.body
   const progressIndicatorContent = isLoadingLazyOutline && loadingOutlineInfo ? (
     <div style={{ position: 'fixed', inset: 0, zIndex: 99999 }}>
@@ -3219,6 +3230,16 @@ export default function OutlinePro() {
           onCancel={handlePdfExportCancel}
         />
 
+        {podcastNodeId && currentOutline && (
+          <PodcastDialog
+            open={podcastDialogOpen}
+            onOpenChange={(open) => { setPodcastDialogOpen(open); if (!open) setPodcastNodeId(null); }}
+            nodeName={currentOutline.nodes[podcastNodeId]?.name || ''}
+            nodeId={podcastNodeId}
+            nodes={currentOutline.nodes}
+          />
+        )}
+
         <TemplatesDialog
           open={isTemplatesDialogOpen}
           onOpenChange={setIsTemplatesDialogOpen}
@@ -3416,6 +3437,7 @@ export default function OutlinePro() {
                 onBulkAddTag={handleBulkAddTag}
                 onSearchTermChange={handleSearchTermChange}
                 onExportSubtreePdf={handleExportSubtreePdf}
+                onGeneratePodcast={handleGeneratePodcast}
                 onOpenMobileSidebar={() => setIsMobileSidebarOpen(true)}
               />
             </div>
@@ -3572,6 +3594,16 @@ export default function OutlinePro() {
         onExport={handlePdfExportConfirm}
         onCancel={handlePdfExportCancel}
       />
+
+      {podcastNodeId && currentOutline && (
+        <PodcastDialog
+          open={podcastDialogOpen}
+          onOpenChange={(open) => { setPodcastDialogOpen(open); if (!open) setPodcastNodeId(null); }}
+          nodeName={currentOutline.nodes[podcastNodeId]?.name || ''}
+          nodeId={podcastNodeId}
+          nodes={currentOutline.nodes}
+        />
+      )}
 
       <AlertDialog open={prefixDialogState.open} onOpenChange={(open) => setPrefixDialogState(s => ({ ...s, open }))}>
         <AlertDialogContent>
@@ -3773,6 +3805,7 @@ export default function OutlinePro() {
                 onBulkAddTag={handleBulkAddTag}
                 onSearchTermChange={handleSearchTermChange}
                 onExportSubtreePdf={handleExportSubtreePdf}
+                onGeneratePodcast={handleGeneratePodcast}
                 isSidebarOpen={isSidebarOpen}
                 onToggleSidebar={() => setIsSidebarOpen(prev => !prev)}
               />

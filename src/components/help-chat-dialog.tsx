@@ -83,6 +83,7 @@ AI FEATURES:
 - Local AI / Ollama: Settings > AI Provider. Choose Cloud, Local (Ollama on localhost:11434), or Auto. Recommended models: llama3.2, phi3, llama3.1
 - Pending Import Recovery (Desktop): If import times out or app closes, result is saved and recovery dialog appears on next launch
 - Unmerge: After merging research into an existing outline, reopen the Research & Import dialog to find an "Unmerge" button at the bottom left. Click it to restore the outline to its pre-merge state. The backup persists across app restarts. Only the most recent merge can be unmerged.
+- Generate Podcast: Right-click any node > "Generate Podcast". Choose a style (Two-Host, Narrator, Interview, Debate), assign voices, pick a length (Brief/Standard/Detailed), and select audio quality (Standard/HD). AI generates a script via Gemini, then synthesizes speech via OpenAI TTS. Preview the audio in-app and save as MP3. Requires OPENAI_API_KEY.
 
 MOBILE:
 - Stacked View: outline + content side by side

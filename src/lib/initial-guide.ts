@@ -136,6 +136,7 @@ This guide cannot be deleted, but you can copy it to create your own customized 
   const aiIngestPreviewId = uuidv4();
   const aiIngestMergeId = uuidv4();
   const aiImageGenId = uuidv4();
+  const aiPodcastId = uuidv4();
   const aiSafetyId = uuidv4();
 
   createNode(nodes, aiId, rootId, "AI Features", "IdiamPro includes powerful AI capabilities to help you generate content, create images, and build outlines faster. AI features are accessed through the violet sparkles icon and the image button in the toolbar.", []);
@@ -171,6 +172,9 @@ This guide cannot be deleted, but you can copy it to create your own customized 
 
   // AI Image Generation
   createNode(nodes, aiImageGenId, aiId, "AI Image Generation (Premium)", "Create custom illustrations with AI:\n\n1. Click the violet Image button in the content toolbar\n2. Describe the image you want (be specific about style, colors, composition)\n3. Choose an aspect ratio (square, landscape, portrait)\n4. Click 'Generate Image'\n\nThe AI-generated image is inserted directly into your content.\n\n**Tips for better results:**\n• Be specific: 'A serene mountain lake at sunset with purple sky' vs 'a lake'\n• Mention style: 'digital art', 'watercolor', 'photorealistic', 'minimalist'\n• Include composition details: 'close-up', 'wide angle', 'from above'\n\n**Note:** This feature requires a Premium plan.");
+
+  // Generate Podcast
+  createNode(nodes, aiPodcastId, aiId, "Generate Podcast", "Convert any subtree into a conversational audio podcast.\n\nHow to use:\n1. Right-click any node in the outline\n2. Select 'Generate Podcast'\n3. Configure your podcast:\n   • **Style**: Two-Host Discussion, Single Narrator, Interview, or Debate\n   • **Voices**: Choose from 6 OpenAI voices for each speaker\n   • **Length**: Brief (2-3 min), Standard (5-8 min), or Detailed (10-15 min)\n   • **Quality**: Standard (faster) or HD (higher quality)\n4. Click 'Generate' and wait for the AI to write the script and synthesize audio\n5. Preview the audio in the built-in player\n6. Click 'Save Audio File' to save the MP3\n\nThe script viewer lets you read along with the generated dialogue. You can also discard and regenerate with different settings.\n\n**Requirements:** Requires an OpenAI API key (OPENAI_API_KEY) in your environment for text-to-speech.");
 
   // Create Content for Descendants
   const aiDescendantsId = uuidv4();

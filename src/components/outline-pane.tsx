@@ -139,6 +139,8 @@ interface OutlinePaneProps {
   onSearchTermChange?: (searchTerm: string, matchType?: 'name' | 'content' | 'both', matchIndex?: number) => void;
   // PDF export
   onExportSubtreePdf?: (nodeId: string) => void;
+  // Podcast generation
+  onGeneratePodcast?: (nodeId: string) => void;
   // Sidebar toggle (desktop)
   isSidebarOpen?: boolean;
   onToggleSidebar?: () => void;
@@ -195,6 +197,7 @@ export default function OutlinePane({
   onBulkAddTag,
   onSearchTermChange,
   onExportSubtreePdf,
+  onGeneratePodcast,
   isSidebarOpen,
   onToggleSidebar,
   onOpenMobileSidebar,
@@ -1148,6 +1151,7 @@ export default function OutlinePane({
               onToggleNodeSelection={onToggleNodeSelection}
               onRangeSelect={onRangeSelect}
               onExportSubtreePdf={onExportSubtreePdf}
+              onGeneratePodcast={onGeneratePodcast}
               maxRenderDepth={maxRenderDepth}
             />
           </ul>
