@@ -3329,13 +3329,13 @@ export default function OutlinePro() {
         <AlertDialog open={pendingImportDialogOpen} onOpenChange={setPendingImportDialogOpen}>
           <AlertDialogContent className="max-w-lg">
             <AlertDialogHeader>
-              <AlertDialogTitle>Recovered Import{pendingImports.length > 1 ? 's' : ''}</AlertDialogTitle>
+              <AlertDialogTitle>Recovered Research Import{pendingImports.length > 1 ? 's' : ''}</AlertDialogTitle>
               <AlertDialogDescription asChild>
                 <div className="space-y-3 text-sm text-muted-foreground">
                   <div>
                     {pendingImports.length === 1
-                      ? 'A previously timed-out import has been recovered:'
-                      : `${pendingImports.length} previously timed-out imports have been recovered:`
+                      ? 'A Research & Import operation finished in the background after the app closed or the request timed out. The result was saved automatically. You can apply it now or dismiss it.'
+                      : `${pendingImports.length} Research & Import operations finished in the background after the app closed or timed out. Their results were saved automatically. You can apply each one or dismiss it.`
                     }
                   </div>
                   {pendingImports.map((pending) => {
@@ -3349,9 +3349,13 @@ export default function OutlinePro() {
                         {Object.keys(pending.outline.nodes).length - 1} nodes •
                         Completed {new Date(pending.createdAt).toLocaleString()}
                       </div>
-                      {mergeTarget && (
+                      {mergeTarget ? (
                         <div className="text-xs text-blue-600 dark:text-blue-400">
-                          → Will merge into &quot;{mergeTarget.name}&quot;
+                          → Ready to merge into &quot;{mergeTarget.name}&quot;
+                        </div>
+                      ) : (
+                        <div className="text-xs text-muted-foreground">
+                          Will be added as a new outline
                         </div>
                       )}
                       <div className="flex gap-2 mt-2">
@@ -3359,14 +3363,14 @@ export default function OutlinePro() {
                           size="sm"
                           onClick={() => handleRecoverPendingImport(pending)}
                         >
-                          {mergeTarget ? 'Merge' : 'Recover'}
+                          {mergeTarget ? 'Apply Merge' : 'Add Outline'}
                         </Button>
                         <Button
                           size="sm"
                           variant="outline"
                           onClick={() => handleDismissPendingImport(pending)}
                         >
-                          Dismiss
+                          Discard
                         </Button>
                       </div>
                     </div>
