@@ -528,7 +528,7 @@ ipcMain.handle('read-outline-metadata-from-directory', async (event, dirPath) =>
     const metadataList = [];
 
     for (const file of files) {
-      if (file.endsWith('.idm')) {
+      if (file.endsWith('.idm') && file !== KNOWLEDGE_BASE_FILE) {
         try {
           const filePath = path.join(dirPath, file);
           const stats = fs.statSync(filePath);
@@ -640,7 +640,7 @@ ipcMain.handle('read-outlines-from-directory', async (event, dirPath) => {
     const outlines = [];
 
     for (const file of files) {
-      if (file.endsWith('.idm')) {
+      if (file.endsWith('.idm') && file !== KNOWLEDGE_BASE_FILE) {
         try {
           const filePath = path.join(dirPath, file);
           const content = fs.readFileSync(filePath, 'utf-8');
