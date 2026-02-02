@@ -202,13 +202,23 @@ function extractYoutubeVideoId(url: string): string | null {
  */
 export async function extractTextFromWebUrl(url: string): Promise<string> {
   try {
-    // Fetch the webpage
-    const response = await fetch(url);
+    // Fetch the webpage with a proper User-Agent to avoid being blocked
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+      },
+      redirect: 'follow',
+    });
     if (!response.ok) {
-      throw new Error(`Failed to fetch webpage: ${response.statusText}`);
+      throw new Error(`Failed to fetch webpage (${response.status}): ${response.statusText}`);
     }
 
     const html = await response.text();
+
+    if (!html || html.trim().length < 100) {
+      throw new Error('Webpage returned empty or minimal content. The site may require JavaScript to render.');
+    }
 
     // Use Gemini to extract the main content from HTML
     const prompt = `Extract the main text content from this webpage HTML. Remove navigation, ads, footers, and other non-content elements. Return only the meaningful text content that would be useful for research:
@@ -216,7 +226,7 @@ export async function extractTextFromWebUrl(url: string): Promise<string> {
 ${html.substring(0, 50000)}`; // Limit HTML size
 
     const { text } = await ai.generate({
-      model: 'googleai/gemini-1.5-flash',
+      model: 'googleai/gemini-2.0-flash',
       prompt,
     });
 
@@ -253,7 +263,7 @@ export async function extractTextFromImage(data: string): Promise<string> {
 
     // Use Gemini vision to extract text
     const { text } = await ai.generate({
-      model: 'googleai/gemini-1.5-flash',
+      model: 'googleai/gemini-2.0-flash',
       prompt: 'Extract all text from this image. Include any visible text, captions, labels, and annotations. If there are diagrams or charts, describe their key information as well.',
       media: {
         url: `data:${mimeType};base64,${base64Data}`,
@@ -301,7 +311,7 @@ export async function extractTextFromDocument(data: string, fileName: string): P
 
     // Use Gemini to extract text from document
     const { text } = await ai.generate({
-      model: 'googleai/gemini-1.5-flash',
+      model: 'googleai/gemini-2.0-flash',
       prompt: 'Extract all text content from this document. Preserve the structure and meaning. Include headings, paragraphs, bullet points, and any important textual information.',
       media: {
         url: `data:${mimeType};base64,${base64Data}`,
@@ -350,7 +360,7 @@ export async function transcribeAudio(data: string, fileName?: string): Promise<
 
     // Use Gemini to transcribe audio
     const { text } = await ai.generate({
-      model: 'googleai/gemini-1.5-flash',
+      model: 'googleai/gemini-2.0-flash',
       prompt: 'Transcribe this audio file completely. Include all spoken words and important sounds or context.',
       media: {
         url: `data:${mimeType};base64,${base64Data}`,
@@ -399,7 +409,7 @@ export async function transcribeVideo(data: string, fileName?: string): Promise<
 
     // Use Gemini to transcribe video
     const { text } = await ai.generate({
-      model: 'googleai/gemini-1.5-flash',
+      model: 'googleai/gemini-2.0-flash',
       prompt: 'Transcribe this video completely. Include all spoken words, describe any important visual information, and provide context about what is happening in the video.',
       media: {
         url: `data:${mimeType};base64,${base64Data}`,

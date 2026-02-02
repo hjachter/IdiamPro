@@ -1607,6 +1607,7 @@ export async function bulletBasedResearchAction(
   try {
     // Extract content from all sources
     const extractedSources: Array<{ content: string; description: string; title?: string }> = [];
+    const extractionErrors: string[] = [];
 
     for (const source of input.sources) {
       try {
@@ -1617,12 +1618,17 @@ export async function bulletBasedResearchAction(
           extractedSources.push(extracted);
         }
       } catch (error) {
-        console.error(`[Bullet] Failed to extract from ${source.type}:`, error);
+        const msg = error instanceof Error ? error.message : String(error);
+        console.error(`[Bullet] Failed to extract from ${source.type}:`, msg);
+        extractionErrors.push(`${source.type}: ${msg}`);
       }
     }
 
     if (extractedSources.length === 0) {
-      throw new Error('No content could be extracted from any sources.');
+      const detail = extractionErrors.length > 0
+        ? extractionErrors.join('; ')
+        : 'Unknown reason';
+      throw new Error(`No content could be extracted. ${detail}`);
     }
 
     // Step 1: Extract bullets from new sources (using specified detail level)
@@ -1779,6 +1785,11 @@ ${childContent.substring(0, 5000)}`;
   } catch (error) {
     console.error('[Bullet] Error in bullet-based research:', error);
     const message = error instanceof Error ? error.message : 'Unknown error';
+    // Write error to file for debugging
+    try {
+      const errPath = path.join(os.homedir(), 'Documents', 'IDM Outlines', '.last-import-error.txt');
+      fs.writeFileSync(errPath, `${new Date().toISOString()}\n${message}\n\n${error instanceof Error ? error.stack || '' : ''}`);
+    } catch {}
     throw new Error(`Bullet-based research failed: ${message}`);
   }
 }

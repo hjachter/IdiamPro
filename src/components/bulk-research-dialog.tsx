@@ -26,6 +26,8 @@ interface BulkResearchDialogProps {
   onOpenChange: (open: boolean) => void;
   onSubmit: (input: BulkResearchSources) => Promise<void>;
   currentOutlineName?: string;
+  canUnmerge?: boolean;
+  onUnmerge?: () => void;
 }
 
 type SourceEntry = ExternalSourceInput & {
@@ -100,6 +102,8 @@ export default function BulkResearchDialog({
   onOpenChange,
   onSubmit,
   currentOutlineName,
+  canUnmerge,
+  onUnmerge,
 }: BulkResearchDialogProps) {
   const [sources, setSources] = useState<SourceEntry[]>([]);
   const [includeExisting, setIncludeExisting] = useState(true);
@@ -115,12 +119,15 @@ export default function BulkResearchDialog({
   const [recordingTranscripts, setRecordingTranscripts] = useState<Record<string, DiarizedTranscript>>({});
   // Track which input method is selected for recording sources
   const [recordingInputMode, setRecordingInputMode] = useState<Record<string, 'record' | 'upload' | 'paste'>>({});
+  // Track which dropdown option is selected per source card
+  const [sourceInputMethod, setSourceInputMethod] = useState<Record<string, 'url' | 'file' | 'text' | 'recording'>>({});
   // Store recorded audio for playback before transcription
   const [recordedAudio, setRecordedAudio] = useState<Record<string, RecordingData>>({});
   // Playback state
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [playbackTime, setPlaybackTime] = useState<Record<string, number>>({});
   const audioRefs = useRef<Record<string, HTMLAudioElement | null>>({});
+  const dialogContentRef = useRef<HTMLDivElement>(null);
   // Track which sources are fetching YouTube titles
   const [fetchingTitle, setFetchingTitle] = useState<Record<string, boolean>>({});
 
@@ -161,6 +168,20 @@ export default function BulkResearchDialog({
     };
   }, [recordedAudio]);
 
+  // Auto-scroll to bottom when a source becomes valid (has URL or content)
+  useEffect(() => {
+    const hasValidSource = sources.some(s => s.url || s.content);
+    if (hasValidSource && dialogContentRef.current) {
+      // Small delay to let DOM update after source validation
+      setTimeout(() => {
+        dialogContentRef.current?.scrollTo({
+          top: dialogContentRef.current.scrollHeight,
+          behavior: 'smooth',
+        });
+      }, 100);
+    }
+  }, [sources]);
+
   // Add new source (without type - user must choose)
   const handleAddSource = () => {
     setSources([...sources, { id: crypto.randomUUID(), type: undefined as any }]);
@@ -171,6 +192,11 @@ export default function BulkResearchDialog({
     setSources(sources.filter(s => s.id !== id));
     // Clean up recording state
     setRecordingInputMode(prev => {
+      const updated = { ...prev };
+      delete updated[id];
+      return updated;
+    });
+    setSourceInputMethod(prev => {
       const updated = { ...prev };
       delete updated[id];
       return updated;
@@ -186,8 +212,14 @@ export default function BulkResearchDialog({
   const handleSmartUrlInput = async (id: string, url: string) => {
     if (!url.trim()) return;
 
-    const detectedType = detectUrlType(url);
-    handleUpdateSource(id, { type: detectedType, url });
+    // Auto-add https:// if user typed a bare domain
+    let normalizedUrl = url.trim();
+    if (!normalizedUrl.match(/^https?:\/\//i) && normalizedUrl.includes('.')) {
+      normalizedUrl = 'https://' + normalizedUrl;
+    }
+
+    const detectedType = detectUrlType(normalizedUrl);
+    handleUpdateSource(id, { type: detectedType, url: normalizedUrl });
 
     // If it's YouTube, fetch the title
     if (detectedType === 'youtube') {
@@ -461,6 +493,7 @@ export default function BulkResearchDialog({
       setDetailLevel('standard');
       setUseLocalAI(false);
       setRecordingInputMode({});
+      setSourceInputMethod({});
       onOpenChange(false);
     } catch (error) {
       // Error is handled by parent component's toast
@@ -480,7 +513,7 @@ export default function BulkResearchDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+      <DialogContent ref={dialogContentRef} className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Research & Import</DialogTitle>
           <DialogDescription>
@@ -688,7 +721,7 @@ export default function BulkResearchDialog({
           {/* Sources List */}
           <div className="space-y-3">
             {/* Only show header with Add Source button when we have at least one configured source */}
-            {sources.some(s => s.type) && (
+            {sources.some(s => s.type || sourceInputMethod[s.id]) && (
               <div className="flex items-center justify-between">
                 <Label>Sources ({sources.filter(isSourceValid).length} ready)</Label>
                 <Button
@@ -704,459 +737,511 @@ export default function BulkResearchDialog({
             )}
 
             {sources.map((source, idx) => {
-              // Check if this is the initial empty source (first source, no type)
-              const isInitialSource = idx === 0 && !source.type && sources.length === 1;
-
               return (
               <div key={source.id} className="border rounded-md p-4 space-y-3">
-                {/* Header - for non-initial unconfigured sources (configured sources show X in type badge) */}
-                {!isInitialSource && !source.type && (
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <span className="text-sm font-medium">
-                        Source {idx + 1}
-                      </span>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleRemoveSource(source.id)}
-                    >
-                      <X className="w-4 h-4" />
-                    </Button>
-                  </div>
-                )}
+                {(() => {
+                  const inputMethod = sourceInputMethod[source.id];
+                  const hasContent = !!(source.url || source.content || source.fileName);
 
-                {/* Smart Input Area (when no type selected) */}
-                {!source.type && (
-                  <div className="space-y-4">
-                    {/* Unified Smart Input - handles both files and URLs */}
-                    <div className="space-y-2">
-                      <div className="relative border-2 border-dashed rounded-lg hover:border-primary/50 hover:bg-muted/30 transition-colors">
-                        {/* Hidden file input */}
-                        <input
-                          type="file"
-                          id={`file-input-${source.id}`}
-                          accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.md,.jpg,.jpeg,.png,.gif,.webp,.mp3,.wav,.m4a,.mp4,.mov,.avi,.idm,.json"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) handleSmartFileUpload(source.id, file);
+                  return (
+                    <>
+                      {/* Header row: title + Change/X buttons */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          {!inputMethod && (
+                            <span className="text-sm font-medium text-muted-foreground">
+                              {sources.length > 1 ? `Source ${idx + 1}` : 'Add a source'}
+                            </span>
+                          )}
+                          {inputMethod === 'url' && (
+                            <>
+                              <Globe className="w-4 h-4 text-indigo-500" />
+                              <span className="text-sm font-medium">Enter a URL</span>
+                            </>
+                          )}
+                          {inputMethod === 'file' && (
+                            <>
+                              <FileText className="w-4 h-4 text-blue-500" />
+                              <span className="text-sm font-medium">Select a File</span>
+                            </>
+                          )}
+                          {inputMethod === 'text' && (
+                            <>
+                              <Type className="w-4 h-4 text-green-500" />
+                              <span className="text-sm font-medium">Text / Notes</span>
+                            </>
+                          )}
+                          {inputMethod === 'recording' && (
+                            <>
+                              <Mic className="w-4 h-4 text-red-600" />
+                              <span className="text-sm font-medium">Conversation</span>
+                            </>
+                          )}
+                          {/* Fetching title indicator */}
+                          {fetchingTitle[source.id] && (
+                            <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          {inputMethod && (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 text-xs text-muted-foreground"
+                              onClick={() => {
+                                setSourceInputMethod(prev => {
+                                  const updated = { ...prev };
+                                  delete updated[source.id];
+                                  return updated;
+                                });
+                                handleUpdateSource(source.id, {
+                                  type: undefined as any,
+                                  url: undefined,
+                                  content: undefined,
+                                  fileName: undefined,
+                                  sourceName: undefined,
+                                });
+                                setRecordingInputMode(prev => {
+                                  const updated = { ...prev };
+                                  delete updated[source.id];
+                                  return updated;
+                                });
+                              }}
+                            >
+                              Change
+                            </Button>
+                          )}
+                          {(sources.length > 1 || inputMethod) && (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
+                              onClick={() => handleRemoveSource(source.id)}
+                              title="Remove this source"
+                            >
+                              <X className="w-4 h-4" />
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Dropdown picker (no input method selected yet) */}
+                      {!inputMethod && (
+                        <Select
+                          value=""
+                          onValueChange={(value: string) => {
+                            const method = value as 'url' | 'file' | 'text' | 'recording';
+                            setSourceInputMethod(prev => ({ ...prev, [source.id]: method }));
+                            if (method === 'text') {
+                              handleUpdateSource(source.id, { type: 'text' });
+                            } else if (method === 'recording') {
+                              handleUpdateSource(source.id, { type: 'recording' });
+                              setRecordingInputMode(prev => ({ ...prev, [source.id]: 'paste' }));
+                            }
                           }}
-                          className="sr-only"
-                        />
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Choose source type..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="url">
+                              <div className="flex items-center gap-2">
+                                <Globe className="w-4 h-4 text-indigo-500 flex-shrink-0" />
+                                <div className="flex flex-col items-start">
+                                  <span className="font-medium">Enter a URL</span>
+                                  <span className="text-xs text-muted-foreground">Web pages, YouTube, PDF links</span>
+                                </div>
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="file">
+                              <div className="flex items-center gap-2">
+                                <FileText className="w-4 h-4 text-blue-500 flex-shrink-0" />
+                                <div className="flex flex-col items-start">
+                                  <span className="font-medium">Select a File</span>
+                                  <span className="text-xs text-muted-foreground">PDF, Word, images, audio, video</span>
+                                </div>
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="text">
+                              <div className="flex items-center gap-2">
+                                <Type className="w-4 h-4 text-green-500 flex-shrink-0" />
+                                <div className="flex flex-col items-start">
+                                  <span className="font-medium">Type or Paste Text</span>
+                                  <span className="text-xs text-muted-foreground">Notes, copied text, any plain text</span>
+                                </div>
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="recording">
+                              <div className="flex items-center gap-2">
+                                <Mic className="w-4 h-4 text-red-600 flex-shrink-0" />
+                                <div className="flex flex-col items-start">
+                                  <span className="font-medium">Record a Conversation</span>
+                                  <span className="text-xs text-muted-foreground">Live recording, audio upload, transcript</span>
+                                </div>
+                              </div>
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      )}
 
-                        {/* Main input area */}
-                        <div className="p-4">
+                      {/* === URL Input === */}
+                      {inputMethod === 'url' && (
+                        <div className="space-y-3">
+                          <Input
+                            placeholder="https://example.com"
+                            defaultValue={source.url || ''}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                const value = (e.target as HTMLInputElement).value.trim();
+                                if (value) handleSmartUrlInput(source.id, value);
+                              }
+                            }}
+                            onBlur={(e) => {
+                              const value = e.target.value.trim();
+                              if (value) handleSmartUrlInput(source.id, value);
+                            }}
+                            autoFocus
+                          />
+                          {/* Show detected URL info */}
+                          {source.url && (
+                            <div className="text-sm text-green-600 dark:text-green-400 flex items-center gap-2">
+                              <span>✓</span>
+                              <span className="truncate">{source.url}</span>
+                              {source.type && (
+                                <span className="text-xs bg-muted px-1.5 py-0.5 rounded">
+                                  {SOURCE_TYPES[source.type as keyof typeof SOURCE_TYPES]?.label}
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* === File Input === */}
+                      {inputMethod === 'file' && (
+                        <div className="space-y-3">
+                          <input
+                            type="file"
+                            id={`file-input-${source.id}`}
+                            accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.md,.jpg,.jpeg,.png,.gif,.webp,.mp3,.wav,.m4a,.mp4,.mov,.avi,.idm,.json"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) handleSmartFileUpload(source.id, file);
+                            }}
+                            className="sr-only"
+                          />
                           <div className="flex items-center gap-3">
-                            {/* File upload button */}
                             <label
                               htmlFor={`file-input-${source.id}`}
-                              className="flex-shrink-0 p-3 rounded-lg bg-muted hover:bg-muted/80 cursor-pointer transition-colors"
-                              title="Click to select a file"
+                              className="inline-flex items-center gap-2 px-4 py-2 border rounded-md text-sm font-medium cursor-pointer hover:bg-muted transition-colors"
                             >
-                              <Upload className="w-5 h-5 text-muted-foreground" />
+                              <Upload className="w-4 h-4" />
+                              Choose File...
                             </label>
-
-                            {/* URL/text input */}
-                            <Input
-                              placeholder="Paste URL or click icon to select file"
-                              className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 px-0"
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                  const value = (e.target as HTMLInputElement).value.trim();
-                                  if (value) handleSmartUrlInput(source.id, value);
-                                }
-                              }}
-                              onBlur={(e) => {
-                                const value = e.target.value.trim();
-                                if (value) handleSmartUrlInput(source.id, value);
-                              }}
-                            />
-                          </div>
-
-                          <p className="text-xs text-muted-foreground mt-3 text-center">
-                            YouTube, web pages, PDFs — or upload any file
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 h-px bg-border" />
-                      <span className="text-xs text-muted-foreground">or enter manually</span>
-                      <div className="flex-1 h-px bg-border" />
-                    </div>
-
-                    {/* Manual type selection for special cases */}
-                    <div className="flex flex-wrap gap-2 justify-center">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          handleUpdateSource(source.id, { type: 'text' });
-                        }}
-                      >
-                        <Type className="w-3 h-3 mr-1.5 text-green-500" />
-                        Text / Notes
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          handleUpdateSource(source.id, { type: 'recording' });
-                          setRecordingInputMode(prev => ({ ...prev, [source.id]: 'paste' }));
-                        }}
-                      >
-                        <Mic className="w-3 h-3 mr-1.5 text-red-600" />
-                        Conversation
-                      </Button>
-                    </div>
-                  </div>
-                )}
-
-                {/* Source Type Badge (when type is selected) */}
-                {source.type && (
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      {getSourceIcon(source.type as keyof typeof SOURCE_TYPES)}
-                      <span className="text-sm font-medium">{SOURCE_TYPES[source.type as keyof typeof SOURCE_TYPES]?.label}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="h-6 text-xs text-muted-foreground"
-                        onClick={() => {
-                          handleUpdateSource(source.id, {
-                            type: undefined as any,
-                            url: undefined,
-                            content: undefined,
-                            fileName: undefined,
-                            sourceName: undefined,
-                          });
-                        }}
-                      >
-                        Change
-                      </Button>
-                      {/* Always show X to remove the source - clearer than header X */}
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
-                        onClick={() => handleRemoveSource(source.id)}
-                        title="Remove this source"
-                      >
-                        <X className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
-                )}
-
-                {/* Source-specific input panels */}
-                {source.type && (
-                  <div className="space-y-3 pt-2 border-t">
-                    {/* Show what was captured (for file/URL sources) */}
-                    {(source.url || source.fileName) && source.type !== 'text' && source.type !== 'recording' && (
-                      <div className="text-sm text-green-600 dark:text-green-400 flex items-center gap-2">
-                        <span>✓</span>
-                        <span className="truncate">
-                          {source.fileName || source.url}
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Source Name - only show if we have content */}
-                    {(source.url || source.content || source.fileName) && (
-                      <div className="space-y-1">
-                        <Label className="text-xs text-muted-foreground">Source Name (optional)</Label>
-                        <Input
-                          placeholder={source.sourceName ? '' : 'Give this source a friendly name...'}
-                          value={source.sourceName || ''}
-                          onChange={(e) => handleUpdateSource(source.id, { sourceName: e.target.value })}
-                          className="h-8 text-sm"
-                        />
-                      </div>
-                    )}
-
-                    {/* Conversation / Audio - Multiple input options */}
-                    {source.type === 'recording' && (
-                      <div className="space-y-3">
-                        {/* Input method tabs */}
-                        <div className="flex space-x-1 p-1 bg-muted rounded-lg">
-                          <Button
-                            type="button"
-                            variant={recordingInputMode[source.id] === 'paste' ? 'default' : 'ghost'}
-                            size="sm"
-                            className="flex-1 h-8"
-                            onClick={() => setRecordingInputMode(prev => ({ ...prev, [source.id]: 'paste' }))}
-                          >
-                            <MessageSquare className="w-3 h-3 mr-1" />
-                            Paste Transcript
-                          </Button>
-                          <Button
-                            type="button"
-                            variant={recordingInputMode[source.id] === 'upload' ? 'default' : 'ghost'}
-                            size="sm"
-                            className="flex-1 h-8"
-                            onClick={() => setRecordingInputMode(prev => ({ ...prev, [source.id]: 'upload' }))}
-                          >
-                            <Upload className="w-3 h-3 mr-1" />
-                            Upload Audio
-                          </Button>
-                          <Button
-                            type="button"
-                            variant={recordingInputMode[source.id] === 'record' ? 'default' : 'ghost'}
-                            size="sm"
-                            className="flex-1 h-8"
-                            onClick={() => setRecordingInputMode(prev => ({ ...prev, [source.id]: 'record' }))}
-                          >
-                            <Mic className="w-3 h-3 mr-1" />
-                            Record
-                          </Button>
-                        </div>
-
-                        {/* Paste Transcript */}
-                        {recordingInputMode[source.id] === 'paste' && (
-                          <div className="space-y-1">
-                            <Label className="text-xs text-muted-foreground">Transcript Text</Label>
-                            <textarea
-                              className="w-full min-h-[120px] p-2 border rounded-md text-sm bg-background text-foreground"
-                              placeholder="Paste your conversation transcript here...&#10;&#10;Speaker A: ...&#10;Speaker B: ..."
-                              value={source.content || ''}
-                              onChange={(e) => handleUpdateSource(source.id, { content: e.target.value })}
-                            />
-                          </div>
-                        )}
-
-                        {/* Upload Audio File */}
-                        {recordingInputMode[source.id] === 'upload' && (
-                          <div className="space-y-2">
-                            <Label className="text-xs text-muted-foreground">Audio File (will be transcribed)</Label>
-                            <Input
-                              type="file"
-                              accept="audio/*"
-                              onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (file) handleFileUpload(source.id, file, 'audio');
-                              }}
-                            />
                             {source.fileName && (
-                              <div className="text-xs text-green-600 dark:text-green-400">
-                                ✓ Uploaded: {source.fileName}
-                              </div>
+                              <span className="text-sm text-green-600 dark:text-green-400 truncate">
+                                {source.fileName}
+                              </span>
                             )}
-                            <p className="text-xs text-muted-foreground">
-                              Supports MP3, WAV, M4A, and other audio formats.
-                            </p>
                           </div>
-                        )}
+                          {source.type && source.fileName && (
+                            <div className="text-xs text-muted-foreground">
+                              Detected as: {SOURCE_TYPES[source.type as keyof typeof SOURCE_TYPES]?.label}
+                            </div>
+                          )}
+                        </div>
+                      )}
 
-                        {/* Live Recording */}
-                        {recordingInputMode[source.id] === 'record' && (
-                          <div className="space-y-3">
-                            {/* Recording not started (and no recording saved) */}
-                            {!source.content && !activeRecordingId && isTranscribing !== source.id && !recordedAudio[source.id] && (
-                              <div className="flex flex-col items-center py-4 space-y-3">
-                                {audioRecorder.isSupported ? (
-                                  <>
+                      {/* === Text Input === */}
+                      {inputMethod === 'text' && (
+                        <div className="space-y-1">
+                          <textarea
+                            className="w-full min-h-[100px] p-2 border rounded-md text-sm bg-background text-foreground"
+                            placeholder="Paste or type your content..."
+                            value={source.content || ''}
+                            onChange={(e) => handleUpdateSource(source.id, { content: e.target.value })}
+                            autoFocus
+                          />
+                        </div>
+                      )}
+
+                      {/* === Recording Input === */}
+                      {inputMethod === 'recording' && (
+                        <div className="space-y-3">
+                          {/* Input method tabs */}
+                          <div className="flex space-x-1 p-1 bg-muted rounded-lg">
+                            <Button
+                              type="button"
+                              variant={recordingInputMode[source.id] === 'paste' ? 'default' : 'ghost'}
+                              size="sm"
+                              className="flex-1 h-8"
+                              onClick={() => setRecordingInputMode(prev => ({ ...prev, [source.id]: 'paste' }))}
+                            >
+                              <MessageSquare className="w-3 h-3 mr-1" />
+                              Paste Transcript
+                            </Button>
+                            <Button
+                              type="button"
+                              variant={recordingInputMode[source.id] === 'upload' ? 'default' : 'ghost'}
+                              size="sm"
+                              className="flex-1 h-8"
+                              onClick={() => setRecordingInputMode(prev => ({ ...prev, [source.id]: 'upload' }))}
+                            >
+                              <Upload className="w-3 h-3 mr-1" />
+                              Upload Audio
+                            </Button>
+                            <Button
+                              type="button"
+                              variant={recordingInputMode[source.id] === 'record' ? 'default' : 'ghost'}
+                              size="sm"
+                              className="flex-1 h-8"
+                              onClick={() => setRecordingInputMode(prev => ({ ...prev, [source.id]: 'record' }))}
+                            >
+                              <Mic className="w-3 h-3 mr-1" />
+                              Record
+                            </Button>
+                          </div>
+
+                          {/* Paste Transcript */}
+                          {recordingInputMode[source.id] === 'paste' && (
+                            <div className="space-y-1">
+                              <Label className="text-xs text-muted-foreground">Transcript Text</Label>
+                              <textarea
+                                className="w-full min-h-[120px] p-2 border rounded-md text-sm bg-background text-foreground"
+                                placeholder="Paste your conversation transcript here...&#10;&#10;Speaker A: ...&#10;Speaker B: ..."
+                                value={source.content || ''}
+                                onChange={(e) => handleUpdateSource(source.id, { content: e.target.value })}
+                              />
+                            </div>
+                          )}
+
+                          {/* Upload Audio File */}
+                          {recordingInputMode[source.id] === 'upload' && (
+                            <div className="space-y-2">
+                              <Label className="text-xs text-muted-foreground">Audio File (will be transcribed)</Label>
+                              <Input
+                                type="file"
+                                accept="audio/*"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) handleFileUpload(source.id, file, 'audio');
+                                }}
+                              />
+                              {source.fileName && (
+                                <div className="text-xs text-green-600 dark:text-green-400">
+                                  ✓ Uploaded: {source.fileName}
+                                </div>
+                              )}
+                              <p className="text-xs text-muted-foreground">
+                                Supports MP3, WAV, M4A, and other audio formats.
+                              </p>
+                            </div>
+                          )}
+
+                          {/* Live Recording */}
+                          {recordingInputMode[source.id] === 'record' && (
+                            <div className="space-y-3">
+                              {/* Recording not started (and no recording saved) */}
+                              {!source.content && !activeRecordingId && isTranscribing !== source.id && !recordedAudio[source.id] && (
+                                <div className="flex flex-col items-center py-4 space-y-3">
+                                  {audioRecorder.isSupported ? (
+                                    <>
+                                      <Button
+                                        type="button"
+                                        variant="default"
+                                        className="bg-red-600 hover:bg-red-700"
+                                        onClick={() => handleStartRecording(source.id)}
+                                      >
+                                        <Mic className="w-4 h-4 mr-2" />
+                                        Start Recording
+                                      </Button>
+                                      <p className="text-xs text-muted-foreground text-center">
+                                        Record live with speaker identification (requires AssemblyAI key)
+                                      </p>
+                                    </>
+                                  ) : (
+                                    <p className="text-sm text-destructive">
+                                      Recording not supported in this browser.
+                                    </p>
+                                  )}
+                                </div>
+                              )}
+
+                              {/* Recording in progress */}
+                              {activeRecordingId === source.id && (
+                                <div className="flex flex-col items-center py-4 space-y-3 bg-red-50 dark:bg-red-950/20 rounded-lg">
+                                  <div className="flex items-center space-x-2">
+                                    <div className="w-3 h-3 bg-red-600 rounded-full animate-pulse" />
+                                    <span className="text-lg font-mono">{formatDuration(audioRecorder.duration)}</span>
+                                  </div>
+                                  <div className="w-full max-w-[200px] h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                                    <div
+                                      className="h-full bg-red-600 transition-all duration-75"
+                                      style={{ width: `${audioRecorder.audioLevel}%` }}
+                                    />
+                                  </div>
+                                  <div className="flex space-x-2">
+                                    {audioRecorder.isPaused ? (
+                                      <Button type="button" variant="outline" size="sm" onClick={() => audioRecorder.resumeRecording()}>
+                                        <Play className="w-4 h-4 mr-1" /> Resume
+                                      </Button>
+                                    ) : (
+                                      <Button type="button" variant="outline" size="sm" onClick={() => audioRecorder.pauseRecording()}>
+                                        <Pause className="w-4 h-4 mr-1" /> Pause
+                                      </Button>
+                                    )}
+                                    <Button type="button" variant="destructive" size="sm" onClick={() => handleStopRecording(source.id)}>
+                                      <Square className="w-4 h-4 mr-1" /> Stop
+                                    </Button>
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Recording complete - playback controls */}
+                              {recordedAudio[source.id] && isTranscribing !== source.id && !source.content && (
+                                <div className="space-y-3 p-3 bg-green-50 dark:bg-green-950/20 rounded-lg">
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-sm font-medium text-green-700 dark:text-green-300">
+                                      Recording complete ({formatDuration(recordedAudio[source.id].duration)})
+                                    </span>
+                                  </div>
+
+                                  {/* Hidden audio element */}
+                                  <audio
+                                    ref={(el) => { audioRefs.current[source.id] = el; }}
+                                    src={recordedAudio[source.id].audioUrl}
+                                    onTimeUpdate={() => handleTimeUpdate(source.id)}
+                                    onEnded={() => handleAudioEnded(source.id)}
+                                  />
+
+                                  {/* Playback controls */}
+                                  <div className="flex items-center gap-2">
+                                    <Button
+                                      type="button"
+                                      variant="outline"
+                                      size="icon"
+                                      className="h-10 w-10"
+                                      onClick={() => handlePlayPause(source.id)}
+                                    >
+                                      {playingId === source.id ? (
+                                        <Pause className="w-5 h-5" />
+                                      ) : (
+                                        <Play className="w-5 h-5" />
+                                      )}
+                                    </Button>
+
+                                    {/* Progress bar */}
+                                    <div className="flex-1 flex items-center gap-2">
+                                      <span className="text-xs font-mono w-10">
+                                        {formatDuration(playbackTime[source.id] || 0)}
+                                      </span>
+                                      <input
+                                        type="range"
+                                        min={0}
+                                        max={recordedAudio[source.id].duration}
+                                        step={0.1}
+                                        value={playbackTime[source.id] || 0}
+                                        onChange={(e) => handleSeek(source.id, parseFloat(e.target.value))}
+                                        className="flex-1 h-2 accent-primary cursor-pointer"
+                                      />
+                                      <span className="text-xs font-mono w-10">
+                                        {formatDuration(recordedAudio[source.id].duration)}
+                                      </span>
+                                    </div>
+                                  </div>
+
+                                  {/* Action buttons */}
+                                  <div className="flex gap-2">
+                                    <Button
+                                      type="button"
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => handleClearRecording(source.id)}
+                                      className="flex-1"
+                                    >
+                                      <RotateCcw className="w-4 h-4 mr-1" />
+                                      Re-record
+                                    </Button>
                                     <Button
                                       type="button"
                                       variant="default"
-                                      className="bg-red-600 hover:bg-red-700"
-                                      onClick={() => handleStartRecording(source.id)}
+                                      size="sm"
+                                      onClick={() => handleTranscribeRecording(source.id)}
+                                      className="flex-1 bg-green-600 hover:bg-green-700"
                                     >
-                                      <Mic className="w-4 h-4 mr-2" />
-                                      Start Recording
+                                      <Send className="w-4 h-4 mr-1" />
+                                      Transcribe
                                     </Button>
-                                    <p className="text-xs text-muted-foreground text-center">
-                                      Record live with speaker identification (requires AssemblyAI key)
-                                    </p>
-                                  </>
-                                ) : (
-                                  <p className="text-sm text-destructive">
-                                    Recording not supported in this browser.
+                                  </div>
+
+                                  <p className="text-xs text-muted-foreground text-center">
+                                    Review your recording, then click Transcribe to process with speaker identification.
                                   </p>
-                                )}
-                              </div>
-                            )}
+                                </div>
+                              )}
 
-                            {/* Recording in progress */}
-                            {activeRecordingId === source.id && (
-                              <div className="flex flex-col items-center py-4 space-y-3 bg-red-50 dark:bg-red-950/20 rounded-lg">
-                                <div className="flex items-center space-x-2">
-                                  <div className="w-3 h-3 bg-red-600 rounded-full animate-pulse" />
-                                  <span className="text-lg font-mono">{formatDuration(audioRecorder.duration)}</span>
+                              {/* Transcribing */}
+                              {isTranscribing === source.id && (
+                                <div className="flex flex-col items-center py-6 space-y-3">
+                                  <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                                  <p className="text-sm text-muted-foreground">Transcribing with speaker identification...</p>
                                 </div>
-                                <div className="w-full max-w-[200px] h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                                  <div
-                                    className="h-full bg-red-600 transition-all duration-75"
-                                    style={{ width: `${audioRecorder.audioLevel}%` }}
-                                  />
-                                </div>
-                                <div className="flex space-x-2">
-                                  {audioRecorder.isPaused ? (
-                                    <Button type="button" variant="outline" size="sm" onClick={() => audioRecorder.resumeRecording()}>
-                                      <Play className="w-4 h-4 mr-1" /> Resume
+                              )}
+
+                              {/* Transcript ready */}
+                              {source.content && isTranscribing !== source.id && recordingInputMode[source.id] === 'record' && (
+                                <div className="space-y-2">
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-sm font-medium text-green-600 dark:text-green-400">✓ Transcript ready</span>
+                                    <Button
+                                      type="button"
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => {
+                                        handleUpdateSource(source.id, { content: undefined, fileName: undefined });
+                                        setRecordingTranscripts(prev => {
+                                          const updated = { ...prev };
+                                          delete updated[source.id];
+                                          return updated;
+                                        });
+                                      }}
+                                    >
+                                      Re-record
                                     </Button>
-                                  ) : (
-                                    <Button type="button" variant="outline" size="sm" onClick={() => audioRecorder.pauseRecording()}>
-                                      <Pause className="w-4 h-4 mr-1" /> Pause
-                                    </Button>
+                                  </div>
+                                  {recordingTranscripts[source.id] && (
+                                    <div className="max-h-[100px] overflow-y-auto p-2 bg-muted rounded text-xs font-mono">
+                                      {recordingTranscripts[source.id].segments.slice(0, 3).map((seg, i) => (
+                                        <div key={i} className="mb-1">
+                                          <span className="font-semibold">{seg.speaker}:</span> {seg.text.slice(0, 80)}...
+                                        </div>
+                                      ))}
+                                    </div>
                                   )}
-                                  <Button type="button" variant="destructive" size="sm" onClick={() => handleStopRecording(source.id)}>
-                                    <Square className="w-4 h-4 mr-1" /> Stop
-                                  </Button>
                                 </div>
-                              </div>
-                            )}
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )}
 
-                            {/* Recording complete - playback controls */}
-                            {recordedAudio[source.id] && isTranscribing !== source.id && !source.content && (
-                              <div className="space-y-3 p-3 bg-green-50 dark:bg-green-950/20 rounded-lg">
-                                <div className="flex items-center justify-between">
-                                  <span className="text-sm font-medium text-green-700 dark:text-green-300">
-                                    Recording complete ({formatDuration(recordedAudio[source.id].duration)})
-                                  </span>
-                                </div>
-
-                                {/* Hidden audio element */}
-                                <audio
-                                  ref={(el) => { audioRefs.current[source.id] = el; }}
-                                  src={recordedAudio[source.id].audioUrl}
-                                  onTimeUpdate={() => handleTimeUpdate(source.id)}
-                                  onEnded={() => handleAudioEnded(source.id)}
-                                />
-
-                                {/* Playback controls */}
-                                <div className="flex items-center gap-2">
-                                  <Button
-                                    type="button"
-                                    variant="outline"
-                                    size="icon"
-                                    className="h-10 w-10"
-                                    onClick={() => handlePlayPause(source.id)}
-                                  >
-                                    {playingId === source.id ? (
-                                      <Pause className="w-5 h-5" />
-                                    ) : (
-                                      <Play className="w-5 h-5" />
-                                    )}
-                                  </Button>
-
-                                  {/* Progress bar */}
-                                  <div className="flex-1 flex items-center gap-2">
-                                    <span className="text-xs font-mono w-10">
-                                      {formatDuration(playbackTime[source.id] || 0)}
-                                    </span>
-                                    <input
-                                      type="range"
-                                      min={0}
-                                      max={recordedAudio[source.id].duration}
-                                      step={0.1}
-                                      value={playbackTime[source.id] || 0}
-                                      onChange={(e) => handleSeek(source.id, parseFloat(e.target.value))}
-                                      className="flex-1 h-2 accent-primary cursor-pointer"
-                                    />
-                                    <span className="text-xs font-mono w-10">
-                                      {formatDuration(recordedAudio[source.id].duration)}
-                                    </span>
-                                  </div>
-                                </div>
-
-                                {/* Action buttons */}
-                                <div className="flex gap-2">
-                                  <Button
-                                    type="button"
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => handleClearRecording(source.id)}
-                                    className="flex-1"
-                                  >
-                                    <RotateCcw className="w-4 h-4 mr-1" />
-                                    Re-record
-                                  </Button>
-                                  <Button
-                                    type="button"
-                                    variant="default"
-                                    size="sm"
-                                    onClick={() => handleTranscribeRecording(source.id)}
-                                    className="flex-1 bg-green-600 hover:bg-green-700"
-                                  >
-                                    <Send className="w-4 h-4 mr-1" />
-                                    Transcribe
-                                  </Button>
-                                </div>
-
-                                <p className="text-xs text-muted-foreground text-center">
-                                  Review your recording, then click Transcribe to process with speaker identification.
-                                </p>
-                              </div>
-                            )}
-
-                            {/* Transcribing */}
-                            {isTranscribing === source.id && (
-                              <div className="flex flex-col items-center py-6 space-y-3">
-                                <Loader2 className="w-8 h-8 animate-spin text-primary" />
-                                <p className="text-sm text-muted-foreground">Transcribing with speaker identification...</p>
-                              </div>
-                            )}
-
-                            {/* Transcript ready */}
-                            {source.content && isTranscribing !== source.id && recordingInputMode[source.id] === 'record' && (
-                              <div className="space-y-2">
-                                <div className="flex items-center justify-between">
-                                  <span className="text-sm font-medium text-green-600 dark:text-green-400">✓ Transcript ready</span>
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => {
-                                      handleUpdateSource(source.id, { content: undefined, fileName: undefined });
-                                      setRecordingTranscripts(prev => {
-                                        const updated = { ...prev };
-                                        delete updated[source.id];
-                                        return updated;
-                                      });
-                                    }}
-                                  >
-                                    Re-record
-                                  </Button>
-                                </div>
-                                {recordingTranscripts[source.id] && (
-                                  <div className="max-h-[100px] overflow-y-auto p-2 bg-muted rounded text-xs font-mono">
-                                    {recordingTranscripts[source.id].segments.slice(0, 3).map((seg, i) => (
-                                      <div key={i} className="mb-1">
-                                        <span className="font-semibold">{seg.speaker}:</span> {seg.text.slice(0, 80)}...
-                                      </div>
-                                    ))}
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Text/Notes - needs textarea for manual input */}
-                    {source.type === 'text' && (
-                      <div className="space-y-1">
-                        <Label className="text-xs text-muted-foreground">Text Content</Label>
-                        <textarea
-                          className="w-full min-h-[100px] p-2 border rounded-md text-sm bg-background text-foreground"
-                          placeholder="Paste or type your text content here..."
-                          value={source.content || ''}
-                          onChange={(e) => handleUpdateSource(source.id, { content: e.target.value })}
-                        />
-                      </div>
-                    )}
-                  </div>
-                )}
+                      {/* Source Name - appears for all types once there's content */}
+                      {inputMethod && hasContent && (
+                        <div className="space-y-1 pt-2 border-t">
+                          <Label className="text-xs text-muted-foreground">Source Name (optional)</Label>
+                          <Input
+                            placeholder={source.sourceName ? '' : 'Give this source a friendly name...'}
+                            value={source.sourceName || ''}
+                            onChange={(e) => handleUpdateSource(source.id, { sourceName: e.target.value })}
+                            className="h-8 text-sm"
+                          />
+                        </div>
+                      )}
+                    </>
+                  );
+                })()}
               </div>
               );
             })}
@@ -1183,6 +1268,20 @@ export default function BulkResearchDialog({
         )}
 
         <DialogFooter>
+          {canUnmerge && onUnmerge && (
+            <Button
+              variant="destructive"
+              onClick={() => {
+                onUnmerge();
+                onOpenChange(false);
+              }}
+              disabled={isSubmitting}
+              className="mr-auto"
+            >
+              <RotateCcw className="h-4 w-4 mr-2" />
+              Unmerge
+            </Button>
+          )}
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
             Cancel
           </Button>

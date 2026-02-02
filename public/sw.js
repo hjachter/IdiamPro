@@ -1,54 +1,73 @@
 // Service Worker for IdiamPro PWA
-const CACHE_NAME = 'idiampro-v2';
-const urlsToCache = [
-  '/',
-  '/offline'
-];
+const CACHE_NAME = 'idiampro-v3';
 
-// Install event - cache essential resources
+// Install event - activate immediately
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => {
-        console.log('Opened cache');
-        return cache.addAll(urlsToCache);
-      })
-      .catch((error) => {
-        console.log('Cache install failed:', error);
-      })
-  );
-  // Don't automatically skip waiting - let the client decide
+  self.skipWaiting();
 });
 
-// Fetch event - serve from cache, fallback to network
-self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        // Cache hit - return response
-        if (response) {
-          return response;
-        }
-        return fetch(event.request);
-      })
-  );
-});
-
-// Activate event - clean up old caches
+// Activate event - claim clients and clean up old caches
 self.addEventListener('activate', (event) => {
-  const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
-          if (cacheWhitelist.indexOf(cacheName) === -1) {
+          if (cacheName !== CACHE_NAME) {
             return caches.delete(cacheName);
           }
         })
       );
+    }).then(() => self.clients.claim())
+  );
+});
+
+// Fetch event - network-first for pages and scripts, cache-first for static assets
+self.addEventListener('fetch', (event) => {
+  const url = new URL(event.request.url);
+
+  // Skip non-GET requests
+  if (event.request.method !== 'GET') return;
+
+  // Skip API routes and external requests
+  if (url.pathname.startsWith('/api/') || url.origin !== self.location.origin) return;
+
+  // Navigation requests (HTML pages) and Next.js chunks: always network-first
+  if (event.request.mode === 'navigate' || url.pathname.startsWith('/_next/')) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          // Cache a fresh copy for offline fallback
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          return response;
+        })
+        .catch(() => {
+          // Offline: try cache, then show a basic message for navigation
+          return caches.match(event.request).then((cached) => {
+            if (cached) return cached;
+            if (event.request.mode === 'navigate') {
+              return new Response('You are offline. Please reconnect and refresh.', {
+                headers: { 'Content-Type': 'text/html' },
+              });
+            }
+            return new Response('', { status: 503 });
+          });
+        })
+    );
+    return;
+  }
+
+  // Static assets (images, fonts, etc.): cache-first is fine
+  event.respondWith(
+    caches.match(event.request).then((cached) => {
+      if (cached) return cached;
+      return fetch(event.request).then((response) => {
+        const clone = response.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+        return response;
+      });
     })
   );
-  self.clients.claim();
 });
 
 // Listen for messages from clients

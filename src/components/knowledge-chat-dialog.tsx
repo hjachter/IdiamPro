@@ -53,6 +53,7 @@ export default function KnowledgeChatDialog({
   const [contextLoading, setContextLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const streamingContentLength = useRef(0);
 
   const currentOutline = outlines.find(o => o.id === currentOutlineId);
 
@@ -118,12 +119,16 @@ export default function KnowledgeChatDialog({
     }
   }, [open]);
 
-  // Auto-scroll to bottom when new messages arrive
-  useEffect(() => {
+  // Auto-scroll to bottom when new messages arrive or streaming content updates
+  const scrollToBottom = useCallback(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
     }
-  }, [messages, isLoading]);
+  }, []);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, isLoading, scrollToBottom]);
 
   const handleModeChange = (newMode: ChatMode) => {
     setMode(newMode);
@@ -140,9 +145,12 @@ export default function KnowledgeChatDialog({
       timestamp: Date.now(),
     };
 
+    const assistantMessageId = (Date.now() + 1).toString();
+
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
+    streamingContentLength.current = 0;
 
     try {
       const response = await fetch('/api/knowledge-chat', {
@@ -163,26 +171,113 @@ export default function KnowledgeChatDialog({
         throw new Error('Failed to get response');
       }
 
-      const data = await response.json();
+      if (!response.body) {
+        throw new Error('No response body');
+      }
 
-      const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
+      // Add a placeholder assistant message for streaming
+      setMessages(prev => [...prev, {
+        id: assistantMessageId,
         role: 'assistant',
-        content: data.response,
+        content: '',
         timestamp: Date.now(),
-        provider: data.provider,
-      };
+      }]);
 
-      setMessages(prev => [...prev, assistantMessage]);
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        // SSE events are separated by double newlines
+        const events = buffer.split('\n\n');
+        // Keep the last potentially incomplete event
+        buffer = events.pop() || '';
+
+        for (const event of events) {
+          const line = event.trim();
+          if (!line.startsWith('data: ')) continue;
+
+          try {
+            const data = JSON.parse(line.slice(6));
+
+            if (data.error) {
+              setMessages(prev => prev.map(m =>
+                m.id === assistantMessageId
+                  ? { ...m, content: `Sorry, an error occurred: ${data.error}` }
+                  : m
+              ));
+              setIsLoading(false);
+              return;
+            }
+
+            if (data.token) {
+              setMessages(prev => prev.map(m =>
+                m.id === assistantMessageId
+                  ? { ...m, content: m.content + data.token }
+                  : m
+              ));
+              // Trigger scroll periodically during streaming (every ~100 chars)
+              streamingContentLength.current += data.token.length;
+              if (streamingContentLength.current % 100 < data.token.length) {
+                scrollToBottom();
+              }
+            }
+
+            if (data.done) {
+              setMessages(prev => prev.map(m =>
+                m.id === assistantMessageId
+                  ? { ...m, provider: data.provider }
+                  : m
+              ));
+            }
+          } catch {
+            // Skip malformed SSE data
+          }
+        }
+      }
+
+      // Process any remaining buffer
+      if (buffer.trim()) {
+        const line = buffer.trim();
+        if (line.startsWith('data: ')) {
+          try {
+            const data = JSON.parse(line.slice(6));
+            if (data.token) {
+              setMessages(prev => prev.map(m =>
+                m.id === assistantMessageId
+                  ? { ...m, content: m.content + data.token }
+                  : m
+              ));
+            }
+            if (data.done) {
+              setMessages(prev => prev.map(m =>
+                m.id === assistantMessageId
+                  ? { ...m, provider: data.provider }
+                  : m
+              ));
+            }
+          } catch {
+            // Skip malformed remainder
+          }
+        }
+      }
     } catch (error) {
       console.error('Knowledge chat error:', error);
       const errorMessage: Message = {
-        id: (Date.now() + 1).toString(),
+        id: (Date.now() + 2).toString(),
         role: 'assistant',
         content: 'Sorry, I encountered an error processing your question. Please try again.',
         timestamp: Date.now(),
       };
-      setMessages(prev => [...prev, errorMessage]);
+      // Remove empty placeholder if it exists, add error message
+      setMessages(prev => {
+        const filtered = prev.filter(m => !(m.id === assistantMessageId && !m.content));
+        return [...filtered, errorMessage];
+      });
     } finally {
       setIsLoading(false);
     }
@@ -288,44 +383,52 @@ export default function KnowledgeChatDialog({
         {/* Chat Messages */}
         <div className="flex-1 overflow-y-auto px-6 py-4" ref={scrollRef}>
           <div className="space-y-4">
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={cn(
-                  'flex gap-3',
-                  message.role === 'user' ? 'justify-end' : 'justify-start'
-                )}
-              >
-                {message.role === 'assistant' && (
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center">
-                    <Brain className="h-4 w-4 text-blue-500" />
-                  </div>
-                )}
-                <div className="max-w-[80%]">
-                  <div
-                    className={cn(
-                      'rounded-lg px-4 py-2',
-                      message.role === 'user'
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-muted'
+            {messages.map((message) => {
+              // Hide empty streaming placeholder — Thinking spinner shows instead
+              if (message.role === 'assistant' && !message.content) return null;
+              return (
+                <div
+                  key={message.id}
+                  className={cn(
+                    'flex gap-3',
+                    message.role === 'user' ? 'justify-end' : 'justify-start'
+                  )}
+                >
+                  {message.role === 'assistant' && (
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center">
+                      <Brain className="h-4 w-4 text-blue-500" />
+                    </div>
+                  )}
+                  <div className="max-w-[80%]">
+                    <div
+                      className={cn(
+                        'rounded-lg px-4 py-2',
+                        message.role === 'user'
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-muted'
+                      )}
+                    >
+                      <p className="text-sm whitespace-pre-wrap select-text cursor-text">{message.content}</p>
+                    </div>
+                    {message.role === 'assistant' && message.provider && (
+                      <p className="text-[10px] text-muted-foreground/60 mt-0.5 ml-1">
+                        via {message.provider}
+                      </p>
                     )}
-                  >
-                    <p className="text-sm whitespace-pre-wrap select-text cursor-text">{message.content}</p>
                   </div>
-                  {message.role === 'assistant' && message.provider && (
-                    <p className="text-[10px] text-muted-foreground/60 mt-0.5 ml-1">
-                      via {message.provider}
-                    </p>
+                  {message.role === 'user' && (
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                      <User className="h-4 w-4 text-primary" />
+                    </div>
                   )}
                 </div>
-                {message.role === 'user' && (
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                    <User className="h-4 w-4 text-primary" />
-                  </div>
-                )}
-              </div>
-            ))}
-            {isLoading && (
+              );
+            })}
+            {isLoading && (() => {
+              const lastMsg = messages[messages.length - 1];
+              const isStreaming = lastMsg?.role === 'assistant' && lastMsg.content !== '';
+              return !isStreaming;
+            })() && (
               <div className="flex gap-3 justify-start">
                 <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center">
                   <Loader2 className="h-4 w-4 text-blue-500 animate-spin" />

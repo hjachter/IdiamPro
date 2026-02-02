@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { isAllowedUrl } from '@/lib/security';
 
 // Import pdf-parse lib directly to avoid the debug test code in index.js
 // The main index.js runs a test parse when module.parent is undefined (which happens in webpack)
@@ -10,42 +11,6 @@ export const dynamic = 'force-dynamic';
 
 const MAX_PDF_SIZE = 50 * 1024 * 1024; // 50 MB
 const FETCH_TIMEOUT_MS = 30_000;
-
-/** Validate that a URL is safe to fetch (no SSRF) */
-function isAllowedUrl(urlString: string): { ok: true } | { ok: false; reason: string } {
-  let parsed: URL;
-  try {
-    parsed = new URL(urlString);
-  } catch {
-    return { ok: false, reason: 'Invalid URL' };
-  }
-
-  // Only allow http(s)
-  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
-    return { ok: false, reason: `Disallowed scheme: ${parsed.protocol}` };
-  }
-
-  const hostname = parsed.hostname.toLowerCase();
-
-  // Block localhost and common loopback names
-  if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1' || hostname === '0.0.0.0' || hostname === '[::1]') {
-    return { ok: false, reason: 'Loopback addresses are not allowed' };
-  }
-
-  // Block private/reserved IP ranges
-  const ipv4Match = hostname.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
-  if (ipv4Match) {
-    const [, a, b] = ipv4Match.map(Number);
-    if (a === 10) return { ok: false, reason: 'Private IP range (10.x)' };
-    if (a === 172 && b >= 16 && b <= 31) return { ok: false, reason: 'Private IP range (172.16-31.x)' };
-    if (a === 192 && b === 168) return { ok: false, reason: 'Private IP range (192.168.x)' };
-    if (a === 169 && b === 254) return { ok: false, reason: 'Link-local address (169.254.x)' };
-    if (a === 127) return { ok: false, reason: 'Loopback address (127.x)' };
-    if (a === 0) return { ok: false, reason: 'Reserved address (0.x)' };
-  }
-
-  return { ok: true };
-}
 
 /**
  * POST /api/extract-pdf

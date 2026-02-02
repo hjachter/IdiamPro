@@ -2,6 +2,7 @@ import { Node, mergeAttributes } from '@tiptap/core';
 import { ReactNodeViewRenderer, NodeViewWrapper } from '@tiptap/react';
 import React, { useEffect, useRef, useState } from 'react';
 import mermaid from 'mermaid';
+import { isAllowedEmbedUrl } from '@/lib/security';
 
 // Initialize mermaid with configuration that avoids canvas issues
 // Using bright green (#16a34a) for arrows - visible in both light and dark modes
@@ -466,31 +467,6 @@ export const MermaidBlock = Node.create({
     };
   },
 });
-
-// URL validation for Google embed iframes
-function isAllowedEmbedUrl(url: string | null, service: 'docs' | 'sheets' | 'slides' | 'maps'): boolean {
-  if (!url) return false;
-  try {
-    const parsed = new URL(url);
-    const hostname = parsed.hostname.toLowerCase();
-    switch (service) {
-      case 'docs':
-        return hostname === 'docs.google.com';
-      case 'sheets':
-        return hostname === 'docs.google.com' && parsed.pathname.startsWith('/spreadsheets');
-      case 'slides':
-        return hostname === 'docs.google.com' && parsed.pathname.startsWith('/presentation');
-      case 'maps':
-        return hostname === 'www.google.com' && parsed.pathname.startsWith('/maps') ||
-               hostname === 'maps.google.com' ||
-               hostname === 'google.com' && parsed.pathname.startsWith('/maps');
-      default:
-        return false;
-    }
-  } catch {
-    return false;
-  }
-}
 
 const EmbedBlockedWarning = ({ url }: { url: string | null }) => (
   <NodeViewWrapper as="div">

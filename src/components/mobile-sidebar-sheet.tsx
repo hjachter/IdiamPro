@@ -19,6 +19,8 @@ import {
   LayoutTemplate,
   Trash2,
   MoreHorizontal,
+  Search,
+  X,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -26,6 +28,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
 import { templates, type Template } from '@/lib/templates';
 import type { Outline } from '@/types';
 import { cn } from '@/lib/utils';
@@ -54,6 +57,7 @@ export default function MobileSidebarSheet({
   onOpenGuide,
 }: MobileSidebarSheetProps) {
   const [templatesOpen, setTemplatesOpen] = useState(false);
+  const [outlineSearch, setOutlineSearch] = useState('');
 
   // Separate guide from user outlines
   const guide = outlines.find(o => o.isGuide);
@@ -64,6 +68,13 @@ export default function MobileSidebarSheet({
     return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
   });
 
+  // Filter outlines by search query
+  const searchLower = outlineSearch.toLowerCase();
+  const filteredOutlines = sortedOutlines.filter(o =>
+    outlineSearch === '' || o.name.toLowerCase().includes(searchLower)
+  );
+  const showGuide = !outlineSearch || (guide?.name.toLowerCase().includes(searchLower) ?? false);
+
   const handleSelectTemplate = (template: Template) => {
     onCreateFromTemplate(template.create());
     onOpenChange(false);
@@ -71,6 +82,7 @@ export default function MobileSidebarSheet({
 
   const handleSelectOutline = (outlineId: string) => {
     onSelectOutline(outlineId);
+    setOutlineSearch('');
     onOpenChange(false);
   };
 
@@ -149,14 +161,38 @@ export default function MobileSidebarSheet({
         <div className="flex-shrink-0 flex items-center gap-2 px-4 py-2 border-b border-border/40 bg-muted/30">
           <FileText className="h-4 w-4 text-muted-foreground" />
           <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Outlines</span>
-          <span className="ml-auto text-xs text-muted-foreground/70 tabular-nums">{userOutlines.length}</span>
+          <span className="ml-auto text-xs text-muted-foreground/70 tabular-nums">
+            {outlineSearch ? `${filteredOutlines.length} / ${userOutlines.length}` : userOutlines.length}
+          </span>
+        </div>
+
+        {/* Search input */}
+        <div className="flex-shrink-0 px-3 py-2 border-b border-border/40">
+          <div className="relative flex items-center">
+            <Search className="absolute left-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
+            <Input
+              value={outlineSearch}
+              onChange={(e) => setOutlineSearch(e.target.value)}
+              onKeyDown={(e) => e.stopPropagation()}
+              placeholder="Search outlines..."
+              className="h-10 pl-8 pr-8 text-sm bg-muted/40 border-border/50"
+            />
+            {outlineSearch && (
+              <button
+                onClick={() => setOutlineSearch('')}
+                className="absolute right-2.5 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Scrollable outline list */}
         <ScrollArea className="flex-1">
           <div className="p-2 space-y-0.5">
             {/* User Guide */}
-            {guide && (
+            {guide && showGuide && (
               <div
                 className={cn(
                   "group flex items-center gap-3 px-3 py-3 rounded-lg cursor-pointer transition-all duration-150",
@@ -172,7 +208,7 @@ export default function MobileSidebarSheet({
             )}
 
             {/* User Outlines */}
-            {sortedOutlines.map(outline => (
+            {filteredOutlines.map(outline => (
               <div
                 key={outline.id}
                 className={cn(
@@ -213,7 +249,13 @@ export default function MobileSidebarSheet({
               </div>
             ))}
 
-            {userOutlines.length === 0 && (
+            {outlineSearch && filteredOutlines.length === 0 && !showGuide && (
+              <p className="text-sm text-muted-foreground px-3 py-4 text-center">
+                No outlines match &ldquo;{outlineSearch}&rdquo;
+              </p>
+            )}
+
+            {!outlineSearch && userOutlines.length === 0 && (
               <p className="text-sm text-muted-foreground px-3 py-2">
                 No outlines yet. Create one or use a template.
               </p>

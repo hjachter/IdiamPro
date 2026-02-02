@@ -86,7 +86,15 @@
       "Bash(sh:*)",
       "Bash(/Applications/Ollama.app/Contents/Resources/ollama pull:*)",
       "Bash(launchctl list:*)",
-      "Bash(npm run cap:open:ios:*)"
+      "Bash(npm run cap:open:ios:*)",
+      "Bash(tmutil listbackups:*)",
+      "Bash(npx next build:*)",
+      "Bash(# Check if ~/Documents is actually iCloud Documents xattr -l ~/Documents)",
+      "Bash(wc:*)",
+      "Bash(npx vitest run)",
+      "Bash(npm test)",
+      "Bash(mdls:*)",
+      "Bash(npm run electron:*)"
     ]
   }
 }

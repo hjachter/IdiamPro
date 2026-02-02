@@ -14,6 +14,8 @@ import {
   Trash2,
   MoreHorizontal,
   Pencil,
+  Search,
+  X,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import {
@@ -74,6 +76,7 @@ export default function SidebarPane({
   const [renameValue, setRenameValue] = useState('');
   const [contextMenuOutline, setContextMenuOutline] = useState<Outline | null>(null);
   const [contextMenuPosition, setContextMenuPosition] = useState<{ x: number; y: number } | null>(null);
+  const [outlineSearch, setOutlineSearch] = useState('');
 
   // Separate guide from user outlines
   const guide = outlines.find(o => o.isGuide);
@@ -88,6 +91,13 @@ export default function SidebarPane({
   const sortedOutlines = [...uniqueUserOutlines].sort((a, b) => {
     return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
   });
+
+  // Filter outlines by search query
+  const searchLower = outlineSearch.toLowerCase();
+  const filteredOutlines = sortedOutlines.filter(o =>
+    outlineSearch === '' || o.name.toLowerCase().includes(searchLower)
+  );
+  const showGuide = !outlineSearch || (guide?.name.toLowerCase().includes(searchLower) ?? false);
 
   const handleSelectTemplate = (template: Template) => {
     onCreateFromTemplate(template.create());
@@ -245,7 +255,31 @@ export default function SidebarPane({
       <div className="flex items-center gap-2 px-3 py-2 border-b border-border/40 bg-muted/30">
         <FileText className="h-4 w-4 text-muted-foreground" />
         <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Outlines</span>
-        <span className="ml-auto text-xs text-muted-foreground/70 tabular-nums">{uniqueUserOutlines.length}</span>
+        <span className="ml-auto text-xs text-muted-foreground/70 tabular-nums">
+          {outlineSearch ? `${filteredOutlines.length} / ${uniqueUserOutlines.length}` : uniqueUserOutlines.length}
+        </span>
+      </div>
+
+      {/* Search input */}
+      <div className="flex-shrink-0 px-2 py-1.5 border-b border-border/40">
+        <div className="relative flex items-center">
+          <Search className="absolute left-2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+          <Input
+            value={outlineSearch}
+            onChange={(e) => setOutlineSearch(e.target.value)}
+            onKeyDown={(e) => e.stopPropagation()}
+            placeholder="Search outlines..."
+            className="h-8 pl-7 pr-7 text-sm bg-muted/40 border-border/50"
+          />
+          {outlineSearch && (
+            <button
+              onClick={() => setOutlineSearch('')}
+              className="absolute right-2 text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Bulk action bar when items are selected - FIXED position above scroll */}
@@ -280,7 +314,7 @@ export default function SidebarPane({
       <ScrollArea className="flex-1">
         <div className="p-2 space-y-0.5">
           {/* User Guide */}
-          {guide && (
+          {guide && showGuide && (
             <div
               className={cn(
                 "group flex items-center gap-2 px-2 py-2 rounded-md cursor-pointer text-sm transition-all duration-150",
@@ -296,7 +330,7 @@ export default function SidebarPane({
           )}
 
           {/* User Outlines */}
-          {sortedOutlines.map(outline => (
+          {filteredOutlines.map(outline => (
             <ContextMenu key={outline.id}>
               <ContextMenuTrigger asChild>
                 <div
@@ -387,7 +421,13 @@ export default function SidebarPane({
             </ContextMenu>
           ))}
 
-          {userOutlines.length === 0 && (
+          {outlineSearch && filteredOutlines.length === 0 && !showGuide && (
+            <p className="text-xs text-muted-foreground/80 px-2 py-4 text-center">
+              No outlines match &ldquo;{outlineSearch}&rdquo;
+            </p>
+          )}
+
+          {!outlineSearch && userOutlines.length === 0 && (
             <p className="text-xs text-muted-foreground/80 px-2 py-4 text-center">
               No outlines yet. Create one or use a template.
             </p>

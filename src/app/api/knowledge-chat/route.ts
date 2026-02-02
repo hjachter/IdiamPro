@@ -11,6 +11,12 @@ const OLLAMA_BASE_URL = 'http://localhost:11434';
 // Truncate context to keep total prompt under ~6K tokens (~24K chars).
 const OLLAMA_MAX_CONTEXT_CHARS = 24000;
 
+const SSE_HEADERS = {
+  'Content-Type': 'text/event-stream',
+  'Cache-Control': 'no-cache',
+  'Connection': 'keep-alive',
+};
+
 function truncateForOllama(context: string): { text: string; truncated: boolean } {
   if (context.length <= OLLAMA_MAX_CONTEXT_CHARS) {
     return { text: context, truncated: false };
@@ -22,7 +28,25 @@ function truncateForOllama(context: string): { text: string; truncated: boolean 
   return { text: truncated.slice(0, cutPoint) + '\n\n[... remaining outlines truncated for local AI ...]', truncated: true };
 }
 
-async function generateWithOllama(systemPrompt: string, fullPrompt: string): Promise<string> {
+function sseEvent(data: Record<string, unknown>): string {
+  return `data: ${JSON.stringify(data)}\n\n`;
+}
+
+function errorMessage(err: unknown): string {
+  if (err instanceof Error) return err.message;
+  if (typeof err === 'string') return err;
+  return 'An unknown error occurred';
+}
+
+const encoder = new TextEncoder();
+
+/** Send all Ollama tokens through the given controller. */
+async function pipeOllama(
+  controller: ReadableStreamDefaultController,
+  systemPrompt: string,
+  fullPrompt: string,
+  truncated: boolean,
+) {
   const response = await fetch(`${OLLAMA_BASE_URL}/api/chat`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -32,7 +56,7 @@ async function generateWithOllama(systemPrompt: string, fullPrompt: string): Pro
         { role: 'system', content: systemPrompt },
         { role: 'user', content: fullPrompt },
       ],
-      stream: false,
+      stream: true,
       options: { temperature: 0.7, num_predict: 2000, num_ctx: 8192 },
     }),
   });
@@ -41,8 +65,128 @@ async function generateWithOllama(systemPrompt: string, fullPrompt: string): Pro
     throw new Error(`Ollama failed: ${await response.text()}`);
   }
 
-  const data = await response.json();
-  return data.message?.content || '';
+  if (!response.body) {
+    throw new Error('Ollama returned no response body');
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split('\n');
+    buffer = lines.pop() || '';
+
+    for (const line of lines) {
+      if (!line.trim()) continue;
+      try {
+        const parsed = JSON.parse(line);
+        const token = parsed.message?.content;
+        if (token) {
+          controller.enqueue(encoder.encode(sseEvent({ token })));
+        }
+      } catch {
+        // Skip malformed lines
+      }
+    }
+  }
+
+  if (buffer.trim()) {
+    try {
+      const parsed = JSON.parse(buffer);
+      const token = parsed.message?.content;
+      if (token) {
+        controller.enqueue(encoder.encode(sseEvent({ token })));
+      }
+    } catch {
+      // Skip malformed remainder
+    }
+  }
+
+  if (truncated) {
+    controller.enqueue(encoder.encode(
+      sseEvent({ token: '\n\n*Note: Using local AI with truncated context. Some outlines may not be included. For full coverage, ensure your cloud AI key is configured.*' })
+    ));
+  }
+
+  controller.enqueue(encoder.encode(
+    sseEvent({ done: true, provider: 'Ollama llama3.2' })
+  ));
+  console.log('[KnowledgeChat] Streaming response via Ollama');
+}
+
+/** Send all Gemini tokens through the given controller. */
+async function pipeGemini(
+  controller: ReadableStreamDefaultController,
+  systemPrompt: string,
+  userPrompt: string,
+) {
+  const result = await ai.generateStream({
+    model: 'googleai/gemini-2.0-flash',
+    prompt: `${systemPrompt}\n\n${userPrompt}`,
+  });
+
+  // Attach a no-op catch so the response promise never becomes an unhandled
+  // rejection if the stream itself errors before we reach `await response`.
+  result.response.catch(() => {});
+
+  for await (const chunk of result.stream) {
+    const token = chunk.text;
+    if (token) {
+      controller.enqueue(encoder.encode(sseEvent({ token })));
+    }
+  }
+
+  await result.response;
+
+  controller.enqueue(encoder.encode(
+    sseEvent({ done: true, provider: 'Gemini 2.0 Flash' })
+  ));
+  console.log('[KnowledgeChat] Streaming response via Gemini');
+}
+
+function makeStream(
+  provider: 'cloud' | 'local' | 'auto',
+  systemPrompt: string,
+  userPrompt: string,
+  ollamaPrompt: string,
+  truncated: boolean,
+): ReadableStream {
+  return new ReadableStream({
+    async start(controller) {
+      let closed = false;
+      const close = () => { if (!closed) { closed = true; controller.close(); } };
+      try {
+        if (provider === 'cloud') {
+          await pipeGemini(controller, systemPrompt, userPrompt);
+        } else if (provider === 'local') {
+          await pipeOllama(controller, systemPrompt, ollamaPrompt, truncated);
+        } else {
+          // 'auto': try Gemini, fall back to Ollama
+          try {
+            await pipeGemini(controller, systemPrompt, userPrompt);
+          } catch (geminiErr) {
+            console.warn('[KnowledgeChat] Gemini failed, trying Ollama:', errorMessage(geminiErr));
+            await pipeOllama(controller, systemPrompt, ollamaPrompt, truncated);
+          }
+        }
+      } catch (err) {
+        try {
+          controller.enqueue(encoder.encode(
+            sseEvent({ error: errorMessage(err) })
+          ));
+        } catch {
+          // Controller may already be errored
+        }
+      } finally {
+        close();
+      }
+    },
+  });
 }
 
 export async function POST(request: NextRequest) {
@@ -86,63 +230,15 @@ Be concise but thorough. Use markdown formatting for clarity.`;
 
     const userPrompt = `OUTLINE CONTENT:\n${context}\n\nConversation:\n${conversationHistory}\n\nProvide a helpful, clear response grounded in the outline content above.`;
 
-    // Route to the correct AI provider based on user preference
-    let text: string;
-    let provider: string;
-
-    const tryGemini = async () => {
-      const result = await ai.generate({
-        model: 'googleai/gemini-2.0-flash',
-        prompt: `${systemPrompt}\n\n${userPrompt}`,
-      });
-      provider = 'Gemini 2.0 Flash';
-      console.log('[KnowledgeChat] Response via Gemini');
-      return result.text;
-    };
-
-    const tryOllama = async () => {
-      const { text: truncatedContext, truncated } = truncateForOllama(context);
-      const ollamaPrompt = `OUTLINE CONTENT:\n${truncatedContext}\n\nConversation:\n${conversationHistory}\n\nProvide a helpful, clear response grounded in the outline content above.`;
-      if (truncated) {
-        console.log(`[KnowledgeChat] Context truncated from ${context.length} to ${truncatedContext.length} chars for Ollama`);
-      }
-      let result = await generateWithOllama(systemPrompt, ollamaPrompt);
-      provider = 'Ollama llama3.2';
-      if (truncated) {
-        result += '\n\n*Note: Using local AI with truncated context. Some outlines may not be included. For full coverage, ensure your cloud AI key is configured.*';
-      }
-      console.log('[KnowledgeChat] Response via Ollama');
-      return result;
-    };
-
-    try {
-      if (aiProvider === 'cloud') {
-        text = await tryGemini();
-      } else if (aiProvider === 'local') {
-        text = await tryOllama();
-      } else {
-        // 'auto': try Gemini first, fall back to Ollama
-        try {
-          text = await tryGemini();
-        } catch (geminiError) {
-          console.warn('[KnowledgeChat] Gemini failed, trying Ollama:', (geminiError as Error).message);
-          text = await tryOllama();
-        }
-      }
-    } catch (error) {
-      console.error('[KnowledgeChat] AI generation failed:', (error as Error).message);
-      const hint = aiProvider === 'cloud'
-        ? 'Check your Gemini API key.'
-        : aiProvider === 'local'
-        ? 'Ensure Ollama is running (ollama serve).'
-        : 'Both cloud and local AI are unavailable. Check your Gemini API key or ensure Ollama is running.';
-      return NextResponse.json(
-        { error: hint },
-        { status: 500 }
-      );
+    // Prepare Ollama prompt (may or may not be used depending on provider)
+    const { text: truncatedContext, truncated } = truncateForOllama(context);
+    const ollamaPrompt = `OUTLINE CONTENT:\n${truncatedContext}\n\nConversation:\n${conversationHistory}\n\nProvide a helpful, clear response grounded in the outline content above.`;
+    if (truncated && (aiProvider === 'local' || aiProvider === 'auto')) {
+      console.log(`[KnowledgeChat] Context truncated from ${context.length} to ${truncatedContext.length} chars for Ollama`);
     }
 
-    return NextResponse.json({ response: text, provider });
+    const stream = makeStream(aiProvider, systemPrompt, userPrompt, ollamaPrompt, truncated);
+    return new Response(stream, { headers: SSE_HEADERS });
   } catch (error) {
     console.error('Knowledge chat error:', error);
     return NextResponse.json(
