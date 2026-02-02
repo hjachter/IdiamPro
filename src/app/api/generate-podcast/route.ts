@@ -1,7 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ai } from '@/ai/genkit';
 import type { NodeMap, PodcastConfig, PodcastScriptSegment, OpenAIVoice } from '@/types';
-import { extractSubtreeContent, buildScriptPrompt, parseScriptResponse, getSilenceBuffer } from '@/lib/podcast-generator';
+import { extractSubtreeContent, buildScriptPrompt, parseScriptResponse } from '@/lib/podcast-generator';
+
+/**
+ * Generate a silent MP3 buffer for gaps between segments (~0.5s).
+ * Kept in the API route because it uses Node.js Buffer.
+ */
+function getSilenceBuffer(): Buffer {
+  const frameSize = 417;
+  const numFrames = 19;
+  const buf = Buffer.alloc(frameSize * numFrames);
+  for (let i = 0; i < numFrames; i++) {
+    const offset = i * frameSize;
+    buf[offset] = 0xFF;
+    buf[offset + 1] = 0xFB;
+    buf[offset + 2] = 0x90;
+    buf[offset + 3] = 0x00;
+  }
+  return buf;
+}
 
 const SSE_HEADERS = {
   'Content-Type': 'text/event-stream',

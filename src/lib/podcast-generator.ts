@@ -3,45 +3,6 @@ import type { NodeMap, PodcastStyle, PodcastLength, PodcastScriptSegment, OpenAI
 // Maximum content length to send to the AI (roughly 50K chars)
 const MAX_CONTENT_CHARS = 50000;
 
-// 0.5s silent MP3 frame (minimal valid MP3 with silence)
-// This is a minimal MPEG audio frame of silence (~417 bytes)
-const SILENCE_MP3_BASE64 =
-  '//uQx' + 'A'.repeat(400) + '==';
-
-/**
- * Generate a proper silent MP3 buffer for gaps between segments.
- * We'll create this dynamically in the API route using a proper silent frame.
- */
-export function getSilenceBuffer(): Buffer {
-  // Minimal valid MP3 frame header (MPEG1, Layer 3, 128kbps, 44100Hz, stereo)
-  // followed by zero audio data = silence
-  // Frame size = 144 * 128000 / 44100 + 0 = 417 bytes
-  const frameSize = 417;
-  // ~0.5s of silence at 128kbps ≈ 8000 bytes ≈ ~19 frames
-  const numFrames = 19;
-  const buf = Buffer.alloc(frameSize * numFrames);
-
-  for (let i = 0; i < numFrames; i++) {
-    const offset = i * frameSize;
-    // MP3 frame header: 0xFF 0xFB 0x90 0x00
-    // Sync word (11 bits): 0xFFF
-    // MPEG version (2 bits): 11 = MPEG1
-    // Layer (2 bits): 01 = Layer III
-    // Protection: 1 = no CRC
-    // Bitrate (4 bits): 1001 = 128kbps
-    // Sample rate (2 bits): 00 = 44100Hz
-    // Padding: 0
-    // Channel mode (2 bits): 00 = stereo
-    buf[offset] = 0xFF;
-    buf[offset + 1] = 0xFB;
-    buf[offset + 2] = 0x90;
-    buf[offset + 3] = 0x00;
-    // Rest is zeros = silence
-  }
-
-  return buf;
-}
-
 /**
  * Strip HTML tags from content, returning plain text.
  */
