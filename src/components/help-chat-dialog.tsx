@@ -27,7 +27,7 @@ KEY FEATURES:
 - Hierarchical outlining with drag & drop, indent/outdent
 - AI-powered outline generation from topics
 - Research & Import: Merge multiple sources (YouTube, PDFs, web pages, images, docs, audio, video, outline files) into unified outlines
-- Rich content editor with markdown support
+- Rich content editor with markdown support, clipboard image paste (Cmd+V), drag-and-drop images
 - Multi-select nodes for bulk operations (delete, change color, add tags)
 - Sidebar multi-select: Cmd/Ctrl+Click or Shift+Click outlines in the sidebar to select multiple, then bulk delete
 - Sidebar search: Type in the search field below the Outlines header to filter outlines by name (works on desktop and mobile)

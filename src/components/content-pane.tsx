@@ -576,6 +576,28 @@ export default function ContentPane({
         },
       },
       handlePaste: (_view, event) => {
+        // Check for image data in clipboard (screenshots, copied images)
+        const items = event.clipboardData?.items;
+        if (items) {
+          for (let i = 0; i < items.length; i++) {
+            if (items[i].type.startsWith('image/')) {
+              const file = items[i].getAsFile();
+              if (file) {
+                event.preventDefault();
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                  const dataUrl = e.target?.result as string;
+                  if (dataUrl && editorRef.current) {
+                    (editorRef.current.commands as any).setImageBlock(dataUrl, file.name || 'Pasted image');
+                  }
+                };
+                reader.readAsDataURL(file);
+                return true; // Handled — prevent default paste
+              }
+            }
+          }
+        }
+
         // Get plain text from clipboard
         const text = event.clipboardData?.getData('text/plain');
 
