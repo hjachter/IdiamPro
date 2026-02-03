@@ -64,6 +64,56 @@ const VOICE_LABELS: Record<OpenAIVoice, string> = {
 
 type Phase = 'config' | 'generating' | 'preview';
 
+// localStorage keys for persisting podcast preferences
+const PREF_STYLE = 'idiampro-podcast-style';
+const PREF_LENGTH = 'idiampro-podcast-length';
+const PREF_TTS_MODEL = 'idiampro-podcast-tts-model';
+const PREF_VOICES = 'idiampro-podcast-voices';
+
+function loadPref<T>(key: string, fallback: T): T {
+  if (typeof window === 'undefined') return fallback;
+  const val = localStorage.getItem(key);
+  return val !== null ? (val as unknown as T) : fallback;
+}
+
+function loadVoicesForStyle(style: PodcastStyle): Record<string, OpenAIVoice> {
+  if (typeof window === 'undefined') return getDefaultVoices(style);
+
+  const stored = localStorage.getItem(PREF_VOICES);
+  if (!stored) return getDefaultVoices(style);
+
+  try {
+    const allVoices = JSON.parse(stored);
+
+    // 1. Exact match for this style
+    if (allVoices[style]) return allVoices[style];
+
+    // 2. Derive from another style's voices
+    const otherStyles = Object.keys(allVoices);
+    if (otherStyles.length > 0) {
+      const lastVoices = Object.values(allVoices[otherStyles[otherStyles.length - 1]]) as OpenAIVoice[];
+      const speakers = getDefaultSpeakers(style);
+      const result: Record<string, OpenAIVoice> = {};
+      speakers.forEach((speaker, i) => {
+        result[speaker] = lastVoices[i] || lastVoices[0] || 'alloy';
+      });
+      return result;
+    }
+  } catch { /* ignore corrupt data */ }
+
+  return getDefaultVoices(style);
+}
+
+function saveVoicesForStyle(style: PodcastStyle, voices: Record<string, OpenAIVoice>) {
+  if (typeof window === 'undefined') return;
+  try {
+    const stored = localStorage.getItem(PREF_VOICES);
+    const allVoices = stored ? JSON.parse(stored) : {};
+    allVoices[style] = voices;
+    localStorage.setItem(PREF_VOICES, JSON.stringify(allVoices));
+  } catch { /* ignore */ }
+}
+
 export default function PodcastDialog({
   open,
   onOpenChange,
@@ -71,11 +121,14 @@ export default function PodcastDialog({
   nodeId,
   nodes,
 }: PodcastDialogProps) {
-  // Config state
-  const [style, setStyle] = useState<PodcastStyle>('two-host');
-  const [length, setLength] = useState<PodcastLength>('standard');
-  const [voices, setVoices] = useState<Record<string, OpenAIVoice>>(() => getDefaultVoices('two-host'));
-  const [ttsModel, setTtsModel] = useState<'tts-1' | 'tts-1-hd'>('tts-1');
+  // Config state — initialized from localStorage
+  const [style, setStyle] = useState<PodcastStyle>(() => loadPref(PREF_STYLE, 'two-host'));
+  const [length, setLength] = useState<PodcastLength>(() => loadPref(PREF_LENGTH, 'standard'));
+  const [voices, setVoices] = useState<Record<string, OpenAIVoice>>(() => {
+    const initialStyle = loadPref<PodcastStyle>(PREF_STYLE, 'two-host');
+    return loadVoicesForStyle(initialStyle);
+  });
+  const [ttsModel, setTtsModel] = useState<'tts-1' | 'tts-1-hd'>(() => loadPref(PREF_TTS_MODEL, 'tts-1'));
 
   // Generation state
   const [phase, setPhase] = useState<Phase>('config');
@@ -92,10 +145,16 @@ export default function PodcastDialog({
   const [scriptOpen, setScriptOpen] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  // Update voices when style changes
+  // Update voices when style changes — use stored preferences with smart fallback
   useEffect(() => {
-    setVoices(getDefaultVoices(style));
+    setVoices(loadVoicesForStyle(style));
   }, [style]);
+
+  // Persist preferences when they change
+  useEffect(() => { localStorage.setItem(PREF_STYLE, style); }, [style]);
+  useEffect(() => { localStorage.setItem(PREF_LENGTH, length); }, [length]);
+  useEffect(() => { localStorage.setItem(PREF_TTS_MODEL, ttsModel); }, [ttsModel]);
+  useEffect(() => { saveVoicesForStyle(style, voices); }, [style, voices]);
 
   // Clean up blob URL on unmount or dialog close
   useEffect(() => {
