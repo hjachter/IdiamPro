@@ -513,7 +513,7 @@ export default function NodeItem({
             onPointerCancel={(e) => {
               handlePointerUp(e);
             }}
-            onDoubleClick={() => { if (!isEditing) onCreateChildNode?.(nodeId); }}
+            onDoubleClick={() => { if (!isEditing) setIsEditing(true); }}
             draggable={!isRoot}
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}

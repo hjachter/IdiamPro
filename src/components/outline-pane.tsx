@@ -575,11 +575,11 @@ export default function OutlinePane({
         return;
       }
 
-      // Handle Enter/Return for edit mode (any selected node including root)
+      // Handle Enter/Return to create new sibling node (or child if root selected)
       if (e.key === 'Enter') {
         if (!selectedNodeId || !currentOutline) return;
         e.preventDefault();
-        onTriggerEdit?.(selectedNodeId);
+        onCreateNode();
         return;
       }
 

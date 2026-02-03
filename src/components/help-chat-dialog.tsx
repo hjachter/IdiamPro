@@ -51,7 +51,7 @@ CONTENT EDITOR:
 
 KEYBOARD SHORTCUTS:
 - Cmd+N: New outline
-- Enter/Return: Edit selected node name
+- Enter/Return: Create new sibling node
 - Tab: Indent node
 - Shift+Tab: Outdent node
 - Cmd+K: Command palette (also: Expand All, Collapse All)
@@ -62,7 +62,7 @@ KEYBOARD SHORTCUTS:
 - Ctrl+F: Search (current outline or all outlines)
 - Up/Down arrows: Navigate between nodes
 - Left/Right arrows: Collapse/expand nodes
-- Double-click: Create sibling node
+- Double-click: Edit node name
 - Cmd+Click: Multi-select nodes
 - Cmd+Click / Shift+Click in sidebar: Select multiple outlines for bulk delete
 

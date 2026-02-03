@@ -26,8 +26,8 @@ When the user proposes features, WARN them if any of these iOS-reserved gestures
 | Action | macOS | iOS |
 |--------|-------|-----|
 | Select node | Click | Tap |
-| Edit node name | Enter/Return key | Tap again (on selected node) |
-| Create child node | Double-click | Double-tap |
+| Create sibling node | Enter/Return key | N/A |
+| Edit node name | Double-click | Tap again (on selected node) |
 | Indent | Tab | Swipe right |
 | Outdent | Shift+Tab | Swipe left |
 | Drag & drop | Drag | Long-press + drag |

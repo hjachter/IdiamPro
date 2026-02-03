@@ -32,7 +32,7 @@ CONTENT EDITOR:
 
 KEYBOARD SHORTCUTS (macOS/Desktop):
 - Cmd+N: New outline
-- Enter/Return: Edit selected node name
+- Enter/Return: Create new sibling node
 - Tab: Indent node
 - Shift+Tab: Outdent node
 - Cmd+K: Command palette (also: Expand All, Collapse All)
@@ -43,7 +43,7 @@ KEYBOARD SHORTCUTS (macOS/Desktop):
 - Ctrl+F: Search (current outline or all outlines)
 - Up/Down arrows: Navigate between nodes
 - Left/Right arrows: Collapse/expand nodes
-- Double-click node: Create sibling node
+- Double-click node: Edit node name
 - Cmd+Click: Multi-select nodes
 - Cmd+Click / Shift+Click in sidebar: Select multiple outlines for bulk delete
 - Cmd+C: Copy subtree
@@ -86,7 +86,7 @@ HOW TO USE RESEARCH & IMPORT:
 6. The AI will analyze all sources, find connections, and create a hierarchical structure
 
 COMMON WORKFLOWS:
-- Quick outline building: Double-click nodes to create siblings at the same level
+- Quick outline building: Press Enter to create sibling nodes, double-click to rename
 - Research synthesis: Use Research & Import with 20+ YouTube videos and 50+ PDFs
 - Content expansion: Select a node, right-click, choose "Generate Content with AI"
 - Bulk operations: Cmd+Click to select multiple nodes, then use Multi-Select toolbar
