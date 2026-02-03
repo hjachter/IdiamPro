@@ -633,6 +633,46 @@ export default function ContentPane({
           }
         }
 
+        // Check for images embedded in pasted HTML (e.g. Apple Notes scanned docs, web pages)
+        const html = event.clipboardData?.getData('text/html');
+        if (html && editorRef.current) {
+          // Extract <img> tags with src attributes (data URLs or blob URLs)
+          const imgMatch = html.match(/<img[^>]+src=["']([^"']+)["']/i);
+          if (imgMatch && imgMatch[1]) {
+            const src = imgMatch[1];
+
+            // If it's already a data URL, insert directly
+            if (src.startsWith('data:image/')) {
+              event.preventDefault();
+              (editorRef.current.commands as any).setImageBlock(src, 'Pasted image');
+              return true;
+            }
+
+            // If it's a blob URL or http URL, try to fetch and convert to data URL
+            if (src.startsWith('blob:') || src.startsWith('http')) {
+              event.preventDefault();
+              fetch(src)
+                .then(res => res.blob())
+                .then(blob => {
+                  if (!blob.type.startsWith('image/')) return;
+                  const reader = new FileReader();
+                  reader.onload = (e) => {
+                    const dataUrl = e.target?.result as string;
+                    if (dataUrl && editorRef.current) {
+                      (editorRef.current.commands as any).setImageBlock(dataUrl, 'Pasted image');
+                    }
+                  };
+                  reader.readAsDataURL(blob);
+                })
+                .catch(() => {
+                  // If fetch fails (cross-origin), let Tiptap handle it
+                  console.warn('[Paste] Could not fetch image from', src);
+                });
+              return true;
+            }
+          }
+        }
+
         // Get plain text from clipboard
         const text = event.clipboardData?.getData('text/plain');
 
