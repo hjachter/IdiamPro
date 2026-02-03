@@ -576,24 +576,59 @@ export default function ContentPane({
         },
       },
       handlePaste: (_view, event) => {
-        // Check for image data in clipboard (screenshots, copied images)
+        // Check for file data in clipboard (images, videos, etc.)
         const items = event.clipboardData?.items;
         if (items) {
           for (let i = 0; i < items.length; i++) {
-            if (items[i].type.startsWith('image/')) {
-              const file = items[i].getAsFile();
-              if (file) {
-                event.preventDefault();
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                  const dataUrl = e.target?.result as string;
-                  if (dataUrl && editorRef.current) {
-                    (editorRef.current.commands as any).setImageBlock(dataUrl, file.name || 'Pasted image');
-                  }
-                };
-                reader.readAsDataURL(file);
-                return true; // Handled — prevent default paste
-              }
+            const item = items[i];
+            if (item.kind !== 'file') continue;
+
+            const file = item.getAsFile();
+            if (!file) continue;
+
+            if (item.type.startsWith('image/')) {
+              // Images: insert via ImageBlock
+              event.preventDefault();
+              const reader = new FileReader();
+              reader.onload = (e) => {
+                const dataUrl = e.target?.result as string;
+                if (dataUrl && editorRef.current) {
+                  (editorRef.current.commands as any).setImageBlock(dataUrl, file.name || 'Pasted image');
+                }
+              };
+              reader.readAsDataURL(file);
+              return true;
+            }
+
+            if (item.type.startsWith('video/')) {
+              // Videos: insert via VideoBlock
+              event.preventDefault();
+              const reader = new FileReader();
+              reader.onload = (e) => {
+                const dataUrl = e.target?.result as string;
+                if (dataUrl && editorRef.current) {
+                  (editorRef.current.commands as any).setVideoBlock(dataUrl, file.type);
+                }
+              };
+              reader.readAsDataURL(file);
+              return true;
+            }
+
+            if (item.type === 'application/pdf' || item.type.startsWith('audio/')) {
+              // PDFs and audio: embed as a downloadable link with the data
+              event.preventDefault();
+              const reader = new FileReader();
+              reader.onload = (e) => {
+                const dataUrl = e.target?.result as string;
+                if (dataUrl && editorRef.current) {
+                  const label = file.name || (item.type === 'application/pdf' ? 'Pasted PDF' : 'Pasted audio');
+                  editorRef.current.chain().focus().insertContent(
+                    `<p><a href="${dataUrl}" target="_blank">${label}</a></p>`
+                  ).run();
+                }
+              };
+              reader.readAsDataURL(file);
+              return true;
             }
           }
         }
@@ -1534,17 +1569,23 @@ export default function ContentPane({
       const dataUrl = event.target?.result as string;
 
       if (file.type.startsWith('image/')) {
-        // Insert image using ImageBlock for better persistence with large base64
+        // Insert image using ImageBlock
         (editor.commands as any).setImageBlock(dataUrl, file.name);
         queueMicrotask(() => {
           onUpdate(node.id, { type: 'image' });
         });
-      } else if (file.type === 'application/pdf') {
-        // For PDFs, we'd need to upload to a server
-        // For now, just show a message
-        alert('PDF files need to be uploaded to a hosting service first. Use the Insert App menu to embed a PDF URL.');
       } else if (file.type.startsWith('video/')) {
-        alert('Video files need to be uploaded to a hosting service first. Use the Insert App menu to embed a YouTube video.');
+        // Insert video using VideoBlock
+        (editor.commands as any).setVideoBlock(dataUrl, file.type);
+        queueMicrotask(() => {
+          onUpdate(node.id, { type: 'video' });
+        });
+      } else if (file.type === 'application/pdf' || file.type.startsWith('audio/')) {
+        // Embed as a downloadable link
+        const label = file.name || (file.type === 'application/pdf' ? 'Dropped PDF' : 'Dropped audio');
+        editor.chain().focus().insertContent(
+          `<p><a href="${dataUrl}" target="_blank">${label}</a></p>`
+        ).run();
       } else {
         alert(`File type ${file.type} is not supported yet.`);
       }
