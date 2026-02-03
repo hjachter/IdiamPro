@@ -117,14 +117,21 @@ export function buildScriptPrompt(
 ): { system: string; user: string } {
   const target = LENGTH_TARGETS[length];
 
-  const system = `You are an expert podcast scriptwriter. Convert structured outline content into a natural, engaging podcast script.
+  const system = `You are a world-class podcast scriptwriter known for creating captivating, high-energy audio content. Your scripts sound like two friends who are genuinely excited about the topic — NOT like a dry lecture or news broadcast.
 
-RULES:
-- Stay faithful to the source material — do not invent facts
-- Create natural transitions between topics
-- Use conversational language appropriate for audio
-- Each segment should be 1-4 sentences (15-60 words)
-- Output ONLY valid JSON array: [{"speaker": "Name", "text": "..."}]
+CRITICAL STYLE RULES:
+- Write like people actually TALK, not how they write. Use contractions, sentence fragments, interruptions.
+- Speakers should react genuinely: "Oh wow, I didn't realize that!", "Wait, really?", "That's wild!", "OK so here's the thing..."
+- Include natural verbal fillers and reactions: "Right", "Exactly", "Hmm", "So basically...", "I mean think about it..."
+- Vary energy levels — build excitement, have moments of reflection, express surprise
+- Speakers should riff on each other's points, not just take turns delivering monologues
+- Make the listener feel like they're eavesdropping on a fascinating conversation
+- Each segment: 1-4 sentences. Keep the back-and-forth rapid and dynamic.
+- NEVER sound like a textbook. Transform dry facts into compelling stories and insights.
+- Start with an engaging hook that draws listeners in immediately
+
+OUTPUT FORMAT:
+- Output ONLY a valid JSON array: [{"speaker": "Name", "text": "..."}]
 - No markdown, no code fences, no explanation — ONLY the JSON array
 - Target total script length: ${target.min}-${target.max} words (approximately ${target.label} of audio)
 
@@ -133,36 +140,45 @@ SPEAKERS: ${speakerNames.join(', ')}`;
   let styleInstructions: string;
   switch (style) {
     case 'two-host':
-      styleInstructions = `STYLE: Two-Host Discussion
-- ${speakerNames[0]} introduces topics and sets up key points
-- ${speakerNames[1]} adds analysis, examples, and deeper insight
-- Use natural conversational patterns — brief agreements, follow-up questions
-- Include transitions like "That's a great point..." or "Building on that..."
-- Alternate speakers frequently for engaging pacing`;
+      styleInstructions = `STYLE: Two-Host Deep Dive (think: best friends geeking out)
+- ${speakerNames[0]} drives the conversation, sets up topics with enthusiasm and curiosity
+- ${speakerNames[1]} reacts authentically, adds surprising angles, connects dots the listener wouldn't expect
+- They interrupt each other (briefly!) when excited: "Oh, and that connects to—" "Yes! Exactly!"
+- Use callbacks to earlier points: "Remember when we talked about...? Well get this..."
+- Express genuine wonder: "What blows my mind is...", "The part that really got me was..."
+- Disagree sometimes! "Hmm, I actually see that differently..." then come around or agree to disagree
+- End segments with teasers: "But wait, it gets even more interesting..."
+- Laugh occasionally, be human. These are real people, not AI voices.`;
       break;
     case 'narrator':
-      styleInstructions = `STYLE: Single Narrator
-- ${speakerNames[0]} presents all content in a warm, authoritative tone
-- Use transitions like "Now let's turn to..." and "An important aspect is..."
-- Organize into logical sections with clear topic shifts
-- Include brief pauses/transitions between major sections
-- Speak directly to the listener — "you'll find that..." or "consider this..."`;
+      styleInstructions = `STYLE: Compelling Solo Narrator (think: best TED talk you've ever heard)
+- ${speakerNames[0]} speaks with warmth, authority, and genuine passion
+- Pull the listener in: "Here's what most people miss...", "Now, this is where it gets really interesting..."
+- Use rhetorical questions: "But why does this matter? Well..."
+- Create narrative tension: "And just when you think you understand it... there's a twist."
+- Vary pacing — slow down for important revelations, speed up for exciting sequences
+- Speak TO the listener: "Picture this...", "Think about the last time you...", "You might be wondering..."
+- Use vivid analogies to make abstract concepts click`;
       break;
     case 'interview':
-      styleInstructions = `STYLE: Interview Format
-- ${speakerNames[0]} asks insightful questions that guide through the content
-- ${speakerNames[1]} answers with depth, drawing from the source material
-- Questions should build on previous answers naturally
-- Include follow-up questions for complex topics
-- ${speakerNames[0]} occasionally summarizes key takeaways`;
+      styleInstructions = `STYLE: Engaging Interview (think: the best podcast interview you've heard)
+- ${speakerNames[0]} is a curious, well-prepared interviewer who asks the questions the audience is thinking
+- ${speakerNames[1]} is an enthusiastic expert who lights up when talking about the topic
+- Interviewer reacts genuinely: "Wow, I never thought of it that way", "OK, unpack that for me..."
+- Expert uses stories and examples, not just facts: "So here's a perfect example of that..."
+- Include "aha moment" follow-ups: "Wait, so you're saying that...?" "Exactly! And here's why that matters..."
+- Interviewer occasionally pushes back: "But couldn't someone argue that...?"
+- Expert gets visibly excited about their favorite parts: "Oh, this is my favorite part..."`;
       break;
     case 'debate':
-      styleInstructions = `STYLE: Debate/Discussion
-- ${speakerNames[0]} and ${speakerNames[1]} take different interpretive angles on the content
-- Include respectful challenges and rebuttals
-- Both speakers should cite specific points from the source material
-- Include moments of agreement to keep it balanced
-- End with synthesis or common ground`;
+      styleInstructions = `STYLE: Lively Debate (think: respectful but passionate intellectual sparring)
+- ${speakerNames[0]} and ${speakerNames[1]} take genuinely different angles — not fake disagreement
+- Challenge each other directly: "I hear what you're saying, but consider this..."
+- Acknowledge good points before countering: "OK, that's fair, BUT..."
+- Use evidence from the source: "Look, the content literally says..."
+- Build tension: "I think you're missing the bigger picture here..."
+- Have breakthrough moments: "Actually... hmm, you might have a point there."
+- End with genuine synthesis — what did they learn from each other?`;
       break;
   }
 
@@ -171,7 +187,7 @@ SPEAKERS: ${speakerNames.join(', ')}`;
 SOURCE CONTENT:
 ${content}
 
-Generate the podcast script as a JSON array. Remember: ONLY output the JSON array, nothing else.`;
+Generate a captivating podcast script. Make it sound like a REAL conversation between passionate, knowledgeable people — not a script being read aloud. Output ONLY the JSON array.`;
 
   return { system, user };
 }
