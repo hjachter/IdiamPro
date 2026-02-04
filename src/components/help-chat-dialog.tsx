@@ -27,7 +27,7 @@ KEY FEATURES:
 - Hierarchical outlining with drag & drop, indent/outdent
 - AI-powered outline generation from topics
 - Research & Import: Merge multiple sources (YouTube, PDFs, web pages, images, docs, audio, video, outline files) into unified outlines
-- Rich content editor with markdown support, clipboard image paste (Cmd+V), drag-and-drop images
+- Rich content editor with markdown support, clipboard image paste (Cmd+V), drag-and-drop images, link paste (URLs auto-link, rich HTML links preserved)
 - Multi-select nodes for bulk operations (delete, change color, add tags)
 - Sidebar multi-select: Cmd/Ctrl+Click or Shift+Click outlines in the sidebar to select multiple, then bulk delete
 - Sidebar search: Type in the search field below the Outlines header to filter outlines by name (works on desktop and mobile)
@@ -78,7 +78,7 @@ AI FEATURES:
 - Generate outline from topic (Free tier: 10/month, Premium: 100/month)
 - Expand node content with AI (Free: 50/month, Premium: 500/month)
 - Create Content for Descendants: Right-click a parent > generates content for all children at once
-- Research & Import synthesis (Free: 3 sources, Premium: 50+ sources)
+- Research & Import synthesis (Free: 3 sources, Premium: 50+ sources). Nodes always have short names (2-6 words) as tree labels with detailed content in the content pane, even in comprehensive mode. Merging into an existing outline integrates content under shared themes rather than appending separately.
 - Knowledge Chat: Query your outlines with natural language. Click the brain icon (blue) in the toolbar. Two modes: Current Outline (queries active outline) or All Outlines / Second Brain (queries all outlines at once). AI answers based only on your outline content, referencing specific sections. Responses stream in word-by-word for immediate feedback.
 - Local AI / Ollama: Settings > AI Provider. Choose Cloud, Local (Ollama on localhost:11434), or Auto. Recommended models: llama3.2, phi3, llama3.1
 - Pending Import Recovery (Desktop): If import times out or app closes, result is saved and recovery dialog appears on next launch

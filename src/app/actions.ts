@@ -803,14 +803,25 @@ function extractBulletsFromOutline(outlineContent: string): ContentBullet[] {
   const lines = outlineContent.split('\n');
 
   for (const line of lines) {
-    // Match lines like "- Topic: Content" or "  - Subtopic: Content"
-    const match = line.match(/^\s*-\s+([^:]+):\s*(.+)$/);
-    if (match) {
+    // Match "- Topic: Content" (standard format)
+    const colonMatch = line.match(/^\s*-\s+([^:]+):\s*(.+)$/);
+    if (colonMatch) {
       bullets.push({
-        topic: match[1].trim(),
-        content: match[2].trim(),
+        topic: colonMatch[1].trim(),
+        content: colonMatch[2].trim(),
         source: 'existing',
       });
+      continue;
+    }
+
+    // Match "- Text without colon" (comprehensive/content-in-name format)
+    const plainMatch = line.match(/^\s*-\s+(.{10,})$/);
+    if (plainMatch) {
+      const text = plainMatch[1].trim();
+      // Use first few words as topic, keep full text as content
+      const words = text.split(/\s+/);
+      const topic = words.slice(0, 4).join(' ');
+      bullets.push({ topic, content: text, source: 'existing' });
     }
   }
 
@@ -1313,6 +1324,19 @@ async function organizeBulletsIntoOutline(
     chapterGuidance = 'For this extensive content, create 15-25 chapters organized by major themes. Group related bullets into cohesive chapters with multiple subsections each.';
   }
 
+  // Add detail-level-specific formatting emphasis
+  let formatEmphasis = '';
+  if (detailLevel === 'comprehensive') {
+    formatEmphasis = `
+CRITICAL FORMAT RULE FOR DETAILED OUTPUT:
+- Node NAMES must be SHORT (2-6 words) — they appear as tree labels
+- ALL detailed content goes AFTER the colon
+- Example: "- Quantum Entanglement: Quantum entanglement is a phenomenon where particles become correlated..."
+- WRONG: "- Quantum entanglement is a phenomenon where particles become correlated such that..."
+- The colon separates the SHORT TITLE from the DETAILED CONTENT
+`;
+  }
+
   // Generate different prompts based on merge strategy
   let organizationPrompt: string;
 
@@ -1332,7 +1356,7 @@ STRUCTURE REQUIREMENTS:
 - Name each chapter after the source/product it covers
 - Within each source chapter, organize that source's content into logical subtopics
 - Do NOT mix content from different sources
-
+${formatEmphasis}
 OUTPUT FORMAT:
 - [Source 1 Name]: Brief overview of this source.
   - Subtopic A: Content from source 1 only.
@@ -1370,7 +1394,7 @@ STRUCTURE REQUIREMENTS:
    - Include cross-references where relevant (e.g., "integrates with [Other Product]'s API")
 
 3. Optionally end with "Integration" or "Workflow" chapter if there's significant cross-product content
-
+${formatEmphasis}
 OUTPUT FORMAT:
 - System Overview: How these components work together as a unified solution.
   - Architecture: High-level view of component relationships.
@@ -1413,7 +1437,7 @@ THINK OF IT THIS WAY:
 - You're writing a Wikipedia article, not a collection of summaries
 - A reader should NOT be able to tell how many sources were used
 - Redundant information from different sources should be MERGED, not repeated
-
+${formatEmphasis}
 OUTPUT FORMAT:
 - Chapter Title: Synthesized overview combining facts from ALL sources.
   - Subtopic: Merged content from multiple sources as coherent prose.

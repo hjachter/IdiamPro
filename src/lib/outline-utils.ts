@@ -324,14 +324,28 @@ export function parseMarkdownToNodes(markdown: string, topic: string): { rootNod
     const level = Math.floor(indentation / 2);
     const rawText = line.trim().substring(2); // Remove "- " prefix
 
-    // Parse "Name: Content" format, or just "Name" if no colon
+    // Parse "Name: Content" format, or extract a short name from long text
     let name: string;
     let content: string;
     const colonIndex = rawText.indexOf(':');
-    if (colonIndex > 0 && colonIndex < 80) {
-      // Only treat as name:content if colon is within first 80 chars (likely a title)
+
+    if (colonIndex > 0 && colonIndex < 80 && !/[.!?]/.test(rawText.substring(0, colonIndex))) {
+      // Colon found early and text before it looks like a title (no sentence punctuation)
       name = rawText.substring(0, colonIndex).trim();
       content = rawText.substring(colonIndex + 1).trim();
+    } else if (rawText.length > 100) {
+      // Long text without a clear title:content separator — extract a short name
+      // Try first comma, semicolon, or dash as a natural break point
+      const breakMatch = rawText.match(/^(.{15,60}?)[,;—–\-]\s/);
+      if (breakMatch) {
+        name = breakMatch[1].trim();
+        content = rawText.substring(breakMatch[0].length).trim();
+      } else {
+        // Use first ~8 words as name
+        const words = rawText.split(/\s+/);
+        name = words.slice(0, 8).join(' ');
+        content = words.slice(8).join(' ');
+      }
     } else {
       name = rawText;
       content = '';
