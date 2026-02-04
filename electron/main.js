@@ -349,6 +349,15 @@ async function createWindow() {
     mainWindow.show();
   });
 
+  // Force a layout repaint after the page finishes loading.
+  // In dev mode, ready-to-show fires before Next.js compiles the page,
+  // so the content may not paint until a resize triggers a relayout.
+  mainWindow.webContents.on('did-finish-load', () => {
+    const [w, h] = mainWindow.getSize();
+    mainWindow.setSize(w + 1, h);
+    mainWindow.setSize(w, h);
+  });
+
   // Open DevTools in development
   if (process.env.NODE_ENV === 'development') {
     mainWindow.webContents.openDevTools();
