@@ -50,9 +50,15 @@ contextBridge.exposeInMainWorld('electronAPI', {
   buildKnowledgeBase: (dirPath) => ipcRenderer.invoke('build-knowledge-base', dirPath),
   readKnowledgeBase: (dirPath) => ipcRenderer.invoke('read-knowledge-base', dirPath),
 
+  // Clear all pending imports after successful import
+  clearAllPendingImports: () => ipcRenderer.invoke('clear-all-pending-imports'),
+
   // Unmerge backup persistence
   saveUnmergeBackup: (backupData) => ipcRenderer.invoke('save-unmerge-backup', backupData),
   loadUnmergeBackup: () => ipcRenderer.invoke('load-unmerge-backup'),
   deleteUnmergeBackup: () => ipcRenderer.invoke('delete-unmerge-backup'),
+
+  // Apple Mail email content fetch
+  fetchAppleMailContent: (messageId) => ipcRenderer.invoke('fetch-apple-mail-content', messageId),
 
 });

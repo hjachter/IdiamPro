@@ -967,6 +967,32 @@ ipcMain.handle('delete-pending-import', async (event, fileName) => {
   }
 });
 
+// Clear all pending import files (called after a successful import reaches the client)
+ipcMain.handle('clear-all-pending-imports', async () => {
+  try {
+    const settings = loadSettings();
+    const outlinesDir = settings.outlinesDirectory;
+    if (!outlinesDir) {
+      return { success: true, deleted: 0 };
+    }
+
+    const pendingDir = path.join(outlinesDir, '.pending');
+    if (!fs.existsSync(pendingDir)) {
+      return { success: true, deleted: 0 };
+    }
+
+    const files = fs.readdirSync(pendingDir).filter(f => f.endsWith('.json'));
+    for (const file of files) {
+      fs.unlinkSync(path.join(pendingDir, file));
+    }
+    console.log(`[Pending] Cleared ${files.length} pending import file(s)`);
+    return { success: true, deleted: files.length };
+  } catch (error) {
+    console.error('Failed to clear pending imports:', error);
+    return { success: false, error: error.message };
+  }
+});
+
 // ========== Unmerge Backup ==========
 
 // Save a pre-merge snapshot so the Unmerge button survives app restarts
@@ -1034,6 +1060,65 @@ ipcMain.handle('delete-unmerge-backup', async () => {
     console.error('[Unmerge] Failed to delete backup:', error);
     return { success: false, error: error.message };
   }
+});
+
+// ========== Apple Mail Email Fetch ==========
+
+ipcMain.handle('fetch-apple-mail-content', async (event, messageId) => {
+  if (process.platform !== 'darwin') return null;
+
+  return new Promise((resolve) => {
+    // Use Mail's current selection (the dragged email is still selected)
+    const script = `
+tell application "Mail"
+  set sel to selection
+  if (count of sel) > 0 then
+    set msg to item 1 of sel
+    set msgSubject to subject of msg
+    set msgSender to sender of msg
+    set msgDate to date received of msg as string
+    set msgBody to content of msg
+    return "---SUBJECT---" & return & msgSubject & return & "---FROM---" & return & msgSender & return & "---DATE---" & return & msgDate & return & "---BODY---" & return & msgBody
+  end if
+  return "NOT_FOUND"
+end tell`;
+
+    console.log('[Mail] Fetching email content via AppleScript...');
+    const child = spawn('osascript', ['-e', script]);
+    let stdout = '';
+    let stderr = '';
+    let settled = false;
+    child.stdout.on('data', (data) => { stdout += data; });
+    child.stderr.on('data', (data) => { stderr += data; });
+    child.on('close', (code) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      // Normalize AppleScript \r line endings to \n
+      stdout = stdout.replace(/\r\n?/g, '\n');
+      if (code !== 0 || stdout.trim() === 'NOT_FOUND') {
+        console.log('[Mail] Could not fetch email. code:', code, 'stderr:', stderr);
+        resolve(null);
+      } else {
+        console.log('[Mail] Got email content, length:', stdout.length);
+        const result = {};
+        const sections = stdout.split(/---(\w+)---\n/);
+        for (let i = 1; i < sections.length; i += 2) {
+          result[sections[i].toLowerCase()] = (sections[i + 1] || '').trim();
+        }
+        console.log('[Mail] Parsed keys:', Object.keys(result));
+        resolve(result);
+      }
+    });
+
+    const timer = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      child.kill();
+      console.log('[Mail] AppleScript timed out');
+      resolve(null);
+    }, 15000);
+  });
 });
 
 // ========== App Lifecycle ==========

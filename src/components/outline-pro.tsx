@@ -30,7 +30,7 @@ import PdfExportDialog from './pdf-export-dialog';
 import PodcastDialog from './podcast-dialog';
 import { exportOutlineToJson } from '@/lib/export';
 import { exportSubtreeToPdf } from '@/lib/pdf-export';
-import { isElectron, electronCheckPendingImports, electronDeletePendingImport, electronSaveOutlineToFile, electronGetOutlineMtime, onElectronWindowFocus, type PendingImportResult } from '@/lib/electron-storage';
+import { isElectron, electronCheckPendingImports, electronDeletePendingImport, electronClearAllPendingImports, electronSaveOutlineToFile, electronGetOutlineMtime, onElectronWindowFocus, type PendingImportResult } from '@/lib/electron-storage';
 import type { BulkResearchSources } from '@/types';
 
 type MobileView = 'stacked' | 'content'; // stacked = outline + preview, content = full screen content
@@ -2333,6 +2333,11 @@ export default function OutlinePro() {
           title: "Research Synthesized!",
           description: result.summary,
         });
+      }
+
+      // Clean up pending import files now that the result reached the client
+      if (isElectron()) {
+        electronClearAllPendingImports();
       }
     } catch (e) {
       const errorMsg = (e as Error).message || "Could not process bulk research import.";

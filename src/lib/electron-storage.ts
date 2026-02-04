@@ -36,6 +36,7 @@ interface ElectronAPI {
   // Pending imports recovery
   checkPendingImports?: () => Promise<{ success: boolean; pendingImports?: Array<{ outline: Outline; summary: string; sourcesProcessed: number; createdAt: number; outlineName: string; fileName: string }>; error?: string }>;
   deletePendingImport?: (fileName: string) => Promise<{ success: boolean; error?: string }>;
+  clearAllPendingImports?: () => Promise<{ success: boolean; deleted?: number; error?: string }>;
   // Knowledge base (superoutline)
   buildKnowledgeBase?: (dirPath: string) => Promise<{ success: boolean; error?: string }>;
   readKnowledgeBase?: (dirPath: string) => Promise<{ success: boolean; content?: string; error?: string }>;
@@ -365,6 +366,20 @@ export async function electronDeletePendingImport(fileName: string): Promise<voi
   const result = await api.deletePendingImport(fileName);
   if (!result.success) {
     console.error('[Pending] Failed to delete pending import:', result.error);
+  }
+}
+
+/**
+ * Clear all pending import files (after a successful import reaches the client)
+ */
+export async function electronClearAllPendingImports(): Promise<void> {
+  const api = getElectronAPI();
+  if (!api.clearAllPendingImports) return;
+
+  try {
+    await api.clearAllPendingImports();
+  } catch (e) {
+    console.error('[Pending] Failed to clear pending imports:', e);
   }
 }
 
