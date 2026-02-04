@@ -8,6 +8,9 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
 nvm use 22 > /dev/null 2>&1
 
+# Clean stale build locks/cache to prevent hangs after killed builds
+rm -rf .next/trace 2>/dev/null
+
 # Build Next.js (produces the 'out' directory that cap sync copies)
 npm run build
 if [ $? -ne 0 ]; then
@@ -15,8 +18,9 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-# Sync to iOS
+# Sync to iOS — clean stale cordova plugins dir first (iCloud can leave resource forks)
 echo "[Pre-commit] Syncing iOS..."
+rm -rf ios/capacitor-cordova-ios-plugins 2>/dev/null
 npx cap sync ios
 
 # Check if sync created changes that need to be staged
