@@ -2086,10 +2086,6 @@ export default function ContentPane({
                   <Pencil className="mr-2 h-4 w-4" />
                   Drawing (Apple Pencil)
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleImportFile}>
-                  <Paperclip className="mr-2 h-4 w-4" />
-                  Import File
-                </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleInsertYouTube}>
                   <Video className="mr-2 h-4 w-4" />
                   YouTube Video
@@ -2112,6 +2108,16 @@ export default function ContentPane({
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+          </Tooltip>
+
+          {/* Import File Button */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="outline" size="icon" onClick={handleImportFile}>
+                <Paperclip className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Import file (images, videos, PDFs, audio, documents)</TooltipContent>
           </Tooltip>
 
           {/* Speech Recognition Button */}
