@@ -296,6 +296,17 @@ button:active:not(:disabled),
   font-size: 0.85em;
 }
 
+.tiptap a {
+  color: hsl(var(--primary));
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.tiptap a:hover {
+  opacity: 0.8;
+}
+
 /* Font size classes for content */
 .tiptap.font-size-xs { font-size: 0.75rem; }
 .tiptap.font-size-sm { font-size: 0.875rem; }

@@ -124,7 +124,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Image from 'next/image';
-import { ArrowLeft, Sparkles, Loader2, Eraser, Scissors, Copy, Clipboard, Type, Undo, Redo, List, ListOrdered, ListX, Minus, FileText, Sheet, Presentation, Video, Map, AppWindow, Plus, Bold, Italic, Strikethrough, Code, Heading1, Heading2, Heading3, Mic, MicOff, ChevronRight, Home, Pencil, ALargeSmall, Check, Calendar, Brush, Network, GitBranch, MessageSquare, ImagePlus, Table, Layers, Image as ImageIcon, Film, CheckSquare } from 'lucide-react';
+import { ArrowLeft, Sparkles, Loader2, Eraser, Scissors, Copy, Clipboard, Type, Undo, Redo, List, ListOrdered, ListX, Minus, FileText, Sheet, Presentation, Video, Map, AppWindow, Plus, Bold, Italic, Strikethrough, Code, Heading1, Heading2, Heading3, Mic, MicOff, ChevronRight, Home, Pencil, ALargeSmall, Check, Calendar, Brush, Network, GitBranch, MessageSquare, ImagePlus, Table, Layers, Image as ImageIcon, Film, CheckSquare, Paperclip } from 'lucide-react';
 import { generateImageAction } from '@/app/actions';
 import dynamic from 'next/dynamic';
 
@@ -193,6 +193,7 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import ImageExt from '@tiptap/extension-image';
 import Youtube from '@tiptap/extension-youtube';
+import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
 import { GoogleDocs, GoogleSheets, GoogleSlides, GoogleMaps, MermaidBlock, VideoBlock, ImageBlock } from './tiptap-extensions';
 import { TaskList } from '@tiptap/extension-list/task-list';
@@ -435,9 +436,8 @@ export default function ContentPane({
 
   const [promptDialogOpen, setPromptDialogOpen] = useState(false);
 
-  // File input refs for photo/video import
-  const photoInputRef = useRef<HTMLInputElement>(null);
-  const videoInputRef = useRef<HTMLInputElement>(null);
+  // File input ref for generic file import
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Track previous node to save content before switching
   const prevNodeIdRef = useRef<string | null>(null);
@@ -505,13 +505,22 @@ export default function ContentPane({
     immediatelyRender: false,
     editable: shouldUseRichTextEditor && !isGuide,
     extensions: [
-      StarterKit,
+      StarterKit.configure({ link: false }),
       TaskList,
       TaskItem.configure({ nested: true }),
       ImageExt,
       Youtube.configure({
         width: 640,
         height: 360,
+      }),
+      Link.configure({
+        openOnClick: false,
+        autolink: true,
+        linkOnPaste: true,
+        HTMLAttributes: {
+          target: '_blank',
+          rel: 'noopener noreferrer',
+        },
       }),
       Placeholder.configure({
         placeholder: 'Start writing...',
@@ -665,8 +674,10 @@ export default function ContentPane({
                   reader.readAsDataURL(blob);
                 })
                 .catch(() => {
-                  // If fetch fails (cross-origin), let Tiptap handle it
-                  console.warn('[Paste] Could not fetch image from', src);
+                  // If fetch fails (cross-origin), insert with original URL
+                  if (editorRef.current) {
+                    (editorRef.current.commands as any).setImageBlock(src, 'Pasted image');
+                  }
                 });
               return true;
             }
@@ -1417,38 +1428,29 @@ export default function ContentPane({
     }).run();
   };
 
-  const handleImportPhoto = () => {
-    photoInputRef.current?.click();
+  const handleImportFile = () => {
+    fileInputRef.current?.click();
   };
 
-  const handleImportVideo = () => {
-    videoInputRef.current?.click();
-  };
-
-  const handlePhotoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !editor) return;
 
     const reader = new FileReader();
     reader.onload = (event) => {
       const dataUrl = event.target?.result as string;
-      // Use ImageBlock for better persistence with large base64 images
-      (editor.commands as any).setImageBlock(dataUrl, file.name);
-    };
-    reader.readAsDataURL(file);
+      const mimeType = file.type;
 
-    // Reset input so same file can be selected again
-    e.target.value = '';
-  };
-
-  const handleVideoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !editor) return;
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const dataUrl = event.target?.result as string;
-      (editor.commands as any).setVideoBlock(dataUrl, file.type);
+      if (mimeType.startsWith('image/')) {
+        (editor.commands as any).setImageBlock(dataUrl, file.name);
+      } else if (mimeType.startsWith('video/')) {
+        (editor.commands as any).setVideoBlock(dataUrl, mimeType);
+      } else {
+        // PDF, audio, and other files: insert as a download link
+        editor.chain().focus().insertContent(
+          `<p><a href="${dataUrl}" target="_blank" rel="noopener noreferrer">${file.name}</a></p>`
+        ).run();
+      }
     };
     reader.readAsDataURL(file);
 
@@ -1599,39 +1601,95 @@ export default function ContentPane({
     if (!editor || !node) return;
 
     const files = Array.from(e.dataTransfer.files);
-    if (files.length === 0) return;
 
-    const file = files[0]; // Handle first file only for now
+    // Handle file drops (images, videos, PDFs, audio)
+    if (files.length > 0) {
+      const file = files[0];
 
-    // Read file as data URL
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const dataUrl = event.target?.result as string;
+      // Read file as data URL
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const dataUrl = event.target?.result as string;
 
-      if (file.type.startsWith('image/')) {
-        // Insert image using ImageBlock
-        (editor.commands as any).setImageBlock(dataUrl, file.name);
-        queueMicrotask(() => {
-          onUpdate(node.id, { type: 'image' });
+        if (file.type.startsWith('image/')) {
+          // Insert image using ImageBlock
+          (editor.commands as any).setImageBlock(dataUrl, file.name);
+          queueMicrotask(() => {
+            onUpdate(node.id, { type: 'image' });
+          });
+        } else if (file.type.startsWith('video/')) {
+          // Insert video using VideoBlock
+          (editor.commands as any).setVideoBlock(dataUrl, file.type);
+          queueMicrotask(() => {
+            onUpdate(node.id, { type: 'video' });
+          });
+        } else if (file.type === 'application/pdf' || file.type.startsWith('audio/')) {
+          // Embed as a downloadable link
+          const label = file.name || (file.type === 'application/pdf' ? 'Dropped PDF' : 'Dropped audio');
+          editor.chain().focus().insertContent(
+            `<p><a href="${dataUrl}" target="_blank">${label}</a></p>`
+          ).run();
+        } else {
+          alert(`File type ${file.type} is not supported yet.`);
+        }
+      };
+
+      reader.readAsDataURL(file);
+      return;
+    }
+
+    // No files — handle rich data drops (e.g. emails from Apple Mail, text from other apps)
+    const uriList = e.dataTransfer.getData('text/uri-list');
+    const text = e.dataTransfer.getData('text/plain');
+
+    // Apple Mail drops: message: URI with subject in text/plain
+    if (uriList && uriList.startsWith('message:')) {
+      const isElectron = typeof window !== 'undefined' && (window as any).electronAPI?.isElectron === true;
+      if (isElectron) {
+        // Extract message ID from message:%3CXXX%3E URI
+        const decoded = decodeURIComponent(uriList.replace('message:', ''));
+        const messageId = decoded.replace(/^</, '').replace(/>$/, '');
+
+        // Insert subject immediately as placeholder
+        const subject = text || 'Email';
+        editor.chain().focus().insertContent(`<p><em>Loading email: ${subject}…</em></p>`).run();
+
+        // Fetch full email content via AppleScript
+        (window as any).electronAPI.fetchAppleMailContent(messageId).then((result: any) => {
+          if (!editorRef.current) return;
+          // Remove the placeholder
+          editorRef.current.commands.undo();
+
+          if (result && result.body) {
+            // Format as readable email content
+            const lines = result.body.split('\n').filter((l: string) => l.trim()).map((l: string) =>
+              `<p>${l.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>`
+            ).join('');
+            const html = `<p><strong>From:</strong> ${(result.from || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>`
+              + `<p><strong>Date:</strong> ${result.date || ''}</p>`
+              + `<p><strong>Subject:</strong> ${(result.subject || subject).replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>`
+              + `<hr>${lines}`;
+            editorRef.current.chain().focus().insertContent(html).run();
+          } else {
+            // Fallback: insert subject as a message: link
+            editorRef.current.chain().focus().insertContent(
+              `<p><a href="${uriList}" target="_blank">${subject}</a></p>`
+            ).run();
+          }
         });
-      } else if (file.type.startsWith('video/')) {
-        // Insert video using VideoBlock
-        (editor.commands as any).setVideoBlock(dataUrl, file.type);
-        queueMicrotask(() => {
-          onUpdate(node.id, { type: 'video' });
-        });
-      } else if (file.type === 'application/pdf' || file.type.startsWith('audio/')) {
-        // Embed as a downloadable link
-        const label = file.name || (file.type === 'application/pdf' ? 'Dropped PDF' : 'Dropped audio');
-        editor.chain().focus().insertContent(
-          `<p><a href="${dataUrl}" target="_blank">${label}</a></p>`
-        ).run();
-      } else {
-        alert(`File type ${file.type} is not supported yet.`);
+        return;
       }
-    };
+    }
 
-    reader.readAsDataURL(file);
+    const html = e.dataTransfer.getData('text/html');
+    if (html) {
+      editor.chain().focus().insertContent(html).run();
+      return;
+    }
+
+    if (text) {
+      editor.chain().focus().insertContent(text).run();
+    }
   };
 
   if (!node) {
@@ -2028,13 +2086,9 @@ export default function ContentPane({
                   <Pencil className="mr-2 h-4 w-4" />
                   Drawing (Apple Pencil)
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleImportPhoto}>
-                  <ImageIcon className="mr-2 h-4 w-4" />
-                  Import Photo
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleImportVideo}>
-                  <Film className="mr-2 h-4 w-4" />
-                  Import Video
+                <DropdownMenuItem onClick={handleImportFile}>
+                  <Paperclip className="mr-2 h-4 w-4" />
+                  Import File
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleInsertYouTube}>
                   <Video className="mr-2 h-4 w-4" />
@@ -2731,14 +2785,9 @@ export default function ContentPane({
                   Drawing (Apple Pencil)
                 </ContextMenuItem>
 
-                <ContextMenuItem onClick={handleImportPhoto}>
-                  <ImageIcon className="mr-2 h-4 w-4" />
-                  Import Photo
-                </ContextMenuItem>
-
-                <ContextMenuItem onClick={handleImportVideo}>
-                  <Film className="mr-2 h-4 w-4" />
-                  Import Video
+                <ContextMenuItem onClick={handleImportFile}>
+                  <Paperclip className="mr-2 h-4 w-4" />
+                  Import File
                 </ContextMenuItem>
 
                 <ContextMenuItem onClick={handleInsertGoogleMaps}>
@@ -2785,19 +2834,11 @@ export default function ContentPane({
         )}
       </main>
 
-      {/* Hidden file inputs for photo/video import */}
+      {/* Hidden file input for generic file import */}
       <input
         type="file"
-        ref={photoInputRef}
-        accept="image/*"
-        onChange={handlePhotoFileChange}
-        className="hidden"
-      />
-      <input
-        type="file"
-        ref={videoInputRef}
-        accept="video/*"
-        onChange={handleVideoFileChange}
+        ref={fileInputRef}
+        onChange={handleFileChange}
         className="hidden"
       />
     </div>
