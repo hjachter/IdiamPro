@@ -2152,11 +2152,11 @@ export default function ContentPane({
               <TooltipTrigger asChild>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="icon">
-                    <Plus className="h-4 w-4" />
+                    <AppWindow className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
               </TooltipTrigger>
-              <TooltipContent>Add content</TooltipContent>
+              <TooltipContent>Insert App</TooltipContent>
               <DropdownMenuContent align="start">
                 {node.type !== 'canvas' && node.type !== 'spreadsheet' && (
                   <>
@@ -2211,7 +2211,7 @@ export default function ContentPane({
                 <Paperclip className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Import file (images, videos, PDFs, audio, documents)</TooltipContent>
+            <TooltipContent>Insert File</TooltipContent>
           </Tooltip>
 
           {/* Speech Recognition Button */}
