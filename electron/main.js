@@ -349,13 +349,22 @@ async function createWindow() {
     mainWindow.show();
   });
 
-  // Force a layout repaint after the page finishes loading.
+  // Force layout repaints after the page finishes loading.
   // In dev mode, ready-to-show fires before Next.js compiles the page,
   // so the content may not paint until a resize triggers a relayout.
+  // Multiple delayed repaints handle both initial load and Cmd+R reload,
+  // where JS bundles compile after did-finish-load fires.
   mainWindow.webContents.on('did-finish-load', () => {
-    const [w, h] = mainWindow.getSize();
-    mainWindow.setSize(w + 1, h);
-    mainWindow.setSize(w, h);
+    const nudge = () => {
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        const [w, h] = mainWindow.getSize();
+        mainWindow.setSize(w + 1, h);
+        mainWindow.setSize(w, h);
+      }
+    };
+    nudge();                          // Immediate nudge for fast loads
+    setTimeout(nudge, 1500);          // After JS bundles compile
+    setTimeout(nudge, 4000);          // After slow dev recompilations
   });
 
   // Open DevTools in development
