@@ -1663,7 +1663,14 @@ export default function ContentPane({
       }
 
       if (!rawText.trim()) {
-        editor.chain().focus().insertContent('<p>(No text could be extracted from this PDF)</p>').run();
+        toast({
+          title: 'No extractable text',
+          description: 'This PDF appears to be scanned images. Inserting as a download link instead.',
+          duration: 4000,
+        });
+        editor.chain().focus().insertContent(
+          `<p><a href="${pendingPdfData.dataUrl}" target="_blank" rel="noopener noreferrer">${pendingPdfData.fileName}</a></p>`
+        ).run();
         setPendingPdfData(null);
         return;
       }
