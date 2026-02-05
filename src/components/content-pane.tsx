@@ -1631,44 +1631,68 @@ export default function ContentPane({
         `<p><a href="${pendingPdfData.dataUrl}" target="_blank" rel="noopener noreferrer">${pendingPdfData.fileName}</a></p>`
       ).run();
     } else if (action === 'render') {
+      // Step 1: Extract raw text from PDF
+      let rawText = '';
       try {
-        // Step 1: Extract raw text from PDF
         toast({ title: 'Extracting PDF...', description: 'Reading document text', duration: 3000 });
         const res = await fetch('/api/extract-pdf', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ type: 'file', data: pendingPdfData.dataUrl }),
         });
-        if (!res.ok) throw new Error('PDF extraction failed');
-        const { text } = await res.json();
-        if (!text || !text.trim()) {
-          editor.chain().focus().insertContent('<p>(No text could be extracted from this PDF)</p>').run();
-          setPendingPdfData(null);
-          return;
+        if (!res.ok) {
+          const errBody = await res.text().catch(() => '');
+          console.error('PDF extract API error:', res.status, errBody);
+          throw new Error(`PDF extraction failed (${res.status})`);
         }
+        const json = await res.json();
+        rawText = json.text || '';
+      } catch (err) {
+        console.error('PDF extraction step failed:', err);
+        toast({
+          title: 'PDF extraction failed',
+          description: 'Could not read PDF text. Inserting as a download link instead.',
+          variant: 'destructive',
+          duration: 4000,
+        });
+        editor.chain().focus().insertContent(
+          `<p><a href="${pendingPdfData.dataUrl}" target="_blank" rel="noopener noreferrer">${pendingPdfData.fileName}</a></p>`
+        ).run();
+        setPendingPdfData(null);
+        return;
+      }
 
-        // Step 2: Use AI to format the extracted text into rich HTML
+      if (!rawText.trim()) {
+        editor.chain().focus().insertContent('<p>(No text could be extracted from this PDF)</p>').run();
+        setPendingPdfData(null);
+        return;
+      }
+
+      // Step 2: Use AI to format the extracted text into rich HTML
+      try {
         toast({ title: 'Formatting document...', description: 'AI is preserving document structure', duration: 5000 });
         const formatted = await generateContentForNodeAction({
           nodeName: pendingPdfData.fileName.replace(/\.pdf$/i, ''),
           ancestorPath: ancestorPath,
           existingContent: '',
-          customPrompt: `Format the following extracted PDF document text into well-structured rich content. Preserve the document's original structure as faithfully as possible:\n- Use headings (H1, H2, H3) for section titles\n- Use bold for emphasis and key terms\n- Use bullet or numbered lists where appropriate\n- Use blockquotes for quoted passages\n- Preserve tables if any exist\n- Keep all the original content — do not summarize or omit anything\n- Do NOT add commentary or analysis — just faithfully reproduce the document with proper formatting\n\nDocument text:\n${text.substring(0, 30000)}`,
+          customPrompt: `Format the following extracted PDF document text into well-structured rich content. Preserve the document's original structure as faithfully as possible:\n- Use headings (H1, H2, H3) for section titles\n- Use bold for emphasis and key terms\n- Use bullet or numbered lists where appropriate\n- Use blockquotes for quoted passages\n- Preserve tables if any exist\n- Keep all the original content — do not summarize or omit anything\n- Do NOT add commentary or analysis — just faithfully reproduce the document with proper formatting\n\nDocument text:\n${rawText.substring(0, 30000)}`,
           includeDiagram: false,
         });
         editor.chain().focus().insertContent(formatted || '<p>(Formatting produced no output)</p>').run();
       } catch (err) {
-        console.error('PDF extraction error:', err);
+        console.error('AI formatting step failed, inserting raw text:', err);
+        // Fallback: insert raw text as paragraphs
+        const paragraphs = rawText
+          .split(/\n\n+/)
+          .filter((p: string) => p.trim())
+          .map((p: string) => `<p>${p.trim().replace(/\n/g, '<br>')}</p>`)
+          .join('');
+        editor.chain().focus().insertContent(paragraphs).run();
         toast({
-          title: 'PDF extraction failed',
-          description: 'Could not extract document. Inserting as a download link instead.',
-          variant: 'destructive',
-          duration: 4000,
+          title: 'AI formatting unavailable',
+          description: 'Inserted extracted text without formatting.',
+          duration: 3000,
         });
-        // Fallback to link
-        editor.chain().focus().insertContent(
-          `<p><a href="${pendingPdfData.dataUrl}" target="_blank" rel="noopener noreferrer">${pendingPdfData.fileName}</a></p>`
-        ).run();
       }
     }
     setPendingPdfData(null);
