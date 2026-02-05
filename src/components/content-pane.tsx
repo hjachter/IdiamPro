@@ -9,7 +9,7 @@ import type { OutlineNode, NodeGenerationContext, NodeMap, NodeType } from '@/ty
 // DOMPurify config for AI-generated content: allow formatting tags + mermaid data attributes
 const SANITIZE_CONFIG: DOMPurify.Config = {
   ALLOWED_TAGS: ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'strong', 'em', 'code', 'pre', 'br', 'blockquote', 'del', 'a', 'div', 'span', 'img'],
-  ALLOWED_ATTR: ['href', 'target', 'rel', 'src', 'alt', 'class', 'data-mermaid-block', 'data-mermaid-code'],
+  ALLOWED_ATTR: ['href', 'target', 'rel', 'src', 'alt', 'class', 'data-mermaid-block', 'data-mermaid-code', 'data-audio-block', 'data-audio-src', 'data-audio-type'],
 };
 
 // Safe wrapper: DOMPurify requires a DOM, so pass through during SSR (server output
@@ -195,7 +195,8 @@ import ImageExt from '@tiptap/extension-image';
 import Youtube from '@tiptap/extension-youtube';
 import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
-import { GoogleDocs, GoogleSheets, GoogleSlides, GoogleMaps, MermaidBlock, VideoBlock, ImageBlock } from './tiptap-extensions';
+import { GoogleDocs, GoogleSheets, GoogleSlides, GoogleMaps, MermaidBlock, VideoBlock, ImageBlock, AudioBlock } from './tiptap-extensions';
+import PdfImportDialog, { type PdfImportAction } from './pdf-import-dialog';
 import { TaskList } from '@tiptap/extension-list/task-list';
 import { TaskItem } from '@tiptap/extension-list/task-item';
 import { useSpeechRecognition } from '@/lib/use-speech-recognition';
@@ -405,6 +406,8 @@ export default function ContentPane({
   const [googleMapsPickerOpen, setGoogleMapsPickerOpen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [isDrawingOpen, setIsDrawingOpen] = useState(false);
+  const [pdfDialogOpen, setPdfDialogOpen] = useState(false);
+  const [pendingPdfData, setPendingPdfData] = useState<{ dataUrl: string; fileName: string } | null>(null);
   const [pendingTabularPaste, setPendingTabularPaste] = useState<string | null>(null);
   const [fontSize, setFontSize] = useState<'xs' | 'sm' | 'base' | 'lg' | 'xl'>('base');
   const [contextMenuReady, setContextMenuReady] = useState(true);
@@ -517,6 +520,7 @@ export default function ContentPane({
         openOnClick: false,
         autolink: true,
         linkOnPaste: true,
+        protocols: ['http', 'https', 'mailto', 'tel', { scheme: 'data', optionalSlashes: true }],
         HTMLAttributes: {
           target: '_blank',
           rel: 'noopener noreferrer',
@@ -532,6 +536,7 @@ export default function ContentPane({
       MermaidBlock,
       VideoBlock,
       ImageBlock,
+      AudioBlock,
       SearchHighlight,
     ],
     content: '',  // Start empty, onCreate will set content
@@ -579,6 +584,25 @@ export default function ContentPane({
           }
           return false;
         },
+        click: (_view, event) => {
+          // Handle clicks on data: URL links — trigger download
+          const target = event.target as HTMLElement;
+          const anchor = target.closest('a');
+          if (anchor) {
+            const href = anchor.getAttribute('href');
+            if (href && href.startsWith('data:')) {
+              event.preventDefault();
+              const linkEl = document.createElement('a');
+              linkEl.href = href;
+              linkEl.download = anchor.textContent || 'file';
+              document.body.appendChild(linkEl);
+              linkEl.click();
+              document.body.removeChild(linkEl);
+              return true;
+            }
+          }
+          return false;
+        },
         contextmenu: () => {
           // Let the event bubble up to Radix context menu
           return false;
@@ -623,17 +647,29 @@ export default function ContentPane({
               return true;
             }
 
-            if (item.type === 'application/pdf' || item.type.startsWith('audio/')) {
-              // PDFs and audio: embed as a downloadable link with the data
+            if (item.type.startsWith('audio/')) {
+              // Audio: insert via AudioBlock
               event.preventDefault();
               const reader = new FileReader();
               reader.onload = (e) => {
                 const dataUrl = e.target?.result as string;
                 if (dataUrl && editorRef.current) {
-                  const label = file.name || (item.type === 'application/pdf' ? 'Pasted PDF' : 'Pasted audio');
-                  editorRef.current.chain().focus().insertContent(
-                    `<p><a href="${dataUrl}" target="_blank">${label}</a></p>`
-                  ).run();
+                  (editorRef.current.commands as any).setAudioBlock(dataUrl, item.type);
+                }
+              };
+              reader.readAsDataURL(file);
+              return true;
+            }
+
+            if (item.type === 'application/pdf') {
+              // PDF: show import dialog
+              event.preventDefault();
+              const reader = new FileReader();
+              reader.onload = (e) => {
+                const dataUrl = e.target?.result as string;
+                if (dataUrl) {
+                  setPendingPdfData({ dataUrl, fileName: file.name || 'Pasted PDF' });
+                  setPdfDialogOpen(true);
                 }
               };
               reader.readAsDataURL(file);
@@ -1445,8 +1481,14 @@ export default function ContentPane({
         (editor.commands as any).setImageBlock(dataUrl, file.name);
       } else if (mimeType.startsWith('video/')) {
         (editor.commands as any).setVideoBlock(dataUrl, mimeType);
+      } else if (mimeType.startsWith('audio/')) {
+        (editor.commands as any).setAudioBlock(dataUrl, mimeType);
+      } else if (mimeType === 'application/pdf') {
+        // Show PDF import dialog
+        setPendingPdfData({ dataUrl, fileName: file.name });
+        setPdfDialogOpen(true);
       } else {
-        // PDF, audio, and other files: insert as a download link
+        // Other files: insert as a download link
         editor.chain().focus().insertContent(
           `<p><a href="${dataUrl}" target="_blank" rel="noopener noreferrer">${file.name}</a></p>`
         ).run();
@@ -1575,6 +1617,47 @@ export default function ContentPane({
     setEmbedType(null);
   };
 
+  const handlePdfImportAction = async (action: PdfImportAction) => {
+    setPdfDialogOpen(false);
+    if (!editor || !pendingPdfData) return;
+
+    if (action === 'link') {
+      editor.chain().focus().insertContent(
+        `<p><a href="${pendingPdfData.dataUrl}" target="_blank" rel="noopener noreferrer">${pendingPdfData.fileName}</a></p>`
+      ).run();
+    } else if (action === 'render') {
+      try {
+        const res = await fetch('/api/extract-pdf', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'file', data: pendingPdfData.dataUrl }),
+        });
+        if (!res.ok) throw new Error('PDF extraction failed');
+        const { text } = await res.json();
+        // Convert extracted text to HTML paragraphs
+        const paragraphs = text
+          .split(/\n\n+/)
+          .filter((p: string) => p.trim())
+          .map((p: string) => `<p>${p.trim().replace(/\n/g, '<br>')}</p>`)
+          .join('');
+        editor.chain().focus().insertContent(paragraphs || '<p>(No text extracted)</p>').run();
+      } catch (err) {
+        console.error('PDF extraction error:', err);
+        toast({
+          title: 'PDF extraction failed',
+          description: 'Could not extract text. Inserting as a download link instead.',
+          variant: 'destructive',
+          duration: 4000,
+        });
+        // Fallback to link
+        editor.chain().focus().insertContent(
+          `<p><a href="${pendingPdfData.dataUrl}" target="_blank" rel="noopener noreferrer">${pendingPdfData.fileName}</a></p>`
+        ).run();
+      }
+    }
+    setPendingPdfData(null);
+  };
+
   // Drag and drop handlers
   const handleDragEnter = (e: React.DragEvent) => {
     e.preventDefault();
@@ -1623,14 +1706,19 @@ export default function ContentPane({
           queueMicrotask(() => {
             onUpdate(node.id, { type: 'video' });
           });
-        } else if (file.type === 'application/pdf' || file.type.startsWith('audio/')) {
-          // Embed as a downloadable link
-          const label = file.name || (file.type === 'application/pdf' ? 'Dropped PDF' : 'Dropped audio');
+        } else if (file.type.startsWith('audio/')) {
+          // Insert audio using AudioBlock
+          (editor.commands as any).setAudioBlock(dataUrl, file.type);
+        } else if (file.type === 'application/pdf') {
+          // Show PDF import dialog
+          setPendingPdfData({ dataUrl, fileName: file.name });
+          setPdfDialogOpen(true);
+        } else {
+          // Other files: insert as a download link
+          const label = file.name || 'Dropped file';
           editor.chain().focus().insertContent(
             `<p><a href="${dataUrl}" target="_blank">${label}</a></p>`
           ).run();
-        } else {
-          alert(`File type ${file.type} is not supported yet.`);
         }
       };
 
@@ -1747,6 +1835,12 @@ export default function ContentPane({
         open={googleMapsPickerOpen}
         onOpenChange={setGoogleMapsPickerOpen}
         onSelectMap={handleGoogleMapSelected}
+      />
+
+      <PdfImportDialog
+        open={pdfDialogOpen}
+        fileName={pendingPdfData?.fileName || ''}
+        onAction={handlePdfImportAction}
       />
 
       <DrawingCanvas
@@ -2010,7 +2104,7 @@ export default function ContentPane({
         </div>
       )}
 
-      <header className="flex-shrink-0 p-4 border-b" style={{ paddingTop: 'max(1rem, env(safe-area-inset-top))' }}>
+      <header className="flex-shrink-0 p-4 border-b content-pane-header" style={{ paddingTop: 'max(1rem, env(safe-area-inset-top))' }}>
         <div className="flex items-center gap-2 min-w-0">
             {onBack && (
               <Button
@@ -2745,13 +2839,18 @@ export default function ContentPane({
 
             <ContextMenuSeparator />
 
-            {/* Media Submenu */}
+            {/* File & Media Submenu */}
             <ContextMenuSub>
               <ContextMenuSubTrigger>
                 <AppWindow className="mr-2 h-4 w-4" />
-                Insert Media
+                Insert File
               </ContextMenuSubTrigger>
               <ContextMenuSubContent>
+                <ContextMenuItem onClick={handleImportFile}>
+                  <Paperclip className="mr-2 h-4 w-4" />
+                  Import File
+                </ContextMenuItem>
+
                 <ContextMenuItem onClick={handleConvertToCanvas}>
                   <Brush className="mr-2 h-4 w-4" />
                   Canvas (Freeform)
@@ -2789,11 +2888,6 @@ export default function ContentPane({
                 <ContextMenuItem onClick={handleOpenDrawing}>
                   <Pencil className="mr-2 h-4 w-4" />
                   Drawing (Apple Pencil)
-                </ContextMenuItem>
-
-                <ContextMenuItem onClick={handleImportFile}>
-                  <Paperclip className="mr-2 h-4 w-4" />
-                  Import File
                 </ContextMenuItem>
 
                 <ContextMenuItem onClick={handleInsertGoogleMaps}>

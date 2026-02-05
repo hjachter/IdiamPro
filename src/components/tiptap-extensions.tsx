@@ -1060,3 +1060,81 @@ export const VideoBlock = Node.create({
     };
   },
 });
+
+// Audio block view component with native controls
+const AudioBlockView = ({ src, mimeType }: { src: string; mimeType: string }) => {
+  return (
+    <div className="audio-embed my-4">
+      <audio
+        src={src}
+        controls
+        className="w-full max-w-[600px] rounded-md"
+        preload="metadata"
+      >
+        <source src={src} type={mimeType} />
+        Your browser does not support the audio tag.
+      </audio>
+    </div>
+  );
+};
+
+// Audio Block Extension - for local audio files
+export const AudioBlock = Node.create({
+  name: 'audioBlock',
+  group: 'block',
+  atom: true,
+
+  addAttributes() {
+    return {
+      src: {
+        default: null,
+      },
+      mimeType: {
+        default: 'audio/mpeg',
+      },
+    };
+  },
+
+  parseHTML() {
+    return [
+      {
+        tag: 'div[data-audio-block]',
+        getAttrs: (dom) => ({
+          src: (dom as HTMLElement).getAttribute('data-audio-src') || '',
+          mimeType: (dom as HTMLElement).getAttribute('data-audio-type') || 'audio/mpeg',
+        }),
+      },
+    ];
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    return ['div', mergeAttributes(HTMLAttributes, {
+      'data-audio-block': '',
+      'data-audio-src': HTMLAttributes.src,
+      'data-audio-type': HTMLAttributes.mimeType,
+    })];
+  },
+
+  addNodeView() {
+    return ReactNodeViewRenderer(({ node }) => {
+      return (
+        <NodeViewWrapper as="div">
+          <AudioBlockView src={node.attrs.src} mimeType={node.attrs.mimeType} />
+        </NodeViewWrapper>
+      );
+    }, { as: 'div' });
+  },
+
+  addCommands() {
+    return {
+      setAudioBlock:
+        (src: string, mimeType?: string) =>
+        ({ commands }) => {
+          return commands.insertContent({
+            type: this.name,
+            attrs: { src, mimeType: mimeType || 'audio/mpeg' },
+          });
+        },
+    };
+  },
+});

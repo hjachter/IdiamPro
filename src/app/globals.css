@@ -586,3 +586,17 @@ div[class*="code"] textarea,
 .dark .mermaid-diagram .labelText tspan {
   fill: #86efac !important; /* Light green for dark mode */
 }
+
+/* Electron window drag region — header bar is draggable */
+.content-pane-header {
+  -webkit-app-region: drag;
+}
+
+/* Interactive elements within the drag region must be non-draggable */
+.content-pane-header button,
+.content-pane-header input,
+.content-pane-header select,
+.content-pane-header a,
+.content-pane-header [role="button"] {
+  -webkit-app-region: no-drag;
+}

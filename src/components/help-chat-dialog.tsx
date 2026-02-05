@@ -28,7 +28,7 @@ KEY FEATURES:
 - AI-powered outline generation from topics
 - Research & Import: Merge multiple sources (YouTube, PDFs, web pages, images, docs, audio, video, outline files) into unified outlines
 - Rich content editor with markdown support, clipboard image paste (Cmd+V), drag-and-drop images, link paste (URLs auto-link, rich HTML links preserved)
-- Import File button (paperclip icon): import any file from your device. Auto-detects type — images and videos embed inline, PDFs/audio/other files insert as download links
+- Import File button (paperclip icon): import any file from your device. Auto-detects type — images embed inline, videos embed with player controls, audio files embed with native audio player, PDFs show a dialog to extract text or insert as link, other files insert as download links
 - Multi-select nodes for bulk operations (delete, change color, add tags)
 - Sidebar multi-select: Cmd/Ctrl+Click or Shift+Click outlines in the sidebar to select multiple, then bulk delete
 - Sidebar search: Type in the search field below the Outlines header to filter outlines by name (works on desktop and mobile)
