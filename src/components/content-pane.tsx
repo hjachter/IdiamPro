@@ -585,24 +585,41 @@ export default function ContentPane({
           return false;
         },
         click: (_view, event) => {
-          // Handle clicks on data: URL links — open in new tab via blob URL
+          // Handle clicks on data: URL links — open with system viewer
           const target = event.target as HTMLElement;
           const anchor = target.closest('a');
           if (anchor) {
             const href = anchor.getAttribute('href');
             if (href && href.startsWith('data:')) {
               event.preventDefault();
-              // Convert data URL to blob and open in new tab
-              fetch(href)
-                .then(res => res.blob())
-                .then(blob => {
-                  const blobUrl = URL.createObjectURL(blob);
-                  window.open(blobUrl, '_blank');
-                })
-                .catch(() => {
-                  // Fallback: open data URL directly
-                  window.open(href, '_blank');
-                });
+              const fileName = anchor.textContent || 'file';
+              const electronAPI = (window as any).electronAPI;
+
+              if (electronAPI?.isElectron) {
+                // Electron: save to temp file and open with system viewer (Preview, etc.)
+                const mimeMatch = href.match(/^data:([^;,]+)/);
+                const ext = mimeMatch ? (mimeMatch[1].split('/')[1] || 'bin').replace('jpeg', 'jpg') : 'bin';
+                const base64 = href.split(',')[1];
+                const tmpPath = `/tmp/idiampro-preview-${Date.now()}.${ext}`;
+                electronAPI.writeFile(tmpPath, base64, 'base64')
+                  .then(() => electronAPI.openFile(tmpPath))
+                  .catch(() => {
+                    // Fallback: open blob URL in new window
+                    fetch(href).then(r => r.blob()).then(b => {
+                      window.open(URL.createObjectURL(b), '_blank');
+                    });
+                  });
+              } else {
+                // Web: open blob URL in new tab
+                fetch(href)
+                  .then(res => res.blob())
+                  .then(blob => {
+                    window.open(URL.createObjectURL(blob), '_blank');
+                  })
+                  .catch(() => {
+                    window.open(href, '_blank');
+                  });
+              }
               return true;
             }
           }
