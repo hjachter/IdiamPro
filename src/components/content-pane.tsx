@@ -585,19 +585,24 @@ export default function ContentPane({
           return false;
         },
         click: (_view, event) => {
-          // Handle clicks on data: URL links — trigger download
+          // Handle clicks on data: URL links — open in new tab via blob URL
           const target = event.target as HTMLElement;
           const anchor = target.closest('a');
           if (anchor) {
             const href = anchor.getAttribute('href');
             if (href && href.startsWith('data:')) {
               event.preventDefault();
-              const linkEl = document.createElement('a');
-              linkEl.href = href;
-              linkEl.download = anchor.textContent || 'file';
-              document.body.appendChild(linkEl);
-              linkEl.click();
-              document.body.removeChild(linkEl);
+              // Convert data URL to blob and open in new tab
+              fetch(href)
+                .then(res => res.blob())
+                .then(blob => {
+                  const blobUrl = URL.createObjectURL(blob);
+                  window.open(blobUrl, '_blank');
+                })
+                .catch(() => {
+                  // Fallback: open data URL directly
+                  window.open(href, '_blank');
+                });
               return true;
             }
           }
