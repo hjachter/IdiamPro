@@ -2230,24 +2230,6 @@ export default function ContentPane({
             <TooltipContent>Insert File</TooltipContent>
           </Tooltip>
 
-          {/* Speech Recognition Button */}
-          {speechSupported && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant={isListening ? "default" : "outline"}
-                  size="icon"
-                  onClick={handleSpeechToggle}
-                  className={isListening ? 'bg-red-600 hover:bg-red-700 text-white' : ''}
-                >
-                  {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                {isListening ? 'Stop dictation' : 'Dictate (speak to type)'}
-              </TooltipContent>
-            </Tooltip>
-          )}
 
           {/* Ask AI Button - opens prompt dialog directly */}
           {aiContentEnabled && (
