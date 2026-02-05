@@ -1814,7 +1814,14 @@ ${childContent.substring(0, 5000)}`;
       const errPath = path.join(os.homedir(), 'Documents', 'IDM Outlines', '.last-import-error.txt');
       fs.writeFileSync(errPath, `${new Date().toISOString()}\n${message}\n\n${error instanceof Error ? error.stack || '' : ''}`);
     } catch {}
-    throw new Error(`Bullet-based research failed: ${message}`);
+    // Return error as data instead of throwing
+    // (Next.js strips error messages from thrown errors in server actions)
+    return {
+      outline: null as any,
+      summary: '',
+      sourcesProcessed: 0,
+      error: `Bullet-based research failed: ${message}`,
+    } as any;
   }
 }
 
@@ -2038,7 +2045,14 @@ ${childContent.substring(0, 5000)}`;
   } catch (error) {
     console.error('Error in bulk research ingest:', error);
     const message = error instanceof Error ? error.message : 'Unknown error';
-    throw new Error(`Failed to process bulk research import: ${message}`);
+    // Return error as data instead of throwing
+    // (Next.js strips error messages from thrown errors in server actions)
+    return {
+      outline: null as any,
+      summary: '',
+      sourcesProcessed: 0,
+      error: `Failed to process bulk research import: ${message}`,
+    } as any;
   }
 }
 

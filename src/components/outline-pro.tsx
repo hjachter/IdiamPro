@@ -2057,6 +2057,11 @@ export default function OutlinePro() {
       // Always use bullet-based (content-first) approach for best results
       const result = await bulletBasedResearchAction(inputWithTarget, existingContent);
 
+      // Server actions return errors as data (Next.js strips thrown error messages)
+      if ((result as any)?.error) {
+        throw new Error((result as any).error);
+      }
+
       if (!result?.outline?.nodes || !result?.outline?.rootNodeId) {
         throw new Error('The AI returned an incomplete outline. Please try again.');
       }
@@ -2340,7 +2345,7 @@ export default function OutlinePro() {
         electronClearAllPendingImports();
       }
     } catch (e) {
-      const errorMsg = (e as Error).message || "Could not process bulk research import.";
+      const errorMsg = typeof e === 'string' ? e : ((e as any)?.message || String(e || '') || "Could not process bulk research import.");
       // Use console.warn to avoid Next.js error overlay in dev mode
       console.warn('[Research Import] Full error:', errorMsg);
 
@@ -2354,6 +2359,9 @@ export default function OutlinePro() {
       } else if (errorMsg.includes('transcript') || errorMsg.includes('captions')) {
         title = "Video Transcript Unavailable";
         displayMsg = "Could not get transcript from this video. It may not have captions enabled, or captions may be disabled by the creator.";
+      } else if (errorMsg.includes('No content could be extracted') || errorMsg.includes('No content')) {
+        title = "Content Extraction Failed";
+        displayMsg = "Could not extract any content from the provided source(s). Check that the URL is accessible and the content is available.";
       } else if (errorMsg.includes('timeout') || errorMsg.includes('ETIMEDOUT') || errorMsg.includes('ECONNRESET')) {
         title = "Request Timed Out";
         displayMsg = "The import took too long and timed out. For large documents like books, try importing individual chapters or sections separately.";
@@ -2364,8 +2372,9 @@ export default function OutlinePro() {
         title = "Processing Error";
         displayMsg = "Error processing the AI response. This sometimes happens with very long documents. Try again or import in smaller sections.";
       } else {
-        // Show actual error for debugging
-        displayMsg = `Error: ${errorMsg.substring(0, 200)}${errorMsg.length > 200 ? '...' : ''}`;
+        // Show actual error for debugging (safely handle any type)
+        const safeMsg = String(errorMsg || 'Unknown error');
+        displayMsg = `Error: ${safeMsg.substring(0, 200)}${safeMsg.length > 200 ? '...' : ''}`;
       }
 
       // Auto-copy error to clipboard so user can paste it
