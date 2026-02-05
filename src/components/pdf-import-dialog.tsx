@@ -57,7 +57,7 @@ export default function PdfImportDialog({
             className="w-full sm:w-auto"
           >
             <FileText className="h-4 w-4 mr-2" />
-            Extract Text
+            Extract Document
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>

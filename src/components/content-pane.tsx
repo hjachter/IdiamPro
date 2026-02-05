@@ -125,7 +125,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Image from 'next/image';
 import { ArrowLeft, Sparkles, Loader2, Eraser, Scissors, Copy, Clipboard, Type, Undo, Redo, List, ListOrdered, ListX, Minus, FileText, Sheet, Presentation, Video, Map, AppWindow, Plus, Bold, Italic, Strikethrough, Code, Heading1, Heading2, Heading3, Mic, MicOff, ChevronRight, Home, Pencil, ALargeSmall, Check, Calendar, Brush, Network, GitBranch, MessageSquare, ImagePlus, Table, Layers, Image as ImageIcon, Film, CheckSquare, Paperclip } from 'lucide-react';
-import { generateImageAction } from '@/app/actions';
+import { generateImageAction, generateContentForNodeAction } from '@/app/actions';
 import dynamic from 'next/dynamic';
 
 // Dynamically import DrawingCanvas to avoid SSR issues with Excalidraw
@@ -1632,6 +1632,8 @@ export default function ContentPane({
       ).run();
     } else if (action === 'render') {
       try {
+        // Step 1: Extract raw text from PDF
+        toast({ title: 'Extracting PDF...', description: 'Reading document text', duration: 3000 });
         const res = await fetch('/api/extract-pdf', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -1639,18 +1641,27 @@ export default function ContentPane({
         });
         if (!res.ok) throw new Error('PDF extraction failed');
         const { text } = await res.json();
-        // Convert extracted text to HTML paragraphs
-        const paragraphs = text
-          .split(/\n\n+/)
-          .filter((p: string) => p.trim())
-          .map((p: string) => `<p>${p.trim().replace(/\n/g, '<br>')}</p>`)
-          .join('');
-        editor.chain().focus().insertContent(paragraphs || '<p>(No text extracted)</p>').run();
+        if (!text || !text.trim()) {
+          editor.chain().focus().insertContent('<p>(No text could be extracted from this PDF)</p>').run();
+          setPendingPdfData(null);
+          return;
+        }
+
+        // Step 2: Use AI to format the extracted text into rich HTML
+        toast({ title: 'Formatting document...', description: 'AI is preserving document structure', duration: 5000 });
+        const formatted = await generateContentForNodeAction({
+          nodeName: pendingPdfData.fileName.replace(/\.pdf$/i, ''),
+          ancestorPath: ancestorPath,
+          existingContent: '',
+          customPrompt: `Format the following extracted PDF document text into well-structured rich content. Preserve the document's original structure as faithfully as possible:\n- Use headings (H1, H2, H3) for section titles\n- Use bold for emphasis and key terms\n- Use bullet or numbered lists where appropriate\n- Use blockquotes for quoted passages\n- Preserve tables if any exist\n- Keep all the original content — do not summarize or omit anything\n- Do NOT add commentary or analysis — just faithfully reproduce the document with proper formatting\n\nDocument text:\n${text.substring(0, 30000)}`,
+          includeDiagram: false,
+        });
+        editor.chain().focus().insertContent(formatted || '<p>(Formatting produced no output)</p>').run();
       } catch (err) {
         console.error('PDF extraction error:', err);
         toast({
           title: 'PDF extraction failed',
-          description: 'Could not extract text. Inserting as a download link instead.',
+          description: 'Could not extract document. Inserting as a download link instead.',
           variant: 'destructive',
           duration: 4000,
         });
