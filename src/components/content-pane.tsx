@@ -124,7 +124,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Image from 'next/image';
-import { ArrowLeft, Sparkles, Loader2, Eraser, Scissors, Copy, Clipboard, Type, Undo, Redo, List, ListOrdered, ListX, Minus, FileText, Sheet, Presentation, Video, Map, AppWindow, Plus, Bold, Italic, Strikethrough, Code, Heading1, Heading2, Heading3, Mic, MicOff, ChevronRight, Home, Pencil, ALargeSmall, Check, Calendar, Brush, Network, GitBranch, MessageSquare, ImagePlus, Table, Layers, Image as ImageIcon, Film, CheckSquare, Paperclip } from 'lucide-react';
+import { ArrowLeft, Sparkles, Loader2, Eraser, Scissors, Copy, Clipboard, Type, Undo, Redo, List, ListOrdered, ListX, Minus, FileText, Sheet, Presentation, Video, Map, AppWindow, Plus, Bold, Italic, Strikethrough, Code, Heading1, Heading2, Heading3, Mic, MicOff, ChevronRight, Home, Pencil, ALargeSmall, Check, Calendar, Brush, Network, GitBranch, MessageSquare, ImagePlus, Table, Layers, Image as ImageIcon, Film, CheckSquare, Paperclip, LayoutGrid } from 'lucide-react';
 import { generateImageAction, generateContentForNodeAction } from '@/app/actions';
 import dynamic from 'next/dynamic';
 
@@ -2168,7 +2168,7 @@ export default function ContentPane({
               <TooltipTrigger asChild>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="icon">
-                    <AppWindow className="h-4 w-4" />
+                    <LayoutGrid className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
               </TooltipTrigger>
