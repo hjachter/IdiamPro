@@ -49,13 +49,16 @@ This prevents the app from overwriting your changes with its in-memory version. 
 
 ## Feature Documentation - MANDATORY
 
-Every time a new user-facing feature is implemented, it **must** also be documented in all three places before the work is considered complete:
+Every time a new user-facing feature is implemented, it **must** also be documented in all four places before the work is considered complete:
 
 1. **User Guide** (`src/lib/initial-guide.ts`) — Add a new node or update an existing one
 2. **Help Chat context** (`src/components/help-chat-dialog.tsx`) — Update the `APP_CONTEXT` string
 3. **Help Chat API context** (`src/app/api/help-chat/route.ts`) — Update the duplicated `APP_CONTEXT` string
+4. **How It Works outline** (`~/Documents/IDM Outlines/IdiamPro - How it works.idm`) — Update the relevant section describing the feature's architecture in plain language
 
 This includes: new keyboard shortcuts, new node types, new toolbar/menu items, new settings, new gestures, new dialogs, and any change to existing feature behavior. Never merge a feature without its documentation.
+
+**Note:** The "How it works" outline is for explaining *how the app is built* (components, data flow, architecture) in non-technical language. Only update it when features change the app's structure or behavior significantly.
 
 ---
 
