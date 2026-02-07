@@ -218,6 +218,8 @@ export default function OutlinePane({
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const prevSearchTermRef = useRef('');
+  const currentOutlineRef = useRef(currentOutline);
+  currentOutlineRef.current = currentOutline;
   // const [highlightedNodeIds, setHighlightedNodeIds] = useState<Set<string>>(new Set());
 
   // Progressive rendering for large outlines
@@ -290,6 +292,22 @@ export default function OutlinePane({
       setIsSearchOpenInternal(open);
     }
   }, [onSearchOpenChange]);
+
+  // Clear search when switching outlines
+  const prevOutlineIdRef = useRef(currentOutline?.id);
+  useEffect(() => {
+    if (currentOutline?.id !== prevOutlineIdRef.current) {
+      prevOutlineIdRef.current = currentOutline?.id;
+      setIsSearchOpen(false);
+      setSearchMatches([]);
+      setSearchTerm('');
+      setCurrentMatchIndex(0);
+      prevSearchTermRef.current = '';
+      if (onSearchTermChange) {
+        onSearchTermChange('');
+      }
+    }
+  }, [currentOutline?.id, setIsSearchOpen, onSearchTermChange]);
 
   // Compute highlighted node IDs for the current outline
   const currentOutlineHighlights = useMemo(() => {
@@ -414,15 +432,28 @@ export default function OutlinePane({
         const localMatchIndex = 0; // First match always has local index 0
         onSearchTermChange(term, matchType, localMatchIndex);
       }
+
+      // Auto-expand all ancestor nodes for matches in the current outline
+      // Only on term change to avoid re-render loop (expanding changes outline state
+      // which recreates OutlineSearch's performSearch, retriggering the debounce)
+      const outline = currentOutlineRef.current;
+      if (matches.length > 0 && outline && onExpandAncestors) {
+        const nodeIdsToExpand = new Set<string>();
+        for (const match of matches) {
+          if (match.outlineId === outline.id) {
+            const path = getPathToNode(outline.nodes, match.nodeId);
+            path.forEach(id => nodeIdsToExpand.add(id));
+          }
+        }
+        if (nodeIdsToExpand.size > 0) {
+          onExpandAncestors(Array.from(nodeIdsToExpand));
+        }
+      }
     } else if (onSearchTermChange) {
       // Term didn't change, just update highlighting
       onSearchTermChange(term);
     }
-
-    // Don't auto-navigate on every keystroke - causes loops and re-render issues
-    // User can navigate to matches using next/prev buttons or Enter key
-    // The handleNavigateToMatch function will handle expansion and selection
-  }, [onSearchTermChange]);
+  }, [onSearchTermChange, onExpandAncestors]);
 
   const handleNavigateToMatch = useCallback((match: SearchMatch) => {
     // Switch outline if needed
@@ -580,6 +611,24 @@ export default function OutlinePane({
         if (!selectedNodeId || !currentOutline) return;
         e.preventDefault();
         onCreateNode();
+        return;
+      }
+
+      // Handle Delete key to delete selected node
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        if (!selectedNodeId || !currentOutline) return;
+        const node = currentOutline.nodes[selectedNodeId];
+        if (!node || node.type === 'root') return; // Don't delete root
+        if (currentOutline.isGuide) return; // Don't delete from guide
+
+        e.preventDefault();
+
+        const confirmDelete = localStorage.getItem('confirmDelete') !== 'false';
+        if (confirmDelete) {
+          setShowDeleteDialog(true);
+        } else {
+          onDeleteNode(selectedNodeId);
+        }
         return;
       }
 

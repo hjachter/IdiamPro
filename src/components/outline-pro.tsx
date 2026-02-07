@@ -65,6 +65,12 @@ const isValidOutline = (data: any): data is Outline => {
 };
 
 
+// Read saved outline ID synchronously to prevent blank screen on load
+function getSavedCurrentOutlineId(): string {
+  if (typeof window === 'undefined') return '';
+  return localStorage.getItem('idiampro-current-outline-id') || '';
+}
+
 export default function OutlinePro() {
   const [isClient, setIsClient] = useState(false);
   const [outlines, rawSetOutlines] = useState<Outline[]>([]);
@@ -99,7 +105,7 @@ export default function OutlinePro() {
 
   // Track last in-app edit time per outline (for focus reload conflict protection)
   const lastEditTimeRef = useRef<Map<string, number>>(new Map());
-  const [currentOutlineId, setCurrentOutlineId] = useState<string>('');
+  const [currentOutlineId, setCurrentOutlineId] = useState<string>(getSavedCurrentOutlineId);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [mobileView, setMobileView] = useState<MobileView>('stacked');
   const [isLoadingAI, setIsLoadingAI] = useState(false);
@@ -399,9 +405,12 @@ export default function OutlinePro() {
       const guide = getInitialGuide();
 
       // Show guide immediately so the app is never stuck on a blank screen
+      // But don't overwrite currentOutlineId if one was restored from localStorage
       setOutlinesFromDisk([guide]);
-      setCurrentOutlineId(guide.id);
-      setSelectedNodeId(guide.rootNodeId);
+      if (!currentOutlineId) {
+        setCurrentOutlineId(guide.id);
+        setSelectedNodeId(guide.rootNodeId);
+      }
 
       try {
         // Timeout: if storage takes too long, the guide is already showing
@@ -426,6 +435,20 @@ export default function OutlinePro() {
         const outlineToLoad = loadedOutlines.find(o => o.id === loadedCurrentOutlineId) || validOutlines[0] || guide;
         setCurrentOutlineId(outlineToLoad.id);
         setSelectedNodeId(outlineToLoad.rootNodeId || null);
+
+        // If the outline is lazy-loaded, load it fully now
+        const lazyOutline = outlineToLoad as LazyOutline;
+        if (lazyOutline._isLazyLoaded && lazyOutline._fileName) {
+          try {
+            const fullOutline = await loadSingleOutlineOnDemand(lazyOutline._fileName);
+            if (fullOutline) {
+              setOutlinesFromDisk(prev => prev.map(o => o.id === fullOutline.id ? fullOutline : o));
+              setSelectedNodeId(fullOutline.rootNodeId || null);
+            }
+          } catch (error) {
+            console.error('Failed to load lazy outline on startup:', error);
+          }
+        }
 
         // Notify user if duplicate IDs were fixed
         if (fixedDuplicateCount && fixedDuplicateCount > 0) {
@@ -670,71 +693,6 @@ export default function OutlinePro() {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
         setIsCommandPaletteOpen(true);
-        return;
-      }
-
-      // Delete key to delete selected node
-      if (e.key === 'Delete' && selectedNodeId) {
-        // Check if user is typing in an input/textarea
-        const target = e.target as HTMLElement;
-        if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.contentEditable === 'true') {
-          return; // Don't delete node when typing
-        }
-
-        const outline = outlines.find(o => o.id === currentOutlineId);
-        if (!outline) return;
-        const node = outline.nodes[selectedNodeId];
-        if (!node || !node.parentId) return; // Don't delete root
-
-        e.preventDefault();
-
-        const confirmDelete = localStorage.getItem('confirmDelete') !== 'false';
-        if (confirmDelete) {
-          // Show toast to tell user to use button/menu for confirmation
-          toast({
-            title: "Use Delete Button",
-            description: "Disable 'Confirm before deleting' in Settings to use Delete key",
-            duration: 2000,
-          });
-          return;
-        }
-
-        // Delete without confirmation
-        setOutlines(currentOutlines => {
-          const outline = currentOutlines.find(o => o.id === currentOutlineId);
-          if (!outline) return currentOutlines;
-
-          const nodeToDelete = outline.nodes[selectedNodeId];
-          if (!nodeToDelete || !nodeToDelete.parentId) return currentOutlines;
-
-          const updatedOutlines = currentOutlines.map(o => {
-            if (o.id !== currentOutlineId) return o;
-
-            const updatedNodes = { ...o.nodes };
-            const parentNode = updatedNodes[nodeToDelete.parentId];
-            if (!parentNode) return o;
-
-            // Remove from parent's children
-            parentNode.childrenIds = parentNode.childrenIds.filter(id => id !== selectedNodeId);
-
-            // Delete the node and all descendants
-            const deleteNodeAndDescendants = (nodeId: string) => {
-              const node = updatedNodes[nodeId];
-              if (node) {
-                node.childrenIds.forEach(deleteNodeAndDescendants);
-                delete updatedNodes[nodeId];
-              }
-            };
-            deleteNodeAndDescendants(selectedNodeId);
-
-            return { ...o, nodes: updatedNodes };
-          });
-
-          return updatedOutlines;
-        });
-
-        // Clear selection
-        setSelectedNodeId(null);
         return;
       }
 
@@ -1153,8 +1111,11 @@ export default function OutlinePro() {
     setOutlines(currentOutlines => {
       return currentOutlines.map(o => {
         if (o.id === currentOutlineId) {
-          const newNodes = { ...o.nodes };
+          // Check if any nodes actually need expanding before creating new state
+          const needsExpand = nodeIds.some(id => o.nodes[id]?.isCollapsed);
+          if (!needsExpand) return o;
 
+          const newNodes = { ...o.nodes };
           nodeIds.forEach(nodeId => {
             if (newNodes[nodeId] && newNodes[nodeId].isCollapsed) {
               newNodes[nodeId] = { ...newNodes[nodeId], isCollapsed: false };

@@ -58,9 +58,10 @@ KEYBOARD SHORTCUTS:
 - Cmd+K: Command palette (also: Expand All, Collapse All)
 - Cmd+/: Toggle collapse
 - Cmd+D: Duplicate node
+- Delete/Backspace: Delete selected node (with confirmation if enabled)
 - Cmd+Backspace: Delete node
 - Cmd+Shift+F: Focus Mode (isolate subtree, Esc to exit)
-- Ctrl+F: Search (current outline or all outlines)
+- Ctrl+F: Search (current outline or all outlines). Collapsed nodes containing matches auto-expand to reveal results.
 - Up/Down arrows: Navigate between nodes
 - Left/Right arrows: Collapse/expand nodes
 - Double-click: Edit node name
