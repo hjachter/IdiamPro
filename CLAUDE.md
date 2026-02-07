@@ -68,9 +68,52 @@ This includes: new keyboard shortcuts, new node types, new toolbar/menu items, n
 
 ---
 
-## Git Workflow
+## Git Workflow & Deployment
 
 When the user says "commit it" or "push it" (in any form), **always do both**: commit and push. Never ask to push after already pushing, or to commit after already committing.
+
+**After committing and pushing, also deploy to:**
+
+1. **iOS (Capacitor)**: Run `npx cap sync ios` to sync changes to the iOS app
+2. **Web**: The web version is automatically deployed via Vercel on push to main (no manual action needed)
+
+**Deployment commands:**
+```bash
+# iOS sync (run after git push)
+npx cap sync ios
+
+# To run iOS simulator
+npx cap run ios
+
+# To open in Xcode for device deployment
+npx cap open ios
+```
+
+---
+
+## Conversation Log - MANDATORY
+
+At the end of EVERY session — automatically, without being asked — regenerate the conversation log outline. Do this as your final action before the conversation ends.
+
+**How it works:** The outline is always **regenerated from scratch** using the JSONL conversation files (in `~/.claude/projects/...`) and git commit history. This means the app can overwrite the .idm file freely — nothing is ever lost.
+
+**Steps:**
+1. Ask the user to **switch to a different outline** in the app (so the app doesn't overwrite our file on its next save)
+2. Run the regeneration script: `python3 <scratchpad>/create_outline_v2.py`
+3. Tell the user to switch back to the conversation log outline to see the updated version
+
+**Script location:** The `create_outline_v2.py` script is in the scratchpad directory of the current session. If the scratchpad is gone (new session), recreate it following the pattern in the JSONL transcript or write a new one that:
+- Reads all non-agent `*.jsonl` files from the Claude projects directory
+- Gets git commits via `git log --format="%H|%aI|%s" --since=2025-12-01`
+- Matches commits to sessions by timestamp
+- Creates nodes per date with "Changes Made" commit summaries + conversation messages
+- Outputs to `~/Documents/IDM Outlines/ClaudeCode Conversation Logs.idm`
+
+**Format:**
+- One node per date: "DayOfWeek, Month DD, YYYY"
+- Multiple sessions per day become sub-nodes: "Session N — HH:MM"
+- Each session starts with a **Changes Made** bulleted list of git commits, followed by the conversation
+- Root node shows total stats (sessions, messages, commits, days)
 
 ---
 
