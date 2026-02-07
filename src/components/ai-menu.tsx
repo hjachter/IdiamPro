@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, FileText, Crown, Loader2 } from 'lucide-react';
+import { Sparkles, FileText, Crown, Loader2, Library, Brain } from 'lucide-react';
 import { useAI, useAIFeature } from '@/contexts/ai-context';
 import AiGenerateDialog from './ai-generate-dialog';
 import AIPlanDialog from './ai-plan-dialog';
@@ -21,6 +21,8 @@ interface AIMenuProps {
   outlineSummary?: string;
   isLoadingAI: boolean;
   disabled?: boolean;
+  onOpenBulkResearch?: () => void;
+  onOpenKnowledgeChat?: () => void;
 }
 
 export default function AIMenu({
@@ -28,6 +30,8 @@ export default function AIMenu({
   outlineSummary,
   isLoadingAI,
   disabled,
+  onOpenBulkResearch,
+  onOpenKnowledgeChat,
 }: AIMenuProps) {
   const { isPremium } = useAI();
   const contentGenEnabled = useAIFeature('enableAIContentGeneration');
@@ -82,6 +86,20 @@ export default function AIMenu({
               Generate Outline from Topic
             </DropdownMenuItem>
           </AiGenerateDialog>
+        )}
+
+        {onOpenBulkResearch && (
+          <DropdownMenuItem onSelect={onOpenBulkResearch} className="cursor-pointer">
+            <Library className="mr-2 h-4 w-4" />
+            Research & Import
+          </DropdownMenuItem>
+        )}
+
+        {onOpenKnowledgeChat && (
+          <DropdownMenuItem onSelect={onOpenKnowledgeChat} className="cursor-pointer">
+            <Brain className="mr-2 h-4 w-4" />
+            Knowledge Chat
+          </DropdownMenuItem>
         )}
 
         <DropdownMenuSeparator />

@@ -1068,33 +1068,13 @@ export default function OutlinePane({
             <TooltipContent>Expand outline (show all nodes)</TooltipContent>
           </Tooltip>
 
-          <DropdownMenu>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    disabled={!currentOutline}
-                    className="hover:bg-purple-500/20 border-purple-500/30"
-                  >
-                    <Library className="h-4 w-4 text-purple-500" />
-                  </Button>
-                </DropdownMenuTrigger>
-              </TooltipTrigger>
-              <TooltipContent>AI Tools</TooltipContent>
-            </Tooltip>
-            <DropdownMenuContent align="start">
-              <DropdownMenuItem onSelect={onOpenBulkResearch} className="cursor-pointer">
-                <Library className="mr-2 h-4 w-4" />
-                Research & Import
-              </DropdownMenuItem>
-              <DropdownMenuItem onSelect={onOpenKnowledgeChat} className="cursor-pointer">
-                <Brain className="mr-2 h-4 w-4" />
-                Knowledge Chat
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <AIMenu
+            onGenerateOutline={onGenerateOutline}
+            outlineSummary={currentOutline?.name}
+            isLoadingAI={isLoadingAI}
+            onOpenBulkResearch={onOpenBulkResearch}
+            onOpenKnowledgeChat={onOpenKnowledgeChat}
+          />
 
           {canUnmerge && onUnmerge && (
             <Tooltip>
@@ -1111,12 +1091,6 @@ export default function OutlinePane({
               <TooltipContent>Unmerge — Restore outline to pre-merge state</TooltipContent>
             </Tooltip>
           )}
-
-          <AIMenu
-            onGenerateOutline={onGenerateOutline}
-            outlineSummary={currentOutline?.name}
-            isLoadingAI={isLoadingAI}
-          />
 
           {/* Visual spacer */}
           <div className="w-px h-6 bg-border/50 mx-0.5"></div>
