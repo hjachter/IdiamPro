@@ -98,9 +98,10 @@ At the end of EVERY session — automatically, without being asked — regenerat
 **How it works:** The outline is always **regenerated from scratch** using the JSONL conversation files (in `~/.claude/projects/...`) and git commit history. This means the app can overwrite the .idm file freely — nothing is ever lost.
 
 **Steps:**
-1. Ask the user to **switch to a different outline** in the app (so the app doesn't overwrite our file on its next save)
-2. Run the regeneration script: `python3 <scratchpad>/create_outline_v2.py`
-3. Tell the user to switch back to the conversation log outline to see the updated version
+1. Run the regeneration script: `python3 <scratchpad>/create_outline_v2.py`
+2. Tell the user to reload the conversation log outline to see the updated version
+
+**Note:** The app uses a dirty flag system — it only saves outlines that have been modified in-app. Since the conversation log is regenerated externally and not edited in the app, there's no need to switch outlines before running the script.
 
 **Script location:** The `create_outline_v2.py` script is in the scratchpad directory of the current session. If the scratchpad is gone (new session), recreate it following the pattern in the JSONL transcript or write a new one that:
 - Reads all non-agent `*.jsonl` files from the Claude projects directory
