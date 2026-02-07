@@ -6,7 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Folder, Info, Smartphone, Cpu, Cloud, Loader2, CheckCircle, XCircle } from 'lucide-react';
+import { Folder, Info, Smartphone, Cpu, Cloud, Loader2, CheckCircle, XCircle, Crown } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { useAI } from '@/contexts/ai-context';
+import AIPlanDialog from './ai-plan-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { storeDirectoryHandle, getDirectoryHandle, verifyDirectoryPermission } from '@/lib/file-storage';
 import { isElectron, electronSelectDirectory, electronGetStoredDirectoryPath } from '@/lib/electron-storage';
@@ -29,6 +32,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
   const [dataFolder, setDataFolder] = useState<string>('Browser Storage (Default)');
   const [confirmDelete, setConfirmDelete] = useState<boolean>(true);
   const { toast } = useToast();
+  const { isPremium } = useAI();
 
   // Local AI (Ollama) state
   const [aiProvider, setAiProvider] = useState<AIProvider>('cloud');
@@ -259,6 +263,26 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
                 </p>
               </div>
             )}
+          </div>
+
+          {/* Account Section */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-medium">Account</h3>
+            <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+              <div className="flex items-center gap-2">
+                <Crown className="h-4 w-4" />
+                <span className="text-sm">Subscription Plan</span>
+              </div>
+              <Badge variant={isPremium ? "default" : "secondary"}>
+                {isPremium ? 'Premium' : 'Free'}
+              </Badge>
+            </div>
+            <AIPlanDialog>
+              <Button variant="outline" size="sm" className="w-full">
+                <Crown className="mr-2 h-4 w-4" />
+                Manage Subscription...
+              </Button>
+            </AIPlanDialog>
           </div>
 
           {/* User Preferences Section */}

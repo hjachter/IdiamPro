@@ -14,7 +14,6 @@ import { Badge } from "@/components/ui/badge";
 import { Sparkles, FileText, Crown, Loader2, Library, Brain } from 'lucide-react';
 import { useAI, useAIFeature } from '@/contexts/ai-context';
 import AiGenerateDialog from './ai-generate-dialog';
-import AIPlanDialog from './ai-plan-dialog';
 
 interface AIMenuProps {
   onGenerateOutline: (topic: string) => Promise<void>;
@@ -101,15 +100,6 @@ export default function AIMenu({
             Knowledge Chat
           </DropdownMenuItem>
         )}
-
-        <DropdownMenuSeparator />
-
-        <AIPlanDialog>
-          <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="cursor-pointer">
-            <Crown className="mr-2 h-4 w-4" />
-            Manage AI Plan...
-          </DropdownMenuItem>
-        </AIPlanDialog>
       </DropdownMenuContent>
     </DropdownMenu>
   );
