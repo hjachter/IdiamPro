@@ -1528,12 +1528,11 @@ export default function ContentPane({
 
   const handleInsertDate = () => {
     if (!editor) return;
-    const today = new Date().toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
+    const now = new Date();
+    const month = now.getMonth() + 1;
+    const day = now.getDate();
+    const year = now.getFullYear() % 100; // 2-digit year
+    const today = `${month}/${day}/${year}`;
     editor.chain().focus().insertContent(today).run();
   };
 
@@ -2687,12 +2686,10 @@ export default function ContentPane({
               </div>
               {node.metadata?.dueDate && (
                 <div className="text-sm text-muted-foreground">
-                  {new Date(node.metadata.dueDate).toLocaleDateString('en-US', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                  })}
+                  {(() => {
+                    const d = new Date(node.metadata.dueDate);
+                    return `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear() % 100}`;
+                  })()}
                 </div>
               )}
             </CardContent>

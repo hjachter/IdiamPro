@@ -3322,7 +3322,7 @@ export default function OutlinePro() {
                       <div className="font-medium text-foreground">{pending.outlineName}</div>
                       <div className="text-xs text-muted-foreground">
                         {Object.keys(pending.outline.nodes).length - 1} nodes •
-                        Completed {new Date(pending.createdAt).toLocaleString()}
+                        Completed {(() => { const d = new Date(pending.createdAt); return `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear() % 100}`; })()}
                       </div>
                       {mergeTarget ? (
                         <div className="text-xs text-blue-600 dark:text-blue-400">
@@ -3672,7 +3672,7 @@ export default function OutlinePro() {
                     <div className="font-medium text-foreground">{pending.outlineName}</div>
                     <div className="text-xs text-muted-foreground">
                       {Object.keys(pending.outline.nodes).length - 1} nodes •
-                      Completed {new Date(pending.createdAt).toLocaleString()}
+                      Completed {(() => { const d = new Date(pending.createdAt); return `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear() % 100}`; })()}
                     </div>
                     {mergeTarget && (
                       <div className="text-xs text-blue-600 dark:text-blue-400">
