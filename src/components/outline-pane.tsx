@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import type { Outline, OutlineNode, NodeMap, ExternalSourceInput, IngestPreview } from '@/types';
+import type { Outline, OutlineNode, NodeMap, ExternalSourceInput, IngestPreview, AIDepth } from '@/types';
 import NodeItem from './node-item';
 import AIMenu from './ai-menu';
 import OutlineSearch, { type SearchMatch } from './outline-search';
@@ -94,7 +94,7 @@ interface OutlinePaneProps {
   onExpandAll: () => void;
   onCreateNode: (type?: NodeType, content?: string) => void;
   onDeleteNode: (nodeId: string) => void;
-  onGenerateOutline: (topic: string) => Promise<void>;
+  onGenerateOutline: (topic: string, depth: AIDepth) => Promise<void>;
   onOpenBulkResearch: () => void;
   onUpdateNode: (nodeId: string, updates: Partial<OutlineNode>) => void;
   onImportOutline: (file: File) => void;

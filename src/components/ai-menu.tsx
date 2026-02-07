@@ -15,8 +15,10 @@ import { Sparkles, FileText, Crown, Loader2, Library, Brain } from 'lucide-react
 import { useAI, useAIFeature } from '@/contexts/ai-context';
 import AiGenerateDialog from './ai-generate-dialog';
 
+import type { AIDepth } from '@/types';
+
 interface AIMenuProps {
-  onGenerateOutline: (topic: string) => Promise<void>;
+  onGenerateOutline: (topic: string, depth: AIDepth) => Promise<void>;
   outlineSummary?: string;
   isLoadingAI: boolean;
   disabled?: boolean;

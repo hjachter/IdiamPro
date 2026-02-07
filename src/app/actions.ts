@@ -27,6 +27,7 @@ import type {
   DiarizedTranscript,
   TranscriptionOptions,
   MergeStrategy,
+  AIDepth,
 } from '@/types';
 import { parseMarkdownToNodes } from '@/lib/outline-utils';
 import { v4 as uuidv4 } from 'uuid';
@@ -219,12 +220,11 @@ ${existingContent ? 'Build upon or enhance the existing content.' : 'Create new 
 }
 
 export async function generateOutlineAction(
-  topic: string
+  topic: string,
+  depth: AIDepth = 'standard'
 ): Promise<string> {
   try {
-    // Config can be passed to flow in future for model switching
-    // const config = getPlanConfig(plan);
-    const result = await generateOutlineFromTopic({ topic });
+    const result = await generateOutlineFromTopic({ topic, depth });
     return result.outline;
   } catch (error) {
     console.error('Error generating outline:', error);

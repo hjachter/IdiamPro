@@ -6,7 +6,7 @@ import DOMPurify from 'dompurify';
 import { v4 as uuidv4 } from 'uuid';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { useIsMobile } from "@/hooks/use-mobile";
-import type { Outline, OutlineNode, NodeType, NodeMap, NodeGenerationContext, ExternalSourceInput, IngestPreview } from '@/types';
+import type { Outline, OutlineNode, NodeType, NodeMap, NodeGenerationContext, ExternalSourceInput, IngestPreview, AIDepth } from '@/types';
 import { getInitialGuide } from '@/lib/initial-guide';
 import { addNode, addNodeAfter, removeNode, updateNode, moveNode, parseMarkdownToNodes, recalculatePrefixesForBranch, buildOutlineTreeString, generateMindmapFromSubtree, generateFlowchartFromSubtree } from '@/lib/outline-utils';
 import OutlinePane from './outline-pane';
@@ -1593,10 +1593,10 @@ export default function OutlinePro() {
   }, [currentOutlineId, toast]);
 
   // FIXED: handleGenerateOutline uses functional update pattern
-  const handleGenerateOutline = useCallback(async (topic: string) => {
+  const handleGenerateOutline = useCallback(async (topic: string, depth: AIDepth = 'standard') => {
     setIsLoadingAI(true);
     try {
-      const markdown = await generateOutlineAction(topic);
+      const markdown = await generateOutlineAction(topic, depth);
       const { rootNodeId, nodes } = parseMarkdownToNodes(markdown, topic);
       const newOutlineId = uuidv4();
       const newOutline: Outline = {

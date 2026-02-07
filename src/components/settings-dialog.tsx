@@ -14,7 +14,8 @@ import { useToast } from '@/hooks/use-toast';
 import { storeDirectoryHandle, getDirectoryHandle, verifyDirectoryPermission } from '@/lib/file-storage';
 import { isElectron, electronSelectDirectory, electronGetStoredDirectoryPath } from '@/lib/electron-storage';
 import { checkOllamaStatusAction } from '@/app/actions';
-import type { AIProvider } from '@/types';
+import type { AIProvider, AIDepth } from '@/types';
+import { AI_DEPTH_CONFIG } from '@/types';
 
 // Check if running in Capacitor native app (but NOT Electron)
 function isCapacitor(): boolean {
@@ -33,6 +34,9 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
   const [confirmDelete, setConfirmDelete] = useState<boolean>(true);
   const { toast } = useToast();
   const { isPremium } = useAI();
+
+  // AI depth setting
+  const [aiDepth, setAiDepth] = useState<AIDepth>('standard');
 
   // Local AI (Ollama) state
   const [aiProvider, setAiProvider] = useState<AIProvider>('cloud');
@@ -78,6 +82,12 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
       setConfirmDelete(savedConfirmDelete === 'true');
     }
 
+    // Load AI depth setting
+    const savedAiDepth = localStorage.getItem('aiDepth') as AIDepth | null;
+    if (savedAiDepth) {
+      setAiDepth(savedAiDepth);
+    }
+
     // Load local AI settings
     const savedAiProvider = localStorage.getItem('aiProvider') as AIProvider | null;
     if (savedAiProvider) {
@@ -115,6 +125,11 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
     } catch (error) {
       setOllamaStatus({ checking: false, available: false, models: [], recommendedModel: null });
     }
+  };
+
+  const handleAiDepthChange = (value: AIDepth) => {
+    setAiDepth(value);
+    localStorage.setItem('aiDepth', value);
   };
 
   const handleAiProviderChange = (value: AIProvider) => {
@@ -283,6 +298,30 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
                 Manage Subscription...
               </Button>
             </AIPlanDialog>
+          </div>
+
+          {/* AI Depth Section */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-medium">AI Reasoning Depth</h3>
+            <p className="text-xs text-muted-foreground">
+              Controls how thoroughly AI analyzes and responds. Can be overridden per-request.
+            </p>
+            <Select value={aiDepth} onValueChange={handleAiDepthChange}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {(Object.keys(AI_DEPTH_CONFIG) as AIDepth[]).map((depth) => (
+                  <SelectItem key={depth} value={depth}>
+                    <div className="flex items-center gap-2">
+                      <span>{AI_DEPTH_CONFIG[depth].icon}</span>
+                      <span>{AI_DEPTH_CONFIG[depth].label}</span>
+                      <span className="text-xs text-muted-foreground">— {AI_DEPTH_CONFIG[depth].description}</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* User Preferences Section */}

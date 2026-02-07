@@ -95,6 +95,27 @@ export interface AIConfig {
 // Local AI (Ollama) settings
 export type AIProvider = 'cloud' | 'local' | 'auto';
 
+// AI reasoning depth - controls how thoroughly the AI analyzes and responds
+export type AIDepth = 'quick' | 'standard' | 'deep';
+
+export const AI_DEPTH_CONFIG: Record<AIDepth, { label: string; description: string; icon: string }> = {
+  quick: {
+    label: 'Quick',
+    description: 'Fast, surface-level response',
+    icon: '⚡',
+  },
+  standard: {
+    label: 'Standard',
+    description: 'Balanced depth and speed',
+    icon: '⚖️',
+  },
+  deep: {
+    label: 'Deep',
+    description: 'Thorough analysis with extended reasoning',
+    icon: '🧠',
+  },
+};
+
 export interface LocalAISettings {
   provider: AIProvider;           // 'cloud' = always use Gemini, 'local' = always use Ollama, 'auto' = fallback to local on rate limit
   preferredModel?: string;        // e.g., 'llama3.2', 'mistral', etc.
