@@ -94,7 +94,9 @@
       "Bash(npx vitest run)",
       "Bash(npm test)",
       "Bash(mdls:*)",
-      "Bash(npm run electron:*)"
+      "Bash(npm run electron:*)",
+      "Bash(git log --oneline --grep=\"repaint\\\\|reload\\\\|blank\" -i)",
+      "Bash(git reset:*)"
     ]
   }
 }

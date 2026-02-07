@@ -1068,20 +1068,33 @@ export default function OutlinePane({
             <TooltipContent>Expand outline (show all nodes)</TooltipContent>
           </Tooltip>
 
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={onOpenBulkResearch}
-                disabled={!currentOutline}
-                className="hover:bg-accent/20"
-              >
-                <Library className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Research & Import (merge multiple sources)</TooltipContent>
-          </Tooltip>
+          <DropdownMenu>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    disabled={!currentOutline}
+                    className="hover:bg-purple-500/20 border-purple-500/30"
+                  >
+                    <Library className="h-4 w-4 text-purple-500" />
+                  </Button>
+                </DropdownMenuTrigger>
+              </TooltipTrigger>
+              <TooltipContent>AI Tools</TooltipContent>
+            </Tooltip>
+            <DropdownMenuContent align="start">
+              <DropdownMenuItem onSelect={onOpenBulkResearch} className="cursor-pointer">
+                <Library className="mr-2 h-4 w-4" />
+                Research & Import
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={onOpenKnowledgeChat} className="cursor-pointer">
+                <Brain className="mr-2 h-4 w-4" />
+                Knowledge Chat
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           {canUnmerge && onUnmerge && (
             <Tooltip>
@@ -1127,20 +1140,6 @@ export default function OutlinePane({
               <Settings className="h-4 w-4" />
             </Button>
           </SettingsDialog>
-
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={onOpenKnowledgeChat}
-                className="hover:bg-blue-500/20 border-blue-500/30"
-              >
-                <Brain className="h-4 w-4 text-blue-500" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Knowledge Chat — Query Your Outlines</TooltipContent>
-          </Tooltip>
 
           <Tooltip>
             <TooltipTrigger asChild>
