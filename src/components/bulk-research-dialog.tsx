@@ -569,36 +569,39 @@ export default function BulkResearchDialog({
 
           {/* Detail Level Selector */}
           <div className="p-3 bg-muted/50 rounded-md space-y-2">
-            <Label className="text-sm font-medium">Extraction Detail Level</Label>
+            <Label className="text-sm font-medium">AI Reasoning Depth</Label>
             <Select value={detailLevel} onValueChange={(v) => setDetailLevel(v as ExtractionDetailLevel)}>
               <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="overview">
-                  <div className="flex flex-col items-start">
-                    <span className="font-medium">Overview</span>
-                    <span className="text-xs text-muted-foreground">High-level summary, key concepts only</span>
+                  <div className="flex items-center gap-2">
+                    <span>⚡</span>
+                    <span className="font-medium">Quick</span>
+                    <span className="text-xs text-muted-foreground">— High-level summary, key concepts only</span>
                   </div>
                 </SelectItem>
                 <SelectItem value="standard">
-                  <div className="flex flex-col items-start">
+                  <div className="flex items-center gap-2">
+                    <span>⚖️</span>
                     <span className="font-medium">Standard</span>
-                    <span className="text-xs text-muted-foreground">Balanced detail, main points + supporting info</span>
+                    <span className="text-xs text-muted-foreground">— Balanced detail, main points + supporting</span>
                   </div>
                 </SelectItem>
                 <SelectItem value="comprehensive">
-                  <div className="flex flex-col items-start">
-                    <span className="font-medium">Comprehensive</span>
-                    <span className="text-xs text-muted-foreground">Full detail - all facts, examples, evidence (PhD thesis level)</span>
+                  <div className="flex items-center gap-2">
+                    <span>🧠</span>
+                    <span className="font-medium">Deep</span>
+                    <span className="text-xs text-muted-foreground">— Thorough analysis, all facts & evidence</span>
                   </div>
                 </SelectItem>
               </SelectContent>
             </Select>
             <p className="text-xs text-muted-foreground">
-              {detailLevel === 'overview' && 'Quick understanding of the material. Best for initial exploration.'}
-              {detailLevel === 'standard' && 'Good balance of depth and readability. Suitable for most use cases.'}
-              {detailLevel === 'comprehensive' && 'Complete study guide capturing all nuances. Best for research & deep study.'}
+              {detailLevel === 'overview' && 'Fast, surface-level extraction. Best for initial exploration.'}
+              {detailLevel === 'standard' && 'Balanced depth and speed. Suitable for most use cases.'}
+              {detailLevel === 'comprehensive' && 'Thorough analysis with extended reasoning. Best for research & deep study.'}
             </p>
             {/* Time Estimate */}
             {sources.filter(isSourceValid).length > 0 && (

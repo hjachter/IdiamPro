@@ -5,8 +5,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Brain, Send, User, Loader2, AlertTriangle } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { cn } from '@/lib/utils';
-import type { Outline } from '@/types';
+import type { Outline, AIDepth } from '@/types';
+import { AI_DEPTH_CONFIG } from '@/types';
 import { serializeOutline, serializeOutlines } from '@/lib/outline-serializer';
 import { isElectron, electronReadKnowledgeBase } from '@/lib/electron-storage';
 
@@ -44,6 +46,7 @@ export default function KnowledgeChatDialog({
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [mode, setMode] = useState<ChatMode>('current');
+  const [depth, setDepth] = useState<AIDepth>('standard');
   const [context, setContext] = useState<string>('');
   const [contextMeta, setContextMeta] = useState<{
     outlineCount: number;
@@ -56,6 +59,16 @@ export default function KnowledgeChatDialog({
   const streamingContentLength = useRef(0);
 
   const currentOutline = outlines.find(o => o.id === currentOutlineId);
+
+  // Load default depth from localStorage when dialog opens
+  useEffect(() => {
+    if (open) {
+      const savedDepth = localStorage.getItem('aiDepth') as AIDepth | null;
+      if (savedDepth) {
+        setDepth(savedDepth);
+      }
+    }
+  }, [open]);
 
   // Build context when dialog opens or mode changes
   const buildContext = useCallback(async (chatMode: ChatMode) => {
@@ -163,6 +176,7 @@ export default function KnowledgeChatDialog({
           })),
           context,
           mode,
+          depth,
           aiProvider: localStorage.getItem('aiProvider') || 'auto',
         }),
       });
@@ -315,30 +329,47 @@ export default function KnowledgeChatDialog({
             </div>
           </div>
 
-          {/* Mode Toggle */}
-          <div className="flex gap-1 mt-3 p-1 bg-muted/50 rounded-lg border border-border/50">
-            <button
-              onClick={() => handleModeChange('current')}
-              className={cn(
-                'flex-1 px-3 py-1.5 text-sm rounded-md transition-colors',
-                mode === 'current'
-                  ? 'bg-blue-500 text-white shadow-sm font-medium'
-                  : 'text-muted-foreground hover:text-foreground'
-              )}
-            >
-              Current Outline
-            </button>
-            <button
-              onClick={() => handleModeChange('all')}
-              className={cn(
-                'flex-1 px-3 py-1.5 text-sm rounded-md transition-colors',
-                mode === 'all'
-                  ? 'bg-blue-500 text-white shadow-sm font-medium'
-                  : 'text-muted-foreground hover:text-foreground'
-              )}
-            >
-              All Outlines
-            </button>
+          {/* Mode Toggle and Depth Selector */}
+          <div className="flex items-center gap-3 mt-3">
+            <div className="flex gap-1 flex-1 p-1 bg-muted/50 rounded-lg border border-border/50">
+              <button
+                onClick={() => handleModeChange('current')}
+                className={cn(
+                  'flex-1 px-3 py-1.5 text-sm rounded-md transition-colors',
+                  mode === 'current'
+                    ? 'bg-blue-500 text-white shadow-sm font-medium'
+                    : 'text-muted-foreground hover:text-foreground'
+                )}
+              >
+                Current Outline
+              </button>
+              <button
+                onClick={() => handleModeChange('all')}
+                className={cn(
+                  'flex-1 px-3 py-1.5 text-sm rounded-md transition-colors',
+                  mode === 'all'
+                    ? 'bg-blue-500 text-white shadow-sm font-medium'
+                    : 'text-muted-foreground hover:text-foreground'
+                )}
+              >
+                All Outlines
+              </button>
+            </div>
+            <Select value={depth} onValueChange={(v) => setDepth(v as AIDepth)}>
+              <SelectTrigger className="w-[130px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {(Object.keys(AI_DEPTH_CONFIG) as AIDepth[]).map((d) => (
+                  <SelectItem key={d} value={d}>
+                    <span className="flex items-center gap-1.5">
+                      <span>{AI_DEPTH_CONFIG[d].icon}</span>
+                      <span>{AI_DEPTH_CONFIG[d].label}</span>
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Context Info Bar */}

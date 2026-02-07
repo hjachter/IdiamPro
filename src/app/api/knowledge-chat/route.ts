@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ai } from '@/ai/genkit';
+import type { AIDepth } from '@/types';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -189,12 +190,25 @@ function makeStream(
   });
 }
 
+// Depth-specific instructions for knowledge chat
+const DEPTH_INSTRUCTIONS: Record<AIDepth, string> = {
+  quick: 'Be brief and direct. Give a short, focused answer with only the most essential points.',
+  standard: 'Be concise but thorough. Cover the main points with appropriate detail.',
+  deep: `Provide a comprehensive, detailed analysis. Think deeply about the question:
+- Explore multiple angles and perspectives from the content
+- Make connections between different sections
+- Include relevant context and supporting details
+- Consider implications and nuances
+- Cite specific sections when referencing information`,
+};
+
 export async function POST(request: NextRequest) {
   try {
-    const { messages, context, mode, aiProvider = 'auto' } = await request.json() as {
+    const { messages, context, mode, depth = 'standard', aiProvider = 'auto' } = await request.json() as {
       messages: Message[];
       context: string;
       mode: 'current' | 'all';
+      depth?: AIDepth;
       aiProvider?: 'cloud' | 'local' | 'auto';
     };
 
@@ -212,16 +226,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const depthInstruction = DEPTH_INSTRUCTIONS[depth];
+
     const systemPrompt = mode === 'all'
       ? `You are querying the user's personal knowledge base — their "second brain" of structured outlines.
 Answer based ONLY on the provided outline content. If the information isn't in the outlines, say so clearly.
 Reference specific outline names and section numbers when possible.
 Make connections across different outlines when relevant — this is the key advantage of querying all outlines at once.
-Be concise but thorough. Use markdown formatting for clarity.`
+
+${depthInstruction}
+
+Use markdown formatting for clarity.`
       : `You are querying a single outline from the user's knowledge base.
 Answer based ONLY on the provided outline content. If the information isn't there, say so clearly.
 Reference specific section numbers when possible.
-Be concise but thorough. Use markdown formatting for clarity.`;
+
+${depthInstruction}
+
+Use markdown formatting for clarity.`;
 
     // Build conversation history
     const conversationHistory = messages.map(m =>
