@@ -146,6 +146,9 @@ interface OutlinePaneProps {
   onToggleSidebar?: () => void;
   // Mobile sidebar sheet
   onOpenMobileSidebar?: () => void;
+  // Unmerge button
+  canUnmerge?: boolean;
+  onUnmerge?: () => void;
 }
 
 export default function OutlinePane({
@@ -201,6 +204,8 @@ export default function OutlinePane({
   isSidebarOpen,
   onToggleSidebar,
   onOpenMobileSidebar,
+  canUnmerge,
+  onUnmerge,
 }: OutlinePaneProps) {
   const [renameId, setRenameId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
@@ -1077,6 +1082,22 @@ export default function OutlinePane({
             </TooltipTrigger>
             <TooltipContent>Research & Import (merge multiple sources)</TooltipContent>
           </Tooltip>
+
+          {canUnmerge && onUnmerge && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={onUnmerge}
+                  className="hover:bg-orange-500/20 border-orange-500/30"
+                >
+                  <RotateCcw className="h-4 w-4 text-orange-500" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Unmerge — Restore outline to pre-merge state</TooltipContent>
+            </Tooltip>
+          )}
 
           <AIMenu
             onGenerateOutline={onGenerateOutline}

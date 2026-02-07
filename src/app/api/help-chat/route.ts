@@ -68,12 +68,13 @@ AI FEATURES:
 - Knowledge Chat: Query your outlines with natural language. Click the brain icon (blue) in the toolbar. Two modes: Current Outline (queries active outline) or All Outlines / Second Brain (queries all outlines at once). AI answers based only on your outline content, referencing specific sections. Responses stream in word-by-word for immediate feedback.
 - Local AI / Ollama: Settings > AI Provider. Choose Cloud, Local (Ollama on localhost:11434), or Auto. Recommended models: llama3.2, phi3, llama3.1
 - Pending Import Recovery (Desktop): If import times out or app closes, result is saved and recovery dialog appears on next launch
-- Unmerge: After merging research into an existing outline, reopen the Research & Import dialog to find an "Unmerge" button at the bottom left. Click it to restore the outline to its pre-merge state. The backup persists across app restarts. Only the most recent merge can be unmerged.
+- Unmerge: After merging research into an existing outline, an Unmerge button (orange circular arrow) appears in the toolbar right after the Research & Import button. Click it to restore the outline to its pre-merge state. The button persists until you click it or perform another merge. You can freely edit the outline and still unmerge later. The backup survives app restarts. Only the most recent merge can be unmerged.
 - Generate Podcast: Right-click any node > "Generate Podcast". Choose a style (Two-Host, Narrator, Interview, Debate), assign voices, pick a length (Brief/Standard/Detailed), and select audio quality (Standard/HD). AI generates a script via Gemini, then synthesizes speech via OpenAI TTS. Preview the audio in-app and save as MP3. All preferences (style, voices, length, quality) are remembered across sessions. Requires OPENAI_API_KEY.
 
 TOOLBAR BUTTONS:
 - Plus icon: Create new node
-- Library icon (red): Research & Import (merge multiple sources)
+- Library icon: Research & Import (merge multiple sources)
+- Unmerge icon (orange circular arrow): Appears after a merge, restores pre-merge state
 - Sparkles icon: AI menu (generate outline from topic)
 - Command icon: Command palette
 - Brain icon (blue): Knowledge Chat — query your outlines with AI

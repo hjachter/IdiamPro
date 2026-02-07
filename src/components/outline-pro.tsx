@@ -3418,6 +3418,8 @@ export default function OutlinePro() {
                 onExportSubtreePdf={handleExportSubtreePdf}
                 onGeneratePodcast={handleGeneratePodcast}
                 onOpenMobileSidebar={() => setIsMobileSidebarOpen(true)}
+                canUnmerge={hasUnmergeBackup}
+                onUnmerge={handleUnmerge}
               />
             </div>
             {/* Content Preview - takes ~30%, tap to expand */}
@@ -3787,6 +3789,8 @@ export default function OutlinePro() {
                 onGeneratePodcast={handleGeneratePodcast}
                 isSidebarOpen={isSidebarOpen}
                 onToggleSidebar={() => setIsSidebarOpen(prev => !prev)}
+                canUnmerge={hasUnmergeBackup}
+                onUnmerge={handleUnmerge}
               />
             </div>
           </ResizablePanel>
