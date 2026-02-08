@@ -109,6 +109,7 @@ export default function OutlinePro() {
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [mobileView, setMobileView] = useState<MobileView>('stacked');
   const [isLoadingAI, setIsLoadingAI] = useState(false);
+  const aiLoadingStartTime = useRef<number | null>(null);
   const [isLoadingLazyOutline, setIsLoadingLazyOutline] = useState(false);
   const [loadingOutlineInfo, setLoadingOutlineInfo] = useState<{
     name: string;
@@ -164,6 +165,29 @@ export default function OutlinePro() {
   useEffect(() => {
     localStorage.setItem('idiampro-sidebar-open', String(isSidebarOpen));
   }, [isSidebarOpen]);
+
+  // Reset stale AI loading state when returning from sleep/background
+  // If loading has been going for more than 5 minutes, it's likely stale
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && isLoadingAI && aiLoadingStartTime.current) {
+        const elapsed = Date.now() - aiLoadingStartTime.current;
+        const STALE_THRESHOLD = 5 * 60 * 1000; // 5 minutes
+        if (elapsed > STALE_THRESHOLD) {
+          console.log('[AI] Resetting stale loading state after', Math.round(elapsed / 1000), 'seconds');
+          setIsLoadingAI(false);
+          aiLoadingStartTime.current = null;
+          toast({
+            title: 'AI Operation Cancelled',
+            description: 'The AI operation was interrupted. Please try again.',
+          });
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [isLoadingAI, toast]);
 
   // Mobile sidebar sheet state
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -1595,6 +1619,7 @@ export default function OutlinePro() {
   // FIXED: handleGenerateOutline uses functional update pattern
   const handleGenerateOutline = useCallback(async (topic: string, depth: AIDepth = 'standard') => {
     setIsLoadingAI(true);
+    aiLoadingStartTime.current = Date.now();
     try {
       const markdown = await generateOutlineAction(topic, depth);
       const { rootNodeId, nodes } = parseMarkdownToNodes(markdown, topic);
@@ -1617,6 +1642,7 @@ export default function OutlinePro() {
       });
     } finally {
       setIsLoadingAI(false);
+      aiLoadingStartTime.current = null;
     }
   }, [toast]);
 
@@ -1628,6 +1654,7 @@ export default function OutlinePro() {
     const nodeIdToUpdate = selectedNode.id;
 
     setIsLoadingAI(true);
+    aiLoadingStartTime.current = Date.now();
     try {
       const content = await expandContentAction(selectedNode.name, plan);
 
@@ -1657,6 +1684,7 @@ export default function OutlinePro() {
       });
     } finally {
       setIsLoadingAI(false);
+      aiLoadingStartTime.current = null;
     }
   }, [selectedNode, currentOutlineId, toast, plan]);
 
@@ -1731,6 +1759,7 @@ export default function OutlinePro() {
     }
 
     setIsLoadingAI(true);
+    aiLoadingStartTime.current = Date.now();
 
     // Premium users get faster generation (higher rate limits)
     const isPremium = plan === 'PREMIUM';
@@ -1848,6 +1877,7 @@ export default function OutlinePro() {
     }
 
     setIsLoadingAI(false);
+    aiLoadingStartTime.current = null;
 
     if (errorCount === 0) {
       if (isPremium) {
@@ -1934,6 +1964,7 @@ export default function OutlinePro() {
       : undefined;
 
     setIsLoadingAI(true);
+    aiLoadingStartTime.current = Date.now();
     try {
       const preview = await ingestExternalSourceAction(source, outlineSummary);
 
@@ -1953,6 +1984,7 @@ export default function OutlinePro() {
       throw e;
     } finally {
       setIsLoadingAI(false);
+      aiLoadingStartTime.current = null;
     }
   }, [currentOutline, handleApplyIngestPreview, toast]);
 
@@ -1973,6 +2005,7 @@ export default function OutlinePro() {
   // Bulk Research Import (PREMIUM) - Synthesizes multiple sources
   const handleBulkResearch = useCallback(async (input: BulkResearchSources): Promise<void> => {
     setIsLoadingAI(true);
+    aiLoadingStartTime.current = Date.now();
     try {
       // Build content from existing outline if requested
       let existingContent: string | undefined;
@@ -2351,6 +2384,7 @@ export default function OutlinePro() {
       // Don't re-throw - we've handled the error with the toast
     } finally {
       setIsLoadingAI(false);
+      aiLoadingStartTime.current = null;
     }
   }, [currentOutline, toast]);
 
