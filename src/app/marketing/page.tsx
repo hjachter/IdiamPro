@@ -80,12 +80,15 @@ import {
 // CONFIGURATION
 // ============================================
 
-// Web app URL - update this when deploying to production domain
-const WEB_APP_URL = 'https://idiampro.vercel.app';
+// App URL - points to the app route
+const APP_URL = '/app';
 
-// Launch the web app in a new tab
-const launchWebApp = () => {
-  window.open(WEB_APP_URL, '_blank');
+// Launch date: March 1, 2026
+const LAUNCH_DATE = new Date('2026-03-01T00:00:00');
+
+// Navigate to the app
+const launchApp = () => {
+  window.location.href = APP_URL;
 };
 
 // ============================================
@@ -130,6 +133,54 @@ function AnimatedNumber({ value, suffix = '', prefix = '' }: { value: number; su
   }, [value, hasAnimated]);
 
   return <span ref={ref}>{prefix}{count.toLocaleString()}{suffix}</span>;
+}
+
+// Countdown timer component
+function CountdownTimer({ targetDate }: { targetDate: Date }) {
+  const [timeLeft, setTimeLeft] = useState({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0
+  });
+
+  useEffect(() => {
+    const calculateTimeLeft = () => {
+      const now = new Date();
+      const difference = targetDate.getTime() - now.getTime();
+
+      if (difference > 0) {
+        setTimeLeft({
+          days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+          hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+          minutes: Math.floor((difference / 1000 / 60) % 60),
+          seconds: Math.floor((difference / 1000) % 60)
+        });
+      }
+    };
+
+    calculateTimeLeft();
+    const timer = setInterval(calculateTimeLeft, 1000);
+    return () => clearInterval(timer);
+  }, [targetDate]);
+
+  const TimeBlock = ({ value, label }: { value: number; label: string }) => (
+    <div className="flex flex-col items-center">
+      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center mb-2">
+        <span className="text-2xl sm:text-3xl font-bold text-white">{value.toString().padStart(2, '0')}</span>
+      </div>
+      <span className="text-xs sm:text-sm text-white/50 uppercase tracking-wider">{label}</span>
+    </div>
+  );
+
+  return (
+    <div className="flex gap-3 sm:gap-4">
+      <TimeBlock value={timeLeft.days} label="Days" />
+      <TimeBlock value={timeLeft.hours} label="Hours" />
+      <TimeBlock value={timeLeft.minutes} label="Min" />
+      <TimeBlock value={timeLeft.seconds} label="Sec" />
+    </div>
+  );
 }
 
 // Feature card component
@@ -218,7 +269,7 @@ function PricingCard({
       </ul>
 
       <Button
-        onClick={launchWebApp}
+        onClick={launchApp}
         className={`w-full ${highlighted
           ? 'bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-lg'
           : 'bg-white/10 hover:bg-white/20 text-white border border-white/20'
@@ -485,7 +536,7 @@ export default function MarketingPage() {
 
             <div className="flex items-center gap-4">
               <Button
-                onClick={launchWebApp}
+                onClick={launchApp}
                 className="hidden md:inline-flex bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-lg shadow-violet-500/25"
               >
                 Launch App
@@ -511,7 +562,7 @@ export default function MarketingPage() {
                 <a href="#pricing" onClick={() => setMobileMenuOpen(false)} className="text-white/80 py-2">Pricing</a>
                 <a href="#faq" onClick={() => setMobileMenuOpen(false)} className="text-white/80 py-2">FAQ</a>
                 <Button
-                  onClick={launchWebApp}
+                  onClick={launchApp}
                   className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white w-full mt-2"
                 >
                   Launch App
@@ -572,23 +623,34 @@ export default function MarketingPage() {
                   </span>
                 </div>
 
+                {/* Launch Countdown */}
+                <div className="mb-10">
+                  <p className="text-white/50 text-sm mb-4 uppercase tracking-wider">Full Launch: March 2026</p>
+                  <div className="flex justify-center">
+                    <CountdownTimer targetDate={LAUNCH_DATE} />
+                  </div>
+                  <p className="text-emerald-400 text-sm mt-4 font-medium">
+                    Web version available now for beta testers
+                  </p>
+                </div>
+
                 <div className="flex flex-wrap gap-4 justify-center">
                   <Button
-                    onClick={launchWebApp}
+                    onClick={launchApp}
                     size="lg"
                     className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-lg px-8 shadow-xl shadow-violet-500/25 hover:shadow-violet-500/40 transition-all duration-300"
                   >
-                    Start Free
+                    Try Beta Now
                     <ArrowRight className="w-5 h-5 ml-2" />
                   </Button>
                   <Button
                     variant="outline"
                     size="lg"
-                    className="border-white/20 text-white hover:bg-white/10 text-lg px-8"
-                    onClick={() => document.getElementById('demo-video')?.scrollIntoView({ behavior: 'smooth' })}
+                    className="border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 text-lg px-8"
+                    onClick={() => window.location.href = '/beta'}
                   >
-                    <Play className="w-5 h-5 mr-2" />
-                    Watch Demo
+                    <Rocket className="w-5 h-5 mr-2" />
+                    Join Beta Program
                   </Button>
                 </div>
               </div>
@@ -1431,35 +1493,84 @@ export default function MarketingPage() {
 
         {/* Platform Section */}
         <section className="px-6 py-24 lg:px-12">
-          <div className="max-w-4xl mx-auto text-center">
+          <div className="max-w-6xl mx-auto text-center">
             <h2 className="text-3xl lg:text-5xl font-bold mb-6">
               Works everywhere you do
             </h2>
-            <p className="text-white/50 text-lg mb-12 max-w-2xl mx-auto">
-              One subscription, three platforms. Start on your Mac, continue on your iPhone, finish on the web.
+            <p className="text-white/50 text-lg mb-6 max-w-2xl mx-auto">
+              One subscription, all platforms. Your second brain syncs seamlessly across every device.
+            </p>
+            <p className="text-emerald-400/80 text-sm mb-12 max-w-xl mx-auto">
+              Apple prototypes available now. Windows, Linux, and Android coming at launch.
             </p>
 
-            <div className="flex justify-center items-center gap-8 lg:gap-16">
-              <div className="text-center">
-                <div className="w-20 h-20 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-4 hover:bg-white/10 transition-colors">
-                  <Monitor className="w-10 h-10 text-violet-400" />
+            {/* Desktop Platforms */}
+            <div className="mb-12">
+              <h3 className="text-white/40 text-sm uppercase tracking-wider mb-6">Desktop</h3>
+              <div className="flex flex-wrap justify-center items-center gap-6 lg:gap-10">
+                <div className="text-center group">
+                  <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-violet-500/20 to-purple-500/10 border border-violet-500/30 flex items-center justify-center mx-auto mb-4 group-hover:scale-105 transition-all">
+                    <Monitor className="w-10 h-10 text-violet-400" />
+                  </div>
+                  <div className="text-white font-medium">macOS</div>
+                  <div className="text-emerald-400 text-xs">Available Now</div>
                 </div>
-                <div className="text-white font-medium">macOS</div>
-                <div className="text-white/40 text-sm">Desktop App</div>
+                <div className="text-center group">
+                  <div className="w-20 h-20 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-4 group-hover:bg-white/10 transition-all">
+                    <Laptop className="w-10 h-10 text-blue-400" />
+                  </div>
+                  <div className="text-white font-medium">Windows</div>
+                  <div className="text-white/40 text-xs">March 2026</div>
+                </div>
+                <div className="text-center group">
+                  <div className="w-20 h-20 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-4 group-hover:bg-white/10 transition-all">
+                    <Code2 className="w-10 h-10 text-orange-400" />
+                  </div>
+                  <div className="text-white font-medium">Linux</div>
+                  <div className="text-white/40 text-xs">March 2026</div>
+                </div>
               </div>
-              <div className="text-center">
-                <div className="w-20 h-20 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-4 hover:bg-white/10 transition-colors">
-                  <Smartphone className="w-10 h-10 text-violet-400" />
+            </div>
+
+            {/* Mobile & Tablet Platforms */}
+            <div className="mb-12">
+              <h3 className="text-white/40 text-sm uppercase tracking-wider mb-6">Mobile & Tablet</h3>
+              <div className="flex flex-wrap justify-center items-center gap-6 lg:gap-10">
+                <div className="text-center group">
+                  <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-violet-500/20 to-purple-500/10 border border-violet-500/30 flex items-center justify-center mx-auto mb-4 group-hover:scale-105 transition-all">
+                    <Smartphone className="w-10 h-10 text-violet-400" />
+                  </div>
+                  <div className="text-white font-medium">iOS</div>
+                  <div className="text-emerald-400 text-xs">Beta Available</div>
                 </div>
-                <div className="text-white font-medium">iOS</div>
-                <div className="text-white/40 text-sm">iPhone & iPad</div>
+                <div className="text-center group">
+                  <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-violet-500/20 to-purple-500/10 border border-violet-500/30 flex items-center justify-center mx-auto mb-4 group-hover:scale-105 transition-all">
+                    <Presentation className="w-10 h-10 text-violet-400" />
+                  </div>
+                  <div className="text-white font-medium">iPad</div>
+                  <div className="text-emerald-400 text-xs">Beta Available</div>
+                </div>
+                <div className="text-center group">
+                  <div className="w-20 h-20 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-4 group-hover:bg-white/10 transition-all">
+                    <Smartphone className="w-10 h-10 text-green-400" />
+                  </div>
+                  <div className="text-white font-medium">Android</div>
+                  <div className="text-white/40 text-xs">March 2026</div>
+                </div>
               </div>
-              <div className="text-center">
-                <div className="w-20 h-20 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-4 hover:bg-white/10 transition-colors">
-                  <Globe className="w-10 h-10 text-violet-400" />
+            </div>
+
+            {/* Web */}
+            <div>
+              <h3 className="text-white/40 text-sm uppercase tracking-wider mb-6">Web</h3>
+              <div className="flex justify-center">
+                <div className="text-center group">
+                  <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/10 border border-emerald-500/30 flex items-center justify-center mx-auto mb-4 group-hover:scale-105 transition-all">
+                    <Globe className="w-10 h-10 text-emerald-400" />
+                  </div>
+                  <div className="text-white font-medium">Web App</div>
+                  <div className="text-emerald-400 text-xs">Available Now</div>
                 </div>
-                <div className="text-white font-medium">Web</div>
-                <div className="text-white/40 text-sm">Any Browser</div>
               </div>
             </div>
           </div>
@@ -1590,7 +1701,7 @@ export default function MarketingPage() {
                     <div className="text-xs text-indigo-400">Premium Plan</div>
                   </div>
                   <Button
-                    onClick={launchWebApp}
+                    onClick={launchApp}
                     className="bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white"
                   >
                     Verify .edu
@@ -1674,7 +1785,7 @@ export default function MarketingPage() {
               Join thousands of researchers, authors, and professionals who've upgraded their workflow with IdiamPro.
             </p>
             <Button
-              onClick={launchWebApp}
+              onClick={launchApp}
               size="lg"
               className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-lg px-10 py-6 shadow-xl shadow-violet-500/25 hover:shadow-violet-500/40 transition-all duration-300"
             >
