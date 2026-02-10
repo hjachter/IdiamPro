@@ -100,6 +100,7 @@ interface OutlinePaneProps {
   onUpdateNode: (nodeId: string, updates: Partial<OutlineNode>) => void;
   onImportOutline: (file: File) => void;
   onAddImportedOutline: (outline: Outline, showToast?: boolean) => void;
+  onExportOutline: () => void;
   onImportAsChapter: (file: File) => void;
   onCopySubtree: (nodeId: string) => void;
   onCutSubtree: (nodeId: string) => void;
@@ -173,6 +174,7 @@ export default function OutlinePane({
   onUpdateNode,
   onImportOutline,
   onAddImportedOutline,
+  onExportOutline,
   onImportAsChapter,
   onCopySubtree,
   onCutSubtree,
@@ -691,25 +693,6 @@ export default function OutlinePane({
     setRenameValue('');
   };
 
-  const handleExport = async () => {
-    if (!currentOutline) return;
-
-    if (isCapacitor()) {
-      // In native app, use Share sheet
-      const result = await shareOutlineFile(currentOutline);
-      if (!result.success) {
-        toast({
-          title: 'Export Failed',
-          description: 'Could not share the outline.',
-          variant: 'destructive',
-        });
-      }
-    } else {
-      // In browser, use file download
-      exportOutlineToJson(currentOutline);
-    }
-  };
-
   const handleImportClick = () => {
     setImportDialogOpen(true);
   };
@@ -853,7 +836,7 @@ export default function OutlinePane({
                 <DropdownMenuItem onSelect={handleImportClick} className="cursor-pointer">
                     <FileUp className="mr-2 h-4 w-4" /> Import Outline
                 </DropdownMenuItem>
-                <DropdownMenuItem onSelect={handleExport} disabled={!currentOutline} className="cursor-pointer">
+                <DropdownMenuItem onSelect={onExportOutline} disabled={!currentOutline} className="cursor-pointer">
                     <FileDown className="mr-2 h-4 w-4" /> Export Current Outline
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />

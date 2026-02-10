@@ -3406,6 +3406,7 @@ export default function OutlinePro() {
                 onUpdateNode={handleUpdateNode}
                 onImportOutline={handleImportOutline}
                 onAddImportedOutline={handleAddImportedOutline}
+                onExportOutline={handleExportOutline}
                 onImportAsChapter={handleImportAsChapter}
                 onCopySubtree={handleCopySubtree}
                 onCutSubtree={handleCutSubtree}
@@ -3780,6 +3781,7 @@ export default function OutlinePro() {
                 onUpdateNode={handleUpdateNode}
                 onImportOutline={handleImportOutline}
                 onAddImportedOutline={handleAddImportedOutline}
+                onExportOutline={handleExportOutline}
                 onImportAsChapter={handleImportAsChapter}
                 onCopySubtree={handleCopySubtree}
                 onCutSubtree={handleCutSubtree}
