@@ -77,6 +77,18 @@ import {
 } from 'lucide-react';
 
 // ============================================
+// CONFIGURATION
+// ============================================
+
+// Web app URL - update this when deploying to production domain
+const WEB_APP_URL = 'https://idiampro.vercel.app';
+
+// Launch the web app in a new tab
+const launchWebApp = () => {
+  window.open(WEB_APP_URL, '_blank');
+};
+
+// ============================================
 // COMPONENTS
 // ============================================
 
@@ -206,7 +218,7 @@ function PricingCard({
       </ul>
 
       <Button
-        onClick={() => router.push('/')}
+        onClick={launchWebApp}
         className={`w-full ${highlighted
           ? 'bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-lg'
           : 'bg-white/10 hover:bg-white/20 text-white border border-white/20'
@@ -473,7 +485,7 @@ export default function MarketingPage() {
 
             <div className="flex items-center gap-4">
               <Button
-                onClick={() => router.push('/')}
+                onClick={launchWebApp}
                 className="hidden md:inline-flex bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-lg shadow-violet-500/25"
               >
                 Launch App
@@ -499,7 +511,7 @@ export default function MarketingPage() {
                 <a href="#pricing" onClick={() => setMobileMenuOpen(false)} className="text-white/80 py-2">Pricing</a>
                 <a href="#faq" onClick={() => setMobileMenuOpen(false)} className="text-white/80 py-2">FAQ</a>
                 <Button
-                  onClick={() => router.push('/')}
+                  onClick={launchWebApp}
                   className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white w-full mt-2"
                 >
                   Launch App
@@ -515,24 +527,25 @@ export default function MarketingPage() {
             <div className="text-center max-w-4xl mx-auto">
               <div className={`${mounted ? 'animate-fade-in-up' : 'opacity-0'}`}>
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/20 border border-violet-500/30 mb-6">
-                  <Sparkles className="w-4 h-4 text-violet-400" />
-                  <span className="text-sm text-violet-300">The Professional Research Platform</span>
+                  <Brain className="w-4 h-4 text-violet-400" />
+                  <span className="text-sm text-violet-300">Your Intelligence Amplifier</span>
                 </div>
 
                 <h1 className="text-5xl lg:text-7xl font-bold leading-tight mb-6">
                   <span className="bg-gradient-to-r from-white via-white to-white/60 bg-clip-text text-transparent">
-                    Research-Grade
+                    Build Your
                   </span>
                   <br />
                   <span className="bg-gradient-to-r from-violet-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent">
-                    Knowledge Synthesis
+                    Second Brain
                   </span>
                 </h1>
 
                 <p className="text-xl text-white/60 max-w-3xl mx-auto leading-relaxed mb-6">
-                  The premium AI-powered platform for serious researchers. From transcribing physical meetings
-                  to synthesizing PhD-level academic research and industrial R&D—IdiamPro handles the
-                  complexity so you can focus on insights.
+                  IdiamPro is a <span className="text-white font-semibold">cognitive enhancement platform</span>—an
+                  intelligence amplifier that expands your knowledge scope, accelerates information access, and reveals
+                  complex interrelationships and creative possibilities that others miss. The premium AI-powered
+                  platform for PhD-level research and professional knowledge synthesis.
                 </p>
 
                 {/* Professional Audience Badges */}
@@ -561,7 +574,7 @@ export default function MarketingPage() {
 
                 <div className="flex flex-wrap gap-4 justify-center">
                   <Button
-                    onClick={() => router.push('/')}
+                    onClick={launchWebApp}
                     size="lg"
                     className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-lg px-8 shadow-xl shadow-violet-500/25 hover:shadow-violet-500/40 transition-all duration-300"
                   >
@@ -606,6 +619,109 @@ export default function MarketingPage() {
                 <div className="w-3 h-3 rounded-full bg-red-500/60" />
                 <div className="w-3 h-3 rounded-full bg-yellow-500/60" />
                 <div className="w-3 h-3 rounded-full bg-green-500/60" />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* COGNITIVE ENHANCEMENT - Intelligence Amplifier Section */}
+        <section className="px-6 py-20 lg:px-12 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-b from-violet-500/5 via-transparent to-transparent" />
+          <div className="max-w-7xl mx-auto relative">
+            <div className="text-center mb-16">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/20 border border-emerald-500/30 mb-6">
+                <Brain className="w-5 h-5 text-emerald-400" />
+                <span className="text-sm font-medium text-emerald-300">Cognitive Enhancement Platform</span>
+              </div>
+              <h2 className="text-4xl lg:text-6xl font-bold mb-6">
+                <span className="bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent">
+                  Your Second Brain,
+                </span>
+                <br />
+                <span className="bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent">
+                  Amplified
+                </span>
+              </h2>
+              <p className="text-xl text-white/60 max-w-3xl mx-auto leading-relaxed">
+                IdiamPro is a true intelligence amplifier—it doesn&apos;t just store information, it enhances
+                your cognitive capabilities. Build a knowledge repository that grows with you, surfaces hidden
+                connections, and accelerates your thinking.
+              </p>
+            </div>
+
+            {/* Three pillars of intelligence amplification */}
+            <div className="grid md:grid-cols-3 gap-8">
+              {/* Expanded Scope */}
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-br from-violet-500/20 to-purple-500/10 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="relative p-8 rounded-3xl bg-white/5 border border-white/10 hover:border-violet-500/30 transition-all duration-300 h-full">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center mb-6 shadow-lg shadow-violet-500/30">
+                    <Globe className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-white mb-4">Expanded Knowledge Scope</h3>
+                  <p className="text-white/60 leading-relaxed mb-4">
+                    Your brain can only hold so much. IdiamPro becomes your external memory—capturing every source,
+                    every insight, every connection you&apos;ve ever encountered. Access decades of accumulated
+                    knowledge instantly.
+                  </p>
+                  <div className="flex items-center gap-2 text-violet-400 text-sm font-medium">
+                    <span className="px-3 py-1 rounded-full bg-violet-500/20 border border-violet-500/30">
+                      66,000+ nodes tested
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Speed of Access */}
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/20 to-teal-500/10 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="relative p-8 rounded-3xl bg-white/5 border border-white/10 hover:border-emerald-500/30 transition-all duration-300 h-full">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center mb-6 shadow-lg shadow-emerald-500/30">
+                    <Zap className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-white mb-4">Accelerated Access</h3>
+                  <p className="text-white/60 leading-relaxed mb-4">
+                    Find what you need in seconds, not hours. Hierarchical outlines, AI-powered search, and smart
+                    organization means your knowledge is always at your fingertips—ready when you need it.
+                  </p>
+                  <div className="flex items-center gap-2 text-emerald-400 text-sm font-medium">
+                    <span className="px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30">
+                      Instant retrieval
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Pattern Recognition */}
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-br from-amber-500/20 to-orange-500/10 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="relative p-8 rounded-3xl bg-white/5 border border-white/10 hover:border-amber-500/30 transition-all duration-300 h-full">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center mb-6 shadow-lg shadow-amber-500/30">
+                    <Network className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-white mb-4">Hidden Connections</h3>
+                  <p className="text-white/60 leading-relaxed mb-4">
+                    See what others miss. The hierarchical structure reveals complex interrelationships between ideas,
+                    surfaces creative possibilities, and helps you synthesize insights that would otherwise remain hidden.
+                  </p>
+                  <div className="flex items-center gap-2 text-amber-400 text-sm font-medium">
+                    <span className="px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/30">
+                      Pattern recognition
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Cognitive Enhancement Quote */}
+            <div className="mt-16 p-8 lg:p-12 rounded-3xl bg-gradient-to-br from-white/5 to-white/0 border border-white/10 text-center">
+              <Quote className="w-12 h-12 text-violet-400/50 mx-auto mb-6" />
+              <blockquote className="text-2xl lg:text-3xl font-light text-white/90 italic max-w-4xl mx-auto leading-relaxed">
+                &ldquo;The difference between experts and novices isn&apos;t just what they know—it&apos;s how quickly
+                they can access and connect that knowledge. IdiamPro gives everyone an expert&apos;s cognitive edge.&rdquo;
+              </blockquote>
+              <div className="mt-6 text-white/40">
+                — The Cognitive Enhancement Philosophy
               </div>
             </div>
           </div>
@@ -1474,11 +1590,51 @@ export default function MarketingPage() {
                     <div className="text-xs text-indigo-400">Premium Plan</div>
                   </div>
                   <Button
-                    onClick={() => router.push('/')}
+                    onClick={launchWebApp}
                     className="bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white"
                   >
                     Verify .edu
                   </Button>
+                </div>
+              </div>
+            </div>
+
+            {/* Beta Testers Callout */}
+            <div className="mt-12 p-8 lg:p-10 rounded-3xl bg-gradient-to-br from-emerald-500/20 via-teal-500/10 to-cyan-500/20 border border-emerald-500/30 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+              <div className="relative flex flex-col lg:flex-row items-center justify-between gap-8">
+                <div className="flex items-start gap-5">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/30 flex-shrink-0">
+                    <Rocket className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-medium mb-3">
+                      <Sparkles className="w-3 h-3" />
+                      Limited Spots Available
+                    </div>
+                    <h3 className="text-2xl font-bold text-white mb-2">Join Our Beta Program</h3>
+                    <p className="text-white/60 max-w-xl">
+                      Be among the first to experience IdiamPro. Beta testers get <span className="text-emerald-400 font-semibold">free lifetime access to Pro features</span>,
+                      direct input into our roadmap, and priority support. Help us build the ultimate cognitive enhancement platform.
+                    </p>
+                    <div className="flex flex-wrap gap-3 mt-4">
+                      <span className="px-3 py-1 rounded-full bg-white/10 text-white/60 text-xs">Free Pro Access</span>
+                      <span className="px-3 py-1 rounded-full bg-white/10 text-white/60 text-xs">Shape the Product</span>
+                      <span className="px-3 py-1 rounded-full bg-white/10 text-white/60 text-xs">Priority Support</span>
+                      <span className="px-3 py-1 rounded-full bg-white/10 text-white/60 text-xs">Early Feature Access</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex flex-col items-center gap-3">
+                  <Button
+                    onClick={() => window.location.href = 'mailto:beta@idiampro.com?subject=Beta Tester Application'}
+                    size="lg"
+                    className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-lg shadow-emerald-500/25 whitespace-nowrap"
+                  >
+                    Apply for Beta
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </Button>
+                  <span className="text-white/40 text-xs">Web version available now</span>
                 </div>
               </div>
             </div>
@@ -1518,7 +1674,7 @@ export default function MarketingPage() {
               Join thousands of researchers, authors, and professionals who've upgraded their workflow with IdiamPro.
             </p>
             <Button
-              onClick={() => router.push('/')}
+              onClick={launchWebApp}
               size="lg"
               className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-lg px-10 py-6 shadow-xl shadow-violet-500/25 hover:shadow-violet-500/40 transition-all duration-300"
             >
@@ -1538,12 +1694,15 @@ export default function MarketingPage() {
               <div>
                 <div className="flex items-center gap-2 mb-4">
                   <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center">
-                    <Layers className="w-4 h-4 text-white" />
+                    <Brain className="w-4 h-4 text-white" />
                   </div>
                   <span className="font-bold text-white">IdiamPro</span>
                 </div>
-                <p className="text-white/40 text-sm">
-                  AI-powered research synthesis and content creation platform.
+                <p className="text-white/40 text-sm mb-2">
+                  Your Intelligence Amplifier.
+                </p>
+                <p className="text-white/30 text-xs">
+                  Build your second brain. Expand your knowledge. See what others miss.
                 </p>
               </div>
 
