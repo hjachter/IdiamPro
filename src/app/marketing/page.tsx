@@ -572,11 +572,40 @@ export default function MarketingPage() {
                     variant="outline"
                     size="lg"
                     className="border-white/20 text-white hover:bg-white/10 text-lg px-8"
+                    onClick={() => document.getElementById('demo-video')?.scrollIntoView({ behavior: 'smooth' })}
                   >
                     <Play className="w-5 h-5 mr-2" />
                     Watch Demo
                   </Button>
                 </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Demo Video Section */}
+        <section id="demo-video" className="px-6 py-16 lg:px-12">
+          <div className="max-w-5xl mx-auto">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl lg:text-3xl font-bold text-white mb-2">See IdiamPro in Action</h2>
+              <p className="text-white/50">Watch how researchers synthesize 50+ sources in minutes</p>
+            </div>
+            <div className="relative aspect-video rounded-2xl overflow-hidden bg-gray-900 border border-white/10 group cursor-pointer hover:border-violet-500/50 transition-all duration-300">
+              {/* Placeholder - replace with actual video embed */}
+              <div className="absolute inset-0 bg-gradient-to-br from-violet-500/20 to-indigo-500/20 flex items-center justify-center">
+                <div className="text-center">
+                  <div className="w-20 h-20 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center mx-auto mb-4 group-hover:bg-violet-500/30 group-hover:scale-110 transition-all duration-300">
+                    <Play className="w-8 h-8 text-white ml-1" />
+                  </div>
+                  <p className="text-white/60 text-sm">Demo video coming soon</p>
+                  <p className="text-white/40 text-xs mt-1">See research synthesis, meeting transcription, and more</p>
+                </div>
+              </div>
+              {/* Decorative elements */}
+              <div className="absolute top-4 left-4 flex gap-1.5">
+                <div className="w-3 h-3 rounded-full bg-red-500/60" />
+                <div className="w-3 h-3 rounded-full bg-yellow-500/60" />
+                <div className="w-3 h-3 rounded-full bg-green-500/60" />
               </div>
             </div>
           </div>
@@ -956,6 +985,88 @@ export default function MarketingPage() {
               </div>
             </div>
 
+            {/* Feature Comparison Table */}
+            <div className="mt-12 overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="border-b border-white/10">
+                    <th className="text-left py-4 px-4 text-white font-semibold">Feature</th>
+                    <th className="text-center py-4 px-4">
+                      <span className="text-violet-400 font-bold">IdiamPro</span>
+                    </th>
+                    <th className="text-center py-4 px-4 text-white/50">Notion</th>
+                    <th className="text-center py-4 px-4 text-white/50">Obsidian</th>
+                    <th className="text-center py-4 px-4 text-white/50">Roam</th>
+                  </tr>
+                </thead>
+                <tbody className="text-sm">
+                  <tr className="border-b border-white/5">
+                    <td className="py-3 px-4 text-white/70">Multi-source AI synthesis (50+ sources)</td>
+                    <td className="py-3 px-4 text-center"><Check className="w-5 h-5 text-emerald-400 mx-auto" /></td>
+                    <td className="py-3 px-4 text-center"><X className="w-5 h-5 text-white/20 mx-auto" /></td>
+                    <td className="py-3 px-4 text-center"><X className="w-5 h-5 text-white/20 mx-auto" /></td>
+                    <td className="py-3 px-4 text-center"><X className="w-5 h-5 text-white/20 mx-auto" /></td>
+                  </tr>
+                  <tr className="border-b border-white/5">
+                    <td className="py-3 px-4 text-white/70">Speaker diarization (who said what)</td>
+                    <td className="py-3 px-4 text-center"><Check className="w-5 h-5 text-emerald-400 mx-auto" /></td>
+                    <td className="py-3 px-4 text-center"><X className="w-5 h-5 text-white/20 mx-auto" /></td>
+                    <td className="py-3 px-4 text-center"><X className="w-5 h-5 text-white/20 mx-auto" /></td>
+                    <td className="py-3 px-4 text-center"><X className="w-5 h-5 text-white/20 mx-auto" /></td>
+                  </tr>
+                  <tr className="border-b border-white/5">
+                    <td className="py-3 px-4 text-white/70">PDF & document import with analysis</td>
+                    <td className="py-3 px-4 text-center"><Check className="w-5 h-5 text-emerald-400 mx-auto" /></td>
+                    <td className="py-3 px-4 text-center text-white/30">Limited</td>
+                    <td className="py-3 px-4 text-center"><X className="w-5 h-5 text-white/20 mx-auto" /></td>
+                    <td className="py-3 px-4 text-center"><X className="w-5 h-5 text-white/20 mx-auto" /></td>
+                  </tr>
+                  <tr className="border-b border-white/5">
+                    <td className="py-3 px-4 text-white/70">YouTube transcript import</td>
+                    <td className="py-3 px-4 text-center"><Check className="w-5 h-5 text-emerald-400 mx-auto" /></td>
+                    <td className="py-3 px-4 text-center"><X className="w-5 h-5 text-white/20 mx-auto" /></td>
+                    <td className="py-3 px-4 text-center text-white/30">Plugin</td>
+                    <td className="py-3 px-4 text-center"><X className="w-5 h-5 text-white/20 mx-auto" /></td>
+                  </tr>
+                  <tr className="border-b border-white/5">
+                    <td className="py-3 px-4 text-white/70">AI content generation</td>
+                    <td className="py-3 px-4 text-center"><Check className="w-5 h-5 text-emerald-400 mx-auto" /></td>
+                    <td className="py-3 px-4 text-center"><Check className="w-5 h-5 text-white/40 mx-auto" /></td>
+                    <td className="py-3 px-4 text-center text-white/30">Plugin</td>
+                    <td className="py-3 px-4 text-center"><X className="w-5 h-5 text-white/20 mx-auto" /></td>
+                  </tr>
+                  <tr className="border-b border-white/5">
+                    <td className="py-3 px-4 text-white/70">Podcast generation</td>
+                    <td className="py-3 px-4 text-center"><Check className="w-5 h-5 text-emerald-400 mx-auto" /></td>
+                    <td className="py-3 px-4 text-center"><X className="w-5 h-5 text-white/20 mx-auto" /></td>
+                    <td className="py-3 px-4 text-center"><X className="w-5 h-5 text-white/20 mx-auto" /></td>
+                    <td className="py-3 px-4 text-center"><X className="w-5 h-5 text-white/20 mx-auto" /></td>
+                  </tr>
+                  <tr className="border-b border-white/5">
+                    <td className="py-3 px-4 text-white/70">Local-first storage</td>
+                    <td className="py-3 px-4 text-center"><Check className="w-5 h-5 text-emerald-400 mx-auto" /></td>
+                    <td className="py-3 px-4 text-center"><X className="w-5 h-5 text-white/20 mx-auto" /></td>
+                    <td className="py-3 px-4 text-center"><Check className="w-5 h-5 text-white/40 mx-auto" /></td>
+                    <td className="py-3 px-4 text-center"><X className="w-5 h-5 text-white/20 mx-auto" /></td>
+                  </tr>
+                  <tr className="border-b border-white/5">
+                    <td className="py-3 px-4 text-white/70">Native iOS app</td>
+                    <td className="py-3 px-4 text-center"><Check className="w-5 h-5 text-emerald-400 mx-auto" /></td>
+                    <td className="py-3 px-4 text-center"><Check className="w-5 h-5 text-white/40 mx-auto" /></td>
+                    <td className="py-3 px-4 text-center text-white/30">Basic</td>
+                    <td className="py-3 px-4 text-center text-white/30">Basic</td>
+                  </tr>
+                  <tr>
+                    <td className="py-3 px-4 text-white/70">66,000+ node capacity</td>
+                    <td className="py-3 px-4 text-center"><Check className="w-5 h-5 text-emerald-400 mx-auto" /></td>
+                    <td className="py-3 px-4 text-center text-white/30">Slows</td>
+                    <td className="py-3 px-4 text-center"><Check className="w-5 h-5 text-white/40 mx-auto" /></td>
+                    <td className="py-3 px-4 text-center text-white/30">Slows</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
             {/* Scale Callout */}
             <div className="mt-16 p-8 lg:p-12 rounded-3xl bg-gradient-to-r from-violet-500/10 via-purple-500/10 to-indigo-500/10 border border-violet-500/20 text-center relative overflow-hidden">
               <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-violet-500/10 via-transparent to-transparent" />
@@ -1141,6 +1252,39 @@ export default function MarketingPage() {
                 <UseCaseCard key={i} {...useCase} />
               ))}
             </div>
+
+            {/* Case Studies */}
+            <div className="mt-16">
+              <h3 className="text-2xl font-bold text-white text-center mb-8">Real Research, Real Results</h3>
+              <div className="grid md:grid-cols-3 gap-6">
+                <div className="p-6 rounded-2xl bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20">
+                  <div className="text-3xl font-bold text-blue-400 mb-2">47 → 1</div>
+                  <h4 className="text-white font-semibold mb-2">Literature Review Synthesis</h4>
+                  <p className="text-white/50 text-sm mb-4">
+                    A PhD candidate imported 47 research papers on computational biology. IdiamPro synthesized them into a coherent literature review organized by methodology, findings, and gaps.
+                  </p>
+                  <div className="text-blue-400 text-xs font-medium">Computational Biology • Stanford</div>
+                </div>
+
+                <div className="p-6 rounded-2xl bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-amber-500/20">
+                  <div className="text-3xl font-bold text-amber-400 mb-2">12 hrs → 30 min</div>
+                  <h4 className="text-white font-semibold mb-2">Field Interview Analysis</h4>
+                  <p className="text-white/50 text-sm mb-4">
+                    An industrial R&D team recorded 12 hours of stakeholder interviews across 3 sites. IdiamPro transcribed with speaker diarization and organized insights by theme.
+                  </p>
+                  <div className="text-amber-400 text-xs font-medium">Industrial Research • Fortune 500</div>
+                </div>
+
+                <div className="p-6 rounded-2xl bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border border-emerald-500/20">
+                  <div className="text-3xl font-bold text-emerald-400 mb-2">2,400 docs</div>
+                  <h4 className="text-white font-semibold mb-2">Legal Discovery</h4>
+                  <p className="text-white/50 text-sm mb-4">
+                    A litigation team processed 2,400 discovery documents including depositions, contracts, and communications. IdiamPro organized evidence by timeline and relevance.
+                  </p>
+                  <div className="text-emerald-400 text-xs font-medium">Complex Litigation • AmLaw 100</div>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -1305,8 +1449,39 @@ export default function MarketingPage() {
             </div>
 
             <p className="text-center text-white/40 text-sm mt-8">
-              All plans include a 14-day free trial. Cancel anytime. Student discounts available.
+              All plans include a 14-day free trial. Cancel anytime.
             </p>
+
+            {/* Academic & Student Pricing Callout */}
+            <div className="mt-12 p-8 rounded-3xl bg-gradient-to-r from-indigo-500/10 via-violet-500/10 to-purple-500/10 border border-indigo-500/20">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg">
+                    <GraduationCap className="w-7 h-7 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-white">Academic & Student Pricing</h3>
+                    <p className="text-white/60">50% off for students and educators with valid .edu email</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-white">$4.99<span className="text-white/50 text-sm">/mo</span></div>
+                    <div className="text-xs text-indigo-400">Basic Plan</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-white">$14.99<span className="text-white/50 text-sm">/mo</span></div>
+                    <div className="text-xs text-indigo-400">Premium Plan</div>
+                  </div>
+                  <Button
+                    onClick={() => router.push('/')}
+                    className="bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white"
+                  >
+                    Verify .edu
+                  </Button>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
