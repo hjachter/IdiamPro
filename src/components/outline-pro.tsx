@@ -2405,6 +2405,34 @@ export default function OutlinePro() {
     });
   }, [toast]);
 
+  // Add an already-parsed outline to the app (used by FileImportDialog and handleImportOutline)
+  const handleAddImportedOutline = useCallback((importedData: Outline, showToast: boolean = true) => {
+    setOutlines(currentOutlines => {
+      const newId = currentOutlines.some(o => o.id === importedData.id)
+        ? uuidv4()
+        : importedData.id;
+      const newOutline = { ...importedData, id: newId, isGuide: false };
+
+      // Schedule these updates after the state update
+      const capturedOutlineId = newOutline.id;
+      const capturedRootNodeId = newOutline.rootNodeId;
+      const capturedName = newOutline.name;
+
+      setTimeout(() => {
+        setCurrentOutlineId(capturedOutlineId);
+        setSelectedNodeId(capturedRootNodeId);
+        if (showToast) {
+          toast({
+            title: "Import Successful",
+            description: `Outline "${capturedName}" has been imported.`,
+          });
+        }
+      }, 0);
+
+      return [...currentOutlines, newOutline];
+    });
+  }, [toast]);
+
   // FIXED: handleImportOutline uses functional update pattern
   const handleImportOutline = useCallback((file: File) => {
     const reader = new FileReader();
@@ -2420,28 +2448,7 @@ export default function OutlinePro() {
           throw new Error("Invalid outline file format.");
         }
 
-        setOutlines(currentOutlines => {
-          const newId = currentOutlines.some(o => o.id === importedData.id)
-            ? uuidv4()
-            : importedData.id;
-          const newOutline = { ...importedData, id: newId, isGuide: false };
-
-          // Schedule these updates after the state update
-          const capturedOutlineId = newOutline.id;
-          const capturedRootNodeId = newOutline.rootNodeId;
-          const capturedName = newOutline.name;
-
-          setTimeout(() => {
-            setCurrentOutlineId(capturedOutlineId);
-            setSelectedNodeId(capturedRootNodeId);
-            toast({
-              title: "Import Successful",
-              description: `Outline "${capturedName}" has been imported.`,
-            });
-          }, 0);
-
-          return [...currentOutlines, newOutline];
-        });
+        handleAddImportedOutline(importedData);
 
       } catch (error) {
         toast({
@@ -2452,7 +2459,7 @@ export default function OutlinePro() {
       }
     };
     reader.readAsText(file);
-  }, [toast]);
+  }, [toast, handleAddImportedOutline]);
 
   // Import an outline as a chapter within the current outline
   const handleImportAsChapter = useCallback((file: File) => {
@@ -3398,6 +3405,7 @@ export default function OutlinePro() {
                 onOpenBulkResearch={() => setIsBulkResearchOpen(true)}
                 onUpdateNode={handleUpdateNode}
                 onImportOutline={handleImportOutline}
+                onAddImportedOutline={handleAddImportedOutline}
                 onImportAsChapter={handleImportAsChapter}
                 onCopySubtree={handleCopySubtree}
                 onCutSubtree={handleCutSubtree}
@@ -3771,6 +3779,7 @@ export default function OutlinePro() {
                 onOpenBulkResearch={() => setIsBulkResearchOpen(true)}
                 onUpdateNode={handleUpdateNode}
                 onImportOutline={handleImportOutline}
+                onAddImportedOutline={handleAddImportedOutline}
                 onImportAsChapter={handleImportAsChapter}
                 onCopySubtree={handleCopySubtree}
                 onCutSubtree={handleCutSubtree}

@@ -6,6 +6,7 @@ import NodeItem from './node-item';
 import AIMenu from './ai-menu';
 import OutlineSearch, { type SearchMatch } from './outline-search';
 import { MultiSelectToolbar } from './multi-select-toolbar';
+import FileImportDialog from './file-import-dialog';
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ChevronDown, FilePlus, Plus, Trash2, Edit, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, Settings, Search, Command, PanelLeft, PanelLeftClose, Brain } from 'lucide-react';
@@ -98,6 +99,7 @@ interface OutlinePaneProps {
   onOpenBulkResearch: () => void;
   onUpdateNode: (nodeId: string, updates: Partial<OutlineNode>) => void;
   onImportOutline: (file: File) => void;
+  onAddImportedOutline: (outline: Outline, showToast?: boolean) => void;
   onImportAsChapter: (file: File) => void;
   onCopySubtree: (nodeId: string) => void;
   onCutSubtree: (nodeId: string) => void;
@@ -170,6 +172,7 @@ export default function OutlinePane({
   onOpenBulkResearch,
   onUpdateNode,
   onImportOutline,
+  onAddImportedOutline,
   onImportAsChapter,
   onCopySubtree,
   onCutSubtree,
@@ -212,6 +215,7 @@ export default function OutlinePane({
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [outlineSearch, setOutlineSearch] = useState('');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   // const outlinePaneRef = useRef<HTMLDivElement>(null);
   // const isMobile = useIsMobile();
@@ -707,7 +711,7 @@ export default function OutlinePane({
   };
 
   const handleImportClick = () => {
-    fileInputRef.current?.click();
+    setImportDialogOpen(true);
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -957,13 +961,20 @@ export default function OutlinePane({
             </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* File input outside dropdown so it doesn't unmount when dropdown closes */}
+        {/* File input for backup restore (JSON arrays) - kept for backward compatibility */}
         <input
             type="file"
             ref={fileInputRef}
             onChange={handleFileChange}
             accept=".json,.idm,application/json,application/octet-stream"
             className="hidden"
+        />
+
+        {/* File Import Dialog for multi-format import */}
+        <FileImportDialog
+            open={importDialogOpen}
+            onOpenChange={setImportDialogOpen}
+            onImportComplete={(outline) => onAddImportedOutline(outline, false)}
         />
 
         {renameId && (
