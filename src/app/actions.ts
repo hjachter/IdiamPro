@@ -361,7 +361,7 @@ Output a structured outline showing ONLY the new nodes to add (with their proper
 Format: Use markdown list format with proper indentation to show hierarchy.`
       : `Create a structured outline from the following content:\n${extractedContent}`;
 
-    const result = await generateOutlineFromTopic({ topic: outlinePrompt });
+    const result = await generateOutlineFromTopic({ topic: outlinePrompt, depth: 'standard' });
 
     // Parse the result into preview format
     // For now, return a simple preview structure
@@ -1474,7 +1474,7 @@ Generate the unified outline:`;
     result = await generateOrgWithOllama();
   } else {
     result = await withRateLimitRetry(
-      () => generateOutlineFromTopic({ topic: organizationPrompt }),
+      () => generateOutlineFromTopic({ topic: organizationPrompt, depth: 'standard' }),
       1,
       'bullet organization',
       generateOrgWithOllama
@@ -1964,7 +1964,7 @@ Generate the outline with content:`;
     };
 
     const result = await withRateLimitRetry(
-      () => generateOutlineFromTopic({ topic: researchPrompt }),
+      () => generateOutlineFromTopic({ topic: researchPrompt, depth: 'standard' }),
       1,  // One retry, then fallback to Ollama
       'outline generation',
       ollamaFallback

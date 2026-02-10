@@ -166,6 +166,9 @@ export default function OutlinePro() {
     localStorage.setItem('idiampro-sidebar-open', String(isSidebarOpen));
   }, [isSidebarOpen]);
 
+  // Toast must be declared before any useEffect that uses it
+  const { toast } = useToast();
+
   // Reset stale AI loading state when returning from sleep/background
   // If loading has been going for more than 5 minutes, it's likely stale
   useEffect(() => {
@@ -238,7 +241,6 @@ export default function OutlinePro() {
     }
   }, []);
 
-  const { toast } = useToast();
   const isMobile = useIsMobile();
   const isInitialLoadDone = useRef(false);
   const pendingSaveRef = useRef<Promise<void> | null>(null);
