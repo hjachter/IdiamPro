@@ -9,6 +9,9 @@ import { MarkdownExporter } from './documents/markdown-exporter';
 import { PlainTextExporter } from './documents/plain-text-exporter';
 import { HtmlExporter } from './documents/html-exporter';
 import { OpmlExporter } from './outliners/opml-exporter';
+import { ObsidianExporter } from './note-apps/obsidian-exporter';
+import { CsvExporter } from './data/csv-exporter';
+import { JsonTreeExporter } from './data/json-tree-exporter';
 
 // Exporter registry
 const EXPORTERS: Record<string, BaseExporter> = {
@@ -16,6 +19,9 @@ const EXPORTERS: Record<string, BaseExporter> = {
   'plain-text': new PlainTextExporter(),
   html: new HtmlExporter(),
   opml: new OpmlExporter(),
+  obsidian: new ObsidianExporter(),
+  csv: new CsvExporter(),
+  'json-tree': new JsonTreeExporter(),
 };
 
 /**
