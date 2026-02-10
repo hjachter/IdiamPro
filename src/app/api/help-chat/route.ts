@@ -19,7 +19,8 @@ KEY FEATURES:
 - File storage: iCloud Drive, Dropbox, Google Drive, local folders
 - Google Docs/Sheets/Slides/Maps embedding via Insert menu
 - Speech-to-text recording in the content pane via Web Speech API
-- Export subtree to PDF: Right-click any node > "Export to PDF"
+- Export: Multi-format export system. Right-click any node > "Export Subtree..." or use dropdown menu > "Export Current Outline". Formats include PDF, Markdown, Plain Text, HTML Website (collapsible), OPML, Obsidian (wiki-links), CSV, JSON Tree.
+- Import: Multi-format import. Dropdown menu > "Import Outline". Supports Markdown (.md - heading hierarchy), Plain Text (.txt - indentation), OPML (.opml - standard outline XML), JSON/IDM (native format). Drag-and-drop or browse to select. Auto-detects format.
 - Canvas/Drawing nodes (Excalidraw-based): Right-click > Set Type > Canvas
 - Spreadsheet nodes (Fortune Sheet): Right-click > Set Type > Spreadsheet
 
