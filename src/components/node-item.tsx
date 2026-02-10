@@ -58,7 +58,7 @@ interface NodeItemProps {
   onToggleNodeSelection?: (nodeId: string, isCtrlClick: boolean) => void;
   onRangeSelect?: (nodeId: string) => void;
   // PDF export
-  onExportSubtreePdf?: (nodeId: string) => void;
+  onExportSubtree?: (nodeId: string) => void;
   // Podcast generation
   onGeneratePodcast?: (nodeId: string) => void;
   // Progressive rendering - max depth to render (for large outlines)
@@ -161,7 +161,7 @@ export default function NodeItem({
   selectedNodeIds,
   onToggleNodeSelection,
   onRangeSelect,
-  onExportSubtreePdf,
+  onExportSubtree,
   onGeneratePodcast,
   maxRenderDepth,
 }: NodeItemProps) {
@@ -710,12 +710,12 @@ export default function NodeItem({
               </ContextMenuItem>
             )}
 
-            {onExportSubtreePdf && (
+            {onExportSubtree && (
               <>
                 <ContextMenuSeparator />
-                <ContextMenuItem onClick={(e) => { e.stopPropagation(); onExportSubtreePdf(node.id); }}>
+                <ContextMenuItem onClick={(e) => { e.stopPropagation(); onExportSubtree(node.id); }}>
                   <FileOutput className="mr-2 h-4 w-4" />
-                  Export to PDF
+                  Export Subtree...
                 </ContextMenuItem>
               </>
             )}
@@ -970,7 +970,7 @@ export default function NodeItem({
                         selectedNodeIds={selectedNodeIds}
                         onToggleNodeSelection={onToggleNodeSelection}
                         onRangeSelect={onRangeSelect}
-                        onExportSubtreePdf={onExportSubtreePdf}
+                        onExportSubtree={onExportSubtree}
                         onGeneratePodcast={onGeneratePodcast}
                         maxRenderDepth={maxRenderDepth}
                     />

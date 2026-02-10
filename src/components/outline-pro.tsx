@@ -26,7 +26,7 @@ import KeyboardShortcutsDialog, { useKeyboardShortcuts } from './keyboard-shortc
 import BulkResearchDialog from './bulk-research-dialog';
 import HelpChatDialog from './help-chat-dialog';
 import KnowledgeChatDialog from './knowledge-chat-dialog';
-import PdfExportDialog from './pdf-export-dialog';
+import ExportDialog from './export-dialog';
 import PodcastDialog from './podcast-dialog';
 import { exportOutlineToJson } from '@/lib/export';
 import { exportSubtreeToPdf } from '@/lib/pdf-export';
@@ -204,9 +204,9 @@ export default function OutlinePro() {
   // Knowledge chat dialog state
   const [isKnowledgeChatOpen, setIsKnowledgeChatOpen] = useState(false);
 
-  // PDF export dialog state
-  const [pdfExportDialogOpen, setPdfExportDialogOpen] = useState(false);
-  const [pdfExportNodeId, setPdfExportNodeId] = useState<string | null>(null);
+  // Export dialog state
+  const [exportDialogOpen, setExportDialogOpen] = useState(false);
+  const [exportNodeId, setExportNodeId] = useState<string | null>(null);
 
   // Podcast generation dialog state
   const [podcastDialogOpen, setPodcastDialogOpen] = useState(false);
@@ -2632,12 +2632,11 @@ export default function OutlinePro() {
     });
   }, [currentOutlineId, outlines, collectSubtree, toast]);
 
-  // Handle export outline (for command palette)
+  // Handle export outline (opens export dialog)
   const handleExportOutline = useCallback(() => {
-    if (currentOutline) {
-      exportOutlineToJson(currentOutline);
-    }
-  }, [currentOutline]);
+    setExportNodeId(null); // null means export entire outline
+    setExportDialogOpen(true);
+  }, []);
 
   // Handle import outline trigger (opens file picker)
   const handleImportOutlineTrigger = useCallback(() => {
@@ -2993,37 +2992,10 @@ export default function OutlinePro() {
     });
   }, [selectedNodeIds, currentOutlineId, toast]);
 
-  // PDF Export handlers
-  const handleExportSubtreePdf = useCallback((nodeId: string) => {
-    setPdfExportNodeId(nodeId);
-    setPdfExportDialogOpen(true);
-  }, []);
-
-  const handlePdfExportConfirm = useCallback(async (filename: string) => {
-    if (!currentOutline || !pdfExportNodeId) return;
-
-    try {
-      await exportSubtreeToPdf(currentOutline.nodes, pdfExportNodeId, filename);
-      toast({
-        title: "PDF Exported",
-        description: `Successfully exported to ${filename}`,
-      });
-    } catch (error) {
-      console.error('PDF export failed:', error);
-      toast({
-        variant: "destructive",
-        title: "Export Failed",
-        description: (error as Error).message || "Could not export PDF.",
-      });
-    } finally {
-      setPdfExportDialogOpen(false);
-      setPdfExportNodeId(null);
-    }
-  }, [currentOutline, pdfExportNodeId, toast]);
-
-  const handlePdfExportCancel = useCallback(() => {
-    setPdfExportDialogOpen(false);
-    setPdfExportNodeId(null);
+  // Export handlers
+  const handleExportSubtree = useCallback((nodeId: string) => {
+    setExportNodeId(nodeId);
+    setExportDialogOpen(true);
   }, []);
 
   // Podcast generation handler
@@ -3234,12 +3206,15 @@ export default function OutlinePro() {
           currentOutlineId={currentOutlineId}
         />
 
-        <PdfExportDialog
-          open={pdfExportDialogOpen}
-          nodeName={pdfExportNodeId ? currentOutline.nodes[pdfExportNodeId]?.name || '' : ''}
-          onExport={handlePdfExportConfirm}
-          onCancel={handlePdfExportCancel}
-        />
+        {currentOutline && (
+          <ExportDialog
+            open={exportDialogOpen}
+            onOpenChange={setExportDialogOpen}
+            outline={currentOutline}
+            rootNodeId={exportNodeId || undefined}
+            nodeName={exportNodeId ? currentOutline.nodes[exportNodeId]?.name : undefined}
+          />
+        )}
 
         {podcastNodeId && currentOutline && (
           <PodcastDialog
@@ -3451,7 +3426,7 @@ export default function OutlinePro() {
                 onBulkChangeColor={handleBulkChangeColor}
                 onBulkAddTag={handleBulkAddTag}
                 onSearchTermChange={handleSearchTermChange}
-                onExportSubtreePdf={handleExportSubtreePdf}
+                onExportSubtree={handleExportSubtree}
                 onGeneratePodcast={handleGeneratePodcast}
                 onOpenMobileSidebar={() => setIsMobileSidebarOpen(true)}
                 canUnmerge={hasUnmergeBackup}
@@ -3605,12 +3580,15 @@ export default function OutlinePro() {
         currentOutlineId={currentOutlineId}
       />
 
-      <PdfExportDialog
-        open={pdfExportDialogOpen}
-        nodeName={pdfExportNodeId ? currentOutline.nodes[pdfExportNodeId]?.name || '' : ''}
-        onExport={handlePdfExportConfirm}
-        onCancel={handlePdfExportCancel}
-      />
+      {currentOutline && (
+        <ExportDialog
+          open={exportDialogOpen}
+          onOpenChange={setExportDialogOpen}
+          outline={currentOutline}
+          rootNodeId={exportNodeId || undefined}
+          nodeName={exportNodeId ? currentOutline.nodes[exportNodeId]?.name : undefined}
+        />
+      )}
 
       {podcastNodeId && currentOutline && (
         <PodcastDialog
@@ -3821,7 +3799,7 @@ export default function OutlinePro() {
                 onBulkChangeColor={handleBulkChangeColor}
                 onBulkAddTag={handleBulkAddTag}
                 onSearchTermChange={handleSearchTermChange}
-                onExportSubtreePdf={handleExportSubtreePdf}
+                onExportSubtree={handleExportSubtree}
                 onGeneratePodcast={handleGeneratePodcast}
                 isSidebarOpen={isSidebarOpen}
                 onToggleSidebar={() => setIsSidebarOpen(prev => !prev)}
