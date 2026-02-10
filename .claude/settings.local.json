@@ -96,7 +96,8 @@
       "Bash(mdls:*)",
       "Bash(npm run electron:*)",
       "Bash(git log --oneline --grep=\"repaint\\\\|reload\\\\|blank\" -i)",
-      "Bash(git reset:*)"
+      "Bash(git reset:*)",
+      "Bash(npx tsx:*)"
     ]
   }
 }
