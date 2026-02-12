@@ -121,6 +121,58 @@ function getMemoryUsage(): number {
   return -1; // Not available in this browser
 }
 
+function getPlatformInfo(): string {
+  if (typeof navigator === 'undefined') return 'Unknown';
+
+  const platform = navigator.platform;
+  const userAgent = navigator.userAgent;
+
+  // Detect macOS
+  if (platform === 'MacIntel' || platform.startsWith('Mac')) {
+    // Check for Apple Silicon via WebGL renderer
+    try {
+      const canvas = document.createElement('canvas');
+      const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+      if (gl) {
+        const debugInfo = (gl as WebGLRenderingContext).getExtension('WEBGL_debug_renderer_info');
+        if (debugInfo) {
+          const renderer = (gl as WebGLRenderingContext).getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+          if (renderer && renderer.includes('Apple M')) {
+            // Extract chip name (M1, M2, M3, M4, etc.)
+            const match = renderer.match(/Apple (M\d+)/);
+            if (match) {
+              return `macOS (Apple Silicon ${match[1]})`;
+            }
+            return 'macOS (Apple Silicon)';
+          }
+        }
+      }
+    } catch (e) {
+      // WebGL not available, fall back
+    }
+    return 'macOS (Intel)';
+  }
+
+  // Windows
+  if (platform.startsWith('Win')) {
+    if (userAgent.includes('ARM')) return 'Windows (ARM)';
+    return 'Windows';
+  }
+
+  // Linux
+  if (platform.startsWith('Linux')) {
+    if (userAgent.includes('Android')) return 'Android';
+    return 'Linux';
+  }
+
+  // iOS
+  if (/iPad|iPhone|iPod/.test(platform) || (platform === 'MacIntel' && navigator.maxTouchPoints > 1)) {
+    return 'iOS';
+  }
+
+  return platform;
+}
+
 export default function StressTestPage() {
   const [results, setResults] = useState<TestResult[]>([]);
   const [isRunning, setIsRunning] = useState(false);
@@ -241,7 +293,7 @@ export default function StressTestPage() {
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
               <span className="text-white/40">Platform:</span>
-              <span className="ml-2">{mounted ? navigator.platform : 'Loading...'}</span>
+              <span className="ml-2">{mounted ? getPlatformInfo() : 'Loading...'}</span>
             </div>
             <div>
               <span className="text-white/40">Browser:</span>
