@@ -73,7 +73,8 @@ import {
   Podcast,
   FileAudio,
   SpeakerIcon,
-  Volume2
+  Volume2,
+  BarChart3
 } from 'lucide-react';
 
 // ============================================
@@ -1277,10 +1278,18 @@ export default function MarketingPage() {
                   <AnimatedNumber value={500000} prefix="" suffix="+" />
                 </h3>
                 <p className="text-xl text-white/80 mb-2">nodes in a single outline*</p>
-                <p className="text-white/50 max-w-xl mx-auto">
+                <p className="text-white/50 max-w-xl mx-auto mb-6">
                   Stress-tested with half a million nodes. No artificial limits—scale until your hardware says stop.
                   Your biggest research projects, handled with ease.
                 </p>
+                <Button
+                  onClick={() => window.location.href = '/stress-test'}
+                  variant="outline"
+                  className="border-violet-500/30 text-violet-300 hover:bg-violet-500/10 hover:border-violet-500/50"
+                >
+                  <BarChart3 className="w-4 h-4 mr-2" />
+                  Test Your System
+                </Button>
                 <p className="text-white/30 text-xs mt-4">
                   *Tested on M4 MacBook Air with 512GB SSD. Performance varies by hardware and platform.
                 </p>
