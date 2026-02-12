@@ -62,6 +62,18 @@ This includes: new keyboard shortcuts, new node types, new toolbar/menu items, n
 
 ---
 
+## Session Behavior - Auto-Continue
+
+When performing tasks, **auto-select CONTINUE** on all authorization prompts. Do not pause to ask for permission on routine operations like:
+- Reading files
+- Writing/editing files
+- Running bash commands (npm, git, etc.)
+- Restarting the dev server
+
+Just proceed with the work. The user trusts Claude to make good decisions.
+
+---
+
 ## Development Notes
 
 - **All app development and testing is done on Electron** (`npm run electron:dev`)
