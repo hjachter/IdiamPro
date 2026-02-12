@@ -16,6 +16,7 @@ import {
   Pencil,
   Search,
   X,
+  Rocket,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import {
@@ -56,6 +57,7 @@ interface SidebarPaneProps {
   onDeleteOutline: (outlineId: string) => void;
   onRenameOutline: (id: string, newName: string) => void;
   onOpenGuide: () => void;
+  onShowWelcome: () => void;
 }
 
 export default function SidebarPane({
@@ -67,6 +69,7 @@ export default function SidebarPane({
   onDeleteOutline,
   onRenameOutline,
   onOpenGuide,
+  onShowWelcome,
 }: SidebarPaneProps) {
   const [templatesOpen, setTemplatesOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -219,6 +222,15 @@ export default function SidebarPane({
           >
             <BookOpen className="h-4 w-4" />
             User Guide
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full justify-start gap-2 h-9 text-muted-foreground hover:text-foreground transition-colors duration-150"
+            onClick={onShowWelcome}
+          >
+            <Rocket className="h-4 w-4" />
+            Welcome Tour
           </Button>
         </div>
 

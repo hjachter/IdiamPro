@@ -21,6 +21,7 @@ import {
   MoreHorizontal,
   Search,
   X,
+  Rocket,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -43,6 +44,7 @@ interface MobileSidebarSheetProps {
   onCreateFromTemplate: (outline: Outline) => void;
   onDeleteOutline: (outlineId: string) => void;
   onOpenGuide: () => void;
+  onShowWelcome: () => void;
 }
 
 export default function MobileSidebarSheet({
@@ -55,6 +57,7 @@ export default function MobileSidebarSheet({
   onCreateFromTemplate,
   onDeleteOutline,
   onOpenGuide,
+  onShowWelcome,
 }: MobileSidebarSheetProps) {
   const [templatesOpen, setTemplatesOpen] = useState(false);
   const [outlineSearch, setOutlineSearch] = useState('');
@@ -88,6 +91,11 @@ export default function MobileSidebarSheet({
 
   const handleOpenGuide = () => {
     onOpenGuide();
+    onOpenChange(false);
+  };
+
+  const handleShowWelcome = () => {
+    onShowWelcome();
     onOpenChange(false);
   };
 
@@ -125,6 +133,15 @@ export default function MobileSidebarSheet({
             >
               <BookOpen className="h-4 w-4" />
               User Guide
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="flex-1 justify-center gap-2 h-11 text-muted-foreground hover:text-foreground transition-colors duration-150"
+              onClick={handleShowWelcome}
+            >
+              <Rocket className="h-4 w-4" />
+              Welcome
             </Button>
           </div>
 

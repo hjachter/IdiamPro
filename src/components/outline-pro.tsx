@@ -8,6 +8,7 @@ import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/componen
 import { useIsMobile } from "@/hooks/use-mobile";
 import type { Outline, OutlineNode, NodeType, NodeMap, NodeGenerationContext, ExternalSourceInput, IngestPreview, AIDepth } from '@/types';
 import { getInitialGuide } from '@/lib/initial-guide';
+import { getWelcomeOutline, hasSeenWelcome, markWelcomeSeen } from '@/lib/welcome-outline';
 import { addNode, addNodeAfter, removeNode, updateNode, moveNode, parseMarkdownToNodes, recalculatePrefixesForBranch, buildOutlineTreeString, generateMindmapFromSubtree, generateFlowchartFromSubtree } from '@/lib/outline-utils';
 import OutlinePane from './outline-pane';
 import ContentPane from './content-pane';
@@ -458,7 +459,20 @@ export default function OutlinePro() {
           }
         }
 
-        const outlineToLoad = loadedOutlines.find(o => o.id === loadedCurrentOutlineId) || validOutlines[0] || guide;
+        // Determine which outline to load
+        let outlineToLoad: Outline;
+
+        // Check if this is first-time user (hasn't seen welcome)
+        if (!hasSeenWelcome()) {
+          const welcomeOutline = getWelcomeOutline();
+          loadedOutlines.push(welcomeOutline);
+          setOutlinesFromDisk(loadedOutlines);
+          outlineToLoad = welcomeOutline;
+          markWelcomeSeen();
+        } else {
+          outlineToLoad = loadedOutlines.find(o => o.id === loadedCurrentOutlineId) || validOutlines[0] || guide;
+        }
+
         setCurrentOutlineId(outlineToLoad.id);
         setSelectedNodeId(outlineToLoad.rootNodeId || null);
 
@@ -1202,6 +1216,22 @@ export default function OutlinePro() {
       setSelectedNodeId(guide.rootNodeId);
     }
   }, [outlines]);
+
+  // Show Welcome outline (creates a new one if needed)
+  const handleShowWelcome = useCallback(() => {
+    // Check if a welcome outline already exists
+    const existingWelcome = outlines.find(o => o.name === 'Welcome to IdiamPro!');
+    if (existingWelcome) {
+      setCurrentOutlineId(existingWelcome.id);
+      setSelectedNodeId(existingWelcome.rootNodeId);
+    } else {
+      // Create a fresh welcome outline
+      const welcomeOutline = getWelcomeOutline();
+      setOutlines(prev => [...prev, welcomeOutline]);
+      setCurrentOutlineId(welcomeOutline.id);
+      setSelectedNodeId(welcomeOutline.rootNodeId);
+    }
+  }, [outlines, setOutlines]);
 
   // Handle folder selection: migrate to file system and reload
   const handleFolderSelected = useCallback(async () => {
@@ -3249,6 +3279,7 @@ export default function OutlinePro() {
           onCreateFromTemplate={handleCreateFromTemplate}
           onDeleteOutline={handleDeleteOutline}
           onOpenGuide={handleOpenGuide}
+          onShowWelcome={handleShowWelcome}
         />
 
         <AlertDialog open={prefixDialogState.open} onOpenChange={(open) => setPrefixDialogState(s => ({ ...s, open }))}>
@@ -3512,6 +3543,7 @@ export default function OutlinePro() {
             onDeleteOutline={handleDeleteOutline}
             onRenameOutline={handleRenameOutline}
             onOpenGuide={handleOpenGuide}
+            onShowWelcome={handleShowWelcome}
           />
           {/* Resize handle */}
           <div

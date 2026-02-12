@@ -30,10 +30,10 @@ export function AIProvider({ children }: AIProviderProps) {
   // Load saved plan from localStorage on mount
   useEffect(() => {
     try {
-      const savedPlan = localStorage.getItem(AI_PLAN_STORAGE_KEY);
-      if (savedPlan === 'FREE' || savedPlan === 'PREMIUM') {
+      const savedPlan = localStorage.getItem(AI_PLAN_STORAGE_KEY) as SubscriptionPlan | null;
+      if (savedPlan === 'FREE' || savedPlan === 'BASIC' || savedPlan === 'PREMIUM' || savedPlan === 'ACADEMIC') {
         setPlan(savedPlan);
-        setFeatures(savedPlan === 'PREMIUM' ? DEFAULT_PREMIUM_FLAGS : DEFAULT_FREE_FLAGS);
+        setFeatures(savedPlan === 'FREE' ? DEFAULT_FREE_FLAGS : DEFAULT_PREMIUM_FLAGS);
       }
     } catch (error) {
       console.error('Failed to load AI plan from storage:', error);
@@ -53,8 +53,8 @@ export function AIProvider({ children }: AIProviderProps) {
 
   const switchPlan = useCallback((newPlan: SubscriptionPlan) => {
     setPlan(newPlan);
-    // Reset features to defaults for the new plan
-    setFeatures(newPlan === 'PREMIUM' ? DEFAULT_PREMIUM_FLAGS : DEFAULT_FREE_FLAGS);
+    // Reset features to defaults for the new plan (all paid plans get premium features)
+    setFeatures(newPlan === 'FREE' ? DEFAULT_FREE_FLAGS : DEFAULT_PREMIUM_FLAGS);
   }, []);
 
   const toggleFeature = useCallback((feature: keyof AIFeatureFlags) => {
@@ -80,7 +80,7 @@ export function AIProvider({ children }: AIProviderProps) {
     aiService,
     switchPlan,
     toggleFeature,
-    isPremium: plan === 'PREMIUM',
+    isPremium: plan !== 'FREE',
   }), [plan, features, config, aiService, switchPlan, toggleFeature]);
 
   return (

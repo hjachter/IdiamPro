@@ -77,7 +77,7 @@ export interface OutlineTemplate {
 // AI SUBSCRIPTION & FEATURE FLAGS
 // ============================================
 
-export type SubscriptionPlan = 'FREE' | 'PREMIUM';
+export type SubscriptionPlan = 'FREE' | 'BASIC' | 'PREMIUM' | 'ACADEMIC';
 
 export interface AIFeatureFlags {
   enableAIContentGeneration: boolean;

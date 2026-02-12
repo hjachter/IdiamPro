@@ -33,7 +33,15 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
   const [dataFolder, setDataFolder] = useState<string>('Browser Storage (Default)');
   const [confirmDelete, setConfirmDelete] = useState<boolean>(true);
   const { toast } = useToast();
-  const { isPremium } = useAI();
+  const { isPremium, plan } = useAI();
+
+  // Format plan name for display
+  const planDisplayName = {
+    FREE: 'Free',
+    BASIC: 'Basic',
+    PREMIUM: 'Premium',
+    ACADEMIC: 'Academic'
+  }[plan] || plan;
 
   // AI depth setting
   const [aiDepth, setAiDepth] = useState<AIDepth>('standard');
@@ -289,7 +297,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
                 <span className="text-sm">Subscription Plan</span>
               </div>
               <Badge variant={isPremium ? "default" : "secondary"}>
-                {isPremium ? 'Premium' : 'Free'}
+                {planDisplayName}
               </Badge>
             </div>
             <AIPlanDialog>
