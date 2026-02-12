@@ -331,19 +331,43 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
   );
 }
 
-// Floating particles background
+// Floating particles background - uses deterministic positions to avoid hydration mismatch
 function ParticlesBackground() {
+  // Pre-computed positions to avoid Math.random() hydration issues
+  const particles = [
+    { left: 15, top: 23, delay: 0.2, duration: 8 },
+    { left: 82, top: 45, delay: 1.5, duration: 12 },
+    { left: 34, top: 78, delay: 2.8, duration: 7 },
+    { left: 67, top: 12, delay: 0.8, duration: 14 },
+    { left: 91, top: 67, delay: 3.2, duration: 9 },
+    { left: 8, top: 89, delay: 4.1, duration: 11 },
+    { left: 45, top: 34, delay: 1.2, duration: 13 },
+    { left: 73, top: 91, delay: 2.4, duration: 6 },
+    { left: 28, top: 56, delay: 3.8, duration: 10 },
+    { left: 56, top: 8, delay: 0.5, duration: 15 },
+    { left: 19, top: 42, delay: 2.1, duration: 8 },
+    { left: 88, top: 28, delay: 4.5, duration: 12 },
+    { left: 41, top: 95, delay: 1.8, duration: 7 },
+    { left: 62, top: 51, delay: 3.5, duration: 14 },
+    { left: 5, top: 15, delay: 0.9, duration: 9 },
+    { left: 95, top: 82, delay: 2.7, duration: 11 },
+    { left: 37, top: 19, delay: 4.2, duration: 13 },
+    { left: 78, top: 63, delay: 1.1, duration: 6 },
+    { left: 22, top: 71, delay: 3.1, duration: 10 },
+    { left: 51, top: 38, delay: 0.3, duration: 15 },
+  ];
+
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {[...Array(30)].map((_, i) => (
+      {particles.map((p, i) => (
         <div
           key={i}
           className="absolute w-1 h-1 bg-white/20 rounded-full animate-float"
           style={{
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
-            animationDelay: `${Math.random() * 5}s`,
-            animationDuration: `${5 + Math.random() * 10}s`,
+            left: `${p.left}%`,
+            top: `${p.top}%`,
+            animationDelay: `${p.delay}s`,
+            animationDuration: `${p.duration}s`,
           }}
         />
       ))}
