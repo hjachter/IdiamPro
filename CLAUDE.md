@@ -74,6 +74,29 @@ Just proceed with the work. The user trusts Claude to make good decisions.
 
 ---
 
+## Automated Testing
+
+IdiamPro has a Playwright-based test suite for automated UI testing of the Electron app.
+
+**Run tests:**
+```bash
+node tests/electron-test.js
+```
+
+**Test outline:** The `IdiamPro - TESTS` outline (`~/Documents/IDM Outlines/IdiamPro - TESTS.idm`) contains:
+- Automated test status (Playwright results)
+- Manual test checklists for all features
+- Test run log for recording results
+
+**When to update the TESTS outline:**
+- After adding new features, add corresponding test cases
+- After running tests, update the status fields
+- After fixing bugs, verify and update test results
+
+**Screenshots:** Test screenshots are saved to `test-screenshots/` (gitignored).
+
+---
+
 ## Development Notes
 
 - **All app development and testing is done on Electron** (`npm run electron:dev`)
