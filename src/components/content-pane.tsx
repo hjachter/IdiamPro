@@ -517,13 +517,14 @@ export default function ContentPane({
         height: 360,
       }),
       Link.configure({
-        openOnClick: false,
+        openOnClick: true,
         autolink: true,
         linkOnPaste: true,
         protocols: ['http', 'https', 'mailto', 'tel', { scheme: 'data', optionalSlashes: true }],
         HTMLAttributes: {
           target: '_blank',
           rel: 'noopener noreferrer',
+          class: 'text-blue-500 hover:text-blue-600 underline cursor-pointer',
         },
       }),
       Placeholder.configure({
