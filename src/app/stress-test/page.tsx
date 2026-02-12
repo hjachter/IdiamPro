@@ -126,6 +126,12 @@ export default function StressTestPage() {
   const [isRunning, setIsRunning] = useState(false);
   const [currentTest, setCurrentTest] = useState<string>('');
   const [maxSuccessful, setMaxSuccessful] = useState<number>(0);
+  const [mounted, setMounted] = useState(false);
+
+  // Only render client-specific info after mount to avoid hydration mismatch
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const testCounts = [10000, 25000, 50000, 66000, 100000, 150000, 200000, 300000, 500000];
 
@@ -235,19 +241,19 @@ export default function StressTestPage() {
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
               <span className="text-white/40">Platform:</span>
-              <span className="ml-2">{typeof navigator !== 'undefined' ? navigator.platform : 'Unknown'}</span>
+              <span className="ml-2">{mounted ? navigator.platform : 'Loading...'}</span>
             </div>
             <div>
               <span className="text-white/40">Browser:</span>
-              <span className="ml-2">{typeof navigator !== 'undefined' ? navigator.userAgent.split(' ').pop() : 'Unknown'}</span>
+              <span className="ml-2">{mounted ? navigator.userAgent.split(' ').pop() : 'Loading...'}</span>
             </div>
             <div>
               <span className="text-white/40">Cores:</span>
-              <span className="ml-2">{typeof navigator !== 'undefined' ? navigator.hardwareConcurrency : 'Unknown'}</span>
+              <span className="ml-2">{mounted ? navigator.hardwareConcurrency : 'Loading...'}</span>
             </div>
             <div>
               <span className="text-white/40">Memory API:</span>
-              <span className="ml-2">{typeof performance !== 'undefined' && (performance as any).memory ? 'Available' : 'Not available'}</span>
+              <span className="ml-2">{mounted ? ((performance as any).memory ? 'Available' : 'Not available') : 'Loading...'}</span>
             </div>
           </div>
         </div>
