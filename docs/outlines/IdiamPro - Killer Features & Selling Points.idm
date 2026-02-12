@@ -1,0 +1,65 @@
+{
+  "id": "selling-points-2026",
+  "name": "IdiamPro - Killer Features & Selling Points",
+  "rootNodeId": "sp-root",
+  "lastModified": 1769860043219,
+  "nodes": {
+    "sp-root": {
+      "id": "sp-root",
+      "name": "IdiamPro - Killer Features & Selling Points",
+      "content": "<p>Key differentiators and marketing messages for IdiamPro.</p>",
+      "type": "root",
+      "parentId": null,
+      "childrenIds": [
+        "sec-features",
+        "sec-workflows",
+        "sec-roles",
+        "sec-names"
+      ],
+      "prefix": ""
+    },
+    "sec-features": {
+      "id": "sec-features",
+      "name": "Killer Features",
+      "content": "<p><strong>1. Ask AI: Save Great Answers Forever</strong></p><p>Traditional chat apps lose your AI answers in chat history. IdiamPro lets you save responses directly to your outline - permanently searchable.</p><p><strong>2. Visual Diagrams from Any Subtree</strong></p><p>One-click Mind Map or Flowchart generation for any branch. Auto-generated when creating content from children.</p><p><strong>3. Cross-Platform, One Subscription</strong></p><p>Subscribe once, use on Mac, iPhone, iPad, and web. Seamless sync everywhere.</p><p><strong>4. Research Mode: Build Knowledge from Any Source</strong></p><p>Import YouTube transcripts, PDFs, and text. AI organizes into your outline structure with source tracking.</p>",
+      "type": "chapter",
+      "parentId": "sp-root",
+      "childrenIds": [],
+      "prefix": "1",
+      "isCollapsed": false
+    },
+    "sec-workflows": {
+      "id": "sec-workflows",
+      "name": "Supported Workflows",
+      "content": "<p><strong>1. Student &amp; Academic</strong> - Course notes, research papers, thesis, exam prep</p><p><strong>2. Writer &amp; Author</strong> - Book outlines, articles, blog series, screenwriting</p><p><strong>3. Business Professional</strong> - Project planning, meeting notes, strategy, proposals</p><p><strong>4. Legal Professional</strong> - Case briefs, legal research, contracts, trial prep</p><p><strong>5. Researcher</strong> - Literature review, synthesis, grants, lab notes</p><p><strong>6. Content Creator</strong> - Video scripts, podcasts, content calendar, courses</p><p><strong>7. Consultant</strong> - Client deliverables, frameworks, recommendations</p><p><strong>8. Personal Knowledge</strong> - Learning notes, book summaries, second brain</p>",
+      "type": "chapter",
+      "parentId": "sp-root",
+      "childrenIds": [],
+      "prefix": "2",
+      "isCollapsed": false
+    },
+    "sec-roles": {
+      "id": "sec-roles",
+      "name": "Target Roles",
+      "content": "<p><strong>Author/Novelist</strong> - Book outlines, character tracking, story diagrams</p><p><strong>Researcher/Scientist</strong> - PDF import, literature organization, research gaps</p><p><strong>Student</strong> - Course notes, study guides, thesis structure</p><p><strong>Architect/Designer</strong> - Project specs, design decisions, documentation</p><p><strong>Attorney</strong> - Case briefs, discovery, precedent tracking</p><p><strong>Product Manager</strong> - PRDs, roadmaps, feature maps, user stories</p><p><strong>Journalist</strong> - Source organization, quote tracking, story angles</p><p><strong>Executive/CEO</strong> - Strategic plans, board decks, meeting notes</p><p><strong>Teacher/Professor</strong> - Curricula, lecture outlines, quiz generation</p><p><strong>YouTuber</strong> - Video scripts, content calendars, competitor analysis</p><p><strong>Consultant</strong> - Client deliverables, frameworks, recommendations</p><p><strong>Software Developer</strong> - Architecture docs, tech specs, sprint planning</p><p><strong>Medical Professional</strong> - CME notes, literature review, patient education</p><p><strong>Entrepreneur</strong> - Business plans, pitch prep, SOPs</p><p><strong>Project Manager</strong> - WBS diagrams, risk tracking, meeting notes</p>",
+      "type": "chapter",
+      "parentId": "sp-root",
+      "childrenIds": [],
+      "prefix": "3"
+    },
+    "sec-names": {
+      "id": "sec-names",
+      "name": "Alternative Product Names",
+      "content": "<p><strong>Writing Focus:</strong> AuthorPro, AutoBook, WriteFrame, StoryMap, ChapterFlow, BookForge, PlotTree, NovelArchitect</p><p><strong>Research Focus:</strong> ResearchPro, ScholarFlow, ThesisBuilder, LitReview, AcademicTree, SourceSync, KnowledgeMap</p><p><strong>Knowledge Mgmt:</strong> MindVault, BrainTree, ThinkBase, IdeaForge, SecondMind, ThoughtTree, MindFrame</p><p><strong>Business Focus:</strong> PlanPro, StrategyTree, ExecOutline, BoardBrief, ProjectFrame, ProposalPro, DecisionTree</p><p><strong>AI Emphasis:</strong> AIOutliner, SmartOutline, AIWriter, ThinkAI, AutoOutline, SmartDraft, AIBrain</p><p><strong>Outlining Focus:</strong> OutlinePro, TreeNote, StructureApp, NodeFlow, BranchNote, OutlineForge, NestedNote</p><p><strong>Brandable:</strong> Structly, Outlinr, Nodelux, Treeva, Maplix, Branchly, Nestify, Outloom, Thinkvine, Mindloom</p>",
+      "type": "chapter",
+      "parentId": "sp-root",
+      "childrenIds": [],
+      "prefix": "4",
+      "isCollapsed": false
+    }
+  },
+  "isGuide": false,
+  "_fileSize": 5209,
+  "_fileName": "IdiamPro - Killer Features & Selling Points.idm",
+  "_isLazyLoaded": false
+}

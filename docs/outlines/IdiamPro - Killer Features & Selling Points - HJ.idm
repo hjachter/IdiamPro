@@ -1,0 +1,97 @@
+{
+  "id": "fbb8ec66-5d60-439c-8cb7-0de3a4b43d93",
+  "name": "IdiamPro - Killer Features & Selling Points - HJ",
+  "rootNodeId": "sp-root",
+  "lastModified": 1769860061531,
+  "nodes": {
+    "sp-root": {
+      "id": "sp-root",
+      "name": "IdiamPro - Killer Features & Selling Points - HJ",
+      "content": "<p>Key differentiators and marketing messages for IdiamPro. Use these for website copy, app store descriptions, pitch decks, and sales conversations.</p>",
+      "type": "root",
+      "parentId": null,
+      "childrenIds": [
+        "26b2b7d4-2374-426f-b8d9-5bb71f64df16",
+        "7ce91f25-c6ed-49bf-893f-c7b397baedb7",
+        "a5ddf474-fe4d-442c-8797-fb4a1364207d"
+      ],
+      "prefix": "",
+      "isCollapsed": false
+    },
+    "sp-1": {
+      "id": "sp-1",
+      "name": "Ask AI: Save Great Answers Forever",
+      "content": "<p><strong>The Problem:</strong> With traditional AI chat apps, you get a brilliant answer... and then it disappears into chat history. Finding it later? Nearly impossible.</p><p><strong>IdiamPro's Solution:</strong> The Ask AI feature lets you save responses directly to your outline with one click. Your AI conversations become permanent, searchable knowledge.</p><p><strong>Key Benefits:</strong></p><p>• <strong>Never lose a great answer</strong> - Save directly to the relevant node</p><p>• <strong>Fully searchable</strong> - Find any AI response using IdiamPro's search</p><p>• <strong>Context-aware</strong> - AI sees your node hierarchy, so answers are relevant</p><p>• <strong>Organized by topic</strong> - Responses live in your knowledge structure, not scattered chats</p><p><strong>Comparison:</strong></p><p>Traditional Chat Apps → Great answers disappear into history</p><p>IdiamPro Ask AI → One-click save to your organized knowledge base</p>",
+      "type": "chapter",
+      "parentId": "26b2b7d4-2374-426f-b8d9-5bb71f64df16",
+      "childrenIds": [],
+      "prefix": "1.1"
+    },
+    "sp-2": {
+      "id": "sp-2",
+      "name": "Visual Diagrams from Any Subtree",
+      "content": "<p><strong>The Problem:</strong> Creating diagrams of your outline structure requires switching to another app and manual work.</p><p><strong>IdiamPro's Solution:</strong> One-click diagram generation for any branch of your outline. Choose Mind Map (horizontal) or Flowchart (vertical) layout.</p><p><strong>Key Benefits:</strong></p><p>• <strong>Instant visualization</strong> - See your ideas as a diagram in seconds</p><p>• <strong>Stays in sync</strong> - Diagram reflects your actual outline structure</p><p>• <strong>Auto-generated</strong> - When creating content for children, parent gets a diagram</p><p>• <strong>Export-ready</strong> - Diagrams appear in PDF exports</p>",
+      "type": "chapter",
+      "parentId": "26b2b7d4-2374-426f-b8d9-5bb71f64df16",
+      "childrenIds": [],
+      "prefix": "1.4"
+    },
+    "sp-3": {
+      "id": "sp-3",
+      "name": "Cross-Platform, One Subscription",
+      "content": "<p><strong>The Problem:</strong> Many apps charge separately for Mac, iOS, and web versions.</p><p><strong>IdiamPro's Solution:</strong> Subscribe once, use everywhere. Your subscription works on Mac, iPhone, iPad, and web.</p><p><strong>Key Benefits:</strong></p><p>• <strong>No double-paying</strong> - One price for all platforms</p><p>• <strong>Seamless sync</strong> - Start on Mac, continue on iPhone</p><p>• <strong>Cloud backup</strong> - Your outlines are safe and accessible anywhere</p>",
+      "type": "chapter",
+      "parentId": "26b2b7d4-2374-426f-b8d9-5bb71f64df16",
+      "childrenIds": [],
+      "prefix": "1.3"
+    },
+    "sp-4": {
+      "id": "sp-4",
+      "name": "Research Mode: Build Knowledge from Any Source",
+      "content": "<p><strong>The Problem:</strong> Research means switching between sources, copying quotes, and manually organizing notes.</p><p><strong>IdiamPro's Solution:</strong> Import from YouTube transcripts, PDFs, and text. AI organizes it into your outline structure automatically.</p><p><strong>Key Benefits:</strong></p><p>• <strong>YouTube → Outline</strong> - Paste a video URL, get structured notes</p><p>• <strong>PDF → Outline</strong> - Upload a document, extract key points</p><p>• <strong>Smart merging</strong> - New content merges with existing categories</p><p>• <strong>Source tracking</strong> - Know where each piece of information came from</p>",
+      "type": "chapter",
+      "parentId": "26b2b7d4-2374-426f-b8d9-5bb71f64df16",
+      "childrenIds": [],
+      "prefix": "1.2"
+    },
+    "7ce91f25-c6ed-49bf-893f-c7b397baedb7": {
+      "id": "7ce91f25-c6ed-49bf-893f-c7b397baedb7",
+      "name": "Workflows",
+      "content": "<p></p>",
+      "type": "document",
+      "parentId": "sp-root",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "2"
+    },
+    "26b2b7d4-2374-426f-b8d9-5bb71f64df16": {
+      "id": "26b2b7d4-2374-426f-b8d9-5bb71f64df16",
+      "name": "Features",
+      "content": "<p></p>",
+      "type": "chapter",
+      "parentId": "sp-root",
+      "childrenIds": [
+        "sp-1",
+        "sp-4",
+        "sp-3",
+        "sp-2"
+      ],
+      "isCollapsed": false,
+      "prefix": "1"
+    },
+    "a5ddf474-fe4d-442c-8797-fb4a1364207d": {
+      "id": "a5ddf474-fe4d-442c-8797-fb4a1364207d",
+      "name": "New Node",
+      "content": "",
+      "type": "document",
+      "parentId": "sp-root",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "3"
+    }
+  },
+  "isGuide": false,
+  "_fileSize": 5617,
+  "_fileName": "IdiamPro - Killer Features & Selling Points - HJ.idm",
+  "_isLazyLoaded": false
+}

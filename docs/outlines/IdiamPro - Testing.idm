@@ -1,0 +1,345 @@
+{
+  "id": "testing-guide-2026",
+  "name": "IdiamPro - Testing",
+  "rootNodeId": "root",
+  "nodes": {
+    "root": {
+      "id": "root",
+      "name": "IdiamPro - Testing",
+      "content": "<p>Complete testing guide for IdiamPro. This covers both <strong>automated tests</strong> (code that checks other code for correctness, run with a single command) and <strong>manual test procedures</strong> (step-by-step checklists for a human to walk through in the app).</p><p><strong>Key terms used throughout:</strong></p><ul><li><p><strong>Unit test</strong> — A small, focused test that checks one function in isolation. Like checking that a calculator's \"add\" button gives the right answer, without testing the screen or buttons.</p></li><li><p><strong>Test suite</strong> — The full collection of all automated tests in the project.</p></li><li><p><strong>Vitest</strong> — The testing tool (\"test runner\") we use. It finds test files, runs them, and reports pass/fail results.</p></li><li><p><strong>Coverage</strong> — A measurement of what percentage of your code gets exercised by tests. Higher is better, but 100% isn't always practical.</p></li><li><p><strong>Mock / Spy</strong> — A fake version of a function used during testing. A \"spy\" watches if a function was called and what arguments it received. A \"mock\" replaces a function with a fake that returns controlled values.</p></li><li><p><strong>Fixture</strong> — Pre-built test data. Instead of manually creating outline nodes in every test, fixtures provide ready-made trees to test against.</p></li><li><p><strong>CI (Continuous Integration)</strong> — A system that automatically runs tests every time code is pushed to the repository, catching problems before they reach users.</p></li></ul><p><strong>Last updated:</strong> January 2026</p>",
+      "type": "root",
+      "parentId": null,
+      "childrenIds": [
+        "quick-ref",
+        "how-to-run-tests",
+        "automated-overview",
+        "automated-security",
+        "automated-outline-utils",
+        "automated-tag-utils",
+        "automated-fix-duplicates",
+        "automated-templates",
+        "playwright-ui-tests",
+        "manual-procedures",
+        "testing-guidance",
+        "known-gaps"
+      ],
+      "prefix": ""
+    },
+    "quick-ref": {
+      "id": "quick-ref",
+      "name": "Quick Reference - Running Tests",
+      "content": "<p><strong>Commands (run these in Terminal from the project folder):</strong></p><ul><li><code>npm test</code> — Run all tests once and show results. This is the main command you'll use.</li><li><code>npm run test:watch</code> — Run tests and keep watching. Automatically re-runs whenever you save a file. Useful while developing.</li><li><code>npm run test:coverage</code> — Run all tests and show a coverage report (tells you what percentage of each file's code is being tested).</li></ul><p><strong>Run just one test file:</strong></p><pre><code>npx vitest run src/__tests__/lib/security.test.ts</code></pre><p><strong>Run only tests whose name matches a word:</strong></p><pre><code>npx vitest run -t \"isAllowedUrl\"</code></pre><p><strong>Key files:</strong></p><ul><li><code>vitest.config.ts</code> — Configuration file that tells Vitest where to find tests and how to run them. Located at the project root.</li><li><code>src/__tests__/setup.ts</code> — A tiny setup file that loads Vitest's built-in helper functions (like <code>describe</code>, <code>it</code>, <code>expect</code>) so tests can use them without importing.</li><li><code>src/__tests__/helpers/fixtures.ts</code> — Pre-built test data (\"fixtures\") — reusable outline trees and nodes so each test doesn't have to build its own from scratch.</li></ul>",
+      "type": "document",
+      "parentId": "root",
+      "childrenIds": [],
+      "prefix": "1"
+    },
+    "how-to-run-tests": {
+      "id": "how-to-run-tests",
+      "name": "How to Run These Tests",
+      "content": "<p>This section explains how to validate IdiamPro on <strong>all platforms</strong>. Follow these steps in order for a complete validation, or jump to the specific platform you need to test.</p><h3>Prerequisites</h3><ul><li><p><strong>Node.js 20+</strong> — Check with <code>node --version</code></p></li><li><p><strong>npm</strong> — Comes with Node.js</p></li><li><p><strong>Xcode</strong> (for iOS testing) — Install from Mac App Store</p></li><li><p><strong>Playwright</strong> — Already installed as a dev dependency</p></li></ul><h3>Step 1: Run Unit Tests (Vitest)</h3><p>These test the core logic functions. Run from the project root:</p><pre><code>npm test</code></pre><p><strong>Expected:</strong> 245 tests pass in under 1 second. If any fail, fix before proceeding.</p><h3>Step 2: Run Playwright UI Tests</h3><p>These launch the Electron app and click real buttons. <strong>Important:</strong> Close any running IdiamPro instance first.</p><pre><code>node tests/electron-test.js</code></pre><p><strong>Expected:</strong> 4 tests pass. Screenshots saved to <code>test-screenshots/</code>. A test report is generated at <code>test-screenshots/test-report.md</code>.</p><h3>Step 3: Test on macOS (Electron)</h3><p>Launch the desktop app:</p><pre><code>npm run electron:dev</code></pre><p>Work through the <strong>Manual Test Procedures</strong> (Section 10) focusing on:</p><ul><li><p>Core outline operations (create, edit, delete nodes)</p></li><li><p>Keyboard shortcuts</p></li><li><p>Drag and drop</p></li><li><p>File save/load</p></li><li><p>Settings dialog</p></li></ul><h3>Step 4: Test on iOS (Capacitor)</h3><p>Sync and build the iOS app:</p><pre><code>npx cap sync ios\nnpx cap open ios</code></pre><p>In Xcode, select a simulator or connected device and click Run. Work through:</p><ul><li><p>iOS-specific gestures (tap, tap-again to edit, swipe indent/outdent)</p></li><li><p>Long-press drag and drop</p></li><li><p>Verify no conflicts with system gestures</p></li></ul><h3>Step 5: Test on Web Browser</h3><p>Start the development server:</p><pre><code>npm run dev</code></pre><p>Open <code>http://localhost:9002/app</code> in Safari, Chrome, and Firefox. Test:</p><ul><li><p>All core operations work without Electron/Capacitor APIs</p></li><li><p>Responsive layout on different window sizes</p></li><li><p>No console errors</p></li></ul><h3>Quick Validation Checklist</h3><p>For a fast sanity check (not full validation), run these commands:</p><pre><code># 1. Unit tests\nnpm test\n\n# 2. Playwright UI tests (close IdiamPro first!)\nnode tests/electron-test.js\n\n# 3. Quick manual check in Electron\nnpm run electron:dev</code></pre><p>If all automated tests pass and the app launches correctly, basic functionality is verified.</p>",
+      "type": "document",
+      "parentId": "root",
+      "childrenIds": [],
+      "prefix": "2"
+    },
+    "automated-overview": {
+      "id": "automated-overview",
+      "name": "Automated Test Suite Overview",
+      "prefix": "3",
+      "content": "<p>The automated test suite uses <strong>Vitest</strong> (a fast JavaScript testing tool). All tests are <strong>pure unit tests</strong>, meaning they test individual functions in isolation — no web browser needed, no screen rendering, no internet connection.</p><p><strong>Current stats:</strong> 245 tests across 5 test files. The entire suite runs in about 200 milliseconds (under 1 second).</p><p><strong>Test files:</strong></p><ul><li><code>security.test.ts</code> — 46 tests. Checks that the app correctly blocks dangerous URLs (SSRF = \"Server-Side Request Forgery,\" where an attacker tricks the server into fetching internal resources), validates Google embed URLs, prevents file path attacks (\"path traversal\" = using ../ to escape a folder), and sanitizes file names.</li><li><code>outline-utils.test.ts</code> — 49 tests. Checks the core outline operations: adding, removing, moving, and updating nodes. Also tests prefix numbering (1, 1.1, 1.2), markdown-to-outline conversion, and Mermaid diagram code generation.</li><li><code>tag-utils.test.ts</code> — 19 tests. Checks adding/removing tags on nodes, filtering nodes by tags, renaming tags across an outline, and counting tag usage.</li><li><code>fix-duplicates.test.ts</code> — 9 tests. Checks detection and repair of duplicate entries in node children lists (a data integrity issue).</li><li><code>templates.test.ts</code> — 122 tests. Checks that all 14 outline templates produce valid data structures. Uses \"parameterized testing\" — the same 8 checks are run once for each template, so 14 × 8 = 112 tests plus 10 more for the blank outline creator.</li></ul><p><strong>What IS covered:</strong> All the \"behind-the-scenes\" logic functions that don't need a screen to run.</p><p><strong>What is NOT covered (needs manual testing):</strong> Anything visual — the actual user interface, touch gestures on iOS, the Electron desktop app, the text editor, drag-and-drop, keyboard shortcuts, and file sync with iCloud.</p>",
+      "type": "document",
+      "parentId": "root",
+      "childrenIds": []
+    },
+    "automated-security": {
+      "id": "automated-security",
+      "name": "Automated: Security Validators (46 tests)",
+      "content": "<p>File: <code>src/__tests__/lib/security.test.ts</code></p><p>Tests the code in: <code>src/lib/security.ts</code> (used by the PDF extraction API and the Google embed features)</p><h3>isAllowedUrl — 22 tests</h3><p>This function checks whether a URL is safe for the server to fetch. It prevents \"SSRF\" (Server-Side Request Forgery) attacks, where a malicious user submits a URL like <code>http://localhost</code> or a private IP address to make the server talk to internal systems it shouldn't.</p><ul><li>Accepts normal web URLs (http:// and https://)</li><li>Blocks non-web schemes: ftp://, file://, javascript:</li><li>Rejects invalid or empty URLs</li><li>Blocks \"loopback\" addresses (addresses that point back to the server itself): localhost, 127.0.0.1, ::1, 0.0.0.0</li><li>Blocks private network IP ranges (internal company/home networks): 10.x.x.x, 172.16-31.x.x, 192.168.x.x</li><li>Blocks link-local addresses (169.254.x.x — auto-assigned when there's no network)</li><li>Tests boundary values: 172.15 (just below blocked range, should be allowed) and 172.32 (just above, should be allowed)</li><li>Allows normal public IPs and domain names like google.com</li></ul><h3>isAllowedEmbedUrl — 12 tests</h3><p>Checks that embedded iframe URLs (for Google Docs, Sheets, Slides, Maps) actually point to legitimate Google domains. Prevents someone from embedding a malicious website disguised as a Google service.</p><ul><li>Google Docs: must be on docs.google.com</li><li>Google Sheets: must be on docs.google.com with /spreadsheets in the path</li><li>Google Slides: must be on docs.google.com with /presentation in the path</li><li>Google Maps: accepts www.google.com/maps, maps.google.com, or google.com/maps</li><li>Rejects null, empty, and malformed URLs</li><li>Rejects valid Google URLs that don't match the expected service (e.g., a Docs URL used for Sheets)</li></ul><h3>validateFilePath — 5 tests</h3><p>Prevents \"path traversal\" attacks. When saving files, an attacker might try to write outside the safe folder using <code>../</code> (go up one folder). This function ensures the final file path stays within the expected base directory.</p><ul><li>Normal file paths inside the base directory work correctly</li><li>Nested subfolders work</li><li>The base directory path itself is accepted</li><li>Paths with <code>../</code> that would escape the base directory throw an error</li></ul><h3>sanitizeFileName — 7 tests</h3><p>Cleans up file names by removing characters that could be dangerous or cause problems on different operating systems.</p><ul><li>Normal, clean names are left unchanged</li><li>Removes: <code>..</code> (directory traversal), <code>/</code> and <code>\\</code> (path separators), <code>&lt;&gt;:\"|?*</code> (forbidden on Windows), and invisible control characters</li></ul>",
+      "type": "document",
+      "parentId": "root",
+      "childrenIds": [],
+      "prefix": "4"
+    },
+    "automated-outline-utils": {
+      "id": "automated-outline-utils",
+      "name": "Automated: Outline Utils (49 tests)",
+      "content": "<p>File: <code>src/__tests__/lib/outline-utils.test.ts</code></p><p>Module: <code>src/lib/outline-utils.ts</code></p><h3>calculateNodePrefix (6 tests)</h3><ul><li>Root → empty string</li><li>First/second child → \"1\"/\"2\"</li><li>Grandchild → \"1.1\", \"2.3\"</li><li>Unknown nodeId → empty string</li></ul><h3>addNode (7 tests)</h3><ul><li>Child added to correct parent with proper linkage</li><li>Name/content set correctly</li><li>Parent promoted to chapter type</li><li>Root not promoted</li><li>Invalid parentId returns original nodes</li><li>Prefixes recalculated</li><li>Parent uncollapsed</li></ul><h3>addNodeAfter (4 tests)</h3><ul><li>New node inserted at correct position</li><li>ParentId set correctly</li><li>Falls back to addNode for root</li><li>Prefixes recalculated</li></ul><h3>removeNode (5 tests)</h3><ul><li>Leaf node removed</li><li>Entire subtree removed</li><li>Parent childrenIds updated</li><li>Parent reverts to document when last child removed</li><li>Unknown nodeId returns original</li></ul><h3>updateNode (2 tests)</h3><ul><li>Partial merge works</li><li>Invalid nodeId returns original</li></ul><h3>moveNode (7 tests)</h3><ul><li>Before/after/inside positions work</li><li>Self-move returns null</li><li>Circular move returns null</li><li>Target promoted to chapter</li><li>Old parent reverts to document</li></ul><h3>buildOutlineTreeString (4 tests)</h3><ul><li>Indented output for flat/nested trees</li><li>maxDepth limit respected</li><li>Empty root → empty string</li></ul><h3>parseMarkdownToNodes (7 tests)</h3><ul><li>Flat and nested lists parsed</li><li>\"Name: Content\" splitting</li><li>Name-only lines</li><li>Root node and topic set</li><li>Parents promoted to chapter</li><li>Non-list lines ignored</li></ul><h3>generateMindmapFromSubtree (3 tests)</h3><ul><li>Valid mindmap syntax with root(()) wrapper</li><li>Children included</li><li>Special characters sanitized</li></ul><h3>generateFlowchartFromSubtree (4 tests)</h3><ul><li>Valid flowchart TD syntax</li><li>Node definitions with quoted names</li><li>Connections (→) between parent/child</li><li>Special characters sanitized</li></ul>",
+      "type": "document",
+      "parentId": "root",
+      "childrenIds": [],
+      "prefix": "5"
+    },
+    "automated-tag-utils": {
+      "id": "automated-tag-utils",
+      "name": "Automated: Tag Utils (19 tests)",
+      "content": "<p>File: <code>src/__tests__/lib/tag-utils.test.ts</code></p><p>Module: <code>src/lib/tag-utils.ts</code></p><h3>addTagToNode (4 tests)</h3><ul><li><p>Adds tag to node without existing tags</p></li><li><p>Appends to existing tags</p></li><li><p>Does not duplicate existing tag</p></li><li><p>Invalid nodeId returns original nodes</p></li></ul><h3>removeTagFromNode (3 tests)</h3><ul><li><p>Removes specified tag</p></li><li><p>Sets tags to undefined when last tag removed</p></li><li><p>Invalid nodeId returns original nodes</p></li></ul><h3>getAllTags (2 tests)</h3><ul><li><p>Returns sorted unique list</p></li><li><p>Returns empty array when no tags</p></li></ul><h3>filterNodesByTags (4 tests)</h3><ul><li><p>Single tag filter works</p></li><li><p>AND logic for multiple tags</p></li><li><p>Returns empty for non-existent tags</p></li><li><p>Returns empty for empty tag list</p></li></ul><h3>renameTag (2 tests)</h3><ul><li><p>Renames across all nodes</p></li><li><p>Does not affect untagged nodes</p></li></ul><h3>deleteTag (2 tests)</h3><ul><li><p>Removes from all nodes</p></li><li><p>Preserves other tags</p></li></ul><h3>getTagUsageCounts (2 tests)</h3><ul><li><p>Returns correct counts per tag</p></li><li><p>Returns empty object when no tags</p></li></ul><p></p>",
+      "type": "document",
+      "parentId": "root",
+      "childrenIds": [],
+      "prefix": "6"
+    },
+    "automated-fix-duplicates": {
+      "id": "automated-fix-duplicates",
+      "name": "Automated: Fix Duplicates (9 tests)",
+      "content": "<p>File: <code>src/__tests__/lib/fix-duplicates.test.ts</code></p><p>Module: <code>src/lib/fix-duplicates.ts</code></p><h3>findDuplicateChildren (4 tests)</h3><ul><li>Clean tree returns empty array</li><li>Detects duplicate childrenIds in a node</li><li>Detects duplicates across multiple nodes</li><li>Handles nodes with no children</li></ul><h3>fixDuplicateChildren (3 tests)</h3><ul><li>Returns unchanged outline when no duplicates</li><li>Removes duplicates keeping first occurrence</li><li>Generates report with node names and counts</li></ul><h3>checkOutlineIntegrity (2 tests)</h3><ul><li>Logs success message for clean outline (console.log spy)</li><li>Warns for outline with duplicates (console.warn spy)</li></ul>",
+      "type": "document",
+      "parentId": "root",
+      "childrenIds": [],
+      "prefix": "7"
+    },
+    "automated-templates": {
+      "id": "automated-templates",
+      "name": "Automated: Templates (122 tests)",
+      "content": "<p>File: <code>src/__tests__/lib/templates.test.ts</code></p><p>Module: <code>src/lib/templates.ts</code></p><h3>createBlankOutline (7 tests)</h3><ul><li>Default name \"Untitled Outline\"</li><li>Custom name works</li><li>Single root node</li><li>Root name matches outline name</li><li>Root has empty childrenIds</li><li>Unique id and rootNodeId</li><li>Different IDs each call</li></ul><h3>templates array (3 tests)</h3><ul><li>14 templates total</li><li>All have unique IDs</li><li>All have required fields (id, name, description, icon, create)</li></ul><h3>Parameterized per-template (14 × 8 = 112 tests)</h3><p>Each of the 14 templates is validated for:</p><ol><li>Valid outline with id, name, rootNodeId</li><li>Root node exists with type \"root\"</li><li>Root has null parentId</li><li>Root has at least one child</li><li>All childrenIds reference existing nodes</li><li>All non-root nodes reference existing parent</li><li>Parent-child bidirectional referential integrity</li><li>Outline name is a non-empty string</li></ol><p><strong>Templates tested:</strong> Meeting Notes, Project Plan, Book Outline, Research Paper, Weekly Review, Course Notes, Daily Journal, Product Roadmap, Blog Post, Job Interview Prep, Recipe, Travel Itinerary, 1-on-1 Meeting, Decision Document</p>",
+      "type": "document",
+      "parentId": "root",
+      "childrenIds": [],
+      "prefix": "8"
+    },
+    "playwright-ui-tests": {
+      "id": "playwright-ui-tests",
+      "name": "Automated: Playwright UI Tests (4 tests)",
+      "content": "<p>File: <code>tests/electron-test.js</code></p><p>These are <strong>end-to-end UI tests</strong> that launch the actual Electron app and simulate user interactions using Playwright. Unlike Vitest unit tests, these tests click real buttons, navigate between views, and take screenshots.</p><p><strong>Run command:</strong></p><pre><code>node tests/electron-test.js</code></pre><p><strong>What it does:</strong></p><ol><li><p>Launches Electron app via Playwright</p></li><li><p>Finds the main window (skips DevTools)</p></li><li><p>Navigates to /app</p></li><li><p>Runs 4 UI tests</p></li><li><p>Takes screenshots after each test</p></li></ol><p><strong>Screenshots saved to:</strong> <code>test-screenshots/</code> (gitignored)</p><h3>Test 1: User Guide Button</h3><ul><li><p><strong>Action:</strong> Click \"User Guide\" button in sidebar</p></li><li><p><strong>Expected:</strong> User Guide outline loads, h1 shows \"IdiamPro User Guide\"</p></li><li><p><strong>Status:</strong> PASS</p></li></ul><h3>Test 2: Welcome Tour Button</h3><ul><li><p><strong>Action:</strong> Click \"Welcome Tour\" button in sidebar</p></li><li><p><strong>Expected:</strong> Welcome outline loads, h1 shows \"Welcome to IdiamPro!\"</p></li><li><p><strong>Status:</strong> PASS</p></li></ul><h3>Test 3: Create New Outline</h3><ul><li><p><strong>Action:</strong> Click \"New Outline\" button</p></li><li><p><strong>Expected:</strong> New outline created, h1 shows \"Untitled Outline\"</p></li><li><p><strong>Status:</strong> PASS</p></li></ul><h3>Test 4: Settings Dialog</h3><ul><li><p><strong>Action:</strong> Click Settings button (gear icon)</p></li><li><p><strong>Expected:</strong> Settings dialog opens, \"Subscription Plan\" visible</p></li><li><p><strong>Status:</strong> PASS</p></li></ul><p><strong>Adding new Playwright tests:</strong> Edit <code>tests/electron-test.js</code> and add a new async function following the existing pattern. Use <code>page.locator()</code> for finding elements and <code>.first()</code> to avoid strict mode violations when multiple elements match.</p>",
+      "type": "document",
+      "parentId": "root",
+      "childrenIds": [],
+      "prefix": "9"
+    },
+    "manual-procedures": {
+      "id": "manual-procedures",
+      "name": "Manual Test Procedures",
+      "content": "<p>These features require a human to test by actually using the app, because they involve things that automated code tests can't check — the visual interface, touch interactions, network connections, and how the app behaves on different platforms (web browser, iOS, desktop).</p><p><strong>How to use this section:</strong> After making significant changes to the app, work through each checklist below. You don't need to do every section every time — focus on the areas related to what changed. For example, if you changed drag-and-drop code, test the \"Drag & Drop\" section.</p>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": [
+        "manual-core-outline",
+        "manual-keyboard-shortcuts",
+        "manual-drag-drop",
+        "manual-editor",
+        "manual-ai-features",
+        "manual-ios-gestures",
+        "manual-electron",
+        "manual-file-operations",
+        "manual-embed-security",
+        "manual-templates-ui",
+        "manual-tags-ui",
+        "manual-diagrams",
+        "manual-media",
+        "manual-settings"
+      ],
+      "prefix": "10",
+      "isCollapsed": true
+    },
+    "manual-core-outline": {
+      "id": "manual-core-outline",
+      "name": "Core Outline Operations",
+      "content": "<p><strong>Test Procedure:</strong></p><ol><li>Create a new blank outline — verify it appears in the sidebar with \"Untitled Outline\"</li><li>Rename the outline — verify name updates in sidebar and header</li><li>Create a child node (double-click on root) — verify it appears indented under root</li><li>Create a sibling node (Enter key on selected node) — verify it appears after the selected node</li><li>Edit a node name (Enter on selected node or tap-again on iOS) — verify inline editing works</li><li>Collapse/expand a chapter node — verify children hide/show</li><li>Delete a node — verify it and its subtree are removed</li><li>Undo/redo — verify the last operation is reversed/replayed</li><li>Check that node prefixes (1, 1.1, 1.2, 2, etc.) update correctly after add/remove/move</li></ol><p><strong>Expected:</strong> All operations should feel instant with no lag. Prefixes should always be consistent.</p>",
+      "type": "document",
+      "parentId": "manual-procedures",
+      "childrenIds": [],
+      "prefix": "10.1"
+    },
+    "manual-keyboard-shortcuts": {
+      "id": "manual-keyboard-shortcuts",
+      "name": "Keyboard Shortcuts (macOS)",
+      "content": "<p><strong>Test each shortcut:</strong></p><ul><li><strong>Tab</strong> — Indent selected node (becomes child of previous sibling)</li><li><strong>Shift+Tab</strong> — Outdent selected node (becomes sibling of parent)</li><li><strong>Enter/Return</strong> — Edit node name (on selected node) / Confirm edit</li><li><strong>Escape</strong> — Cancel editing / Deselect</li><li><strong>Delete/Backspace</strong> — Delete selected node</li><li><strong>Up/Down arrows</strong> — Navigate between nodes</li><li><strong>Cmd+Z / Cmd+Shift+Z</strong> — Undo / Redo</li><li><strong>Cmd+N</strong> — New outline (if supported)</li><li><strong>Cmd+F</strong> — Search/find</li></ul><p><strong>Verify:</strong> Each shortcut works from the outline tree view. Shortcuts should NOT fire when typing in the content editor.</p>",
+      "type": "document",
+      "parentId": "manual-procedures",
+      "childrenIds": [],
+      "prefix": "10.2"
+    },
+    "manual-drag-drop": {
+      "id": "manual-drag-drop",
+      "name": "Drag & Drop (macOS + iOS)",
+      "content": "<p><strong>macOS:</strong></p><ol><li>Drag a document node before another node — verify \"before\" position indicator and correct placement</li><li>Drag a node after another — verify \"after\" placement</li><li>Drag a node onto a chapter to nest inside it — verify \"inside\" indicator and correct nesting</li><li>Try to drag a parent into its own child — verify this is blocked (no-op)</li><li>Drag between chapters — verify prefixes update in both old and new parent</li></ol><p><strong>iOS (long-press + drag):</strong></p><ol><li>Long-press a node until drag mode activates</li><li>Drag to reorder — verify same behavior as macOS</li><li>Verify no conflict with system long-press (context menu)</li></ol><p><strong>Edge case:</strong> Drag the only child out of a chapter — verify the chapter type reverts to \"document\".</p>",
+      "type": "document",
+      "parentId": "manual-procedures",
+      "childrenIds": [],
+      "prefix": "10.3"
+    },
+    "manual-editor": {
+      "id": "manual-editor",
+      "name": "TipTap Content Editor",
+      "content": "<p><strong>Test Procedure:</strong></p><ol><li>Select a node and verify its content appears in the editor panel</li><li>Type text — verify it saves (switch to another node and back)</li><li>Bold/italic/heading formatting — verify toolbar buttons and markdown shortcuts work</li><li>Insert a horizontal rule — verify it renders</li><li>Insert a code block — verify syntax highlighting</li><li>Paste rich text from another app — verify it converts to clean HTML</li><li>Paste a URL — verify link is created</li><li>Insert an image (drag or paste) — verify it renders inline</li><li>Double-click an image — verify fullscreen view opens</li><li>Double-click a mermaid diagram — verify fullscreen view opens</li></ol><p><strong>Edge cases:</strong></p><ul><li>Very long content — verify scrolling works in the editor</li><li>Empty content — verify placeholder text appears</li><li>Switch nodes rapidly — verify content doesn't get mixed up between nodes</li></ul>",
+      "type": "document",
+      "parentId": "manual-procedures",
+      "childrenIds": [],
+      "prefix": "10.4"
+    },
+    "manual-ai-features": {
+      "id": "manual-ai-features",
+      "name": "AI Features",
+      "content": "<p><strong>Content Generation:</strong></p><ol><li>Select a node and trigger AI content generation — verify content is generated and placed in the editor</li><li>Verify ancestor path context is used (check that generated content is relevant to the node's position in the outline)</li><li>Verify diagram generation toggle works (when enabled, mermaid diagrams appear in output)</li><li>Custom prompt — enter a custom instruction and verify the AI follows it</li></ol><p><strong>Outline Generation:</strong></p><ol><li>Generate outline from topic — verify a structured outline is created with correct parent-child relationships</li><li>Verify prefixes are calculated on generated outline</li></ol><p><strong>External Source Ingestion:</strong></p><ol><li>Ingest a YouTube URL — verify transcript is extracted and outline nodes created</li><li>Ingest a PDF (URL and file upload) — verify text extraction works</li><li>Ingest a web URL — verify page content is extracted</li><li>Bulk research with multiple sources — verify synthesis/separate/architecture strategies</li></ol><p><strong>Help Chat:</strong></p><ol><li>Open help chat and ask a question about IdiamPro — verify contextual response</li><li>Ask about a feature that exists — verify accurate answer</li></ol>",
+      "type": "document",
+      "parentId": "manual-procedures",
+      "childrenIds": [],
+      "prefix": "10.5"
+    },
+    "manual-ios-gestures": {
+      "id": "manual-ios-gestures",
+      "name": "iOS-Specific Gestures & Behavior",
+      "content": "<p><strong>Must test on physical iOS device or simulator via Capacitor:</strong></p><ol><li><strong>Tap</strong> to select a node — verify single tap selects</li><li><strong>Tap again</strong> on selected node to edit name — verify inline editing activates</li><li><strong>Double-tap</strong> to create child — verify a child node is created</li><li><strong>Swipe right</strong> to indent — verify node becomes child of previous sibling</li><li><strong>Swipe left</strong> to outdent — verify node becomes sibling of parent</li><li><strong>Long-press + drag</strong> to reorder — verify drag and drop works</li><li><strong>Long-press</strong> (without drag) for context menu — verify context menu appears</li></ol><p><strong>Verify no conflicts with:</strong></p><ul><li>iOS system back gesture (edge swipe from left)</li><li>iOS multitasking (three-finger gestures)</li><li>System zoom (pinch)</li></ul><p><strong>Build commands:</strong></p><pre><code>npx cap sync ios\nnpx cap open ios</code></pre>",
+      "type": "document",
+      "parentId": "manual-procedures",
+      "childrenIds": [],
+      "prefix": "10.6"
+    },
+    "manual-electron": {
+      "id": "manual-electron",
+      "name": "Electron Desktop App",
+      "content": "<p><strong>Test Procedure:</strong></p><ol><li>Launch with <code>npm run electron:dev</code> — verify window opens and loads the app</li><li>File operations — verify outlines save/load to <code>~/Documents/IDM Outlines/</code></li><li>Verify path validation works (the Electron main.js has its own copy of validateFilePath/sanitizeFileName)</li><li>Window management — verify resize, minimize, maximize, close</li><li>Menu bar — verify all menu items work</li><li>Auto-update (if configured) — verify update check doesn't crash</li></ol><p><strong>Note:</strong> The Electron app uses its own copies of security functions in <code>electron/main.js</code>. These are separate from <code>src/lib/security.ts</code> because Electron's main process can't import from the Next.js src directory. Both copies should have identical logic.</p>",
+      "type": "document",
+      "parentId": "manual-procedures",
+      "childrenIds": [],
+      "prefix": "10.7"
+    },
+    "manual-file-operations": {
+      "id": "manual-file-operations",
+      "name": "File Save/Load & iCloud Sync",
+      "content": "<p><strong>Test Procedure:</strong></p><ol><li>Create an outline, add content, close the app, reopen — verify all data persisted</li><li>Rename an outline — verify the .idm filename updates</li><li>Delete an outline — verify the .idm file is removed</li><li>Check iCloud sync — modify an outline on one device, verify it appears on another</li><li>Verify focus-based reload — switch away from app, modify .idm file externally, switch back — verify the app reloads the updated data</li><li>Verify the \"recently edited in-app\" guard — edit in-app, switch away briefly, switch back — verify it does NOT reload (would overwrite your in-app changes)</li></ol><p><strong>Edge cases:</strong></p><ul><li>Large outlines (100+ nodes) — verify save/load performance</li><li>Special characters in outline names — verify filenames are sanitized</li><li>Concurrent edits — verify no data corruption</li></ul>",
+      "type": "document",
+      "parentId": "manual-procedures",
+      "childrenIds": [],
+      "prefix": "10.8"
+    },
+    "manual-embed-security": {
+      "id": "manual-embed-security",
+      "name": "Embed URL Security (Google Services)",
+      "content": "<p><strong>Test Procedure:</strong></p><ol><li>Insert a Google Docs embed with a valid docs.google.com URL — verify iframe loads</li><li>Insert a Google Sheets embed with /spreadsheets path — verify iframe loads</li><li>Insert a Google Slides embed with /presentation path — verify iframe loads</li><li>Insert a Google Maps embed — verify iframe loads</li><li>Try inserting a non-Google URL as an embed — verify the \"Blocked embed\" warning appears</li><li>Verify iframe sandboxing — inspect the iframe element and confirm <code>sandbox=\"allow-scripts allow-same-origin allow-popups\"</code> attribute is present</li></ol><p><strong>Security note:</strong> The <code>isAllowedEmbedUrl</code> function is now shared from <code>src/lib/security.ts</code> and covered by automated tests. The manual test verifies the UI correctly uses it.</p>",
+      "type": "document",
+      "parentId": "manual-procedures",
+      "childrenIds": [],
+      "prefix": "10.9"
+    },
+    "manual-templates-ui": {
+      "id": "manual-templates-ui",
+      "name": "Template Selection UI",
+      "content": "<p><strong>Test Procedure:</strong></p><ol><li>Click \"New from Template\" — verify template picker dialog opens</li><li>Verify all 14 templates are listed with icons and descriptions</li><li>Select each template — verify outline is created with expected sections</li><li>Verify the created outline has the correct structure (chapters with content)</li><li>Verify you can immediately edit the template content</li></ol><p><strong>Automated coverage:</strong> The template data structure and referential integrity are covered by automated tests. This manual test verifies the UI picker and rendering.</p>",
+      "type": "document",
+      "parentId": "manual-procedures",
+      "childrenIds": [],
+      "prefix": "10.10"
+    },
+    "manual-tags-ui": {
+      "id": "manual-tags-ui",
+      "name": "Tags UI",
+      "content": "<p><strong>Test Procedure:</strong></p><ol><li>Add a tag to a node via the tag input — verify tag badge appears</li><li>Add the same tag again — verify no duplicate is created</li><li>Remove a tag — verify badge disappears</li><li>Add tags to multiple nodes, then filter by tag — verify correct nodes are shown</li><li>Filter by two tags — verify AND logic (only nodes with both tags appear)</li><li>Rename a tag — verify all nodes update to new tag name</li><li>Delete a tag — verify it's removed from all nodes</li></ol><p><strong>Automated coverage:</strong> All tag logic functions are covered by unit tests. This manual test verifies the UI controls.</p>",
+      "type": "document",
+      "parentId": "manual-procedures",
+      "childrenIds": [],
+      "prefix": "10.11"
+    },
+    "manual-diagrams": {
+      "id": "manual-diagrams",
+      "name": "Mermaid Diagrams",
+      "content": "<p><strong>Test Procedure:</strong></p><ol><li>Generate a mindmap from a subtree — verify valid mermaid diagram renders</li><li>Generate a flowchart from a subtree — verify valid mermaid diagram renders</li><li>Verify diagram renders in both light and dark mode</li><li>Double-click a diagram — verify fullscreen overlay opens</li><li>Close fullscreen — verify overlay dismisses (click outside, or X button)</li><li>Test with a node name containing special characters like (), [], {} — verify diagram still renders (characters are sanitized)</li></ol><p><strong>Automated coverage:</strong> The <code>generateMindmapFromSubtree</code> and <code>generateFlowchartFromSubtree</code> functions are tested for correct Mermaid syntax output. Manual testing verifies actual rendering via the mermaid library.</p>",
+      "type": "document",
+      "parentId": "manual-procedures",
+      "childrenIds": [],
+      "prefix": "10.12"
+    },
+    "manual-media": {
+      "id": "manual-media",
+      "name": "Image & Video Embeds",
+      "content": "<p><strong>Test Procedure:</strong></p><ol><li>Insert an image into node content — verify it renders at reasonable size</li><li>Double-click the image — verify fullscreen overlay opens</li><li>Close fullscreen — verify dismiss works</li><li>Insert a video — verify it plays with controls</li><li>Double-click the video — verify fullscreen works</li><li>Insert a YouTube embed — verify it loads and plays</li></ol><p><strong>Edge cases:</strong></p><ul><li>Very large images — verify they don't break layout</li><li>Unsupported video format — verify graceful error</li></ul>",
+      "type": "document",
+      "parentId": "manual-procedures",
+      "childrenIds": [],
+      "prefix": "10.13"
+    },
+    "manual-settings": {
+      "id": "manual-settings",
+      "name": "Settings & Preferences",
+      "content": "<p><strong>Test Procedure:</strong></p><ol><li>Toggle dark mode — verify all UI elements update</li><li>Change AI provider setting (cloud/local/auto) — verify AI operations use correct provider</li><li>If Ollama is running locally, verify local AI works</li><li>Change detail level for extraction — verify generated outlines respect the setting</li></ol>",
+      "type": "document",
+      "parentId": "manual-procedures",
+      "childrenIds": [],
+      "prefix": "10.14"
+    },
+    "testing-guidance": {
+      "id": "testing-guidance",
+      "name": "Testing Guidance & Best Practices",
+      "content": "<p>This section explains how to work with the test suite — how to add new tests, use test helpers, understand coverage reports, and plan future testing expansion. Written for anyone working on the project, not just testing specialists.</p>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": [
+        "guidance-adding-tests",
+        "guidance-fixtures",
+        "guidance-mocking",
+        "guidance-coverage",
+        "guidance-ci",
+        "guidance-layers"
+      ],
+      "prefix": "11",
+      "isCollapsed": true
+    },
+    "guidance-adding-tests": {
+      "id": "guidance-adding-tests",
+      "name": "Adding New Tests",
+      "content": "<p><strong>When should you add tests?</strong></p><ul><li>Any new utility function added to <code>src/lib/</code> should get a matching test file (or have tests added to the existing file for that module)</li><li>Bug fixes should include a \"regression test\" — a test that would fail if the bug came back. This prevents the same bug from being reintroduced later.</li><li>If you modify an existing function's behavior, update its tests to reflect the new behavior</li></ul><p><strong>Where do test files go?</strong></p><p>Test files live in <code>src/__tests__/lib/</code> and are named <code>{module-name}.test.ts</code>. For example, tests for <code>src/lib/security.ts</code> are in <code>src/__tests__/lib/security.test.ts</code>.</p><p><strong>Anatomy of a test file:</strong></p><pre><code>import { myFunction } from '@/lib/my-module';\nimport { resetIds } from '../helpers/fixtures';\n\n// beforeEach runs before EVERY individual test\nbeforeEach(() =&gt; { resetIds(); });\n\n// 'describe' groups related tests together\ndescribe('myFunction', () =&gt; {\n  // 'it' defines a single test case\n  it('does the expected thing', () =&gt; {\n    // 'expect' checks the result\n    expect(myFunction('input')).toBe('output');\n  });\n});</code></pre><p><strong>Key terms:</strong></p><ul><li><code>describe('name', ...)</code> — Groups tests under a label. Nest them for sub-groups.</li><li><code>it('description', ...)</code> — A single test. The description should read like English: \"it adds a tag to a node.\"</li><li><code>expect(value).toBe(expected)</code> — An assertion. If the value doesn't match, the test fails.</li><li><code>beforeEach</code> — Code that runs before each test to reset state.</li></ul><p><strong>Important:</strong> Always call <code>resetIds()</code> in <code>beforeEach</code> if your test uses fixture helper functions. This resets the ID counter so every test starts clean.</p>",
+      "type": "document",
+      "parentId": "testing-guidance",
+      "childrenIds": [],
+      "prefix": "11.1"
+    },
+    "guidance-fixtures": {
+      "id": "guidance-fixtures",
+      "name": "Test Fixtures (Factory Functions)",
+      "content": "<p>File: <code>src/__tests__/helpers/fixtures.ts</code></p><p><strong>What are fixtures?</strong> Fixtures are pre-built test data — ready-made outline structures that tests can use instead of each test having to manually create nodes from scratch. Think of them like template documents for testing.</p><p><strong>Available helper functions:</strong></p><ul><li><code>makeNode(overrides)</code> — Create a single outline node. You can override any field (name, type, etc.) by passing options.</li><li><code>makeSimpleTree(childCount)</code> — Create a root node with a specified number of direct children. Returns the root's ID and all nodes.</li><li><code>makeTwoLevelTree()</code> — Create a two-level hierarchy: a root with 2 chapters, each containing 3 documents. Useful for testing operations that involve nested structures.</li><li><code>makeOutline(nodes, rootNodeId, name?)</code> — Wrap a set of nodes into a full Outline object (the format the app uses for save/load).</li><li><code>resetIds()</code> — Reset the ID counter back to zero. Call this before each test so every test starts with predictable IDs (<code>test-id-1</code>, <code>test-id-2</code>, etc.).</li></ul><p><strong>Why predictable IDs matter:</strong> In the real app, IDs are random UUIDs (like <code>a3f8c2b1-...</code>). In tests, we use simple sequential IDs so that when a test fails, you can easily see which node is which.</p><p><strong>Adding new fixtures:</strong> If you find yourself building the same node structure in multiple test files, add a new helper function to fixtures.ts so it can be reused.</p>",
+      "type": "document",
+      "parentId": "testing-guidance",
+      "childrenIds": [],
+      "prefix": "11.2"
+    },
+    "guidance-mocking": {
+      "id": "guidance-mocking",
+      "name": "Mocking & Spying",
+      "content": "<p><strong>What are mocks and spies?</strong></p><p>Sometimes the code you're testing calls other functions that you don't want to actually run during the test (like making a network request or writing to the console). A <strong>mock</strong> is a fake replacement for that function — you control what it returns. A <strong>spy</strong> is a wrapper that lets the real function run but records how it was called, so you can check \"was this function called?\" and \"what arguments did it receive?\"</p><p><strong>Vitest provides built-in tools for this:</strong></p><ul><li><code>vi.fn()</code> — Create a fake function that records its calls</li><li><code>vi.spyOn(object, 'method')</code> — Wrap a real function to watch its calls</li><li><code>vi.mock('module')</code> — Replace an entire file/module with fakes</li></ul><p><strong>Current usage in our tests:</strong> The <code>fix-duplicates.test.ts</code> file uses spies on <code>console.log</code> and <code>console.warn</code> to verify that the integrity checker prints the right messages without actually cluttering the test output.</p><p><strong>When to use mocks:</strong></p><ul><li>When code logs messages and you want to verify what was logged</li><li>When code generates random IDs and you need predictable results (though we prefer using fixtures for this)</li><li>When adding future tests that need to simulate network requests, browser storage, or other external services</li></ul><p><strong>Important cleanup rule:</strong> Always restore mocks after each test using <code>mockSpy.mockRestore()</code>. If you forget, the fake function leaks into other tests and causes confusing failures.</p>",
+      "type": "document",
+      "parentId": "testing-guidance",
+      "childrenIds": [],
+      "prefix": "11.3"
+    },
+    "guidance-coverage": {
+      "id": "guidance-coverage",
+      "name": "Code Coverage",
+      "content": "<p><strong>What is code coverage?</strong></p><p>Coverage measures what percentage of your source code actually gets run when tests execute. If you have a function with an if/else branch and your tests only trigger the \"if\" path, the \"else\" branch is uncovered — meaning a bug there could go undetected. Higher coverage = more confidence that tests would catch problems.</p><p><strong>Run it:</strong> <code>npm run test:coverage</code></p><p><strong>Reading the report:</strong> After running, the terminal shows a table with percentages for each file:</p><ul><li><strong>Statements</strong> — What % of individual code statements were executed</li><li><strong>Branches</strong> — What % of decision points (if/else, switch cases) were tested on all paths</li><li><strong>Functions</strong> — What % of functions were called at least once</li><li><strong>Lines</strong> — What % of code lines were hit</li></ul><p><strong>Coverage targets for our tested files:</strong></p><ul><li><code>security.ts</code> — Target 100%. This is security-critical code; every path should be tested.</li><li><code>outline-utils.ts</code> — Target 90%+. Some edge cases may be hard to reach.</li><li><code>tag-utils.ts</code> — Target 100%. Small, self-contained functions.</li><li><code>fix-duplicates.ts</code> — Target 100%. Small module.</li><li><code>templates.ts</code> — Target 90%+. The helper function <code>buildTree</code> is unused and lowers the number.</li></ul><p><strong>Don't chase overall project coverage.</strong> Many files in the project are React components or API routes that need a browser or server to test. Focus coverage efforts on the <code>src/lib/</code> utility modules.</p>",
+      "type": "document",
+      "parentId": "testing-guidance",
+      "childrenIds": [],
+      "prefix": "11.4"
+    },
+    "guidance-ci": {
+      "id": "guidance-ci",
+      "name": "CI Integration (Future)",
+      "content": "<p><strong>What is CI?</strong></p><p>CI stands for \"Continuous Integration.\" It's an automated system that runs your tests every time someone pushes code changes. Think of it as a robot that checks your homework before it gets turned in. If tests fail, the code change is flagged before it can cause problems for users.</p><p><strong>Current state:</strong> Tests run manually — you type <code>npm test</code> in Terminal when you want to check things.</p><p><strong>Future CI setup (GitHub Actions):</strong> When you're ready to automate, add a file <code>.github/workflows/test.yml</code> with this content. It will run tests automatically on every code push:</p><pre><code>name: Test\non: [push, pull_request]\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-node@v4\n        with:\n          node-version: 20\n      - run: npm ci\n      - run: npm test\n      - run: npm run build</code></pre><p><strong>Pre-commit hook (optional, runs tests before each Git commit):</strong></p><p>Husky (a Git hook tool) is already installed in the project. To make tests run automatically before every commit, add <code>npm test</code> to the file <code>.husky/pre-commit</code>. If tests fail, the commit is blocked until you fix the problem.</p><p>Our test suite runs in ~200ms, well under the 5-second threshold where this would feel slow.</p>",
+      "type": "document",
+      "parentId": "testing-guidance",
+      "childrenIds": [],
+      "prefix": "11.5"
+    },
+    "guidance-layers": {
+      "id": "guidance-layers",
+      "name": "Test Layers - Expansion Roadmap",
+      "content": "<p>Testing can be done at different levels of scope. Think of it like checking a car: you can test individual parts (spark plugs), assembled systems (the engine), or the whole car on a road. Each level catches different kinds of problems.</p><h3>Layer 1 — Unit Tests (what we have now)</h3><p>Tests individual functions in complete isolation. No browser, no network, no database. Like testing that a calculator's math is correct without caring about its screen. These are the fastest to run and the easiest to write.</p><h3>Layer 2 — Component Tests (future)</h3><p>Tests visual components (buttons, panels, dialogs) using a simulated browser environment called \"jsdom\" (a fake browser that runs in Node.js). Can check things like \"when I click this button, does the right dialog appear?\" without opening a real browser.</p><ul><li>Good candidates: the outline tree view, tag badges, template picker dialog</li><li>Would require installing <code>@testing-library/react</code> and configuring jsdom</li><li>Would need to fake (\"mock\") external services like Capacitor, TipTap editor, and mermaid diagrams</li></ul><h3>Layer 3 — Integration Tests (future)</h3><p>Tests multiple parts working together. For example, testing that the PDF extraction API route correctly validates the URL, fetches the PDF, parses it, and returns the text — testing the whole pipeline, not just one function.</p><ul><li>Good candidates: the extract-pdf API, help-chat API, outline state management</li></ul><h3>Layer 4 — End-to-End Tests (future)</h3><p>Opens a real browser (using tools like Playwright or Cypress) and simulates a real user: clicking buttons, typing text, navigating pages. The most realistic type of test but also the slowest and most complex to maintain.</p><ul><li>Can test the full workflow: create outline → add nodes → generate AI content → save → reload</li><li>iOS testing would require specialized mobile testing tools (Appium or Detox)</li></ul><h3>Recommended approach</h3><p>Stay at Layer 1 until all utility modules in <code>src/lib/</code> are well-covered. Then add Layer 2 for the most critical UI components. Only invest in Layer 3-4 when specific integration issues justify the effort.</p>",
+      "type": "document",
+      "parentId": "testing-guidance",
+      "childrenIds": [],
+      "prefix": "11.6"
+    },
+    "known-gaps": {
+      "id": "known-gaps",
+      "name": "Known Testing Gaps & Risks",
+      "content": "<p><strong>Code files that don't have automated tests yet:</strong></p><ul><li><code>media-extractors.ts</code> — Handles pulling content from YouTube, PDFs, websites, images, audio, and video. Testing this would require faking network requests since it fetches external content.</li><li><code>initial-guide.ts</code> — Contains the built-in user guide data. Low risk since it's static text, but could add structure validation similar to the template tests.</li><li><code>outline-store.ts</code> — Manages the app's state (which outline is open, which node is selected, etc.). Testing this would need a simulated browser environment because it uses browser storage (localStorage).</li></ul><p><strong>Security features only verified by manual testing:</strong></p><ul><li><strong>HTML sanitization</strong> — The app uses DOMPurify to strip dangerous HTML (like script tags) from content. This could be unit-tested but needs a simulated browser environment.</li><li><strong>iframe sandboxing</strong> — Google embeds use a <code>sandbox</code> attribute that limits what the embedded page can do. Must be visually inspected in a real browser.</li><li><strong>Full SSRF protection flow</strong> — The <code>isAllowedUrl</code> function IS tested, but the complete chain (user submits URL → server validates → server fetches) is only tested end-to-end via manual testing.</li></ul><p><strong>Platform-specific areas that can't be automated easily:</strong></p><ul><li><strong>iOS file system</strong> (via Capacitor) — Only testable on a real iPhone/iPad or Xcode simulator</li><li><strong>Electron desktop features</strong> (IPC = \"Inter-Process Communication,\" how the browser window talks to the underlying system) — Requires the Electron app to be running</li><li><strong>iCloud sync conflicts</strong> — Requires two devices editing the same outline simultaneously</li></ul><p><strong>Important warning: Two copies of security functions</strong></p><p>The functions <code>validateFilePath</code> and <code>sanitizeFileName</code> exist in TWO separate files:</p><ol><li><code>src/lib/security.ts</code> — The TypeScript version, tested by our automated tests</li><li><code>electron/main.js</code> — A JavaScript copy used by the Electron desktop app</li></ol><p>These two copies must have identical logic. If you change one, you MUST change the other. They're separate because the Electron app runs as a different program and can't import files from the web app's source code. This is a maintenance risk — if they drift apart, the desktop app could have different (possibly weaker) security than the web app.</p>",
+      "type": "document",
+      "parentId": "root",
+      "childrenIds": [],
+      "prefix": "12"
+    }
+  },
+  "_fileSize": 49424,
+  "_fileName": "IdiamPro - Testing.idm",
+  "_isLazyLoaded": false,
+  "lastModified": 1770891697852
+}

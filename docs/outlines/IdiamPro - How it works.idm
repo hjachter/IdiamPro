@@ -1,0 +1,460 @@
+{
+  "id": "how-it-works-outline",
+  "name": "IdiamPro - How it works",
+  "rootNodeId": "root",
+  "nodes": {
+    "root": {
+      "id": "root",
+      "name": "IdiamPro - How it works",
+      "content": "<p><strong>A Plain-Language Guide to How IdiamPro Works</strong></p><p>This outline explains how IdiamPro is built and how all its pieces work together. Written for anyone curious about the app's inner workings, no programming experience needed.</p><p><em>Last updated: 2/7/26</em></p>",
+      "type": "root",
+      "parentId": null,
+      "childrenIds": [
+        "overview",
+        "platforms",
+        "data-storage",
+        "main-screen",
+        "outline-tree",
+        "content-editor",
+        "ai-features",
+        "file-management",
+        "keyboard-mouse",
+        "under-the-hood"
+      ],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "overview": {
+      "id": "overview",
+      "name": "What is IdiamPro?",
+      "content": "<p>IdiamPro is an <strong>outlining application</strong> — a tool for organizing your thoughts, notes, research, and projects in a tree-like structure.</p><p>Think of it like a folder system on your computer, but instead of files and folders, you have <strong>nodes</strong> (individual pieces of information) that can contain text, images, videos, and more. Each node can have child nodes underneath it, creating a hierarchy that helps you see the big picture while also being able to dive into details.</p><p><strong>What makes it special:</strong></p><ul><li>AI-powered features that can generate outlines, summarize content, and help with research</li><li>Works on your Mac, in a web browser, and on iOS devices</li><li>All your data stays on your computer — you own your information</li><li>Rich content support including images, videos, diagrams, and embedded documents</li></ul>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "1"
+    },
+    "platforms": {
+      "id": "platforms",
+      "name": "Where Can You Use It?",
+      "content": "<p>IdiamPro runs on multiple platforms, meaning you can use it in different ways depending on what device you're on.</p>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": [
+        "platform-desktop",
+        "platform-web",
+        "platform-ios"
+      ],
+      "isCollapsed": true,
+      "prefix": "2"
+    },
+    "platform-desktop": {
+      "id": "platform-desktop",
+      "name": "Desktop App (Mac)",
+      "content": "<p>The main way to use IdiamPro is as a <strong>desktop application</strong> on your Mac. This version has all the features and runs using a technology called <strong>Electron</strong>.</p><p><strong>What is Electron?</strong> It's a way to turn web pages into desktop apps. Under the hood, IdiamPro is built like a website, but Electron wraps it up so it looks and feels like a regular Mac app. This means:</p><ul><li>It can read and write files on your computer</li><li>It can create automatic backups</li><li>It works offline (no internet needed)</li><li>You get a dock icon and can use keyboard shortcuts like any other app</li></ul><p>Your outline files are stored in <code>~/Documents/IDM Outlines/</code> — that's a folder in your Documents called \"IDM Outlines.\"</p>",
+      "type": "document",
+      "parentId": "platforms",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "2.1"
+    },
+    "platform-web": {
+      "id": "platform-web",
+      "name": "Web Browser Version",
+      "content": "<p>You can also use IdiamPro in a web browser by going to the website. This version uses something called the <strong>File System Access API</strong> — a modern browser feature that lets websites (with your permission) read and write files on your computer.</p><p><strong>How it works:</strong></p><ol><li>You visit the IdiamPro website</li><li>The browser asks permission to access a folder</li><li>You pick your IDM Outlines folder</li><li>Now the website can save your work just like the desktop app</li></ol><p><strong>Limitations:</strong> If your browser doesn't support this feature, your outlines will be saved in the browser's local storage instead (a small space the browser sets aside for websites to store data). This works but isn't as reliable as real files.</p>",
+      "type": "document",
+      "parentId": "platforms",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "2.2"
+    },
+    "platform-ios": {
+      "id": "platform-ios",
+      "name": "iOS App (iPhone/iPad)",
+      "content": "<p>IdiamPro also runs on iPhones and iPads using a technology called <strong>Capacitor</strong>.</p><p><strong>What is Capacitor?</strong> It's a bridge that lets web apps (like IdiamPro) access phone features like the camera, file storage, and touch gestures. The app looks and works like a native iOS app, but inside it's running the same code as the web version.</p><p><strong>iOS-specific features:</strong></p><ul><li>Swipe gestures to indent/outdent nodes</li><li>Long-press for context menus (like right-click on a Mac)</li><li>Works with iOS keyboard shortcuts if you have an external keyboard</li></ul>",
+      "type": "document",
+      "parentId": "platforms",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "2.3"
+    },
+    "data-storage": {
+      "id": "data-storage",
+      "name": "How Your Data is Stored",
+      "content": "<p>Understanding where your information lives helps you feel confident that your work is safe.</p>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": [
+        "storage-files",
+        "storage-backups",
+        "storage-lazy"
+      ],
+      "isCollapsed": true,
+      "prefix": "3"
+    },
+    "storage-files": {
+      "id": "storage-files",
+      "name": "Outline Files (.idm)",
+      "content": "<p>Each outline you create becomes a single file with the extension <code>.idm</code> (which stands for IdiamPro Data Model). These files are stored in:</p><p><code>~/Documents/IDM Outlines/</code></p><p><strong>Inside the file:</strong> It's actually just a text file in a format called <strong>JSON</strong> (JavaScript Object Notation). If you opened it in a text editor, you'd see something like:</p><pre><code>{\n  \"id\": \"abc123\",\n  \"name\": \"My Outline\",\n  \"nodes\": {\n    \"node1\": {\n      \"name\": \"First item\",\n      \"content\": \"Some text here...\"\n    }\n  }\n}</code></pre><p>This human-readable format means your data isn't locked away — you could technically edit it by hand if you wanted to (though that's not recommended!).</p>",
+      "type": "document",
+      "parentId": "data-storage",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "3.1"
+    },
+    "storage-backups": {
+      "id": "storage-backups",
+      "name": "Automatic Backups",
+      "content": "<p>The desktop app automatically creates backup copies of your outlines to protect against accidents.</p><p><strong>Where are they?</strong></p><p><code>~/Documents/IDM Outlines/backups/</code></p><p><strong>How it works:</strong></p><ul><li>Every time you make changes, the app considers creating a backup</li><li>It waits at least 5 minutes between backups (so you don't get hundreds of copies)</li><li>Backup files are named with timestamps like <code>MyOutline_backup_2026-02-07T14-30-00.idm</code></li><li>The app keeps the 10 most recent backups for each outline and deletes older ones</li></ul><p><strong>Recovery:</strong> If something goes wrong, you can find your backup files in that folder and rename one to remove the \"_backup\" part to restore it.</p>",
+      "type": "document",
+      "parentId": "data-storage",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "3.2"
+    },
+    "storage-lazy": {
+      "id": "storage-lazy",
+      "name": "Smart Loading for Large Outlines",
+      "content": "<p>Some outlines can get very large — imagine an outline with 50,000 nodes and 50 megabytes of content. Loading all of that every time you open the app would be slow.</p><p><strong>The solution: Lazy Loading</strong></p><p>When the app starts, it looks at each outline file:</p><ul><li><strong>Small files (under 1 MB):</strong> Loaded completely right away</li><li><strong>Large files (over 1 MB):</strong> Only the basic info is loaded (name, number of nodes). The full content waits until you actually click on that outline.</li></ul><p>You'll see a message like \"Loading 5,000 nodes...\" when you first open a large outline. After that, it stays in memory and works fast.</p>",
+      "type": "document",
+      "parentId": "data-storage",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "3.3"
+    },
+    "main-screen": {
+      "id": "main-screen",
+      "name": "The Main Screen Layout",
+      "content": "<p>When you open IdiamPro, you see a screen divided into sections. Each section has a specific job.</p>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": [
+        "screen-sidebar",
+        "screen-outline",
+        "screen-content"
+      ],
+      "isCollapsed": true,
+      "prefix": "4"
+    },
+    "screen-sidebar": {
+      "id": "screen-sidebar",
+      "name": "The Sidebar (Left Edge)",
+      "content": "<p>On the far left is a narrow sidebar showing all your outlines as a list. This is handled by a part of the app called the <strong>Sidebar Pane</strong>.</p><p><strong>What you can do here:</strong></p><ul><li>Click an outline name to switch to it</li><li>Right-click for options like rename, duplicate, or delete</li><li>Click the + button to create a new outline</li><li>Search outlines by name</li></ul><p>The sidebar only shows outline names — it's like looking at a bookshelf where you only see the spines of the books.</p>",
+      "type": "document",
+      "parentId": "main-screen",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "4.1"
+    },
+    "screen-outline": {
+      "id": "screen-outline",
+      "name": "The Outline Tree (Left Panel)",
+      "content": "<p>Next to the sidebar is the <strong>Outline Pane</strong> — a tree view showing all the nodes in your current outline.</p><p><strong>What you see:</strong></p><ul><li>Nodes arranged in a hierarchy (parents above, children indented below)</li><li>Little triangle icons to expand/collapse sections</li><li>Icons showing what type each node is (document, chapter, image, etc.)</li><li>Numbers like \"1.2.3\" showing each node's position</li></ul><p><strong>The toolbar at the top</strong> has buttons for:</p><ul><li>Creating new nodes</li><li>AI features (the sparkle icon)</li><li>Research & Import (the book icon)</li><li>Search (magnifying glass)</li></ul>",
+      "type": "document",
+      "parentId": "main-screen",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "4.2"
+    },
+    "screen-content": {
+      "id": "screen-content",
+      "name": "The Content Editor (Right Panel)",
+      "content": "<p>The largest area is the <strong>Content Pane</strong> — where you actually read and write content for the selected node.</p><p><strong>What you see:</strong></p><ul><li>The node's name at the top (editable)</li><li>A rich text editor below for the node's content</li><li>A formatting toolbar for bold, italic, lists, headings, etc.</li><li>Buttons for inserting special content (images, code blocks, diagrams)</li></ul><p>The editor is powered by something called <strong>TipTap</strong>, which is like a more powerful version of what you'd find in email or word processors. It understands formatting, can embed images and videos, and saves everything as HTML (the same code used for web pages).</p>",
+      "type": "document",
+      "parentId": "main-screen",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "4.3"
+    },
+    "outline-tree": {
+      "id": "outline-tree",
+      "name": "How the Outline Tree Works",
+      "content": "<p>The heart of IdiamPro is its tree structure. Understanding how it works helps you organize information effectively.</p>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": [
+        "tree-nodes",
+        "tree-types",
+        "tree-operations"
+      ],
+      "isCollapsed": true,
+      "prefix": "5"
+    },
+    "tree-nodes": {
+      "id": "tree-nodes",
+      "name": "Nodes: The Building Blocks",
+      "content": "<p>Everything in an outline is a <strong>node</strong>. Each node has:</p><p><strong>Required properties:</strong></p><ul><li><strong>ID</strong> — A unique identifier (like a social security number for nodes)</li><li><strong>Name</strong> — The title you see in the tree (keep it short, 2-6 words works best)</li><li><strong>Content</strong> — The actual text and media inside the node</li><li><strong>Type</strong> — What kind of node it is (document, chapter, image, etc.)</li><li><strong>Parent ID</strong> — Which node this one belongs under (or \"null\" for the root)</li><li><strong>Children IDs</strong> — A list of nodes that belong under this one</li></ul><p><strong>Optional properties:</strong></p><ul><li>Tags for organization</li><li>Colors for visual grouping</li><li>Due dates for tasks</li><li>Collapse state (expanded or collapsed)</li></ul>",
+      "type": "document",
+      "parentId": "outline-tree",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "5.1"
+    },
+    "tree-types": {
+      "id": "tree-types",
+      "name": "Node Types",
+      "content": "<p>Each node has a type that affects its icon and sometimes its behavior:</p><p><strong>Basic types:</strong></p><ul><li><strong>Root</strong> — The top-level node (every outline has exactly one)</li><li><strong>Chapter</strong> — A section with children (like a folder)</li><li><strong>Document</strong> — A content node (like a file)</li><li><strong>Note</strong> — A quick note or idea</li><li><strong>Task</strong> — Something to do (can be marked complete)</li></ul><p><strong>Media types:</strong></p><ul><li><strong>Image</strong> — Contains a picture</li><li><strong>Video</strong> — Contains or links to video</li><li><strong>Audio</strong> — Contains or links to audio</li><li><strong>PDF</strong> — Links to a PDF document</li><li><strong>YouTube</strong> — Embeds a YouTube video</li></ul><p><strong>Special types:</strong></p><ul><li><strong>Code</strong> — For programming code with syntax highlighting</li><li><strong>Quote</strong> — A quotation</li><li><strong>Link</strong> — Points to a website</li><li><strong>Canvas</strong> — A drawing area</li><li><strong>Spreadsheet</strong> — A mini Excel-like grid</li></ul>",
+      "type": "document",
+      "parentId": "outline-tree",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "5.2"
+    },
+    "tree-operations": {
+      "id": "tree-operations",
+      "name": "Moving and Organizing Nodes",
+      "content": "<p>The tree isn't static — you can reorganize it freely.</p><p><strong>Basic operations:</strong></p><ul><li><strong>Create</strong> — Press Enter to add a sibling node below the current one</li><li><strong>Delete</strong> — Removes a node and all its children</li><li><strong>Indent (Tab)</strong> — Moves a node to become a child of the node above it</li><li><strong>Outdent (Shift+Tab)</strong> — Moves a node up a level</li></ul><p><strong>Drag and Drop:</strong></p><p>You can drag nodes to rearrange them. When you drag over a target node:</p><ul><li>Dropping on the <strong>top third</strong> places it before that node</li><li>Dropping on the <strong>middle</strong> makes it a child of that node</li><li>Dropping on the <strong>bottom third</strong> places it after that node</li></ul><p><strong>Copy/Cut/Paste:</strong></p><p>Works like regular copy/paste, but copies entire subtrees (a node and all its children).</p>",
+      "type": "document",
+      "parentId": "outline-tree",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "5.3"
+    },
+    "content-editor": {
+      "id": "content-editor",
+      "name": "The Content Editor",
+      "content": "<p>The content editor is where you write and format the actual content of each node.</p>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": [
+        "editor-tiptap",
+        "editor-formatting",
+        "editor-embeds"
+      ],
+      "isCollapsed": true,
+      "prefix": "6"
+    },
+    "editor-tiptap": {
+      "id": "editor-tiptap",
+      "name": "TipTap: The Editor Engine",
+      "content": "<p>IdiamPro's content editor is built on <strong>TipTap</strong>, an open-source rich text editor.</p><p><strong>What makes it good:</strong></p><ul><li>Works like a normal word processor — just type and format</li><li>Understands markdown shortcuts (type ** for bold, # for headings)</li><li>Can embed complex content like diagrams and videos</li><li>Undo/redo with Cmd+Z</li></ul><p><strong>How content is saved:</strong></p><p>Everything you type is converted to HTML (HyperText Markup Language — the code that makes web pages). For example:</p><ul><li>Bold text becomes <code>&lt;strong&gt;bold text&lt;/strong&gt;</code></li><li>A paragraph becomes <code>&lt;p&gt;Your paragraph&lt;/p&gt;</code></li><li>A list becomes <code>&lt;ul&gt;&lt;li&gt;item&lt;/li&gt;&lt;/ul&gt;</code></li></ul><p>You don't need to know HTML — the editor handles this automatically.</p>",
+      "type": "document",
+      "parentId": "content-editor",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "6.1"
+    },
+    "editor-formatting": {
+      "id": "editor-formatting",
+      "name": "Formatting Options",
+      "content": "<p>The toolbar provides buttons for all common formatting:</p><p><strong>Text formatting:</strong></p><ul><li><strong>Bold</strong> (Cmd+B)</li><li><em>Italic</em> (Cmd+I)</li><li><u>Underline</u> (Cmd+U)</li><li><s>Strikethrough</s></li><li><code>Code</code> (inline)</li></ul><p><strong>Block formatting:</strong></p><ul><li>Headings (H1 through H6)</li><li>Bullet lists</li><li>Numbered lists</li><li>Checklists (todo items)</li><li>Block quotes</li><li>Code blocks (for programming code)</li><li>Horizontal lines</li></ul><p><strong>Special content:</strong></p><ul><li>Links (Cmd+K)</li><li>Images (paste or upload)</li><li>Mermaid diagrams (for flowcharts)</li><li>Embedded videos and audio</li></ul>",
+      "type": "document",
+      "parentId": "content-editor",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "6.2"
+    },
+    "editor-embeds": {
+      "id": "editor-embeds",
+      "name": "Embedded Content",
+      "content": "<p>You can embed various types of content directly into your nodes:</p><p><strong>Images:</strong></p><ul><li>Paste from clipboard</li><li>Drag and drop files</li><li>Upload from your computer</li><li>Images are stored inside the outline file (as data URLs)</li></ul><p><strong>Videos and Audio:</strong></p><ul><li>YouTube videos — paste a YouTube link</li><li>Local video/audio files — upload or link</li><li>Plays right in the editor</li></ul><p><strong>Documents:</strong></p><ul><li>Google Docs, Sheets, Slides — embedded as iframes</li><li>PDFs — linked or extracted as text</li></ul><p><strong>Diagrams:</strong></p><ul><li>Mermaid — write simple code that turns into flowcharts</li><li>Canvas — freehand drawing with the Excalidraw tool</li></ul>",
+      "type": "document",
+      "parentId": "content-editor",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "6.3"
+    },
+    "ai-features": {
+      "id": "ai-features",
+      "name": "AI-Powered Features",
+      "content": "<p>IdiamPro includes artificial intelligence features that can help you create, research, and organize content.</p>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": [
+        "ai-generation",
+        "ai-research",
+        "ai-chat",
+        "ai-podcast",
+        "ai-providers"
+      ],
+      "isCollapsed": true,
+      "prefix": "7"
+    },
+    "ai-generation": {
+      "id": "ai-generation",
+      "name": "Outline Generation",
+      "content": "<p>Give the AI a topic, and it will create a structured outline for you.</p><p><strong>How to use it:</strong></p><ol><li>Click the sparkle icon (AI menu)</li><li>Choose \"Generate Outline\"</li><li>Type a topic like \"History of the Roman Empire\"</li><li>The AI creates a multi-level outline with chapters and sections</li></ol><p><strong>What happens behind the scenes:</strong></p><p>Your topic is sent to an AI service (Google's Gemini by default) with instructions to create an educational outline. The AI returns a structured list that IdiamPro converts into nodes.</p><p><strong>Content expansion:</strong></p><p>Select any node and ask the AI to \"expand\" it — adding more detail and child nodes based on the context.</p>",
+      "type": "document",
+      "parentId": "ai-features",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "7.1"
+    },
+    "ai-research": {
+      "id": "ai-research",
+      "name": "Research & Import",
+      "content": "<p>The Research & Import feature lets you add external sources (YouTube videos, web pages, PDFs) and have the AI synthesize them into your outline.</p><p><strong>How it works:</strong></p><ol><li>Click the book icon (Research & Import)</li><li>Add one or more sources — paste URLs or upload files</li><li>Choose how to merge them: synthesize together, keep separate, or create an architecture</li><li>The AI extracts content from each source and creates new nodes</li><li>Preview the changes before applying them</li></ol><p><strong>Source types supported:</strong></p><ul><li>YouTube videos — transcribes the audio</li><li>Web pages — extracts the main content</li><li>PDFs — reads the text</li><li>Images — uses OCR to read text in pictures</li><li>Audio/video files — transcribes speech</li></ul><p><strong>Unmerge:</strong> If you don't like the result, click Unmerge to restore your outline to its previous state.</p>",
+      "type": "document",
+      "parentId": "ai-features",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "7.2"
+    },
+    "ai-chat": {
+      "id": "ai-chat",
+      "name": "Knowledge Chat",
+      "content": "<p>Ask questions about your outlines and get AI-powered answers.</p><p><strong>How to use it:</strong></p><ol><li>Click the brain icon</li><li>Choose \"Current Outline\" or \"All Outlines\"</li><li>Type a question like \"What are the main themes in my research?\"</li><li>The AI reads through your content and answers</li></ol><p><strong>Behind the scenes:</strong></p><p>The app creates a \"knowledge base\" — a combined text file of all your outline content. When you ask a question, this context is sent to the AI along with your question, so it can give answers based on YOUR information, not just general knowledge.</p><p><strong>Help Chat:</strong> A separate chat feature answers questions about how to use IdiamPro itself (not your content).</p>",
+      "type": "document",
+      "parentId": "ai-features",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "7.3"
+    },
+    "ai-podcast": {
+      "id": "ai-podcast",
+      "name": "Podcast Generation",
+      "content": "<p>Turn any node (and its children) into an audio podcast.</p><p><strong>How it works:</strong></p><ol><li>Right-click a node and choose \"Generate Podcast\"</li><li>Choose a style: two hosts discussing, a narrator, an interview, or a debate</li><li>Pick voices for each speaker</li><li>Select length: brief (2-3 min), standard (5-8 min), or detailed (10-15 min)</li><li>The AI writes a script and then reads it aloud</li></ol><p><strong>The process:</strong></p><ol><li>AI reads your outline content</li><li>AI writes a dialogue/script in your chosen style</li><li>Text-to-speech converts each line to audio</li><li>Audio clips are combined into one file</li><li>You can preview and save as MP3</li></ol>",
+      "type": "document",
+      "parentId": "ai-features",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "7.4"
+    },
+    "ai-providers": {
+      "id": "ai-providers",
+      "name": "AI Service Providers",
+      "content": "<p>IdiamPro can use different AI services depending on your preferences:</p><p><strong>Google Gemini (Default):</strong></p><ul><li>Fast and capable</li><li>Requires internet connection</li><li>Uses Google's servers</li></ul><p><strong>Ollama (Local):</strong></p><ul><li>Runs on your own computer</li><li>No data sent to external servers</li><li>Requires installing Ollama software separately</li><li>Slower but more private</li></ul><p><strong>OpenAI:</strong></p><ul><li>Used for image generation (DALL-E)</li><li>Used for podcast voices (text-to-speech)</li></ul><p>You can switch between providers in Settings. The app will try local AI first and fall back to cloud services if needed.</p>",
+      "type": "document",
+      "parentId": "ai-features",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "7.5"
+    },
+    "file-management": {
+      "id": "file-management",
+      "name": "File Management",
+      "content": "<p>How IdiamPro handles creating, saving, and protecting your files.</p>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": [
+        "files-saving",
+        "files-import-export",
+        "files-pending"
+      ],
+      "isCollapsed": true,
+      "prefix": "8"
+    },
+    "files-saving": {
+      "id": "files-saving",
+      "name": "Auto-Save",
+      "content": "<p>IdiamPro automatically saves your work — you never have to press Cmd+S.</p><p><strong>How it works:</strong></p><ol><li>When you make a change, the outline is marked as \"dirty\" (needs saving)</li><li>The app waits 2 seconds to see if you make more changes</li><li>After 2 seconds of no changes, it saves</li><li>The dirty flag is cleared</li></ol><p>This \"debouncing\" prevents the app from saving after every keystroke, which would be inefficient. Instead, it waits for a pause in your activity.</p><p><strong>What gets saved:</strong></p><ul><li>Only outlines you've actually changed (the \"dirty\" ones)</li><li>The entire outline as a single .idm file</li><li>A backup copy (every 5 minutes)</li></ul>",
+      "type": "document",
+      "parentId": "file-management",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "8.1"
+    },
+    "files-import-export": {
+      "id": "files-import-export",
+      "name": "Import and Export",
+      "content": "<p><strong>Import:</strong></p><ul><li>Import .idm files from other locations</li><li>Import OPML files (a standard outline format)</li><li>Drag and drop files onto the app</li></ul><p><strong>Export:</strong></p><ul><li><strong>JSON:</strong> The raw data format (for backup or transfer)</li><li><strong>PDF:</strong> A formatted document with your outline content</li><li><strong>OPML:</strong> For compatibility with other outline apps</li></ul><p>Right-click any node to export just that subtree, or use the menu to export the entire outline.</p>",
+      "type": "document",
+      "parentId": "file-management",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "8.2"
+    },
+    "files-pending": {
+      "id": "files-pending",
+      "name": "Pending Imports",
+      "content": "<p>When you import content from external sources, IdiamPro uses a \"pending\" system to protect your data.</p><p><strong>How it works:</strong></p><ol><li>The import is saved to a special <code>.pending</code> folder</li><li>A dialog shows you what will be added</li><li>You review and click \"Apply\" to merge it in</li><li>The pending file is deleted</li></ol><p><strong>Why this matters:</strong></p><p>If the app crashes during an import, or you close it before finishing, the pending import is still there when you restart. Nothing is lost.</p><p>Look for the \"Pending Imports\" notification when you open the app — it will remind you if there are unfinished imports.</p>",
+      "type": "document",
+      "parentId": "file-management",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "8.3"
+    },
+    "keyboard-mouse": {
+      "id": "keyboard-mouse",
+      "name": "Keyboard Shortcuts and Gestures",
+      "content": "<p>IdiamPro is designed to be fast for keyboard users while still being fully usable with a mouse or touch.</p>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": [
+        "kb-desktop",
+        "kb-ios",
+        "kb-command-palette"
+      ],
+      "isCollapsed": true,
+      "prefix": "9"
+    },
+    "kb-desktop": {
+      "id": "kb-desktop",
+      "name": "Desktop Keyboard Shortcuts",
+      "content": "<p><strong>Navigation:</strong></p><ul><li>↑/↓ — Move between nodes</li><li>←/→ — Collapse/expand node</li><li>Cmd+/ — Toggle collapse</li></ul><p><strong>Editing:</strong></p><ul><li>Enter — Create new sibling node</li><li>Tab — Indent (make child of previous)</li><li>Shift+Tab — Outdent (move up a level)</li><li>Cmd+D — Duplicate node</li><li>Delete — Delete node</li></ul><p><strong>Text formatting:</strong></p><ul><li>Cmd+B — Bold</li><li>Cmd+I — Italic</li><li>Cmd+U — Underline</li><li>Cmd+K — Insert link</li></ul><p><strong>App:</strong></p><ul><li>Cmd+N — New outline</li><li>Cmd+, — Settings</li><li>Cmd+K — Command palette</li><li>Ctrl+F — Search</li><li>Cmd+Shift+F — Focus mode</li></ul>",
+      "type": "document",
+      "parentId": "keyboard-mouse",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "9.1"
+    },
+    "kb-ios": {
+      "id": "kb-ios",
+      "name": "iOS Touch Gestures",
+      "content": "<p>On iPhone and iPad, touch gestures replace many keyboard shortcuts:</p><p><strong>Selection:</strong></p><ul><li>Tap — Select a node</li><li>Tap again (on selected node) — Edit the name</li><li>Double-tap — Create sibling node</li></ul><p><strong>Organization:</strong></p><ul><li>Swipe right — Indent</li><li>Swipe left — Outdent</li><li>Long-press + drag — Move node</li></ul><p><strong>Menus:</strong></p><ul><li>Long-press — Show context menu (like right-click)</li></ul><p><strong>Note:</strong> Some gestures are reserved by iOS (like pinch to zoom or edge swipes for navigation). IdiamPro avoids conflicting with these system gestures.</p>",
+      "type": "document",
+      "parentId": "keyboard-mouse",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "9.2"
+    },
+    "kb-command-palette": {
+      "id": "kb-command-palette",
+      "name": "The Command Palette",
+      "content": "<p>Press <strong>Cmd+K</strong> to open the command palette — a quick way to access any feature.</p><p><strong>How to use it:</strong></p><ol><li>Press Cmd+K</li><li>Start typing what you want to do</li><li>Select from the filtered list</li><li>Press Enter to execute</li></ol><p><strong>What you can do:</strong></p><ul><li>Create new outlines</li><li>Switch between outlines</li><li>Change node types</li><li>Access settings</li><li>Run AI features</li><li>And more...</li></ul><p>The command palette is inspired by tools like VS Code and Spotlight — it's faster than clicking through menus once you learn to use it.</p>",
+      "type": "document",
+      "parentId": "keyboard-mouse",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "9.3"
+    },
+    "under-the-hood": {
+      "id": "under-the-hood",
+      "name": "Under the Hood",
+      "content": "<p>For the curious: a peek at the technologies that make IdiamPro work.</p>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": [
+        "tech-stack",
+        "tech-components",
+        "tech-data-flow"
+      ],
+      "isCollapsed": true,
+      "prefix": "10"
+    },
+    "tech-stack": {
+      "id": "tech-stack",
+      "name": "The Technology Stack",
+      "content": "<p><strong>Frontend (What you see):</strong></p><ul><li><strong>React</strong> — A popular library for building user interfaces, made by Facebook</li><li><strong>Next.js</strong> — A framework that adds features like server-side rendering to React</li><li><strong>TypeScript</strong> — JavaScript with added type safety (catches errors before they happen)</li><li><strong>Tailwind CSS</strong> — A styling system for making things look good</li><li><strong>Radix UI</strong> — Pre-built accessible components (buttons, dialogs, etc.)</li></ul><p><strong>Desktop (Electron):</strong></p><ul><li><strong>Electron</strong> — Wraps web pages in a desktop app shell</li><li><strong>Node.js</strong> — JavaScript that runs on your computer (not in a browser)</li></ul><p><strong>Mobile (iOS):</strong></p><ul><li><strong>Capacitor</strong> — Bridges web apps to native iOS features</li></ul><p><strong>AI:</strong></p><ul><li><strong>Genkit</strong> — Google's toolkit for building AI features</li><li><strong>Google Gemini</strong> — The AI model that generates text</li><li><strong>OpenAI</strong> — For images and text-to-speech</li></ul>",
+      "type": "document",
+      "parentId": "under-the-hood",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "10.1"
+    },
+    "tech-components": {
+      "id": "tech-components",
+      "name": "How Components Work",
+      "content": "<p>IdiamPro is built from about 80 separate <strong>components</strong> — reusable pieces of the interface.</p><p><strong>Think of components like LEGO bricks:</strong></p><ul><li>Each component does one thing well</li><li>Components can contain other components</li><li>Changes to one component don't break others</li></ul><p><strong>Main components:</strong></p><ul><li><strong>OutlinePro</strong> — The main \"orchestrator\" that manages everything</li><li><strong>OutlinePane</strong> — The tree view on the left</li><li><strong>ContentPane</strong> — The editor on the right</li><li><strong>SidebarPane</strong> — The outline list on the far left</li><li><strong>NodeItem</strong> — A single node in the tree (used many times)</li></ul><p><strong>Dialog components:</strong></p><p>Each popup window (like Settings, AI dialogs, Research & Import) is its own component that appears when needed and disappears when closed.</p>",
+      "type": "document",
+      "parentId": "under-the-hood",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "10.2"
+    },
+    "tech-data-flow": {
+      "id": "tech-data-flow",
+      "name": "How Data Flows",
+      "content": "<p>Understanding how information moves through the app:</p><p><strong>1. User makes a change</strong></p><p>You type something, click a button, or drag a node.</p><p><strong>2. Event handler catches it</strong></p><p>React calls a function (like <code>handleUpdateNode</code>) that knows what to do.</p><p><strong>3. State is updated</strong></p><p>The app's \"state\" (all the data it's keeping track of) is updated. In React, this triggers a re-render — the screen redraws to show the new state.</p><p><strong>4. Outline is marked dirty</strong></p><p>The app notes that this outline has unsaved changes.</p><p><strong>5. Auto-save kicks in</strong></p><p>After a 2-second pause, the dirty outlines are written to disk.</p><p><strong>Key principle: Immutability</strong></p><p>When the app updates data, it doesn't change the existing data — it creates a new copy with the changes. This might seem wasteful, but it makes the app more reliable and enables features like undo.</p>",
+      "type": "document",
+      "parentId": "under-the-hood",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "10.3"
+    }
+  },
+  "lastModified": 1770874134555,
+  "_fileSize": 35244,
+  "_fileName": "IdiamPro - How it works.idm",
+  "_isLazyLoaded": false
+}

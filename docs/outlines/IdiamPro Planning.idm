@@ -1,0 +1,711 @@
+{
+  "id": "0590dbbd-bc03-4937-986e-7fee6a0c24ac",
+  "name": "IdiamPro Planning",
+  "rootNodeId": "root-planning",
+  "nodes": {
+    "root-planning": {
+      "id": "root-planning",
+      "name": "IdiamPro Planning",
+      "content": "<p><strong>Strategic Business Plan</strong></p><p>Comprehensive planning document covering market positioning, corporate structure, funding strategy, and path to profitability.</p><p></p><p><em>Last updated: January 2026</em></p>",
+      "type": "root",
+      "parentId": null,
+      "childrenIds": [
+        "exec-summary",
+        "market-analysis",
+        "product-strategy",
+        "business-model",
+        "corporate-structure",
+        "funding-strategy",
+        "gtm-strategy",
+        "financials",
+        "team-hiring",
+        "risks",
+        "milestones"
+      ],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "exec-summary": {
+      "id": "exec-summary",
+      "name": "Executive Summary",
+      "content": "<p><strong>The Opportunity</strong></p><p>The outlining and note-taking software market is fragmented between complex, feature-bloated tools (Notion, Obsidian) and simplistic apps that lack power. IdiamPro fills the gap: a professional-grade outliner that's fast, elegant, and works across platforms without requiring cloud storage or subscriptions.</p><p></p><p><strong>The Product</strong></p><p>IdiamPro is a cross-platform (macOS, iOS, Web) outlining application that prioritizes local-first data storage, keyboard-driven workflows, and a gesture model optimized for both desktop and mobile. Unlike competitors, we respect user privacy by default and never lock features behind arbitrary limitations.</p><p></p><p><strong>Target Market</strong></p><p>Primary: Knowledge workers, writers, researchers, students (TAM: ~50M users globally)</p><p>Secondary: Software developers, project managers, consultants</p><p></p><p><strong>Business Model</strong></p><p>Freemium with premium features. Free tier is generous (unlimited nodes, all features), paid tier removes outline limits and adds cloud sync. Pricing: $8/month or $80/year for individuals.</p><p></p><p><strong>Traction to Date</strong></p><p>• Product: 56+ features implemented, stable on 3 platforms</p><p>• Beta: Not yet launched</p><p>• Revenue: $0 (pre-launch)</p><p></p><p><strong>The Ask</strong></p><p>Bootstrap initially. Consider angel/seed funding ($100-300K) if traction validates aggressive growth opportunity. Exit strategy: sustainable lifestyle business or acquisition by larger player (Notion, Linear, Arc).</p>",
+      "type": "chapter",
+      "parentId": "root-planning",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "market-analysis": {
+      "id": "market-analysis",
+      "name": "Market Analysis",
+      "content": "<p>Deep dive into market landscape, competition, and positioning</p>",
+      "type": "chapter",
+      "parentId": "root-planning",
+      "childrenIds": [
+        "market-size",
+        "competitors",
+        "positioning",
+        "user-personas"
+      ],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "market-size": {
+      "id": "market-size",
+      "name": "Market Size & Opportunity",
+      "content": "<p><strong>Total Addressable Market (TAM)</strong></p><p>Global knowledge workers: ~1.25 billion</p><p>Digital note-takers/outliners: ~50-100M active users</p><p>Paying customers in productivity space: ~10-15M</p><p></p><p><strong>Market Growth</strong></p><p>Productivity software market growing at ~12% CAGR</p><p>Remote work acceleration driving tool adoption</p><p>PKM (Personal Knowledge Management) niche exploding</p><p></p><p><strong>Reference Markets</strong></p><p>• Notion: $10B valuation, 30M+ users (2023)</p><p>• Obsidian: ~1M users, bootstrapped, sustainable</p><p>• Roam Research: Raised $9M, struggled with retention</p><p>• Craft: Raised $40M Series B</p><p>• Logseq: Open source, 100K+ users</p><p></p><p><strong>Our Slice</strong></p><p>Conservative target: 10,000 paying users in Year 1 = $800K ARR</p><p>Aggressive target: 50,000 paying users in Year 2 = $4M ARR</p>",
+      "type": "document",
+      "parentId": "market-analysis",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "competitors": {
+      "id": "competitors",
+      "name": "Competitive Landscape",
+      "content": "<p>Detailed competitor analysis</p>",
+      "type": "document",
+      "parentId": "market-analysis",
+      "childrenIds": [
+        "comp-notion",
+        "comp-obsidian",
+        "comp-workflowy",
+        "comp-roam",
+        "comp-others"
+      ],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "comp-notion": {
+      "id": "comp-notion",
+      "name": "Notion",
+      "content": "<p><strong>Strengths:</strong></p><p>• All-in-one workspace (docs, databases, wikis)</p><p>• Beautiful UI, strong brand</p><p>• Large community, templates marketplace</p><p>• $10B valuation, well-funded</p><p></p><p><strong>Weaknesses:</strong></p><p>• Slow performance (cloud-first architecture)</p><p>• Feature bloat (trying to do everything)</p><p>• Not great for pure outlining</p><p>• Expensive for teams ($10-15/user/mo)</p><p>• Privacy concerns (all data on their servers)</p><p></p><p><strong>Our Advantage:</strong></p><p>Faster, local-first, focused on outlining not databases, better mobile gestures</p>",
+      "type": "document",
+      "parentId": "competitors",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "comp-obsidian": {
+      "id": "comp-obsidian",
+      "name": "Obsidian",
+      "content": "<p><strong>Strengths:</strong></p><p>• Local-first (Markdown files)</p><p>• Strong privacy story</p><p>• Plugin ecosystem</p><p>• Passionate community</p><p>• Profitable, bootstrapped</p><p></p><p><strong>Weaknesses:</strong></p><p>• Markdown-centric (not true outliner)</p><p>• Steep learning curve</p><p>• Mobile app is clunky</p><p>• UI feels dated</p><p>• Not great for non-technical users</p><p></p><p><strong>Our Advantage:</strong></p><p>Better mobile experience, true outliner UX, more approachable for mainstream users</p>",
+      "type": "document",
+      "parentId": "competitors",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "comp-workflowy": {
+      "id": "comp-workflowy",
+      "name": "WorkFlowy",
+      "content": "<p><strong>Strengths:</strong></p><p>• Pure outliner (our closest competitor)</p><p>• Simple, fast</p><p>• Generous free tier</p><p>• Long-standing (since 2010)</p><p></p><p><strong>Weaknesses:</strong></p><p>• Dated UI/UX</p><p>• Limited formatting options</p><p>• No local storage option</p><p>• Slow innovation pace</p><p>• Mobile app needs work</p><p></p><p><strong>Our Advantage:</strong></p><p>Modern UI, rich node types (task, code, link), local-first option, better iOS gestures, tags/colors</p>",
+      "type": "document",
+      "parentId": "competitors",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "comp-roam": {
+      "id": "comp-roam",
+      "name": "Roam Research",
+      "content": "<p><strong>Strengths:</strong></p><p>• Bi-directional links (graph view)</p><p>• Daily notes workflow</p><p>• Strong early adopter community</p><p>• Raised $9M</p><p></p><p><strong>Weaknesses:</strong></p><p>• Expensive ($15/mo)</p><p>• Cloud-only</p><p>• Performance issues</p><p>• High churn reported</p><p>• Niche audience (researchers)</p><p></p><p><strong>Our Advantage:</strong></p><p>More affordable, local-first, better performance, broader appeal beyond academics</p>",
+      "type": "document",
+      "parentId": "competitors",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "comp-others": {
+      "id": "comp-others",
+      "name": "Other Competitors",
+      "content": "<p><strong>Dynalist:</strong> WorkFlowy clone, similar weaknesses</p><p></p><p><strong>Logseq:</strong> Open source Roam alternative, free but technical</p><p></p><p><strong>Craft:</strong> Beautiful but Mac-only, expensive ($10/mo)</p><p></p><p><strong>Bear:</strong> Note-taking not outlining, Apple-only</p><p></p><p><strong>Evernote:</strong> Legacy player, declining, not an outliner</p><p></p><p><strong>OneNote:</strong> Microsoft, free but clunky, enterprise-focused</p>",
+      "type": "document",
+      "parentId": "competitors",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "positioning": {
+      "id": "positioning",
+      "name": "Market Positioning",
+      "content": "<p><strong>Our Position</strong></p><p>\"The modern outliner for professionals who value speed, privacy, and simplicity.\"</p><p></p><p><strong>Positioning Matrix</strong></p><p></p><p>Feature-Rich ↔ Simple</p><p>• Notion (feature-rich, complex)</p><p>• Obsidian (powerful, steep curve)</p><p>• IdiamPro (sweet spot: powerful but elegant)</p><p>• WorkFlowy (simple but limited)</p><p></p><p>Cloud-First ↔ Local-First</p><p>• Notion, Roam (cloud-only)</p><p>• IdiamPro (local-first, cloud optional)</p><p>• Obsidian, Logseq (local-only)</p><p></p><p><strong>Value Propositions</strong></p><p>1. <strong>Privacy First:</strong> Your data stays on your device (local .idm files or folder sync)</p><p>2. <strong>Cross-Platform Done Right:</strong> Same experience on Mac, iOS, Web, Windows</p><p>3. <strong>No Vendor Lock-In:</strong> Plain JSON files you own forever</p><p>4. <strong>Keyboard + Touch Mastery:</strong> Optimized for both power users and mobile</p><p>5. <strong>Fast & Focused:</strong> Does one thing exceptionally well (outlining)</p><p></p><p><strong>Messaging</strong></p><p>Tagline: \"Your ideas, organized. Your way.\"</p><p></p><p>Elevator pitch: \"IdiamPro is a professional outlining app that works the way you think—fast, flexible, and private. Unlike bloated note-taking apps, we focus on structured thinking. Unlike simple outliners, we give you rich formatting, tags, and cross-platform sync without sacrificing speed.\"</p>",
+      "type": "document",
+      "parentId": "market-analysis",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "user-personas": {
+      "id": "user-personas",
+      "name": "User Personas",
+      "content": "<p>Who are our users?</p>",
+      "type": "document",
+      "parentId": "market-analysis",
+      "childrenIds": [
+        "persona-writer",
+        "persona-pm",
+        "persona-student",
+        "persona-dev"
+      ],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "persona-writer": {
+      "id": "persona-writer",
+      "name": "Sarah the Writer",
+      "content": "<p><strong>Demographics:</strong> 32, freelance writer/author, remote</p><p><strong>Pain Points:</strong> Needs to organize research, outline articles/books, distraction-free writing</p><p><strong>Current Tools:</strong> Scrivener (too complex), Google Docs (not structured enough), Notion (too slow)</p><p><strong>Why IdiamPro:</strong> Fast outlining for book chapters, seamless iOS writing on the go, tags for organizing sources</p><p><strong>Willingness to Pay:</strong> High ($10-15/mo)</p>",
+      "type": "document",
+      "parentId": "user-personas",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "persona-pm": {
+      "id": "persona-pm",
+      "name": "Marcus the Product Manager",
+      "content": "<p><strong>Demographics:</strong> 38, PM at tech company, hybrid work</p><p><strong>Pain Points:</strong> Planning sprints, organizing product roadmaps, meeting notes, PRDs</p><p><strong>Current Tools:</strong> Notion (team uses it but he finds it slow), Linear (for tickets only)</p><p><strong>Why IdiamPro:</strong> Fast capture during meetings, hierarchy for roadmap planning, templates for recurring docs</p><p><strong>Willingness to Pay:</strong> Medium (company pays or expense)</p>",
+      "type": "document",
+      "parentId": "user-personas",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "persona-student": {
+      "id": "persona-student",
+      "name": "Emily the Grad Student",
+      "content": "<p><strong>Demographics:</strong> 24, PhD candidate, tight budget</p><p><strong>Pain Points:</strong> Literature review organization, thesis outlining, citation management</p><p><strong>Current Tools:</strong> Google Docs, Zotero, scattered notes</p><p><strong>Why IdiamPro:</strong> Free tier good enough, organize papers by tags, outline dissertation chapters</p><p><strong>Willingness to Pay:</strong> Low (maybe $5/mo student discount)</p>",
+      "type": "document",
+      "parentId": "user-personas",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "persona-dev": {
+      "id": "persona-dev",
+      "name": "Alex the Developer",
+      "content": "<p><strong>Demographics:</strong> 29, software engineer, privacy-conscious</p><p><strong>Pain Points:</strong> Planning architecture, documenting APIs, learning notes, project planning</p><p><strong>Current Tools:</strong> Obsidian (loves Markdown), VS Code, Notion (team)</p><p><strong>Why IdiamPro:</strong> Local-first appeals to privacy values, code node type, keyboard shortcuts</p><p><strong>Willingness to Pay:</strong> Medium (values good tools)</p>",
+      "type": "document",
+      "parentId": "user-personas",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "product-strategy": {
+      "id": "product-strategy",
+      "name": "Product Strategy",
+      "content": "<p>Product vision, roadmap, and development priorities</p>",
+      "type": "chapter",
+      "parentId": "root-planning",
+      "childrenIds": [
+        "product-vision",
+        "mvp-scope",
+        "roadmap-y1",
+        "roadmap-y2",
+        "tech-debt"
+      ],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "product-vision": {
+      "id": "product-vision",
+      "name": "Product Vision",
+      "content": "<p><strong>3-Year Vision</strong></p><p>IdiamPro becomes the default outliner for knowledge workers who value speed and privacy. 100K+ users, sustainable $8-10M ARR, team of 5-8.</p><p></p><p><strong>Core Principles</strong></p><p>1. <strong>Speed above all:</strong> Every interaction should feel instant</p><p>2. <strong>Privacy by default:</strong> Local-first, cloud optional</p><p>3. <strong>Cross-platform parity:</strong> Mobile is not an afterthought</p><p>4. <strong>Data portability:</strong> Users own their data, can export anytime</p><p>5. <strong>Focused scope:</strong> Say no to feature creep, stay an outliner</p><p></p><p><strong>What IdiamPro Will NOT Be</strong></p><p>❌ An all-in-one workspace (not competing with Notion)</p><p>❌ A database tool</p><p>❌ A project management tool (no Gantt charts, sprints)</p><p>❌ A team collaboration platform (maybe later, but not V1-V2)</p><p>❌ A social network</p><p></p><p><strong>What IdiamPro COULD Be (Future)</strong></p><p>✅ Best-in-class outliner with rich formatting</p><p>✅ Personal knowledge base (with backlinks, graph view)</p><p>✅ Multi-device sync via cloud (optional)</p><p>✅ API for integrations (Zapier, Make)</p><p>✅ Publishing tool (export to web, PDF, ePub)</p>",
+      "type": "document",
+      "parentId": "product-strategy",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "mvp-scope": {
+      "id": "mvp-scope",
+      "name": "MVP Scope (Launch v1.0)",
+      "content": "<p><strong>Status: 95% Complete</strong></p><p></p><p><strong>Must-Have (for launch):</strong></p><p>✅ All node types (task, link, code, quote, date, canvas)</p><p>✅ Tags & filters</p><p>✅ Node colors</p><p>✅ Pinning</p><p>✅ Multi-select & bulk operations</p><p>✅ 14 outline templates</p><p>✅ Search (NEEDS FIX)</p><p>✅ Export/import</p><p>✅ iOS gestures optimized</p><p>✅ Keyboard shortcuts</p><p>❌ User accounts (optional for V1)</p><p>❌ Payment integration (Stripe)</p><p></p><p><strong>Nice-to-Have (can defer):</strong></p><p>• Breadcrumbs navigation</p><p>• Node templates (save/reuse subtrees)</p><p>• Internal node linking [[links]]</p><p>• Metadata panel (timestamps, word count)</p><p>• Cloud sync</p>",
+      "type": "document",
+      "parentId": "product-strategy",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "roadmap-y1": {
+      "id": "roadmap-y1",
+      "name": "Year 1 Roadmap (Post-Launch)",
+      "content": "<p><strong>Q1 2026 (Launch Quarter)</strong></p><p>• Fix search (critical)</p><p>• Polish & beta testing</p><p>• Public launch (ProductHunt, App Store)</p><p>• Basic payment integration</p><p>Goal: 500 users, 50 paying ($400 MRR)</p><p></p><p><strong>Q2 2026</strong></p><p>• User accounts & profiles</p><p>• Cloud backup (optional, encrypted)</p><p>• Internal node linking [[feature]]</p><p>• Breadcrumbs navigation</p><p>• Mobile app polish based on feedback</p><p>Goal: 2,000 users, 200 paying ($1,600 MRR)</p><p></p><p><strong>Q3 2026</strong></p><p>• Node templates (save/reuse)</p><p>• Graph view (visual connections)</p><p>• Publishing: Export to web (public share link)</p><p>• API v1 (read-only)</p><p>• Windows app (Electron)</p><p>Goal: 5,000 users, 500 paying ($4,000 MRR)</p><p></p><p><strong>Q4 2026</strong></p><p>• Collaboration v1 (shared outlines, view-only)</p><p>• Real-time sync across devices</p><p>• Mobile widgets (iOS)</p><p>• Advanced search (regex, filters)</p><p>Goal: 10,000 users, 1,000 paying ($8,000 MRR)</p>",
+      "type": "document",
+      "parentId": "product-strategy",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "roadmap-y2": {
+      "id": "roadmap-y2",
+      "name": "Year 2 Roadmap (Growth Phase)",
+      "content": "<p><strong>Major Themes</strong></p><p>• Team collaboration features</p><p>• API ecosystem (Zapier, webhooks)</p><p>• Mobile-first workflows</p><p>• Publishing & sharing tools</p><p></p><p><strong>Potential Features</strong></p><p>• Comments & discussions</p><p>• Version history (time machine)</p><p>• Encrypted cloud storage (E2EE)</p><p>• Android app</p><p>• Browser extensions (web clipper)</p><p>• Integrations (Notion import, Obsidian sync)</p><p>• AI assistant (summarize, expand ideas)</p><p></p><p>Goal: 50,000 users, 5,000 paying ($40,000 MRR / $480K ARR)</p>",
+      "type": "document",
+      "parentId": "product-strategy",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "tech-debt": {
+      "id": "tech-debt",
+      "name": "Technical Debt & Architecture Decisions",
+      "content": "<p><strong>Current Tech Stack</strong></p><p>• Frontend: Next.js 15 + React + TypeScript</p><p>• Storage: Local (IndexedDB + File System API)</p><p>• Mobile: Capacitor (iOS native shell)</p><p>• Desktop: Electron (future)</p><p>• Styling: Tailwind CSS + shadcn/ui</p><p></p><p><strong>Known Tech Debt</strong></p><p>• Search implementation needs refactor</p><p>• State management could use Zustand/Jotai (currently Context API)</p><p>• File sync logic needs optimization for large outlines</p><p>• Mobile gestures could be more responsive</p><p></p><p><strong>Architecture Decisions to Make</strong></p><p></p><p><strong>1. Backend: Build or No-Backend?</strong></p><p>Option A: Serverless (Vercel + Supabase/Firebase)</p><p>  Pros: Fast to market, scales automatically, low maintenance</p><p>  Cons: Vendor lock-in, costs scale with users</p><p></p><p>Option B: Self-hosted (Node.js + Postgres + Redis)</p><p>  Pros: Full control, lower long-term costs, better margins</p><p>  Cons: DevOps overhead, slower to ship</p><p></p><p>Recommendation: Start serverless (Supabase), migrate to self-hosted if >10K users</p><p></p><p><strong>2. Sync: CRDT or OT?</strong></p><p>For future real-time collaboration:</p><p>  Option A: CRDT (Yjs, Automerge)</p><p>  Option B: Operational Transform (custom)</p><p></p><p>Recommendation: Use Yjs (proven, good for outlines)</p><p></p><p><strong>3. Offline-First Strategy</strong></p><p>Keep current local-first approach</p><p>Add optional cloud backup (encrypted at rest)</p><p>Sync via background tasks, not blocking UI</p>",
+      "type": "document",
+      "parentId": "product-strategy",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "business-model": {
+      "id": "business-model",
+      "name": "Business Model & Pricing",
+      "content": "<p>Revenue strategy, pricing psychology, and unit economics</p>",
+      "type": "chapter",
+      "parentId": "root-planning",
+      "childrenIds": [
+        "pricing-tiers",
+        "pricing-psychology",
+        "unit-economics",
+        "revenue-streams"
+      ],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "pricing-tiers": {
+      "id": "pricing-tiers",
+      "name": "Pricing Tiers (Detailed)",
+      "content": "<p><strong>FREE Plan</strong></p><p>• 3 outlines maximum</p><p>• Unlimited nodes per outline</p><p>• All features unlocked (tags, colors, code nodes, etc.)</p><p>• Local storage only</p><p>• Community support (docs, forum)</p><p>• IdiamPro branding in exports</p><p></p><p><strong>Rationale:</strong> Generous free tier hooks users, lets them experience full product, removes friction. Most users won't need >3 outlines initially. This is our marketing funnel.</p><p></p><p><strong>PRO Plan - $8/month or $80/year (save $16)</strong></p><p>• Unlimited outlines</p><p>• Cloud backup (encrypted, optional)</p><p>• Sync across devices (web, iOS, desktop)</p><p>• Priority email support (24h response)</p><p>• Early access to new features (beta)</p><p>• Remove branding from exports</p><p>• Export to additional formats (Markdown, PDF, OPML)</p><p></p><p><strong>Rationale:</strong> $8/mo is sweet spot (cheaper than Notion $10, Roam $15, but premium vs WorkFlowy $5). Annual plan at $80 gives ~17% discount, improves cash flow and retention.</p><p></p><p><strong>TEAM Plan - $15/user/month (Future)</strong></p><p>• Everything in Pro</p><p>• Shared outlines (read/write permissions)</p><p>• Real-time collaboration</p><p>• Admin dashboard</p><p>• SSO / SAML (enterprise)</p><p>• Team billing</p><p></p><p><strong>Rationale:</strong> B2B upsell, higher LTV. Don't launch with this—wait for user demand.</p><p></p><p><strong>LIFETIME Plan - $299 (Limited Offer)</strong></p><p>• All Pro features forever</p><p>• Supporter badge</p><p>• Only during beta/launch (first 1000 customers)</p><p></p><p><strong>Rationale:</strong> Creates urgency, generates cash for runway, builds loyal community. Risk: low recurring revenue, but worth it for early traction.</p>",
+      "type": "document",
+      "parentId": "business-model",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "pricing-psychology": {
+      "id": "pricing-psychology",
+      "name": "Pricing Psychology & Anchoring",
+      "content": "<p><strong>Price Anchoring Strategy</strong></p><p>Show annual plan first ($80/year = $6.67/mo) to make monthly ($8) seem reasonable.</p><p></p><p>Presentation order on pricing page:</p><p>1. Annual Plan - \"BEST VALUE\" badge</p><p>2. Monthly Plan</p><p>3. Free Plan - \"POPULAR\" badge</p><p></p><p><strong>Competitor Benchmarking</strong></p><p>Position IdiamPro as premium but accessible:</p><p></p><p>$15/mo - Roam Research (too expensive)</p><p>$10/mo - Notion Personal Pro (fair but slow)</p><p>$8/mo - IdiamPro PRO ← Our price</p><p>$5/mo - WorkFlowy Pro (cheap but limited)</p><p>$0 - Obsidian, Logseq (free but technical)</p><p></p><p><strong>Discount Strategy</strong></p><p>• Student discount: 50% off ($4/mo) with .edu email</p><p>• Non-profit: 30% off with verification</p><p>• Black Friday: 40% off annual (one-time)</p><p>• Referral program: Give 1 month free, get 1 month free</p><p></p><p><strong>Avoid:</strong> Constant sales (devalues product), free trials that expire abruptly (use generous freemium instead)</p>",
+      "type": "document",
+      "parentId": "business-model",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "unit-economics": {
+      "id": "unit-economics",
+      "name": "Unit Economics & Projections",
+      "content": "<p><strong>Customer Acquisition Cost (CAC)</strong></p><p>Organic (content, SEO, word-of-mouth): $5-20 per user</p><p>Paid (ads, sponsorships): $30-80 per user</p><p></p><p>Target blended CAC: $15-25</p><p></p><p><strong>Lifetime Value (LTV)</strong></p><p>Average subscription length: 18 months (assume 5.5% monthly churn)</p><p>Average revenue per user (ARPU): $8/mo</p><p>Gross margin: 85% (SaaS standard, minimal COGS)</p><p></p><p>LTV = $8 × 18 months × 0.85 = $122.40</p><p></p><p><strong>LTV:CAC Ratio</strong></p><p>Target: 3:1 or better</p><p>At $20 CAC → $122 LTV → 6:1 ratio ✅ Healthy</p><p>At $50 CAC → $122 LTV → 2.4:1 ratio ⚠️ Marginal</p><p></p><p><strong>Break-Even Point</strong></p><p>Fixed costs (Year 1): ~$50K (hosting, tools, legal)</p><p>Variable costs: ~$1 per paying user (payment processing 3%, hosting)</p><p></p><p>Need ~800 paying users at $8/mo to break even on ops</p><p>Need ~$50K revenue to cover fixed + founder salary (minimal)</p><p></p><p><strong>Revenue Projections (Conservative)</strong></p><p></p><p>Month 3 (post-launch): 500 users, 5% convert → 25 paying → $200 MRR</p><p>Month 6: 2,000 users, 7% convert → 140 paying → $1,120 MRR</p><p>Month 12: 10,000 users, 10% convert → 1,000 paying → $8,000 MRR ($96K ARR)</p><p></p><p><strong>Revenue Projections (Aggressive)</strong></p><p></p><p>Month 12: 50,000 users, 10% convert → 5,000 paying → $40K MRR ($480K ARR)</p>",
+      "type": "document",
+      "parentId": "business-model",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "revenue-streams": {
+      "id": "revenue-streams",
+      "name": "Additional Revenue Streams",
+      "content": "<p><strong>Primary: Subscriptions (90% of revenue target)</strong></p><p>Focus here. Everything else is secondary.</p><p></p><p><strong>Secondary Revenue Streams (5-10%)</strong></p><p></p><p><strong>1. Lifetime Licenses</strong></p><p>$299 one-time payment for all Pro features forever</p><p>Offer only during launch window (first 6 months)</p><p>Potential: 100 lifetime sales = $30K</p><p></p><p><strong>2. Template Marketplace (Future)</strong></p><p>Users can sell premium templates</p><p>We take 30% commission</p><p>Potential: Low ($5-10K/year) but builds community</p><p></p><p><strong>3. Enterprise Licensing (Future Y2+)</strong></p><p>Large orgs want on-premise or private cloud</p><p>Custom pricing: $10K-50K/year per org</p><p>Only pursue if inbound interest, don't build speculatively</p><p></p><p><strong>4. API / Developer Platform (Future Y2+)</strong></p><p>Charge for API access (à la Notion API)</p><p>Free tier: 100 requests/day</p><p>Paid: $20/mo for 10K requests</p><p>Potential: Modest ($10-20K/year from power users)</p><p></p><p><strong>5. Affiliate / Referral Commissions (Optional)</strong></p><p>Partner with complementary tools (Zapier, Readwise, etc.)</p><p>Small recurring commission</p><p>Potential: Minimal ($1-5K/year)</p><p></p><p><strong>DON'T Pursue (Distractions)</strong></p><p>❌ Ads (ruins UX, low revenue for niche tools)</p><p>❌ Selling user data (against privacy values)</p><p>❌ Consulting / services (doesn't scale)</p><p>❌ White-label (support burden too high)</p>",
+      "type": "document",
+      "parentId": "business-model",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "corporate-structure": {
+      "id": "corporate-structure",
+      "name": "Corporate Structure & Legal",
+      "content": "<p>Entity formation, equity, and legal considerations</p>",
+      "type": "chapter",
+      "parentId": "root-planning",
+      "childrenIds": [
+        "entity-choice",
+        "equity-structure",
+        "ip-strategy",
+        "compliance"
+      ],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "entity-choice": {
+      "id": "entity-choice",
+      "name": "Choosing Business Entity",
+      "content": "<p><strong>Option 1: LLC (Limited Liability Company)</strong></p><p></p><p><strong>Pros:</strong></p><p>• Simple to set up ($100-500)</p><p>• Pass-through taxation (no double tax)</p><p>• Flexible ownership structure</p><p>• Good for solo founder or small team</p><p>• Low compliance burden</p><p></p><p><strong>Cons:</strong></p><p>• Not ideal for VC funding (investors prefer C-Corp)</p><p>• Harder to issue stock options to employees</p><p>• Some states charge high annual fees (CA: $800/year)</p><p></p><p><strong>Best for:</strong> Bootstrapping, lifestyle business, no VC plans</p><p></p><p><strong>Option 2: C-Corporation</strong></p><p></p><p><strong>Pros:</strong></p><p>• VC/investor-friendly (can issue preferred stock)</p><p>• Stock options for employees (ISOs)</p><p>• Easier to sell company later</p><p>• Credibility with enterprise customers</p><p></p><p><strong>Cons:</strong></p><p>• Double taxation (corporate + personal)</p><p>• More expensive to maintain ($2-5K/year in accounting/legal)</p><p>• More compliance (board meetings, 83(b) elections, 409A valuations)</p><p></p><p><strong>Best for:</strong> Planning to raise VC, hire team, exit via acquisition</p><p></p><p><strong>Option 3: S-Corporation</strong></p><p></p><p><strong>Pros:</strong></p><p>• Pass-through taxation like LLC</p><p>• Saves on self-employment tax vs LLC</p><p></p><p><strong>Cons:</strong></p><p>• Can't have foreign investors</p><p>• Max 100 shareholders</p><p>• One class of stock (no preferred shares)</p><p>• Not good for VC funding</p><p></p><p><strong>Best for:</strong> Profitable small business with US owners, no VC plans</p><p></p><p>━━━━━━━━━━━━━━━━━</p><p></p><p><strong>RECOMMENDATION FOR IDIAMPRO:</strong></p><p></p><p><strong>Start with Delaware C-Corp</strong></p><p></p><p><strong>Rationale:</strong></p><p>• Keeps options open for angel/seed funding</p><p>• Easier to pivot to VC track if product takes off</p><p>• Professional image for partnerships</p><p>• Can always stay bootstrapped but have the structure ready</p><p>• Use Stripe Atlas ($500) or Clerky ($1,000) for easy setup</p><p></p><p>If 100% certain about bootstrapping forever → LLC is fine, but C-Corp is safer bet.</p>",
+      "type": "document",
+      "parentId": "corporate-structure",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "equity-structure": {
+      "id": "equity-structure",
+      "name": "Equity & Ownership Structure",
+      "content": "<p><strong>Initial Cap Table (Solo Founder)</strong></p><p></p><p>Founder: 10,000,000 shares (100%)</p><p>Employee pool: 0 shares (set up later if hiring)</p><p>Investors: 0 shares</p><p></p><p>Issue shares at $0.0001/share (par value)</p><p>Total initial investment: $1,000</p><p></p><p><strong>Vesting Schedule for Founder</strong></p><p>Even as solo founder, impose vesting on yourself:</p><p>• 4-year vesting with 1-year cliff</p><p>• Standard startup structure</p><p></p><p>Why? If you bring on co-founder or raise money later, shows commitment. Also protects company if you leave early.</p><p></p><p><strong>If Adding Co-Founder</strong></p><p></p><p>Split: 50/50 if equal contribution, or 60/40 if one person started earlier</p><p>Both on 4-year vest, 1-year cliff</p><p>Agree on vesting terms in writing BEFORE incorporation</p><p></p><p><strong>Employee Stock Option Pool</strong></p><p></p><p>If hiring team later:</p><p>• Reserve 10-20% of company for employee options</p><p>• Create pool before first investor (dilutes founders, not investors)</p><p>• Use standard 4-year vest, 1-year cliff</p><p>• Set strike price via 409A valuation (required)</p><p></p><p><strong>Early Employees (First 5)</strong></p><p>• Engineer #1: 0.5-1.5%</p><p>• Designer/PM: 0.25-1%</p><p>• Early contractors: 0.1-0.5%</p><p></p><p><strong>Key Hires Later (Post-Revenue)</strong></p><p>• VP Engineering: 0.5-1%</p><p>• Head of Marketing: 0.25-0.75%</p><p></p><p><strong>83(b) Election</strong></p><p>File within 30 days of stock grant</p><p>Pay tax on current value (low) instead of future value (high)</p><p>Critical for founders and early employees</p>",
+      "type": "document",
+      "parentId": "corporate-structure",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "ip-strategy": {
+      "id": "ip-strategy",
+      "name": "Intellectual Property Strategy",
+      "content": "<p><strong>Trademark</strong></p><p></p><p>File for \"IdiamPro\" trademark:</p><p>• Class 9: Software</p><p>• Class 42: SaaS services</p><p></p><p>Cost: $250-350 per class (DIY) or $1,500 (with attorney)</p><p>Timeline: 6-12 months for approval</p><p></p><p>Also consider:</p><p>• Domain: idiampro.com ✓</p><p>• Social handles: @IdiamPro on Twitter, Instagram</p><p>• Apple Developer Account: IdiamPro LLC/Inc</p><p></p><p><strong>Copyright</strong></p><p></p><p>Automatically own copyright on:</p><p>• Source code</p><p>• UI/UX designs</p><p>• Documentation & content</p><p>• Marketing materials</p><p></p><p>Optional: Register copyright with US Copyright Office ($65) for stronger legal protection</p><p></p><p><strong>Patents</strong></p><p></p><p>Generally NOT worth it for software:</p><p>• Expensive ($10-20K per patent)</p><p>• Hard to defend</p><p>• Fast-moving industry</p><p></p><p>Only consider if true novel invention (unlikely for outliner)</p><p></p><p><strong>Trade Secrets</strong></p><p></p><p>Keep proprietary:</p><p>• Core algorithms (if any unique IP)</p><p>• Customer data & analytics</p><p>• Business strategies</p><p></p><p>Protect via:</p><p>• NDAs with contractors/employees</p><p>• Invention assignment agreements</p><p>• Secure code repositories (private GitHub)</p><p></p><p><strong>Open Source Considerations</strong></p><p></p><p>IdiamPro is closed-source (for now)</p><p></p><p>Future options:</p><p>• Open-source the editor core, keep sync/cloud proprietary (like Obsidian model)</p><p>• Dual-license: AGPLv3 for free, commercial license for businesses</p><p>• Full open-source if monetization shifts to hosting/support</p><p></p><p>Don't decide yet—keep options open</p>",
+      "type": "document",
+      "parentId": "corporate-structure",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "compliance": {
+      "id": "compliance",
+      "name": "Legal Compliance & Governance",
+      "content": "<p><strong>Privacy & Data Protection</strong></p><p></p><p><strong>GDPR (EU users):</strong></p><p>• Transparent privacy policy</p><p>• User consent for data collection</p><p>• Right to access, delete, export data</p><p>• Data breach notification (72 hours)</p><p>• Appoint DPO if processing large volumes (not needed initially)</p><p></p><p><strong>CCPA (California users):</strong></p><p>• Disclosure of data collection</p><p>• Opt-out of data sales (we don't sell data, so easy compliance)</p><p>• Right to delete</p><p></p><p><strong>IdiamPro advantage:</strong> Local-first model means minimal data collection, easier compliance!</p><p></p><p><strong>Terms of Service Must-Haves</strong></p><p>• User rights and responsibilities</p><p>• Acceptable use policy (no illegal content, abuse)</p><p>• Payment terms (refund policy: 30-day for annual, no refunds for monthly)</p><p>• Termination rights (we can close accounts for TOS violations)</p><p>• Limitation of liability</p><p>• Dispute resolution (arbitration clause)</p><p>• Jurisdiction (Delaware or your state)</p><p></p><p>Use template + lawyer review ($500-1,500)</p><p></p><p><strong>DMCA Compliance (if user-generated content)</strong></p><p>Appoint DMCA agent with US Copyright Office ($6)</p><p>Set up takedown process for copyright claims</p><p>(Probably not needed unless users share outlines publicly)</p><p></p><p><strong>App Store Compliance</strong></p><p></p><p><strong>Apple App Store:</strong></p><p>• Privacy labels (what data is collected)</p><p>• Age rating (probably 4+)</p><p>• No hidden features or subscriptions</p><p>• Must use Apple IAP for iOS subscriptions (30% cut)</p><p></p><p><strong>Alternative:</strong> Offer iOS app free, ask users to subscribe via web (avoids Apple's 30%, but can't mention it in-app)</p><p></p><p><strong>Corporate Governance (C-Corp)</strong></p><p></p><p>Annual requirements:</p><p>• File Delaware franchise tax ($300-500/year)</p><p>• Hold annual board meeting (even if solo founder)</p><p>• Keep meeting minutes</p><p>• File taxes (corporate return + personal)</p><p></p><p><strong>Accounting:</strong></p><p>Use QuickBooks or Wave, hire CPA for tax filing (~$1,500/year)</p>",
+      "type": "document",
+      "parentId": "corporate-structure",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "funding-strategy": {
+      "id": "funding-strategy",
+      "name": "Funding Strategy",
+      "content": "<p>Bootstrap vs VC, funding scenarios, and investor landscape</p>",
+      "type": "chapter",
+      "parentId": "root-planning",
+      "childrenIds": [
+        "bootstrap-case",
+        "vc-case",
+        "angel-seed",
+        "investor-landscape",
+        "funding-recommendation"
+      ],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "bootstrap-case": {
+      "id": "bootstrap-case",
+      "name": "Case for Bootstrapping",
+      "content": "<p><strong>Pros of Bootstrapping</strong></p><p></p><p>✅ <strong>Full control:</strong> No board, no pressure to exit, build YOUR vision</p><p>✅ <strong>Keep equity:</strong> Own 100% of the company</p><p>✅ <strong>Sustainable growth:</strong> Focus on profitability, not vanity metrics</p><p>✅ <strong>Lower stress:</strong> No fundraising treadmill, no investor updates</p><p>✅ <strong>Lifestyle business option:</strong> $500K-2M ARR can be life-changing income</p><p>✅ <strong>Examples:</strong> Obsidian, Superhuman (initially), Basecamp, ConvertKit all bootstrapped</p><p></p><p><strong>Cons of Bootstrapping</strong></p><p></p><p>❌ <strong>Slower growth:</strong> Can't hire fast, limited marketing budget</p><p>❌ <strong>Risk of being outpaced:</strong> Funded competitor could move faster</p><p>❌ <strong>No safety net:</strong> If revenue doesn't materialize, can't sustain team</p><p>❌ <strong>Harder to attract top talent:</strong> Can't pay high salaries, limited equity value</p><p></p><p><strong>Financial Path (Bootstrap)</strong></p><p></p><p><strong>Year 0 (Pre-Launch):</strong></p><p>• Personal savings: $20-50K for living expenses while building</p><p>• Minimal costs: $2-5K (hosting, tools, domain, legal)</p><p></p><p><strong>Year 1:</strong></p><p>• Reach $96K ARR (1,000 paying users)</p><p>• Withdraw minimal salary ($40-60K)</p><p>• Reinvest rest in product & marketing</p><p></p><p><strong>Year 2:</strong></p><p>• Reach $480K ARR (5,000 paying users)</p><p>• Salary: $100K</p><p>• Hire 1-2 contractors (part-time)</p><p></p><p><strong>Year 3:</strong></p><p>• Reach $1-2M ARR</p><p>• Hire small team (2-4 FTE)</p><p>• Profitable, sustainable</p><p></p><p><strong>When Bootstrapping Works Best:</strong></p><p>• Solo founder or small team</p><p>• Low burn rate</p><p>• Market doesn't require blitz-scaling</p><p>• Product can reach profitability in 12-18 months</p><p>• Founder values independence over growth-at-all-costs</p>",
+      "type": "document",
+      "parentId": "funding-strategy",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "vc-case": {
+      "id": "vc-case",
+      "name": "Case for Venture Capital",
+      "content": "<p><strong>Pros of Raising VC</strong></p><p></p><p>✅ <strong>Fuel for growth:</strong> Hire team, scale marketing, build faster</p><p>✅ <strong>Network & expertise:</strong> VCs bring connections, advice, recruiting help</p><p>✅ <strong>Validation:</strong> Raises profile, easier to hire and partner</p><p>✅ <strong>Bigger outcome potential:</strong> Swing for $100M+ exit vs $10M lifestyle business</p><p>✅ <strong>Safety net:</strong> Runway to experiment, pivot, recover from mistakes</p><p></p><p><strong>Cons of Raising VC</strong></p><p></p><p>❌ <strong>Loss of control:</strong> Board seats, investor pressure, can be fired</p><p>❌ <strong>Dilution:</strong> Own 50-70% after Seed, 20-40% by Series B</p><p>❌ <strong>Growth pressure:</strong> Must scale fast or die (10x revenue YoY expected)</p><p>❌ <strong>Exit pressure:</strong> VCs need liquidity in 7-10 years, forces sale/IPO</p><p>❌ <strong>Time sink:</strong> Fundraising takes 3-6 months, distracts from building</p><p>❌ <strong>Wrong incentives:</strong> Optimize for valuation, not profitability</p><p></p><p><strong>VC Funding Stages</strong></p><p></p><p><strong>Pre-Seed ($100K-500K):</strong></p><p>• Accelerators (Y Combinator, Techstars)</p><p>• Angel investors</p><p>• Friends & family</p><p>• At idea or prototype stage</p><p>• Dilution: ~5-10%</p><p></p><p><strong>Seed ($500K-2M):</strong></p><p>• Early-stage VCs (Hustle Fund, Weekend Fund, Uncork)</p><p>• Super angels</p><p>• Product launched, some early users (1K-10K)</p><p>• Dilution: ~15-25%</p><p></p><p><strong>Series A ($2M-10M):</strong></p><p>• Traditional VCs (a16z, Sequoia, Accel, etc.)</p><p>• Strong product-market fit</p><p>• $500K-2M ARR, 30%+ MoM growth</p><p>• Dilution: ~20-30%</p><p></p><p><strong>When VC Makes Sense:</strong></p><p>• Winner-take-all market (need to move FAST)</p><p>• High CAC requires upfront capital</p><p>• Network effects (collaboration features)</p><p>• Team of 2-3+ co-founders</p><p>• Willing to sell company in 5-10 years</p>",
+      "type": "document",
+      "parentId": "funding-strategy",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "angel-seed": {
+      "id": "angel-seed",
+      "name": "Angel / Seed Round Strategy",
+      "content": "<p><strong>If Raising $100K-500K Angel/Seed</strong></p><p></p><p><strong>When to Raise:</strong></p><p>• After launch</p><p>• 500-2,000 users, growing 20%+ MoM</p><p>• $5-20K MRR</p><p>• Clear product-market fit signals</p><p></p><p><strong>What to Offer:</strong></p><p>• $100-500K total</p><p>• SAFE or convertible note (standard YC terms)</p><p>• $2-5M valuation cap</p><p>• 20% discount on Series A</p><p>• Dilution: ~5-15%</p><p></p><p><strong>Use of Funds:</strong></p><p>• 60% - Team (hire 1-2 engineers, designer, or marketer)</p><p>• 20% - Marketing (ads, content, ProductHunt sponsor)</p><p>• 10% - Infrastructure (cloud hosting, better tools)</p><p>• 10% - Buffer (legal, unexpected costs)</p><p></p><p>Runway: 12-18 months</p><p></p><p><strong>Target Angels:</strong></p><p>• Productivity tool founders (Superhuman, Notion, Obsidian community)</p><p>• SaaS angels on AngelList</p><p>• YC partners / alumni</p><p>• Tech influencers who love tools</p><p></p><p><strong>Pitch Deck (10 slides):</strong></p><p>1. Cover (logo, tagline)</p><p>2. Problem (note-taking/outlining is broken)</p><p>3. Solution (IdiamPro in 1 sentence + demo screenshot)</p><p>4. Product (features, screenshots)</p><p>5. Traction (users, growth, revenue, testimonials)</p><p>6. Market (TAM, competition, positioning)</p><p>7. Business Model (pricing, unit economics)</p><p>8. Roadmap (next 12 months)</p><p>9. Team (founder background, why you?)</p><p>10. Ask ($XXXk, use of funds, timeline to profitability)</p><p></p><p><strong>Fundraising Timeline:</strong></p><p>Week 1-2: Build deck, financial model</p><p>Week 3-4: Warm intros to 20-30 angels</p><p>Week 5-8: Pitch meetings, follow-ups</p><p>Week 9-10: Term sheets, negotiate, close</p><p></p><p>Total: ~3 months (part-time, while running product)</p>",
+      "type": "document",
+      "parentId": "funding-strategy",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "investor-landscape": {
+      "id": "investor-landscape",
+      "name": "Investor Landscape (Productivity SaaS)",
+      "content": "<p><strong>Angel Investors (Productivity Space)</strong></p><p>• Tiago Forte (Building a Second Brain)</p><p>• Nat Eliason (ex-Roam)</p><p>• Steph Smith (a16z, productivity writer)</p><p>• David Perell (Write of Passage)</p><p>• Lenny Rachitsky (Lenny's Newsletter)</p><p></p><p><strong>Micro VCs / Scout Programs</strong></p><p>• Hustle Fund (seed-stage, fast decisions)</p><p>• Weekend Fund (fast yes/no)</p><p>• Tiny Seed (bootstrapper-friendly fund)</p><p>• Earnest Capital (profit-focused, not exit-focused)</p><p>• YC Scout Program (ask YC alums to scout you)</p><p></p><p><strong>Seed Funds (If Strong Traction)</strong></p><p>• Craft Ventures (SaaS focus, invested in Notion competitor Coda)</p><p>• GGV Capital (productivity tools)</p><p>• General Catalyst (early Notion investor)</p><p>• Index Ventures (Figma, Notion)</p><p></p><p><strong>Alternative: Revenue-Based Financing</strong></p><p>Non-dilutive capital (no equity given up):</p><p>• Clearco (formerly Clearbanco)</p><p>• Pipe</p><p>• Lighter Capital</p><p></p><p>How it works:</p><p>• Borrow $50-500K</p><p>• Repay as % of monthly revenue (e.g., 5-10%)</p><p>• Pay back 1.3-1.5x borrowed amount</p><p>• Good if you have $20K+ MRR and need growth capital without dilution</p>",
+      "type": "document",
+      "parentId": "funding-strategy",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "funding-recommendation": {
+      "id": "funding-recommendation",
+      "name": "Funding Recommendation for IdiamPro",
+      "content": "<p><strong>RECOMMENDED PATH: Bootstrap → Opportunistic Angel</strong></p><p></p><p><strong>Phase 1: Bootstrap (Months 1-6)</strong></p><p>• Launch with own capital</p><p>• Validate product-market fit</p><p>• Get to $5-10K MRR organically</p><p>• Prove you can grow without funding</p><p></p><p><strong>Why:</strong> You're solo founder, product is 95% done, market doesn't require blitz-scaling. Bootstrap proves the model works.</p><p></p><p><strong>Phase 2: Evaluate Options (Months 6-9)</strong></p><p></p><p><strong>If traction is strong (>$10K MRR, 30%+ MoM growth):</strong></p><p>• Consider raising $200-500K angel/seed</p><p>• Use to hire 2-3 people, accelerate growth</p><p>• Target: $1M ARR by end of Year 1</p><p></p><p><strong>If traction is modest (<$10K MRR, 10-20% growth):</strong></p><p>• Keep bootstrapping</p><p>• Focus on profitability, not growth at all costs</p><p>• Lifestyle business is great outcome ($500K-1M/year personally)</p><p></p><p><strong>Phase 3: Series A Decision (Year 2+)</strong></p><p></p><p>Only raise institutional VC if:</p><p>• $1M+ ARR</p><p>• 3-5x YoY growth</p><p>• Clear path to $10M+ ARR</p><p>• Market leader potential</p><p></p><p>Otherwise, stay bootstrapped and profitable.</p><p></p><p>━━━━━━━━━━━━━━━━━</p><p></p><p><strong>TLDR: Start bootstrapped. If product explodes, raise smart angel money. Don't raise VC unless you're clearly winning big.</strong></p>",
+      "type": "document",
+      "parentId": "funding-strategy",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "metadata": {
+        "color": "green"
+      }
+    },
+    "gtm-strategy": {
+      "id": "gtm-strategy",
+      "name": "Go-to-Market Strategy",
+      "content": "<p>How to acquire first 1000 customers</p>",
+      "type": "chapter",
+      "parentId": "root-planning",
+      "childrenIds": [
+        "gtm-channels",
+        "gtm-launch",
+        "gtm-growth",
+        "gtm-retention"
+      ],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "gtm-channels": {
+      "id": "gtm-channels",
+      "name": "Customer Acquisition Channels",
+      "content": "<p><strong>Tier 1 Channels (Highest Priority)</strong></p><p></p><p><strong>1. ProductHunt Launch</strong></p><p>• Potential reach: 10K-50K visitors on launch day</p><p>• Target: Top 5 product of the day</p><p>• Expect: 500-2,000 signups, 5-10% convert to paying</p><p>• One-time spike, but great for initial traction + credibility</p><p></p><p><strong>2. Content Marketing (SEO Blog)</strong></p><p>• Write 2-4 blog posts/month on idiampro.com/blog</p><p>• Target keywords: \"best outliner app\", \"Notion alternative\", \"local-first note-taking\"</p><p>• Long-tail: \"how to outline a book\", \"project planning template\"</p><p>• Timeline: 3-6 months to see organic traffic</p><p>• Potential: 1K-5K organic visits/month by Month 6</p><p></p><p><strong>3. Reddit / Community Marketing</strong></p><p>• r/productivity (3M members)</p><p>• r/GettingThingsGTD (50K)</p><p>• r/ObsidianMD (200K)</p><p>• r/selfhosted (500K)</p><p>• Be helpful first, mention IdiamPro naturally</p><p>• Post \"Show & Tell\" every few months</p><p></p><p><strong>4. Twitter / X Presence</strong></p><p>• Build in public (share progress, learnings)</p><p>• Engage with productivity community</p><p>• Share tips, shortcuts, use cases</p><p>• Target: 1K followers by Month 6</p><p></p><p><strong>Tier 2 Channels (Medium Priority)</strong></p><p></p><p><strong>5. YouTube Tutorials</strong></p><p>• \"How to use IdiamPro\" walkthrough</p><p>• Comparison videos (vs Notion, WorkFlowy, Obsidian)</p><p>• Partner with productivity YouTubers (sponsored reviews)</p><p></p><p><strong>6. App Store Optimization (ASO)</strong></p><p>• Optimize iOS App Store listing</p><p>• Keywords: outliner, note-taking, productivity</p><p>• Get initial reviews (ask beta users)</p><p>• Potential: 100-500 organic downloads/month</p><p></p><p><strong>7. Email Newsletter</strong></p><p>• Weekly tips for outline mastery</p><p>• Build email list via lead magnet (free template pack)</p><p>• Promote new features, success stories</p><p></p><p><strong>Tier 3 Channels (Test Later)</strong></p><p></p><p><strong>8. Paid Ads (Google, Facebook)</strong></p><p>• Only after organic channels proven</p><p>• Start with $500/month budget</p><p>• Target: CAC < $30</p><p></p><p><strong>9. Podcast Sponsorships</strong></p><p>• Sponsor productivity podcasts</p><p>• Cost: $500-2,000/episode</p><p>• Only if CAC math works</p><p></p><p><strong>10. Affiliate Program</strong></p><p>• Pay 20-30% commission to affiliates</p><p>• Recruit productivity bloggers, YouTubers</p><p></p><p><strong>DON'T Waste Time On:</strong></p><p>❌ Cold email outreach (too spammy for B2C)</p><p>❌ LinkedIn ads (expensive, wrong audience)</p><p>❌ Trade shows / conferences (too expensive for early stage)</p>",
+      "type": "document",
+      "parentId": "gtm-strategy",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "gtm-launch": {
+      "id": "gtm-launch",
+      "name": "Launch Playbook (First 30 Days)",
+      "content": "<p><strong>Pre-Launch (2 weeks before)</strong></p><p>• Build email waitlist (100-500 people)</p><p>• Set up ProductHunt account, get hunter</p><p>• Prepare launch assets (screenshots, video, social posts)</p><p>• Reach out to ProductHunt voting squad</p><p>• Write launch blog post</p><p>• Prepare launch email to waitlist</p><p></p><p><strong>Launch Day (Day 1)</strong></p><p>• Go live on ProductHunt at 12:01am PST</p><p>• Post to Twitter, LinkedIn, Reddit (carefully)</p><p>• Email waitlist (stagger over 3 hours)</p><p>• Respond to EVERY ProductHunt comment</p><p>• Monitor upvotes, share milestones (#3 product! #1 product!)</p><p>• Post in Indie Hackers</p><p></p><p>Goal: Top 5 product of the day, 1,000+ visits, 100+ signups</p><p></p><p><strong>Week 1 (Days 2-7)</strong></p><p>• Follow up with signups (welcome email sequence)</p><p>• Post \"We launched!\" recap on blog</p><p>• Share to HackerNews (Show HN)</p><p>• Reach out to tech journalists (TechCrunch, The Verge - unlikely but try)</p><p>• Post in niche subreddits</p><p>• Ask for feedback in-app</p><p></p><p>Goal: 500 total users</p><p></p><p><strong>Week 2-4 (Days 8-30)</strong></p><p>• Start content marketing (first 2 blog posts)</p><p>• Launch referral program (give 1 month Pro, get 1 month Pro)</p><p>• Collect testimonials from happy users</p><p>• Fix top bugs reported</p><p>• Announce first update (\"We shipped your feedback!\")</p><p>• Plan ProductHunt Ship for ongoing updates</p><p></p><p>Goal: 1,000 total users, 50 paying ($400 MRR)</p>",
+      "type": "document",
+      "parentId": "gtm-strategy",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "gtm-growth": {
+      "id": "gtm-growth",
+      "name": "Growth Loops & Viral Mechanics",
+      "content": "<p><strong>Built-in Growth Mechanisms</strong></p><p></p><p><strong>1. Referral Program</strong></p><p>Give 1 month Pro, Get 1 month Pro</p><p>Prompt after user creates 3rd outline</p><p></p><p><strong>2. Export Branding (Free Tier)</strong></p><p>Add \"Created with IdiamPro\" footer on exports</p><p>Links to idiampro.com</p><p>Remove for Pro users</p><p></p><p><strong>3. Public Sharing (Future)</strong></p><p>Allow users to publish outlines to web</p><p>Each shared outline = mini landing page for IdiamPro</p><p>Example: idiampro.com/share/abc123</p><p></p><p><strong>4. Template Marketplace (Future)</strong></p><p>Users share templates publicly</p><p>Non-users can download → prompted to sign up</p><p></p><p><strong>5. Collaboration (Future)</strong></p><p>Invite teammates to shared outline</p><p>Each invite = new potential customer</p><p></p><p><strong>Word-of-Mouth Drivers</strong></p><p></p><p>• Fast performance (\"Try this, it's so fast!\")</p><p>• Beautiful UI (\"Look at this app\")</p><p>• Unique features (\"You can create a canvas node!\")</p><p>• Privacy story (\"Finally, an app that doesn't spy on me\")</p><p></p><p><strong>North Star Metric</strong></p><p></p><p>Track: <strong>Weekly Active Outliners (WAO)</strong></p><p></p><p>Definition: Users who edit an outline at least once per week</p><p></p><p>Why: Leading indicator of engagement → retention → revenue</p><p></p><p>Target:</p><p>• Month 1: 100 WAO</p><p>• Month 3: 500 WAO</p><p>• Month 6: 2,000 WAO</p><p>• Month 12: 10,000 WAO</p>",
+      "type": "document",
+      "parentId": "gtm-strategy",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "gtm-retention": {
+      "id": "gtm-retention",
+      "name": "Retention & Churn Strategy",
+      "content": "<p><strong>Activation (Day 1)</strong></p><p></p><p>Goal: Get user to create first outline in first session</p><p></p><p>Tactics:</p><p>• Show empty state with templates (done ✓)</p><p>• Onboarding tooltip tour (optional)</p><p>• \"Create your first outline\" CTA</p><p></p><p>Success metric: 60%+ create outline on Day 1</p><p></p><p><strong>Engagement (Week 1)</strong></p><p></p><p>Goal: Get user to create 3+ outlines, use 3+ features</p><p></p><p>Tactics:</p><p>• Email: \"5 ways to use IdiamPro\"</p><p>• In-app: \"Try creating a task node!\"</p><p>• Highlight keyboard shortcuts</p><p></p><p>Success metric: 40%+ return on Day 3, 7</p><p></p><p><strong>Habit Formation (Month 1)</strong></p><p></p><p>Goal: Daily or weekly usage habit</p><p></p><p>Tactics:</p><p>• Email tips (\"How to organize research with tags\")</p><p>• Show usage stats (\"You created 12 nodes this week!\")</p><p>• Prompt to upgrade (\"You have 3 outlines, upgrade for unlimited\")</p><p></p><p>Success metric: 30%+ become weekly active</p><p></p><p><strong>Churn Prevention</strong></p><p></p><p><strong>Identify At-Risk Users:</strong></p><p>• Haven't logged in for 7 days</p><p>• Created only 1 outline</p><p>• No activity after Day 1</p><p></p><p><strong>Re-engagement Campaigns:</strong></p><p>• Email: \"We miss you! Here's a new template\"</p><p>• Offer: Free 1-month trial of Pro features</p><p>• Survey: \"Why did you stop using IdiamPro?\"</p><p></p><p><strong>Churn Analysis (Paying Users)</strong></p><p></p><p>Track why users cancel:</p><p>• Pricing too high?</p><p>• Missing features?</p><p>• Switched to competitor?</p><p>• Not using enough?</p><p></p><p>Exit survey on cancellation</p><p>Offer discount to stay (1 time only)</p><p></p><p><strong>Target Metrics</strong></p><p></p><p>• Day 1 activation: 60%+</p><p>• Day 7 retention: 40%+</p><p>• Day 30 retention: 25%+</p><p>• Monthly churn (paying): <5%</p>",
+      "type": "document",
+      "parentId": "gtm-strategy",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "financials": {
+      "id": "financials",
+      "name": "Financial Projections",
+      "content": "<p>Revenue, costs, and path to profitability</p>",
+      "type": "chapter",
+      "parentId": "root-planning",
+      "childrenIds": [
+        "revenue-model",
+        "cost-structure",
+        "profitability-timeline",
+        "financial-scenarios"
+      ],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "revenue-model": {
+      "id": "revenue-model",
+      "name": "Revenue Model & Assumptions",
+      "content": "<p><strong>Pricing</strong></p><p>• Free: 3 outlines</p><p>• Pro: $8/month or $80/year</p><p>• Team: $15/user/month (future)</p><p></p><p><strong>Conversion Assumptions</strong></p><p></p><p>Free → Pro: 5-10% (industry standard for freemium)</p><p>Monthly vs Annual: 30% choose annual (2.5x monthly revenue upfront)</p><p></p><p><strong>Blended ARPU (Average Revenue Per User)</strong></p><p></p><p>70% monthly × $8 = $5.60</p><p>30% annual × $6.67 = $2.00</p><p>Blended ARPU ≈ $7.60/month</p><p></p><p>(Using $8 for simplicity in projections)</p><p></p><p><strong>Churn Assumptions</strong></p><p></p><p>Monthly subscribers: 8% monthly churn (avg lifetime 12 months)</p><p>Annual subscribers: 30% yearly churn (avg lifetime 3+ years)</p><p>Blended: ~5.5% monthly churn</p><p></p><p><strong>Growth Assumptions</strong></p><p></p><p>Conservative:</p><p>• Month 1-3: 50% MoM user growth</p><p>• Month 4-6: 30% MoM</p><p>• Month 7-12: 20% MoM</p><p></p><p>Aggressive:</p><p>• Month 1-6: 100% MoM</p><p>• Month 7-12: 50% MoM</p>",
+      "type": "document",
+      "parentId": "financials",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "cost-structure": {
+      "id": "cost-structure",
+      "name": "Cost Structure & Burn Rate",
+      "content": "<p><strong>Fixed Costs (Monthly)</strong></p><p></p><p><strong>Pre-Revenue:</strong></p><p>• Domain & hosting: $50</p><p>• Tools (Vercel, Supabase, email): $100</p><p>• Legal / accounting: $200 (amortized)</p><p>Total: ~$350/month</p><p></p><p><strong>Post-Launch (Year 1):</strong></p><p>• Hosting (scales with users): $200-1,000</p><p>• Tools & SaaS: $300-500</p><p>• Payment processing (Stripe 3%): $XXX (variable)</p><p>• Marketing: $500-2,000</p><p>• Legal / accounting: $300</p><p>• Insurance: $100</p><p>Total: ~$1,400 - $4,000/month</p><p></p><p><strong>Variable Costs (Per Paying User)</strong></p><p>• Payment processing (Stripe): 3% = $0.24/user/month</p><p>• Cloud hosting: ~$0.10/user/month</p><p>• Email (SendGrid): ~$0.05/user/month</p><p>Total: ~$0.40/user/month</p><p></p><p>Gross Margin: ($8 - $0.40) / $8 = 95% 🚀</p><p></p><p>(SaaS typically 80-90%, we're high because of local-first architecture)</p><p></p><p><strong>Team Costs (If Hiring)</strong></p><p></p><p>Contractor (part-time):</p><p>• Engineer: $5-10K/month</p><p>• Designer: $3-7K/month</p><p>• Marketer: $3-5K/month</p><p></p><p>Full-Time Employee:</p><p>• Engineer: $120-180K/year ($10-15K/month)</p><p>• Designer: $90-140K/year</p><p>• PM/Marketer: $80-120K/year</p><p></p><p>Burn with 2 FTEs: ~$20-30K/month</p>",
+      "type": "document",
+      "parentId": "financials",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "profitability-timeline": {
+      "id": "profitability-timeline",
+      "name": "Path to Profitability",
+      "content": "<p><strong>Break-Even Analysis</strong></p><p></p><p><strong>Scenario 1: Solo Founder, Minimal Costs</strong></p><p></p><p>Monthly fixed costs: $2,000</p><p>Revenue per paying user: $8</p><p>Gross margin: 95% → $7.60 profit per user</p><p></p><p>Break-even: $2,000 / $7.60 = 264 paying users</p><p></p><p>At 10% conversion → need 2,640 total users</p><p></p><p><strong>Timeline: Month 3-4 (realistic)</strong></p><p></p><p><strong>Scenario 2: With Team (2 FTEs)</strong></p><p></p><p>Monthly costs: $25,000</p><p>Break-even: $25,000 / $7.60 = 3,290 paying users → $26,320 MRR</p><p></p><p>At 10% conversion → need 32,900 total users</p><p></p><p><strong>Timeline: Month 12-18 (if growth is strong)</strong></p><p></p><p><strong>Profitability Milestones (Solo, Bootstrap)</strong></p><p></p><p><strong>Month 3:</strong> 264 paying users → $2,112 MRR → Break-even</p><p><strong>Month 6:</strong> 500 paying users → $4,000 MRR → $2K profit/month</p><p><strong>Month 12:</strong> 1,000 paying users → $8,000 MRR → $6K profit/month</p><p><strong>Month 24:</strong> 5,000 paying users → $40,000 MRR → $38K profit/month</p><p></p><p>Year 2 profit = $456K (life-changing income for solo founder)</p>",
+      "type": "document",
+      "parentId": "financials",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "financial-scenarios": {
+      "id": "financial-scenarios",
+      "name": "3-Year Financial Scenarios",
+      "content": "<p><strong>Conservative Scenario (Bootstrap)</strong></p><p></p><p><strong>Year 1:</strong></p><p>• Users: 10,000 (end of year)</p><p>• Paying: 1,000 (10% conversion)</p><p>• MRR: $8,000</p><p>• ARR: $96,000</p><p>• Costs: $24K</p><p>• Profit: $72K</p><p></p><p><strong>Year 2:</strong></p><p>• Users: 50,000</p><p>• Paying: 5,000</p><p>• MRR: $40,000</p><p>• ARR: $480,000</p><p>• Costs: $50K (hired 1 contractor)</p><p>• Profit: $430K</p><p></p><p><strong>Year 3:</strong></p><p>• Users: 150,000</p><p>• Paying: 15,000</p><p>• MRR: $120,000</p><p>• ARR: $1,440,000</p><p>• Costs: $300K (2 FTEs)</p><p>• Profit: $1,140K</p><p></p><p>━━━━━━━━━━━━━━━━━</p><p></p><p><strong>Moderate Scenario (Angel Funded)</strong></p><p></p><p>Raise $300K angel in Month 6</p><p></p><p><strong>Year 1:</strong></p><p>• Users: 25,000</p><p>• Paying: 2,500</p><p>• MRR: $20,000</p><p>• ARR: $240,000</p><p>• Costs: $180K (2 FTEs hired after funding)</p><p>• Burn: $60K (covered by angel round)</p><p></p><p><strong>Year 2:</strong></p><p>• Users: 150,000</p><p>• Paying: 15,000</p><p>• MRR: $120,000</p><p>• ARR: $1,440,000</p><p>• Costs: $600K (5 FTEs)</p><p>• Profit: $840K</p><p></p><p><strong>Year 3:</strong></p><p>• Users: 500,000</p><p>• Paying: 50,000</p><p>• MRR: $400,000</p><p>• ARR: $4,800,000</p><p>• Costs: $2M (15 FTEs)</p><p>• Profit: $2.8M</p><p></p><p>━━━━━━━━━━━━━━━━━</p><p></p><p><strong>Aggressive Scenario (VC-Backed)</strong></p><p></p><p>Raise $2M Seed in Month 9</p><p></p><p><strong>Year 1:</strong></p><p>• Users: 50,000</p><p>• Paying: 5,000</p><p>• ARR: $480,000</p><p>• Burn: $800K (hiring, marketing)</p><p></p><p><strong>Year 2:</strong></p><p>• Users: 500,000</p><p>• Paying: 50,000</p><p>• ARR: $4,800,000</p><p>• Burn: $3M (aggressive team building)</p><p>• Profit: $1.8M</p><p></p><p><strong>Year 3:</strong></p><p>• Users: 2,000,000</p><p>• Paying: 200,000</p><p>• ARR: $19,200,000</p><p>• Costs: $10M</p><p>• Profit: $9.2M</p><p>• Raise Series A at $100M valuation</p>",
+      "type": "document",
+      "parentId": "financials",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "metadata": {
+        "color": "blue"
+      }
+    },
+    "team-hiring": {
+      "id": "team-hiring",
+      "name": "Team & Hiring Strategy",
+      "content": "<p>When and how to build the team</p>",
+      "type": "chapter",
+      "parentId": "root-planning",
+      "childrenIds": [
+        "hiring-plan",
+        "key-roles",
+        "culture"
+      ],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "hiring-plan": {
+      "id": "hiring-plan",
+      "name": "Hiring Roadmap",
+      "content": "<p><strong>Phase 1: Solo (Months 1-6)</strong></p><p></p><p>Stay solo through launch and early traction</p><p></p><p>Outsource:</p><p>• Logo design (Fiverr, $50-200)</p><p>• Legal docs (Clerky, $1K)</p><p>• Accounting (CPA, $1,500/year)</p><p></p><p><strong>Phase 2: First Hires (Months 6-12)</strong></p><p></p><p>Only hire if revenue supports it ($10K+ MRR)</p><p></p><p><strong>Hire #1: Full-Stack Engineer (contract → FTE)</strong></p><p>Why: Speed up development, ship features faster</p><p>Skills: React, TypeScript, Node.js, mobile (Capacitor)</p><p>Comp: $5-10K/month contract, or $140K/year FTE + 0.5-1% equity</p><p></p><p><strong>Hire #2: Product Designer / UI-UX</strong></p><p>Why: Polish the product, improve onboarding, marketing site</p><p>Skills: Figma, design systems, mobile UX</p><p>Comp: $4-7K/month contract, or $120K/year + 0.5% equity</p><p></p><p><strong>Phase 3: Growth Team (Year 2)</strong></p><p></p><p>Once product-market fit is clear ($50K+ MRR)</p><p></p><p><strong>Hire #3: Marketing / Growth Lead</strong></p><p>Why: Scale customer acquisition beyond founder-led</p><p>Skills: Content, SEO, paid ads, email marketing</p><p>Comp: $100K + 0.5% equity</p><p></p><p><strong>Hire #4: Customer Success / Support</strong></p><p>Why: Handle support load, reduce churn</p><p>Skills: Empathy, product knowledge, writing</p><p>Comp: $60-80K + 0.25% equity</p><p></p><p><strong>Phase 4: Scale Team (Year 2-3)</strong></p><p></p><p><strong>Hire #5-8: Additional Engineers</strong></p><p>Mobile specialist, backend, infra</p><p></p><p><strong>Hire #9: Head of Product / PM</strong></p><p>Take over product roadmap, let founder focus on strategy</p><p></p><p><strong>Hire #10-12: Sales / Business Development (if B2B pivot)</strong></p><p></p><p><strong>Remote-First or In-Person?</strong></p><p></p><p>Recommend: <strong>Remote-first</strong></p><p>• Access global talent</p><p>• Lower costs</p><p>• Flexible for early-stage</p><p>• Use tools: Slack, Linear, Figma, Loom</p><p></p><p>Optional: Offsite twice/year for team bonding</p>",
+      "type": "document",
+      "parentId": "team-hiring",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "key-roles": {
+      "id": "key-roles",
+      "name": "Key Roles & Responsibilities",
+      "content": "<p><strong>Founder (You)</strong></p><p>• Product vision</p><p>• Engineering (initially)</p><p>• Fundraising (if applicable)</p><p>• Customer development</p><p>• Marketing & sales (initially)</p><p>→ Transition to CEO role as team grows</p><p></p><p><strong>Engineer #1</strong></p><p>• Ship features 2x faster</p><p>• Own mobile or desktop platform</p><p>• Code reviews, architecture decisions</p><p>• On-call for critical bugs</p><p></p><p><strong>Designer #1</strong></p><p>• Improve UI/UX based on feedback</p><p>• Design new features</p><p>• Marketing website & assets</p><p>• App Store screenshots</p><p>• Brand evolution</p><p></p><p><strong>Marketing Lead</strong></p><p>• SEO & content strategy</p><p>• Paid acquisition (test & scale)</p><p>• Email campaigns</p><p>• Partnership outreach</p><p>• Community building</p><p></p><p><strong>Customer Success</strong></p><p>• Answer support tickets (<24h)</p><p>• Onboarding calls (high-value customers)</p><p>• Collect feedback & feature requests</p><p>• Write help docs & tutorials</p><p>• Monitor churn signals</p>",
+      "type": "document",
+      "parentId": "team-hiring",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "culture": {
+      "id": "culture",
+      "name": "Company Culture & Values",
+      "content": "<p><strong>Core Values</strong></p><p></p><p><strong>1. User-Centric</strong></p><p>Every decision starts with: \"Does this help the user think better?\"</p><p></p><p><strong>2. Speed & Simplicity</strong></p><p>Fast software, fast decisions, simple solutions</p><p></p><p><strong>3. Privacy First</strong></p><p>Respect user data, local-first by default, transparent practices</p><p></p><p><strong>4. Craftsmanship</strong></p><p>Sweat the details, polish matters, no shipped</p><p></p><p><strong>5. Sustainable Growth</strong></p><p>Profitability > vanity metrics, marathon not sprint</p><p></p><p><strong>Operating Principles</strong></p><p></p><p>• Ship fast, iterate based on feedback</p><p>• Default to transparency (build in public)</p><p>• Async-first communication (respect deep work)</p><p>• Customer feedback drives roadmap</p><p>• No jerks, no burnout culture</p><p></p><p><strong>Meeting Culture</strong></p><p>• No meetings before 10am</p><p>• All meetings have agenda + outcome</p><p>• Default to async (Loom, Linear comments)</p><p>• 1-on-1s every 2 weeks (manager ↔ report)</p><p>• Weekly team sync (30 min max)</p><p></p><p><strong>Remote Work Policy</strong></p><p>• Work from anywhere</p><p>• Overlap hours: 10am-2pm PT (for realtime collab)</p><p>• Annual offsite (team bonding)</p><p>• Home office stipend ($500/year)</p><p>• Co-working allowance if needed</p>",
+      "type": "document",
+      "parentId": "team-hiring",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "risks": {
+      "id": "risks",
+      "name": "Risks & Mitigation",
+      "content": "<p>Potential failure modes and how to avoid them</p>",
+      "type": "chapter",
+      "parentId": "root-planning",
+      "childrenIds": [
+        "risk-market",
+        "risk-product",
+        "risk-execution",
+        "risk-competitive"
+      ],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "risk-market": {
+      "id": "risk-market",
+      "name": "Market Risk",
+      "content": "<p><strong>Risk: Market too saturated, can't differentiate</strong></p><p></p><p>Reality: Outliner market has 50M+ users, but fragmented. No clear winner like Figma (design) or Slack (communication).</p><p></p><p><strong>Mitigation:</strong></p><p>• Clear positioning (local-first, fast, privacy)</p><p>• Niche down initially (writers, researchers)</p><p>• Obsidian proved sustainable niche SaaS works</p><p></p><p>━━━━━━━━━━━━━━━━━</p><p></p><p><strong>Risk: Market shifts away from outliners</strong></p><p></p><p>Counter: PKM (personal knowledge management) is growing, not shrinking. Remote work = more note-takers.</p><p></p><p><strong>Mitigation:</strong></p><p>• Stay close to user trends</p><p>• Pivot to adjacencies if needed (note-taking, wikis)</p><p></p><p>━━━━━━━━━━━━━━━━━</p><p></p><p><strong>Risk: Free tools (Obsidian, Logseq) kill paid market</strong></p><p></p><p>Counter: Obsidian generates revenue (~$10M/year from sync/publish). Users will pay for quality.</p><p></p><p><strong>Mitigation:</strong></p><p>• Generous free tier (remove friction)</p><p>• Offer value beyond free tools (sync, mobile, support)</p><p>• Focus on UX premium (worth paying for)</p>",
+      "type": "document",
+      "parentId": "risks",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "risk-product": {
+      "id": "risk-product",
+      "name": "Product Risk",
+      "content": "<p><strong>Risk: Users don't convert from free to paid</strong></p><p></p><p>Low conversion (<3%) = not enough revenue</p><p></p><p><strong>Mitigation:</strong></p><p>• Generous but limited free tier (3 outlines is strategic bottleneck)</p><p>• Test pricing ($6 vs $8 vs $10)</p><p>• Add more paid-only features (cloud sync, advanced export)</p><p>• Improve onboarding (show value faster)</p><p></p><p>━━━━━━━━━━━━━━━━━</p><p></p><p><strong>Risk: High churn (users cancel quickly)</strong></p><p></p><p>If churn >10%/month, LTV collapses</p><p></p><p><strong>Mitigation:</strong></p><p>• Focus on activation (first outline in first session)</p><p>• Build habit loops (daily/weekly usage)</p><p>• Retention features (streaks, stats, templates)</p><p>• Exit surveys to understand why they leave</p><p>• Annual plans (locks in for 12 months, lower churn)</p><p></p><p>━━━━━━━━━━━━━━━━━</p><p></p><p><strong>Risk: Product isn't 10x better than alternatives</strong></p><p></p><p>If IdiamPro is only marginally better, hard to switch users</p><p></p><p><strong>Mitigation:</strong></p><p>• Nail 1-2 killer features (speed? gestures? privacy?)</p><p>• Make switching easy (import from Notion, WorkFlowy, etc.)</p><p>• Continually innovate (don't stagnate)</p><p></p><p>━━━━━━━━━━━━━━━━━</p><p></p><p><strong>Risk: Technical debt slows development</strong></p><p></p><p>As product grows, codebase becomes unmaintainable</p><p></p><p><strong>Mitigation:</strong></p><p>• Allocate 20% time to refactoring</p><p>• Write tests for critical paths</p><p>• Hire senior engineers who care about code quality</p><p>• Periodic architecture reviews</p>",
+      "type": "document",
+      "parentId": "risks",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "risk-execution": {
+      "id": "risk-execution",
+      "name": "Execution Risk",
+      "content": "<p><strong>Risk: Solo founder burnout</strong></p><p></p><p>Building, marketing, support, everything = unsustainable</p><p></p><p><strong>Mitigation:</strong></p><p>• Set boundaries (no weekends, 8-hour days)</p><p>• Outsource non-core (accounting, legal, design)</p><p>• Hire early if revenue supports it</p><p>• Consider co-founder (risky but helpful)</p><p></p><p>━━━━━━━━━━━━━━━━━</p><p></p><p><strong>Risk: Can't acquire customers cheaply enough</strong></p><p></p><p>If CAC >$50 and LTV = $120, margins too thin</p><p></p><p><strong>Mitigation:</strong></p><p>• Focus on organic (content, SEO, word-of-mouth)</p><p>• Build viral loops (referrals, sharing)</p><p>• Only do paid ads if CAC <$30</p><p>• Improve retention → higher LTV → more CAC headroom</p><p></p><p>━━━━━━━━━━━━━━━━━</p><p></p><p><strong>Risk: Run out of money before profitability</strong></p><p></p><p>Bootstrap fails if can't reach break-even before savings run out</p><p></p><p><strong>Mitigation:</strong></p><p>• Keep 12 months runway minimum</p><p>• Reach profitability in 6 months (conservative goal)</p><p>• Have backup plan (freelance, part-time job)</p><p>• Raise angel funding if traction is strong but need more time</p><p></p><p>━━━━━━━━━━━━━━━━━</p><p></p><p><strong>Risk: Hiring wrong people early</strong></p><p></p><p>Bad first hires can kill culture and momentum</p><p></p><p><strong>Mitigation:</strong></p><p>• Hire slow, fire fast</p><p>• Start with contractors (test before committing)</p><p>• Clear role expectations, 90-day review</p><p>• Culture fit > skill fit (can teach skills)</p>",
+      "type": "document",
+      "parentId": "risks",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "risk-competitive": {
+      "id": "risk-competitive",
+      "name": "Competitive Risk",
+      "content": "<p><strong>Risk: Notion copies our best features</strong></p><p></p><p>Large player with 30M users could clone IdiamPro</p><p></p><p><strong>Mitigation:</strong></p><p>• Move fast, stay ahead</p><p>• Lean into what big cos can't do (local-first, privacy, speed)</p><p>• Build community (harder to copy)</p><p>• Vertical focus (Notion is horizontal, we're outliner-first)</p><p></p><p>━━━━━━━━━━━━━━━━━</p><p></p><p><strong>Risk: New competitor launches with VC funding</strong></p><p></p><p>Well-funded startup could outspend us on marketing</p><p></p><p><strong>Mitigation:</strong></p><p>• Own a niche (privacy-conscious users, local-first advocates)</p><p>• Superior product (VC funding doesn't = good product)</p><p>• Community & brand loyalty</p><p>• Consider raising if needed to compete</p><p></p><p>━━━━━━━━━━━━━━━━━</p><p></p><p><strong>Risk: Obsidian adds structured outlines</strong></p><p></p><p>Closest competitor could negate our differentiator</p><p></p><p><strong>Mitigation:</strong></p><p>• We have better mobile UX (their weakness)</p><p>• Obsidian is Markdown-first, we're outline-first</p><p>• Different user bases (we target less technical)</p><p>• Partner, don't fight (Obsidian import/export)</p><p></p><p>━━━━━━━━━━━━━━━━━</p><p></p><p><strong>Risk: Apple/Microsoft builds this into OS</strong></p><p></p><p>Platform risk (like Notes app killed some note apps)</p><p></p><p><strong>Mitigation:</strong></p><p>• Unlikely (outliners too niche for OS-level)</p><p>• Cross-platform is our moat (Apple can't do Windows/Web well)</p><p>• Power features beyond what OS would provide</p>",
+      "type": "document",
+      "parentId": "risks",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "milestones": {
+      "id": "milestones",
+      "name": "Key Milestones & Timeline",
+      "content": "<p>12-month roadmap with measurable goals</p>",
+      "type": "chapter",
+      "parentId": "root-planning",
+      "childrenIds": [
+        "milestone-q1",
+        "milestone-q2",
+        "milestone-q3",
+        "milestone-q4"
+      ],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "milestone-q1": {
+      "id": "milestone-q1",
+      "name": "Q1 2026: Launch & Validate",
+      "content": "<p><strong>Product Milestones:</strong></p><p>✅ Fix search functionality (CRITICAL)</p><p>✅ Complete platform testing (Web, iOS, Desktop)</p><p>✅ Payment integration (Stripe)</p><p>✅ User accounts system</p><p>⬜ iOS App Store approval</p><p></p><p><strong>Business Milestones:</strong></p><p>⬜ Form Delaware C-Corp</p><p>⬜ File trademark for IdiamPro</p><p>⬜ Complete TOS + Privacy Policy</p><p>⬜ Set up business bank account</p><p></p><p><strong>Marketing Milestones:</strong></p><p>⬜ Launch marketing website</p><p>⬜ ProductHunt launch (Top 5 goal)</p><p>⬜ Beta program (20-50 testers)</p><p>⬜ First 3 blog posts published</p><p></p><p><strong>Traction Goals:</strong></p><p>• 500 total users by Month 1</p><p>• 2,000 total users by Month 3</p><p>• 100 paying users by Month 3</p><p>• $800 MRR by end of Q1</p>",
+      "type": "document",
+      "parentId": "milestones",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "milestone-q2": {
+      "id": "milestone-q2",
+      "name": "Q2 2026: Growth & Iteration",
+      "content": "<p><strong>Product Milestones:</strong></p><p>⬜ Cloud backup feature (optional, encrypted)</p><p>⬜ Internal node linking [[feature]]</p><p>⬜ Breadcrumbs navigation</p><p>⬜ Import from Notion, WorkFlowy, Obsidian</p><p>⬜ Windows app (Electron)</p><p></p><p><strong>Business Milestones:</strong></p><p>⬜ Reach profitability (break-even)</p><p>⬜ DECISION: Bootstrap or raise angel round?</p><p>⬜ If raising: Pitch 20 angels, close $200-500K</p><p></p><p><strong>Marketing Milestones:</strong></p><p>⬜ SEO: 1,000 organic visits/month</p><p>⬜ Build email list to 500+</p><p>⬜ Launch referral program</p><p>⬜ 5-10 customer testimonials</p><p></p><p><strong>Traction Goals:</strong></p><p>• 10,000 total users</p><p>• 500 paying users</p><p>• $4,000 MRR by end of Q2</p><p>• <5% monthly churn</p>",
+      "type": "document",
+      "parentId": "milestones",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "milestone-q3": {
+      "id": "milestone-q3",
+      "name": "Q3 2026: Scale Features",
+      "content": "<p><strong>Product Milestones:</strong></p><p>⬜ Node templates (save/reuse subtrees)</p><p>⬜ Graph view (connections visualization)</p><p>⬜ Publishing: Export outline to web (share link)</p><p>⬜ API v1 (read-only)</p><p>⬜ Mobile widgets (iOS)</p><p></p><p><strong>Team Milestones:</strong></p><p>⬜ Hire Engineer #1 (if revenue supports: $10K+ MRR)</p><p>⬜ Hire Designer/Contractor (part-time)</p><p></p><p><strong>Marketing Milestones:</strong></p><p>⬜ Launch affiliate program (20% commission)</p><p>⬜ Partner with 2-3 productivity influencers</p><p>⬜ Publish comparison guides (vs Notion, Obsidian, etc.)</p><p></p><p><strong>Traction Goals:</strong></p><p>• 30,000 total users</p><p>• 1,500 paying users</p><p>• $12,000 MRR</p><p>• 500+ weekly active outliners</p>",
+      "type": "document",
+      "parentId": "milestones",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "milestone-q4": {
+      "id": "milestone-q4",
+      "name": "Q4 2026: Collaboration & Revenue",
+      "content": "<p><strong>Product Milestones:</strong></p><p>⬜ Collaboration v1 (shared outlines, view-only)</p><p>⬜ Real-time sync across devices</p><p>⬜ Advanced search (regex, filters)</p><p>⬜ Template marketplace (let users sell templates)</p><p></p><p><strong>Business Milestones:</strong></p><p>⬜ Reach $100K ARR milestone 🎉</p><p>⬜ Evaluate Series A (if VC path) or stay bootstrapped</p><p></p><p><strong>Marketing Milestones:</strong></p><p>⬜ Launch Team plan (if demand exists)</p><p>⬜ Holiday promotion (Black Friday sale)</p><p>⬜ Year-in-review content (\"2026 by the numbers\")</p><p></p><p><strong>Traction Goals:</strong></p><p>• 50,000 total users</p><p>• 2,500 paying users</p><p>• $20,000 MRR ($240K ARR)</p><p>• Sustainable, profitable business ✅</p>",
+      "type": "document",
+      "parentId": "milestones",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    }
+  },
+  "_fileSize": 81789,
+  "_fileName": "IdiamPro-Planning.idm",
+  "_isLazyLoaded": false,
+  "lastModified": 1769758679662
+}

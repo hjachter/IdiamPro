@@ -54,11 +54,44 @@ Every time a new user-facing feature is implemented, it **must** also be documen
 1. **User Guide** (`src/lib/initial-guide.ts`) — Add a new node or update an existing one
 2. **Help Chat context** (`src/components/help-chat-dialog.tsx`) — Update the `APP_CONTEXT` string
 3. **Help Chat API context** (`src/app/api/help-chat/route.ts`) — Update the duplicated `APP_CONTEXT` string
-4. **How It Works outline** (`~/Documents/IDM Outlines/IdiamPro - How it works.idm`) — Update the relevant section describing the feature's architecture in plain language
+4. **How It Works outline** (`~/Documents/IDM Outlines/IdiamPro - How it works.idm` + sync to `docs/outlines/`) — Update the relevant section describing the feature's architecture in plain language
 
 This includes: new keyboard shortcuts, new node types, new toolbar/menu items, new settings, new gestures, new dialogs, and any change to existing feature behavior. Never merge a feature without its documentation.
 
 **Note:** The "How it works" outline is for explaining *how the app is built* (components, data flow, architecture) in non-technical language. Only update it when features change the app's structure or behavior significantly.
+
+---
+
+## Project Outlines - Dual Location Sync
+
+Critical project outlines are stored in **two locations**:
+1. **User folder:** `~/Documents/IDM Outlines/` — where the app loads them
+2. **Project folder:** `docs/outlines/` — committed to git for version control
+
+**When editing project outlines, update BOTH copies:**
+```bash
+# After editing an outline, copy to project folder:
+cp "~/Documents/IDM Outlines/IdiamPro - Testing.idm" docs/outlines/
+```
+
+**Outlines in the project folder:**
+- IdiamPro - Testing.idm
+- IdiamPro - How it works.idm
+- IdiamPro - Development.idm
+- IdiamPro - Bootstrap Plan.idm
+- IdiamPro - Business Development.idm
+- IdiamPro - Legal and Compliance.idm
+- IdiamPro - Killer Features & Selling Points.idm
+- IdiamPro Marketing.idm, IdiamPro Marketing 2.idm
+- IdiamPro Planning.idm, IdiamPro-Planning.idm
+- IdiamPro-BizDev.idm, IdiamPro - Group.idm
+- IdiamPro MCP Server - Development & Commercialization Plan.idm
+- IdiamPro-MCP-Plan.idm
+- IdiamPro_ AI-Native Outlining Platform with MCP Access.idm
+- IdiamPro_ AI-Native Platform via Model Context Protocol.idm
+- Developer Guide.idm
+
+**Important:** The user edits outlines in IdiamPro (from `~/Documents/IDM Outlines/`). After significant changes, sync to `docs/outlines/` and commit.
 
 ---
 
@@ -83,7 +116,7 @@ IdiamPro has a Playwright-based test suite for automated UI testing of the Elect
 node tests/electron-test.js
 ```
 
-**Test outline:** The `IdiamPro - TESTS` outline (`~/Documents/IDM Outlines/IdiamPro - TESTS.idm`) contains:
+**Test outline:** The `IdiamPro - Testing` outline (`~/Documents/IDM Outlines/IdiamPro - Testing.idm` + sync to `docs/outlines/`) contains:
 - Automated test status (Playwright results)
 - Manual test checklists for all features
 - Test run log for recording results

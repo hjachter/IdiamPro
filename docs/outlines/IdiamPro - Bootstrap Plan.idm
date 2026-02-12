@@ -1,0 +1,638 @@
+{
+  "id": "548b0203-87d4-4b93-9cd6-2320638ac502",
+  "name": "IdiamPro - Bootstrap Plan",
+  "rootNodeId": "root-bootstrap",
+  "nodes": {
+    "root-bootstrap": {
+      "id": "root-bootstrap",
+      "name": "IdiamPro - Bootstrap Plan",
+      "content": "<p>The IdiamPro Bootstrap Plan centers around a lean startup methodology, prioritizing validation and organic growth over initial funding. The core strategy is to build a Minimum Viable Product (MVP) focused on a single, high-value feature set that directly addresses a specific pain point for the target audience. This MVP should be readily demonstrable and usable, enabling early adopters to provide valuable feedback. Marketing efforts will primarily rely on free or low-cost channels, such as content marketing (blog posts, tutorials), social media engagement, and participation in relevant online communities. The plan emphasizes iterative development based on user feedback and usage data, constantly refining the product to better meet market needs. Revenue generation will be prioritized early on, with a focus on a simple, easy-to-understand pricing model. The key milestones include: 1) MVP Launch: Releasing the initial version of IdiamPro with core features. 2) Early Adopter Acquisition: Securing a small group of engaged users who provide feedback. 3) Revenue Validation: Generating enough revenue to cover basic operating costs. 4) Scalable Growth: Expanding marketing efforts and feature set based on validated demand and profitability. This bootstrap approach minimizes risk and maximizes learning, allowing for a more sustainable and resilient business in the long run.</p><p></p><div code=\"flowchart TD\n    A[Identify Core Problem &amp; Target Audience] --&gt; B{Build MVP (Minimum Viable Product)};\n    B --&gt; C[Launch MVP];\n    C --&gt; D{Low-Cost Marketing &amp; Community Engagement};\n    D --&gt; E[Gather User Feedback &amp; Usage Data];\n    E --&gt; F{Iterate &amp; Improve Product};\n    F --&gt; G{Monitor Revenue &amp; Growth Metrics};\n    G --&gt; H{Profitable?};\n    H -- Yes --&gt; I[Scale Marketing &amp; Development];\n    H -- No --&gt; A;\n    I --&gt; G;\" data-mermaid-block=\"\" data-mermaid-code=\"flowchart TD\n    A[Identify Core Problem &amp; Target Audience] --&gt; B{Build MVP (Minimum Viable Product)};\n    B --&gt; C[Launch MVP];\n    C --&gt; D{Low-Cost Marketing &amp; Community Engagement};\n    D --&gt; E[Gather User Feedback &amp; Usage Data];\n    E --&gt; F{Iterate &amp; Improve Product};\n    F --&gt; G{Monitor Revenue &amp; Growth Metrics};\n    G --&gt; H{Profitable?};\n    H -- Yes --&gt; I[Scale Marketing &amp; Development];\n    H -- No --&gt; A;\n    I --&gt; G;\"></div><p></p><p></p><p>A practical roadmap for launching IdiamPro as a solo developer with minimal upfront investment. This plan focuses on building momentum before spending money, validating market demand, and scaling only when revenue supports it.</p>",
+      "type": "root",
+      "parentId": null,
+      "childrenIds": [
+        "pm-session-notes",
+        "project-roadmap",
+        "phase-1",
+        "phase-2",
+        "phase-3",
+        "phase-4",
+        "phase-5",
+        "legal-structures",
+        "revenue-strategy",
+        "ai-provider-costs",
+        "profitability-model"
+      ],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "phase-1": {
+      "id": "phase-1",
+      "name": "Phase 1: Establish Web Presence (Cost: ~$50/year)",
+      "content": "<p>Focus on creating a professional online presence with minimal investment. The goal is to have a landing page that can capture interest and validate demand before investing in development infrastructure.</p>",
+      "type": "chapter",
+      "parentId": "root-bootstrap",
+      "childrenIds": [
+        "p1-domain",
+        "p1-landing",
+        "p1-social",
+        "p1-analytics"
+      ],
+      "isCollapsed": false,
+      "prefix": "1"
+    },
+    "p1-domain": {
+      "id": "p1-domain",
+      "name": "Register Domain (~$12/year)",
+      "content": "<p><strong>Action:</strong> Register idiampro.com (or similar) through a registrar like Namecheap, Porkbun, or Google Domains.</p><p><strong>Why it matters:</strong> A professional domain establishes credibility. Use it for your website and email.</p><p><strong>Budget tip:</strong> Avoid premium domains. A .com is ideal, but .app or .io work for tech products.</p>",
+      "type": "document",
+      "parentId": "phase-1",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "1.1"
+    },
+    "p1-landing": {
+      "id": "p1-landing",
+      "name": "Create Landing Page (Free)",
+      "content": "<p><strong>Free options:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\"><p><strong>GitHub Pages:</strong> Host your Next.js export for free</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p><strong>Vercel:</strong> Free tier for personal projects, includes SSL</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p><strong>Netlify:</strong> Similar free tier with good performance</p></li></ul><p><strong>What to include:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\"><p>Clear value proposition (AI-native outlining)</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>Feature highlights with screenshots</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>Email signup for waitlist/updates</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>Link to app store when ready</p></li></ul><p><strong>Tool recommendations:</strong> Use the existing Next.js codebase to create a marketing site, or use a simple HTML template.</p>",
+      "type": "document",
+      "parentId": "phase-1",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "1.2"
+    },
+    "p1-social": {
+      "id": "p1-social",
+      "name": "Social Media Presence (Free)",
+      "content": "<p><strong>Essential platforms:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\"><p><strong>Twitter/X:</strong> Best for developer tools and tech products</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p><strong>LinkedIn:</strong> Professional network, good for B2B features</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p><strong>Product Hunt:</strong> Create profile now, plan launch later</p></li></ul><p><strong>Content strategy:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\"><p>Share development progress (build in public)</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>Post tips about outlining/productivity</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>Engage with productivity tool communities</p></li></ul><p><strong>Time investment:</strong> 30 min/day maximum at start</p>",
+      "type": "document",
+      "parentId": "phase-1",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "1.3"
+    },
+    "p1-analytics": {
+      "id": "p1-analytics",
+      "name": "Set Up Analytics (Free)",
+      "content": "<p><strong>Free tools:</strong></p><ul data-type=\"taskList\"><li><strong>Google Analytics 4:</strong> Industry standard, free forever</li><li><strong>Plausible/Fathom:</strong> Privacy-focused alternatives (paid but cheap)</li><li><strong>Hotjar free tier:</strong> For understanding user behavior</li></ul><p><strong>What to track:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\">Landing page visits and bounce rate</li><li data-type=\"taskItem\" data-checked=\"false\">Email signups</li><li data-type=\"taskItem\" data-checked=\"false\">Geographic distribution of interest</li></ul><p><strong>Why it matters:</strong> Data helps validate demand before spending on development.</p>",
+      "type": "document",
+      "parentId": "phase-1",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "1.4"
+    },
+    "phase-2": {
+      "id": "phase-2",
+      "name": "Phase 2: App Store Preparation (Cost: $99-$125/year)",
+      "content": "<p>Before submitting to app stores, understand the requirements and costs. Start with one platform to minimize upfront investment.</p>",
+      "type": "chapter",
+      "parentId": "root-bootstrap",
+      "childrenIds": [
+        "p2-apple",
+        "p2-mac",
+        "p2-web-first",
+        "p2-android"
+      ],
+      "isCollapsed": false,
+      "prefix": "2"
+    },
+    "p2-apple": {
+      "id": "p2-apple",
+      "name": "Apple Developer Program ($99/year)",
+      "content": "<p><strong>What you get:</strong></p><ul data-type=\"taskList\"><li>iOS App Store distribution</li><li>Mac App Store distribution (same membership)</li><li>TestFlight for beta testing</li><li>Access to Apple frameworks and APIs</li></ul><p><strong>Requirements:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\">Apple ID (personal is fine to start)</li><li data-type=\"taskItem\" data-checked=\"false\">Any Mac for development (even a Mac Mini)</li><li data-type=\"taskItem\" data-checked=\"false\">No business entity required initially</li></ul><p><strong>Key insight:</strong> Many successful indie apps are published under personal developer accounts. You can transfer to a company later.</p><p><strong>Review process:</strong> Apple review typically takes 24-48 hours. Budget extra time for first submission.</p>",
+      "type": "document",
+      "parentId": "phase-2",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "2.1"
+    },
+    "p2-mac": {
+      "id": "p2-mac",
+      "name": "Mac App Store vs Direct Distribution",
+      "content": "<p><strong>Mac App Store pros:</strong></p><ul data-type=\"taskList\"><li>Built-in discovery and trust</li><li>Automatic updates</li><li>Same $99 developer fee as iOS</li></ul><p><strong>Mac App Store cons:</strong></p><ul data-type=\"taskList\"><li>30% revenue share</li><li>Sandboxing restrictions</li><li>Review delays</li></ul><p><strong>Direct distribution alternative:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\">Sell through your website (Gumroad, Paddle, etc.)</li><li data-type=\"taskItem\" data-checked=\"false\">Only 5-10% payment processing fee</li><li data-type=\"taskItem\" data-checked=\"false\">Requires notarization ($99 Apple Developer still needed)</li><li data-type=\"taskItem\" data-checked=\"false\">More control over updates and pricing</li></ul><p><strong>Recommendation:</strong> Start with Mac App Store for credibility, add direct sales later for better margins.</p>",
+      "type": "document",
+      "parentId": "phase-2",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "2.2"
+    },
+    "p2-web-first": {
+      "id": "p2-web-first",
+      "name": "Web App Strategy (Free/Cheap)",
+      "content": "<p><strong>Why start with web:</strong></p><ul data-type=\"taskList\"><li>No app store approval required</li><li>Instant updates without review</li><li>Works on all platforms immediately</li><li>Can validate product-market fit before native investment</li></ul><p><strong>Hosting options:</strong></p><ul data-type=\"taskList\"><li><strong>Vercel:</strong> Free tier generous for starting out</li><li><strong>Railway:</strong> $5/month after free tier</li><li><strong>Fly.io:</strong> Free tier with good performance</li></ul><p><strong>Monetization:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\">Stripe for payments (2.9% + 30¢ per transaction)</li><li data-type=\"taskItem\" data-checked=\"false\">No platform fee beyond payment processing</li></ul><p><strong>Strategy:</strong> Launch web app first, gather feedback, then package for app stores.</p>",
+      "type": "document",
+      "parentId": "phase-2",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "2.3"
+    },
+    "p2-android": {
+      "id": "p2-android",
+      "name": "Google Play Store ($25 one-time)",
+      "content": "<p><strong>Cost:</strong> One-time $25 registration fee (much cheaper than Apple's annual fee)</p><p><strong>When to consider:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\">After iOS version is stable</li><li data-type=\"taskItem\" data-checked=\"false\">If analytics show Android user demand</li><li data-type=\"taskItem\" data-checked=\"false\">Capacitor makes cross-platform relatively easy</li></ul><p><strong>Caution:</strong> Android fragmentation can increase support burden. Consider delaying until you have revenue to justify the time investment.</p><p><strong>Alternative:</strong> Web app (PWA) works well on Android without Play Store presence.</p>",
+      "type": "document",
+      "parentId": "phase-2",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "2.4"
+    },
+    "phase-3": {
+      "id": "phase-3",
+      "name": "Phase 3: Validate Before Scaling",
+      "content": "<p>The most expensive mistake is building something nobody wants. This phase focuses on validation with minimal spend.</p>",
+      "type": "chapter",
+      "parentId": "root-bootstrap",
+      "childrenIds": [
+        "p3-beta",
+        "p3-feedback",
+        "p3-pricing",
+        "p3-metrics"
+      ],
+      "isCollapsed": false,
+      "prefix": "3"
+    },
+    "p3-beta": {
+      "id": "p3-beta",
+      "name": "Beta Testing Strategy",
+      "content": "<p><strong>TestFlight (iOS):</strong></p><ul data-type=\"taskList\"><li>Up to 10,000 external testers free</li><li>90-day builds, then need to update</li><li>Great for gathering feedback before public launch</li></ul><p><strong>Finding beta testers:</strong></p><ul data-type=\"taskList\"><li>Productivity tool subreddits (r/productivity, r/getdisciplined)</li><li>Twitter build-in-public community</li><li>Indie Hackers forum</li><li>Friends and family (but be cautious of biased feedback)</li></ul><p><strong>What to ask:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\">What's confusing?</li><li data-type=\"taskItem\" data-checked=\"false\">What's missing?</li><li data-type=\"taskItem\" data-checked=\"false\">Would you pay for this? How much?</li></ul>",
+      "type": "document",
+      "parentId": "phase-3",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "3.1"
+    },
+    "p3-feedback": {
+      "id": "p3-feedback",
+      "name": "Feedback Collection (Free)",
+      "content": "<p><strong>Free tools:</strong></p><ul data-type=\"taskList\"><li><strong>Google Forms:</strong> Simple surveys</li><li><strong>Typeform free tier:</strong> More engaging surveys</li><li><strong>In-app feedback:</strong> Simple email link works</li><li><strong>GitHub Issues:</strong> For bug reports and feature requests</li></ul><p><strong>What to track:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\">Most requested features</li><li data-type=\"taskItem\" data-checked=\"false\">Friction points in onboarding</li><li data-type=\"taskItem\" data-checked=\"false\">Use cases you didn't anticipate</li></ul><p><strong>Key insight:</strong> Pay attention to what users DO, not just what they SAY. Usage analytics matter more than surveys.</p>",
+      "type": "document",
+      "parentId": "phase-3",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "3.2"
+    },
+    "p3-pricing": {
+      "id": "p3-pricing",
+      "name": "Pricing Validation",
+      "content": "<p><strong>Before committing to a price:</strong></p><ul data-type=\"taskList\"><li>Research competitor pricing (Notion, Obsidian, Roam)</li><li>Test different price points with different beta groups</li><li>Consider freemium vs paid-only</li></ul><p><strong>Common indie pricing models:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\"><strong>Freemium:</strong> Free basic, $5-15/month premium</li><li data-type=\"taskItem\" data-checked=\"false\"><strong>One-time purchase:</strong> $29-99 (Mac apps)</li><li data-type=\"taskItem\" data-checked=\"false\"><strong>Annual subscription:</strong> $49-99/year</li></ul><p><strong>Recommendation for bootstrap:</strong> Start with a simple free tier + one paid tier. You can always add complexity later.</p>",
+      "type": "document",
+      "parentId": "phase-3",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "3.3"
+    },
+    "p3-metrics": {
+      "id": "p3-metrics",
+      "name": "Key Metrics to Track",
+      "content": "<p><strong>Before spending money, validate these:</strong></p><ul data-type=\"taskList\"><li><strong>Daily Active Users (DAU):</strong> Are people coming back?</li><li><strong>Retention:</strong> What % return after Day 1, Day 7, Day 30?</li><li><strong>Feature usage:</strong> What features actually get used?</li><li><strong>Conversion intent:</strong> How many ask about pricing?</li></ul><p><strong>Tools (all have free tiers):</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\">Mixpanel, Amplitude, or PostHog for product analytics</li><li data-type=\"taskItem\" data-checked=\"false\">Simple server-side logging if privacy is a concern</li></ul><p><strong>Rule of thumb:</strong> If 10% of free users show buying intent, you have something worth investing in.</p>",
+      "type": "document",
+      "parentId": "phase-3",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "3.4"
+    },
+    "phase-4": {
+      "id": "phase-4",
+      "name": "Phase 4: Launch and Early Revenue",
+      "content": "<p>Once validated, focus on generating revenue to fund further development. Stay lean until revenue consistently covers costs.</p>",
+      "type": "chapter",
+      "parentId": "root-bootstrap",
+      "childrenIds": [
+        "p4-soft-launch",
+        "p4-product-hunt",
+        "p4-content-marketing",
+        "p4-first-revenue"
+      ],
+      "isCollapsed": false,
+      "prefix": "4"
+    },
+    "p4-soft-launch": {
+      "id": "p4-soft-launch",
+      "name": "Soft Launch Strategy",
+      "content": "<p><strong>What is a soft launch:</strong> Release to a limited audience before the big marketing push.</p><div code=\"sequenceDiagram\n    participant Dev as Developer\n    participant Beta as Beta Testers\n    participant Store as App Store\n    participant Public as Public\n    Dev-&gt;&gt;Beta: Release to TestFlight\n    Beta-&gt;&gt;Dev: Feedback &amp; Bug Reports\n    Dev-&gt;&gt;Dev: Fix Issues\n    Dev-&gt;&gt;Store: Submit to Canada Only\n    Store-&gt;&gt;Beta: Limited Release\n    Beta-&gt;&gt;Store: Leave Reviews\n    Note over Dev,Store: Gather 20-50 reviews\n    Dev-&gt;&gt;Store: Expand to All Countries\n    Store-&gt;&gt;Public: Full Launch\" data-mermaid-block=\"\" data-mermaid-code=\"sequenceDiagram\n    participant Dev as Developer\n    participant Beta as Beta Testers\n    participant Store as App Store\n    participant Public as Public\n    Dev-&gt;&gt;Beta: Release to TestFlight\n    Beta-&gt;&gt;Dev: Feedback &amp; Bug Reports\n    Dev-&gt;&gt;Dev: Fix Issues\n    Dev-&gt;&gt;Store: Submit to Canada Only\n    Store-&gt;&gt;Beta: Limited Release\n    Beta-&gt;&gt;Store: Leave Reviews\n    Note over Dev,Store: Gather 20-50 reviews\n    Dev-&gt;&gt;Store: Expand to All Countries\n    Store-&gt;&gt;Public: Full Launch\"></div><p><strong>Benefits:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\"><p>Catch bugs before they hurt reviews</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>Refine onboarding based on real usage</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>Build initial reviews/ratings</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>Test payment flow with real transactions</p></li></ul><p><strong>How to soft launch:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\"><p>iOS: Release to specific countries first (e.g., Canada)</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>Web: Share only with beta testers and email list</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>Gather 20-50 reviews before full marketing push</p></li></ul><p></p>",
+      "type": "document",
+      "parentId": "phase-4",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "4.1"
+    },
+    "p4-product-hunt": {
+      "id": "p4-product-hunt",
+      "name": "Product Hunt Launch (Free)",
+      "content": "<p><strong>Why Product Hunt matters:</strong></p><ul data-type=\"taskList\"><li>Free exposure to early adopters</li><li>Credibility boost (\"Featured on Product Hunt\")</li><li>Potential press coverage</li><li>Backlinks for SEO</li></ul><p><strong>Preparation:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\">Have polished screenshots and video ready</li><li data-type=\"taskItem\" data-checked=\"false\">Prepare for traffic spike (ensure servers can handle it)</li><li data-type=\"taskItem\" data-checked=\"false\">Line up supporters to upvote at launch</li><li data-type=\"taskItem\" data-checked=\"false\">Be available to answer comments all day</li></ul><p><strong>Timing:</strong> Launch on Tuesday-Thursday for best visibility. Avoid Mondays and weekends.</p>",
+      "type": "document",
+      "parentId": "phase-4",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "4.2"
+    },
+    "p4-content-marketing": {
+      "id": "p4-content-marketing",
+      "name": "Content Marketing (Free)",
+      "content": "<p><strong>Free distribution channels:</strong></p><ul data-type=\"taskList\"><li><strong>Blog posts:</strong> Host on your site, share on Medium</li><li><strong>YouTube:</strong> Tutorial videos, feature walkthroughs</li><li><strong>Reddit:</strong> Provide value first, promote subtly</li><li><strong>Hacker News:</strong> Launch blog post or Show HN</li></ul><p><strong>Content ideas:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\">\"How I built X feature\" (dev community loves this)</li><li data-type=\"taskItem\" data-checked=\"false\">Productivity tips using outlining</li><li data-type=\"taskItem\" data-checked=\"false\">Comparison guides (IdiamPro vs Notion, etc.)</li></ul><p><strong>Key principle:</strong> Provide value first. Direct promotion without value gets downvoted.</p>",
+      "type": "document",
+      "parentId": "phase-4",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "4.3"
+    },
+    "p4-first-revenue": {
+      "id": "p4-first-revenue",
+      "name": "Path to First $1,000 MRR",
+      "content": "<p><strong>Revenue milestones:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\"><p><strong>$0-100/month:</strong> Validation phase - are people willing to pay?</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p><strong>$100-500/month:</strong> Cover basic costs (hosting, tools)</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p><strong>$500-1000/month:</strong> Sustainable indie project</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p><strong>$1000+/month:</strong> Consider reinvesting in growth</p></li></ul><p><strong>To reach $1000 MRR at $10/month:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\"><p>Need 100 paying customers</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>At 2% conversion from free, need 5,000 free users</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>Focus on retention as much as acquisition</p></li></ul><p><strong>Key insight:</strong> 100 happy paying customers is better than 1,000 unhappy free users.</p>",
+      "type": "document",
+      "parentId": "phase-4",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "4.4"
+    },
+    "phase-5": {
+      "id": "phase-5",
+      "name": "Phase 5: Scale When Revenue Supports It",
+      "content": "<p>Only invest in these when revenue consistently exceeds basic costs. Premature scaling kills bootstrapped businesses.</p>",
+      "type": "chapter",
+      "parentId": "root-bootstrap",
+      "childrenIds": [
+        "p5-when-llc",
+        "p5-when-paid",
+        "p5-when-hire",
+        "p5-reinvest"
+      ],
+      "isCollapsed": false,
+      "prefix": "5"
+    },
+    "p5-when-llc": {
+      "id": "p5-when-llc",
+      "name": "When to Form an LLC",
+      "content": "<p><strong>You DON'T need an LLC to:</strong></p><ul data-type=\"taskList\"><li>Publish on App Store (personal developer account is fine)</li><li>Accept payments (Stripe works with individuals)</li><li>Have a website and business presence</li></ul><p><strong>Consider an LLC when:</strong></p><ul data-type=\"taskList\"><li>Revenue exceeds $5,000/month consistently</li><li>You want liability protection</li><li>Business bank account becomes necessary</li><li>Tax benefits outweigh formation costs</li></ul><p><strong>LLC costs:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\">Formation: $50-500 depending on state</li><li data-type=\"taskItem\" data-checked=\"false\">Annual fees: $0-800 depending on state (California is expensive)</li><li data-type=\"taskItem\" data-checked=\"false\">Registered agent: $50-150/year if needed</li></ul><p><strong>Cheapest states:</strong> Wyoming, Delaware, New Mexico (for non-residents)</p>",
+      "type": "document",
+      "parentId": "phase-5",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.1"
+    },
+    "p5-when-paid": {
+      "id": "p5-when-paid",
+      "name": "When to Pay for Tools",
+      "content": "<p><strong>Stay free as long as possible:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\"><p>Free tiers are generous for small projects</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>Paid features often aren't needed at low scale</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>Upgrading is easy when you need to</p></li></ul><p><strong>Worth paying for early:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\"><p>Domain name (~$12/year) - non-negotiable</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>Apple Developer ($99/year) - if doing iOS</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>Reliable email (Google Workspace $6/month) - when you need custom domain email</p></li></ul><p><strong>Delay until revenue supports:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\"><p>Premium analytics tools</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>Advanced monitoring</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>Paid marketing/advertising</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>Professional services (legal, accounting)</p></li></ul><p></p>",
+      "type": "document",
+      "parentId": "phase-5",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.2"
+    },
+    "p5-when-hire": {
+      "id": "p5-when-hire",
+      "name": "When to Get Help",
+      "content": "<p><strong>Before hiring/contracting:</strong></p><ul data-type=\"taskList\"><li>Revenue should cover the cost 3x over</li><li>You should be turning away work/opportunities</li><li>The task should be clearly defined</li></ul><p><strong>First hires/contracts (in order):</strong></p><ol><li><strong>Bookkeeper:</strong> When taxes become complex ($50-200/month)</li><li><strong>Customer support:</strong> When support takes >10 hrs/week</li><li><strong>Designer:</strong> For marketing assets (project-based)</li><li><strong>Developer:</strong> Only when you're the bottleneck</li></ol><p><strong>Alternatives to hiring:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\">Automate with tools before hiring humans</li><li data-type=\"taskItem\" data-checked=\"false\">Use AI for first-draft content, support responses</li><li data-type=\"taskItem\" data-checked=\"false\">Outsource one-time tasks on Fiverr/Upwork</li></ul>",
+      "type": "document",
+      "parentId": "phase-5",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.3"
+    },
+    "p5-reinvest": {
+      "id": "p5-reinvest",
+      "name": "Reinvestment Priority",
+      "content": "<p><strong>When you have profit, reinvest in this order:</strong></p><ol><li><strong>Reliability:</strong> Better hosting, monitoring, backups</li><li><strong>User experience:</strong> Design improvements, performance</li><li><strong>Marketing:</strong> Content, SEO, selective ads</li><li><strong>Features:</strong> Only features users are asking for</li><li><strong>Platform expansion:</strong> Android, new markets</li></ol><p><strong>The bootstrap mindset:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\">Every dollar should generate more than a dollar back</li><li data-type=\"taskItem\" data-checked=\"false\">Measure ROI on every expense</li><li data-type=\"taskItem\" data-checked=\"false\">Stay profitable even while growing</li></ul>",
+      "type": "document",
+      "parentId": "phase-5",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.4"
+    },
+    "legal-structures": {
+      "id": "legal-structures",
+      "name": "Legal Structures: What You Actually Need",
+      "content": "<p>Many developers over-complicate legal setup. Here's what actually matters at each stage.</p>",
+      "type": "chapter",
+      "parentId": "root-bootstrap",
+      "childrenIds": [
+        "legal-solo",
+        "legal-llc",
+        "legal-corp",
+        "legal-mistakes"
+      ],
+      "isCollapsed": false,
+      "prefix": "6"
+    },
+    "legal-solo": {
+      "id": "legal-solo",
+      "name": "Sole Proprietor (Starting Out)",
+      "content": "<p><strong>What it means:</strong> You and your business are the same legal entity. No formation required.</p><p><strong>For App Store:</strong></p><ul data-type=\"taskList\"><li>Apple accepts individual developers</li><li>Your personal name appears as \"seller\"</li><li>This is fine for starting out</li></ul><p><strong>Pros:</strong></p><ul data-type=\"taskList\"><li>Zero cost to start</li><li>Simplest tax filing (Schedule C)</li><li>No annual fees or filings</li></ul><p><strong>Cons:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\">No liability protection</li><li data-type=\"taskItem\" data-checked=\"false\">Harder to get business credit</li><li data-type=\"taskItem\" data-checked=\"false\">Less \"professional\" appearance</li></ul><p><strong>When it works:</strong> Revenue under $5K/month, no significant liability concerns, just you working on it.</p>",
+      "type": "document",
+      "parentId": "legal-structures",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "6.1"
+    },
+    "legal-llc": {
+      "id": "legal-llc",
+      "name": "LLC (Growth Stage)",
+      "content": "<p><strong>What it means:</strong> A separate legal entity that provides liability protection while being tax-efficient for small businesses.</p><p><strong>Benefits:</strong></p><ul data-type=\"taskList\"><li>Personal assets protected from business liability</li><li>Pass-through taxation (no double tax)</li><li>Professional appearance</li><li>Easier to get business banking</li></ul><p><strong>Costs:</strong></p><ul data-type=\"taskList\"><li>Formation: $50-500 (state filing fees)</li><li>Annual fees: Vary by state ($0-$800)</li><li>Operating agreement: DIY is fine for single-member</li></ul><p><strong>Best states for single-member LLC:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\"><strong>Wyoming:</strong> No state income tax, $100 formation, $60/year</li><li data-type=\"taskItem\" data-checked=\"false\"><strong>New Mexico:</strong> $50 formation, no annual report</li><li data-type=\"taskItem\" data-checked=\"false\"><strong>Delaware:</strong> Good case law, but $300/year fee</li></ul><p><strong>Note:</strong> If you live in a state with LLC tax (like California $800/year), you may need to file there regardless of where you form.</p>",
+      "type": "document",
+      "parentId": "legal-structures",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "6.2"
+    },
+    "legal-corp": {
+      "id": "legal-corp",
+      "name": "Corporation (When You Need It)",
+      "content": "<p><strong>When to consider a C-Corp:</strong></p><ul data-type=\"taskList\"><li>Taking venture capital investment</li><li>Offering stock options to employees</li><li>Revenue exceeding $100K+ and complex tax situation</li></ul><p><strong>Why NOT to start as a C-Corp:</strong></p><ul data-type=\"taskList\"><li>Double taxation on profits</li><li>More expensive to maintain ($1,000+/year)</li><li>Annual meetings, board minutes required</li><li>Overkill for solo bootstrapped business</li></ul><p><strong>The conversion path:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\">Start as sole proprietor</li><li data-type=\"taskItem\" data-checked=\"false\">Form LLC when revenue justifies it</li><li data-type=\"taskItem\" data-checked=\"false\">Convert to C-Corp only if raising investment</li></ul><p>This path lets you stay lean while preserving options.</p>",
+      "type": "document",
+      "parentId": "legal-structures",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "6.3"
+    },
+    "legal-mistakes": {
+      "id": "legal-mistakes",
+      "name": "Expensive Mistakes to Avoid",
+      "content": "<p><strong>Don't do these too early:</strong></p><ul data-type=\"taskList\"><li><strong>Forming in Delaware when you live elsewhere:</strong> You'll need to register in your home state anyway, doubling fees</li><li><strong>Paying lawyers for boilerplate:</strong> Standard Terms of Service and Privacy Policy templates are fine to start</li><li><strong>Getting a trademark before validating:</strong> $250-400 per class, wait until you're sure of the name</li><li><strong>Over-engineering contracts:</strong> Simple agreements work until you have significant revenue</li></ul><p><strong>Do protect yourself:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\">Keep business and personal finances separate</li><li data-type=\"taskItem\" data-checked=\"false\">Document decisions and agreements (even informal ones)</li><li data-type=\"taskItem\" data-checked=\"false\">Have basic Terms of Service and Privacy Policy</li><li data-type=\"taskItem\" data-checked=\"false\">Get liability insurance when you can afford it ($300-500/year)</li></ul>",
+      "type": "document",
+      "parentId": "legal-structures",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "6.4"
+    },
+    "revenue-strategy": {
+      "id": "revenue-strategy",
+      "name": "Revenue Strategy for Solo Developer",
+      "content": "<p>Focus on sustainable revenue that doesn't require massive scale to be worthwhile.</p>",
+      "type": "chapter",
+      "parentId": "root-bootstrap",
+      "childrenIds": [
+        "rev-pricing",
+        "rev-payment",
+        "rev-free-vs-paid",
+        "rev-goals"
+      ],
+      "isCollapsed": false,
+      "prefix": "7"
+    },
+    "rev-pricing": {
+      "id": "rev-pricing",
+      "name": "Pricing Strategy",
+      "content": "<p><strong>Pricing philosophy for indie apps:</strong></p><ul data-type=\"taskList\"><li>Price for sustainability, not maximum revenue</li><li>Higher price = fewer customers = less support burden</li><li>It's easier to lower prices than raise them</li></ul><p><strong>Recommended starting point:</strong></p><ul data-type=\"taskList\"><li><strong>Free tier:</strong> Core features, limited AI usage</li><li><strong>Pro tier:</strong> $8-12/month or $79-99/year</li><li><strong>Annual discount:</strong> Equivalent to 2 months free</li></ul><p><strong>Comparison:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\">Notion: Free / $8/month / $15/month</li><li data-type=\"taskItem\" data-checked=\"false\">Obsidian: Free / $50/year sync / $25/year publish</li><li data-type=\"taskItem\" data-checked=\"false\">Roam: $15/month (no free tier)</li></ul><p><strong>Key insight:</strong> 100 customers at $10/month = $12,000/year. That's a meaningful side income with manageable support load.</p>",
+      "type": "document",
+      "parentId": "revenue-strategy",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "7.1"
+    },
+    "rev-payment": {
+      "id": "rev-payment",
+      "name": "Payment Processing",
+      "content": "<p><strong>Platforms and their cuts:</strong></p><ul data-type=\"taskList\"><li><strong>App Store (iOS/Mac):</strong> 30% (15% for small business program under $1M)</li><li><strong>Stripe (web):</strong> 2.9% + 30¢ per transaction</li><li><strong>Paddle:</strong> 5% + 50¢ (handles sales tax/VAT)</li><li><strong>Gumroad:</strong> 10% + 30¢</li></ul><p><strong>Recommendation:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\">Use App Store for iOS (required) and Mac (convenient)</li><li data-type=\"taskItem\" data-checked=\"false\">Use Stripe for web subscriptions (much lower fees)</li><li data-type=\"taskItem\" data-checked=\"false\">Consider Paddle if international sales tax is overwhelming</li></ul><p><strong>Small Business Program:</strong> Apple reduces cut to 15% if you made <$1M in the previous year. Apply as soon as you enroll.</p>",
+      "type": "document",
+      "parentId": "revenue-strategy",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "7.2"
+    },
+    "rev-free-vs-paid": {
+      "id": "rev-free-vs-paid",
+      "name": "Free vs Paid Features",
+      "content": "<p><strong>What to include in free tier:</strong></p><ul data-type=\"taskList\"><li>Core outlining functionality</li><li>Local storage (no server costs)</li><li>Basic export (JSON, Markdown)</li><li>Limited AI (e.g., 10 generations/month)</li></ul><p><strong>What to reserve for paid:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\">Unlimited AI features (they cost you money)</li><li data-type=\"taskItem\" data-checked=\"false\">Cloud sync (requires infrastructure)</li><li data-type=\"taskItem\" data-checked=\"false\">PDF export (nice-to-have premium feel)</li><li data-type=\"taskItem\" data-checked=\"false\">Advanced organization (tags, multiple workspaces)</li></ul><p><strong>Philosophy:</strong> Free tier should be genuinely useful. Paid tier should be \"worth it\" for power users. Don't cripple free just to force upgrades.</p>",
+      "type": "document",
+      "parentId": "revenue-strategy",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "7.3"
+    },
+    "rev-goals": {
+      "id": "rev-goals",
+      "name": "Revenue Goals and Reality Check",
+      "content": "<p><strong>Realistic timeline for bootstrapped app:</strong></p><ul data-type=\"taskList\"><li><strong>Month 1-3:</strong> Building and soft launch. $0 revenue is normal.</li><li><strong>Month 4-6:</strong> First paying customers. Goal: $100-500 MRR</li><li><strong>Month 6-12:</strong> Product-market fit. Goal: $500-2,000 MRR</li><li><strong>Year 2:</strong> Sustainable side income. Goal: $2,000-5,000 MRR</li></ul><p><strong>What these numbers mean:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\">$500/month: Covers hosting and tools</li><li data-type=\"taskItem\" data-checked=\"false\">$2,000/month: Meaningful side income</li><li data-type=\"taskItem\" data-checked=\"false\">$5,000/month: Could consider going full-time</li><li data-type=\"taskItem\" data-checked=\"false\">$10,000/month: Solid indie business</li></ul><p><strong>Reality:</strong> Most indie apps never reach $1,000 MRR. Success requires persistence, iteration, and luck. Plan for the journey, not just the destination.</p>",
+      "type": "document",
+      "parentId": "revenue-strategy",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "7.4"
+    },
+    "ai-provider-costs": {
+      "id": "ai-provider-costs",
+      "name": "AI Provider Costs and Optimization",
+      "content": "<p>Understanding AI API costs is critical for pricing your subscription tiers. IdiamPro uses AI for content generation, and these costs directly impact your margins.</p>",
+      "type": "chapter",
+      "parentId": "root-bootstrap",
+      "childrenIds": [
+        "ai-current-pricing",
+        "ai-volume-discounts",
+        "ai-optimization",
+        "ai-subscription-design"
+      ],
+      "isCollapsed": false,
+      "prefix": "8"
+    },
+    "ai-current-pricing": {
+      "id": "ai-current-pricing",
+      "name": "Current API Pricing (2026)",
+      "content": "<p><strong>Google Gemini (currently used by IdiamPro):</strong></p><table><tr><th>Model</th><th>Input</th><th>Output</th><th>Best For</th></tr><tr><td>Gemini 2.0 Flash</td><td>~$0.10/1M tokens</td><td>~$0.40/1M tokens</td><td>Fast, cheap, good quality</td></tr><tr><td>Gemini 1.5 Pro</td><td>~$1.25/1M</td><td>~$5.00/1M</td><td>Complex reasoning</td></tr></table><p><strong>Anthropic Claude (potential alternative):</strong></p><table><tr><th>Model</th><th>Input</th><th>Output</th><th>Best For</th></tr><tr><td>Claude Haiku</td><td>$1.00/1M tokens</td><td>$5.00/1M tokens</td><td>Fast responses, simple tasks</td></tr><tr><td>Claude Sonnet</td><td>$3.00/1M tokens</td><td>$15.00/1M tokens</td><td>Best balance of cost/quality</td></tr><tr><td>Claude Opus</td><td>$5.00/1M tokens</td><td>$25.00/1M tokens</td><td>Complex analysis, premium tier</td></tr></table><p><strong>Key insight:</strong> Gemini Flash is ~10x cheaper than Claude Haiku. This significantly impacts margin calculations.</p>",
+      "type": "document",
+      "parentId": "ai-provider-costs",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "8.1"
+    },
+    "ai-volume-discounts": {
+      "id": "ai-volume-discounts",
+      "name": "Volume Discount Programs",
+      "content": "<p><strong>Google Cloud / Gemini:</strong></p><ul data-type=\"taskList\"><li>Committed use discounts start at ~$10,000/month</li><li>Contact Google Cloud sales for negotiated pricing</li><li>Typical discounts: 10-30% based on commitment</li><li>Free tier: Up to 15 requests/minute on Gemini API</li></ul><p><strong>Anthropic / Claude:</strong></p><ul data-type=\"taskList\"><li>Volume discounts are negotiated case-by-case</li><li>No published threshold; contact sales</li><li>Typically requires consistent high-volume usage</li><li>Enterprise plans include dedicated support</li></ul><p><strong>How to contact for discounts:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\"><strong>Google:</strong> Google Cloud Console → Support → Contact Sales</li><li data-type=\"taskItem\" data-checked=\"false\"><strong>Anthropic:</strong> anthropic.com → Contact Sales or sales@anthropic.com</li></ul><p><strong>When to negotiate:</strong> Once you're spending $1,000+/month consistently, it's worth having the conversation.</p>",
+      "type": "document",
+      "parentId": "ai-provider-costs",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "8.2"
+    },
+    "ai-optimization": {
+      "id": "ai-optimization",
+      "name": "Cost Optimization Strategies",
+      "content": "<p><strong>Batch API (both providers):</strong></p><ul data-type=\"taskList\"><li>50% discount for non-time-sensitive requests</li><li>Results delivered within 24 hours</li><li>Good for: Bulk content generation, background processing</li><li>Not good for: Interactive user requests</li></ul><p><strong>Prompt Caching (Claude):</strong></p><ul data-type=\"taskList\"><li>Cache frequently-used system prompts</li><li>Up to 90% savings on cached content</li><li>Requires consistent prompt prefixes</li></ul><p><strong>Token optimization:</strong></p><ul data-type=\"taskList\"><li>Keep prompts concise - every token costs money</li><li>Use smaller models for simple tasks</li><li>Set reasonable max_tokens limits</li></ul><p><strong>Usage limits per tier:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\">Free tier: 10-20 generations/month</li><li data-type=\"taskItem\" data-checked=\"false\">Pro tier: 200-500 generations/month</li><li data-type=\"taskItem\" data-checked=\"false\">Unlimited: Consider fair use policy to prevent abuse</li></ul>",
+      "type": "document",
+      "parentId": "ai-provider-costs",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "8.3"
+    },
+    "ai-subscription-design": {
+      "id": "ai-subscription-design",
+      "name": "Designing Subscription Tiers with 20% Margin",
+      "content": "<p><strong>Cost calculation per user (example with Gemini Flash):</strong></p><ul data-type=\"taskList\"><li>Average generation: ~1,000 input tokens + ~500 output tokens</li><li>Cost per generation: ~$0.0003</li><li>100 generations/month: ~$0.03 per user</li><li>Even heavy users (~500 gens): ~$0.15 per user</li></ul><p><strong>Recommended tier structure with 20% margin:</strong></p><table><tr><th>Tier</th><th>AI Cost/User</th><th>With 20% Margin</th><th>Suggested Price</th></tr><tr><td>Free (10 gens)</td><td>$0.003</td><td>-</td><td>$0</td></tr><tr><td>Basic (100 gens)</td><td>$0.03</td><td>$0.036</td><td>$5/month</td></tr><tr><td>Pro (500 gens)</td><td>$0.15</td><td>$0.18</td><td>$10/month</td></tr><tr><td>Power (unlimited*)</td><td>~$0.50 avg</td><td>$0.60</td><td>$20/month</td></tr></table><p><strong>Key insight:</strong> With Gemini Flash, AI costs are negligible compared to subscription prices. The 20% margin is easily achieved. Your main costs will be hosting, not AI.</p><p><strong>If adding Claude as premium option:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\">Claude Sonnet at 500 gens/month ≈ $2.70 cost</li><li data-type=\"taskItem\" data-checked=\"false\">With 20% margin: $3.24 minimum</li><li data-type=\"taskItem\" data-checked=\"false\">Suggested premium tier: $15-20/month for Claude access</li></ul><p><strong>Strategy:</strong> Offer Gemini as default (high margin), Claude as optional upgrade (premium positioning).</p>",
+      "type": "document",
+      "parentId": "ai-provider-costs",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "8.4"
+    },
+    "profitability-model": {
+      "id": "profitability-model",
+      "name": "Profitability Model: Running at a Profit",
+      "content": "<p>This chapter consolidates all costs and revenue considerations to ensure IdiamPro always operates profitably. The goal is a <strong>minimum 60% gross margin</strong> after all costs, which is healthy for a solo-developer SaaS business.</p><p><strong>Chapter Overview:</strong></p><table><tr><th>Section</th><th>Key Takeaways</th></tr><tr><td>9.1 Infrastructure Costs</td><td>~$42/month total; break-even at just 5 subscribers</td></tr><tr><td>9.2 App Store Cuts</td><td>You keep 85% (app stores) or 94-97% (web/Stripe)</td></tr><tr><td>9.3 Cross-Platform Model</td><td>One subscription = all platforms (best practice)</td></tr><tr><td>9.4 Final Tier Design</td><td>Free / $9.99 Pro / $19.99 Power with 68-88% margins</td></tr><tr><td>9.5 Break-Even Analysis</td><td>200 subscribers = ~$2,000/month profit</td></tr></table><p><strong>Recommended Subscription Tiers:</strong></p><table><tr><th>Tier</th><th>Price</th><th>What's Included</th></tr><tr><td>Free</td><td>$0</td><td>3 outlines, 10 AI generations/month, local storage</td></tr><tr><td>Pro</td><td>$9.99/mo or $99/year</td><td>Unlimited outlines, 200 AI gens, cloud sync, PDF export, ALL platforms</td></tr><tr><td>Power</td><td>$19.99/mo or $199/year</td><td>Everything in Pro + unlimited AI, Claude access, priority support</td></tr></table><p><strong>Bottom Line:</strong> The business is profitable from subscriber #5 onward, with 68-88% gross margins across all tiers.</p>",
+      "type": "chapter",
+      "parentId": "root-bootstrap",
+      "childrenIds": [
+        "prof-infrastructure",
+        "prof-app-store-cuts",
+        "prof-cross-platform",
+        "prof-tier-design",
+        "prof-break-even",
+        "663fa511-29dc-4b99-b9f7-be1e8c7d07e9"
+      ],
+      "isCollapsed": false,
+      "prefix": "9"
+    },
+    "prof-infrastructure": {
+      "id": "prof-infrastructure",
+      "name": "Infrastructure Running Costs",
+      "content": "<p><strong>Fixed Annual Costs:</strong></p><p>ItemCostNotesApple Developer Program$99/yearRequired for iOS + Mac App StoreDomain Registration$12/yearidiampro.com or similarGoogle Play (one-time)$25Amortize over 5 years = $5/year<strong>Total Fixed~$116/year</strong>~$10/month</p><p><strong>Variable/Scaling Costs:</strong></p><p>ServiceFree TierPaid TierWhen to UpgradeVercel Hosting100GB bandwidth$20/month&gt;1,000 daily usersAI APIs (Gemini)Limited~$0.03-0.50/user/moScales with usageEmail (Google Workspace)Gmail works$6/monthWhen you need @idiampro.comAnalytics (PostHog/Mixpanel)Generous free$0-50/month&gt;10,000 events/month</p><p><strong>First Year Budget (Conservative):</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\"><p>Fixed costs: $116</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>Hosting (assuming upgrade): $240</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>Email: $72</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>AI APIs (100 users avg): ~$60</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p><strong>Total: ~$500/year or ~$42/month</strong></p></li></ul><p><strong>Break-even:</strong> Just 5 subscribers at $10/month covers all infrastructure.</p>",
+      "type": "document",
+      "parentId": "profitability-model",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "9.1"
+    },
+    "prof-app-store-cuts": {
+      "id": "prof-app-store-cuts",
+      "name": "App Store Revenue Shares",
+      "content": "<p><strong>What You Actually Receive:</strong></p><table><tr><th>Platform</th><th>Standard Cut</th><th>Small Business Rate</th><th>You Receive</th></tr><tr><td>Apple App Store</td><td>30%</td><td>15% (under $1M/year)</td><td>85% of price</td></tr><tr><td>Google Play</td><td>30%</td><td>15% (first $1M/year)</td><td>85% of price</td></tr><tr><td>Web (Stripe)</td><td>2.9% + $0.30</td><td>Same</td><td>~94-97% of price</td></tr><tr><td>Web (Paddle)</td><td>5% + $0.50</td><td>Same</td><td>~90-95% of price</td></tr></table><p><strong>Revenue by Channel (at $10/month subscription):</strong></p><table><tr><th>Channel</th><th>User Pays</th><th>Platform Takes</th><th>You Receive</th></tr><tr><td>iOS App Store</td><td>$10.00</td><td>$1.50</td><td>$8.50</td></tr><tr><td>Google Play</td><td>$10.00</td><td>$1.50</td><td>$8.50</td></tr><tr><td>Web (Stripe)</td><td>$10.00</td><td>$0.59</td><td>$9.41</td></tr></table><p><strong>Small Business Program Requirements:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\"><strong>Apple:</strong> Enroll at developer.apple.com/programs/small-business - auto-qualifies if under $1M previous year</li><li data-type=\"taskItem\" data-checked=\"false\"><strong>Google:</strong> Automatic for first $1M in each calendar year</li></ul><p><strong>Strategy:</strong> Web subscriptions yield 10-11% more revenue than app store subscriptions. Consider offering a small discount for web signups to encourage this path.</p>",
+      "type": "document",
+      "parentId": "profitability-model",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "9.2"
+    },
+    "prof-cross-platform": {
+      "id": "prof-cross-platform",
+      "name": "Cross-Platform Subscription Model",
+      "content": "<p><strong>Best Practice: One Subscription = All Platforms</strong></p><p>Modern users expect their subscription to work everywhere. Charging separately per platform creates friction and frustration.</p><div code=\"flowchart LR\n    subgraph Purchase\n        A[iOS App Store] --&gt; D[RevenueCat]\n        B[Google Play] --&gt; D\n        C[Web/Stripe] --&gt; D\n    end\n    D --&gt; E[Your Server]\n    E --&gt; F[Subscription Status API]\n    subgraph Access\n        F --&gt; G[iOS App]\n        F --&gt; H[Mac App]\n        F --&gt; I[Web App]\n        F --&gt; J[Android App]\n    end\" data-mermaid-block=\"\" data-mermaid-code=\"flowchart LR\n    subgraph Purchase\n        A[iOS App Store] --&gt; D[RevenueCat]\n        B[Google Play] --&gt; D\n        C[Web/Stripe] --&gt; D\n    end\n    D --&gt; E[Your Server]\n    E --&gt; F[Subscription Status API]\n    subgraph Access\n        F --&gt; G[iOS App]\n        F --&gt; H[Mac App]\n        F --&gt; I[Web App]\n        F --&gt; J[Android App]\n    end\"></div><p><strong>Recommended Model:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\"><p>User subscribes once (via any platform)</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>Subscription unlocks iOS, Mac, Web, and future Android</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>Account-based authentication syncs subscription status</p></li></ul><p><strong>Implementation:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\"><p>Create user accounts (email + password or OAuth)</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>Store subscription status on your server</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>Each platform checks subscription status via API</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>Use RevenueCat or similar to unify app store subscriptions</p></li></ul><p><strong>RevenueCat (Recommended):</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\"><p>Free up to $2,500 MTR (monthly tracked revenue)</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>Unifies Apple, Google, and Stripe subscriptions</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>Handles receipt validation, subscription status</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>$0.01 per transaction after free tier</p></li></ul><p><strong>Why This Works:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\"><p>Users feel they're getting value (all platforms included)</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>Reduces support burden (no \"why doesn't it work on my Mac?\")</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>Enables family/device flexibility</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>Competitive with Notion, Obsidian, etc.</p></li></ul><p></p>",
+      "type": "document",
+      "parentId": "profitability-model",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "9.3"
+    },
+    "prof-tier-design": {
+      "id": "prof-tier-design",
+      "name": "Final Subscription Tier Design",
+      "content": "<p><strong>Recommended Tiers (All Platforms Included):</strong></p><table><tr><th>Tier</th><th>Monthly</th><th>Annual</th><th>Features</th></tr><tr><td><strong>Free</strong></td><td>$0</td><td>$0</td><td>3 outlines, 10 AI gens/month, local storage only</td></tr><tr><td><strong>Pro</strong></td><td>$9.99</td><td>$99/year (save 17%)</td><td>Unlimited outlines, 200 AI gens/month, cloud sync, PDF export</td></tr><tr><td><strong>Power</strong></td><td>$19.99</td><td>$199/year (save 17%)</td><td>Everything in Pro + unlimited AI, Claude access, priority support</td></tr></table><p><strong>Cost & Margin Analysis (Pro Tier at $9.99):</strong></p><table><tr><th>Item</th><th>App Store</th><th>Web</th></tr><tr><td>Revenue received</td><td>$8.49</td><td>$9.40</td></tr><tr><td>AI cost (avg user)</td><td>-$0.15</td><td>-$0.15</td></tr><tr><td>Infrastructure (per user share)</td><td>-$0.50</td><td>-$0.50</td></tr><tr><td><strong>Gross Profit</strong></td><td><strong>$7.84 (78%)</strong></td><td><strong>$8.75 (88%)</strong></td></tr></table><p><strong>Cost & Margin Analysis (Power Tier at $19.99):</strong></p><table><tr><th>Item</th><th>App Store</th><th>Web</th></tr><tr><td>Revenue received</td><td>$16.99</td><td>$19.11</td></tr><tr><td>AI cost (heavy user + Claude)</td><td>-$3.00</td><td>-$3.00</td></tr><tr><td>Infrastructure (per user share)</td><td>-$0.50</td><td>-$0.50</td></tr><tr><td><strong>Gross Profit</strong></td><td><strong>$13.49 (68%)</strong></td><td><strong>$15.61 (78%)</strong></td></tr></table><p><strong>Key Insight:</strong> Even the Power tier with Claude access maintains 68%+ gross margin. The business is highly profitable at any scale.</p>",
+      "type": "document",
+      "parentId": "profitability-model",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "9.4"
+    },
+    "prof-break-even": {
+      "id": "prof-break-even",
+      "name": "Break-Even Analysis & Profit Targets",
+      "content": "<p><strong>Monthly Fixed Costs (After Launch):</strong></p><ul data-type=\"taskList\"><li>Infrastructure: ~$42/month (see 9.1)</li><li>Your time: Priceless (but free at bootstrap stage)</li></ul><p><strong>Break-Even Points:</strong></p><table><tr><th>Scenario</th><th>Pro Users Needed</th><th>Power Users Needed</th><th>Mixed (70/30)</th></tr><tr><td>Cover infrastructure ($42)</td><td>6 users</td><td>3 users</td><td>5 users</td></tr><tr><td>Side income ($500/mo)</td><td>64 users</td><td>32 users</td><td>52 users</td></tr><tr><td>Serious income ($2,000/mo)</td><td>256 users</td><td>128 users</td><td>207 users</td></tr><tr><td>Full-time potential ($5,000/mo)</td><td>640 users</td><td>320 users</td><td>518 users</td></tr></table><p><strong>Recommended Profit Targets:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\"><strong>Minimum gross margin:</strong> 60% (you're achieving 68-88%)</li><li data-type=\"taskItem\" data-checked=\"false\"><strong>Target gross margin:</strong> 70%+ (easily achievable)</li><li data-type=\"taskItem\" data-checked=\"false\"><strong>Reserve fund:</strong> Keep 3 months of operating costs in reserve</li></ul><p><strong>Profit Allocation Strategy:</strong></p><div data-mermaid-block data-mermaid-code=\"flowchart TD\n    A[Monthly Revenue] --> B{Amount?}\n    B -->|$0-500| C[Reinvest 100%]\n    C --> D[Infrastructure]\n    B -->|$500-2000| E[Split 50/50]\n    E --> F[Take Home]\n    E --> G[Marketing]\n    B -->|$2000+| H[Growth Phase]\n    H --> I[Part-time Transition]\n    H --> J[Hire Help]\"></div><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\">First $500/month: Reinvest in infrastructure reliability</li><li data-type=\"taskItem\" data-checked=\"false\">$500-2,000/month: 50% take home, 50% marketing/growth</li><li data-type=\"taskItem\" data-checked=\"false\">$2,000+/month: Consider part-time transition, hire help</li></ul><p><strong>Bottom Line:</strong> With ~200 paying subscribers at a 70/30 Pro/Power mix, you'll earn ~$2,000/month profit. The math works. Focus on building a product people love and the revenue will follow.</p>",
+      "type": "document",
+      "parentId": "profitability-model",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "9.5"
+    },
+    "pm-session-notes": {
+      "id": "pm-session-notes",
+      "name": "INTERNAL: Project Management — Session Continuity Notes",
+      "content": "<p><strong>READ THIS FIRST AT EVERY SESSION START</strong></p><p></p><p><strong>Roles:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\"><p><strong>Claude</strong> = Project Manager (PM) — track schedule, recommend priorities, flag deviations from plan</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p><strong>Howard</strong> = Product Visionary / Owner — sets vision, approves direction, makes final calls</p></li></ul><p></p><p><strong>Two Primary Outlines (read both at session start):</strong></p><ol><li data-type=\"taskItem\" data-checked=\"false\"><p><strong>Bootstrap Plan</strong> (this file) — drives development, project management, scheduling</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p><strong>IdiamPro Marketing</strong> — drives public-facing efforts, vision, website content</p></li></ol><p></p><p><strong>Current Priority Sequence:</strong></p><ol><li data-type=\"taskItem\" data-checked=\"false\"><p>Website generation (first universal output format, proof of concept)</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>Audience visibility system (tags for public/customer/developer/internal content)</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>API key settings UI (needed for AssemblyAI and future integrations)</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>Subscription/payment infrastructure (Stripe, RevenueCat)</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>Video production (scripts first, then recording)</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>MCP server (review 3 planning docs in IDM Outlines folder first)</p></li></ol><p></p><p><strong>Working Rules:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\"><p>If implementation deviates from what the outlines specify, flag it to Howard immediately</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>Other outlines in the IDM Outlines folder provide supporting context — consult as needed</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>Howard is a biophysicist by training with 30+ years in the computer industry — a trained research scientist</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>Howard coined the 'Knowledge Molecule' concept (DNA analogy for living outlines) — use this terminology in marketing contexts</p></li></ul><p></p><p><strong>Pricing (Source of Truth — Marketing Outline):</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\"><p>Free: $0 — 25 expansions/month, 10 outline gens, PDF export</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>Pro: $12/month or $115/year (20% annual savings)</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>Power: $28/month or $269/year (20% annual savings)</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>Education/Nonprofit: 50% discount</p></li></ul><p></p><p><strong>Session Log:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\"><p>Marketing outline reviewed and updated (sections 1-10). Pricing aligned across both outlines. Knowledge Molecule concept added. Video sections split into public/internal. 3-tier model established.</p></li></ul><p></p>",
+      "type": "chapter",
+      "parentId": "root-bootstrap",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "PM"
+    },
+    "project-roadmap": {
+      "id": "project-roadmap",
+      "name": "PROJECT ROADMAP: Business Foundation → App Store",
+      "content": "<p>A concrete, task-level roadmap covering everything from initial business setup through Mac and iOS App Store submissions. Each milestone contains a checklist of tasks with placeholder estimates for Howard to fill in. Complete these milestones roughly in order, though some tasks within different milestones can proceed in parallel.</p>",
+      "type": "chapter",
+      "parentId": "root-bootstrap",
+      "childrenIds": [
+        "roadmap-m1-business",
+        "roadmap-m2-web",
+        "roadmap-m3-subscriptions",
+        "roadmap-m4-mac",
+        "roadmap-m5-ios",
+        "roadmap-m6-launch"
+      ],
+      "isCollapsed": false,
+      "prefix": "R"
+    },
+    "roadmap-m1-business": {
+      "id": "roadmap-m1-business",
+      "name": "Milestone 1: Business Foundation",
+      "content": "<p><strong>Tasks:</strong></p><ul data-type=\"taskList\"><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Register idiampro.com domain — <em>Estimate:</em> ___</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Enroll in Apple Developer Program ($99/yr) — <em>Estimate:</em> ___</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Set up business email (@idiampro.com) — <em>Estimate:</em> ___</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Register Google Play developer account ($25 one-time) — <em>Estimate:</em> ___</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Create privacy policy and terms of service — <em>Estimate:</em> ___</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Set up business bank account or payment entity (if needed for Stripe) — <em>Estimate:</em> ___</p></div></li></ul><p><strong>Dependencies:</strong> None — this is the starting point</p><p><strong>Milestone complete when:</strong> Domain registered, Apple Developer enrolled, business email active, legal docs drafted</p><p></p>",
+      "type": "document",
+      "parentId": "project-roadmap",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "R.1"
+    },
+    "roadmap-m2-web": {
+      "id": "roadmap-m2-web",
+      "name": "Milestone 2: Web Presence",
+      "content": "<p><strong>Tasks:</strong></p><ul data-type=\"taskList\"><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Deploy landing page on Vercel (can use existing Next.js codebase) — <em>Estimate:</em> ___</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Add email waitlist/signup capture — <em>Estimate:</em> ___</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Set up analytics (PostHog or GA4) — <em>Estimate:</em> ___</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Create social profiles: Twitter/X, LinkedIn, Product Hunt — <em>Estimate:</em> ___</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Begin build-in-public content cadence — <em>Estimate:</em> ___</p></div></li></ul><p><strong>Dependencies:</strong> Domain registered (M1)</p><p><strong>Milestone complete when:</strong> Landing page live at idiampro.com with email capture, analytics tracking visits, social profiles created</p>",
+      "type": "document",
+      "parentId": "project-roadmap",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "R.2"
+    },
+    "roadmap-m3-subscriptions": {
+      "id": "roadmap-m3-subscriptions",
+      "name": "Milestone 3: Subscription & Payment Infrastructure",
+      "content": "<p><strong>Tasks:</strong></p><ul data-type=\"taskList\"><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Set up Stripe account and test mode — <em>Estimate:</em> ___</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Implement user auth (email + OAuth) — <em>Estimate:</em> ___</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Integrate RevenueCat (unifies App Store + Stripe subscriptions) — <em>Estimate:</em> ___</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Wire up 3-tier feature gating (Free/Pro/Power) in app — <em>Estimate:</em> ___</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Build API key settings UI (for AssemblyAI, future integrations) — <em>Estimate:</em> ___</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Implement audience visibility system (public/customer/developer/internal tags) — <em>Estimate:</em> ___</p></div></li></ul><p><strong>Dependencies:</strong> Business bank account or payment entity (M1), landing page live (M2)</p><p><strong>Milestone complete when:</strong> Stripe test payments working, auth flow complete, feature gating enforced across all 3 tiers, RevenueCat integrated</p>",
+      "type": "document",
+      "parentId": "project-roadmap",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "R.3"
+    },
+    "roadmap-m4-mac": {
+      "id": "roadmap-m4-mac",
+      "name": "Milestone 4: Mac App Preparation & Submission",
+      "content": "<p><strong>Tasks:</strong></p><ul data-type=\"taskList\"><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Finalize Electron packaging and code signing — <em>Estimate:</em> ___</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Generate App Store screenshots and preview video — <em>Estimate:</em> ___</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Write App Store metadata (title, subtitle, description, keywords) — <em>Estimate:</em> ___</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Verify sandboxing compliance — <em>Estimate:</em> ___</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Submit to Mac App Store review — <em>Estimate:</em> ___</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Address review feedback (if any) — <em>Estimate:</em> ___</p></div></li></ul><p><strong>Dependencies:</strong> Apple Developer enrolled (M1), subscription infrastructure working (M3)</p><p><strong>Milestone complete when:</strong> Mac app approved and live on the Mac App Store</p>",
+      "type": "document",
+      "parentId": "project-roadmap",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "R.4"
+    },
+    "roadmap-m5-ios": {
+      "id": "roadmap-m5-ios",
+      "name": "Milestone 5: iOS App Preparation & Submission",
+      "content": "<p><strong>Tasks:</strong></p><ul data-type=\"taskList\"><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Finalize Capacitor build for iOS — <em>Estimate:</em> ___</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>iOS-specific UI polish and gesture testing — <em>Estimate:</em> ___</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>TestFlight beta (internal + small external group) — <em>Estimate:</em> ___</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Generate iOS App Store screenshots (multiple device sizes) — <em>Estimate:</em> ___</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Submit to iOS App Store review — <em>Estimate:</em> ___</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Address review feedback (if any) — <em>Estimate:</em> ___</p></div></li></ul><p><strong>Dependencies:</strong> Apple Developer enrolled (M1), subscription infrastructure working (M3), Mac app submitted or approved (M4 recommended but not required)</p><p><strong>Milestone complete when:</strong> iOS app approved and live on the iOS App Store</p>",
+      "type": "document",
+      "parentId": "project-roadmap",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "R.5"
+    },
+    "roadmap-m6-launch": {
+      "id": "roadmap-m6-launch",
+      "name": "Milestone 6: Launch Readiness",
+      "content": "<p><strong>Tasks:</strong></p><ul data-type=\"taskList\"><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Update website with App Store download links — <em>Estimate:</em> ___</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Prepare Product Hunt launch profile — <em>Estimate:</em> ___</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Draft launch announcement (email list, social, communities) — <em>Estimate:</em> ___</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Verify cross-platform subscription sync works end-to-end — <em>Estimate:</em> ___</p></div></li></ul><p><strong>Dependencies:</strong> Mac app live (M4), iOS app live (M5), website live (M2)</p><p><strong>Milestone complete when:</strong> Both apps live with download links on website, launch announcements sent, cross-platform subscriptions verified working</p>",
+      "type": "document",
+      "parentId": "project-roadmap",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "R.6"
+    },
+    "663fa511-29dc-4b99-b9f7-be1e8c7d07e9": {
+      "id": "663fa511-29dc-4b99-b9f7-be1e8c7d07e9",
+      "name": "Freemium strategy",
+      "content": "<p>&nbsp;<strong>IdiamPro Upsell Strategy</strong></p><p></p><p>&nbsp; <strong>Freemium Approach</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\"><p>&nbsp; <strong>Free tier</strong>: Full feature access, but with practical constraints (rate limits, delays). Users understand the value and can accomplish their goals.</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>&nbsp; <strong>Premium tier</strong>: Same features, but optimized for productivity. Faster API calls, parallel processing, no waiting.</p></li></ul><p></p><p>&nbsp; <strong>Implementation Pattern</strong></p><p>&nbsp; When implementing features that involve API calls or processing time:</p><p></p><p>&nbsp; 1. <strong>Free users</strong> get the functionality with reasonable delays</p><p>&nbsp; 2. <strong>Premium users</strong> get faster/parallel execution</p><p>&nbsp; 3. Show a brief, non-intrusive upsell message highlighting the time savings</p><p></p><p>&nbsp; <strong>Value Proposition</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\"><p>&nbsp; <em>\"You've already seen what the tool can do. Now imagine it 6x faster.\"</em></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\"><p>&nbsp; This respects free users while making the premium value clear: time is money in business contexts, so the faster experience is worth the upgrade.</p></li></ul></li></ul><p></p><p>The freemium strategy is central to IdiamPro's profitability model, allowing us to attract a broad user base while converting a segment to paying customers. The core idea is to offer a fully functional, albeit limited, version of IdiamPro for free, enticing users to experience its value firsthand. This free tier serves as a powerful marketing tool, demonstrating the software's capabilities and building trust. Simultaneously, a premium tier unlocks enhanced features and removes limitations, catering to users who require greater speed, capacity, or advanced functionalities. The success of this model hinges on carefully balancing the features and limitations of the free tier to provide genuine value while clearly highlighting the benefits of upgrading to premium. This involves strategically implementing constraints, such as rate limits or processing delays, that incentivize users to upgrade as their usage increases and their need for efficiency grows. The freemium model aligns with IdiamPro's goal of becoming an indispensable tool for a wide range of users, from individual researchers to large enterprise teams.</p><p></p><div code=\"graph LR\n    A[Potential Users] --&gt; B{Freemium Tier};\n    B -- Value &amp; Limited Features --&gt; C[IdiamPro Users];\n    C -- Increased Usage &amp; Needs --&gt; D{Consider Premium};\n    D -- Value Justification --&gt; E[Premium Tier Subscribers];\n    D -- No Justification --&gt; C;\n    E --&gt; F[Increased Revenue];\n    F --&gt; A;\n    style B fill:#f9f,stroke:#333,stroke-width:2px\n    style E fill:#f9f,stroke:#333,stroke-width:2px\" data-mermaid-block=\"\" data-mermaid-code=\"graph LR\n    A[Potential Users] --&gt; B{Freemium Tier};\n    B -- Value &amp; Limited Features --&gt; C[IdiamPro Users];\n    C -- Increased Usage &amp; Needs --&gt; D{Consider Premium};\n    D -- Value Justification --&gt; E[Premium Tier Subscribers];\n    D -- No Justification --&gt; C;\n    E --&gt; F[Increased Revenue];\n    F --&gt; A;\n    style B fill:#f9f,stroke:#333,stroke-width:2px\n    style E fill:#f9f,stroke:#333,stroke-width:2px\"></div><p></p>",
+      "type": "document",
+      "parentId": "profitability-model",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "9.6"
+    }
+  },
+  "isGuide": false,
+  "lastModified": 1769746663484,
+  "_fileName": "IdiamPro - Bootstrap Plan.idm",
+  "_isLazyLoaded": false,
+  "_fileSize": 77928
+}

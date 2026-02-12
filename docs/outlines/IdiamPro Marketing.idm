@@ -1,0 +1,856 @@
+{
+  "id": "86963080-d1ea-4d9f-9687-593c578b9a85",
+  "name": "IdiamPro Marketing",
+  "rootNodeId": "root",
+  "lastModified": 1769746721979,
+  "nodes": {
+    "root": {
+      "id": "root",
+      "name": "IdiamPro Marketing",
+      "content": "<h2>IdiamPro - AI-Native Outlining Platform</h2><p>This outline contains all marketing materials, product specifications, workflows, and action items for the IdiamPro marketing effort.</p><p><strong>Tagline:</strong> <em>\"Think in outlines. Create with AI.\"</em></p>",
+      "type": "root",
+      "parentId": null,
+      "childrenIds": [
+        "overview",
+        "platforms",
+        "requirements",
+        "features",
+        "workflows",
+        "enhancements",
+        "subscriptions",
+        "video-support",
+        "roadmap",
+        "action-items"
+      ],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "overview": {
+      "id": "overview",
+      "name": "Product Overview",
+      "content": "<h2>What is IdiamPro?</h2><p>IdiamPro is an <strong>AI-native outlining platform</strong> that transforms how professionals organize ideas, conduct research, and create content.</p><h3>Core Value Proposition</h3><ul><li><p><strong>Hierarchical Thinking:</strong> Structure any project as a navigable outline with unlimited depth</p></li><li><p><strong>AI at Every Node:</strong> Generate contextually-aware content that understands your full document structure</p></li><li><p><strong>Research Synthesis:</strong> Import and synthesize content from PDFs, YouTube, web pages, audio, and more</p></li><li><p><strong>Scale Without Limits:</strong> Handle massive documents (66,000+ nodes) with smooth performance</p></li><li><p><strong>Cross-Platform:</strong> Work seamlessly across Mac, iOS, and web</p></li></ul><h3>Who Is It For?</h3><ul><li><p>Writers and authors</p></li><li><p>Researchers and academics</p></li><li><p>Business professionals</p></li><li><p>Knowledge workers</p></li><li><p>Content creators</p></li><li><p>Consultants and strategists</p></li></ul><p></p>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": [
+        "overview-differentiators",
+        "overview-testimonials"
+      ],
+      "isCollapsed": true,
+      "prefix": "1"
+    },
+    "overview-differentiators": {
+      "id": "overview-differentiators",
+      "name": "Key Differentiators",
+      "content": "<h3>Why IdiamPro vs. Other Tools?</h3><h4>Compared to Traditional Outliners</h4><ul><li><p><strong>Unlimited depth:</strong> Most outliners limit how many levels deep you can go. IdiamPro has no limits — nest as deep as you need.</p></li><li><p><strong>Built-in AI:</strong> Traditional outliners have no AI. IdiamPro generates content that understands your entire document.</p></li><li><p><strong>Import anything:</strong> Other outliners require manual copy-paste. IdiamPro pulls in PDFs, YouTube videos, audio, and web pages automatically.</p></li><li><p><strong>Handles massive documents:</strong> Other tools slow down at a few thousand items. IdiamPro handles 66,000+ without breaking a sweat.</p></li></ul><h4>Compared to AI Writing Tools</h4><ul><li><p><strong>Structure-aware:</strong> AI writing tools treat your document as one flat block of text. IdiamPro's AI understands your outline hierarchy and writes content that fits.</p></li><li><p><strong>No length limits:</strong> AI writing tools hit token limits on long documents. IdiamPro works with documents of any size.</p></li><li><p><strong>Private AI option:</strong> AI writing tools send everything to the cloud. IdiamPro can run AI entirely on your own computer — your data never leaves your machine.</p></li></ul><p></p>",
+      "type": "document",
+      "parentId": "overview",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "1.1"
+    },
+    "overview-testimonials": {
+      "id": "overview-testimonials",
+      "name": "Testimonials (To Collect)",
+      "content": "<p><em>Placeholder for customer testimonials. Collect quotes from beta users focusing on:</em></p><ul><li><p>Time saved on research synthesis</p></li><li><p>Quality of AI-generated content</p></li><li><p>Ability to handle large documents</p></li><li><p>Cross-platform workflow</p></li></ul><p></p>",
+      "type": "document",
+      "parentId": "overview",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "1.2"
+    },
+    "platforms": {
+      "id": "platforms",
+      "name": "Platform Support",
+      "content": "<h2>Available Platforms</h2><p>IdiamPro runs natively on multiple platforms with feature parity where possible.</p>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": [
+        "platforms-current",
+        "platforms-future",
+        "platforms-comparison"
+      ],
+      "isCollapsed": true,
+      "prefix": "2"
+    },
+    "platforms-current": {
+      "id": "platforms-current",
+      "name": "Currently Available",
+      "content": "<h3>macOS (Desktop App)</h3><ul><li><p><strong>Technology:</strong> Electron app, distributed as a .dmg installer</p></li><li><p><strong>Architecture:</strong> Universal binary — works on both Apple Silicon and Intel Macs</p></li><li><p><strong>Features:</strong> Full feature set including Ollama integration (private AI) and native file system access</p></li><li><p><strong>Minimum OS:</strong> macOS 11 (Big Sur) or later</p></li></ul><h3>iOS / iPadOS (Mobile)</h3><ul><li><p><strong>Technology:</strong> Native app built with Capacitor, distributed via the App Store</p></li><li><p><strong>Features:</strong> Full feature set with touch-optimized gestures and native share sheet</p></li><li><p><strong>Minimum OS:</strong> iOS 15 or later</p></li></ul><h3>Web Browser</h3><ul><li><p><strong>Supported:</strong> Chrome, Edge, Safari, and Firefox</p></li><li><p>No installation needed — just open in your browser</p></li><li><p>Chrome and Edge provide the best experience thanks to the File System Access API, which lets you save files directly to your computer</p></li></ul><p></p>",
+      "type": "document",
+      "parentId": "platforms",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "2.1"
+    },
+    "platforms-future": {
+      "id": "platforms-future",
+      "name": "Future Platforms (Roadmap)",
+      "content": "<h3>Coming Soon</h3><ul><li><p><strong>Windows:</strong> Electron app with NSIS installer + portable version</p></li><li><p><strong>Linux:</strong> Available as AppImage and DEB packages</p></li><li><p><strong>Android:</strong> Built with Capacitor, distributed via Google Play Store</p></li></ul><h3>Under Consideration</h3><ul><li><p><strong>Chrome Extension:</strong> Quick capture — grab ideas from any web page</p></li><li><p><strong>VS Code Extension:</strong> Integration for software developers</p></li><li><p><strong>Obsidian Plugin:</strong> Connect with the popular knowledge management app</p></li></ul><p></p>",
+      "type": "document",
+      "parentId": "platforms",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "2.2"
+    },
+    "platforms-comparison": {
+      "id": "platforms-comparison",
+      "name": "Platform Feature Comparison",
+      "content": "<h3>What Works Where</h3><p><strong>Available everywhere</strong> (Mac, iPhone/iPad, Web, and coming to Windows and Linux):</p><ul><li><p>All outlining features</p></li><li><p>AI content generation</p></li><li><p>PDF, YouTube, and web page import</p></li><li><p>Audio transcription</p></li><li><p>Keyboard shortcuts (partial on iPhone/iPad)</p></li></ul><p><strong>Desktop only</strong> (Mac, and coming to Windows and Linux):</p><ul><li><p>Private AI (runs AI on your own computer, no internet needed)</p></li><li><p>Full file system access (save anywhere on your computer)</p></li></ul><p><strong>iPhone and iPad only:</strong></p><ul><li><p>Touch gestures (swipe to indent/outdent, drag to reorganize)</p></li></ul><p><em>Windows and Linux versions coming soon</em></p>",
+      "type": "document",
+      "parentId": "platforms",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "2.3"
+    },
+    "requirements": {
+      "id": "requirements",
+      "name": "System Requirements",
+      "content": "<h2>Technical Requirements</h2><p>Minimum and recommended specifications for running IdiamPro.</p>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": [
+        "req-macos",
+        "req-ios",
+        "req-web",
+        "req-optional"
+      ],
+      "isCollapsed": true,
+      "prefix": "3"
+    },
+    "req-macos": {
+      "id": "req-macos",
+      "name": "macOS Requirements",
+      "content": "<h3>Minimum Requirements</h3><ul><li><p><strong>OS:</strong> macOS 11.0 (Big Sur) or later</p></li><li><p><strong>Processor:</strong> Intel Core i5 or Apple M1</p></li><li><p><strong>RAM:</strong> 4 GB</p></li><li><p><strong>Storage:</strong> 500 MB for application</p></li><li><p><strong>Internet:</strong> Required for AI features (unless using private AI)</p></li></ul><h3>Recommended</h3><ul><li><p><strong>OS:</strong> macOS 13.0 (Ventura) or later</p></li><li><p><strong>Processor:</strong> Apple M1 or later</p></li><li><p><strong>RAM:</strong> 8 GB+ (16 GB for large outlines)</p></li><li><p><strong>Storage:</strong> SSD with 2 GB+ free space</p></li></ul><p></p>",
+      "type": "document",
+      "parentId": "requirements",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "3.1"
+    },
+    "req-ios": {
+      "id": "req-ios",
+      "name": "iOS Requirements",
+      "content": "<h3>Minimum Requirements</h3><ul><li><p><strong>OS:</strong> iOS 15.0 or later</p></li><li><p><strong>Device:</strong> iPhone 8 or later, iPad (6th gen) or later</p></li><li><p><strong>Storage:</strong> 200 MB for application</p></li><li><p><strong>Internet:</strong> Required for AI features</p></li></ul><h3>Recommended</h3><ul><li><p><strong>OS:</strong> iOS 17.0 or later</p></li><li><p><strong>Device:</strong> iPhone 12 or later, iPad Pro</p></li><li><p><strong>Storage:</strong> 1 GB+ free for outline storage</p></li></ul><p></p>",
+      "type": "document",
+      "parentId": "requirements",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "3.2"
+    },
+    "req-web": {
+      "id": "req-web",
+      "name": "Web Browser Requirements",
+      "content": "<h3>Supported Browsers</h3><ul><li><p><strong>Chrome:</strong> Version 100 or later (recommended)</p></li><li><p><strong>Edge:</strong> Version 100 or later</p></li><li><p><strong>Safari:</strong> Version 15 or later</p></li><li><p><strong>Firefox:</strong> Version 100 or later</p></li></ul><h3>Notes</h3><ul><li><p>Chrome and Edge offer the best experience — they let you save files directly to your computer</p></li><li><p>Your browser must allow cookies and local storage so your work is saved</p></li></ul><p></p>",
+      "type": "document",
+      "parentId": "requirements",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "3.3"
+    },
+    "req-optional": {
+      "id": "req-optional",
+      "name": "Optional Components",
+      "content": "<h3>Ollama — Private, Offline AI (Optional)</h3><p>Ollama lets you run AI entirely on your own computer — nothing is sent to the cloud. Install it and IdiamPro connects automatically.</p><ul><li><p><strong>Download:</strong> <a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://ollama.ai\">ollama.ai</a></p></li><li><p><strong>RAM:</strong> 8 GB minimum (16 GB recommended)</p></li><li><p><strong>Storage:</strong> 4–8 GB per model</p></li><li><p><strong>Recommended models:</strong></p><ul><li><p><code>llama3.2</code> — Best balance of speed and quality (default)</p></li><li><p><code>phi3</code> — Fastest responses, lighter weight</p></li><li><p><code>llama3.1</code> — Highest quality output</p></li><li><p><code>codellama</code> — Optimized for code-related tasks</p></li></ul></li></ul><h3>AssemblyAI — Audio Transcription (Optional)</h3><p>Converts audio and video recordings to text, with speaker diarization (identifies who said what).</p><ul><li><p>Sign up at <a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://www.assemblyai.com\">assemblyai.com</a> and add your API key to IdiamPro's settings</p></li><li><p>Free tier: 100 hours/month for testing</p></li></ul><p></p>",
+      "type": "document",
+      "parentId": "requirements",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "3.4"
+    },
+    "features": {
+      "id": "features",
+      "name": "Features & Capabilities",
+      "content": "<h2>Complete Feature Set</h2><p>IdiamPro combines powerful outlining with AI-native capabilities.</p>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": [
+        "feat-outlining",
+        "feat-ai",
+        "feat-import",
+        "feat-export",
+        "feat-organization",
+        "feat-templates"
+      ],
+      "isCollapsed": true,
+      "prefix": "4"
+    },
+    "feat-outlining": {
+      "id": "feat-outlining",
+      "name": "Core Outlining",
+      "content": "<h3>Organize Anything as an Outline</h3><ul><li><p>Nest items as deep as you want — no limits</p></li><li><p>Drag and drop to rearrange</p></li><li><p>Use keyboard shortcuts or swipe gestures (on iPhone/iPad) to indent and move items</p></li><li><p>Collapse sections to focus on what you're working on</p></li><li><p>Focus mode lets you zoom into any branch and work on it like its own document</p></li></ul><h3>20 Types of Items</h3><p>Every item in your outline can be a specific type:</p><ul><li><p><strong>Writing:</strong> Chapters, documents, notes, quotes</p></li><li><p><strong>Tasks:</strong> To-do items with checkboxes and due dates</p></li><li><p><strong>Media:</strong> Images, videos, audio recordings, PDFs, YouTube links</p></li><li><p><strong>Data:</strong> Spreadsheets, databases, code snippets</p></li><li><p><strong>External:</strong> Web links, apps, maps</p></li><li><p><strong>Creative:</strong> Canvas (Excalidraw — a freehand drawing tool)</p></li></ul><h3>Rich Text Editor</h3><ul><li><p>Full Markdown support with rich formatting</p></li><li><p>Embed images and YouTube videos directly in your content</p></li><li><p>Mermaid diagrams — auto-generated flowcharts, mind maps, and timelines from simple text</p></li><li><p>Code blocks with syntax highlighting</p></li></ul><p></p>",
+      "type": "document",
+      "parentId": "features",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "4.1"
+    },
+    "feat-ai": {
+      "id": "feat-ai",
+      "name": "AI Capabilities",
+      "content": "<h3>AI Content Generation</h3><ul><li><p><strong>Generate an entire outline:</strong> Type a topic and get a fully structured, multi-level outline in seconds</p></li><li><p><strong>Write content for any section:</strong> Click on any item and have AI write detailed content that understands your entire document's context</p></li><li><p><strong>Bulk generation:</strong> Generate content for all items in a section at once</p></li></ul><h3>Research Synthesis</h3><ul><li><p><strong>Pull in content from many sources at once:</strong> Combine information from multiple sources into one organized outline</p></li><li><p><strong>Works with:</strong></p><ul><li><p>YouTube videos (automatically extracts the transcript)</p></li><li><p>PDF documents</p></li><li><p>Web pages</p></li><li><p>Audio and video files (converts speech to text)</p></li><li><p>Images (OCR — reads text from photos and screenshots)</p></li><li><p>Google Docs, Sheets, and Slides</p></li><li><p>Other IdiamPro outlines</p></li></ul></li><li><p><strong>AI organizes it for you:</strong> Imported content is automatically sorted and structured</p></li></ul><h3>Private AI</h3><ul><li><p>Run AI entirely on your own computer — your data never leaves your machine</p></li><li><p>Works without an internet connection</p></li><li><p>Automatic fallback — when cloud AI is rate-limited, Ollama takes over automatically</p></li></ul><h3>Audio Recording and Transcription</h3><ul><li><p>Record conversations and meetings directly in the app</p></li><li><p>Speaker diarization — automatically identifies who said what</p></li><li><p>Converts speech to text with timestamps you can navigate</p></li></ul><p></p>",
+      "type": "document",
+      "parentId": "features",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "4.2"
+    },
+    "feat-import": {
+      "id": "feat-import",
+      "name": "Import Capabilities",
+      "content": "<h3>What You Can Import</h3><ul><li><p><strong>PDFs:</strong> Pull in text and preserve the document's structure</p></li><li><p><strong>YouTube videos:</strong> Automatically grab the transcript</p></li><li><p><strong>Audio and video files:</strong> Convert speech to text</p></li><li><p><strong>Web pages:</strong> Extract the text from any URL</p></li><li><p><strong>Images:</strong> Read text from photos, screenshots, and scanned documents</p></li><li><p><strong>Google Docs, Sheets, Slides:</strong> Import directly from Google</p></li><li><p><strong>Plain text:</strong> Paste or upload text files</p></li><li><p><strong>Other outlines:</strong> Import outlines you've previously created</p></li></ul><h3>How Importing Works</h3><ul><li><p>Create a brand new outline from imported content</p></li><li><p>Add imported content as a new section in an existing outline</p></li><li><p>Import from many sources at once and let AI organize everything for you</p></li></ul><p></p>",
+      "type": "document",
+      "parentId": "features",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "4.3"
+    },
+    "feat-export": {
+      "id": "feat-export",
+      "name": "Export Capabilities",
+      "content": "<h3>What You Can Export</h3><ul><li><p><strong>PDF:</strong> Create professional documents that preserve your outline's structure</p></li><li><p><strong>Outline files:</strong> Save your outlines as files you can share or back up</p></li><li><p><strong>Bulk backup:</strong> Export all your outlines at once for safekeeping</p></li></ul><h3>Export Options</h3><ul><li><p>Export your entire outline or just a specific section</p></li><li><p>Choose whether to include or skip collapsed sections</p></li><li><p>Diagrams are included in PDF exports</p></li></ul><p></p>",
+      "type": "document",
+      "parentId": "features",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "4.4"
+    },
+    "feat-organization": {
+      "id": "feat-organization",
+      "name": "Organization Features",
+      "content": "<h3>Visual Organization</h3><ul><li><p><strong>Color Coding:</strong> 8 colors for visual categorization</p></li><li><p><strong>Tags:</strong> Tag items for cross-outline organization</p></li><li><p><strong>Pinning:</strong> Pin important items to the top</p></li></ul><h3>Navigation</h3><ul><li><p><strong>Search:</strong> Find anything across the current outline or all your outlines</p></li><li><p><strong>Command Palette:</strong> Quick access to every action from the keyboard</p></li><li><p><strong>Keyboard Shortcuts:</strong> Full keyboard navigation for power users</p></li><li><p><strong>Breadcrumbs:</strong> Always see where you are in the outline hierarchy</p></li></ul><h3>Multi-Select</h3><ul><li><p>Select multiple items at once</p></li><li><p>Bulk operations: delete, color, tag</p></li><li><p>Copy, cut, and paste entire sections</p></li></ul><p></p>",
+      "type": "document",
+      "parentId": "features",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "4.5"
+    },
+    "feat-templates": {
+      "id": "feat-templates",
+      "name": "Built-in Templates",
+      "content": "<h3>14 Professional Templates</h3><ol><li><p><strong>Meeting Notes</strong> — Agenda, attendees, action items</p></li><li><p><strong>Project Plan</strong> — Goals, milestones, tasks, risks</p></li><li><p><strong>Book Outline</strong> — Chapters, scenes, characters</p></li><li><p><strong>Research Paper</strong> — Abstract, methodology, findings</p></li><li><p><strong>Weekly Review</strong> — Accomplishments, learnings, priorities</p></li><li><p><strong>Course Notes</strong> — Modules, key concepts, questions</p></li><li><p><strong>Daily Journal</strong> — Gratitude, goals, reflections</p></li><li><p><strong>Product Roadmap</strong> — Vision, themes, features</p></li><li><p><strong>Blog Post</strong> — Hook, body, call to action</p></li><li><p><strong>Job Interview Prep</strong> — Research, questions, follow-up</p></li><li><p><strong>Recipe</strong> — Ingredients, steps, notes</p></li><li><p><strong>Travel Itinerary</strong> — Destinations, activities, logistics</p></li><li><p><strong>1-on-1 Meeting</strong> — Updates, feedback, goals</p></li><li><p><strong>Decision Document</strong> — Context, options, recommendation</p></li></ol><p></p>",
+      "type": "document",
+      "parentId": "features",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "4.6"
+    },
+    "workflows": {
+      "id": "workflows",
+      "name": "Workflows & Use Cases",
+      "content": "<h2>28 Professional Workflows</h2><p>IdiamPro supports a wide range of professional workflows. Each section describes the workflow and how to accomplish it using IdiamPro.</p>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": [
+        "wf-content",
+        "wf-research",
+        "wf-business",
+        "wf-knowledge",
+        "wf-creative",
+        "wf-professional"
+      ],
+      "isCollapsed": true,
+      "prefix": "5"
+    },
+    "wf-content": {
+      "id": "wf-content",
+      "name": "Content Creation & Writing",
+      "content": "<p>Workflows for writers, authors, and content creators.</p>",
+      "type": "document",
+      "parentId": "workflows",
+      "childrenIds": [
+        "wf-1",
+        "wf-2",
+        "wf-3",
+        "wf-4",
+        "wf-5"
+      ],
+      "isCollapsed": true,
+      "prefix": "5.1"
+    },
+    "wf-1": {
+      "id": "wf-1",
+      "name": "Book Writing",
+      "content": "<h3>Workflow: Writing a Book</h3><p><strong>Process:</strong></p><ol><li><p>Create a root node for your book title</p></li><li><p>Add chapter nodes as children</p></li><li><p>For each chapter, add scene or section nodes</p></li><li><p>Select any node and use AI to generate draft content based on the outline context</p></li><li><p>Import research PDFs that automatically structure into your outline</p></li><li><p>Navigate and reorganize 66K+ nodes smoothly as your manuscript grows</p></li></ol><p><strong>Example:</strong> A non-fiction author imports 20 research PDFs, creates a chapter structure, then uses AI to draft each section while maintaining consistency with the full book's context.</p>",
+      "type": "note",
+      "parentId": "wf-content",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.1.1"
+    },
+    "wf-2": {
+      "id": "wf-2",
+      "name": "Blog Post Planning",
+      "content": "<h3>Workflow: Planning Blog Posts</h3><p><strong>Process:</strong></p><ol><li><p>Start with your article topic as root</p></li><li><p>Add nodes for introduction, main points, and conclusion</p></li><li><p>Use the Research feature to gather information from multiple web sources</p></li><li><p>IdiamPro synthesizes research into structured notes</p></li><li><p>Select each section and generate draft content that incorporates your research</p></li></ol><p><strong>Example:</strong> A content marketer researches \"AI trends 2024\" from 5 web sources, synthesizes into an outline, then generates a 2,000-word article with proper structure and citations.</p>",
+      "type": "note",
+      "parentId": "wf-content",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.1.2"
+    },
+    "wf-3": {
+      "id": "wf-3",
+      "name": "Screenwriting",
+      "content": "<h3>Workflow: Writing Screenplays</h3><p><strong>Process:</strong></p><ol><li><p>Structure your screenplay with Act nodes containing Sequence nodes containing Scene nodes</p></li><li><p>Add character and location nodes as reference branches</p></li><li><p>Use AI to expand scene beats into dialogue drafts</p></li><li><p>Collapse completed acts to focus on current work while maintaining the full structure</p></li></ol><p><strong>Example:</strong> A screenwriter outlines a feature film with 3 acts, 8 sequences, and 40 scenes. They generate dialogue for each scene while the AI maintains character voice consistency.</p>",
+      "type": "note",
+      "parentId": "wf-content",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.1.3"
+    },
+    "wf-4": {
+      "id": "wf-4",
+      "name": "Technical Documentation",
+      "content": "<h3>Workflow: Creating Technical Docs</h3><p><strong>Process:</strong></p><ol><li><p>Import existing docs or start fresh with product/feature hierarchy</p></li><li><p>Add nodes for each API endpoint, function, or feature</p></li><li><p>Generate descriptions, examples, and usage notes using AI</p></li><li><p>Export structured content for your documentation platform</p></li></ol><p><strong>Example:</strong> A developer documents a REST API with 50 endpoints. Each endpoint node contains description, parameters, examples, and error codes—all generated with contextual awareness.</p>",
+      "type": "note",
+      "parentId": "wf-content",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.1.4"
+    },
+    "wf-5": {
+      "id": "wf-5",
+      "name": "Course Development",
+      "content": "<h3>Workflow: Building Online Courses</h3><p><strong>Process:</strong></p><ol><li><p>Create a module hierarchy: Course → Modules → Lessons → Topics</p></li><li><p>For each topic node, generate learning objectives, key concepts, and assessment questions</p></li><li><p>Import reference materials as PDFs that structure automatically</p></li><li><p>Build instructor notes alongside student-facing content</p></li></ol><p><strong>Example:</strong> An educator builds a 12-week course with 36 lessons. Each lesson has AI-generated learning objectives, content summaries, and quiz questions.</p>",
+      "type": "note",
+      "parentId": "wf-content",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.1.5"
+    },
+    "wf-research": {
+      "id": "wf-research",
+      "name": "Research & Analysis",
+      "content": "<p>Workflows for researchers, analysts, and academics.</p>",
+      "type": "document",
+      "parentId": "workflows",
+      "childrenIds": [
+        "wf-6",
+        "wf-7",
+        "wf-8",
+        "wf-9",
+        "wf-10"
+      ],
+      "isCollapsed": true,
+      "prefix": "5.2"
+    },
+    "wf-6": {
+      "id": "wf-6",
+      "name": "Literature Review",
+      "content": "<h3>Workflow: Conducting Literature Reviews</h3><p><strong>Process:</strong></p><ol><li><p>Import academic PDFs—each structures into a node tree by sections</p></li><li><p>Create a synthesis outline alongside with themes as top-level nodes</p></li><li><p>Drag relevant excerpts from source outlines into your synthesis</p></li><li><p>Use AI to generate summary paragraphs that cite across sources</p></li></ol><p><strong>Example:</strong> A PhD student imports 50 papers, organizes by theme, then generates a literature review that synthesizes findings across all sources with proper attribution.</p>",
+      "type": "note",
+      "parentId": "wf-research",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.2.1"
+    },
+    "wf-7": {
+      "id": "wf-7",
+      "name": "Competitive Analysis",
+      "content": "<h3>Workflow: Analyzing Competitors</h3><p><strong>Process:</strong></p><ol><li>Create competitor nodes at the top level</li><li>Add consistent child nodes across each: Pricing, Features, Strengths, Weaknesses</li><li>Use Research feature to gather current information on each</li><li>Generate comparison summaries that pull from the structured data</li></ol><p><strong>Example:</strong> A product manager analyzes 8 competitors, imports their pricing pages and feature lists, then generates an executive summary with competitive positioning recommendations.</p>",
+      "type": "note",
+      "parentId": "wf-research",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.2.2"
+    },
+    "wf-8": {
+      "id": "wf-8",
+      "name": "Legal Research",
+      "content": "<h3>Workflow: Legal Case Research</h3><p><strong>Process:</strong></p><ol><li>Structure by case or by legal issue</li><li>Import case PDFs that auto-structure by sections</li><li>Create argument branches with supporting evidence as child nodes</li><li>Generate case summaries and identify relevant precedents across your research</li></ol><p><strong>Example:</strong> A paralegal researches 30 cases for a brief, organizes by legal issue, then generates a memo summarizing relevant holdings and their applicability.</p>",
+      "type": "note",
+      "parentId": "wf-research",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.2.3"
+    },
+    "wf-9": {
+      "id": "wf-9",
+      "name": "Academic Research",
+      "content": "<h3>Workflow: Writing Research Papers</h3><p><strong>Process:</strong></p><ol><li>Build your thesis structure: Introduction, Literature Review, Methodology, Findings, Discussion</li><li>Import source PDFs into a References branch</li><li>Link and annotate sources to relevant sections</li><li>Generate draft paragraphs that synthesize your structured research</li></ol><p><strong>Example:</strong> A graduate student structures their thesis, imports 100+ sources, and generates draft sections that properly reference and synthesize the literature.</p>",
+      "type": "note",
+      "parentId": "wf-research",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.2.4"
+    },
+    "wf-10": {
+      "id": "wf-10",
+      "name": "Market Research",
+      "content": "<h3>Workflow: Conducting Market Research</h3><p><strong>Process:</strong></p><ol><li>Organize by market segment, customer type, or research question</li><li>Import survey results, interview transcripts, and reports</li><li>Use AI to identify themes and generate insights</li><li>Structure findings into a presentation-ready hierarchy</li></ol><p><strong>Example:</strong> A market researcher imports 20 customer interviews (audio transcribed), identifies 5 key themes, and generates an insights report with supporting quotes.</p>",
+      "type": "note",
+      "parentId": "wf-research",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.2.5"
+    },
+    "wf-business": {
+      "id": "wf-business",
+      "name": "Business & Strategy",
+      "content": "<p>Workflows for executives, managers, and business professionals.</p>",
+      "type": "document",
+      "parentId": "workflows",
+      "childrenIds": [
+        "wf-11",
+        "wf-12",
+        "wf-13",
+        "wf-14",
+        "wf-15"
+      ],
+      "isCollapsed": true,
+      "prefix": "5.3"
+    },
+    "wf-11": {
+      "id": "wf-11",
+      "name": "Business Planning",
+      "content": "<h3>Workflow: Creating Business Plans</h3><p><strong>Process:</strong></p><ol><li>Start with Vision and Mission nodes</li><li>Add Goals as children, Strategies under each goal, Tactics under each strategy</li><li>Generate detailed action plans for each tactic</li><li>Collapse completed sections to focus on current priorities</li></ol><p><strong>Example:</strong> A startup founder creates a business plan with 5 strategic goals, 15 strategies, and 45 tactical initiatives—each with AI-generated implementation details.</p>",
+      "type": "note",
+      "parentId": "wf-business",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.3.1"
+    },
+    "wf-12": {
+      "id": "wf-12",
+      "name": "Product Roadmapping",
+      "content": "<h3>Workflow: Building Product Roadmaps</h3><p><strong>Process:</strong></p><ol><li>Create timeline nodes (Q1, Q2, etc.) or theme nodes (Performance, UX, etc.)</li><li>Add feature nodes with child nodes for requirements, dependencies, and acceptance criteria</li><li>Generate user stories and technical specs from outline context</li></ol><p><strong>Example:</strong> A product manager builds a 4-quarter roadmap with 20 features, each containing AI-generated user stories, acceptance criteria, and technical considerations.</p>",
+      "type": "note",
+      "parentId": "wf-business",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.3.2"
+    },
+    "wf-13": {
+      "id": "wf-13",
+      "name": "Meeting Preparation",
+      "content": "<h3>Workflow: Preparing for Meetings</h3><p><strong>Process:</strong></p><ol><li>Create an agenda with topic nodes</li><li>Add talking points, questions, and decision items as children</li><li>Use AI to generate background briefings for each topic</li><li>After the meeting, add outcome nodes and action items</li></ol><p><strong>Example:</strong> An executive prepares for a board meeting with 8 agenda items. Each item has AI-generated context, key metrics, and recommended talking points.</p>",
+      "type": "note",
+      "parentId": "wf-business",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.3.3"
+    },
+    "wf-14": {
+      "id": "wf-14",
+      "name": "Project Planning",
+      "content": "<h3>Workflow: Planning Projects</h3><p><strong>Process:</strong></p><ol><li>Build a Work Breakdown Structure: Project → Phases → Deliverables → Tasks</li><li>Add dependency and resource nodes</li><li>Generate task descriptions and acceptance criteria</li><li>Track progress by collapsing completed branches</li></ol><p><strong>Example:</strong> A project manager creates a breakdown for a software launch with 4 phases, 12 deliverables, and 60 tasks—each with clear descriptions and success criteria.</p>",
+      "type": "note",
+      "parentId": "wf-business",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.3.4"
+    },
+    "wf-15": {
+      "id": "wf-15",
+      "name": "Strategic Planning",
+      "content": "<h3>Workflow: Developing Strategy</h3><p><strong>Process:</strong></p><ol><li>Structure as: Vision → Strategic Themes → Objectives → Key Results → Initiatives</li><li>Use Research feature to gather market intelligence</li><li>Generate detailed initiative plans</li><li>Review and refine using the hierarchical view</li></ol><p><strong>Example:</strong> A CEO develops a 3-year strategy with 4 themes, 12 objectives, 36 key results, and 100 initiatives—all interconnected and AI-enhanced.</p>",
+      "type": "note",
+      "parentId": "wf-business",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.3.5"
+    },
+    "wf-knowledge": {
+      "id": "wf-knowledge",
+      "name": "Knowledge Management",
+      "content": "<p>Workflows for personal and organizational knowledge management.</p>",
+      "type": "document",
+      "parentId": "workflows",
+      "childrenIds": [
+        "wf-16",
+        "wf-17",
+        "wf-18",
+        "wf-19",
+        "wf-20"
+      ],
+      "isCollapsed": true,
+      "prefix": "5.4"
+    },
+    "wf-16": {
+      "id": "wf-16",
+      "name": "Personal Knowledge Base",
+      "content": "<h3>Workflow: Building a Personal Knowledge Base</h3><p><strong>Process:</strong></p><ol><li><p>Create topic areas as top-level nodes (Technology, Health, Finance, etc.)</p></li><li><p>Add sub-topics and specific learnings as you encounter them</p></li><li><p>Import articles and books as PDFs</p></li><li><p>Generate summaries and connections between topics</p></li></ol><p><strong>Example:</strong> A lifelong learner maintains a knowledge base across 20 domains, importing articles weekly and generating synthesis notes that connect ideas across fields.</p>",
+      "type": "note",
+      "parentId": "wf-knowledge",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.4.1"
+    },
+    "wf-17": {
+      "id": "wf-17",
+      "name": "Company Wiki",
+      "content": "<h3>Workflow: Building a Company Wiki</h3><p><strong>Process:</strong></p><ol><li><p>Structure by department or function</p></li><li><p>Add policies, procedures, and reference materials</p></li><li><p>Use AI to generate onboarding guides from existing content</p></li><li><p>Keep institutional knowledge organized and searchable</p></li></ol><p><strong>Example:</strong> An operations manager builds a wiki with 50 processes across 8 departments, generating onboarding materials and FAQs from the structured content.</p>",
+      "type": "note",
+      "parentId": "wf-knowledge",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.4.2"
+    },
+    "wf-18": {
+      "id": "wf-18",
+      "name": "Study Notes",
+      "content": "<h3>Workflow: Organizing Study Notes</h3><p><strong>Process:</strong></p><ol><li>Create course or subject outlines</li><li>Import textbook chapters and lecture slides as PDFs</li><li>Add your own notes alongside structured source material</li><li>Generate study guides and practice questions from your notes</li></ol><p><strong>Example:</strong> A medical student organizes notes for 8 courses, imports lecture PDFs, and generates flashcard-style review questions for each topic.</p>",
+      "type": "note",
+      "parentId": "wf-knowledge",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.4.3"
+    },
+    "wf-19": {
+      "id": "wf-19",
+      "name": "Recipe Collections",
+      "content": "<h3>Workflow: Organizing Recipes</h3><p><strong>Process:</strong></p><ol><li>Organize by cuisine, course, or main ingredient</li><li>Add recipes with child nodes for ingredients, instructions, and variations</li><li>Import cookbook PDFs that structure automatically</li><li>Generate shopping lists and meal plans</li></ol><p><strong>Example:</strong> A home cook organizes 200 recipes by cuisine, imports grandma's cookbook PDF, and generates weekly meal plans with consolidated shopping lists.</p>",
+      "type": "note",
+      "parentId": "wf-knowledge",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.4.4"
+    },
+    "wf-20": {
+      "id": "wf-20",
+      "name": "Travel Planning",
+      "content": "<h3>Workflow: Planning Travel</h3><p><strong>Process:</strong></p><ol><li>Create destination nodes with children for Accommodations, Activities, Restaurants, Transportation</li><li>Use Research feature to gather options</li><li>Generate day-by-day itineraries</li><li>Keep confirmation numbers and notes organized</li></ol><p><strong>Example:</strong> A traveler plans a 2-week Japan trip with 5 cities, researching options from travel blogs and generating optimized daily itineraries.</p>",
+      "type": "note",
+      "parentId": "wf-knowledge",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.4.5"
+    },
+    "wf-creative": {
+      "id": "wf-creative",
+      "name": "Creative & Design",
+      "content": "<p>Workflows for designers, game developers, and creative professionals.</p>",
+      "type": "document",
+      "parentId": "workflows",
+      "childrenIds": [
+        "wf-21",
+        "wf-22",
+        "wf-23",
+        "wf-24"
+      ],
+      "isCollapsed": true,
+      "prefix": "5.5"
+    },
+    "wf-21": {
+      "id": "wf-21",
+      "name": "Game Design Documents",
+      "content": "<h3>Workflow: Creating Game Design Documents</h3><p><strong>Process:</strong></p><ol><li>Structure as: Concept → Mechanics → Story → Levels → Characters → Art Style</li><li>Add detailed specifications under each</li><li>Generate backstories, level descriptions, and dialogue</li><li>Keep the full vision organized as the project scales</li></ol><p><strong>Example:</strong> An indie developer documents an RPG with 100 characters, 50 quests, and 20 locations—all with AI-generated descriptions maintaining world consistency.</p>",
+      "type": "note",
+      "parentId": "wf-creative",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.5.1"
+    },
+    "wf-22": {
+      "id": "wf-22",
+      "name": "UX Research Synthesis",
+      "content": "<h3>Workflow: Synthesizing UX Research</h3><p><strong>Process:</strong></p><ol><li>Import interview transcripts and usability test notes</li><li>Create theme nodes for patterns you observe</li><li>Drag relevant quotes into theme branches</li><li>Generate insight summaries and design recommendations</li></ol><p><strong>Example:</strong> A UX researcher imports 30 user interviews, identifies 8 pain point themes, and generates a research report with actionable design recommendations.</p>",
+      "type": "note",
+      "parentId": "wf-creative",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.5.2"
+    },
+    "wf-23": {
+      "id": "wf-23",
+      "name": "Brand Strategy",
+      "content": "<h3>Workflow: Developing Brand Strategy</h3><p><strong>Process:</strong></p><ol><li>Structure as: Brand Purpose → Audience Segments → Messaging Pillars → Voice Guidelines</li><li>Add examples and anti-examples under each</li><li>Generate taglines, copy variations, and content guidelines</li></ol><p><strong>Example:</strong> A brand strategist develops positioning for a startup with 4 audience segments, 6 messaging pillars, and AI-generated copy examples for each channel.</p>",
+      "type": "note",
+      "parentId": "wf-creative",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.5.3"
+    },
+    "wf-24": {
+      "id": "wf-24",
+      "name": "Event Planning",
+      "content": "<h3>Workflow: Planning Events</h3><p><strong>Process:</strong></p><ol><li>Create category nodes: Venue, Catering, Entertainment, Invitations, Timeline</li><li>Add vendor options and decisions as children</li><li>Generate checklists, scripts, and communication templates</li></ol><p><strong>Example:</strong> An event planner organizes a 500-person conference with 20 vendors, generating day-of scripts, vendor communications, and detailed run-of-show documents.</p>",
+      "type": "note",
+      "parentId": "wf-creative",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.5.4"
+    },
+    "wf-professional": {
+      "id": "wf-professional",
+      "name": "Professional Services",
+      "content": "<p>Workflows for consultants, trainers, and service professionals.</p>",
+      "type": "document",
+      "parentId": "workflows",
+      "childrenIds": [
+        "wf-25",
+        "wf-26",
+        "wf-27",
+        "wf-28"
+      ],
+      "isCollapsed": true,
+      "prefix": "5.6"
+    },
+    "wf-25": {
+      "id": "wf-25",
+      "name": "Client Deliverables",
+      "content": "<h3>Workflow: Creating Client Deliverables</h3><p><strong>Process:</strong></p><ol><li><p>Structure findings and recommendations hierarchically</p></li><li><p>Import source documents and data</p></li><li><p>Generate executive summaries from detailed findings</p></li><li><p>Export polished reports maintaining your outline structure</p></li></ol><p><strong>Example:</strong> A consultant delivers a market entry strategy with 50 pages of analysis, generating executive summaries and implementation roadmaps from the detailed research.</p>",
+      "type": "note",
+      "parentId": "wf-professional",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.6.1"
+    },
+    "wf-26": {
+      "id": "wf-26",
+      "name": "Consulting Frameworks",
+      "content": "<h3>Workflow: Building Consulting Frameworks</h3><p><strong>Process:</strong></p><ol><li><p>Build reusable methodology templates</p></li><li><p>Clone and customize for each engagement</p></li><li><p>Generate client-specific recommendations within proven structures</p></li><li><p>Maintain a library of frameworks across practices</p></li></ol><p><strong>Example:</strong> A management consultant maintains 15 framework templates, customizing and generating client-specific content while maintaining methodological consistency.</p>",
+      "type": "note",
+      "parentId": "wf-professional",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.6.2"
+    },
+    "wf-27": {
+      "id": "wf-27",
+      "name": "Training Materials",
+      "content": "<h3>Workflow: Developing Training Materials</h3><p><strong>Process:</strong></p><ol><li>Structure curriculum hierarchically</li><li>Generate varied exercises for each concept</li><li>Create facilitator guides alongside participant materials</li><li>Adapt content for different audiences by cloning and customizing branches</li></ol><p><strong>Example:</strong> A corporate trainer develops a leadership program with 8 modules, generating exercises, discussion guides, and assessment rubrics for each.</p>",
+      "type": "note",
+      "parentId": "wf-professional",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.6.3"
+    },
+    "wf-28": {
+      "id": "wf-28",
+      "name": "Proposal Writing",
+      "content": "<h3>Workflow: Writing Proposals</h3><p><strong>Process:</strong></p><ol><li>Create proposal template outlines</li><li>Customize for each RFP with client-specific nodes</li><li>Use Research feature to gather relevant case studies and credentials</li><li>Generate tailored content that addresses specific requirements</li></ol><p><strong>Example:</strong> A services firm responds to RFPs by cloning their proposal template, importing the RFP requirements, and generating customized responses that address each evaluation criterion.</p>",
+      "type": "note",
+      "parentId": "wf-professional",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.6.4"
+    },
+    "enhancements": {
+      "id": "enhancements",
+      "name": "Optional Enhancements",
+      "content": "<h2>Extend IdiamPro's Capabilities</h2><p>Optional add-ons for users who want more.</p>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": [
+        "enh-ollama",
+        "enh-assemblyai",
+        "enh-google",
+        "enh-mcp"
+      ],
+      "isCollapsed": true,
+      "prefix": "6"
+    },
+    "enh-ollama": {
+      "id": "enh-ollama",
+      "name": "Ollama (Private AI)",
+      "content": "<h3>Run AI Completely on Your Computer</h3><p>Ollama is a free app that lets IdiamPro generate content using AI that runs entirely on your own machine. Nothing is sent to the internet.</p><h4>Why Use It?</h4><ul><li><p><strong>Total privacy:</strong> Your documents and ideas never leave your computer</p></li><li><p><strong>Works offline:</strong> Use AI even without an internet connection</p></li><li><p><strong>No usage limits:</strong> Generate as much content as you want</p></li><li><p><strong>Automatic backup:</strong> If the cloud AI is temporarily busy, your local AI picks up seamlessly</p></li></ul><h4>How to Set It Up</h4><ol><li><p>Download the free app from <a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://ollama.ai\">ollama.ai</a></p></li><li><p>Install and open it (it runs quietly in the background)</p></li><li><p>Download an AI model from within the app (IdiamPro recommends one for you)</p></li><li><p>IdiamPro automatically detects it — no configuration needed</p></li></ol><h4>What You Need</h4><ul><li><p>A Mac, Windows, or Linux computer</p></li><li><p>At least 8 GB of memory (16 GB recommended for best results)</p></li><li><p>A few gigabytes of free disk space for the AI model</p></li></ul><p></p>",
+      "type": "document",
+      "parentId": "enhancements",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "6.1"
+    },
+    "enh-assemblyai": {
+      "id": "enh-assemblyai",
+      "name": "Audio Transcription",
+      "content": "<h3>Professional Audio-to-Text</h3><p>Connect a transcription service to turn audio and video recordings into written text — with the ability to tell speakers apart.</p><h4>What It Does</h4><ul><li><p><strong>Speaker identification:</strong> Automatically labels who said what in a conversation</p></li><li><p><strong>High accuracy:</strong> Industry-leading speech recognition</p></li><li><p><strong>50+ languages:</strong> Works with audio in many languages</p></li><li><p><strong>Timestamps:</strong> Jump to any moment in the recording from the text</p></li></ul><h4>How to Set It Up</h4><ol><li><p>Create a free account at <a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://www.assemblyai.com\">assemblyai.com</a></p></li><li><p>Copy your personal key from their website</p></li><li><p>Paste it into IdiamPro's settings</p></li></ol><h4>Cost</h4><ul><li><p>Free tier: 100 hours per month for testing</p></li><li><p>After that: about $0.37 per hour of audio (pay only for what you use)</p></li></ul><p></p>",
+      "type": "document",
+      "parentId": "enhancements",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "6.2"
+    },
+    "enh-google": {
+      "id": "enh-google",
+      "name": "Google Workspace Integration",
+      "content": "<h3>Import from Google Workspace</h3><p>Connect your Google account to import directly from Google apps.</p><h4>Supported Apps</h4><ul><li><p><strong>Google Docs:</strong> Import documents as outline sections</p></li><li><p><strong>Google Sheets:</strong> Import spreadsheets as data items</p></li><li><p><strong>Google Slides:</strong> Import presentations as structured outlines</p></li><li><p><strong>Google Maps:</strong> Add location items with map previews</p></li></ul><h4>How to Set It Up</h4><ol><li><p>Click the Google import button in IdiamPro</p></li><li><p>Sign in with your Google account</p></li><li><p>Select the files you want to import</p></li></ol><p></p>",
+      "type": "document",
+      "parentId": "enhancements",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "6.3"
+    },
+    "enh-mcp": {
+      "id": "enh-mcp",
+      "name": "AI Assistant Integration (Coming Soon)",
+      "content": "<h3>MCP Server — Connect IdiamPro to AI Assistants</h3><p>MCP (Model Context Protocol) is a standard that lets AI assistants like Claude read and work with your outlines directly. IdiamPro will expose outlines via an MCP server.</p><h4>What This Will Enable</h4><ul><li><p>Let Claude or other AI assistants read, create, and edit your outlines</p></li><li><p>Integrate with IDE extensions and developer tools</p></li><li><p>Build custom automation workflows</p></li><li><p>Connect with other MCP-compatible tools</p></li></ul><h4>Status</h4><p><em>Coming soon — currently in development</em></p>",
+      "type": "document",
+      "parentId": "enhancements",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "6.4"
+    },
+    "subscriptions": {
+      "id": "subscriptions",
+      "name": "Subscription Tiers",
+      "content": "<h2>Pricing Plans</h2><p>Choose the plan that fits your needs.</p>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": [
+        "sub-free",
+        "sub-premium"
+      ],
+      "isCollapsed": true,
+      "prefix": "7"
+    },
+    "sub-free": {
+      "id": "sub-free",
+      "name": "Free Plan",
+      "content": "<h3>Free Plan</h3><p><strong>Price:</strong> $0/month</p><h4>What You Get</h4><ul><li><p>Create unlimited outlines with unlimited items</p></li><li><p>All 20 item types and the full rich text editor</p></li><li><p>Import PDFs, YouTube videos, and web pages</p></li><li><p>AI content generation with monthly limits:</p><ul><li><p>10 outline generations per month</p></li><li><p>50 content expansions per month</p></li><li><p>Up to 3 sources per bulk import</p></li></ul></li><li><p>Unlimited private AI if you install the free Ollama app</p></li></ul><h4>Best For</h4><ul><li><p>Individual users who don't need heavy AI usage</p></li><li><p>Users who prefer running AI privately on their own computer</p></li><li><p>Anyone wanting to try IdiamPro before upgrading</p></li></ul><p></p>",
+      "type": "document",
+      "parentId": "subscriptions",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "7.1"
+    },
+    "sub-premium": {
+      "id": "sub-premium",
+      "name": "Premium Plan",
+      "content": "<h3>Premium Plan</h3><p><strong>Price:</strong> Coming soon</p><h4>Everything in Free, Plus</h4><ul><li><p>100+ outline generations per month</p></li><li><p>Unlimited content expansions</p></li><li><p>Import 50+ sources at once in bulk imports</p></li><li><p>Faster AI processing (your requests are prioritized)</p></li><li><p>Section summaries (coming soon)</p></li><li><p>AI that learns your writing style (coming soon)</p></li><li><p>Automatic consistency checking (coming soon)</p></li><li><p>Priority customer support</p></li></ul><h4>Best For</h4><ul><li><p>Professionals and power users</p></li><li><p>Teams that rely heavily on AI-generated content</p></li><li><p>Researchers importing large volumes of source material</p></li></ul><p></p>",
+      "type": "document",
+      "parentId": "subscriptions",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "7.2"
+    },
+    "video-support": {
+      "id": "video-support",
+      "name": "Video Content Support",
+      "content": "<h2>Creating Video Marketing Content</h2><p>How Claude Code can support video creation efforts.</p>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": [
+        "video-capabilities",
+        "video-tools",
+        "video-user-actions"
+      ],
+      "isCollapsed": true,
+      "prefix": "8"
+    },
+    "video-capabilities": {
+      "id": "video-capabilities",
+      "name": "What Claude Code Can Do",
+      "content": "<h3>Video Support from Claude Code</h3><p>While Claude Code cannot generate videos directly, it can provide substantial support for video creation:</p><h4>Scriptwriting</h4><ul><li><p>Complete narration scripts with timing cues</p></li><li><p>Scene-by-scene descriptions</p></li><li><p>Dialogue and voiceover text</p></li><li><p>Call-to-action copy</p></li></ul><h4>Storyboarding</h4><ul><li><p>Shot-by-shot breakdowns</p></li><li><p>Visual descriptions for each scene</p></li><li><p>Camera direction notes</p></li><li><p>Transition descriptions</p></li></ul><h4>Motion Graphics Direction</h4><ul><li><p>Detailed instructions for animators</p></li><li><p>Text overlay content and timing</p></li><li><p>Color and style guidelines</p></li><li><p>Animation sequence descriptions</p></li></ul><h4>Multiple Formats</h4><ul><li><p>Full-length demo videos (5–10 min)</p></li><li><p>Workflow highlight reels (2–3 min)</p></li><li><p>Social media clips (30–60 sec)</p></li><li><p>Feature spotlights (1–2 min each)</p></li></ul><p></p>",
+      "type": "document",
+      "parentId": "video-support",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "8.1"
+    },
+    "video-tools": {
+      "id": "video-tools",
+      "name": "Recommended Video Tools",
+      "content": "<h3>Tools for Creating Marketing Videos</h3><h4>Screen Recording</h4><ul><li><strong>Loom</strong> — Quick demos and tutorials (Free to $15/month)</li><li><strong>ScreenFlow</strong> — Professional Mac screen recordings with editing ($169 one-time)</li></ul><h4>AI-Powered Video</h4><ul><li><strong>Descript</strong> — Easy video editing with AI-powered transcription ($15–30/month)</li><li><strong>Synthesia</strong> — Create talking-head videos with AI avatars, no camera needed ($30+/month)</li><li><strong>Runway</strong> — AI-generated creative and abstract visuals ($15–95/month)</li></ul><h4>General Video Editing</h4><ul><li><strong>Canva</strong> — Simple video editing for social media clips (Free to $13/month)</li><li><strong>After Effects</strong> — Professional motion graphics and animations ($23/month)</li></ul><h4>AI Graphics</h4><ul><li><strong>Google Gemini</strong> — Generate illustrations and diagrams with AI (Free tier available)</li></ul>",
+      "type": "document",
+      "parentId": "video-support",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "8.2"
+    },
+    "video-user-actions": {
+      "id": "video-user-actions",
+      "name": "User Actions Required",
+      "content": "<h3>What You Need to Do for Video Content</h3><h4>For Screen Recording Videos</h4><ol><li>Install screen recording software (Loom, ScreenFlow, or OBS)</li><li>Set up IdiamPro with sample data for demos</li><li>Request scripts from Claude Code for each video</li><li>Record following the provided script</li><li>Edit and add music/transitions</li></ol><h4>For AI-Generated Videos</h4><ol><li>Sign up for Synthesia or a similar AI video tool</li><li>Request narration scripts from Claude Code</li><li>Generate AI avatar videos from the scripts</li><li>Add screen recordings alongside the talking head</li></ol><h4>For Motion Graphics</h4><ol><li>Hire a motion designer or learn After Effects</li><li>Request detailed animation instructions from Claude Code</li><li>Provide the instructions to your designer</li><li>Review and refine the animations</li></ol><h4>For Graphics and Illustrations</h4><ol><li>Use Google Gemini for AI-generated graphics</li><li>Request image descriptions from Claude Code</li><li>Generate and select the best images</li><li>Add them to your videos and marketing materials</li></ol>",
+      "type": "document",
+      "parentId": "video-support",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "8.3"
+    },
+    "roadmap": {
+      "id": "roadmap",
+      "name": "Platform Roadmap",
+      "content": "<h2>Future Development Plans</h2><p>Planned platforms and features.</p>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": [
+        "roadmap-platforms",
+        "roadmap-features"
+      ],
+      "isCollapsed": true,
+      "prefix": "9"
+    },
+    "roadmap-platforms": {
+      "id": "roadmap-platforms",
+      "name": "Platform Expansion",
+      "content": "<h3>Platform Expansion Roadmap</h3><h4>Available Now</h4><ul><li><p>Mac desktop app</p></li><li><p>iPhone and iPad app</p></li><li><p>Web browser (any modern browser)</p></li></ul><h4>Coming Next</h4><ul><li><p><strong>Windows:</strong> Full desktop app with standard installer</p></li><li><p><strong>Linux:</strong> Desktop app in common package formats</p></li></ul><h4>After That</h4><ul><li><p><strong>Android:</strong> Full app on Google Play Store</p></li></ul><h4>Exploring</h4><ul><li><p>Chrome Extension for quick capture from any web page</p></li><li><p>Integration with code editors for developers</p></li><li><p>Integration with Obsidian (popular knowledge management app)</p></li><li><p>Public access for developers to build on top of IdiamPro</p></li></ul><p></p>",
+      "type": "document",
+      "parentId": "roadmap",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "9.1"
+    },
+    "roadmap-features": {
+      "id": "roadmap-features",
+      "name": "Feature Roadmap",
+      "content": "<h3>Upcoming Features</h3><h4>Smarter AI</h4><ul><li><p><strong>Section Summaries:</strong> Instantly summarize any section of your outline</p></li><li><p><strong>Teach Mode:</strong> AI learns your writing style and preferences over time</p></li><li><p><strong>Consistency Checks:</strong> AI spots contradictions and inconsistencies across your document</p></li><li><p><strong>AI Illustrations:</strong> Auto-generate diagrams (Mermaid) and images (DALL-E) to accompany your content</p></li></ul><h4>Teamwork</h4><ul><li><p><strong>Real-time Collaboration:</strong> Multiple people editing the same outline at once</p></li><li><p><strong>Comments:</strong> Leave feedback and notes on any item</p></li><li><p><strong>Version History:</strong> See what changed and when, with the ability to go back</p></li></ul><h4>Connections to Other Tools</h4><ul><li><p><strong>MCP Server:</strong> Let AI assistants like Claude work with your outlines via Model Context Protocol</p></li><li><p><strong>Zapier/Make:</strong> Connect IdiamPro to other apps through automation services</p></li><li><p><strong>Notion Import:</strong> Easily move your Notion content into IdiamPro</p></li></ul><p></p>",
+      "type": "document",
+      "parentId": "roadmap",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "9.2"
+    },
+    "action-items": {
+      "id": "action-items",
+      "name": "Marketing Action Items",
+      "content": "<h2>Action Items for Marketing Launch</h2><p>Tasks to complete before marketing launch.</p>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": [
+        "action-content",
+        "action-website",
+        "action-video",
+        "action-outreach"
+      ],
+      "isCollapsed": false,
+      "prefix": "10"
+    },
+    "action-content": {
+      "id": "action-content",
+      "name": "Content Creation",
+      "content": "<h3>Content to Create</h3><ul><li><p>Finalize product tagline and positioning</p></li><li><p>Write landing page copy</p></li><li><p>Create feature comparison chart</p></li><li><p>Write 3-5 blog posts for launch</p></li><li><p>Prepare press release</p></li><li><p>Collect beta user testimonials</p></li><li><p>Create case studies for key workflows</p></li></ul><p></p>",
+      "type": "task",
+      "parentId": "action-items",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "10.1",
+      "metadata": {
+        "isCompleted": false
+      }
+    },
+    "action-website": {
+      "id": "action-website",
+      "name": "Website Setup",
+      "content": "<h3>Website Tasks</h3><ul><li><input type=\"checkbox\"> Register domain (if not done)</li><li><input type=\"checkbox\"> Set up landing page</li><li><input type=\"checkbox\"> Add workflow use cases section</li><li><input type=\"checkbox\"> Create pricing page</li><li><input type=\"checkbox\"> Set up email capture for launch list</li><li><input type=\"checkbox\"> Add download links for all platforms</li><li><input type=\"checkbox\"> Create documentation/help section</li></ul>",
+      "type": "task",
+      "parentId": "action-items",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "10.2"
+    },
+    "action-video": {
+      "id": "action-video",
+      "name": "Video Production",
+      "content": "<h3>Videos to Create</h3><ul><li><input type=\"checkbox\"> Request video scripts from Claude Code</li><li><input type=\"checkbox\"> Set up screen recording software</li><li><input type=\"checkbox\"> Create demo data in IdiamPro</li><li><input type=\"checkbox\"> Record main product demo (5 min)</li><li><input type=\"checkbox\"> Record 5-6 workflow highlight videos (1-2 min each)</li><li><input type=\"checkbox\"> Create social media teaser clips (30 sec)</li><li><input type=\"checkbox\"> Consider AI avatar for talking head segments</li></ul>",
+      "type": "task",
+      "parentId": "action-items",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "10.3"
+    },
+    "action-outreach": {
+      "id": "action-outreach",
+      "name": "Launch Outreach",
+      "content": "<h3>Outreach and Distribution</h3><ul><li><input type=\"checkbox\"> Identify target communities (Reddit, Hacker News, ProductHunt)</li><li><input type=\"checkbox\"> Prepare ProductHunt launch</li><li><input type=\"checkbox\"> Create social media accounts</li><li><input type=\"checkbox\"> Identify influencers and reviewers in the productivity space</li><li><input type=\"checkbox\"> Prepare App Store descriptions and screenshots</li><li><input type=\"checkbox\"> Set up analytics tracking</li></ul>",
+      "type": "task",
+      "parentId": "action-items",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "10.4"
+    }
+  },
+  "isGuide": false,
+  "_fileSize": 63533,
+  "_fileName": "IdiamPro Marketing.idm",
+  "_isLazyLoaded": false
+}

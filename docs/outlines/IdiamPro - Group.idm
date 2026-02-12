@@ -1,0 +1,503 @@
+{
+  "id": "idiampro-group-2026",
+  "name": "IdiamPro - Group",
+  "rootNodeId": "grp-root",
+  "lastModified": 1770760238728,
+  "nodes": {
+    "grp-root": {
+      "id": "grp-root",
+      "name": "IdiamPro - Group",
+      "content": "<p>Technical specification for transforming IdiamPro into a real-time collaborative platform where multiple users can work on a single outline simultaneously, including concurrent editing of individual nodes.</p>",
+      "type": "root",
+      "parentId": null,
+      "childrenIds": [
+        "sec-vision",
+        "sec-history",
+        "sec-grouptools",
+        "sec-competitive",
+        "sec-arch",
+        "sec-tech",
+        "sec-data",
+        "sec-backend",
+        "sec-frontend",
+        "sec-conflicts",
+        "sec-presence",
+        "sec-security",
+        "sec-phases",
+        "sec-costs",
+        "sec-challenges"
+      ],
+      "prefix": ""
+    },
+    "sec-vision": {
+      "id": "sec-vision",
+      "name": "Vision & Goals",
+      "content": "<p><strong>Vision:</strong> Enable teams to collaboratively build, edit, and refine outlines in real-time - like Google Docs for hierarchical thinking.</p><p><strong>Core Goals:</strong></p><p>• <strong>Real-time sync</strong> - Changes appear instantly for all collaborators</p><p>• <strong>Concurrent editing</strong> - Multiple users can edit the same node simultaneously</p><p>• <strong>Conflict-free merging</strong> - No data loss when edits overlap</p><p>• <strong>Presence awareness</strong> - See who's online and where they're working</p><p>• <strong>Offline support</strong> - Work offline, sync when reconnected</p><p>• <strong>Enterprise ready</strong> - Access controls, audit logs, SSO integration</p><p><strong>Target Users:</strong></p><p>• Research teams synthesizing knowledge</p><p>• Content teams planning editorial calendars</p><p>• Product teams building PRDs collaboratively</p><p>• Legal teams organizing case materials</p><p>• Consulting teams building client deliverables</p>",
+      "type": "chapter",
+      "parentId": "grp-root",
+      "childrenIds": [],
+      "prefix": "1"
+    },
+    "sec-history": {
+      "id": "sec-history",
+      "name": "Historical Context & Evolution",
+      "content": "<p><strong>IdiamPro's Origin:</strong></p><p>IdiamPro's founder worked at Ventana/Team Dynamics on GroupSystems in the early 1990s. Recognizing both the power and the limitations of that pioneering software, he built the first versions of Idiam specifically to improve on GroupSystems' approach - making structured group thinking more accessible and less cumbersome. Though never commercialized at the time, that original vision now becomes IdiamPro Group, powered by modern technology that finally makes the dream achievable.</p><p><strong>GroupSystems Legacy:</strong></p><p>In the early 1990s, Ventana Corporation (later acquired by GroupSystems.com) created GroupSystems - pioneering software for electronic meeting systems and group decision support. Despite the technology constraints of that era (LANs, character-based terminals, limited bandwidth), GroupSystems proved that structured group collaboration could dramatically improve meeting productivity.</p><p><strong>What GroupSystems Got Right:</strong></p><p>• <strong>Anonymous brainstorming</strong> - Removed politics and hierarchy from idea generation</p><p>• <strong>Parallel input</strong> - Everyone contributes simultaneously, no waiting for turns</p><p>• <strong>Structured processes</strong> - Guided groups through ideation → organization → evaluation</p><p>• <strong>Permanent record</strong> - All contributions captured, nothing lost</p><p>• <strong>Facilitation tools</strong> - Moderator could guide without dominating</p><p><strong>Why It Was Hard in the 1990s:</strong></p><p>• Required dedicated meeting rooms with networked terminals</p><p>• No internet connectivity - couldn't work remotely</p><p>• Text-only interfaces limited expressiveness</p><p>• Expensive infrastructure ($50K+ per room)</p><p>• Required trained facilitators</p><p><strong>What's Different Now:</strong></p><p>• <strong>Everyone has a device</strong> - No special hardware needed</p><p>• <strong>Real-time sync</strong> - CRDTs enable true simultaneous editing</p><p>• <strong>Rich content</strong> - Formatting, diagrams, images, AI assistance</p><p>• <strong>Asynchronous + Synchronous</strong> - Work together live OR contribute on your own time</p><p>• <strong>AI augmentation</strong> - Summarize, synthesize, suggest - impossible in 1992</p><p>• <strong>Cloud-native</strong> - No infrastructure, instant deployment</p>",
+      "type": "chapter",
+      "parentId": "grp-root",
+      "childrenIds": [],
+      "prefix": "2"
+    },
+    "sec-grouptools": {
+      "id": "sec-grouptools",
+      "name": "Group Development Tools",
+      "content": "<p><strong>Beyond Collaborative Editing:</strong></p><p>IdiamPro Group can incorporate proven group facilitation tools, enhanced with modern technology and AI.</p>",
+      "type": "chapter",
+      "parentId": "grp-root",
+      "childrenIds": [
+        "grp-brainstorm",
+        "grp-voting",
+        "grp-anon",
+        "grp-categorize",
+        "grp-prioritize",
+        "grp-ai",
+        "grp-templates"
+      ],
+      "prefix": "3"
+    },
+    "grp-brainstorm": {
+      "id": "grp-brainstorm",
+      "name": "Electronic Brainstorming",
+      "content": "<p><strong>Feature:</strong> Parallel idea generation where everyone contributes simultaneously</p><p><strong>How It Works:</strong></p><p>• Facilitator poses a question/topic as a node</p><p>• All participants add child nodes simultaneously</p><p>• Ideas appear in real-time as others type</p><p>• Optional: Ideas shuffled/randomized to prevent anchoring</p><p>• Time-boxed rounds (e.g., '5 minutes to generate ideas')</p><p><strong>Enhancements over GroupSystems:</strong></p><p>• Rich formatting (not just text)</p><p>• Add images, links, diagrams to ideas</p><p>• AI can suggest related ideas based on what's been contributed</p><p>• Mobile participation - brainstorm from anywhere</p><p><strong>UI Concept:</strong></p><p>• 'Brainstorm Mode' toggle on any node</p><p>• Split view: prompt on left, idea stream on right</p><p>• Live counter: '47 ideas from 12 participants'</p>",
+      "type": "section",
+      "parentId": "sec-grouptools",
+      "childrenIds": [],
+      "prefix": "3.1"
+    },
+    "grp-voting": {
+      "id": "grp-voting",
+      "name": "Voting & Polling",
+      "content": "<p><strong>Feature:</strong> Structured decision-making through votes and polls</p><p><strong>Vote Types:</strong></p><p>• <strong>Thumbs up/down</strong> - Simple approval voting</p><p>• <strong>Multi-vote</strong> - Each person gets N votes to distribute</p><p>• <strong>Ranking</strong> - Order items from best to worst</p><p>• <strong>Rating</strong> - Score each item 1-5 or 1-10</p><p>• <strong>Dot voting</strong> - Allocate 'dots' across options</p><p>• <strong>Pairwise comparison</strong> - Compare items two at a time</p><p><strong>How It Works:</strong></p><p>• Select nodes to include in vote</p><p>• Choose vote type and settings</p><p>• Participants vote (optionally anonymous)</p><p>• Results displayed as aggregated scores, charts</p><p>• Auto-sort nodes by vote results</p><p><strong>AI Enhancement:</strong></p><p>• Detect similar/duplicate items before voting</p><p>• Suggest consolidation of related ideas</p><p>• Analyze voting patterns for consensus/disagreement</p>",
+      "type": "section",
+      "parentId": "sec-grouptools",
+      "childrenIds": [],
+      "prefix": "3.2"
+    },
+    "grp-anon": {
+      "id": "grp-anon",
+      "name": "Anonymous Contributions",
+      "content": "<p><strong>Feature:</strong> Remove attribution to encourage honest input</p><p><strong>Why It Matters:</strong></p><p>• Junior employees can challenge senior ideas</p><p>• Unpopular but important concerns surface</p><p>• Reduces groupthink and conformity</p><p>• More honest feedback on sensitive topics</p><p><strong>Anonymity Levels:</strong></p><p>• <strong>Full anonymous</strong> - No one knows who contributed what</p><p>• <strong>Facilitator-visible</strong> - Facilitator can see, participants cannot</p><p>• <strong>Revealed later</strong> - Anonymous during brainstorm, revealed after</p><p>• <strong>Pseudonymous</strong> - Consistent fake names ('Blue Penguin')</p><p><strong>Implementation:</strong></p><p>• Node metadata includes contributor ID</p><p>• UI hides/shows based on anonymity setting</p><p>• Audit log preserves true attribution (for compliance)</p><p>• 'Reveal' action requires facilitator + majority consent</p>",
+      "type": "section",
+      "parentId": "sec-grouptools",
+      "childrenIds": [],
+      "prefix": "3.3"
+    },
+    "grp-categorize": {
+      "id": "grp-categorize",
+      "name": "Collaborative Categorization",
+      "content": "<p><strong>Feature:</strong> Group sorting of ideas into themes/categories</p><p><strong>How It Works:</strong></p><p>• Start with flat list of brainstormed ideas</p><p>• Participants drag ideas into category buckets</p><p>• Multiple people can categorize simultaneously</p><p>• Conflicts resolved by voting or facilitator</p><p>• Categories can be pre-defined or emergent</p><p><strong>AI Enhancement:</strong></p><p>• Auto-suggest categories based on content analysis</p><p>• Recommend which category an idea belongs to</p><p>• Identify outliers that don't fit existing categories</p><p>• Detect when two categories should merge</p><p><strong>Affinity Diagramming:</strong></p><p>• Visual card-sorting interface</p><p>• Drag-and-drop nodes into clusters</p><p>• Auto-create parent nodes for clusters</p><p>• Export as mind map or flowchart</p>",
+      "type": "section",
+      "parentId": "sec-grouptools",
+      "childrenIds": [],
+      "prefix": "3.4"
+    },
+    "grp-prioritize": {
+      "id": "grp-prioritize",
+      "name": "Prioritization Frameworks",
+      "content": "<p><strong>Feature:</strong> Structured methods for ranking importance</p><p><strong>Built-in Frameworks:</strong></p><p>• <strong>MoSCoW</strong> - Must/Should/Could/Won't categories</p><p>• <strong>Eisenhower Matrix</strong> - Urgent vs Important 2x2</p><p>• <strong>RICE Scoring</strong> - Reach, Impact, Confidence, Effort</p><p>• <strong>Value vs Effort</strong> - 2x2 prioritization matrix</p><p>• <strong>Weighted Scoring</strong> - Custom criteria with weights</p><p>• <strong>Stack Ranking</strong> - Force-rank all items</p><p><strong>How It Works:</strong></p><p>• Select items to prioritize</p><p>• Choose framework</p><p>• Group scores each criterion collaboratively</p><p>• System calculates composite scores</p><p>• Visual output (matrix, ranked list, chart)</p><p><strong>Outcome:</strong></p><p>• Prioritized nodes auto-reorder</p><p>• Priority tags/badges on nodes</p><p>• Export priority report</p>",
+      "type": "section",
+      "parentId": "sec-grouptools",
+      "childrenIds": [],
+      "prefix": "3.5"
+    },
+    "grp-ai": {
+      "id": "grp-ai",
+      "name": "AI-Powered Facilitation",
+      "content": "<p><strong>Feature:</strong> AI assistant for group processes</p><p><strong>Capabilities:</strong></p><p>• <strong>Summarize discussion</strong> - 'Here are the 5 key themes from 200 ideas'</p><p>• <strong>Identify gaps</strong> - 'No one mentioned X, which is often relevant'</p><p>• <strong>Detect duplicates</strong> - 'These 3 ideas seem similar, consolidate?'</p><p>• <strong>Suggest questions</strong> - 'To go deeper, consider asking...'</p><p>• <strong>Neutralize bias</strong> - Rephrase ideas to remove loaded language</p><p>• <strong>Time management</strong> - 'You've spent 20 min on this topic, move on?'</p><p>• <strong>Devil's advocate</strong> - Generate counterarguments to test ideas</p><p>• <strong>Synthesis</strong> - Combine best elements of multiple ideas</p><p><strong>AI Facilitation Modes:</strong></p><p>• <strong>Silent helper</strong> - AI suggestions shown only to facilitator</p><p>• <strong>Active participant</strong> - AI contributes ideas like any other member</p><p>• <strong>Automated facilitator</strong> - AI guides process steps automatically</p><p><strong>Differentiator:</strong> This is impossible without modern LLMs - GroupSystems couldn't do this in 1992!</p>",
+      "type": "section",
+      "parentId": "sec-grouptools",
+      "childrenIds": [],
+      "prefix": "3.6"
+    },
+    "grp-templates": {
+      "id": "grp-templates",
+      "name": "Meeting Templates",
+      "content": "<p><strong>Feature:</strong> Pre-built agendas for common group processes</p><p><strong>Template Library:</strong></p><p>• <strong>Brainstorming Session</strong> - Diverge → Converge → Prioritize</p><p>• <strong>Retrospective</strong> - What worked / What didn't / Actions</p><p>• <strong>Strategic Planning</strong> - Vision → Goals → Initiatives → Metrics</p><p>• <strong>Problem Solving</strong> - Define → Analyze → Generate → Evaluate → Implement</p><p>• <strong>Decision Making</strong> - Options → Criteria → Score → Decide</p><p>• <strong>Project Kickoff</strong> - Goals → Stakeholders → Risks → Timeline</p><p>• <strong>SWOT Analysis</strong> - Strengths / Weaknesses / Opportunities / Threats</p><p>• <strong>Design Sprint</strong> - Understand → Sketch → Decide → Prototype → Test</p><p><strong>Template Features:</strong></p><p>• Pre-structured outline with facilitator notes</p><p>• Suggested time allocations per section</p><p>• Built-in voting/polling at decision points</p><p>• Auto-generated summary at end</p><p>• Customizable - save modified templates</p>",
+      "type": "section",
+      "parentId": "sec-grouptools",
+      "childrenIds": [],
+      "prefix": "3.7"
+    },
+    "sec-competitive": {
+      "id": "sec-competitive",
+      "name": "Competitive Positioning",
+      "content": "<p><strong>Market Position:</strong> AI-powered collaborative outlining for enterprise knowledge work</p>",
+      "type": "chapter",
+      "parentId": "grp-root",
+      "childrenIds": [
+        "comp-landscape",
+        "comp-diff",
+        "comp-pricing",
+        "comp-segments"
+      ],
+      "prefix": "4"
+    },
+    "comp-landscape": {
+      "id": "comp-landscape",
+      "name": "Competitive Landscape",
+      "content": "<p><strong>Direct Competitors:</strong></p><table><tr><th>Product</th><th>Strengths</th><th>Weaknesses</th><th>Price</th></tr><tr><td><strong>Notion</strong></td><td>Flexible, popular, good collab</td><td>Not outline-focused, slow, complex</td><td>$8-15/user/mo</td></tr><tr><td><strong>Miro</strong></td><td>Visual, great for workshops</td><td>Canvas-based (not hierarchical), expensive</td><td>$8-16/user/mo</td></tr><tr><td><strong>Mural</strong></td><td>Facilitation features, templates</td><td>Visual only, learning curve</td><td>$10-20/user/mo</td></tr><tr><td><strong>Roam Research</strong></td><td>Powerful linking, cult following</td><td>Steep learning curve, no real collab</td><td>$15/user/mo</td></tr><tr><td><strong>Workflowy</strong></td><td>Pure outlining, simple</td><td>Limited collab, no AI, basic</td><td>$5/user/mo</td></tr><tr><td><strong>Coda</strong></td><td>Flexible docs, good collab</td><td>Complex, not outline-focused</td><td>$10-30/user/mo</td></tr></table><p><strong>Legacy Competitors:</strong></p><table><tr><th>Product</th><th>Status</th><th>Gap IdiamPro Fills</th></tr><tr><td><strong>GroupSystems/ThinkTank</strong></td><td>Still exists, dated UX</td><td>Modern UI, AI, mobile, cloud</td></tr><tr><td><strong>MeetingSphere</strong></td><td>Active, enterprise focus</td><td>Better UX, AI features, lower cost</td></tr><tr><td><strong>Stormboard</strong></td><td>Active, sticky-note focus</td><td>Hierarchical structure, AI</td></tr></table>",
+      "type": "section",
+      "parentId": "sec-competitive",
+      "childrenIds": [],
+      "prefix": "4.1"
+    },
+    "comp-diff": {
+      "id": "comp-diff",
+      "name": "Key Differentiators",
+      "content": "<p><strong>IdiamPro Group's Unique Value:</strong></p><p><strong>1. Hierarchical Structure + Collaboration</strong></p><p>• Most collab tools are flat (docs, canvases, cards)</p><p>• Outlines naturally organize complex information</p><p>• Tree structure scales to thousands of items without chaos</p><p><strong>2. AI-Native from Day One</strong></p><p>• Not bolted-on AI - designed around AI assistance</p><p>• Ask AI saves answers permanently to your knowledge base</p><p>• AI facilitator for group processes</p><p>• Research mode synthesizes external sources</p><p><strong>3. Structured Group Processes</strong></p><p>• Built-in brainstorming, voting, prioritization</p><p>• Meeting templates for common workflows</p><p>• Anonymous contributions for honest input</p><p>• Time-boxed activities with facilitator controls</p><p><strong>4. Cross-Platform with One Subscription</strong></p><p>• Mac, Windows, iOS, Android, Web</p><p>• No per-platform pricing</p><p>• Seamless sync across devices</p><p><strong>5. Visual Diagrams from Structure</strong></p><p>• Auto-generate mind maps and flowcharts</p><p>• Diagrams stay in sync with outline</p><p>• Export to PDF with visuals</p><p><strong>Positioning Statement:</strong></p><p><em>'IdiamPro Group is the AI-powered collaborative outliner that helps teams think together - combining the structure of traditional outlining with real-time collaboration, group facilitation tools, and AI assistance.'</em></p>",
+      "type": "section",
+      "parentId": "sec-competitive",
+      "childrenIds": [],
+      "prefix": "4.2"
+    },
+    "comp-pricing": {
+      "id": "comp-pricing",
+      "name": "Pricing Strategy",
+      "content": "<p><strong>Proposed Pricing Tiers:</strong></p><table><tr><th>Tier</th><th>Price</th><th>Features</th><th>Target</th></tr><tr><td><strong>Free</strong></td><td>$0</td><td>3 outlines, 2 collaborators, basic AI</td><td>Individuals, evaluation</td></tr><tr><td><strong>Pro</strong></td><td>$12/user/mo</td><td>Unlimited outlines, 10 collaborators, full AI</td><td>Small teams</td></tr><tr><td><strong>Team</strong></td><td>$20/user/mo</td><td>Unlimited collaborators, group tools, templates, analytics</td><td>Departments</td></tr><tr><td><strong>Enterprise</strong></td><td>Custom</td><td>SSO, audit logs, dedicated support, SLA, custom integrations</td><td>Large organizations</td></tr></table><p><strong>Competitive Positioning:</strong></p><p>• Cheaper than Miro/Mural ($16-20/user)</p><p>• More features than Workflowy ($5/user)</p><p>• Better collaboration than Roam ($15/user)</p><p>• More focused than Notion ($15/user)</p><p><strong>Land-and-Expand Strategy:</strong></p><p>• Free tier gets individuals hooked</p><p>• They invite teammates → conversion to Pro</p><p>• Team grows → upgrade to Team tier</p><p>• IT discovers shadow usage → Enterprise deal</p>",
+      "type": "section",
+      "parentId": "sec-competitive",
+      "childrenIds": [],
+      "prefix": "4.3"
+    },
+    "comp-segments": {
+      "id": "comp-segments",
+      "name": "Target Market Segments",
+      "content": "<p><strong>Primary Segments:</strong></p><p><strong>1. Consulting & Professional Services</strong></p><p>• Use case: Client deliverables, workshop facilitation</p><p>• Value prop: Replace Miro + Word with one tool</p><p>• Champions: Consultants, project managers</p><p>• Deal size: $10K-50K/year</p><p><strong>2. Product & Design Teams</strong></p><p>• Use case: PRDs, roadmaps, design sprints</p><p>• Value prop: Structured thinking + real-time collab</p><p>• Champions: Product managers, UX researchers</p><p>• Deal size: $5K-30K/year</p><p><strong>3. Research & Academia</strong></p><p>• Use case: Literature synthesis, grant writing, lab notes</p><p>• Value prop: AI research assistant + collaboration</p><p>• Champions: Research leads, professors</p><p>• Deal size: $2K-20K/year</p><p><strong>4. Legal & Compliance</strong></p><p>• Use case: Case organization, contract analysis, audit prep</p><p>• Value prop: Structured documentation + audit trail</p><p>• Champions: Senior associates, compliance officers</p><p>• Deal size: $20K-100K/year</p><p><strong>5. Strategy & Executive Teams</strong></p><p>• Use case: Strategic planning, board prep, M&A analysis</p><p>• Value prop: Confidential collaboration, AI synthesis</p><p>• Champions: Chiefs of staff, strategy directors</p><p>• Deal size: $10K-50K/year</p>",
+      "type": "section",
+      "parentId": "sec-competitive",
+      "childrenIds": [],
+      "prefix": "4.4"
+    },
+    "sec-arch": {
+      "id": "sec-arch",
+      "name": "System Architecture",
+      "content": "<p><strong>High-Level Architecture:</strong></p><pre>┌──────────────────────────────────────────────────────────────┐\n│                    IdiamPro Group Architecture                │\n├──────────────────────────────────────────────────────────────┤\n│                                                              │\n│  ┌─────────┐    ┌─────────┐    ┌─────────┐                  │\n│  │ User A  │    │ User B  │    │ User C  │   Clients        │\n│  │ (Mac)   │    │ (iPad)  │    │ (Web)   │                  │\n│  └────┬────┘    └────┬────┘    └────┬────┘                  │\n│       │              │              │                        │\n│       └──────────────┼──────────────┘                        │\n│                      │                                       │\n│                      ▼                                       │\n│            ┌─────────────────┐                               │\n│            │  WebSocket      │   Real-time                   │\n│            │  Sync Server    │   Layer                       │\n│            │  (y-websocket)  │                               │\n│            └────────┬────────┘                               │\n│                     │                                        │\n│         ┌───────────┼───────────┐                            │\n│         ▼           ▼           ▼                            │\n│   ┌──────────┐ ┌──────────┐ ┌──────────┐                    │\n│   │ Yjs Doc  │ │ Yjs Doc  │ │ Yjs Doc  │   CRDT             │\n│   │ Room 1   │ │ Room 2   │ │ Room 3   │   Documents        │\n│   └──────────┘ └──────────┘ └──────────┘                    │\n│                     │                                        │\n│                     ▼                                        │\n│            ┌─────────────────┐                               │\n│            │   PostgreSQL    │   Persistence                 │\n│            │   + Redis       │                               │\n│            └─────────────────┘                               │\n│                                                              │\n└──────────────────────────────────────────────────────────────┘</pre><p><strong>Key Components:</strong></p><p>• <strong>Clients</strong> - Mac (Electron), iOS (Capacitor), Web browser</p><p>• <strong>WebSocket Server</strong> - Handles real-time sync via y-websocket protocol</p><p>• <strong>CRDT Layer</strong> - Yjs documents that auto-merge concurrent changes</p><p>• <strong>Persistence</strong> - PostgreSQL for outline metadata, Redis for presence/sessions</p>",
+      "type": "chapter",
+      "parentId": "grp-root",
+      "childrenIds": [
+        "arch-flow",
+        "arch-rooms"
+      ],
+      "prefix": "2"
+    },
+    "arch-flow": {
+      "id": "arch-flow",
+      "name": "Data Flow",
+      "content": "<p><strong>Edit Flow (User A types in a node):</strong></p><p>1. User A types character in TipTap editor</p><p>2. TipTap Collaboration extension creates Yjs operation</p><p>3. Operation applied to local Y.Doc immediately (optimistic)</p><p>4. Operation sent to WebSocket server</p><p>5. Server broadcasts to all other connected clients (B, C)</p><p>6. Clients B and C apply operation to their Y.Doc</p><p>7. TipTap updates their editors automatically</p><p>8. Server persists Y.Doc state to database</p><p><strong>Latency Target:</strong> &lt;100ms for edit to appear on other clients</p><p><strong>Offline Flow:</strong></p><p>1. User goes offline, continues editing</p><p>2. Operations queued in IndexedDB (y-indexeddb)</p><p>3. User reconnects</p><p>4. Yjs automatically syncs pending operations</p><p>5. CRDT merges without conflicts</p>",
+      "type": "section",
+      "parentId": "sec-arch",
+      "childrenIds": [],
+      "prefix": "2.1"
+    },
+    "arch-rooms": {
+      "id": "arch-rooms",
+      "name": "Room Model",
+      "content": "<p><strong>One Outline = One Room:</strong></p><p>Each outline becomes a 'room' in the collaboration system. When a user opens an outline, they join that room's WebSocket connection.</p><p><strong>Room Structure:</strong></p><pre>Room: outline-{outlineId}\n├── Y.Doc (the CRDT document)\n│   ├── Y.Map&lt;nodes&gt;         // All outline nodes\n│   ├── Y.Map&lt;childrenMap&gt;   // Parent → children relationships  \n│   ├── Y.Map&lt;nodeContents&gt;  // nodeId → Y.XmlFragment (TipTap)\n│   └── Y.Map&lt;metadata&gt;      // name, lastModified, etc.\n├── Awareness\n│   ├── User cursors\n│   ├── User selections\n│   └── User presence (online/away/offline)\n└── Permissions\n    ├── Owner\n    ├── Editors\n    └── Viewers</pre>",
+      "type": "section",
+      "parentId": "sec-arch",
+      "childrenIds": [],
+      "prefix": "2.2"
+    },
+    "sec-tech": {
+      "id": "sec-tech",
+      "name": "Technology Stack",
+      "content": "<p><strong>Core CRDT Library:</strong></p><p>• <strong>Yjs</strong> - Battle-tested CRDT implementation used by Notion, Figma, JupyterLab</p><p><strong>New Dependencies:</strong></p><pre>npm install yjs y-websocket y-indexeddb y-protocols\nnpm install @tiptap/extension-collaboration\nnpm install @tiptap/extension-collaboration-cursor\nnpm install @hocuspocus/server  # Optional: managed Yjs server</pre><p><strong>Backend Options:</strong></p><table><tr><th>Option</th><th>Pros</th><th>Cons</th></tr><tr><td><strong>y-websocket (self-hosted)</strong></td><td>Full control, low cost</td><td>Must manage infrastructure</td></tr><tr><td><strong>Liveblocks</strong></td><td>Managed, great DX</td><td>Vendor lock-in, cost at scale</td></tr><tr><td><strong>PartyKit</strong></td><td>Edge deployment, Cloudflare</td><td>Newer, less mature</td></tr><tr><td><strong>Hocuspocus</strong></td><td>Yjs-native, extensible</td><td>Self-hosted</td></tr></table><p><strong>Recommended Stack:</strong></p><p>• Development: Hocuspocus (easy local dev)</p><p>• Production: Hocuspocus on Railway/Fly.io or Liveblocks (if budget allows)</p>",
+      "type": "chapter",
+      "parentId": "grp-root",
+      "childrenIds": [],
+      "prefix": "3"
+    },
+    "sec-data": {
+      "id": "sec-data",
+      "name": "Data Model Changes",
+      "content": "<p><strong>Current Model (Single User):</strong></p><pre>interface Outline {\n  id: string;\n  name: string;\n  rootNodeId: string;\n  nodes: Record&lt;string, OutlineNode&gt;;\n  lastModified: number;\n}\n\ninterface OutlineNode {\n  id: string;\n  name: string;\n  content: string;  // HTML string\n  parentId: string | null;\n  childrenIds: string[];\n}</pre><p><strong>Collaborative Model:</strong></p><pre>interface CollaborativeOutline {\n  id: string;\n  name: string;\n  rootNodeId: string;\n  ydoc: Y.Doc;  // The CRDT document\n  \n  // Yjs shared types (auto-sync)\n  nodes: Y.Map&lt;CollaborativeNode&gt;;\n  childrenMap: Y.Map&lt;Y.Array&lt;string&gt;&gt;;\n  nodeContents: Y.Map&lt;Y.XmlFragment&gt;;  // TipTap content\n  \n  // Metadata (also synced)\n  metadata: Y.Map&lt;any&gt;;\n}\n\ninterface CollaborativeNode {\n  id: string;\n  name: string;\n  type: NodeType;\n  parentId: string | null;\n  // Note: content is separate in nodeContents map\n  // Note: childrenIds derived from childrenMap\n}</pre>",
+      "type": "chapter",
+      "parentId": "grp-root",
+      "childrenIds": [
+        "data-migration",
+        "data-compat"
+      ],
+      "prefix": "4"
+    },
+    "data-migration": {
+      "id": "data-migration",
+      "name": "Migration Strategy",
+      "content": "<p><strong>Converting Existing Outlines:</strong></p><pre>async function migrateToCollaborative(outline: Outline): Promise&lt;Y.Doc&gt; {\n  const ydoc = new Y.Doc();\n  \n  const nodes = ydoc.getMap('nodes');\n  const childrenMap = ydoc.getMap('childrenMap');\n  const nodeContents = ydoc.getMap('nodeContents');\n  const metadata = ydoc.getMap('metadata');\n  \n  ydoc.transact(() =&gt; {\n    // Migrate metadata\n    metadata.set('name', outline.name);\n    metadata.set('rootNodeId', outline.rootNodeId);\n    \n    // Migrate each node\n    for (const [id, node] of Object.entries(outline.nodes)) {\n      // Node structure (without content)\n      nodes.set(id, {\n        id: node.id,\n        name: node.name,\n        type: node.type,\n        parentId: node.parentId,\n      });\n      \n      // Children array\n      const children = new Y.Array();\n      children.push(node.childrenIds);\n      childrenMap.set(id, children);\n      \n      // Content as Y.XmlFragment (for TipTap)\n      const content = new Y.XmlFragment();\n      // Parse HTML and convert to Yjs XML nodes\n      applyHtmlToXmlFragment(node.content, content);\n      nodeContents.set(id, content);\n    }\n  });\n  \n  return ydoc;\n}</pre>",
+      "type": "section",
+      "parentId": "sec-data",
+      "childrenIds": [],
+      "prefix": "4.1"
+    },
+    "data-compat": {
+      "id": "data-compat",
+      "name": "Backward Compatibility",
+      "content": "<p><strong>Supporting Both Modes:</strong></p><p>During transition, outlines can be either:</p><p>• <strong>Local</strong> - Current .idm file format, single user</p><p>• <strong>Collaborative</strong> - Yjs document, multi-user</p><p><strong>Detection:</strong></p><pre>interface Outline {\n  id: string;\n  name: string;\n  collaborative?: boolean;  // NEW: is this a collaborative outline?\n  roomId?: string;          // NEW: WebSocket room ID\n  // ... rest of fields\n}</pre><p><strong>UI Indicator:</strong></p><p>• Local outlines: regular icon</p><p>• Collaborative outlines: icon with 'shared' badge, shows collaborator avatars</p><p><strong>Conversion:</strong></p><p>• 'Share' button converts local → collaborative</p><p>• 'Make Private' converts collaborative → local (creates snapshot)</p>",
+      "type": "section",
+      "parentId": "sec-data",
+      "childrenIds": [],
+      "prefix": "4.2"
+    },
+    "sec-backend": {
+      "id": "sec-backend",
+      "name": "Backend Infrastructure",
+      "content": "<p><strong>New Backend Services:</strong></p><table><tr><th>Service</th><th>Purpose</th><th>Technology</th></tr><tr><td><strong>Sync Server</strong></td><td>WebSocket connections, Yjs sync</td><td>Hocuspocus / y-websocket</td></tr><tr><td><strong>API Server</strong></td><td>Auth, permissions, metadata</td><td>Next.js API routes or separate service</td></tr><tr><td><strong>Database</strong></td><td>User accounts, outline metadata, permissions</td><td>PostgreSQL</td></tr><tr><td><strong>Cache</strong></td><td>Session data, presence, rate limiting</td><td>Redis</td></tr><tr><td><strong>Storage</strong></td><td>Yjs document snapshots</td><td>S3 / PostgreSQL BLOB</td></tr></table>",
+      "type": "chapter",
+      "parentId": "grp-root",
+      "childrenIds": [
+        "backend-sync",
+        "backend-db",
+        "backend-api"
+      ],
+      "prefix": "5"
+    },
+    "backend-sync": {
+      "id": "backend-sync",
+      "name": "Sync Server (Hocuspocus)",
+      "content": "<p><strong>Hocuspocus Server Setup:</strong></p><pre>// server/sync-server.ts\nimport { Hocuspocus } from '@hocuspocus/server';\nimport { Database } from '@hocuspocus/extension-database';\nimport { Redis } from '@hocuspocus/extension-redis';\n\nconst server = new Hocuspocus({\n  port: 1234,\n  \n  // Authentication\n  async onAuthenticate({ token, documentName }) {\n    const user = await verifyToken(token);\n    const outlineId = documentName.replace('outline-', '');\n    const hasAccess = await checkPermission(user.id, outlineId);\n    \n    if (!hasAccess) {\n      throw new Error('Unauthorized');\n    }\n    \n    return { user };\n  },\n  \n  // Persistence\n  extensions: [\n    new Database({\n      fetch: async ({ documentName }) =&gt; {\n        const snapshot = await db.getYjsSnapshot(documentName);\n        return snapshot;\n      },\n      store: async ({ documentName, state }) =&gt; {\n        await db.saveYjsSnapshot(documentName, state);\n      },\n    }),\n    \n    // Redis for scaling across multiple server instances\n    new Redis({\n      host: process.env.REDIS_HOST,\n      port: 6379,\n    }),\n  ],\n});\n\nserver.listen();</pre>",
+      "type": "section",
+      "parentId": "sec-backend",
+      "childrenIds": [],
+      "prefix": "5.1"
+    },
+    "backend-db": {
+      "id": "backend-db",
+      "name": "Database Schema",
+      "content": "<p><strong>PostgreSQL Tables:</strong></p><pre>-- Users (integrate with existing auth or new)\nCREATE TABLE users (\n  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n  email VARCHAR(255) UNIQUE NOT NULL,\n  name VARCHAR(255),\n  avatar_url TEXT,\n  created_at TIMESTAMP DEFAULT NOW()\n);\n\n-- Organizations (for enterprise)\nCREATE TABLE organizations (\n  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n  name VARCHAR(255) NOT NULL,\n  plan VARCHAR(50) DEFAULT 'free',  -- free, team, enterprise\n  created_at TIMESTAMP DEFAULT NOW()\n);\n\n-- Collaborative Outlines\nCREATE TABLE collaborative_outlines (\n  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n  name VARCHAR(255) NOT NULL,\n  owner_id UUID REFERENCES users(id),\n  org_id UUID REFERENCES organizations(id),\n  room_id VARCHAR(255) UNIQUE NOT NULL,  -- WebSocket room\n  yjs_state BYTEA,  -- Serialized Yjs document\n  created_at TIMESTAMP DEFAULT NOW(),\n  updated_at TIMESTAMP DEFAULT NOW()\n);\n\n-- Permissions\nCREATE TABLE outline_permissions (\n  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n  outline_id UUID REFERENCES collaborative_outlines(id),\n  user_id UUID REFERENCES users(id),\n  role VARCHAR(50) NOT NULL,  -- owner, editor, commenter, viewer\n  created_at TIMESTAMP DEFAULT NOW(),\n  UNIQUE(outline_id, user_id)\n);\n\n-- Audit Log (for enterprise)\nCREATE TABLE audit_log (\n  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n  outline_id UUID REFERENCES collaborative_outlines(id),\n  user_id UUID REFERENCES users(id),\n  action VARCHAR(100) NOT NULL,  -- 'node.create', 'node.delete', etc.\n  details JSONB,\n  created_at TIMESTAMP DEFAULT NOW()\n);</pre>",
+      "type": "section",
+      "parentId": "sec-backend",
+      "childrenIds": [],
+      "prefix": "5.2"
+    },
+    "backend-api": {
+      "id": "backend-api",
+      "name": "API Endpoints",
+      "content": "<p><strong>New API Routes:</strong></p><pre>// Outline Management\nPOST   /api/outlines              // Create collaborative outline\nGET    /api/outlines              // List user's outlines\nGET    /api/outlines/:id          // Get outline metadata\nDELETE /api/outlines/:id          // Delete outline\nPOST   /api/outlines/:id/share    // Convert local → collaborative\n\n// Permissions\nGET    /api/outlines/:id/permissions     // List collaborators\nPOST   /api/outlines/:id/permissions     // Add collaborator\nPUT    /api/outlines/:id/permissions/:userId  // Update role\nDELETE /api/outlines/:id/permissions/:userId  // Remove collaborator\n\n// Invitations\nPOST   /api/outlines/:id/invite   // Generate invite link\nPOST   /api/invites/:code/accept  // Accept invite\n\n// Sync Server\nGET    /api/outlines/:id/token    // Get WebSocket auth token</pre>",
+      "type": "section",
+      "parentId": "sec-backend",
+      "childrenIds": [],
+      "prefix": "5.3"
+    },
+    "sec-frontend": {
+      "id": "sec-frontend",
+      "name": "Frontend Modifications",
+      "content": "<p><strong>Files to Modify/Create:</strong></p><table><tr><th>File</th><th>Changes</th></tr><tr><td><code>src/contexts/collaboration-context.tsx</code></td><td><strong>NEW</strong> - Yjs provider, WebSocket connection, awareness</td></tr><tr><td><code>src/lib/collaborative-outline.ts</code></td><td><strong>NEW</strong> - CRDT-based outline operations</td></tr><tr><td><code>src/components/content-pane.tsx</code></td><td>Add TipTap collaboration extensions</td></tr><tr><td><code>src/components/outline-pane.tsx</code></td><td>Show presence indicators, share button</td></tr><tr><td><code>src/components/node-item.tsx</code></td><td>Show user avatars editing each node</td></tr><tr><td><code>src/components/share-dialog.tsx</code></td><td><strong>NEW</strong> - Invite collaborators, manage permissions</td></tr><tr><td><code>src/components/collaborators-panel.tsx</code></td><td><strong>NEW</strong> - List of current collaborators</td></tr></table>",
+      "type": "chapter",
+      "parentId": "grp-root",
+      "childrenIds": [
+        "frontend-context",
+        "frontend-tiptap",
+        "frontend-presence"
+      ],
+      "prefix": "6"
+    },
+    "frontend-context": {
+      "id": "frontend-context",
+      "name": "Collaboration Context",
+      "content": "<p><strong>src/contexts/collaboration-context.tsx:</strong></p><pre>import React, { createContext, useContext, useEffect, useState } from 'react';\nimport * as Y from 'yjs';\nimport { WebsocketProvider } from 'y-websocket';\nimport { IndexeddbPersistence } from 'y-indexeddb';\n\ninterface CollaborationContextType {\n  ydoc: Y.Doc | null;\n  provider: WebsocketProvider | null;\n  awareness: Awareness | null;\n  isConnected: boolean;\n  isSynced: boolean;\n  collaborators: CollaboratorPresence[];\n}\n\nconst CollaborationContext = createContext&lt;CollaborationContextType&gt;(null!);\n\nexport function CollaborationProvider({ \n  outlineId, \n  children \n}: { \n  outlineId: string; \n  children: React.ReactNode;\n}) {\n  const [ydoc] = useState(() =&gt; new Y.Doc());\n  const [provider, setProvider] = useState&lt;WebsocketProvider | null&gt;(null);\n  const [isConnected, setIsConnected] = useState(false);\n  const [isSynced, setIsSynced] = useState(false);\n  const [collaborators, setCollaborators] = useState&lt;CollaboratorPresence[]&gt;([]);\n\n  useEffect(() =&gt; {\n    // Get auth token\n    const token = await getCollaborationToken(outlineId);\n    \n    // Connect to sync server\n    const wsProvider = new WebsocketProvider(\n      process.env.NEXT_PUBLIC_SYNC_SERVER_URL!,\n      `outline-${outlineId}`,\n      ydoc,\n      { params: { token } }\n    );\n\n    // Offline persistence\n    const indexeddbProvider = new IndexeddbPersistence(\n      `outline-${outlineId}`,\n      ydoc\n    );\n\n    // Connection status\n    wsProvider.on('status', ({ status }) =&gt; {\n      setIsConnected(status === 'connected');\n    });\n\n    wsProvider.on('sync', (synced) =&gt; {\n      setIsSynced(synced);\n    });\n\n    // Awareness (presence)\n    wsProvider.awareness.on('change', () =&gt; {\n      const states = Array.from(wsProvider.awareness.getStates().values());\n      setCollaborators(states.filter(s =&gt; s.user));\n    });\n\n    // Set local user presence\n    wsProvider.awareness.setLocalState({\n      user: {\n        id: currentUser.id,\n        name: currentUser.name,\n        color: getUserColor(currentUser.id),\n      },\n      currentNodeId: null,\n    });\n\n    setProvider(wsProvider);\n\n    return () =&gt; {\n      wsProvider.destroy();\n      indexeddbProvider.destroy();\n    };\n  }, [outlineId]);\n\n  return (\n    &lt;CollaborationContext.Provider value={{\n      ydoc,\n      provider,\n      awareness: provider?.awareness,\n      isConnected,\n      isSynced,\n      collaborators,\n    }}&gt;\n      {children}\n    &lt;/CollaborationContext.Provider&gt;\n  );\n}\n\nexport const useCollaboration = () =&gt; useContext(CollaborationContext);</pre>",
+      "type": "section",
+      "parentId": "sec-frontend",
+      "childrenIds": [],
+      "prefix": "6.1"
+    },
+    "frontend-tiptap": {
+      "id": "frontend-tiptap",
+      "name": "TipTap Collaboration",
+      "content": "<p><strong>content-pane.tsx modifications:</strong></p><pre>import Collaboration from '@tiptap/extension-collaboration';\nimport CollaborationCursor from '@tiptap/extension-collaboration-cursor';\nimport { useCollaboration } from '@/contexts/collaboration-context';\n\nexport default function ContentPane({ node, isCollaborative }) {\n  const { ydoc, provider } = useCollaboration();\n  \n  const editor = useEditor({\n    extensions: [\n      StarterKit.configure({\n        // Disable built-in history - Yjs handles undo/redo\n        history: isCollaborative ? false : true,\n      }),\n      \n      // ... existing extensions ...\n      \n      // Collaboration extensions (only for collaborative outlines)\n      ...(isCollaborative &amp;&amp; ydoc ? [\n        Collaboration.configure({\n          document: ydoc,\n          field: `content-${node.id}`,  // Each node has separate content\n        }),\n        CollaborationCursor.configure({\n          provider: provider,\n          user: {\n            name: currentUser.name,\n            color: getUserColor(currentUser.id),\n          },\n        }),\n      ] : []),\n    ],\n    \n    // For non-collaborative, use existing content\n    content: isCollaborative ? undefined : node.content,\n  });\n  \n  // ... rest of component\n}</pre><p><strong>Key Changes:</strong></p><p>• Disable TipTap's built-in history (Yjs provides collaborative undo/redo)</p><p>• Each node's content stored in separate Yjs field: <code>content-{nodeId}</code></p><p>• Cursor colors assigned by user ID for consistency</p>",
+      "type": "section",
+      "parentId": "sec-frontend",
+      "childrenIds": [],
+      "prefix": "6.2"
+    },
+    "frontend-presence": {
+      "id": "frontend-presence",
+      "name": "Presence UI",
+      "content": "<p><strong>node-item.tsx - Show who's editing:</strong></p><pre>import { useCollaboration } from '@/contexts/collaboration-context';\n\nexport default function NodeItem({ node }) {\n  const { collaborators } = useCollaboration();\n  \n  // Find collaborators viewing/editing this node\n  const nodeCollaborators = collaborators.filter(\n    c =&gt; c.currentNodeId === node.id &amp;&amp; c.user.id !== currentUser.id\n  );\n  \n  return (\n    &lt;div className=\"node-item\"&gt;\n      &lt;span className=\"node-name\"&gt;{node.name}&lt;/span&gt;\n      \n      {/* Collaborator avatars */}\n      {nodeCollaborators.length &gt; 0 &amp;&amp; (\n        &lt;div className=\"collaborator-avatars\"&gt;\n          {nodeCollaborators.slice(0, 3).map(c =&gt; (\n            &lt;Avatar\n              key={c.user.id}\n              style={{ borderColor: c.user.color }}\n              title={c.user.name}\n            &gt;\n              {c.user.name[0]}\n            &lt;/Avatar&gt;\n          ))}\n          {nodeCollaborators.length &gt; 3 &amp;&amp; (\n            &lt;span&gt;+{nodeCollaborators.length - 3}&lt;/span&gt;\n          )}\n        &lt;/div&gt;\n      )}\n    &lt;/div&gt;\n  );\n}</pre><p><strong>outline-pane.tsx - Connection status:</strong></p><pre>const { isConnected, isSynced, collaborators } = useCollaboration();\n\n// Status indicator in header\n&lt;div className=\"connection-status\"&gt;\n  {!isConnected &amp;&amp; &lt;span className=\"offline\"&gt;Offline&lt;/span&gt;}\n  {isConnected &amp;&amp; !isSynced &amp;&amp; &lt;span className=\"syncing\"&gt;Syncing...&lt;/span&gt;}\n  {isConnected &amp;&amp; isSynced &amp;&amp; (\n    &lt;div className=\"online\"&gt;\n      &lt;span&gt;{collaborators.length} online&lt;/span&gt;\n      &lt;AvatarGroup users={collaborators} /&gt;\n    &lt;/div&gt;\n  )}\n&lt;/div&gt;</pre>",
+      "type": "section",
+      "parentId": "sec-frontend",
+      "childrenIds": [],
+      "prefix": "6.3"
+    },
+    "sec-conflicts": {
+      "id": "sec-conflicts",
+      "name": "Conflict Resolution",
+      "content": "<p><strong>How Yjs CRDTs Handle Conflicts:</strong></p><table><tr><th>Scenario</th><th>CRDT Behavior</th><th>User Experience</th></tr><tr><td>Two users type in same position</td><td>Characters interleave deterministically</td><td>Like Google Docs - both text appears</td></tr><tr><td>User A deletes text while B edits it</td><td>B's edits apply to remaining text</td><td>Seamless, no conflict dialog</td></tr><tr><td>Both users move same node</td><td>Last operation wins (with timestamps)</td><td>Node ends up in one location</td></tr><tr><td>User A deletes node while B adds child</td><td>Configurable: tombstone or resurrect</td><td>May need UI confirmation</td></tr><tr><td>Offline user syncs after changes</td><td>All operations merged automatically</td><td>'Your changes synced' toast</td></tr></table>",
+      "type": "chapter",
+      "parentId": "grp-root",
+      "childrenIds": [
+        "conflict-edge",
+        "conflict-undo"
+      ],
+      "prefix": "7"
+    },
+    "conflict-edge": {
+      "id": "conflict-edge",
+      "name": "Edge Cases",
+      "content": "<p><strong>Problematic Scenarios &amp; Solutions:</strong></p><p><strong>1. Delete node while someone is editing it:</strong></p><pre>// Option A: Soft delete (tombstone)\nfunction deleteNode(nodeId: string) {\n  const node = nodes.get(nodeId);\n  node.deleted = true;\n  node.deletedAt = Date.now();\n  node.deletedBy = currentUser.id;\n  // Node hidden but preserved; can be restored\n}\n\n// Option B: Block delete if others editing\nfunction deleteNode(nodeId: string) {\n  const editingUsers = getEditorsForNode(nodeId);\n  if (editingUsers.length &gt; 0) {\n    toast.warning(`${editingUsers[0].name} is editing this node`);\n    return false;\n  }\n  // Proceed with delete\n}</pre><p><strong>2. Move node creates cycle:</strong></p><pre>// Validate before move\nfunction moveNode(nodeId: string, newParentId: string) {\n  if (wouldCreateCycle(nodeId, newParentId)) {\n    toast.error('Cannot move node into its own descendant');\n    return false;\n  }\n  // Proceed with move\n}</pre><p><strong>3. Name collision:</strong></p><p>Two users create nodes with same name → both kept, system auto-renames</p>",
+      "type": "section",
+      "parentId": "sec-conflicts",
+      "childrenIds": [],
+      "prefix": "7.1"
+    },
+    "conflict-undo": {
+      "id": "conflict-undo",
+      "name": "Collaborative Undo",
+      "content": "<p><strong>Undo in Collaborative Environment:</strong></p><p>Traditional undo undoes the last operation. In collaboration, whose 'last operation'?</p><p><strong>Yjs UndoManager:</strong></p><pre>import { UndoManager } from 'yjs';\n\n// Each user has their own undo stack\nconst undoManager = new UndoManager(\n  [nodes, nodeContents],  // Track these Yjs types\n  {\n    trackedOrigins: new Set([currentUser.id]),  // Only track own edits\n  }\n);\n\n// Undo own changes only\nfunction handleUndo() {\n  undoManager.undo();\n}\n\n// Redo own changes only  \nfunction handleRedo() {\n  undoManager.redo();\n}</pre><p><strong>Behavior:</strong></p><p>• Cmd+Z undoes YOUR last action, not someone else's</p><p>• If you undo a delete, the node reappears (even if others edited since)</p><p>• Undo stack persists across sessions (stored in Yjs)</p>",
+      "type": "section",
+      "parentId": "sec-conflicts",
+      "childrenIds": [],
+      "prefix": "7.2"
+    },
+    "sec-security": {
+      "id": "sec-security",
+      "name": "Security & Permissions",
+      "content": "<p><strong>Permission Levels:</strong></p><table><tr><th>Role</th><th>Can View</th><th>Can Edit</th><th>Can Delete</th><th>Can Share</th><th>Can Transfer</th></tr><tr><td><strong>Viewer</strong></td><td>Yes</td><td>No</td><td>No</td><td>No</td><td>No</td></tr><tr><td><strong>Commenter</strong></td><td>Yes</td><td>Comments only</td><td>No</td><td>No</td><td>No</td></tr><tr><td><strong>Editor</strong></td><td>Yes</td><td>Yes</td><td>Yes (own nodes)</td><td>No</td><td>No</td></tr><tr><td><strong>Admin</strong></td><td>Yes</td><td>Yes</td><td>Yes (all)</td><td>Yes</td><td>No</td></tr><tr><td><strong>Owner</strong></td><td>Yes</td><td>Yes</td><td>Yes (all)</td><td>Yes</td><td>Yes</td></tr></table>",
+      "type": "chapter",
+      "parentId": "grp-root",
+      "childrenIds": [
+        "security-auth",
+        "security-enterprise"
+      ],
+      "prefix": "8"
+    },
+    "security-auth": {
+      "id": "security-auth",
+      "name": "Authentication Flow",
+      "content": "<p><strong>WebSocket Authentication:</strong></p><pre>// Client: Get token before connecting\nasync function connectToOutline(outlineId: string) {\n  // 1. Request collaboration token from API\n  const { token, expiresAt } = await fetch(\n    `/api/outlines/${outlineId}/token`,\n    { headers: { Authorization: `Bearer ${userToken}` } }\n  ).then(r =&gt; r.json());\n  \n  // 2. Connect to WebSocket with token\n  const provider = new WebsocketProvider(\n    SYNC_SERVER_URL,\n    `outline-${outlineId}`,\n    ydoc,\n    { params: { token } }\n  );\n  \n  // 3. Handle token refresh\n  setInterval(async () =&gt; {\n    const { token: newToken } = await refreshToken(outlineId);\n    provider.params.token = newToken;\n  }, (expiresAt - Date.now()) * 0.8);  // Refresh at 80% expiry\n}</pre><p><strong>Server-Side Validation:</strong></p><pre>// Sync server: Validate on every message\nonAuthenticate({ token, documentName }) {\n  const decoded = jwt.verify(token, SECRET);\n  const outlineId = documentName.replace('outline-', '');\n  \n  if (decoded.outlineId !== outlineId) {\n    throw new Error('Token mismatch');\n  }\n  \n  if (decoded.exp &lt; Date.now() / 1000) {\n    throw new Error('Token expired');\n  }\n  \n  return {\n    user: decoded.user,\n    permissions: decoded.permissions,\n  };\n}</pre>",
+      "type": "section",
+      "parentId": "sec-security",
+      "childrenIds": [],
+      "prefix": "8.1"
+    },
+    "security-enterprise": {
+      "id": "security-enterprise",
+      "name": "Enterprise Features",
+      "content": "<p><strong>SSO Integration:</strong></p><p>• SAML 2.0 support (Okta, Azure AD, OneLogin)</p><p>• OAuth 2.0 / OpenID Connect</p><p>• SCIM for user provisioning</p><p><strong>Compliance:</strong></p><p>• Audit logs for all document operations</p><p>• Data residency options (US, EU, custom)</p><p>• SOC 2 Type II certification path</p><p>• GDPR data export/deletion</p><p><strong>Admin Controls:</strong></p><p>• Organization-wide sharing policies</p><p>• External sharing restrictions</p><p>• IP allowlisting</p><p>• Session management</p><p><strong>Audit Log Example:</strong></p><pre>{\n  \"timestamp\": \"2026-01-18T15:30:00Z\",\n  \"user_id\": \"user-123\",\n  \"user_email\": \"howard@company.com\",\n  \"outline_id\": \"outline-456\",\n  \"action\": \"node.delete\",\n  \"details\": {\n    \"node_id\": \"node-789\",\n    \"node_name\": \"Q1 Strategy\",\n    \"ip_address\": \"192.168.1.1\",\n    \"user_agent\": \"IdiamPro/1.0 (Mac)\"\n  }\n}</pre>",
+      "type": "section",
+      "parentId": "sec-security",
+      "childrenIds": [],
+      "prefix": "8.2"
+    },
+    "sec-phases": {
+      "id": "sec-phases",
+      "name": "Implementation Phases",
+      "content": "<p><strong>Phased Rollout Strategy:</strong></p>",
+      "type": "chapter",
+      "parentId": "grp-root",
+      "childrenIds": [
+        "phase-1",
+        "phase-2",
+        "phase-3",
+        "phase-4"
+      ],
+      "prefix": "9"
+    },
+    "phase-1": {
+      "id": "phase-1",
+      "name": "Phase 1: View-Only Sharing",
+      "content": "<p><strong>Scope:</strong> Share outlines via link, read-only access</p><p><strong>Features:</strong></p><p>• Generate shareable link for any outline</p><p>• Link recipients can view but not edit</p><p>• No real-time sync needed (static snapshot)</p><p>• Owner can revoke link</p><p><strong>Technical Work:</strong></p><p>• Add sharing UI (share dialog, copy link)</p><p>• API endpoint to generate/validate share tokens</p><p>• Read-only view mode</p><p><strong>Effort:</strong> 2-3 weeks</p><p><strong>Risk:</strong> Low</p>",
+      "type": "section",
+      "parentId": "sec-phases",
+      "childrenIds": [],
+      "prefix": "9.1"
+    },
+    "phase-2": {
+      "id": "phase-2",
+      "name": "Phase 2: Turn-Based Editing",
+      "content": "<p><strong>Scope:</strong> Multiple editors, but with locking</p><p><strong>Features:</strong></p><p>• Invite collaborators by email</p><p>• Node-level locking: only one editor at a time per node</p><p>• Changes sync when lock released</p><p>• See who's editing which nodes</p><p><strong>Technical Work:</strong></p><p>• User accounts and authentication</p><p>• Invitation system</p><p>• Lock/unlock mechanism (Redis)</p><p>• Basic presence (who's online)</p><p><strong>Effort:</strong> 4-6 weeks</p><p><strong>Risk:</strong> Medium (introduces multi-user state)</p>",
+      "type": "section",
+      "parentId": "sec-phases",
+      "childrenIds": [],
+      "prefix": "9.2"
+    },
+    "phase-3": {
+      "id": "phase-3",
+      "name": "Phase 3: Real-Time Collaboration",
+      "content": "<p><strong>Scope:</strong> Full Google Docs-style collaboration</p><p><strong>Features:</strong></p><p>• Multiple users edit same node simultaneously</p><p>• Real-time cursors and selections</p><p>• Instant sync (&lt;100ms latency)</p><p>• Offline support with auto-merge</p><p>• Collaborative undo/redo</p><p><strong>Technical Work:</strong></p><p>• Implement Yjs CRDT layer</p><p>• WebSocket sync server (Hocuspocus)</p><p>• TipTap collaboration extensions</p><p>• Presence awareness UI</p><p>• Conflict resolution for edge cases</p><p><strong>Effort:</strong> 8-12 weeks</p><p><strong>Risk:</strong> High (core architecture change)</p>",
+      "type": "section",
+      "parentId": "sec-phases",
+      "childrenIds": [],
+      "prefix": "9.3"
+    },
+    "phase-4": {
+      "id": "phase-4",
+      "name": "Phase 4: Enterprise Features",
+      "content": "<p><strong>Scope:</strong> Enterprise-grade security and admin</p><p><strong>Features:</strong></p><p>• SSO integration (SAML, OAuth)</p><p>• Organization management</p><p>• Advanced permissions (teams, folders)</p><p>• Audit logs</p><p>• Admin dashboard</p><p>• API for integrations</p><p><strong>Technical Work:</strong></p><p>• Identity provider integrations</p><p>• Organization/team data model</p><p>• Audit logging infrastructure</p><p>• Admin UI</p><p>• REST/GraphQL API</p><p><strong>Effort:</strong> 12-16 weeks</p><p><strong>Risk:</strong> Medium (well-understood patterns)</p>",
+      "type": "section",
+      "parentId": "sec-phases",
+      "childrenIds": [],
+      "prefix": "9.4"
+    },
+    "sec-costs": {
+      "id": "sec-costs",
+      "name": "Cost Analysis",
+      "content": "<p><strong>Infrastructure Costs (Production):</strong></p><table><tr><th>Component</th><th>Option</th><th>Monthly Cost</th></tr><tr><td><strong>Sync Server</strong></td><td>Fly.io (2 instances)</td><td>~$30</td></tr><tr><td><strong>Database</strong></td><td>Supabase / PlanetScale</td><td>~$25</td></tr><tr><td><strong>Redis</strong></td><td>Upstash</td><td>~$10</td></tr><tr><td><strong>Storage</strong></td><td>S3 / R2</td><td>~$5</td></tr><tr><td><strong>Total (Self-Hosted)</strong></td><td></td><td><strong>~$70/mo</strong></td></tr></table><p><strong>Managed Alternative:</strong></p><table><tr><th>Service</th><th>Pricing</th><th>Notes</th></tr><tr><td><strong>Liveblocks</strong></td><td>$99/mo (100 MAU)</td><td>Easiest, handles everything</td></tr><tr><td><strong>Liveblocks</strong></td><td>$499/mo (1000 MAU)</td><td>Scales with users</td></tr><tr><td><strong>PartyKit</strong></td><td>Free tier + usage</td><td>Cloudflare-based</td></tr></table><p><strong>Development Cost:</strong></p><p>• Phase 1-2: 1 developer, 6-8 weeks</p><p>• Phase 3: 2 developers, 8-12 weeks</p><p>• Phase 4: 2-3 developers, 12-16 weeks</p>",
+      "type": "chapter",
+      "parentId": "grp-root",
+      "childrenIds": [],
+      "prefix": "10"
+    },
+    "sec-challenges": {
+      "id": "sec-challenges",
+      "name": "Technical Challenges",
+      "content": "<p><strong>Known Hard Problems:</strong></p>",
+      "type": "chapter",
+      "parentId": "grp-root",
+      "childrenIds": [
+        "challenge-1",
+        "challenge-2",
+        "challenge-3",
+        "challenge-4"
+      ],
+      "prefix": "11"
+    },
+    "challenge-1": {
+      "id": "challenge-1",
+      "name": "Large Document Performance",
+      "content": "<p><strong>Problem:</strong> Yjs documents with 10,000+ nodes may have performance issues</p><p><strong>Symptoms:</strong></p><p>• Slow initial sync</p><p>• Memory usage grows</p><p>• UI becomes sluggish</p><p><strong>Solutions:</strong></p><p>• <strong>Lazy loading:</strong> Only sync visible subtree, load others on demand</p><p>• <strong>Document splitting:</strong> Large outlines become multiple Yjs documents</p><p>• <strong>Garbage collection:</strong> Prune old Yjs history periodically</p><p>• <strong>Pagination:</strong> Virtualize long node lists</p>",
+      "type": "section",
+      "parentId": "sec-challenges",
+      "childrenIds": [],
+      "prefix": "11.1"
+    },
+    "challenge-2": {
+      "id": "challenge-2",
+      "name": "Offline Conflict UI",
+      "content": "<p><strong>Problem:</strong> User works offline for days, comes back to major changes</p><p><strong>Symptoms:</strong></p><p>• Confusing merged state</p><p>• User's mental model doesn't match document</p><p><strong>Solutions:</strong></p><p>• <strong>Sync summary:</strong> 'While you were away: 47 changes by 3 collaborators'</p><p>• <strong>Diff view:</strong> Show what changed since last online</p><p>• <strong>Conflict markers:</strong> Highlight areas with heavy concurrent edits</p><p>• <strong>Version snapshots:</strong> Allow reverting to pre-sync state</p>",
+      "type": "section",
+      "parentId": "sec-challenges",
+      "childrenIds": [],
+      "prefix": "11.2"
+    },
+    "challenge-3": {
+      "id": "challenge-3",
+      "name": "Permission Changes Mid-Edit",
+      "content": "<p><strong>Problem:</strong> User's access revoked while they're editing</p><p><strong>Symptoms:</strong></p><p>• User has local changes that can't sync</p><p>• Confusing error messages</p><p><strong>Solutions:</strong></p><p>• <strong>Grace period:</strong> Allow syncing for 5 minutes after revocation</p><p>• <strong>Export prompt:</strong> 'Your access was revoked. Download your unsaved changes?'</p><p>• <strong>Soft disconnect:</strong> Switch to read-only, don't kick out immediately</p>",
+      "type": "section",
+      "parentId": "sec-challenges",
+      "childrenIds": [],
+      "prefix": "11.3"
+    },
+    "challenge-4": {
+      "id": "challenge-4",
+      "name": "Mobile Performance",
+      "content": "<p><strong>Problem:</strong> iOS/Android has stricter memory and background limits</p><p><strong>Symptoms:</strong></p><p>• App suspended loses WebSocket connection</p><p>• Large documents cause memory warnings</p><p>• Battery drain from constant sync</p><p><strong>Solutions:</strong></p><p>• <strong>Reconnect logic:</strong> Detect app foreground, reconnect immediately</p><p>• <strong>Sync throttling:</strong> Batch updates on mobile, sync less frequently</p><p>• <strong>Lightweight mode:</strong> Download document summary, fetch full content on demand</p><p>• <strong>Push notifications:</strong> Alert user of important changes instead of constant sync</p>",
+      "type": "section",
+      "parentId": "sec-challenges",
+      "childrenIds": [],
+      "prefix": "11.4"
+    }
+  },
+  "isGuide": false,
+  "_fileSize": 61151,
+  "_fileName": "IdiamPro - Group.idm",
+  "_isLazyLoaded": false
+}

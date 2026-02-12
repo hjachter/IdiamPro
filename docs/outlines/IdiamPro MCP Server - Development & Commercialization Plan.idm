@@ -1,0 +1,493 @@
+{
+  "id": "0819884a-fe41-4344-8232-e744ed63e110",
+  "name": "IdiamPro MCP Server - Development & Commercialization Plan",
+  "rootNodeId": "0b4b1874-027a-4b81-9918-1c126b9e6619",
+  "nodes": {
+    "0b4b1874-027a-4b81-9918-1c126b9e6619": {
+      "id": "0b4b1874-027a-4b81-9918-1c126b9e6619",
+      "name": "IdiamPro MCP Server - Development & Commercialization Plan",
+      "content": "",
+      "type": "root",
+      "parentId": null,
+      "childrenIds": [
+        "3d4b17e0-df51-4532-9672-5bed16d609c7",
+        "ffb32da6-e917-4e8c-b55d-ec7ef66fa047",
+        "4a22e316-cf46-44b8-89bd-b41e1e4d4b63",
+        "3ce6cda2-ed3a-4467-83de-41a361540e46",
+        "6f68576a-8b86-4257-9eee-dacdef63c314",
+        "ca18f73a-6dde-4a3e-9b63-87fbc375f67f",
+        "88f614a4-60c9-4da2-a498-9a50ed699889",
+        "37c2360f-bf60-4ee8-9ca9-0c1df9b9fcba",
+        "f75c2fff-10f4-4fae-9051-1362cd9c4692"
+      ],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1768038036242,
+        "updatedAt": 1768038036242
+      }
+    },
+    "3d4b17e0-df51-4532-9672-5bed16d609c7": {
+      "id": "3d4b17e0-df51-4532-9672-5bed16d609c7",
+      "name": "Executive Summary",
+      "content": "Transform IdiamPro from a standalone outlining application into an AI-native platform with full programmatic access via Model Context Protocol (MCP). This plan covers technical architecture, implementation phases, and commercialization strategy.\n\n**Key Decisions:**\n- **Target Market**: Hybrid (start with developers/prosumers, expand to enterprise)\n- **Integration**: MCP server integrated into IdiamPro app (GUI + API access)\n- **Monetization**: Open source core + paid premium features\n- **Launch**: Soft launch MCP in beta first, before main product\n\n---",
+      "type": "note",
+      "parentId": "0b4b1874-027a-4b81-9918-1c126b9e6619",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1768038036242,
+        "updatedAt": 1768038036242
+      }
+    },
+    "ffb32da6-e917-4e8c-b55d-ec7ef66fa047": {
+      "id": "ffb32da6-e917-4e8c-b55d-ec7ef66fa047",
+      "name": "1. Technical Architecture",
+      "content": "",
+      "type": "document",
+      "parentId": "0b4b1874-027a-4b81-9918-1c126b9e6619",
+      "childrenIds": [
+        "b51c20cd-b7f3-439a-9c08-53950ec12450",
+        "6a24eb92-1979-4c86-9390-8ff517f33644"
+      ],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1768038036242,
+        "updatedAt": 1768038036242
+      }
+    },
+    "b51c20cd-b7f3-439a-9c08-53950ec12450": {
+      "id": "b51c20cd-b7f3-439a-9c08-53950ec12450",
+      "name": "1.1 MCP Server Structure",
+      "content": "**Implementation:**\n- Standalone TypeScript MCP server using `@modelcontextprotocol/sdk`\n- Runs as separate Node.js process (local or containerized)\n- Connects to IdiamPro's existing storage layer\n\n**Directory Structure:**\n```\n/mcp-server/\n├── src/\n│   ├── index.ts              # Server entry point\n│   ├── server.ts             # MCP server setup\n│   ├── tools/\n│   │   ├── free/             # Open source tools\n│   │   │   ├── outline-read.ts\n│   │   │   ├── outline-crud.ts\n│   │   │   ├── node-crud.ts\n│   │   │   └── tag-ops.ts\n│   │   └── premium/          # Paid features\n│   │       ├── ai-generate.ts\n│   │       ├── ai-ingest.ts\n│   │       └── bulk-ops.ts\n│   ├── auth/\n│   │   ├── api-key-manager.ts\n│   │   └── plan-checker.ts\n│   └── storage/\n│       └── storage-factory.ts\n```",
+      "type": "document",
+      "parentId": "ffb32da6-e917-4e8c-b55d-ec7ef66fa047",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1768038036242,
+        "updatedAt": 1768038036242
+      }
+    },
+    "6a24eb92-1979-4c86-9390-8ff517f33644": {
+      "id": "6a24eb92-1979-4c86-9390-8ff517f33644",
+      "name": "1.2 Integration with Existing Code",
+      "content": "**Shared Library Strategy:**\n- Create `@idiampro/core` package with:\n  - Type definitions (OutlineNode, NodeMap, Outline)\n  - Core utilities (outline-utils, tag-utils)\n  - Storage interfaces\n- Both Next.js app and MCP server import from shared package\n\n**Authentication Flow:**\n```\nUser generates API Key in IdiamPro GUI\n  → Key stored with plan tier (FREE/PREMIUM/PRO/ENTERPRISE)\n  → MCP Client sends key in headers\n  → Server validates and enforces plan limits\n```\n\n**Supported Transports:**\n1. **stdio** - Claude Desktop (primary)\n2. **SSE** - Web-based clients\n3. **HTTP** - REST integrations (future)\n\n---",
+      "type": "code",
+      "parentId": "ffb32da6-e917-4e8c-b55d-ec7ef66fa047",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1768038036242,
+        "updatedAt": 1768038036242
+      }
+    },
+    "4a22e316-cf46-44b8-89bd-b41e1e4d4b63": {
+      "id": "4a22e316-cf46-44b8-89bd-b41e1e4d4b63",
+      "name": "2. MCP Tool Design",
+      "content": "",
+      "type": "note",
+      "parentId": "0b4b1874-027a-4b81-9918-1c126b9e6619",
+      "childrenIds": [
+        "7fe53a97-b423-442d-8046-d8d087ab9072",
+        "b436bdcc-6046-400e-a86d-80f25683da44",
+        "3b8567b3-c3d9-42ad-aa22-88d7383299f2",
+        "0c8610c8-45ae-4d9e-a6c2-09c90c962546"
+      ],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1768038036242,
+        "updatedAt": 1768038036242
+      }
+    },
+    "7fe53a97-b423-442d-8046-d8d087ab9072": {
+      "id": "7fe53a97-b423-442d-8046-d8d087ab9072",
+      "name": "2.1 Free Tier Tools (Open Source - MIT License)",
+      "content": "**Read Operations:**\n- `list_outlines` - List all outlines with metadata\n- `get_outline` - Get complete outline by ID/name\n- `get_node` - Get specific node with context\n- `search_nodes` - Full-text search across nodes\n\n**Basic CRUD:**\n- `create_node` - Add node to tree\n- `update_node` - Modify node properties\n- `delete_node` - Remove node and children\n- `move_node` - Reorder tree structure\n\n**Tag Operations:**\n- `add_tag` - Tag a node\n- `remove_tag` - Remove tag\n- `list_tags` - Get all tags\n- `filter_by_tags` - Find tagged nodes\n\n**Limits:** 1,000 API calls/month",
+      "type": "note",
+      "parentId": "4a22e316-cf46-44b8-89bd-b41e1e4d4b63",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1768038036242,
+        "updatedAt": 1768038036242
+      }
+    },
+    "b436bdcc-6046-400e-a86d-80f25683da44": {
+      "id": "b436bdcc-6046-400e-a86d-80f25683da44",
+      "name": "2.2 Premium Tier Tools (Proprietary)",
+      "content": "**AI-Powered Operations:**\n- `generate_outline` - Create outline from topic (100/month)\n- `expand_content` - Generate node content (500/month)\n- `ingest_source` - Import YouTube/PDF/text (50/month)\n\n**Bulk Operations:**\n- `batch_update_nodes` - Update multiple nodes atomically\n- `multi_select_action` - Bulk tag, color, move operations\n\n**Limits:** 10,000 API calls/month\n\n**Implementation Example:**\n```typescript\n// Premium tool with plan checking\n{\n  name: \"generate_outline\",\n  description: \"Generate outline from topic using AI (PREMIUM)\",\n  handler: async (args, apiKey) => {\n    const plan = await auth.getPlanForKey(apiKey);\n    if (plan === 'FREE') {\n      throw new Error('Requires PREMIUM plan');\n    }\n    return await generateOutlineAction(args.topic);\n  }\n}\n```",
+      "type": "note",
+      "parentId": "4a22e316-cf46-44b8-89bd-b41e1e4d4b63",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1768038036242,
+        "updatedAt": 1768038036242
+      }
+    },
+    "3b8567b3-c3d9-42ad-aa22-88d7383299f2": {
+      "id": "3b8567b3-c3d9-42ad-aa22-88d7383299f2",
+      "name": "2.3 Pro Tier (Future)",
+      "content": "- Unlimited AI operations\n- Semantic search\n- Cross-outline queries\n- Priority support\n- 50,000 API calls/month",
+      "type": "note",
+      "parentId": "4a22e316-cf46-44b8-89bd-b41e1e4d4b63",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1768038036243,
+        "updatedAt": 1768038036243
+      }
+    },
+    "0c8610c8-45ae-4d9e-a6c2-09c90c962546": {
+      "id": "0c8610c8-45ae-4d9e-a6c2-09c90c962546",
+      "name": "2.4 Enterprise Tier (Future)",
+      "content": "- Team collaboration features\n- SSO and advanced security\n- Audit logs\n- Custom integrations\n- On-premise deployment\n\n---",
+      "type": "note",
+      "parentId": "4a22e316-cf46-44b8-89bd-b41e1e4d4b63",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1768038036243,
+        "updatedAt": 1768038036243
+      }
+    },
+    "3ce6cda2-ed3a-4467-83de-41a361540e46": {
+      "id": "3ce6cda2-ed3a-4467-83de-41a361540e46",
+      "name": "3. Implementation Phases",
+      "content": "",
+      "type": "code",
+      "parentId": "0b4b1874-027a-4b81-9918-1c126b9e6619",
+      "childrenIds": [
+        "ea74d226-353f-4239-a252-6e7efc40b017",
+        "d2fe692c-4710-4bd6-a800-f4fd8e60659a",
+        "8a331195-c424-4c5f-a51e-d36b37ed6226",
+        "30a3de61-ab03-448a-a158-dfd4b2c2f80f"
+      ],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1768038036243,
+        "updatedAt": 1768038036243
+      }
+    },
+    "ea74d226-353f-4239-a252-6e7efc40b017": {
+      "id": "ea74d226-353f-4239-a252-6e7efc40b017",
+      "name": "Phase 1: Core MCP Server - BETA (Weeks 1-4)",
+      "content": "**Week 1-2: Foundation**\n- Set up MCP server project structure\n- Implement storage adapters (reuse existing storage-manager.ts)\n- Create API key authentication system\n- Basic stdio transport for Claude Desktop\n\n**Week 2-3: Free Tier Tools**\n- Implement all read operations\n- Implement basic CRUD (create, update, delete, move nodes)\n- Implement tag operations\n- Write comprehensive tests\n\n**Week 3-4: Beta Testing**\n- Package for npm distribution\n- Write documentation and setup guide\n- Onboard 10-20 beta testers\n- Gather feedback and iterate\n\n**Success Criteria:**\n- Server runs stably with Claude Desktop\n- All free tier tools work reliably\n- Beta testers successfully integrate\n- Documentation covers common use cases",
+      "type": "task",
+      "parentId": "3ce6cda2-ed3a-4467-83de-41a361540e46",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1768038036243,
+        "updatedAt": 1768038036243
+      }
+    },
+    "d2fe692c-4710-4bd6-a800-f4fd8e60659a": {
+      "id": "d2fe692c-4710-4bd6-a800-f4fd8e60659a",
+      "name": "Phase 2: Premium AI Tools (Weeks 5-7)",
+      "content": "**Week 5: AI Integration**\n- Integrate existing AI service (ai-service.ts, actions.ts)\n- Implement generate_outline tool\n- Implement expand_content tool\n- Plan-based access control\n\n**Week 6: Advanced AI Features**\n- Implement ingest_source (YouTube, PDF extraction)\n- Context-aware content generation\n- Optimize AI prompts for MCP context\n\n**Week 7: Testing & Refinement**\n- Test with premium beta users\n- Optimize response times\n- Implement rate limiting\n- Premium feature documentation\n\n**Success Criteria:**\n- AI operations work seamlessly\n- Premium feature gating works correctly\n- Response times < 10s for AI operations",
+      "type": "task",
+      "parentId": "3ce6cda2-ed3a-4467-83de-41a361540e46",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1768038036243,
+        "updatedAt": 1768038036243
+      }
+    },
+    "8a331195-c424-4c5f-a51e-d36b37ed6226": {
+      "id": "8a331195-c424-4c5f-a51e-d36b37ed6226",
+      "name": "Phase 3: Advanced Features (Weeks 8-10)",
+      "content": "**Week 8: Bulk Operations**\n- Implement batch_update_nodes\n- Implement multi_select_action\n- Transaction support for atomic operations\n\n**Week 9: SSE Transport**\n- Add SSE for web clients\n- Simple web MCP client demo\n- Security hardening\n\n**Week 10: Polish**\n- Performance optimization\n- Error handling improvements\n- Logging and debugging tools\n- Final documentation\n\n**Success Criteria:**\n- Bulk operations handle 100+ nodes\n- SSE transport works\n- Production-ready",
+      "type": "task",
+      "parentId": "3ce6cda2-ed3a-4467-83de-41a361540e46",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1768038036243,
+        "updatedAt": 1768038036243
+      }
+    },
+    "30a3de61-ab03-448a-a158-dfd4b2c2f80f": {
+      "id": "30a3de61-ab03-448a-a158-dfd4b2c2f80f",
+      "name": "Phase 4: Enterprise (Weeks 11-14) - Future",
+      "content": "- Real-time collaboration\n- SSO integration (OAuth2, SAML)\n- Role-based access control\n- Advanced analytics\n\n---",
+      "type": "task",
+      "parentId": "3ce6cda2-ed3a-4467-83de-41a361540e46",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1768038036243,
+        "updatedAt": 1768038036243
+      }
+    },
+    "6f68576a-8b86-4257-9eee-dacdef63c314": {
+      "id": "6f68576a-8b86-4257-9eee-dacdef63c314",
+      "name": "4. Commercialization Strategy",
+      "content": "",
+      "type": "chapter",
+      "parentId": "0b4b1874-027a-4b81-9918-1c126b9e6619",
+      "childrenIds": [
+        "30980a13-7b58-4230-8e6e-2a7c1686ce7d",
+        "dd37675e-7382-429f-88c3-31129138adb1",
+        "138750c2-8b90-4972-b378-a86890dd26c8",
+        "0e325898-20ba-4e2c-8529-49eccda60ca7",
+        "d7c6397c-43ba-4a5f-89ec-512ca4fd4de5",
+        "262dc1a9-25b1-4483-9d93-e2ce219d4dc7"
+      ],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1768038036243,
+        "updatedAt": 1768038036243
+      }
+    },
+    "30980a13-7b58-4230-8e6e-2a7c1686ce7d": {
+      "id": "30980a13-7b58-4230-8e6e-2a7c1686ce7d",
+      "name": "4.1 Open Source Strategy",
+      "content": "**Licensing:**\n- **Free Tier**: MIT License (fully open source)\n  - GitHub: `idiampro/idiampro-mcp-server`\n  - Encourage community contributions\n  - Build trust and adoption\n\n- **Premium Tier**: Proprietary (source-available for inspection)\n  - OR dual-license: AGPL for self-hosted, commercial for SaaS\n\n**Repositories:**\n```\ngithub.com/idiampro/\n├── idiampro-mcp-server        # Free tools (open source)\n├── idiampro-mcp-premium       # Premium plugin\n├── idiampro-core              # Shared utilities (MIT)\n└── idiampro-examples          # Integration examples\n```",
+      "type": "chapter",
+      "parentId": "6f68576a-8b86-4257-9eee-dacdef63c314",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1768038036243,
+        "updatedAt": 1768038036243
+      }
+    },
+    "dd37675e-7382-429f-88c3-31129138adb1": {
+      "id": "dd37675e-7382-429f-88c3-31129138adb1",
+      "name": "4.2 Pricing Structure",
+      "content": "| Tier | Price | Features | API Calls | Target |\n|------|-------|----------|-----------|---------|\n| **Free** | $0 | Read ops, basic CRUD, tags, search | 1,000/mo | Developers, hobbyists |\n| **Premium** | $19/mo ($15 annual) | + AI generation (100/mo), AI expansion (500/mo), ingestion (50/mo), bulk ops | 10,000/mo | Professional users, consultants |\n| **Pro** | $49/mo ($39 annual) | + Unlimited AI, semantic search, cross-outline queries | 50,000/mo | Small teams, agencies |\n| **Enterprise** | Custom | + Team collab, SSO, audit logs, on-premise | Custom | Large organizations |",
+      "type": "spreadsheet",
+      "parentId": "6f68576a-8b86-4257-9eee-dacdef63c314",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1768038036243,
+        "updatedAt": 1768038036243
+      }
+    },
+    "138750c2-8b90-4972-b378-a86890dd26c8": {
+      "id": "138750c2-8b90-4972-b378-a86890dd26c8",
+      "name": "4.3 Developer Onboarding",
+      "content": "**Documentation:**\n1. **Quick Start** (5 minutes to first API call)\n   - Install via npm\n   - Configure Claude Desktop\n   - Make first request\n\n2. **API Reference**\n   - Tool catalog with examples\n   - Schema documentation\n   - Error codes and best practices\n\n3. **Integration Guides**\n   - Claude Desktop setup\n   - VS Code integration\n   - Custom MCP client development\n   - Workflow automation\n\n4. **Video Tutorials**\n   - \"Building with IdiamPro MCP\" series\n   - Weekly live coding sessions\n   - Community showcases\n\n**Developer Portal:**\n- API key generation/management\n- Usage dashboard (calls, limits)\n- Plan upgrade/downgrade\n- Billing and support",
+      "type": "note",
+      "parentId": "6f68576a-8b86-4257-9eee-dacdef63c314",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1768038036243,
+        "updatedAt": 1768038036243
+      }
+    },
+    "0e325898-20ba-4e2c-8529-49eccda60ca7": {
+      "id": "0e325898-20ba-4e2c-8529-49eccda60ca7",
+      "name": "4.4 Marketing Messaging",
+      "content": "**Value Proposition:**\n\"IdiamPro: The AI-Native Outliner with Full API Access\"\n\n**Key Messages:**\n1. **Developers**: \"Integrate powerful outlining into your workflow\"\n2. **Power Users**: \"Automate knowledge management with AI\"\n3. **Teams**: \"Collaborate on structured content programmatically\"\n\n**Content Marketing:**\n\n**Blog Posts:**\n- \"Building an AI Outline Generator with MCP\"\n- \"Automating Research with IdiamPro and Claude\"\n- \"From YouTube to Outline in 60 Seconds\"\n- \"10 MCP Workflows for Knowledge Workers\"\n\n**Example Projects (Open Source):**\n- Chrome extension: Save web pages as outline nodes\n- Obsidian plugin: Sync between Obsidian and IdiamPro\n- Slack bot: Create outlines from Slack threads\n- Email parser: Convert emails to outlines\n\n**Social Media:**\n- Twitter: Code snippets, tips, community highlights\n- YouTube: Tutorial series, demos\n- Dev.to: Technical deep-dives\n- Reddit: r/productivity, r/AI, r/programming",
+      "type": "note",
+      "parentId": "6f68576a-8b86-4257-9eee-dacdef63c314",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1768038036243,
+        "updatedAt": 1768038036243
+      }
+    },
+    "d7c6397c-43ba-4a5f-89ec-512ca4fd4de5": {
+      "id": "d7c6397c-43ba-4a5f-89ec-512ca4fd4de5",
+      "name": "4.5 Distribution Channels",
+      "content": "**Primary:**\n1. **MCP Registry** (modelcontextprotocol.io) - Official listing\n2. **npm** - `npm install -g @idiampro/mcp-server`\n3. **GitHub Marketplace** - Featured MCP implementation\n4. **Product Hunt** - Launch with v1.0\n5. **Claude Desktop** - Pre-configured template\n\n**Partnerships:**\n- Anthropic: Featured case study\n- Obsidian: Note-taking integration\n- DevTool companies: Bundled offerings",
+      "type": "note",
+      "parentId": "6f68576a-8b86-4257-9eee-dacdef63c314",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1768038036243,
+        "updatedAt": 1768038036243
+      }
+    },
+    "262dc1a9-25b1-4483-9d93-e2ce219d4dc7": {
+      "id": "262dc1a9-25b1-4483-9d93-e2ce219d4dc7",
+      "name": "4.6 Go-to-Market Timeline",
+      "content": "**Weeks 1-4: Beta**\n- 50 beta testers\n- Feedback surveys\n- Bug reports\n- 3-5 case studies/testimonials\n\n**Weeks 5-6: Soft Launch**\n- Public GitHub repo\n- npm package\n- Documentation site (docs.idiampro.com/mcp)\n- Initial blog post\n\n**Weeks 7-8: Full Launch**\n- Product Hunt\n- MCP Registry submission\n- Press release\n- Social media campaign\n- Launch webinar\n\n**Weeks 9-12: Growth**\n- Weekly content\n- Community building (Discord)\n- Partnership outreach\n- Feature releases\n\n**Month 4+: Scale**\n- Premium tier launch\n- Enterprise pilots\n- Conference talks\n- Influencer partnerships\n\n---",
+      "type": "note",
+      "parentId": "6f68576a-8b86-4257-9eee-dacdef63c314",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1768038036243,
+        "updatedAt": 1768038036243
+      }
+    },
+    "ca18f73a-6dde-4a3e-9b63-87fbc375f67f": {
+      "id": "ca18f73a-6dde-4a3e-9b63-87fbc375f67f",
+      "name": "5. Key Metrics & Success Criteria",
+      "content": "",
+      "type": "spreadsheet",
+      "parentId": "0b4b1874-027a-4b81-9918-1c126b9e6619",
+      "childrenIds": [
+        "2258dfd6-cad5-422a-bdd3-6a0f60049028",
+        "bb33ff26-d003-4c13-87ce-da317e75d9ee",
+        "bf5b9d8e-7597-4996-a902-5943ff58480a",
+        "d23334b4-0f78-4ae0-a724-dd36e930aca5"
+      ],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1768038036243,
+        "updatedAt": 1768038036243
+      }
+    },
+    "2258dfd6-cad5-422a-bdd3-6a0f60049028": {
+      "id": "2258dfd6-cad5-422a-bdd3-6a0f60049028",
+      "name": "5.1 Beta Metrics (Weeks 1-4)",
+      "content": "**Adoption:**\n- Beta signups: 50+\n- Active weekly users: 30+\n- Installation success: 80%+\n\n**Engagement:**\n- API calls per user: 100+/week\n- Tool usage distribution\n- Session duration/frequency\n\n**Quality:**\n- Critical bugs: < 10\n- Documentation rating: 4.5/5\n- Setup time: < 15 minutes",
+      "type": "task",
+      "parentId": "ca18f73a-6dde-4a3e-9b63-87fbc375f67f",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1768038036243,
+        "updatedAt": 1768038036243
+      }
+    },
+    "bb33ff26-d003-4c13-87ce-da317e75d9ee": {
+      "id": "bb33ff26-d003-4c13-87ce-da317e75d9ee",
+      "name": "5.2 Revenue Metrics (Months 1-6)",
+      "content": "**Conversion:**\n- Free signups: 500 (M1) → 2,000 (M6)\n- Free-to-Premium: 5-10%\n- Premium-to-Pro: 10-15%\n- MRR: $500 (M1) → $5,000 (M6)\n\n**Churn:**\n- Monthly churn: < 10% (target: 5%)\n- Reactivation: > 20%",
+      "type": "spreadsheet",
+      "parentId": "ca18f73a-6dde-4a3e-9b63-87fbc375f67f",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1768038036243,
+        "updatedAt": 1768038036243
+      }
+    },
+    "bf5b9d8e-7597-4996-a902-5943ff58480a": {
+      "id": "bf5b9d8e-7597-4996-a902-5943ff58480a",
+      "name": "5.3 Engagement Metrics",
+      "content": "**API Usage:**\n- Total calls: 100k+/month (M6)\n- Average per user: 500-1,000/month\n\n**Retention:**\n- Day 7: 60%+\n- Day 30: 40%+\n- Day 90: 25%+\n\n**Power Users:**\n- 1,000+ calls/month: 10%+\n- Custom integrations: 5%+\n- Open source contributors: 2%+",
+      "type": "spreadsheet",
+      "parentId": "ca18f73a-6dde-4a3e-9b63-87fbc375f67f",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1768038036243,
+        "updatedAt": 1768038036243
+      }
+    },
+    "d23334b4-0f78-4ae0-a724-dd36e930aca5": {
+      "id": "d23334b4-0f78-4ae0-a724-dd36e930aca5",
+      "name": "5.4 Community Metrics",
+      "content": "- GitHub stars: 500+ (M6)\n- Contributors: 10+ (M6)\n- Discord members: 200+ (M6)\n- Blog visitors: 5,000+/month\n- Tutorial views: 10,000+ total\n\n---",
+      "type": "spreadsheet",
+      "parentId": "ca18f73a-6dde-4a3e-9b63-87fbc375f67f",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1768038036243,
+        "updatedAt": 1768038036243
+      }
+    },
+    "88f614a4-60c9-4da2-a498-9a50ed699889": {
+      "id": "88f614a4-60c9-4da2-a498-9a50ed699889",
+      "name": "6. Critical Files to Create/Modify",
+      "content": "",
+      "type": "note",
+      "parentId": "0b4b1874-027a-4b81-9918-1c126b9e6619",
+      "childrenIds": [
+        "50eb581f-5936-49fc-8e33-c6f54cd7a756",
+        "64543b6a-c9aa-405d-a487-1ee117f0b455",
+        "d21f0bc4-9c2c-48ce-8141-82ea0663de5d",
+        "863d7fc5-d9cd-462c-b173-53d301c12f63"
+      ],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1768038036243,
+        "updatedAt": 1768038036243
+      }
+    },
+    "50eb581f-5936-49fc-8e33-c6f54cd7a756": {
+      "id": "50eb581f-5936-49fc-8e33-c6f54cd7a756",
+      "name": "6.1 New Files - MCP Server",
+      "content": "**Core Server:**\n1. `/mcp-server/src/index.ts` - Entry point\n2. `/mcp-server/src/server.ts` - MCP server setup with SDK\n3. `/mcp-server/package.json` - Dependencies and scripts\n\n**Free Tier Tools:**\n4. `/mcp-server/src/tools/free/outline-read.ts` - list_outlines, get_outline, get_node, search_nodes\n5. `/mcp-server/src/tools/free/outline-crud.ts` - create_outline, update_outline, delete_outline\n6. `/mcp-server/src/tools/free/node-crud.ts` - create_node, update_node, delete_node, move_node\n7. `/mcp-server/src/tools/free/tag-ops.ts` - add_tag, remove_tag, list_tags, filter_by_tags\n\n**Premium Tools:**\n8. `/mcp-server/src/tools/premium/ai-generate.ts` - generate_outline, expand_content\n9. `/mcp-server/src/tools/premium/ai-ingest.ts` - ingest_source\n10. `/mcp-server/src/tools/premium/bulk-ops.ts` - batch_update_nodes, multi_select_action\n\n**Infrastructure:**\n11. `/mcp-server/src/auth/api-key-manager.ts` - Generate/validate API keys\n12. `/mcp-server/src/storage/storage-factory.ts` - Adapt storage-manager.ts for server\n\n**Documentation:**\n13. `/mcp-server/README.md` - Installation and quick start\n14. `/docs/MCP_SERVER_GUIDE.md` - Comprehensive guide\n15. `/docs/API_REFERENCE.md` - Complete API documentation",
+      "type": "note",
+      "parentId": "88f614a4-60c9-4da2-a498-9a50ed699889",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1768038036243,
+        "updatedAt": 1768038036243
+      }
+    },
+    "64543b6a-c9aa-405d-a487-1ee117f0b455": {
+      "id": "64543b6a-c9aa-405d-a487-1ee117f0b455",
+      "name": "6.2 Shared Package",
+      "content": "16. `/packages/core/src/types/index.ts` - Export types from src/types/index.ts\n17. `/packages/core/src/utils/outline-utils.ts` - Copy from src/lib/outline-utils.ts\n18. `/packages/core/src/utils/tag-utils.ts` - Copy from src/lib/tag-utils.ts",
+      "type": "note",
+      "parentId": "88f614a4-60c9-4da2-a498-9a50ed699889",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1768038036243,
+        "updatedAt": 1768038036243
+      }
+    },
+    "d21f0bc4-9c2c-48ce-8141-82ea0663de5d": {
+      "id": "d21f0bc4-9c2c-48ce-8141-82ea0663de5d",
+      "name": "6.3 IdiamPro App Modifications",
+      "content": "19. `/src/components/settings-dialog.tsx` - Add Developer tab for API keys\n20. `/src/lib/api-keys.ts` - Client API key management\n21. `/src/app/api/keys/route.ts` - Next.js API route for key CRUD\n22. `/src/types/index.ts` - Add ApiKey, PlanTier, UsageLimit types",
+      "type": "note",
+      "parentId": "88f614a4-60c9-4da2-a498-9a50ed699889",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1768038036243,
+        "updatedAt": 1768038036243
+      }
+    },
+    "863d7fc5-d9cd-462c-b173-53d301c12f63": {
+      "id": "863d7fc5-d9cd-462c-b173-53d301c12f63",
+      "name": "Top 5 Most Critical Files",
+      "content": "1. **`/mcp-server/src/server.ts`** - Core MCP implementation, registers all tools\n2. **`/mcp-server/src/storage/storage-factory.ts`** - Bridges existing storage with MCP\n3. **`/mcp-server/src/tools/free/node-crud.ts`** - Most used operations\n4. **`/mcp-server/src/auth/api-key-manager.ts`** - Security foundation\n5. **`/src/lib/outline-utils.ts`** - Core business logic (extract to shared)\n\n---",
+      "type": "note",
+      "parentId": "88f614a4-60c9-4da2-a498-9a50ed699889",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1768038036243,
+        "updatedAt": 1768038036243
+      }
+    },
+    "37c2360f-bf60-4ee8-9ca9-0c1df9b9fcba": {
+      "id": "37c2360f-bf60-4ee8-9ca9-0c1df9b9fcba",
+      "name": "7. Next Steps",
+      "content": "1. **Validate** pricing with 10-20 potential users\n2. **Set up** monorepo structure for shared packages\n3. **Begin** Phase 1 implementation\n4. **Recruit** beta testers\n\n---",
+      "type": "note",
+      "parentId": "0b4b1874-027a-4b81-9918-1c126b9e6619",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1768038036243,
+        "updatedAt": 1768038036243
+      }
+    },
+    "f75c2fff-10f4-4fae-9051-1362cd9c4692": {
+      "id": "f75c2fff-10f4-4fae-9051-1362cd9c4692",
+      "name": "Conclusion",
+      "content": "This plan transforms IdiamPro into an AI-native platform with full API access. The phased approach enables iterative development, early feedback, and risk mitigation. Open source core + paid premium balances community building with sustainable revenue.\n\n**Success Factors:**\n1. Developer experience (easy setup, great docs)\n2. Reliability (stable API, graceful errors)\n3. Performance (fast responses, efficient bulk ops)\n4. Security (robust auth, plan enforcement)\n5. Community (active engagement, contributions)",
+      "type": "note",
+      "parentId": "0b4b1874-027a-4b81-9918-1c126b9e6619",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1768038036243,
+        "updatedAt": 1768038036243
+      }
+    }
+  },
+  "lastModified": 1769758679662,
+  "_fileSize": 28794,
+  "_fileName": "IdiamPro-MCP-Plan.idm",
+  "_isLazyLoaded": false
+}

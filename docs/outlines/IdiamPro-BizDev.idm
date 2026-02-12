@@ -1,0 +1,408 @@
+{
+  "id": "biz-dev-2026",
+  "name": "IdiamPro - Business Development",
+  "rootNodeId": "root-biz",
+  "nodes": {
+    "root-biz": {
+      "id": "root-biz",
+      "name": "IdiamPro - Business Development",
+      "content": "<p>Comprehensive business development documentation for IdiamPro - AI-powered research synthesis and book authoring platform.</p><p><strong>Strategic Vision:</strong> Transform how researchers, academics, and authors synthesize knowledge and create content.</p><p><strong>Business Model:</strong> Freemium SaaS with tiered AI capabilities</p><p><strong>Status:</strong> Pre-launch Beta (Q1 2026)</p>",
+      "type": "root",
+      "parentId": null,
+      "childrenIds": ["exec-summary", "business-plan", "market-analysis", "financial-projections", "pitch-deck", "ai-partnerships", "legal-docs", "fundraising", "gtm-strategy", "product-roadmap"],
+      "prefix": ""
+    },
+    "exec-summary": {
+      "id": "exec-summary",
+      "name": "Executive Summary",
+      "content": "<h2>IdiamPro Executive Summary</h2><h3>The Problem</h3><p>Researchers, PhD students, and authors spend hundreds of hours manually synthesizing information from multiple sources. Current tools (Notion, Obsidian, etc.) lack AI-powered source analysis and intelligent content generation.</p><h3>The Solution</h3><p>IdiamPro is an AI-powered outlining platform that:</p><ul><li>Analyzes PDFs, research papers, and videos with AI</li><li>Generates structured outlines from multiple sources</li><li>Synthesizes knowledge across dozens of documents</li><li>Auto-generates content from detailed outlines</li><li>Exports publication-ready documents</li></ul><h3>Market Opportunity</h3><ul><li><strong>TAM:</strong> $8B+ (academic software + professional writing tools)</li><li><strong>Target Users:</strong> PhD students, researchers, authors, journalists, consultants</li><li><strong>Initial Focus:</strong> Academic research (650K+ PhD students in US alone)</li></ul><h3>Business Model</h3><ul><li><strong>Free Tier:</strong> Basic outlining with Gemini Flash AI</li><li><strong>Basic ($9.99/mo):</strong> Enhanced AI, limited imports</li><li><strong>Premium ($29.99/mo):</strong> Multi-AI (Claude, GPT-4), unlimited imports</li><li><strong>Academic ($49.99/mo):</strong> Claude Opus, priority support, team features</li></ul><h3>Traction & Milestones</h3><ul><li>✅ Working MVP with 56+ features</li><li>✅ AI integration (Gemini, preparing Claude/GPT-4)</li><li>🎯 Q1 2026: Launch freemium beta</li><li>🎯 Q2 2026: 1,000 active users</li><li>🎯 Q3 2026: $50K MRR, close seed round</li></ul><h3>Competitive Advantage</h3><ol><li><strong>AI-First:</strong> Only tool that analyzes sources AND generates structured outlines</li><li><strong>Research-Grade:</strong> Built specifically for academic/professional synthesis</li><li><strong>Multi-Platform:</strong> Web, iOS, macOS (Electron), Windows</li><li><strong>Export Pipeline:</strong> Outline → AI content → formatted document</li></ol><h3>Team</h3><p>Howard Jachter - Founder & CEO (previous experience TBD)</p><h3>Ask</h3><p><strong>Seeking:</strong> $500K seed round for:</p><ul><li>AI provider partnerships & bulk pricing</li><li>2 additional engineers</li><li>Marketing & beta program</li><li>12-month runway</li></ul>",
+      "type": "chapter",
+      "parentId": "root-biz",
+      "childrenIds": [],
+      "prefix": "1.",
+      "metadata": {
+        "color": "blue",
+        "tags": ["executive", "overview"]
+      }
+    },
+    "business-plan": {
+      "id": "business-plan",
+      "name": "Detailed Business Plan",
+      "content": "<p>Full business plan with vision, mission, strategy, and execution roadmap.</p>",
+      "type": "chapter",
+      "parentId": "root-biz",
+      "childrenIds": ["bp-vision", "bp-mission", "bp-values", "bp-strategy", "bp-execution"],
+      "prefix": "2."
+    },
+    "bp-vision": {
+      "id": "bp-vision",
+      "name": "Vision Statement",
+      "content": "<h3>Vision</h3><p><strong>\"Democratize knowledge synthesis and accelerate human creativity with AI.\"</strong></p><p>We envision a world where anyone can synthesize complex information from hundreds of sources and transform it into publication-ready work in hours instead of months.</p><h3>Long-Term Vision (5 Years)</h3><ul><li>Every researcher uses IdiamPro to write papers and theses</li><li>Authors write and publish books 10x faster</li><li>Journalists synthesize investigations in days</li><li>Students learn by creating comprehensive knowledge maps</li><li>IdiamPro becomes the standard for knowledge work</li></ul>",
+      "type": "document",
+      "parentId": "business-plan",
+      "childrenIds": [],
+      "prefix": "2.1"
+    },
+    "bp-mission": {
+      "id": "bp-mission",
+      "name": "Mission Statement",
+      "content": "<h3>Mission</h3><p><strong>\"Build the world's most powerful AI-assisted research synthesis and content creation platform.\"</strong></p><p>We empower researchers, academics, and authors to:</p><ol><li>Import and analyze unlimited sources with AI</li><li>Organize knowledge into structured outlines</li><li>Generate high-quality content automatically</li><li>Export publication-ready documents</li><li>Collaborate and share knowledge</li></ol>",
+      "type": "document",
+      "parentId": "business-plan",
+      "childrenIds": [],
+      "prefix": "2.2"
+    },
+    "bp-values": {
+      "id": "bp-values",
+      "name": "Core Values",
+      "content": "<h3>Core Values</h3><ol><li><strong>Quality Over Speed:</strong> AI-generated content must be research-grade</li><li><strong>User Privacy:</strong> User data is sacred, never sold or compromised</li><li><strong>Transparency:</strong> Clear about AI capabilities and limitations</li><li><strong>Academic Integrity:</strong> Tools to support proper attribution and citations</li><li><strong>Continuous Innovation:</strong> Integrate best AI models as they emerge</li></ol>",
+      "type": "document",
+      "parentId": "business-plan",
+      "childrenIds": [],
+      "prefix": "2.3"
+    },
+    "bp-strategy": {
+      "id": "bp-strategy",
+      "name": "Strategic Priorities",
+      "content": "<h3>2026 Strategic Priorities</h3><h4>Q1: Launch & Validate</h4><ul><li>Launch freemium beta with Gemini Flash</li><li>Target 100 early adopters (PhD students, researchers)</li><li>Prove Import Media feature works (PDF + YouTube analysis)</li><li>Collect testimonials and use cases</li></ul><h4>Q2: Scale & Monetize</h4><ul><li>Launch paid tiers ($9.99, $29.99, $49.99)</li><li>Add Claude Opus for Premium/Academic tiers</li><li>1,000 active users, 10% conversion to paid</li><li>Close AI provider partnerships (bulk discounts)</li></ul><h4>Q3: Expand & Fundraise</h4><ul><li>5,000 users, $50K MRR</li><li>Add team collaboration features</li><li>Launch subtree publisher (export as PDF/Word/HTML)</li><li>Close $500K seed round</li></ul><h4>Q4: Enterprise & Scale</h4><ul><li>Launch enterprise tier for universities/research labs</li><li>10,000+ users, $150K MRR</li><li>Expand to Windows via Electron</li><li>Build API for integrations</li></ul>",
+      "type": "document",
+      "parentId": "business-plan",
+      "childrenIds": [],
+      "prefix": "2.4"
+    },
+    "bp-execution": {
+      "id": "bp-execution",
+      "name": "Execution Roadmap",
+      "content": "<h3>2026 Execution Roadmap</h3><h4>January 2026</h4><ul><li>✅ Complete Import Media MVP</li><li>✅ Platform testing (Web, iOS)</li><li>⏳ Legal setup (C-Corp, TOS, Privacy Policy)</li></ul><h4>February 2026</h4><ul><li>Launch freemium beta</li><li>Beta testing program (20-50 testers)</li><li>Marketing website & landing page</li><li>Payment system (Stripe integration)</li></ul><h4>March 2026</h4><ul><li>Paid tier launch</li><li>Product Hunt launch</li><li>Content marketing (blog, YouTube tutorials)</li><li>Reach 100 active users</li></ul><h4>April-June 2026</h4><ul><li>Add Claude Opus for Premium tiers</li><li>Subtree publisher feature</li><li>University partnerships pilot</li><li>1,000 active users target</li></ul><h4>July-September 2026</h4><ul><li>Enterprise features</li><li>Team collaboration</li><li>API & integrations</li><li>Fundraising roadshow</li></ul><h4>October-December 2026</h4><ul><li>Scale to 10,000 users</li><li>Windows desktop app</li><li>International expansion</li><li>Close seed round</li></ul>",
+      "type": "document",
+      "parentId": "business-plan",
+      "childrenIds": [],
+      "prefix": "2.5"
+    },
+    "market-analysis": {
+      "id": "market-analysis",
+      "name": "Market Analysis",
+      "content": "<p>Comprehensive market research, competitive analysis, and opportunity assessment.</p>",
+      "type": "chapter",
+      "parentId": "root-biz",
+      "childrenIds": ["ma-tam", "ma-segments", "ma-competitors", "ma-trends"],
+      "prefix": "3."
+    },
+    "ma-tam": {
+      "id": "ma-tam",
+      "name": "Total Addressable Market (TAM)",
+      "content": "<h3>Market Sizing</h3><h4>Primary Markets</h4><ul><li><strong>Academic Research Software:</strong> $4.2B global market<ul><li>650K+ PhD students in US alone</li><li>3M+ PhD students globally</li><li>Average spend: $500-1,500/year on tools</li></ul></li><li><strong>Professional Writing Tools:</strong> $3.8B market<ul><li>Authors, journalists, consultants</li><li>Growing demand for AI-assisted writing</li></ul></li></ul><h4>Serviceable Available Market (SAM)</h4><ul><li><strong>US Academic + Professional:</strong> $1.2B<ul><li>650K PhD students × $600/year = $390M</li><li>2M professional researchers × $400/year = $800M</li></ul></li><li><strong>Realistic 3-Year Target:</strong> 1% market share = $12M ARR</li></ul><h4>Serviceable Obtainable Market (SOM)</h4><ul><li><strong>Year 1:</strong> 10,000 users × $25 ARPU = $250K ARR</li><li><strong>Year 2:</strong> 50,000 users × $30 ARPU = $1.5M ARR</li><li><strong>Year 3:</strong> 200,000 users × $35 ARPU = $7M ARR</li></ul>",
+      "type": "document",
+      "parentId": "market-analysis",
+      "childrenIds": [],
+      "prefix": "3.1"
+    },
+    "ma-segments": {
+      "id": "ma-segments",
+      "name": "Customer Segments",
+      "content": "<h3>Target Customer Segments</h3><h4>1. PhD Students & Researchers (Primary)</h4><ul><li><strong>Pain:</strong> Spending 6+ months on literature reviews</li><li><strong>Value Prop:</strong> Synthesize 50+ papers in days, not months</li><li><strong>Willingness to Pay:</strong> $30-50/month (proven with Zotero, Mendeley, etc.)</li><li><strong>Acquisition:</strong> University partnerships, academic conferences, Reddit (r/PhD)</li></ul><h4>2. Non-Fiction Authors (Secondary)</h4><ul><li><strong>Pain:</strong> Research and outline take 50% of writing time</li><li><strong>Value Prop:</strong> Import research → generate book outline → auto-content</li><li><strong>Willingness to Pay:</strong> $50-100/month (saves 100+ hours)</li><li><strong>Acquisition:</strong> Writing communities, author newsletters, podcasts</li></ul><h4>3. Journalists & Content Creators (Tertiary)</h4><ul><li><strong>Pain:</strong> Investigative research is time-consuming</li><li><strong>Value Prop:</strong> Synthesize sources quickly, maintain citations</li><li><strong>Willingness to Pay:</strong> $20-40/month</li><li><strong>Acquisition:</strong> Journalism schools, media publications</li></ul><h4>4. Consultants & Analysts (Enterprise)</h4><ul><li><strong>Pain:</strong> Creating client reports from multiple data sources</li><li><strong>Value Prop:</strong> Automated synthesis and report generation</li><li><strong>Willingness to Pay:</strong> $100-500/month per seat</li><li><strong>Acquisition:</strong> B2B sales, LinkedIn, industry events</li></ul>",
+      "type": "document",
+      "parentId": "market-analysis",
+      "childrenIds": [],
+      "prefix": "3.2"
+    },
+    "ma-competitors": {
+      "id": "ma-competitors",
+      "name": "Competitive Analysis",
+      "content": "<h3>Competitive Landscape</h3><h4>Direct Competitors</h4><p><strong>1. Notion AI</strong></p><ul><li>Strengths: Large user base, AI writing, integrations</li><li>Weaknesses: Generic AI, no source analysis, not research-focused</li><li>Pricing: $10/month</li><li>Our Advantage: Research-grade AI, source synthesis</li></ul><p><strong>2. Obsidian</strong></p><ul><li>Strengths: Power users love it, local-first, plugins</li><li>Weaknesses: No AI, steep learning curve, no import/analysis</li><li>Pricing: Free (Sync $10/month)</li><li>Our Advantage: AI-powered, user-friendly, import features</li></ul><p><strong>3. Scrivener</strong></p><ul><li>Strengths: Authors love it, research organization</li><li>Weaknesses: No AI, desktop only, outdated UI</li><li>Pricing: $60 one-time</li><li>Our Advantage: AI generation, cloud-based, modern UX</li></ul><h4>Indirect Competitors</h4><p><strong>4. Zotero / Mendeley</strong></p><ul><li>Focus: Citation management only</li><li>Our Advantage: End-to-end synthesis → outline → content → document</li></ul><p><strong>5. ChatGPT / Claude</strong></p><ul><li>Focus: General AI chat</li><li>Our Advantage: Purpose-built for research synthesis, structured output</li></ul><h4>Competitive Positioning</h4><p>IdiamPro is the <strong>only AI-powered research synthesis platform</strong> that:</p><ol><li>Imports and analyzes multiple source types (PDF, video, web)</li><li>Generates structured, research-grade outlines</li><li>Auto-creates content from outlines with proper context</li><li>Exports publication-ready documents</li><li>Offers multi-AI model selection (Gemini, Claude, GPT-4)</li></ol>",
+      "type": "document",
+      "parentId": "market-analysis",
+      "childrenIds": [],
+      "prefix": "3.3"
+    },
+    "ma-trends": {
+      "id": "ma-trends",
+      "name": "Market Trends & Timing",
+      "content": "<h3>Why Now? Market Tailwinds</h3><h4>1. AI Capabilities Breakthrough (2023-2026)</h4><ul><li>Claude 3.5 Opus: 200K context window, research-grade reasoning</li><li>GPT-4 Turbo: Multimodal, document analysis</li><li>Gemini 1.5: 1M+ token context (entire books)</li><li>Cost decreased 10x in 2 years (feasible for SaaS)</li></ul><h4>2. Remote Research Explosion</h4><ul><li>PhD students increasingly remote/international</li><li>Digital-first research workflows</li><li>Cloud tools replacing desktop software</li></ul><h4>3. Content Creation Economy</h4><ul><li>10M+ content creators globally</li><li>Growing demand for long-form content (books, newsletters)</li><li>AI-assisted writing becoming mainstream</li></ul><h4>4. Academic Publishing Crisis</h4><ul><li>Pressure to publish increasing</li><li>Literature reviews taking longer (more papers published)</li><li>Tools that accelerate research = competitive advantage</li></ul><h4>5. Enterprise AI Adoption</h4><ul><li>Consulting firms adopting AI for report generation</li><li>Corporate research teams need synthesis tools</li><li>Budget for AI tools expanding rapidly</li></ul><h3>Market Risks</h3><ul><li><strong>AI Commoditization:</strong> If OpenAI/Anthropic build competing features → Mitigate with best-in-class UX and research-specific features</li><li><strong>Academic Resistance:</strong> Some may view AI as cheating → Position as research assistant, not replacement</li><li><strong>Pricing Pressure:</strong> Free AI tools everywhere → Differentiate with multi-source synthesis, not just writing</li></ul>",
+      "type": "document",
+      "parentId": "market-analysis",
+      "childrenIds": [],
+      "prefix": "3.4"
+    },
+    "financial-projections": {
+      "id": "financial-projections",
+      "name": "Financial Projections",
+      "content": "<p>3-year financial model with revenue, expenses, and fundraising strategy.</p>",
+      "type": "chapter",
+      "parentId": "root-biz",
+      "childrenIds": ["fp-revenue", "fp-expenses", "fp-unit-economics", "fp-fundraising"],
+      "prefix": "4."
+    },
+    "fp-revenue": {
+      "id": "fp-revenue",
+      "name": "Revenue Model & Projections",
+      "content": "<h3>Pricing Tiers</h3><table><tr><th>Tier</th><th>Price</th><th>AI Model</th><th>Imports</th><th>Target</th></tr><tr><td>Free</td><td>$0</td><td>Gemini Flash</td><td>5/month</td><td>Students</td></tr><tr><td>Basic</td><td>$9.99</td><td>Gemini Pro</td><td>20/month</td><td>Hobbyists</td></tr><tr><td>Premium</td><td>$29.99</td><td>Claude/GPT-4</td><td>Unlimited</td><td>Professionals</td></tr><tr><td>Academic</td><td>$49.99</td><td>Claude Opus</td><td>Unlimited+</td><td>Researchers</td></tr></table><h3>Revenue Projections (Conservative)</h3><h4>Year 1 (2026)</h4><ul><li>Total Users: 10,000</li><li>Free: 7,000 (70%)</li><li>Basic: 2,000 (20%) × $9.99 = $20K MRR</li><li>Premium: 800 (8%) × $29.99 = $24K MRR</li><li>Academic: 200 (2%) × $49.99 = $10K MRR</li><li><strong>Total MRR: $54K → ARR: $648K</strong></li></ul><h4>Year 2 (2027)</h4><ul><li>Total Users: 50,000</li><li>Conversion rate: 12% (improving with features)</li><li>Free: 44,000 (88%)</li><li>Basic: 3,000 (6%) × $9.99 = $30K MRR</li><li>Premium: 2,400 (4.8%) × $29.99 = $72K MRR</li><li>Academic: 600 (1.2%) × $49.99 = $30K MRR</li><li><strong>Total MRR: $132K → ARR: $1.58M</strong></li></ul><h4>Year 3 (2028)</h4><ul><li>Total Users: 200,000</li><li>Conversion rate: 15%</li><li>Enterprise tier added: $200/seat/month</li><li><strong>Total MRR: $550K → ARR: $6.6M</strong></li></ul>",
+      "type": "document",
+      "parentId": "financial-projections",
+      "childrenIds": [],
+      "prefix": "4.1"
+    },
+    "fp-expenses": {
+      "id": "fp-expenses",
+      "name": "Operating Expenses",
+      "content": "<h3>Cost Structure</h3><h4>AI Costs (Variable)</h4><ul><li><strong>Gemini Flash:</strong> $0.075/1M input, $0.30/1M output</li><li><strong>Average per user:</strong> ~$2-5/month (heavy users)</li><li><strong>With bulk discounts:</strong> Target 50% reduction → $1-2.50/month</li><li><strong>Gross margin target:</strong> 70%+ (typical SaaS)</li></ul><h4>Fixed Costs (Monthly)</h4><table><tr><th>Category</th><th>Year 1</th><th>Year 2</th><th>Year 3</th></tr><tr><td>Engineering (3 FTE)</td><td>$35K</td><td>$60K</td><td>$100K</td></tr><tr><td>Infrastructure (AWS, hosting)</td><td>$3K</td><td>$8K</td><td>$20K</td></tr><tr><td>Marketing & Sales</td><td>$5K</td><td>$20K</td><td>$50K</td></tr><tr><td>Legal & Admin</td><td>$2K</td><td>$5K</td><td>$10K</td></tr><tr><td><strong>Total</strong></td><td><strong>$45K</strong></td><td><strong>$93K</strong></td><td><strong>$180K</strong></td></tr></table><h4>Annual Expenses</h4><ul><li><strong>Year 1:</strong> $540K (burn rate)</li><li><strong>Year 2:</strong> $1.12M</li><li><strong>Year 3:</strong> $2.16M</li></ul><h4>Path to Profitability</h4><ul><li><strong>Year 1:</strong> $648K revenue - $540K expenses = <strong>$108K profit</strong> ✅</li><li><strong>Year 2:</strong> $1.58M revenue - $1.12M expenses = <strong>$460K profit</strong> ✅</li><li><strong>Year 3:</strong> $6.6M revenue - $2.16M expenses = <strong>$4.44M profit</strong> ✅</li></ul><p><em>Note: Conservative model shows profitability from Year 1, but will reinvest in growth.</em></p>",
+      "type": "document",
+      "parentId": "financial-projections",
+      "childrenIds": [],
+      "prefix": "4.2"
+    },
+    "fp-unit-economics": {
+      "id": "fp-unit-economics",
+      "name": "Unit Economics",
+      "content": "<h3>Key Metrics</h3><h4>Customer Acquisition Cost (CAC)</h4><ul><li><strong>Organic (Year 1):</strong> $10-20 per user (content marketing, SEO)</li><li><strong>Paid (Year 2+):</strong> $50-100 per user (ads, partnerships)</li><li><strong>Target CAC:</strong> <$30 through viral/referral growth</li></ul><h4>Lifetime Value (LTV)</h4><ul><li><strong>Average subscription:</strong> $25/month</li><li><strong>Average retention:</strong> 18 months</li><li><strong>LTV:</strong> $25 × 18 = <strong>$450</strong></li><li><strong>LTV:CAC ratio:</strong> 15:1 (excellent, target is 3:1)</li></ul><h4>Churn Rate</h4><ul><li><strong>Target monthly churn:</strong> <5%</li><li><strong>Academic users:</strong> Higher retention (annual cycles)</li><li><strong>Professional users:</strong> Lower churn (daily tool)</li><li><strong>Mitigation:</strong> Annual plans, engagement features, customer success</li></ul><h4>Revenue Per User (ARPU)</h4><ul><li><strong>Year 1:</strong> $25/month</li><li><strong>Year 2:</strong> $30/month (upsells, enterprise)</li><li><strong>Year 3:</strong> $35/month</li></ul><h3>Growth Drivers</h3><ol><li><strong>Viral Coefficient:</strong> Users share research outlines → 1.2x viral multiplier</li><li><strong>Referral Program:</strong> Give 1 month free, get 1 month free</li><li><strong>University Partnerships:</strong> Bulk discounts for campuses</li><li><strong>Content Marketing:</strong> SEO-optimized guides and tutorials</li><li><strong>Academic Conferences:</strong> Sponsor PhD symposiums</li></ol>",
+      "type": "document",
+      "parentId": "financial-projections",
+      "childrenIds": [],
+      "prefix": "4.3"
+    },
+    "fp-fundraising": {
+      "id": "fp-fundraising",
+      "name": "Fundraising Strategy",
+      "content": "<h3>Seed Round ($500K)</h3><h4>Use of Funds</h4><ul><li><strong>Engineering (40%):</strong> $200K<ul><li>2 additional engineers (full-stack + ML)</li><li>Accelerate product development</li><li>Build enterprise features</li></ul></li><li><strong>AI Partnerships (20%):</strong> $100K<ul><li>Negotiate bulk deals with Anthropic, OpenAI, Google</li><li>Upfront commitments for discounts</li><li>Credits and co-marketing</li></ul></li><li><strong>Marketing & Growth (25%):</strong> $125K<ul><li>Beta testing program</li><li>Content marketing (blog, YouTube)</li><li>University partnerships</li><li>Paid acquisition experiments</li></ul></li><li><strong>Operations & Legal (15%):</strong> $75K<ul><li>C-Corp setup</li><li>Legal (TOS, privacy, IP)</li><li>Accounting and compliance</li><li>Office/infrastructure</li></ul></li></ul><h4>Valuation</h4><ul><li><strong>Pre-money:</strong> $3M (based on traction, market size, team)</li><li><strong>Post-money:</strong> $3.5M</li><li><strong>Equity offered:</strong> 14-17%</li></ul><h4>Investor Targeting</h4><p><strong>Ideal Investors:</strong></p><ol><li><strong>Edtech VCs:</strong> Reach Capital, Learn Capital, Owl Ventures</li><li><strong>AI-focused funds:</strong> Conviction, Base10, Foundation Capital</li><li><strong>Angels with domain expertise:</strong> Ex-Notion, Grammarly, ResearchGate founders</li></ol><p><strong>Pitch Strategy:</strong></p><ul><li>Emphasize AI timing + academic market size</li><li>Show working product with real user testimonials</li><li>Highlight path to profitability (rare for early-stage)</li><li>Focus on book authoring use case (massive TAM expansion)</li></ul><h4>Milestones for Series A ($3-5M)</h4><ul><li>$100K+ MRR</li><li>10,000+ paying users</li><li>Proven enterprise sales motion</li><li>Net revenue retention >110%</li></ul>",
+      "type": "document",
+      "parentId": "financial-projections",
+      "childrenIds": [],
+      "prefix": "4.4"
+    },
+    "pitch-deck": {
+      "id": "pitch-deck",
+      "name": "Investor Pitch Deck Outline",
+      "content": "<h3>Pitch Deck Structure (15 slides)</h3><h4>Slide 1: Cover</h4><ul><li>IdiamPro logo</li><li>Tagline: \"AI-Powered Research Synthesis & Book Authoring\"</li><li>Founder name + contact</li></ul><h4>Slide 2: Problem</h4><ul><li>PhD students spend 6+ months on literature reviews</li><li>Authors spend 50% of time on research and outlining</li><li>Existing tools lack AI-powered source analysis</li></ul><h4>Slide 3: Solution</h4><ul><li>Import PDFs, videos, research papers</li><li>AI analyzes and generates structured outlines</li><li>Auto-create content from outlines</li><li>Export publication-ready documents</li><li>Demo video or animated walkthrough</li></ul><h4>Slide 4: Product Demo</h4><ul><li>Screenshots of Import → AI Analysis → Outline Generation</li><li>Highlight multi-AI model selection</li></ul><h4>Slide 5: Market Opportunity</h4><ul><li>TAM: $8B (Academic + Professional Writing Tools)</li><li>SAM: $1.2B (US Market)</li><li>SOM: Target 1% = $12M ARR by Year 3</li></ul><h4>Slide 6: Business Model</h4><ul><li>Freemium tiers: Free → $9.99 → $29.99 → $49.99</li><li>LTV: $450, CAC: $30, LTV:CAC = 15:1</li><li>70%+ gross margins</li></ul><h4>Slide 7: Traction</h4><ul><li>Working MVP with 56+ features</li><li>Beta users (if available)</li><li>Testimonials from researchers/authors</li><li>Usage metrics</li></ul><h4>Slide 8: Go-to-Market Strategy</h4><ul><li>Phase 1: Academic (PhD students, researchers)</li><li>Phase 2: Authors and journalists</li><li>Phase 3: Enterprise (consulting firms, corporate research)</li><li>Channels: University partnerships, content marketing, conferences</li></ul><h4>Slide 9: Competitive Landscape</h4><ul><li>2x2 matrix: AI Capabilities vs Research Focus</li><li>Position IdiamPro in top-right (high on both)</li><li>Notion, Obsidian, Scrivener in other quadrants</li></ul><h4>Slide 10: Unique Advantages</h4><ul><li>Only tool with AI source analysis + outline generation</li><li>Multi-AI model support (future-proof)</li><li>Cross-platform (Web, iOS, macOS, Windows)</li><li>Research-grade output quality</li></ul><h4>Slide 11: Technology & IP</h4><ul><li>Modular AI architecture (easy to swap models)</li><li>Proprietary outline synthesis algorithm</li><li>Export pipeline with citation management</li></ul><h4>Slide 12: Roadmap</h4><ul><li>Q1 2026: Launch beta, 100 users</li><li>Q2 2026: Paid tiers, 1,000 users</li><li>Q3 2026: Enterprise features, $50K MRR</li><li>Q4 2026: 10,000 users, $150K MRR</li></ul><h4>Slide 13: Team</h4><ul><li>Howard Jachter - Founder & CEO</li><li>Key advisors (if any)</li><li>Hiring plan (2 engineers with seed funding)</li></ul><h4>Slide 14: Financials</h4><ul><li>3-year revenue projection chart</li><li>Path to profitability (Year 1)</li><li>Unit economics summary</li></ul><h4>Slide 15: Ask</h4><ul><li>Seeking: $500K seed round</li><li>Use of funds breakdown</li><li>12-month runway to Series A milestones</li><li>Contact information</li></ul>",
+      "type": "chapter",
+      "parentId": "root-biz",
+      "childrenIds": [],
+      "prefix": "5.",
+      "metadata": {
+        "color": "orange",
+        "tags": ["fundraising", "investors"]
+      }
+    },
+    "ai-partnerships": {
+      "id": "ai-partnerships",
+      "name": "AI Provider Partnership Strategy",
+      "content": "<p>Strategy for negotiating bulk pricing and co-marketing with Anthropic, OpenAI, and Google.</p>",
+      "type": "chapter",
+      "parentId": "root-biz",
+      "childrenIds": ["ai-anthropic", "ai-openai", "ai-google", "ai-terms"],
+      "prefix": "6.",
+      "metadata": {
+        "color": "purple",
+        "tags": ["partnerships", "AI"]
+      }
+    },
+    "ai-anthropic": {
+      "id": "ai-anthropic",
+      "name": "Anthropic (Claude) Partnership",
+      "content": "<h3>Claude - Premium Tier Partner</h3><h4>Why Claude?</h4><ul><li><strong>Best for research:</strong> 200K context window, superior reasoning</li><li><strong>Academic credibility:</strong> Known for safety and accuracy</li><li><strong>Long documents:</strong> Can analyze entire research papers</li><li><strong>Citations:</strong> Better at maintaining source attribution</li></ul><h4>Partnership Proposal</h4><p><strong>Deal Structure:</strong></p><ul><li>Commit to $50K-100K annual spend</li><li>Target: 50% bulk discount ($7.50/1M input, $37.50/1M output)</li><li>Co-marketing: Case studies, academic partnerships</li><li>Early access to new models (Claude 4, etc.)</li></ul><p><strong>Value to Anthropic:</strong></p><ul><li>Academic market entry (650K+ PhD students)</li><li>Showcase for long-context research use case</li><li>Usage data from real research workflows</li></ul><h4>Contact Strategy</h4><ol><li>Warm intro via YC, academic connections</li><li>Pitch: \"Anthropic for Researchers\" positioning</li><li>Offer beta testing for Claude in academic contexts</li><li>Highlight ethical AI usage (proper attribution, no plagiarism)</li></ol>",
+      "type": "document",
+      "parentId": "ai-partnerships",
+      "childrenIds": [],
+      "prefix": "6.1"
+    },
+    "ai-openai": {
+      "id": "ai-openai",
+      "name": "OpenAI (GPT-4) Partnership",
+      "content": "<h3>OpenAI - Multi-Model Option</h3><h4>Why GPT-4?</h4><ul><li><strong>Multimodal:</strong> Can analyze images in PDFs (diagrams, charts)</li><li><strong>Speed:</strong> GPT-4 Turbo faster than Claude for some tasks</li><li><strong>API maturity:</strong> Best developer experience</li></ul><h4>Partnership Proposal</h4><p><strong>Deal Structure:</strong></p><ul><li>Commit to $30K-50K annual spend</li><li>Target: Standard enterprise pricing ($5/1M input, $15/1M output)</li><li>Access to fine-tuning for academic content</li><li>Priority support for API issues</li></ul><p><strong>Value to OpenAI:</strong></p><ul><li>Education market penetration</li><li>Use case for GPT-4 Turbo Vision (PDF diagrams)</li><li>Showcase for structured output generation</li></ul><h4>Contact Strategy</h4><ol><li>Apply for OpenAI Startup Credits program</li><li>Enterprise sales outreach</li><li>Position as complement to Claude (user choice = advantage)</li></ol>",
+      "type": "document",
+      "parentId": "ai-partnerships",
+      "childrenIds": [],
+      "prefix": "6.2"
+    },
+    "ai-google": {
+      "id": "ai-google",
+      "name": "Google (Gemini) Partnership",
+      "content": "<h3>Google - Freemium Foundation</h3><h4>Why Gemini?</h4><ul><li><strong>Cost-effective:</strong> Gemini Flash is cheapest ($0.075/1M)</li><li><strong>Long context:</strong> 1M+ tokens (can fit entire PhD thesis)</li><li><strong>Integration:</strong> Firebase Genkit already implemented</li><li><strong>Free tier:</strong> Generous quotas for freemium model</li></ul><h4>Partnership Proposal</h4><p><strong>Deal Structure:</strong></p><ul><li>Start with Google Cloud credits ($10K-25K)</li><li>Commit to featuring Gemini as default free tier</li><li>Co-marketing: Google for Education blog post</li><li>Feedback loop: Share research synthesis use cases</li></ul><p><strong>Value to Google:</strong></p><ul><li>Compete with OpenAI in education market</li><li>Showcase Gemini's long-context capabilities</li><li>User adoption at universities (future enterprise customers)</li></ul><h4>Contact Strategy</h4><ol><li>Apply for Google for Startups Cloud Program</li><li>Reach out to Google AI Developer Relations</li><li>Leverage Firebase relationship (already using Genkit)</li><li>Position as Gemini success story</li></ol><h4>Current Status</h4><ul><li>✅ Using Gemini Flash via Firebase Genkit</li><li>⏳ Need to formalize bulk pricing agreement</li><li>🎯 Target: $5K in Google Cloud credits to start</li></ul>",
+      "type": "document",
+      "parentId": "ai-partnerships",
+      "childrenIds": [],
+      "prefix": "6.3"
+    },
+    "ai-terms": {
+      "id": "ai-terms",
+      "name": "Partnership Terms & Negotiation",
+      "content": "<h3>Standard Partnership Terms</h3><h4>What to Negotiate</h4><ol><li><strong>Volume Discounts:</strong><ul><li>Tiered pricing based on usage</li><li>Commit to minimum spend for better rates</li><li>Annual prepay for additional discount</li></ul></li><li><strong>Credits & Incentives:</strong><ul><li>Startup credits ($10K-50K typical)</li><li>Co-marketing allowances</li><li>Event sponsorship</li></ul></li><li><strong>Technical Support:</strong><ul><li>Priority API support</li><li>Early access to new models</li><li>Direct engineering contact</li></ul></li><li><strong>Co-Marketing:</strong><ul><li>Case study publication</li><li>Joint webinars/events</li><li>Logo usage rights</li><li>Social media promotion</li></ul></li></ol><h4>Negotiation Timeline</h4><table><tr><th>Month</th><th>Activity</th></tr><tr><td>Jan 2026</td><td>Initial outreach (all 3 providers)</td></tr><tr><td>Feb 2026</td><td>Calls with partnership teams</td></tr><tr><td>Mar 2026</td><td>Submit formal proposals</td></tr><tr><td>Apr 2026</td><td>Negotiate terms, close deals</td></tr><tr><td>May 2026</td><td>Announce partnerships publicly</td></tr></table><h4>Key Talking Points</h4><ul><li>Academic market = massive TAM ($4B+)</li><li>IdiamPro drives multi-model adoption (not exclusive to one provider)</li><li>Research use case = high-value, high-token workload</li><li>User testimonials from beta (when available)</li><li>Path to $1M+ annual spend by Year 3</li></ul>",
+      "type": "document",
+      "parentId": "ai-partnerships",
+      "childrenIds": [],
+      "prefix": "6.4"
+    },
+    "legal-docs": {
+      "id": "legal-docs",
+      "name": "Legal & Compliance",
+      "content": "<p>Legal structure, terms of service, privacy policy, and compliance requirements.</p>",
+      "type": "chapter",
+      "parentId": "root-biz",
+      "childrenIds": ["legal-corp", "legal-tos", "legal-privacy", "legal-ip"],
+      "prefix": "7."
+    },
+    "legal-corp": {
+      "id": "legal-corp",
+      "name": "Corporate Structure",
+      "content": "<h3>C-Corporation Setup</h3><h4>Incorporation</h4><ul><li><strong>Entity:</strong> Delaware C-Corp (standard for VC-backed startups)</li><li><strong>Name:</strong> IdiamPro, Inc.</li><li><strong>Formation:</strong> Use Stripe Atlas or Clerky ($500-1,000)</li><li><strong>Timeline:</strong> 2-4 weeks</li></ul><h4>Equity Structure</h4><ul><li><strong>Authorized Shares:</strong> 10,000,000 common shares</li><li><strong>Founder:</strong> 8,500,000 shares (85%)</li><li><strong>Option Pool:</strong> 1,500,000 shares (15% for employees)</li><li><strong>Vesting:</strong> 4-year vest, 1-year cliff for all equity</li></ul><h4>Board of Directors</h4><ul><li><strong>Initial:</strong> Founder only</li><li><strong>Post-Seed:</strong> Founder + Lead Investor</li><li><strong>Series A:</strong> 2 Founders/Employees + 2 Investors + 1 Independent</li></ul><h4>Banking & Accounting</h4><ul><li><strong>Bank:</strong> Mercury or Brex (startup-friendly)</li><li><strong>Accounting:</strong> Pilot or Bench for bookkeeping</li><li><strong>Legal:</strong> Retainer with startup law firm ($5K-10K/year)</li></ul>",
+      "type": "document",
+      "parentId": "legal-docs",
+      "childrenIds": [],
+      "prefix": "7.1"
+    },
+    "legal-tos": {
+      "id": "legal-tos",
+      "name": "Terms of Service",
+      "content": "<h3>Terms of Service (TOS)</h3><h4>Key Sections</h4><ol><li><strong>Service Description:</strong><ul><li>AI-powered outlining and content generation</li><li>Free and paid tiers with different capabilities</li><li>No guarantee of uptime (but best efforts)</li></ul></li><li><strong>User Obligations:</strong><ul><li>Must be 18+ or have parental consent</li><li>Responsible use of AI (no plagiarism, proper attribution)</li><li>Cannot resell or redistribute AI output commercially without proper licensing</li></ul></li><li><strong>Intellectual Property:</strong><ul><li>User owns content they create</li><li>IdiamPro owns platform and code</li><li>AI-generated content: User owns, but must follow attribution rules</li></ul></li><li><strong>Payment Terms:</strong><ul><li>Monthly or annual subscriptions</li><li>No refunds for partial months</li><li>Can cancel anytime (no long-term contracts)</li></ul></li><li><strong>Limitation of Liability:</strong><ul><li>Not responsible for AI errors or inaccuracies</li><li>Users must verify AI-generated content</li><li>No liability for academic misconduct</li></ul></li><li><strong>Termination:</strong><ul><li>Either party can terminate with 30 days notice</li><li>Immediate termination for violation of terms</li></ul></li></ol><h4>Special Clauses for Academic Use</h4><ul><li><strong>Academic Integrity:</strong> Users responsible for following institutional plagiarism policies</li><li><strong>Citation Requirements:</strong> Users must properly cite sources when using imported content</li><li><strong>AI Disclosure:</strong> Users must disclose AI assistance per institutional requirements</li></ul>",
+      "type": "document",
+      "parentId": "legal-docs",
+      "childrenIds": [],
+      "prefix": "7.2"
+    },
+    "legal-privacy": {
+      "id": "legal-privacy",
+      "name": "Privacy Policy & Data Protection",
+      "content": "<h3>Privacy Policy</h3><h4>Data Collection</h4><p><strong>What we collect:</strong></p><ul><li>Account information (email, name, payment details)</li><li>Usage data (features used, time spent, outlines created)</li><li>Content data (outlines, imported PDFs, AI-generated text)</li><li>Device and browser information</li></ul><p><strong>What we DON'T collect:</strong></p><ul><li>Personal information beyond account details</li><li>Reading habits from imported PDFs</li><li>Content of private outlines (unless user grants permission)</li></ul><h4>Data Usage</h4><ul><li><strong>Product improvement:</strong> Aggregate analytics to improve features</li><li><strong>AI training:</strong> User content is NOT used to train AI models (contractual guarantee with providers)</li><li><strong>Marketing:</strong> Email newsletters (opt-in only)</li></ul><h4>Data Sharing</h4><ul><li><strong>AI Providers:</strong> Content sent to Gemini/Claude/GPT-4 for processing (encrypted in transit)</li><li><strong>Payment Processors:</strong> Stripe for billing (PCI-compliant)</li><li><strong>Analytics:</strong> Anonymous usage data only (no PII)</li><li><strong>Legal:</strong> Only if required by law (with user notification when possible)</li></ul><h4>Compliance</h4><ul><li><strong>GDPR (Europe):</strong> Right to access, delete, and export data</li><li><strong>CCPA (California):</strong> Disclosure of data practices, opt-out rights</li><li><strong>FERPA (Education):</strong> No sharing of student data with third parties</li><li><strong>SOC 2:</strong> Target certification by Year 2 for enterprise</li></ul><h4>Data Security</h4><ul><li>Encryption at rest and in transit (AES-256, TLS 1.3)</li><li>Regular security audits and penetration testing</li><li>Employee access controls (principle of least privilege)</li><li>Incident response plan for breaches (72-hour notification)</li></ul>",
+      "type": "document",
+      "parentId": "legal-docs",
+      "childrenIds": [],
+      "prefix": "7.3"
+    },
+    "legal-ip": {
+      "id": "legal-ip",
+      "name": "Intellectual Property",
+      "content": "<h3>IP Strategy</h3><h4>Trademarks</h4><ul><li><strong>Name:</strong> \"IdiamPro\" (USPTO trademark application)</li><li><strong>Logo:</strong> Register design trademark</li><li><strong>Tagline:</strong> Consider trademark if unique</li><li><strong>Cost:</strong> $1,500-3,000 for attorney-filed trademark</li></ul><h4>Patents</h4><ul><li><strong>Outline Synthesis Algorithm:</strong> Consider provisional patent if novel</li><li><strong>Multi-Source Integration:</strong> Method patent for combining AI-analyzed sources</li><li><strong>Timeline:</strong> File provisional within 6 months, full patent within 1 year</li><li><strong>Cost:</strong> $5,000-15,000 per patent (attorney fees)</li></ul><h4>Copyrights</h4><ul><li><strong>Code:</strong> Automatically copyrighted, register for added protection</li><li><strong>Documentation:</strong> User guides, tutorials, marketing materials</li><li><strong>Cost:</strong> $55-85 per copyright registration</li></ul><h4>Trade Secrets</h4><ul><li><strong>AI Prompts:</strong> Keep proprietary prompt engineering confidential</li><li><strong>User Data:</strong> Aggregate analytics are trade secrets</li><li><strong>Partnership Terms:</strong> Pricing negotiations with AI providers</li></ul><h4>Open Source</h4><ul><li><strong>Dependencies:</strong> Audit all open source libraries for licensing conflicts</li><li><strong>Contribution:</strong> Consider open-sourcing non-core components for community goodwill</li><li><strong>License:</strong> Use MIT or Apache 2.0 for any open source releases</li></ul>",
+      "type": "document",
+      "parentId": "legal-docs",
+      "childrenIds": [],
+      "prefix": "7.4"
+    },
+    "fundraising": {
+      "id": "fundraising",
+      "name": "Fundraising Execution",
+      "content": "<p>Tactical guide to raising the seed round, including investor outreach and due diligence.</p>",
+      "type": "chapter",
+      "parentId": "root-biz",
+      "childrenIds": ["fr-timeline", "fr-investors", "fr-materials", "fr-due-diligence"],
+      "prefix": "8."
+    },
+    "fr-timeline": {
+      "id": "fr-timeline",
+      "name": "Fundraising Timeline",
+      "content": "<h3>Seed Round Timeline (Q2 2026)</h3><h4>Pre-Fundraise (Jan-Feb 2026)</h4><ul><li>✅ Complete MVP and beta testing</li><li>✅ Collect user testimonials (target: 10+ strong testimonials)</li><li>✅ Finalize pitch deck and financial model</li><li>✅ Prepare data room (incorporation docs, metrics, code samples)</li><li>✅ Create target investor list (50+ VCs and angels)</li></ul><h4>Outreach (March 2026)</h4><ul><li><strong>Week 1-2:</strong> Warm intros via YC, accelerators, advisors</li><li><strong>Week 3-4:</strong> Initial calls with 20-30 investors</li><li><strong>Goal:</strong> 10+ interested investors for deep dives</li></ul><h4>Meetings (April 2026)</h4><ul><li><strong>Week 1:</strong> Partner meetings at top 10 firms</li><li><strong>Week 2-3:</strong> Follow-up meetings, product demos</li><li><strong>Week 4:</strong> Share term sheets with advisors, negotiate</li></ul><h4>Due Diligence (May 2026)</h4><ul><li><strong>Week 1-2:</strong> Technical due diligence (code review, security audit)</li><li><strong>Week 3:</strong> Legal due diligence (incorporation, IP, contracts)</li><li><strong>Week 4:</strong> Financial due diligence (cap table, expenses)</li></ul><h4>Close (June 2026)</h4><ul><li><strong>Week 1:</strong> Final term sheet negotiation</li><li><strong>Week 2-3:</strong> Legal docs (SPA, investors' rights)</li><li><strong>Week 4:</strong> Wire transfers, close announced</li></ul><h3>Backup Plan</h3><ul><li>If fundraising delayed: Extend runway with contract work or bridge loans</li><li>If oversubscribed: Increase round size to $750K-1M</li><li>If undersubscribed: Close smaller round ($250K-350K) and achieve milestones for follow-on</li></ul>",
+      "type": "document",
+      "parentId": "fundraising",
+      "childrenIds": [],
+      "prefix": "8.1"
+    },
+    "fr-investors": {
+      "id": "fr-investors",
+      "name": "Target Investor List",
+      "content": "<h3>Tier 1: Ideal Lead Investors</h3><ol><li><strong>Reach Capital</strong> - Edtech specialist, invests $500K-2M seeds</li><li><strong>Learn Capital</strong> - Education focused, strong in academic tools</li><li><strong>Conviction</strong> - AI-first fund, invests in vertical AI applications</li><li><strong>Foundation Capital</strong> - Backs frontier tech, good for AI partnerships</li><li><strong>Comma Capital</strong> - Former operators, hands-on, research tools focus</li></ol><h3>Tier 2: Strong Participants</h3><ol><li><strong>Village Global</strong> - Access to founder network (Gates, Bezos, Zuckerberg)</li><li><strong>Garage Capital</strong> - AI tools for knowledge workers</li><li><strong>South Park Commons</strong> - Community-driven, technical founders</li><li><strong>Long Journey Ventures</strong> - Edtech and future of work</li><li><strong>GSV Ventures</strong> - Large edtech fund, good for intros</li></ol><h3>Tier 3: Angel Investors</h3><ol><li><strong>Notion alumni</strong> - Understand outlining + AI market</li><li><strong>Grammarly execs</strong> - Writing tools experience</li><li><strong>ResearchGate founders</strong> - Academic network expertise</li><li><strong>University professors (CS/Education)</strong> - Domain credibility</li><li><strong>YC alumni</strong> - Community support and intros</li></ol><h3>Outreach Strategy</h3><h4>Warm Intro Paths</h4><ul><li><strong>YC:</strong> Apply to YC W26 batch (application due Dec 2025)</li><li><strong>Advisors:</strong> Recruit 2-3 advisors with VC connections</li><li><strong>Portfolio Companies:</strong> Connect via founders already backed by targets</li><li><strong>LinkedIn:</strong> Second-degree connections to partners</li></ul><h4>Cold Outreach (Last Resort)</h4><ul><li>Personalized emails to partners (research their thesis)</li><li>Twitter DMs if active on platform</li><li>Attend their events/office hours</li></ul>",
+      "type": "document",
+      "parentId": "fundraising",
+      "childrenIds": [],
+      "prefix": "8.2"
+    },
+    "fr-materials": {
+      "id": "fr-materials",
+      "name": "Fundraising Materials",
+      "content": "<h3>Data Room Contents</h3><h4>1. Pitch Deck (PDF)</h4><ul><li>15-slide investor deck (see section 5)</li><li>Include appendix with extra slides (detailed financials, team bios)</li></ul><h4>2. Executive Summary (1-pager)</h4><ul><li>Quick overview for initial screening</li><li>PDF with key metrics and ask</li></ul><h4>3. Financial Model (Excel)</h4><ul><li>3-year projections with assumptions</li><li>Unit economics breakdown</li><li>Sensitivity analysis (best/base/worst case)</li></ul><h4>4. Product Demo</h4><ul><li>Loom video (5-7 minutes) showing key features</li><li>Live demo environment (staging site with sample data)</li><li>Screenshots and user flow diagrams</li></ul><h4>5. Corporate Documents</h4><ul><li>Certificate of Incorporation</li><li>Current cap table (spreadsheet)</li><li>Board consents and resolutions</li><li>Founder employment agreements</li></ul><h4>6. Legal</h4><ul><li>Terms of Service and Privacy Policy</li><li>AI provider contracts (Gemini, Claude, OpenAI)</li><li>Any customer contracts (if applicable)</li></ul><h4>7. Metrics Dashboard</h4><ul><li>Real-time metrics (users, MRR, retention)</li><li>Cohort analysis</li><li>Growth charts</li></ul><h4>8. User Research</h4><ul><li>10+ user testimonials with full names/credentials</li><li>Case studies (how users use IdiamPro)</li><li>NPS survey results</li></ul><h3>Presentation Tips</h3><ul><li><strong>Lead with the demo:</strong> Show, don't just tell</li><li><strong>Tell a story:</strong> Use a PhD student persona throughout</li><li><strong>Be confident on unit economics:</strong> LTV:CAC ratio is killer</li><li><strong>Address competition head-on:</strong> Don't dismiss Notion/Obsidian</li><li><strong>Show momentum:</strong> Even 50 users = validation</li></ul>",
+      "type": "document",
+      "parentId": "fundraising",
+      "childrenIds": [],
+      "prefix": "8.3"
+    },
+    "fr-due-diligence": {
+      "id": "fr-due-diligence",
+      "name": "Due Diligence Preparation",
+      "content": "<h3>Due Diligence Checklist</h3><h4>Technical DD</h4><p><strong>What VCs will review:</strong></p><ul><li>Code quality and architecture</li><li>Security practices (authentication, encryption)</li><li>Scalability (can it handle 100K+ users?)</li><li>Technical debt and dependencies</li><li>AI integration quality (prompt engineering, error handling)</li></ul><p><strong>How to prepare:</strong></p><ul><li>Clean up code, add comments</li><li>Run security audit (use tools like Snyk, npm audit)</li><li>Document architecture (system diagrams)</li><li>Show test coverage (aim for >60%)</li><li>Prepare for live code walkthrough</li></ul><h4>Legal DD</h4><p><strong>What VCs will review:</strong></p><ul><li>Incorporation documents (Delaware C-Corp?)</li><li>Cap table (clean, no weird provisions?)</li><li>Founder vesting (standard 4-year with 1-year cliff?)</li><li>IP ownership (does company own all code?)</li><li>Contracts with AI providers</li><li>No outstanding litigation or disputes</li></ul><p><strong>How to prepare:</strong></p><ul><li>Use Carta or Pulley for cap table management</li><li>Ensure all founders signed IP assignment agreements</li><li>No side deals or verbal agreements (document everything)</li><li>Clean up any incorporation mistakes early</li></ul><h4>Financial DD</h4><p><strong>What VCs will review:</strong></p><ul><li>Bank statements (cash position)</li><li>Revenue (if any) with supporting documentation</li><li>Expense breakdown (reasonable burn rate?)</li><li>Customer contracts (if B2B sales)</li><li>Financial projections (realistic?)</li></ul><p><strong>How to prepare:</strong></p><ul><li>Use accounting software (QuickBooks, Xero)</li><li>Reconcile all transactions monthly</li><li>Separate personal and business expenses</li><li>Document all assumptions in financial model</li></ul><h4>Customer/Product DD</h4><p><strong>What VCs will check:</strong></p><ul><li>Talk to 3-5 users directly</li><li>Review usage data (do users actually use it?)</li><li>Check churn rate (are users staying?)</li><li>Assess product-market fit signals</li></ul><p><strong>How to prepare:</strong></p><ul><li>Prep 10+ users for reference calls</li><li>Share honest metrics (don't hide churn)</li><li>Show engagement trends (weekly active users)</li><li>Highlight power users and use cases</li></ul><h3>Red Flags to Avoid</h3><ul><li>❌ Messy cap table (multiple share classes, unclear ownership)</li><li>❌ Founder disputes or vesting not set up</li><li>❌ IP not properly assigned to company</li><li>❌ Unrealistic financials (10x growth every quarter)</li><li>❌ Security vulnerabilities (no encryption, exposed keys)</li><li>❌ Lack of user traction (no evidence of PMF)</li></ul>",
+      "type": "document",
+      "parentId": "fundraising",
+      "childrenIds": [],
+      "prefix": "8.4"
+    },
+    "gtm-strategy": {
+      "id": "gtm-strategy",
+      "name": "Go-to-Market Strategy",
+      "content": "<p>Customer acquisition, marketing, and sales strategy for each market segment.</p>",
+      "type": "chapter",
+      "parentId": "root-biz",
+      "childrenIds": ["gtm-academic", "gtm-authors", "gtm-enterprise", "gtm-marketing"],
+      "prefix": "9."
+    },
+    "gtm-academic": {
+      "id": "gtm-academic",
+      "name": "Academic Market Strategy",
+      "content": "<h3>PhD Students & Researchers (Primary Market)</h3><h4>Customer Profile</h4><ul><li><strong>Demographics:</strong> 25-35 years old, 650K in US</li><li><strong>Pain Point:</strong> Literature reviews taking 6-12 months</li><li><strong>Current Tools:</strong> Zotero, Mendeley, Google Docs</li><li><strong>Budget:</strong> $30-50/month (comparable to Grammarly Premium)</li></ul><h4>Acquisition Channels</h4><ol><li><strong>University Partnerships (Primary)</strong><ul><li>Pilot programs with 5-10 universities</li><li>Offer free Academic tier for 1 semester</li><li>Target: Graduate schools, writing centers, libraries</li><li>Conversion: 20-30% to paid after trial</li></ul></li><li><strong>Reddit & Online Communities</strong><ul><li>r/PhD, r/GradSchool, r/AskAcademia (1M+ members)</li><li>Provide value first (guides, tips) before promoting</li><li>Host AMAs, share success stories</li></ul></li><li><strong>Academic Conferences</strong><ul><li>Sponsor PhD symposiums</li><li>Demo booth at conferences (cheaper than commercial events)</li><li>Speaking opportunities on \"AI for Research\"</li></ul></li><li><strong>Content Marketing</strong><ul><li>Blog: \"How to Write Your Literature Review in 1 Week\"</li><li>YouTube: Tutorial videos on research workflows</li><li>SEO: Target keywords like \"PhD thesis tools\", \"literature review software\"</li></ul></li><li><strong>Referral Program</strong><ul><li>Give 1 month free, get 1 month free</li><li>Academic referrals convert at 3x normal rate</li></ul></li></ol><h4>Sales Process</h4><ol><li>Free trial (14 days, unlimited features)</li><li>Onboarding email sequence with tutorials</li><li>Success story: Show how other PhD students use it</li><li>Upgrade prompt: Import limit reached (freemium → paid)</li></ol>",
+      "type": "document",
+      "parentId": "gtm-strategy",
+      "childrenIds": [],
+      "prefix": "9.1"
+    },
+    "gtm-authors": {
+      "id": "gtm-authors",
+      "name": "Authors & Writers Strategy",
+      "content": "<h3>Non-Fiction Authors (Secondary Market)</h3><h4>Customer Profile</h4><ul><li><strong>Demographics:</strong> 30-55, professional writers and aspiring authors</li><li><strong>Pain Point:</strong> Research and outlining taking 50% of book-writing time</li><li><strong>Current Tools:</strong> Scrivener, Google Docs, Notion</li><li><strong>Budget:</strong> $50-100/month (huge time savings justifies premium)</li></ul><h4>Acquisition Channels</h4><ol><li><strong>Writing Communities</strong><ul><li>NaNoWriMo (300K+ participants annually)</li><li>Reedsy, Scribophile, AbsoluteWrite forums</li><li>Author Facebook groups (\"Non-Fiction Writers\", etc.)</li></ul></li><li><strong>Author Newsletters & Podcasts</strong><ul><li>Sponsor newsletters (The Creative Penn, Jane Friedman)</li><li>Podcast guest spots (\"How I wrote my book in 3 months with AI\")</li></ul></li><li><strong>Content Marketing</strong><ul><li>Blog: \"How to Write a Non-Fiction Book with AI\"</li><li>Case study: Author who used IdiamPro to write bestseller</li></ul></li><li><strong>Book Launch Services</strong><ul><li>Partner with Reedsy, Vellum, other author services</li><li>Affiliate program (20% recurring commission)</li></ul></li></ol><h4>Positioning</h4><ul><li><strong>Tagline:</strong> \"From Outline to Published Book in Weeks, Not Years\"</li><li><strong>Key Benefit:</strong> Import 50 research sources → AI generates book outline → auto-fill chapters</li><li><strong>Social Proof:</strong> Testimonials from published authors</li></ul>",
+      "type": "document",
+      "parentId": "gtm-strategy",
+      "childrenIds": [],
+      "prefix": "9.2"
+    },
+    "gtm-enterprise": {
+      "id": "gtm-enterprise",
+      "name": "Enterprise Strategy",
+      "content": "<h3>Consulting Firms & Corporate Research (Year 2+)</h3><h4>Customer Profile</h4><ul><li><strong>Target:</strong> McKinsey, Bain, BCG, Deloitte research teams</li><li><strong>Pain Point:</strong> Analysts spend 60%+ time on research synthesis</li><li><strong>Current Tools:</strong> PowerPoint, Excel, internal wikis</li><li><strong>Budget:</strong> $100-500 per seat per month</li></ul><h4>Sales Process</h4><ol><li><strong>Pilot Program</strong><ul><li>Offer 5-10 seat pilot for 3 months</li><li>Prove ROI: Track time savings (target: 30-40% reduction)</li><li>Get internal champion (usually analyst or associate)</li></ul></li><li><strong>Enterprise Features</strong><ul><li>Team collaboration (shared outlines)</li><li>Admin dashboard (usage analytics)</li><li>SSO and security certifications (SOC 2)</li><li>Custom AI models (fine-tuned for industry)</li></ul></li><li><strong>Pricing</strong><ul><li>$200/seat/month minimum</li><li>Annual contracts with volume discounts</li><li>Typical deal size: $50K-200K ARR</li></ul></li></ol><h4>Acquisition Channels</h4><ul><li><strong>LinkedIn outreach</strong> to research directors</li><li><strong>Industry conferences</strong> (consulting, market research)</li><li><strong>Referrals</strong> from individual consultants who use IdiamPro</li></ul>",
+      "type": "document",
+      "parentId": "gtm-strategy",
+      "childrenIds": [],
+      "prefix": "9.3"
+    },
+    "gtm-marketing": {
+      "id": "gtm-marketing",
+      "name": "Marketing Channels & Budget",
+      "content": "<h3>2026 Marketing Budget & Allocation</h3><h4>Q1-Q2: Launch Phase ($5K/month)</h4><ul><li><strong>Content Marketing (40%):</strong> $2K<ul><li>Blog posts (2-3/week)</li><li>SEO optimization</li><li>YouTube tutorials</li></ul></li><li><strong>Community Building (30%):</strong> $1.5K<ul><li>Reddit engagement</li><li>Discord/Slack communities</li><li>Beta user onboarding</li></ul></li><li><strong>Partnerships (20%):</strong> $1K<ul><li>University outreach</li><li>Academic conference sponsorships</li></ul></li><li><strong>Paid Ads (10%):</strong> $500<ul><li>Reddit ads (test campaigns)</li><li>Google Ads (brand keywords)</li></ul></li></ul><h4>Q3-Q4: Scale Phase ($20K/month)</h4><ul><li><strong>Paid Acquisition (50%):</strong> $10K<ul><li>Facebook/Instagram ads (author market)</li><li>Google Ads (high-intent keywords)</li><li>Reddit promoted posts</li></ul></li><li><strong>Content & SEO (25%):</strong> $5K<ul><li>Hire content writer</li><li>Video production</li><li>SEO agency retainer</li></ul></li><li><strong>Partnerships & Events (15%):</strong> $3K<ul><li>Conference sponsorships</li><li>Webinars</li></ul></li><li><strong>PR (10%):</strong> $2K<ul><li>Product Hunt launch</li><li>Press releases</li><li>Journalist outreach</li></ul></li></ul><h3>Marketing Metrics</h3><ul><li><strong>CAC Target:</strong> <$30</li><li><strong>Payback Period:</strong> <3 months</li><li><strong>Organic vs Paid:</strong> 70/30 split (prioritize organic)</li><li><strong>Conversion Rate:</strong> 10-15% (free → paid)</li></ul>",
+      "type": "document",
+      "parentId": "gtm-strategy",
+      "childrenIds": [],
+      "prefix": "9.4"
+    },
+    "product-roadmap": {
+      "id": "product-roadmap",
+      "name": "Product Roadmap",
+      "content": "<p>Feature roadmap aligned with customer needs and market opportunities.</p>",
+      "type": "chapter",
+      "parentId": "root-biz",
+      "childrenIds": ["pr-2026", "pr-2027", "pr-2028"],
+      "prefix": "10."
+    },
+    "pr-2026": {
+      "id": "pr-2026",
+      "name": "2026 Product Roadmap",
+      "content": "<h3>Q1 2026 (Launch)</h3><ul><li>✅ Core outlining features (56+ features complete)</li><li>✅ Basic AI content generation (Gemini Flash)</li><li>⏳ Import Media MVP (PDF + YouTube analysis)</li><li>⏳ Search improvements</li><li>⏳ Mobile apps (iOS via Capacitor)</li></ul><h3>Q2 2026 (Monetization)</h3><ul><li>Payment system (Stripe integration)</li><li>Multi-AI model support (add Claude Sonnet)</li><li>Subtree publisher v1 (export as Markdown, PDF)</li><li>Collaboration v1 (share read-only outlines)</li><li>Analytics dashboard (usage metrics)</li></ul><h3>Q3 2026 (Enterprise)</h3><ul><li>Team workspaces (shared outlines)</li><li>Admin dashboard (user management)</li><li>Advanced export (Word, HTML with styling)</li><li>Citation management (APA, MLA, Chicago)</li><li>Version history and restore</li></ul><h3>Q4 2026 (Scale)</h3><ul><li>Desktop apps (macOS and Windows via Electron)</li><li>API for integrations</li><li>Advanced AI features (Claude Opus integration)</li><li>Real-time collaboration (Google Docs-style)</li><li>Mobile apps (Android)</li></ul>",
+      "type": "document",
+      "parentId": "product-roadmap",
+      "childrenIds": [],
+      "prefix": "10.1"
+    },
+    "pr-2027": {
+      "id": "pr-2027",
+      "name": "2027 Product Roadmap",
+      "content": "<h3>Enterprise & Advanced Features</h3><ul><li><strong>SSO Integration:</strong> SAML, Google Workspace, Microsoft 365</li><li><strong>Advanced Security:</strong> SOC 2 Type II certification</li><li><strong>Custom AI Models:</strong> Fine-tuning for specific industries</li><li><strong>Advanced Analytics:</strong> Research insights, writing patterns</li><li><strong>Integrations:</strong> Zotero, Mendeley, Notion, Google Drive</li><li><strong>Mobile Parity:</strong> Full feature set on iOS/Android</li><li><strong>Offline Mode:</strong> Work without internet, sync later</li><li><strong>Advanced Export:</strong> LaTeX for academic papers</li></ul>",
+      "type": "document",
+      "parentId": "product-roadmap",
+      "childrenIds": [],
+      "prefix": "10.2"
+    },
+    "pr-2028": {
+      "id": "pr-2028",
+      "name": "2028 Product Vision",
+      "content": "<h3>AI-First Knowledge Platform</h3><ul><li><strong>AI Research Assistant:</strong> Proactively suggest sources and citations</li><li><strong>Knowledge Graph:</strong> Visual connections between concepts across outlines</li><li><strong>Collaborative AI:</strong> Multi-user AI brainstorming sessions</li><li><strong>Academic Publishing:</strong> Direct submission to arXiv, journals</li><li><strong>Video & Audio Analysis:</strong> Import lectures, podcasts, interviews</li><li><strong>Marketplace:</strong> Buy/sell research outline templates</li><li><strong>AI Tutoring:</strong> Explain complex topics from imported sources</li><li><strong>White-Label:</strong> Universities can brand IdiamPro for their students</li></ul>",
+      "type": "document",
+      "parentId": "product-roadmap",
+      "childrenIds": [],
+      "prefix": "10.3"
+    }
+  },
+  "lastModified": 1736306400000,
+  "createdAt": 1736306400000
+}
