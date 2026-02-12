@@ -528,7 +528,7 @@ export default function MarketingPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white overflow-x-hidden">
+    <div className="min-h-screen h-full bg-gray-950 text-white overflow-x-hidden overflow-y-auto">
       {/* Background gradients */}
       <div className="fixed inset-0 bg-gradient-to-br from-violet-950 via-gray-950 to-indigo-950" />
       <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-violet-900/20 via-transparent to-transparent" />

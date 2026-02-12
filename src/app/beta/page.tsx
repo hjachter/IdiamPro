@@ -145,7 +145,7 @@ I would like to join the IdiamPro beta program.
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 text-white">
+    <div className="min-h-screen h-full bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 text-white overflow-y-auto">
       {/* Background effects */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl" />
