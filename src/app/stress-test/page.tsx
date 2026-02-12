@@ -199,7 +199,7 @@ export default function StressTestPage() {
     setMounted(true);
   }, []);
 
-  const testCounts = [10000, 25000, 50000, 66000, 100000, 150000, 200000, 300000, 500000];
+  const testCounts = [10000, 25000, 50000, 66000, 100000, 150000, 200000, 300000, 500000, 750000, 1000000];
 
   const runTest = useCallback(async (nodeCount: number): Promise<TestResult> => {
     const startMemory = getMemoryUsage();
