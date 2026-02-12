@@ -126,10 +126,17 @@ function getPlatformInfo(): string {
 
   const platform = navigator.platform;
   const userAgent = navigator.userAgent;
+  const cores = navigator.hardwareConcurrency || 0;
+
+  // iOS detection (must come before macOS since iPads report MacIntel)
+  if (/iPad|iPhone|iPod/.test(platform) ||
+      (platform === 'MacIntel' && navigator.maxTouchPoints > 1)) {
+    return 'iOS';
+  }
 
   // Detect macOS
   if (platform === 'MacIntel' || platform.startsWith('Mac')) {
-    // Check for Apple Silicon via WebGL renderer
+    // Try WebGL renderer for specific chip info
     try {
       const canvas = document.createElement('canvas');
       const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
@@ -137,20 +144,32 @@ function getPlatformInfo(): string {
         const debugInfo = (gl as WebGLRenderingContext).getExtension('WEBGL_debug_renderer_info');
         if (debugInfo) {
           const renderer = (gl as WebGLRenderingContext).getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
-          if (renderer && renderer.includes('Apple M')) {
-            // Extract chip name (M1, M2, M3, M4, etc.)
-            const match = renderer.match(/Apple (M\d+)/);
-            if (match) {
-              return `macOS (Apple Silicon ${match[1]})`;
+          // Chrome shows "Apple M4" etc, Safari shows "Apple GPU"
+          if (renderer) {
+            const chipMatch = renderer.match(/Apple (M\d+)/);
+            if (chipMatch) {
+              return `macOS (Apple ${chipMatch[1]})`;
             }
-            return 'macOS (Apple Silicon)';
+            // Safari just shows "Apple GPU" for Apple Silicon
+            if (renderer.includes('Apple GPU') || renderer.includes('Apple M')) {
+              // Use core count to estimate chip generation
+              if (cores >= 10) return 'macOS (Apple Silicon)';
+              if (cores >= 8) return 'macOS (Apple Silicon)';
+              return 'macOS (Apple Silicon)';
+            }
           }
         }
       }
     } catch (e) {
-      // WebGL not available, fall back
+      // WebGL not available
     }
-    return 'macOS (Intel)';
+
+    // Fallback: high core counts on Mac likely mean Apple Silicon
+    // Intel MacBooks typically had 4-8 cores, Apple Silicon has 8-12+
+    if (cores >= 8) {
+      return 'macOS (likely Apple Silicon)';
+    }
+    return 'macOS';
   }
 
   // Windows
@@ -163,11 +182,6 @@ function getPlatformInfo(): string {
   if (platform.startsWith('Linux')) {
     if (userAgent.includes('Android')) return 'Android';
     return 'Linux';
-  }
-
-  // iOS
-  if (/iPad|iPhone|iPod/.test(platform) || (platform === 'MacIntel' && navigator.maxTouchPoints > 1)) {
-    return 'iOS';
   }
 
   return platform;
