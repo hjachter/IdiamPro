@@ -752,7 +752,7 @@ export default function MarketingPage() {
                   </p>
                   <div className="flex items-center gap-2 text-violet-400 text-sm font-medium">
                     <span className="px-3 py-1 rounded-full bg-violet-500/20 border border-violet-500/30">
-                      66,000+ nodes tested
+                      500,000+ nodes tested*
                     </span>
                   </div>
                 </div>
@@ -1259,7 +1259,7 @@ export default function MarketingPage() {
                     <td className="py-3 px-4 text-center text-white/30">Basic</td>
                   </tr>
                   <tr>
-                    <td className="py-3 px-4 text-white/70">66,000+ node capacity</td>
+                    <td className="py-3 px-4 text-white/70">500,000+ node capacity*</td>
                     <td className="py-3 px-4 text-center"><Check className="w-5 h-5 text-emerald-400 mx-auto" /></td>
                     <td className="py-3 px-4 text-center text-white/30">Slows</td>
                     <td className="py-3 px-4 text-center"><Check className="w-5 h-5 text-white/40 mx-auto" /></td>
@@ -1274,12 +1274,15 @@ export default function MarketingPage() {
               <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-violet-500/10 via-transparent to-transparent" />
               <div className="relative">
                 <h3 className="text-4xl lg:text-6xl font-bold text-white mb-4">
-                  <AnimatedNumber value={66000} prefix="" suffix="+" />
+                  <AnimatedNumber value={500000} prefix="" suffix="+" />
                 </h3>
-                <p className="text-xl text-white/80 mb-2">nodes in a single outline</p>
+                <p className="text-xl text-white/80 mb-2">nodes in a single outline*</p>
                 <p className="text-white/50 max-w-xl mx-auto">
-                  We've tested outlines with over 66,000 nodes. No artificial limits—scale until your hardware says stop.
-                  Your biggest projects, handled with ease.
+                  Stress-tested with half a million nodes. No artificial limits—scale until your hardware says stop.
+                  Your biggest research projects, handled with ease.
+                </p>
+                <p className="text-white/30 text-xs mt-4">
+                  *Tested on M4 MacBook Air with 512GB SSD. Performance varies by hardware and platform.
                 </p>
               </div>
             </div>
@@ -1819,6 +1822,34 @@ export default function MarketingPage() {
             <p className="text-white/30 text-sm mt-4">
               No credit card required. Free tier forever.
             </p>
+          </div>
+        </section>
+
+        {/* Footnotes */}
+        <section className="px-6 py-8 lg:px-12">
+          <div className="max-w-4xl mx-auto">
+            <div className="border-t border-white/10 pt-8">
+              <h4 className="text-white/40 text-xs uppercase tracking-wider mb-4">Performance Notes</h4>
+              <div className="text-white/30 text-xs space-y-2">
+                <p>
+                  <strong className="text-white/50">*Node Capacity Testing:</strong> 500,000+ nodes tested on Apple M4 MacBook Air
+                  (16GB RAM, 512GB SSD) running macOS. Generation time: 4.2s, save time: 1.8s, load time: 1.3s,
+                  file size: 98MB. Performance varies by hardware configuration.
+                </p>
+                <p>
+                  <strong className="text-white/50">Platform Considerations:</strong>
+                </p>
+                <ul className="list-disc list-inside ml-4 space-y-1">
+                  <li><strong>Desktop (macOS/Windows/Linux):</strong> Full system RAM available. Recommended for outlines exceeding 100,000 nodes.</li>
+                  <li><strong>Web Browser:</strong> Limited to browser memory allocation (typically 2-4GB). Chrome/Edge perform best. Recommended limit: 200,000 nodes.</li>
+                  <li><strong>Mobile (iOS/Android):</strong> More constrained memory. For optimal performance, keep outlines under 50,000 nodes.</li>
+                </ul>
+                <p>
+                  <strong className="text-white/50">Storage:</strong> Outline files (.idm) are JSON-based. A 100,000-node outline is approximately 20MB.
+                  Local storage has no practical limit; web browser IndexedDB supports gigabytes of storage.
+                </p>
+              </div>
+            </div>
           </div>
         </section>
 
