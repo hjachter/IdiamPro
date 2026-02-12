@@ -317,10 +317,6 @@ export default function StressTestPage() {
               <span className="text-white/40">Cores:</span>
               <span className="ml-2">{mounted ? navigator.hardwareConcurrency : 'Loading...'}</span>
             </div>
-            <div>
-              <span className="text-white/40">Memory API:</span>
-              <span className="ml-2">{mounted ? ((performance as any).memory ? 'Available' : 'Not available') : 'Loading...'}</span>
-            </div>
           </div>
         </div>
 
@@ -377,7 +373,6 @@ export default function StressTestPage() {
                     <th className="px-4 py-3 text-left text-white/60">Save</th>
                     <th className="px-4 py-3 text-left text-white/60">Load</th>
                     <th className="px-4 py-3 text-left text-white/60">File Size</th>
-                    <th className="px-4 py-3 text-left text-white/60">Memory</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -414,7 +409,6 @@ export default function StressTestPage() {
                           {result.fileSizeMB.toFixed(1)}MB
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-white/60">{formatMemory(result.memoryUsed)}</td>
                     </tr>
                   ))}
                 </tbody>
