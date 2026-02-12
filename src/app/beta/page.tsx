@@ -26,8 +26,8 @@ import {
   CheckCircle2
 } from 'lucide-react';
 
-// Launch date: March 1, 2026
-const LAUNCH_DATE = new Date('2026-03-01T00:00:00');
+// Launch date: April 1, 2026
+const LAUNCH_DATE = new Date('2026-04-01T00:00:00');
 
 // Countdown timer component
 function CountdownTimer({ targetDate }: { targetDate: Date }) {

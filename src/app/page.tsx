@@ -84,8 +84,8 @@ import {
 // App URL - points to the app route
 const APP_URL = '/app';
 
-// Launch date: March 1, 2026
-const LAUNCH_DATE = new Date('2026-03-01T00:00:00');
+// Launch date: April 1, 2026
+const LAUNCH_DATE = new Date('2026-04-01T00:00:00');
 
 // Navigate to the app
 const launchApp = () => {
