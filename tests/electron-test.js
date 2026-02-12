@@ -1,8 +1,24 @@
 const { _electron: electron } = require('playwright');
 const path = require('path');
+const fs = require('fs');
+const os = require('os');
 
 let electronApp;
 let page;
+
+// Get platform info for report
+function getPlatformInfo() {
+  const cpus = os.cpus();
+  return {
+    platform: os.platform(),
+    arch: os.arch(),
+    osVersion: os.release(),
+    nodeVersion: process.version,
+    cpu: cpus[0]?.model || 'Unknown',
+    cpuCores: cpus.length,
+    totalMemory: `${Math.round(os.totalmem() / 1024 / 1024 / 1024)}GB`,
+  };
+}
 
 async function findMainWindow(electronApp, maxWait = 30000) {
   const startTime = Date.now();
@@ -69,7 +85,16 @@ async function launchApp() {
       window.location.href = '/app';
     });
     await page.waitForLoadState('domcontentloaded');
-    await page.waitForTimeout(8000); // Give app time to fully initialize
+
+    // Wait for app to fully load by checking for sidebar buttons
+    console.log('Waiting for app to fully load...');
+    try {
+      await page.locator('button:has-text("New Outline")').waitFor({ state: 'visible', timeout: 30000 });
+      console.log('App loaded - New Outline button visible');
+    } catch (e) {
+      console.log('Timeout waiting for New Outline button, continuing anyway...');
+      await page.waitForTimeout(5000);
+    }
   }
 
   console.log('App launched successfully, now at:', page.url());
@@ -84,65 +109,64 @@ async function closeApp() {
 
 // Test: Click Welcome Tour button
 async function testWelcomeTour() {
-  console.log('\nTesting Welcome Tour button...');
+  const details = { steps: [] };
 
   try {
     // Look for the Welcome Tour button in sidebar
     const welcomeButton = page.locator('button:has-text("Welcome Tour"), button:has-text("Welcome")');
     const count = await welcomeButton.count();
-    console.log(`  Found ${count} Welcome button(s)`);
+    details.steps.push(`Found ${count} Welcome button(s)`);
 
     if (count > 0 && await welcomeButton.first().isVisible({ timeout: 5000 })) {
       await welcomeButton.first().click();
-      console.log('  ✓ Welcome Tour button clicked');
+      details.steps.push('Welcome Tour button clicked');
 
       // Verify welcome outline loaded - use heading to be more specific
       await page.waitForTimeout(2000);
       const welcomeTitle = page.locator('h1:has-text("Welcome to IdiamPro!")');
       if (await welcomeTitle.first().isVisible({ timeout: 5000 })) {
-        console.log('  ✓ Welcome outline loaded');
-        return true;
+        details.steps.push('Welcome outline loaded successfully');
+        return { passed: true, details };
       } else {
-        console.log('  ✗ Welcome outline title not found');
+        details.error = 'Welcome outline title not found';
       }
     } else {
-      console.log('  ✗ Welcome Tour button not visible');
-      // Debug: print all buttons
+      details.error = 'Welcome Tour button not visible';
       const allButtons = await page.locator('button').allTextContents();
-      console.log('  Available buttons:', allButtons.slice(0, 10));
+      details.availableButtons = allButtons.slice(0, 10);
     }
   } catch (error) {
-    console.log('  ✗ Welcome Tour test failed:', error.message);
+    details.error = error.message;
   }
-  return false;
+  return { passed: false, details };
 }
 
 // Test: Open Settings dialog
 async function testSettingsDialog() {
-  console.log('\nTesting Settings dialog...');
+  const details = { steps: [] };
 
   try {
     // Look for settings button
     const settingsButton = page.locator('button:has(svg[class*="settings"]), button:has(.lucide-settings), [aria-label*="Settings"]');
     const count = await settingsButton.count();
-    console.log(`  Found ${count} Settings button(s)`);
+    details.steps.push(`Found ${count} Settings button(s)`);
 
     if (count > 0) {
       await settingsButton.first().click();
-      console.log('  ✓ Settings button clicked');
+      details.steps.push('Settings button clicked');
 
       await page.waitForTimeout(1000);
 
       // Look for subscription plan section
       const subscriptionPlan = page.locator('text="Subscription Plan"');
       if (await subscriptionPlan.isVisible({ timeout: 3000 })) {
-        console.log('  ✓ Settings dialog opened with Subscription Plan visible');
+        details.steps.push('Settings dialog opened with Subscription Plan visible');
 
         // Click on the plan badge to open plan dialog
         const planBadge = page.locator('button:has-text("Manage Plan"), button:has-text("Change Plan")');
         if (await planBadge.first().isVisible({ timeout: 2000 })) {
           await planBadge.first().click();
-          console.log('  ✓ Plan dialog opened');
+          details.steps.push('Plan dialog opened');
 
           // Check for 4 tiers
           await page.waitForTimeout(500);
@@ -151,10 +175,10 @@ async function testSettingsDialog() {
           const premiumPlan = await page.locator('text="Premium"').count();
           const academicPlan = await page.locator('text="Academic"').count();
 
-          console.log(`  Plans found: Free=${freePlan}, Basic=${basicPlan}, Premium=${premiumPlan}, Academic=${academicPlan}`);
+          details.plansFound = { free: freePlan, basic: basicPlan, premium: premiumPlan, academic: academicPlan };
 
           if (freePlan > 0 && basicPlan > 0 && premiumPlan > 0 && academicPlan > 0) {
-            console.log('  ✓ All 4 subscription tiers present');
+            details.steps.push('All 4 subscription tiers present');
           }
         }
 
@@ -167,77 +191,77 @@ async function testSettingsDialog() {
             await page.waitForTimeout(300);
           }
         }
-        return true;
+        return { passed: true, details };
       }
     } else {
-      console.log('  ✗ Settings button not found');
+      details.error = 'Settings button not found';
     }
   } catch (error) {
-    console.log('  ✗ Settings test failed:', error.message);
+    details.error = error.message;
   }
-  return false;
+  return { passed: false, details };
 }
 
 // Test: Create new outline
 async function testCreateOutline() {
-  console.log('\nTesting Create Outline...');
+  const details = { steps: [] };
 
   try {
     const newOutlineButton = page.locator('button:has-text("New Outline")');
     const count = await newOutlineButton.count();
-    console.log(`  Found ${count} New Outline button(s)`);
+    details.steps.push(`Found ${count} New Outline button(s)`);
 
     if (count > 0 && await newOutlineButton.first().isVisible({ timeout: 5000 })) {
       await newOutlineButton.first().click();
-      console.log('  ✓ New Outline button clicked');
+      details.steps.push('New Outline button clicked');
 
       await page.waitForTimeout(2000);
       // Use heading to be more specific
       const untitledOutline = page.locator('h1:has-text("Untitled Outline")');
       if (await untitledOutline.first().isVisible({ timeout: 3000 })) {
-        console.log('  ✓ New outline created');
-        return true;
+        details.steps.push('New outline created successfully');
+        return { passed: true, details };
       } else {
-        console.log('  ✗ Untitled Outline not found');
+        details.error = 'Untitled Outline not found';
       }
     } else {
-      console.log('  ✗ New Outline button not visible');
+      details.error = 'New Outline button not visible';
     }
   } catch (error) {
-    console.log('  ✗ Create Outline test failed:', error.message);
+    details.error = error.message;
   }
-  return false;
+  return { passed: false, details };
 }
 
 // Test: User Guide button
 async function testUserGuide() {
-  console.log('\nTesting User Guide button...');
+  const details = { steps: [] };
 
   try {
     const userGuideButton = page.locator('button:has-text("User Guide")');
     const count = await userGuideButton.count();
-    console.log(`  Found ${count} User Guide button(s)`);
+    details.steps.push(`Found ${count} User Guide button(s)`);
 
     if (count > 0 && await userGuideButton.first().isVisible({ timeout: 5000 })) {
       await userGuideButton.first().click();
-      console.log('  ✓ User Guide button clicked');
+      details.steps.push('User Guide button clicked');
 
       await page.waitForTimeout(2000);
       // Use heading to be more specific
       const guideTitle = page.locator('h1:has-text("IdiamPro User Guide")');
       if (await guideTitle.first().isVisible({ timeout: 3000 })) {
-        console.log('  ✓ User Guide loaded');
-        return true;
+        details.steps.push('User Guide loaded successfully');
+        return { passed: true, details };
       } else {
-        console.log('  ✗ User Guide title not found');
+        details.error = 'User Guide title not found';
       }
     } else {
-      console.log('  ✗ User Guide button not visible');
+      details.error = 'User Guide button not visible';
     }
   } catch (error) {
-    console.log('  ✗ User Guide test failed:', error.message);
+    details.error = error.message;
   }
-  return false;
+  return { passed: false, details };
 }
 
 // Take screenshot
@@ -245,59 +269,210 @@ async function takeScreenshot(name) {
   try {
     const screenshotPath = path.resolve(__dirname, '..', 'test-screenshots', `${name}.png`);
     await page.screenshot({ path: screenshotPath, fullPage: true });
-    console.log(`Screenshot saved: ${name}.png`);
+    return screenshotPath;
   } catch (error) {
     console.log(`Failed to save screenshot ${name}:`, error.message);
+    return null;
   }
+}
+
+// Format duration
+function formatDuration(ms) {
+  if (ms < 1000) return `${ms}ms`;
+  return `${(ms / 1000).toFixed(2)}s`;
 }
 
 // Run all tests
 async function runTests() {
-  const results = [];
+  const report = {
+    timestamp: new Date().toISOString(),
+    platform: getPlatformInfo(),
+    tests: [],
+    summary: { total: 0, passed: 0, failed: 0, duration: 0 }
+  };
+
+  const overallStart = Date.now();
+
+  console.log('\n╔════════════════════════════════════════════════════════════╗');
+  console.log('║           IdiamPro Automated Test Suite                    ║');
+  console.log('╚════════════════════════════════════════════════════════════╝\n');
+
+  console.log(`Platform: ${report.platform.platform} ${report.platform.arch}`);
+  console.log(`OS Version: ${report.platform.osVersion}`);
+  console.log(`Node: ${report.platform.nodeVersion}`);
+  console.log(`CPU: ${report.platform.cpu} (${report.platform.cpuCores} cores)`);
+  console.log(`Memory: ${report.platform.totalMemory}`);
+  console.log(`Started: ${new Date().toLocaleString()}\n`);
 
   try {
+    const launchStart = Date.now();
     await launchApp();
+    report.launchDuration = Date.now() - launchStart;
+    console.log(`App launch time: ${formatDuration(report.launchDuration)}\n`);
 
     // Take initial screenshot
-    await takeScreenshot('01-initial');
+    const initialScreenshot = await takeScreenshot('01-initial');
 
-    // Run tests
-    results.push({ name: 'User Guide', passed: await testUserGuide() });
-    await takeScreenshot('02-after-guide');
+    // Define tests
+    const testCases = [
+      { name: 'User Guide', fn: testUserGuide, screenshot: '02-after-guide' },
+      { name: 'Welcome Tour', fn: testWelcomeTour, screenshot: '03-after-welcome' },
+      { name: 'Create Outline', fn: testCreateOutline, screenshot: '04-after-create' },
+      { name: 'Settings Dialog', fn: testSettingsDialog, screenshot: '05-after-settings' },
+    ];
 
-    results.push({ name: 'Welcome Tour', passed: await testWelcomeTour() });
-    await takeScreenshot('03-after-welcome');
+    // Run each test
+    for (const test of testCases) {
+      console.log(`\n─── ${test.name} ───`);
+      const testStart = Date.now();
 
-    results.push({ name: 'Create Outline', passed: await testCreateOutline() });
-    await takeScreenshot('04-after-create');
+      const result = await test.fn();
+      const duration = Date.now() - testStart;
 
-    results.push({ name: 'Settings Dialog', passed: await testSettingsDialog() });
-    await takeScreenshot('05-after-settings');
+      const screenshotPath = await takeScreenshot(test.screenshot);
+
+      const testResult = {
+        name: test.name,
+        passed: result.passed,
+        duration,
+        durationFormatted: formatDuration(duration),
+        timestamp: new Date().toISOString(),
+        screenshot: screenshotPath,
+        details: result.details
+      };
+
+      report.tests.push(testResult);
+
+      // Console output
+      const status = result.passed ? '✓ PASS' : '✗ FAIL';
+      const statusColor = result.passed ? '\x1b[32m' : '\x1b[31m';
+      console.log(`${statusColor}${status}\x1b[0m (${formatDuration(duration)})`);
+
+      if (result.details.steps) {
+        result.details.steps.forEach(step => console.log(`  • ${step}`));
+      }
+      if (result.details.error) {
+        console.log(`  Error: ${result.details.error}`);
+      }
+    }
 
   } catch (error) {
-    console.error('Test run failed:', error);
+    console.error('\nTest run failed:', error);
+    report.error = error.message;
   } finally {
     await closeApp();
   }
 
-  // Print summary
-  console.log('\n========== TEST RESULTS ==========');
-  let passed = 0;
-  let failed = 0;
-  for (const result of results) {
-    const status = result.passed ? '✓ PASS' : '✗ FAIL';
-    console.log(`${status}: ${result.name}`);
-    if (result.passed) passed++;
-    else failed++;
-  }
-  console.log(`\nTotal: ${passed} passed, ${failed} failed`);
-  console.log('==================================\n');
+  // Calculate summary
+  report.summary.total = report.tests.length;
+  report.summary.passed = report.tests.filter(t => t.passed).length;
+  report.summary.failed = report.tests.filter(t => !t.passed).length;
+  report.summary.duration = Date.now() - overallStart;
+  report.summary.durationFormatted = formatDuration(report.summary.duration);
 
-  return results;
+  // Print summary
+  console.log('\n╔════════════════════════════════════════════════════════════╗');
+  console.log('║                      TEST RESULTS                          ║');
+  console.log('╠════════════════════════════════════════════════════════════╣');
+
+  for (const test of report.tests) {
+    const status = test.passed ? '\x1b[32m✓ PASS\x1b[0m' : '\x1b[31m✗ FAIL\x1b[0m';
+    const padding = ' '.repeat(Math.max(0, 40 - test.name.length));
+    console.log(`║  ${status}  ${test.name}${padding}${test.durationFormatted.padStart(8)} ║`);
+  }
+
+  console.log('╠════════════════════════════════════════════════════════════╣');
+
+  const passColor = report.summary.failed === 0 ? '\x1b[32m' : '\x1b[33m';
+  console.log(`║  ${passColor}Total: ${report.summary.passed}/${report.summary.total} passed\x1b[0m               Duration: ${report.summary.durationFormatted.padStart(8)} ║`);
+  console.log('╚════════════════════════════════════════════════════════════╝\n');
+
+  // Save JSON report
+  const reportPath = path.resolve(__dirname, '..', 'test-screenshots', 'test-report.json');
+  fs.writeFileSync(reportPath, JSON.stringify(report, null, 2));
+  console.log(`Report saved: test-screenshots/test-report.json`);
+
+  // Save markdown report
+  const mdReport = generateMarkdownReport(report);
+  const mdReportPath = path.resolve(__dirname, '..', 'test-screenshots', 'test-report.md');
+  fs.writeFileSync(mdReportPath, mdReport);
+  console.log(`Report saved: test-screenshots/test-report.md\n`);
+
+  return report;
+}
+
+// Generate markdown report
+function generateMarkdownReport(report) {
+  const lines = [
+    '# IdiamPro Test Report',
+    '',
+    `**Generated:** ${new Date(report.timestamp).toLocaleString()}`,
+    '',
+    '## Platform',
+    '',
+    '| Property | Value |',
+    '|----------|-------|',
+    `| OS | ${report.platform.platform} ${report.platform.arch} |`,
+    `| OS Version | ${report.platform.osVersion} |`,
+    `| Node | ${report.platform.nodeVersion} |`,
+    `| CPU | ${report.platform.cpu} |`,
+    `| Cores | ${report.platform.cpuCores} |`,
+    `| Memory | ${report.platform.totalMemory} |`,
+    '',
+    '## Summary',
+    '',
+    `- **Total Tests:** ${report.summary.total}`,
+    `- **Passed:** ${report.summary.passed}`,
+    `- **Failed:** ${report.summary.failed}`,
+    `- **Duration:** ${report.summary.durationFormatted}`,
+    '',
+    '## Test Results',
+    '',
+    '| Test | Status | Duration |',
+    '|------|--------|----------|',
+  ];
+
+  for (const test of report.tests) {
+    const status = test.passed ? '✅ PASS' : '❌ FAIL';
+    lines.push(`| ${test.name} | ${status} | ${test.durationFormatted} |`);
+  }
+
+  lines.push('');
+  lines.push('## Test Details');
+  lines.push('');
+
+  for (const test of report.tests) {
+    lines.push(`### ${test.name}`);
+    lines.push('');
+    lines.push(`**Status:** ${test.passed ? '✅ Passed' : '❌ Failed'}`);
+    lines.push(`**Duration:** ${test.durationFormatted}`);
+    lines.push('');
+
+    if (test.details.steps && test.details.steps.length > 0) {
+      lines.push('**Steps:**');
+      test.details.steps.forEach(step => lines.push(`- ${step}`));
+      lines.push('');
+    }
+
+    if (test.details.error) {
+      lines.push(`**Error:** ${test.details.error}`);
+      lines.push('');
+    }
+
+    if (test.screenshot) {
+      const screenshotName = path.basename(test.screenshot);
+      lines.push(`**Screenshot:** [${screenshotName}](./${screenshotName})`);
+      lines.push('');
+    }
+  }
+
+  return lines.join('\n');
 }
 
 // Run tests
-runTests().then(() => process.exit(0)).catch((err) => {
+runTests().then((report) => {
+  process.exit(report.summary.failed > 0 ? 1 : 0);
+}).catch((err) => {
   console.error(err);
   process.exit(1);
 });
