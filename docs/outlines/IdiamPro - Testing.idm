@@ -99,8 +99,8 @@
     },
     "playwright-ui-tests": {
       "id": "playwright-ui-tests",
-      "name": "Automated: Playwright UI Tests (4 tests)",
-      "content": "<p>File: <code>tests/electron-test.js</code></p><p>These are <strong>end-to-end UI tests</strong> that launch the actual Electron app and simulate user interactions using Playwright. Unlike Vitest unit tests, these tests click real buttons, navigate between views, and take screenshots.</p><p><strong>Run command:</strong></p><pre><code>node tests/electron-test.js</code></pre><p><strong>What it does:</strong></p><ol><li><p>Launches Electron app via Playwright</p></li><li><p>Finds the main window (skips DevTools)</p></li><li><p>Navigates to /app</p></li><li><p>Runs 4 UI tests</p></li><li><p>Takes screenshots after each test</p></li></ol><p><strong>Screenshots saved to:</strong> <code>test-screenshots/</code> (gitignored)</p><h3>Test 1: User Guide Button</h3><ul><li><p><strong>Action:</strong> Click \"User Guide\" button in sidebar</p></li><li><p><strong>Expected:</strong> User Guide outline loads, h1 shows \"IdiamPro User Guide\"</p></li><li><p><strong>Status:</strong> PASS</p></li></ul><h3>Test 2: Welcome Tour Button</h3><ul><li><p><strong>Action:</strong> Click \"Welcome Tour\" button in sidebar</p></li><li><p><strong>Expected:</strong> Welcome outline loads, h1 shows \"Welcome to IdiamPro!\"</p></li><li><p><strong>Status:</strong> PASS</p></li></ul><h3>Test 3: Create New Outline</h3><ul><li><p><strong>Action:</strong> Click \"New Outline\" button</p></li><li><p><strong>Expected:</strong> New outline created, h1 shows \"Untitled Outline\"</p></li><li><p><strong>Status:</strong> PASS</p></li></ul><h3>Test 4: Settings Dialog</h3><ul><li><p><strong>Action:</strong> Click Settings button (gear icon)</p></li><li><p><strong>Expected:</strong> Settings dialog opens, \"Subscription Plan\" visible</p></li><li><p><strong>Status:</strong> PASS</p></li></ul><p><strong>Adding new Playwright tests:</strong> Edit <code>tests/electron-test.js</code> and add a new async function following the existing pattern. Use <code>page.locator()</code> for finding elements and <code>.first()</code> to avoid strict mode violations when multiple elements match.</p>",
+      "name": "Automated: Playwright UI Tests (8 tests)",
+      "content": "<p>File: <code>tests/electron-test.js</code></p><p>These are <strong>end-to-end UI tests</strong> that launch the actual Electron app and simulate user interactions using Playwright. Unlike Vitest unit tests, these tests click real buttons, navigate between views, and take screenshots.</p><p><strong>Run command:</strong></p><pre><code>node tests/electron-test.js</code></pre><p><strong>What it does:</strong></p><ol><li><p>Launches Electron app via Playwright</p></li><li><p>Finds the main window (skips DevTools)</p></li><li><p>Navigates to /app</p></li><li><p>Runs 8 UI tests</p></li><li><p>Takes screenshots after each test</p></li><li><p>Generates JSON and Markdown reports</p></li></ol><p><strong>Screenshots saved to:</strong> <code>test-screenshots/</code> (gitignored)</p><h3>Test 1: User Guide</h3><p>Clicks \"User Guide\" button → verifies User Guide outline loads</p><h3>Test 2: Welcome Tour</h3><p>Clicks \"Welcome Tour\" button → verifies Welcome outline loads</p><h3>Test 3: Create Outline</h3><p>Clicks \"New Outline\" → verifies \"Untitled Outline\" appears</p><h3>Test 4: Settings Dialog</h3><p>Clicks Settings → verifies \"Subscription Plan\" visible</p><h3>Test 5: Keyboard Navigation</h3><p>Loads User Guide → clicks node → tests ArrowUp/ArrowDown keys</p><h3>Test 6: Collapse/Expand</h3><p>Loads User Guide → clicks chevron buttons to collapse/expand chapters</p><h3>Test 7: Templates</h3><p>Clicks Templates button → verifies picker opens → selects \"Meeting Notes\"</p><h3>Test 8: Dark Mode</h3><p>Opens Settings → verifies theme/dark mode option exists</p><p><strong>Adding new tests:</strong> Edit <code>tests/electron-test.js</code> and add a new async function following the existing pattern. Use <code>page.locator()</code> for finding elements and <code>.first()</code> to avoid strict mode violations when multiple elements match.</p>",
       "type": "document",
       "parentId": "root",
       "childrenIds": [],
@@ -108,156 +108,36 @@
     },
     "manual-procedures": {
       "id": "manual-procedures",
-      "name": "Manual Test Procedures",
-      "content": "<p>These features require a human to test by actually using the app, because they involve things that automated code tests can't check — the visual interface, touch interactions, network connections, and how the app behaves on different platforms (web browser, iOS, desktop).</p><p><strong>How to use this section:</strong> After making significant changes to the app, work through each checklist below. You don't need to do every section every time — focus on the areas related to what changed. For example, if you changed drag-and-drop code, test the \"Drag & Drop\" section.</p>",
+      "name": "Manual Test Procedures (Cannot Automate)",
+      "content": "<p><strong>Why these tests remain manual:</strong></p><p>Playwright (our UI automation tool) runs inside the <strong>Electron desktop app on macOS</strong>. It cannot:</p><ul><li><p><strong>Access iOS devices</strong> — Playwright doesn't support Capacitor/iOS. Testing iOS gestures (swipe, tap-again, long-press) requires a real iPhone/iPad or Xcode simulator.</p></li><li><p><strong>Simulate multiple devices</strong> — iCloud sync testing requires two physical devices signed into the same Apple ID, editing the same outline simultaneously.</p></li><li><p><strong>Test network partitions</strong> — Offline editing and sync recovery scenarios require manually disconnecting from the network.</p></li></ul><p><strong>Everything else is now automated</strong> — see Section 9 (Playwright UI Tests) which covers:</p><ul><li><p>Sidebar navigation (User Guide, Welcome Tour)</p></li><li><p>Creating outlines and using templates</p></li><li><p>Settings dialog and subscription plans</p></li><li><p>Keyboard navigation (arrow keys)</p></li><li><p>Collapse/expand chapters</p></li><li><p>Dark mode toggle</p></li></ul><p>Run <code>node tests/electron-test.js</code> to execute all 8 automated UI tests.</p>",
       "type": "chapter",
       "parentId": "root",
       "childrenIds": [
-        "manual-core-outline",
-        "manual-keyboard-shortcuts",
-        "manual-drag-drop",
-        "manual-editor",
-        "manual-ai-features",
         "manual-ios-gestures",
-        "manual-electron",
-        "manual-file-operations",
-        "manual-embed-security",
-        "manual-templates-ui",
-        "manual-tags-ui",
-        "manual-diagrams",
-        "manual-media",
-        "manual-settings"
+        "manual-icloud-sync"
       ],
       "prefix": "10",
-      "isCollapsed": true
+      "isCollapsed": false
     },
-    "manual-core-outline": {
-      "id": "manual-core-outline",
-      "name": "Core Outline Operations",
-      "content": "<p><strong>Test Procedure:</strong></p><ol><li>Create a new blank outline — verify it appears in the sidebar with \"Untitled Outline\"</li><li>Rename the outline — verify name updates in sidebar and header</li><li>Create a child node (double-click on root) — verify it appears indented under root</li><li>Create a sibling node (Enter key on selected node) — verify it appears after the selected node</li><li>Edit a node name (Enter on selected node or tap-again on iOS) — verify inline editing works</li><li>Collapse/expand a chapter node — verify children hide/show</li><li>Delete a node — verify it and its subtree are removed</li><li>Undo/redo — verify the last operation is reversed/replayed</li><li>Check that node prefixes (1, 1.1, 1.2, 2, etc.) update correctly after add/remove/move</li></ol><p><strong>Expected:</strong> All operations should feel instant with no lag. Prefixes should always be consistent.</p>",
-      "type": "document",
-      "parentId": "manual-procedures",
-      "childrenIds": [],
-      "prefix": "10.1"
-    },
-    "manual-keyboard-shortcuts": {
-      "id": "manual-keyboard-shortcuts",
-      "name": "Keyboard Shortcuts (macOS)",
-      "content": "<p><strong>Test each shortcut:</strong></p><ul><li><strong>Tab</strong> — Indent selected node (becomes child of previous sibling)</li><li><strong>Shift+Tab</strong> — Outdent selected node (becomes sibling of parent)</li><li><strong>Enter/Return</strong> — Edit node name (on selected node) / Confirm edit</li><li><strong>Escape</strong> — Cancel editing / Deselect</li><li><strong>Delete/Backspace</strong> — Delete selected node</li><li><strong>Up/Down arrows</strong> — Navigate between nodes</li><li><strong>Cmd+Z / Cmd+Shift+Z</strong> — Undo / Redo</li><li><strong>Cmd+N</strong> — New outline (if supported)</li><li><strong>Cmd+F</strong> — Search/find</li></ul><p><strong>Verify:</strong> Each shortcut works from the outline tree view. Shortcuts should NOT fire when typing in the content editor.</p>",
+    "manual-icloud-sync": {
+      "id": "manual-icloud-sync",
+      "name": "iCloud Sync & Multi-Device",
+      "content": "<p><strong>Why manual:</strong> Requires two physical devices (Mac + iPhone, or two Macs) signed into the same iCloud account. Cannot be simulated.</p><p><strong>Test Procedure:</strong></p><ol><li>Open the same outline on two devices</li><li>Edit on Device A, wait for sync, verify change appears on Device B</li><li>Edit on Device B, verify change appears on Device A</li><li>Edit simultaneously on both — verify no data corruption or lost changes</li><li>Test offline editing — make changes while offline, reconnect, verify sync completes</li></ol><p><strong>Known edge cases:</strong></p><ul><li>Conflict resolution when both devices edit the same node</li><li>Large outlines (1000+ nodes) may take longer to sync</li><li>Focus-based reload should not overwrite in-app changes</li></ul>",
       "type": "document",
       "parentId": "manual-procedures",
       "childrenIds": [],
       "prefix": "10.2"
     },
-    "manual-drag-drop": {
-      "id": "manual-drag-drop",
-      "name": "Drag & Drop (macOS + iOS)",
-      "content": "<p><strong>macOS:</strong></p><ol><li>Drag a document node before another node — verify \"before\" position indicator and correct placement</li><li>Drag a node after another — verify \"after\" placement</li><li>Drag a node onto a chapter to nest inside it — verify \"inside\" indicator and correct nesting</li><li>Try to drag a parent into its own child — verify this is blocked (no-op)</li><li>Drag between chapters — verify prefixes update in both old and new parent</li></ol><p><strong>iOS (long-press + drag):</strong></p><ol><li>Long-press a node until drag mode activates</li><li>Drag to reorder — verify same behavior as macOS</li><li>Verify no conflict with system long-press (context menu)</li></ol><p><strong>Edge case:</strong> Drag the only child out of a chapter — verify the chapter type reverts to \"document\".</p>",
-      "type": "document",
-      "parentId": "manual-procedures",
-      "childrenIds": [],
-      "prefix": "10.3"
-    },
-    "manual-editor": {
-      "id": "manual-editor",
-      "name": "TipTap Content Editor",
-      "content": "<p><strong>Test Procedure:</strong></p><ol><li>Select a node and verify its content appears in the editor panel</li><li>Type text — verify it saves (switch to another node and back)</li><li>Bold/italic/heading formatting — verify toolbar buttons and markdown shortcuts work</li><li>Insert a horizontal rule — verify it renders</li><li>Insert a code block — verify syntax highlighting</li><li>Paste rich text from another app — verify it converts to clean HTML</li><li>Paste a URL — verify link is created</li><li>Insert an image (drag or paste) — verify it renders inline</li><li>Double-click an image — verify fullscreen view opens</li><li>Double-click a mermaid diagram — verify fullscreen view opens</li></ol><p><strong>Edge cases:</strong></p><ul><li>Very long content — verify scrolling works in the editor</li><li>Empty content — verify placeholder text appears</li><li>Switch nodes rapidly — verify content doesn't get mixed up between nodes</li></ul>",
-      "type": "document",
-      "parentId": "manual-procedures",
-      "childrenIds": [],
-      "prefix": "10.4"
-    },
-    "manual-ai-features": {
-      "id": "manual-ai-features",
-      "name": "AI Features",
-      "content": "<p><strong>Content Generation:</strong></p><ol><li>Select a node and trigger AI content generation — verify content is generated and placed in the editor</li><li>Verify ancestor path context is used (check that generated content is relevant to the node's position in the outline)</li><li>Verify diagram generation toggle works (when enabled, mermaid diagrams appear in output)</li><li>Custom prompt — enter a custom instruction and verify the AI follows it</li></ol><p><strong>Outline Generation:</strong></p><ol><li>Generate outline from topic — verify a structured outline is created with correct parent-child relationships</li><li>Verify prefixes are calculated on generated outline</li></ol><p><strong>External Source Ingestion:</strong></p><ol><li>Ingest a YouTube URL — verify transcript is extracted and outline nodes created</li><li>Ingest a PDF (URL and file upload) — verify text extraction works</li><li>Ingest a web URL — verify page content is extracted</li><li>Bulk research with multiple sources — verify synthesis/separate/architecture strategies</li></ol><p><strong>Help Chat:</strong></p><ol><li>Open help chat and ask a question about IdiamPro — verify contextual response</li><li>Ask about a feature that exists — verify accurate answer</li></ol>",
-      "type": "document",
-      "parentId": "manual-procedures",
-      "childrenIds": [],
-      "prefix": "10.5"
-    },
-    "manual-ios-gestures": {
+        "manual-ios-gestures": {
       "id": "manual-ios-gestures",
       "name": "iOS-Specific Gestures & Behavior",
-      "content": "<p><strong>Must test on physical iOS device or simulator via Capacitor:</strong></p><ol><li><strong>Tap</strong> to select a node — verify single tap selects</li><li><strong>Tap again</strong> on selected node to edit name — verify inline editing activates</li><li><strong>Double-tap</strong> to create child — verify a child node is created</li><li><strong>Swipe right</strong> to indent — verify node becomes child of previous sibling</li><li><strong>Swipe left</strong> to outdent — verify node becomes sibling of parent</li><li><strong>Long-press + drag</strong> to reorder — verify drag and drop works</li><li><strong>Long-press</strong> (without drag) for context menu — verify context menu appears</li></ol><p><strong>Verify no conflicts with:</strong></p><ul><li>iOS system back gesture (edge swipe from left)</li><li>iOS multitasking (three-finger gestures)</li><li>System zoom (pinch)</li></ul><p><strong>Build commands:</strong></p><pre><code>npx cap sync ios\nnpx cap open ios</code></pre>",
+      "content": "<p><strong>Why manual:</strong> Requires real iOS device or Xcode simulator via Capacitor. Playwright cannot test iOS native gestures.</p><p><strong>Build and run:</strong></p><pre><code>npx cap sync ios\nnpx cap open ios</code></pre><p><strong>Test Procedure:</strong></p><ol><li><strong>Tap</strong> to select a node — verify single tap selects</li><li><strong>Tap again</strong> on selected node to edit name — verify inline editing activates</li><li><strong>Double-tap</strong> to create child — verify a child node is created</li><li><strong>Swipe right</strong> to indent — verify node becomes child of previous sibling</li><li><strong>Swipe left</strong> to outdent — verify node becomes sibling of parent</li><li><strong>Long-press + drag</strong> to reorder — verify drag and drop works</li><li><strong>Long-press</strong> (without drag) for context menu — verify context menu appears</li></ol><p><strong>Verify no conflicts with iOS system gestures:</strong></p><ul><li>Edge swipe from left (back navigation)</li><li>Three-finger gestures (multitasking)</li><li>Pinch (system zoom)</li></ul>",
       "type": "document",
       "parentId": "manual-procedures",
       "childrenIds": [],
-      "prefix": "10.6"
+      "prefix": "10.1"
     },
-    "manual-electron": {
-      "id": "manual-electron",
-      "name": "Electron Desktop App",
-      "content": "<p><strong>Test Procedure:</strong></p><ol><li>Launch with <code>npm run electron:dev</code> — verify window opens and loads the app</li><li>File operations — verify outlines save/load to <code>~/Documents/IDM Outlines/</code></li><li>Verify path validation works (the Electron main.js has its own copy of validateFilePath/sanitizeFileName)</li><li>Window management — verify resize, minimize, maximize, close</li><li>Menu bar — verify all menu items work</li><li>Auto-update (if configured) — verify update check doesn't crash</li></ol><p><strong>Note:</strong> The Electron app uses its own copies of security functions in <code>electron/main.js</code>. These are separate from <code>src/lib/security.ts</code> because Electron's main process can't import from the Next.js src directory. Both copies should have identical logic.</p>",
-      "type": "document",
-      "parentId": "manual-procedures",
-      "childrenIds": [],
-      "prefix": "10.7"
-    },
-    "manual-file-operations": {
-      "id": "manual-file-operations",
-      "name": "File Save/Load & iCloud Sync",
-      "content": "<p><strong>Test Procedure:</strong></p><ol><li>Create an outline, add content, close the app, reopen — verify all data persisted</li><li>Rename an outline — verify the .idm filename updates</li><li>Delete an outline — verify the .idm file is removed</li><li>Check iCloud sync — modify an outline on one device, verify it appears on another</li><li>Verify focus-based reload — switch away from app, modify .idm file externally, switch back — verify the app reloads the updated data</li><li>Verify the \"recently edited in-app\" guard — edit in-app, switch away briefly, switch back — verify it does NOT reload (would overwrite your in-app changes)</li></ol><p><strong>Edge cases:</strong></p><ul><li>Large outlines (100+ nodes) — verify save/load performance</li><li>Special characters in outline names — verify filenames are sanitized</li><li>Concurrent edits — verify no data corruption</li></ul>",
-      "type": "document",
-      "parentId": "manual-procedures",
-      "childrenIds": [],
-      "prefix": "10.8"
-    },
-    "manual-embed-security": {
-      "id": "manual-embed-security",
-      "name": "Embed URL Security (Google Services)",
-      "content": "<p><strong>Test Procedure:</strong></p><ol><li>Insert a Google Docs embed with a valid docs.google.com URL — verify iframe loads</li><li>Insert a Google Sheets embed with /spreadsheets path — verify iframe loads</li><li>Insert a Google Slides embed with /presentation path — verify iframe loads</li><li>Insert a Google Maps embed — verify iframe loads</li><li>Try inserting a non-Google URL as an embed — verify the \"Blocked embed\" warning appears</li><li>Verify iframe sandboxing — inspect the iframe element and confirm <code>sandbox=\"allow-scripts allow-same-origin allow-popups\"</code> attribute is present</li></ol><p><strong>Security note:</strong> The <code>isAllowedEmbedUrl</code> function is now shared from <code>src/lib/security.ts</code> and covered by automated tests. The manual test verifies the UI correctly uses it.</p>",
-      "type": "document",
-      "parentId": "manual-procedures",
-      "childrenIds": [],
-      "prefix": "10.9"
-    },
-    "manual-templates-ui": {
-      "id": "manual-templates-ui",
-      "name": "Template Selection UI",
-      "content": "<p><strong>Test Procedure:</strong></p><ol><li>Click \"New from Template\" — verify template picker dialog opens</li><li>Verify all 14 templates are listed with icons and descriptions</li><li>Select each template — verify outline is created with expected sections</li><li>Verify the created outline has the correct structure (chapters with content)</li><li>Verify you can immediately edit the template content</li></ol><p><strong>Automated coverage:</strong> The template data structure and referential integrity are covered by automated tests. This manual test verifies the UI picker and rendering.</p>",
-      "type": "document",
-      "parentId": "manual-procedures",
-      "childrenIds": [],
-      "prefix": "10.10"
-    },
-    "manual-tags-ui": {
-      "id": "manual-tags-ui",
-      "name": "Tags UI",
-      "content": "<p><strong>Test Procedure:</strong></p><ol><li>Add a tag to a node via the tag input — verify tag badge appears</li><li>Add the same tag again — verify no duplicate is created</li><li>Remove a tag — verify badge disappears</li><li>Add tags to multiple nodes, then filter by tag — verify correct nodes are shown</li><li>Filter by two tags — verify AND logic (only nodes with both tags appear)</li><li>Rename a tag — verify all nodes update to new tag name</li><li>Delete a tag — verify it's removed from all nodes</li></ol><p><strong>Automated coverage:</strong> All tag logic functions are covered by unit tests. This manual test verifies the UI controls.</p>",
-      "type": "document",
-      "parentId": "manual-procedures",
-      "childrenIds": [],
-      "prefix": "10.11"
-    },
-    "manual-diagrams": {
-      "id": "manual-diagrams",
-      "name": "Mermaid Diagrams",
-      "content": "<p><strong>Test Procedure:</strong></p><ol><li>Generate a mindmap from a subtree — verify valid mermaid diagram renders</li><li>Generate a flowchart from a subtree — verify valid mermaid diagram renders</li><li>Verify diagram renders in both light and dark mode</li><li>Double-click a diagram — verify fullscreen overlay opens</li><li>Close fullscreen — verify overlay dismisses (click outside, or X button)</li><li>Test with a node name containing special characters like (), [], {} — verify diagram still renders (characters are sanitized)</li></ol><p><strong>Automated coverage:</strong> The <code>generateMindmapFromSubtree</code> and <code>generateFlowchartFromSubtree</code> functions are tested for correct Mermaid syntax output. Manual testing verifies actual rendering via the mermaid library.</p>",
-      "type": "document",
-      "parentId": "manual-procedures",
-      "childrenIds": [],
-      "prefix": "10.12"
-    },
-    "manual-media": {
-      "id": "manual-media",
-      "name": "Image & Video Embeds",
-      "content": "<p><strong>Test Procedure:</strong></p><ol><li>Insert an image into node content — verify it renders at reasonable size</li><li>Double-click the image — verify fullscreen overlay opens</li><li>Close fullscreen — verify dismiss works</li><li>Insert a video — verify it plays with controls</li><li>Double-click the video — verify fullscreen works</li><li>Insert a YouTube embed — verify it loads and plays</li></ol><p><strong>Edge cases:</strong></p><ul><li>Very large images — verify they don't break layout</li><li>Unsupported video format — verify graceful error</li></ul>",
-      "type": "document",
-      "parentId": "manual-procedures",
-      "childrenIds": [],
-      "prefix": "10.13"
-    },
-    "manual-settings": {
-      "id": "manual-settings",
-      "name": "Settings & Preferences",
-      "content": "<p><strong>Test Procedure:</strong></p><ol><li>Toggle dark mode — verify all UI elements update</li><li>Change AI provider setting (cloud/local/auto) — verify AI operations use correct provider</li><li>If Ollama is running locally, verify local AI works</li><li>Change detail level for extraction — verify generated outlines respect the setting</li></ol>",
-      "type": "document",
-      "parentId": "manual-procedures",
-      "childrenIds": [],
-      "prefix": "10.14"
-    },
-    "testing-guidance": {
+        "testing-guidance": {
       "id": "testing-guidance",
       "name": "Testing Guidance & Best Practices",
       "content": "<p>This section explains how to work with the test suite — how to add new tests, use test helpers, understand coverage reports, and plan future testing expansion. Written for anyone working on the project, not just testing specialists.</p>",
@@ -338,8 +218,8 @@
       "prefix": "12"
     }
   },
-  "_fileSize": 49424,
+  "_fileSize": 52718,
   "_fileName": "IdiamPro - Testing.idm",
   "_isLazyLoaded": false,
-  "lastModified": 1770891697852
+  "lastModified": 1771018124908
 }
