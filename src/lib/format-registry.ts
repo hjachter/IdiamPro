@@ -149,6 +149,19 @@ export const FORMAT_REGISTRY: Record<string, FormatDefinition> = {
     supportsImport: false,
     platformSupport: { electron: true, capacitor: true, web: true },
   },
+  website: {
+    id: 'website',
+    name: 'Marketing Website',
+    description: 'Professional website with hero, sections, and navigation',
+    category: 'documents',
+    extensions: ['.html'],
+    mimeTypes: ['text/html'],
+    icon: Globe,
+    supportsExport: true,
+    supportsImport: false,
+    hasOptions: true,
+    platformSupport: { electron: true, capacitor: true, web: true },
+  },
 
   // Outliners
   opml: {

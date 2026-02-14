@@ -27,6 +27,7 @@ import {
 import { exportOutline, hasExporter } from '@/lib/export/index';
 import { exportSubtreeToPdf } from '@/lib/pdf-export';
 import { useToast } from '@/hooks/use-toast';
+import WebsiteExportDialog from './website-export-dialog';
 
 interface ExportDialogProps {
   open: boolean;
@@ -50,6 +51,7 @@ export default function ExportDialog({
   const [includeMetadata, setIncludeMetadata] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showWebsiteDialog, setShowWebsiteDialog] = useState(false);
 
   const displayName = nodeName || (rootNodeId ? outline.nodes[rootNodeId]?.name : null) || outline.name;
 
@@ -105,6 +107,12 @@ export default function ExportDialog({
   const handleExport = async () => {
     if (!selectedFormat || !filename.trim()) return;
 
+    // Website format opens its own dialog
+    if (selectedFormat === 'website') {
+      setShowWebsiteDialog(true);
+      return;
+    }
+
     setIsExporting(true);
     try {
       // PDF uses the existing exporter for now
@@ -154,8 +162,18 @@ export default function ExportDialog({
 
   const selectedFormatDef = selectedFormat ? FORMAT_REGISTRY[selectedFormat] : null;
 
+  // Handle website dialog close
+  const handleWebsiteDialogClose = (isOpen: boolean) => {
+    setShowWebsiteDialog(isOpen);
+    if (!isOpen) {
+      // Also close the main export dialog
+      onOpenChange(false);
+    }
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <>
+    <Dialog open={open && !showWebsiteDialog} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] max-h-[85vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Export</DialogTitle>
@@ -283,6 +301,15 @@ export default function ExportDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+
+    <WebsiteExportDialog
+      open={showWebsiteDialog}
+      onOpenChange={handleWebsiteDialogClose}
+      outline={outline}
+      rootNodeId={rootNodeId}
+      nodeName={nodeName}
+    />
+    </>
   );
 }
 

@@ -12,12 +12,14 @@ import { OpmlExporter } from './outliners/opml-exporter';
 import { ObsidianExporter } from './note-apps/obsidian-exporter';
 import { CsvExporter } from './data/csv-exporter';
 import { JsonTreeExporter } from './data/json-tree-exporter';
+import { WebsiteExporter } from './documents/website-exporter';
 
 // Exporter registry
 const EXPORTERS: Record<string, BaseExporter> = {
   markdown: new MarkdownExporter(),
   'plain-text': new PlainTextExporter(),
   html: new HtmlExporter(),
+  website: new WebsiteExporter(),
   opml: new OpmlExporter(),
   obsidian: new ObsidianExporter(),
   csv: new CsvExporter(),
