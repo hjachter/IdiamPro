@@ -17,6 +17,7 @@
       --radius: 0.75rem;
       --max-width: 1200px;
     
+      --max-width: 1200px;
       --accent: #8b5cf6;
     }
     
@@ -53,26 +54,28 @@
       img { max-width: 100%; height: auto; }
     
 
-    /* Navigation */
+    /* NAV */
     .navbar {
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
-      background: rgba(255,255,255,0.95);
-      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       z-index: 1000;
-      padding: 0.75rem 0;
+      padding: 0;
     }
 
     @media (prefers-color-scheme: dark) {
-      .navbar { background: rgba(15,23,42,0.95); }
+      .navbar { background: rgba(15, 23, 42, 0.95); }
     }
 
     .nav-container {
       max-width: var(--max-width);
       margin: 0 auto;
       padding: 0 2rem;
+      height: 60px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -80,7 +83,7 @@
 
     .nav-logo {
       font-weight: 700;
-      font-size: 1.1rem;
+      font-size: 1.25rem;
       color: var(--text);
       text-decoration: none;
     }
@@ -95,68 +98,122 @@
       color: var(--text);
       text-decoration: none;
       font-size: 0.9rem;
+      opacity: 0.8;
     }
+
+    .nav-menu a:hover { opacity: 1; }
 
     .nav-cta {
       background: var(--primary);
       color: white;
-      padding: 0.5rem 1.25rem;
-      border-radius: var(--radius);
+      padding: 0.6rem 1.5rem;
+      border-radius: 8px;
       font-weight: 600;
       font-size: 0.9rem;
       text-decoration: none;
     }
 
-    /* Hero */
+    @media (max-width: 900px) {
+      .nav-menu { display: none; }
+      .nav-cta { display: none; }
+    }
+
+    /* HERO */
     .hero {
-      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-      padding: 10rem 2rem 6rem;
+      position: relative;
+      padding: 12rem 2rem 6rem;
       text-align: center;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
       color: white;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></svg>');
+      opacity: 0.5;
+    }
+
+    .hero-content {
+      position: relative;
+      max-width: 800px;
+      margin: 0 auto;
     }
 
     .event-badge {
       display: inline-block;
-      background: rgba(255,255,255,0.2);
-      padding: 0.5rem 1rem;
-      border-radius: 2rem;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 0.5rem 1.25rem;
+      border-radius: 50px;
       font-size: 0.85rem;
       font-weight: 600;
-      margin-bottom: 1.5rem;
+      margin-bottom: 2rem;
     }
 
     .hero h1 {
-      font-size: clamp(2.5rem, 6vw, 4rem);
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
       font-weight: 800;
-      margin-bottom: 1rem;
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
     }
 
-    .tagline {
-      font-size: 1.25rem;
+    .hero-tagline {
+      font-size: 1.35rem;
       opacity: 0.9;
-      margin-bottom: 2rem;
+      margin-bottom: 2.5rem;
     }
 
-    .event-meta {
+    .event-info {
       display: flex;
       justify-content: center;
-      gap: 2rem;
-      margin-bottom: 2rem;
-      font-size: 1.1rem;
+      gap: 3rem;
+      margin-bottom: 3rem;
     }
 
+    .info-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .info-icon {
+      font-size: 1.5rem;
+    }
+
+    .info-text {
+      text-align: left;
+    }
+
+    .info-label {
+      display: block;
+      font-size: 0.75rem;
+      opacity: 0.7;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .info-value {
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    @media (max-width: 768px) {
+      .event-info {
+        flex-direction: column;
+        gap: 1.5rem;
+        align-items: center;
+      }
+    }
+
+    /* BUTTONS */
     .btn {
       display: inline-block;
       padding: 1rem 2rem;
-      border-radius: var(--radius);
+      border-radius: 10px;
       font-weight: 600;
       text-decoration: none;
       transition: all 0.2s;
-    }
-
-    .btn-lg {
-      padding: 1.25rem 2.5rem;
-      font-size: 1.1rem;
     }
 
     .btn-primary {
@@ -164,29 +221,19 @@
       color: var(--primary);
     }
 
-    .hero .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     }
 
-    /* Sections */
+    .btn-lg {
+      padding: 1.25rem 3rem;
+      font-size: 1.1rem;
+    }
+
+    /* SECTIONS */
     .section {
-      padding: 5rem 2rem;
-    }
-
-    .section-alt {
-      background: var(--bg-alt);
-    }
-
-    .section-cta {
-      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-      color: white;
-      text-align: center;
-    }
-
-    .section-cta .btn-primary {
-      background: white;
-      color: var(--primary);
+      padding: 6rem 2rem;
     }
 
     .section-container {
@@ -194,61 +241,126 @@
       margin: 0 auto;
     }
 
-    .section h2 {
-      font-size: 2.25rem;
+    .section-header {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+
+    .section-eyebrow {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.75rem;
+    }
+
+    .section-header h2 {
+      font-size: 2.5rem;
       font-weight: 700;
-      margin-bottom: 1.5rem;
-      text-align: center;
+      margin-bottom: 1rem;
     }
 
-    .section-intro {
-      text-align: center;
+    .section-desc {
       color: var(--text-muted);
+      font-size: 1.15rem;
+    }
+
+    /* ABOUT */
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    .about-content h2 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin: 0.5rem 0 1.5rem;
+    }
+
+    .about-content p {
+      color: var(--text-muted);
+      line-height: 1.7;
       font-size: 1.1rem;
-      margin-bottom: 2rem;
+      margin-bottom: 1rem;
     }
 
-    .section-cta .section-intro {
-      color: rgba(255,255,255,0.9);
+    .about-stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
     }
 
-    /* About */
-    .about-content {
-      max-width: 800px;
-      margin: 0 auto 3rem;
+    .stat-card {
+      background: var(--bg-alt);
+      padding: 2rem;
+      border-radius: 16px;
       text-align: center;
-      line-height: 1.8;
+    }
+
+    .stat-num {
+      display: block;
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    @media (max-width: 768px) {
+      .about-grid { grid-template-columns: 1fr; }
+    }
+
+    /* HIGHLIGHTS */
+    .section-highlights {
+      background: var(--bg-alt);
     }
 
     .highlights-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 2rem;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
     }
 
-    .highlight {
+    .highlight-card {
+      background: var(--bg);
+      padding: 2.5rem;
+      border-radius: 16px;
       text-align: center;
-      padding: 1.5rem;
+      transition: all 0.3s;
+    }
+
+    .highlight-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-lg);
     }
 
     .highlight-icon {
-      font-size: 2.5rem;
+      font-size: 3rem;
       display: block;
-      margin-bottom: 1rem;
+      margin-bottom: 1.5rem;
     }
 
-    .highlight h3 {
-      font-size: 1.1rem;
-      margin-bottom: 0.5rem;
+    .highlight-card h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
     }
 
-    .highlight p {
+    .highlight-card p {
       color: var(--text-muted);
-      font-size: 0.9rem;
+      font-size: 0.95rem;
+      line-height: 1.6;
     }
 
-    /* Schedule */
-    .schedule-list {
+    /* SCHEDULE */
+    .schedule-timeline {
       max-width: 800px;
       margin: 0 auto;
     }
@@ -256,36 +368,88 @@
     .schedule-item {
       display: flex;
       gap: 2rem;
-      padding: 1.5rem 0;
+      padding: 2rem 0;
       border-bottom: 1px solid var(--border);
+      scroll-margin-top: 100px;
+    }
+
+    .schedule-item:last-child {
+      border-bottom: none;
     }
 
     .schedule-time {
-      min-width: 100px;
-      font-weight: 600;
+      flex-shrink: 0;
+      width: 80px;
+      text-align: center;
+    }
+
+    .time-num {
+      display: block;
+      font-size: 2rem;
+      font-weight: 800;
       color: var(--primary);
     }
 
-    .schedule-content h3 {
-      font-size: 1.1rem;
-      margin-bottom: 0.25rem;
+    .time-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
 
-    .schedule-content p {
+    .schedule-content h3 {
+      font-size: 1.35rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .schedule-meta {
+      font-size: 0.9rem;
       color: var(--text-muted);
+    }
+
+    .schedule-topics {
+      margin-top: 1rem;
+      list-style: none;
       font-size: 0.9rem;
     }
 
-    /* Speakers */
+    .schedule-topics li {
+      padding: 0.3rem 0;
+      padding-left: 1.25rem;
+      position: relative;
+      color: var(--text-muted);
+    }
+
+    .schedule-topics li::before {
+      content: "→";
+      position: absolute;
+      left: 0;
+      color: var(--primary);
+    }
+
+    /* SPEAKERS */
+    .section-speakers {
+      background: var(--bg-alt);
+    }
+
     .speakers-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: 2rem;
     }
 
     .speaker-card {
+      background: var(--bg);
+      padding: 2.5rem 2rem;
+      border-radius: 16px;
       text-align: center;
-      padding: 2rem 1rem;
+      transition: all 0.3s;
+    }
+
+    .speaker-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-lg);
     }
 
     .speaker-avatar {
@@ -293,40 +457,107 @@
       height: 100px;
       background: linear-gradient(135deg, var(--primary), var(--accent));
       border-radius: 50%;
-      margin: 0 auto 1rem;
+      margin: 0 auto 1.5rem;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 2rem;
-      font-weight: 700;
-      color: white;
+      font-size: 2.5rem;
     }
 
     .speaker-card h3 {
-      font-size: 1.1rem;
+      font-size: 1.15rem;
+      font-weight: 600;
       margin-bottom: 0.25rem;
     }
 
-    .speaker-title {
-      color: var(--text-muted);
+    .speaker-role {
       font-size: 0.9rem;
+      color: var(--text-muted);
     }
 
-    /* Footer */
-    footer {
-      padding: 2rem;
+    /* REGISTER */
+    .section-register {
       text-align: center;
-      color: var(--text-muted);
-      font-size: 0.9rem;
-      border-top: 1px solid var(--border);
     }
 
-    @media (max-width: 768px) {
-      .nav-menu, .nav-cta { display: none; }
-      .hero { padding: 8rem 1.5rem 4rem; }
-      .event-meta { flex-direction: column; gap: 0.5rem; }
-      .schedule-item { flex-direction: column; gap: 0.5rem; }
-      .schedule-time { min-width: auto; }
+    .register-box {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+      color: white;
+      padding: 5rem 3rem;
+      border-radius: 24px;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .register-box .section-eyebrow {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .register-box h2 {
+      font-size: 2.5rem;
+      margin: 0.5rem 0 1rem;
+    }
+
+    .register-box p {
+      font-size: 1.15rem;
+      opacity: 0.9;
+      margin-bottom: 2rem;
+    }
+
+    .register-features {
+      margin-top: 2rem;
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+
+    /* FOOTER */
+    footer {
+      background: var(--bg-alt);
+      padding: 4rem 2rem;
+    }
+
+    .footer-container {
+      max-width: var(--max-width);
+      margin: 0 auto;
+    }
+
+    .footer-content {
+      text-align: center;
+    }
+
+    .footer-content h3 {
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .footer-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+
+    .footer-links a:hover { color: var(--primary); }
+
+    .footer-credit {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    .footer-credit a { color: var(--primary); }
+
+    @media print {
+      .navbar { display: none; }
+      .hero { padding-top: 2rem; }
     }
     
   </style>
@@ -338,100 +569,419 @@
       <a href="#" class="nav-logo">The Longevity Blueprint</a>
       <ul class="nav-menu">
         <li><a href="#about">About</a></li>
+        <li><a href="#highlights">Highlights</a></li>
         <li><a href="#schedule">Schedule</a></li>
         <li><a href="#speakers">Speakers</a></li>
-        <li><a href="#register">Register</a></li>
       </ul>
       <a href="#register" class="nav-cta">Start Your Journey</a>
     </div>
   </nav>
 
+  <!-- HERO -->
   <header class="hero">
+    <div class="hero-bg"></div>
     <div class="hero-content">
-      <div class="event-badge">Upcoming Event</div>
+      <div class="event-badge">Featured Event</div>
       <h1>The Longevity Blueprint</h1>
-      <p class="tagline">Master the science of living longer and healthier</p>
-      <div class="event-meta">
-        <span class="event-date">📅 Date TBD</span>
-        <span class="event-location">📍 Location TBD</span>
+      <p class="hero-tagline">Master the science of living longer and healthier</p>
+      <div class="event-info">
+        <div class="info-item">
+          <span class="info-icon">📅</span>
+          <div class="info-text">
+            <span class="info-label">Date</span>
+            <span class="info-value">Coming Soon</span>
+          </div>
+        </div>
+        <div class="info-item">
+          <span class="info-icon">📍</span>
+          <div class="info-text">
+            <span class="info-label">Location</span>
+            <span class="info-value">Virtual & In-Person</span>
+          </div>
+        </div>
+        <div class="info-item">
+          <span class="info-icon">📚</span>
+          <div class="info-text">
+            <span class="info-label">Topics</span>
+            <span class="info-value">50+ Sessions</span>
+          </div>
+        </div>
       </div>
       <a href="#register" class="btn btn-primary btn-lg">Start Your Journey</a>
     </div>
   </header>
 
   <main>
-
-    <section id="about" class="section">
+    <!-- ABOUT -->
+    <section id="about" class="section section-about">
       <div class="section-container">
-        <h2>About the Event</h2>
-        <div class="about-content">
-          <p></p>
+        <div class="about-grid">
+          <div class="about-content">
+            <span class="section-eyebrow">About the Event</span>
+            <h2>What to Expect</h2>
+            <p>Master the science of living longer and healthier</p>
+            <p>This event brings together 13 comprehensive chapters covering 50+ essential topics, designed to transform your understanding and deliver actionable insights.</p>
+          </div>
+          <div class="about-stats">
+            <div class="stat-card">
+              <span class="stat-num">13</span>
+              <span class="stat-label">Chapters</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-num">50+</span>
+              <span class="stat-label">Topics</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-num">100%</span>
+              <span class="stat-label">Actionable</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-num">∞</span>
+              <span class="stat-label">Insights</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HIGHLIGHTS -->
+    <section id="highlights" class="section section-highlights">
+      <div class="section-container">
+        <div class="section-header">
+          <span class="section-eyebrow">Key Takeaways</span>
+          <h2>Event Highlights</h2>
+          <p class="section-desc">Discover the core themes you'll explore</p>
         </div>
         <div class="highlights-grid">
-          <div class="highlight">
-            <span class="highlight-icon">✨</span>
-            <h3>**The Foundation of Biohacking</h3>
+          <div class="highlight-card">
+            <span class="highlight-icon">🎯</span>
+            <h3>Biohacking Longevity's Promise</h3>
             <p></p>
           </div>
-          <div class="highlight">
-            <span class="highlight-icon">✨</span>
-            <h3>**the author and the Engineering Approach to Biohacking</h3>
+          <div class="highlight-card">
+            <span class="highlight-icon">⚡</span>
+            <h3>The Immortal Instinct</h3>
             <p></p>
           </div>
-          <div class="highlight">
-            <span class="highlight-icon">✨</span>
-            <h3>**Key Biohacks</h3>
+          <div class="highlight-card">
+            <span class="highlight-icon">💡</span>
+            <h3>Mitochondria: Our Cellular Powerhouses</h3>
             <p></p>
           </div>
-          <div class="highlight">
-            <span class="highlight-icon">✨</span>
-            <h3>**GW501516 (Cardarine)</h3>
-            <p></p>
+          <div class="highlight-card">
+            <span class="highlight-icon">🔥</span>
+            <h3>The Three Fs: Survival Imperatives</h3>
+            <p>4 topics covered</p>
           </div>
         </div>
       </div>
     </section>
 
-    <section id="schedule" class="section section-alt">
+    <!-- SCHEDULE -->
+    <section id="schedule" class="section section-schedule">
       <div class="section-container">
-        <h2>Schedule</h2>
-        <p class="section-intro">Full schedule coming soon.</p>
+        <div class="section-header">
+          <span class="section-eyebrow">Program</span>
+          <h2>Event Schedule</h2>
+          <p class="section-desc">A structured journey through all topics</p>
+        </div>
+        <div class="schedule-timeline">
+          <div class="schedule-item" id="biohacking-longevity-s-promise">
+            <div class="schedule-time">
+              <span class="time-num">01</span>
+              <span class="time-label">Chapter</span>
+            </div>
+            <div class="schedule-content">
+              <h3>Biohacking Longevity's Promise</h3>
+              <span class="schedule-meta">4 topics</span>
+              <ul class="schedule-topics">
+                <li>**The Foundation of Biohacking</li>
+                <li>**the author and the Engineering Approach to Biohacking</li>
+                <li>**Key Biohacks</li>
+              </ul>
+            </div>
+          </div>
+          <div class="schedule-item" id="the-immortal-instinct">
+            <div class="schedule-time">
+              <span class="time-num">02</span>
+              <span class="time-label">Chapter</span>
+            </div>
+            <div class="schedule-content">
+              <h3>The Immortal Instinct</h3>
+              <span class="schedule-meta">4 topics</span>
+              <ul class="schedule-topics">
+                <li>**The Primal Drive to Survive</li>
+                <li>**Ancient Quests for Eternal Life</li>
+                <li>**The Paradox of Self-Preservation</li>
+              </ul>
+            </div>
+          </div>
+          <div class="schedule-item" id="mitochondria-our-cellular-powerhouses">
+            <div class="schedule-time">
+              <span class="time-num">03</span>
+              <span class="time-label">Chapter</span>
+            </div>
+            <div class="schedule-content">
+              <h3>Mitochondria: Our Cellular Powerhouses</h3>
+              <span class="schedule-meta">5 topics</span>
+              <ul class="schedule-topics">
+                <li>**Mitochondria and the Subcellular Foundation of Aging</li>
+                <li>**Environmental and Lifestyle Impacts on Cellular Health</li>
+                <li>**Cellular Processes for Repair and Longevity</li>
+              </ul>
+            </div>
+          </div>
+          <div class="schedule-item" id="the-three-fs-survival-imperatives">
+            <div class="schedule-time">
+              <span class="time-num">04</span>
+              <span class="time-label">Chapter</span>
+            </div>
+            <div class="schedule-content">
+              <h3>The Three Fs: Survival Imperatives</h3>
+              <span class="schedule-meta">4 topics</span>
+              <ul class="schedule-topics">
+                <li>**The Foundation</li>
+                <li>**Maintaining Health and Longevity</li>
+                <li>**Enhancement and Healing</li>
+              </ul>
+            </div>
+          </div>
+          <div class="schedule-item" id="inflammation-the-silent-killer">
+            <div class="schedule-time">
+              <span class="time-num">05</span>
+              <span class="time-label">Chapter</span>
+            </div>
+            <div class="schedule-content">
+              <h3>Inflammation: The Silent Killer</h3>
+              <span class="schedule-meta">2 topics</span>
+              <ul class="schedule-topics">
+                <li>**The Foundation</li>
+                <li>**Lifestyle's Impact</li>
+              </ul>
+            </div>
+          </div>
+          <div class="schedule-item" id="sugar-s-hidden-dangers">
+            <div class="schedule-time">
+              <span class="time-num">06</span>
+              <span class="time-label">Chapter</span>
+            </div>
+            <div class="schedule-content">
+              <h3>Sugar's Hidden Dangers</h3>
+              <span class="schedule-meta">3 topics</span>
+              <ul class="schedule-topics">
+                <li>**Environmental and Light Exposure Risks</li>
+                <li>**The Ozone Therapy Caveat</li>
+                <li>**Hormone Replacement Therapy</li>
+              </ul>
+            </div>
+          </div>
+          <div class="schedule-item" id="biohacking-for-longevity-blueprint-status">
+            <div class="schedule-time">
+              <span class="time-num">07</span>
+              <span class="time-label">Chapter</span>
+            </div>
+            <div class="schedule-content">
+              <h3>Biohacking for Longevity Blueprint Status</h3>
+              <span class="schedule-meta">5 topics</span>
+              <ul class="schedule-topics">
+                <li>**The Dawn of Biohacking</li>
+                <li>**Defining Biohacking and the Longevity Blueprint Goal</li>
+                <li>**The Author's Biohacking Journey and Methodology</li>
+              </ul>
+            </div>
+          </div>
+          <div class="schedule-item" id="investing-in-your-biology">
+            <div class="schedule-time">
+              <span class="time-num">08</span>
+              <span class="time-label">Chapter</span>
+            </div>
+            <div class="schedule-content">
+              <h3>Investing in Your Biology</h3>
+              <span class="schedule-meta">3 topics</span>
+              <ul class="schedule-topics">
+                <li>**Biohacking</li>
+                <li>**Sleep</li>
+                <li>**Beyond the Body</li>
+              </ul>
+            </div>
+          </div>
+          <div class="schedule-item" id="the-author-s-biohacking-journey">
+            <div class="schedule-time">
+              <span class="time-num">09</span>
+              <span class="time-label">Chapter</span>
+            </div>
+            <div class="schedule-content">
+              <h3>the author's Biohacking Journey</h3>
+              <span class="schedule-meta">6 topics</span>
+              <ul class="schedule-topics">
+                <li>**Book Information and Dedication</li>
+                <li>**The Genesis of a Biohacker</li>
+                <li>**Identifying and Addressing the Root Causes</li>
+              </ul>
+            </div>
+          </div>
+          <div class="schedule-item" id="tools-for-cellular-control">
+            <div class="schedule-time">
+              <span class="time-num">10</span>
+              <span class="time-label">Chapter</span>
+            </div>
+            <div class="schedule-content">
+              <h3>Tools for Cellular Control</h3>
+              <span class="schedule-meta">5 topics</span>
+              <ul class="schedule-topics">
+                <li>**Understanding Biohacking and Cellular Control</li>
+                <li>**Cellular Stressors</li>
+                <li>**The Seven Pillars of Aging and Key Anti-Aging Strategies</li>
+              </ul>
+            </div>
+          </div>
+          <div class="schedule-item" id="simple-accessible-hacks">
+            <div class="schedule-time">
+              <span class="time-num">11</span>
+              <span class="time-label">Chapter</span>
+            </div>
+            <div class="schedule-content">
+              <h3>Simple, Accessible Hacks</h3>
+              <span class="schedule-meta">4 topics</span>
+              <ul class="schedule-topics">
+                <li>**Mainstreaming Anti-Aging Through Simple Hacks</li>
+                <li>**Optimizing Sleep for Enhanced Well-being</li>
+                <li>**Accurate Sleep Tracking and Personalization</li>
+              </ul>
+            </div>
+          </div>
+          <div class="schedule-item" id="the-ethics-of-extended-lifespan">
+            <div class="schedule-time">
+              <span class="time-num">12</span>
+              <span class="time-label">Chapter</span>
+            </div>
+            <div class="schedule-content">
+              <h3>The Ethics of Extended Lifespan</h3>
+              <span class="schedule-meta">2 topics</span>
+              <ul class="schedule-topics">
+                <li>**The Drive for Longevity</li>
+                <li>**NAD+ and DNA Repair</li>
+              </ul>
+            </div>
+          </div>
+          <div class="schedule-item" id="legacy-and-the-xprize">
+            <div class="schedule-time">
+              <span class="time-num">13</span>
+              <span class="time-label">Chapter</span>
+            </div>
+            <div class="schedule-content">
+              <h3>Legacy and the XPRIZE</h3>
+              <span class="schedule-meta">2 topics</span>
+              <ul class="schedule-topics">
+                <li>**Financial Support for XPRIZE's Mission</li>
+                <li>**Contributing to a Better Future</li>
+              </ul>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
-    <section id="speakers" class="section">
+    <!-- SPEAKERS / TOPICS -->
+    <section id="speakers" class="section section-speakers">
       <div class="section-container">
-        <h2>Speakers</h2>
-        <p class="section-intro">Speaker lineup coming soon.</p>
+        <div class="section-header">
+          <span class="section-eyebrow">Featured</span>
+          <h2>Key Topics</h2>
+          <p class="section-desc">Deep dives into essential subjects</p>
+        </div>
+        <div class="speakers-grid">
+          <div class="speaker-card">
+            <div class="speaker-avatar">📖</div>
+            <h3>Inflammation: The Silent Killer</h3>
+            <span class="speaker-role">2 Topics</span>
+          </div>
+          <div class="speaker-card">
+            <div class="speaker-avatar">🎓</div>
+            <h3>Sugar's Hidden Dangers</h3>
+            <span class="speaker-role">3 Topics</span>
+          </div>
+          <div class="speaker-card">
+            <div class="speaker-avatar">💡</div>
+            <h3>Biohacking for Longevity Blueprint Status</h3>
+            <span class="speaker-role">5 Topics</span>
+          </div>
+          <div class="speaker-card">
+            <div class="speaker-avatar">🧠</div>
+            <h3>Investing in Your Biology</h3>
+            <span class="speaker-role">3 Topics</span>
+          </div>
+        </div>
       </div>
     </section>
 
-    <section id="register" class="section section-cta">
+    <!-- REGISTER -->
+    <section id="register" class="section section-register">
       <div class="section-container">
-        <h2>Register Now</h2>
-        <p class="section-intro">Don't miss out. Secure your spot today.</p>
-        <a href="#" class="btn btn-primary btn-lg">Start Your Journey</a>
+        <div class="register-box">
+          <span class="section-eyebrow">Join Us</span>
+          <h2>Secure Your Spot</h2>
+          <p>Be part of this transformative experience. Access 13 chapters and 50+ topics.</p>
+          <a href="#" class="btn btn-primary btn-lg">Start Your Journey</a>
+          <div class="register-features">
+            <span>✓ Full Access</span>
+            <span>✓ All Topics</span>
+            <span>✓ Resources Included</span>
+          </div>
+        </div>
       </div>
     </section>
   </main>
 
   <footer>
-    <div class="footer-content">
-      <p>&copy; 2026 The Longevity Blueprint. Generated with <a href="https://idiampro.com">IdiamPro</a>.</p>
+    <div class="footer-container">
+      <div class="footer-content">
+        <h3>The Longevity Blueprint</h3>
+        <div class="footer-links">
+          <a href="#about">About</a>
+          <a href="#highlights">Highlights</a>
+          <a href="#schedule">Schedule</a>
+          <a href="#register">Register</a>
+        </div>
+        <p class="footer-credit">© 2026 The Longevity Blueprint. Generated with <a href="https://idiampro.com">IdiamPro</a>.</p>
+      </div>
     </div>
   </footer>
   <script>
 
+    // Smooth scroll
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-          const offset = 80;
-          const pos = target.getBoundingClientRect().top + window.pageYOffset - offset;
-          window.scrollTo({ top: pos, behavior: 'smooth' });
+      anchor.addEventListener('click', function(e) {
+        const href = this.getAttribute('href');
+        if (href && href.length > 1) {
+          const targetId = href.substring(1);
+          const target = document.getElementById(targetId);
+          if (target) {
+            e.preventDefault();
+            const headerOffset = 70;
+            const elementPosition = target.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+            window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+          }
         }
       });
+    });
+
+    // Animate on scroll
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.highlight-card, .schedule-item, .speaker-card, .stat-card').forEach(el => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(30px)';
+      el.style.transition = 'opacity 0.5s, transform 0.5s';
+      observer.observe(el);
     });
     
   </script>

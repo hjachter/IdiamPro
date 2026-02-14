@@ -17,6 +17,7 @@
       --radius: 0.75rem;
       --max-width: 1200px;
     
+      --max-width: 1200px;
     }
     
         :root { 
@@ -52,20 +53,15 @@
       img { max-width: 100%; height: auto; }
     
 
-    /* Navigation */
+    /* NAV */
     .navbar {
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
-      background: rgba(255,255,255,0.95);
-      backdrop-filter: blur(10px);
+      background: var(--bg);
       z-index: 1000;
       padding: 1rem 0;
-    }
-
-    @media (prefers-color-scheme: dark) {
-      .navbar { background: rgba(15,23,42,0.95); }
     }
 
     .nav-container {
@@ -79,51 +75,89 @@
 
     .nav-logo {
       font-weight: 700;
-      font-size: 1.25rem;
+      font-size: 1.5rem;
       color: var(--text);
       text-decoration: none;
+      letter-spacing: -0.02em;
     }
 
     .nav-menu {
       display: flex;
       list-style: none;
       gap: 2rem;
+      align-items: center;
     }
 
     .nav-menu a {
       color: var(--text);
       text-decoration: none;
-      font-size: 0.9rem;
+      font-size: 0.95rem;
       transition: color 0.2s;
     }
 
     .nav-menu a:hover { color: var(--primary); }
 
-    /* Hero */
+    .nav-cta {
+      background: var(--text);
+      color: var(--bg) !important;
+      padding: 0.6rem 1.25rem;
+      border-radius: 6px;
+      font-weight: 500;
+    }
+
+    @media (max-width: 768px) {
+      .nav-menu { display: none; }
+    }
+
+    /* HERO */
     .hero {
-      padding: 10rem 2rem 6rem;
+      padding: 12rem 2rem 6rem;
       text-align: center;
     }
 
-    .hero h1 {
-      font-size: clamp(2.5rem, 6vw, 4rem);
-      font-weight: 700;
-      letter-spacing: -0.03em;
-      margin-bottom: 1rem;
+    .hero-content {
+      max-width: 700px;
+      margin: 0 auto;
     }
 
-    .tagline {
-      font-size: 1.25rem;
+    .hero h1 {
+      font-size: clamp(3rem, 8vw, 5.5rem);
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -0.04em;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-tagline {
+      font-size: 1.35rem;
+      color: var(--text-muted);
+      margin-bottom: 3rem;
+    }
+
+    .hero-stats {
+      display: flex;
+      justify-content: center;
+      gap: 4rem;
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat-num {
+      display: block;
+      font-size: 2.5rem;
+      font-weight: 700;
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
       color: var(--text-muted);
     }
 
-    /* Sections */
+    /* SECTIONS */
     .section {
-      padding: 5rem 2rem;
-    }
-
-    .section-alt {
-      background: var(--bg-alt);
+      padding: 6rem 2rem;
     }
 
     .section-container {
@@ -131,26 +165,135 @@
       margin: 0 auto;
     }
 
-    .section h2 {
-      font-size: 2rem;
-      font-weight: 600;
-      margin-bottom: 2rem;
+    .section-header {
       text-align: center;
+      margin-bottom: 4rem;
     }
 
-    /* Filters */
+    .section-eyebrow {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.75rem;
+    }
+
+    .section-header h2 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    /* FEATURED */
+    .section-featured {
+      background: var(--bg-alt);
+    }
+
+    .featured-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 3rem;
+    }
+
+    .featured-header h2 {
+      font-size: 2rem;
+      font-weight: 700;
+    }
+
+    .view-all {
+      color: var(--primary);
+      font-weight: 500;
+      text-decoration: none;
+    }
+
+    .featured-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 2rem;
+    }
+
+    .featured-card {
+      background: var(--bg);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: all 0.3s;
+    }
+
+    .featured-card:hover {
+      transform: translateY(-8px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .featured-image {
+      height: 220px;
+      background: linear-gradient(135deg, var(--primary) 0%, #7c3aed 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .featured-icon {
+      font-size: 5rem;
+    }
+
+    .featured-content {
+      padding: 2rem;
+    }
+
+    .featured-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .featured-content h3 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin: 0.5rem 0 0.75rem;
+    }
+
+    .featured-content p {
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+
+    .featured-link {
+      color: var(--primary);
+      font-weight: 500;
+      text-decoration: none;
+    }
+
+    /* WORK */
+    .work-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 3rem;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+
+    .work-header h2 {
+      font-size: 2rem;
+      font-weight: 700;
+    }
+
     .filters {
       display: flex;
-      justify-content: center;
       gap: 0.5rem;
-      margin-bottom: 3rem;
       flex-wrap: wrap;
     }
 
     .filter-btn {
       padding: 0.5rem 1.25rem;
       border: 1px solid var(--border);
-      border-radius: 2rem;
+      border-radius: 50px;
       background: var(--bg);
       color: var(--text);
       font-size: 0.9rem;
@@ -158,31 +301,33 @@
       transition: all 0.2s;
     }
 
-    .filter-btn:hover, .filter-btn.active {
-      background: var(--primary);
-      border-color: var(--primary);
-      color: white;
+    .filter-btn:hover {
+      border-color: var(--text);
     }
 
-    /* Project Grid */
-    .project-grid {
+    .filter-btn.active {
+      background: var(--text);
+      border-color: var(--text);
+      color: var(--bg);
+    }
+
+    .work-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 2rem;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
     }
 
     .project-card {
-      background: var(--bg);
-      border-radius: var(--radius);
+      position: relative;
+      background: var(--bg-alt);
+      border-radius: 12px;
       overflow: hidden;
-      box-shadow: var(--shadow);
-      transition: transform 0.3s, box-shadow 0.3s;
       cursor: pointer;
+      transition: all 0.3s;
     }
 
     .project-card:hover {
-      transform: translateY(-8px);
-      box-shadow: var(--shadow-lg);
+      transform: scale(1.02);
     }
 
     .project-card.hidden {
@@ -191,88 +336,239 @@
 
     .project-image {
       aspect-ratio: 4/3;
-      background: var(--bg-alt);
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
-    .project-placeholder {
+    .project-icon {
       font-size: 4rem;
     }
 
     .project-info {
-      padding: 1.5rem;
+      padding: 1.25rem;
     }
 
     .project-info h3 {
-      font-size: 1.25rem;
+      font-size: 1.1rem;
       font-weight: 600;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.25rem;
     }
 
-    .project-info p {
+    .project-meta {
+      font-size: 0.85rem;
       color: var(--text-muted);
-      font-size: 0.9rem;
-      line-height: 1.5;
     }
 
-    /* About */
-    .about-content {
-      max-width: 700px;
-      margin: 0 auto;
+    .project-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .project-card:hover .project-overlay {
+      opacity: 1;
+    }
+
+    .overlay-icon {
+      font-size: 2rem;
+      color: white;
+    }
+
+    /* PROCESS */
+    .section-process {
+      background: var(--bg-alt);
+    }
+
+    .process-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2rem;
+    }
+
+    .process-step {
       text-align: center;
-      line-height: 1.8;
+      padding: 2rem 1.5rem;
     }
 
-    .about-content p {
+    .step-num {
+      display: block;
+      font-size: 3rem;
+      font-weight: 800;
+      color: var(--primary);
+      opacity: 0.2;
       margin-bottom: 1rem;
     }
 
-    /* Contact */
-    #contact {
-      text-align: center;
+    .process-step h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
     }
 
-    .contact-intro {
+    .process-step p {
       color: var(--text-muted);
-      margin-bottom: 2rem;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 900px) {
+      .process-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .process-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ABOUT */
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.5fr;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    .about-visual {
+      display: flex;
+      justify-content: center;
+    }
+
+    .about-avatar {
+      width: 250px;
+      height: 250px;
+      background: linear-gradient(135deg, var(--primary) 0%, #7c3aed 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 6rem;
+    }
+
+    .about-content h2 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin: 0.5rem 0 1.5rem;
+    }
+
+    .about-content p {
+      color: var(--text-muted);
+      line-height: 1.7;
+      margin-bottom: 1rem;
       font-size: 1.1rem;
     }
 
+    .about-stats {
+      display: flex;
+      gap: 3rem;
+      margin-top: 2rem;
+    }
+
+    .about-stat {
+      text-align: center;
+    }
+
+    .stat-value {
+      display: block;
+      font-size: 2.5rem;
+      font-weight: 700;
+    }
+
+    .stat-name {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    @media (max-width: 768px) {
+      .about-grid {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+      .about-avatar { width: 180px; height: 180px; font-size: 4rem; }
+      .about-stats { justify-content: center; }
+    }
+
+    /* CONTACT */
+    .section-contact {
+      text-align: center;
+    }
+
+    .contact-box {
+      background: var(--bg-alt);
+      border-radius: 24px;
+      padding: 5rem 3rem;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .contact-box h2 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin: 0.5rem 0 1rem;
+    }
+
+    .contact-box p {
+      color: var(--text-muted);
+      font-size: 1.15rem;
+      margin-bottom: 2rem;
+    }
+
+    /* BUTTONS */
     .btn {
       display: inline-block;
       padding: 1rem 2rem;
-      border-radius: var(--radius);
+      border-radius: 8px;
       font-weight: 600;
       text-decoration: none;
       transition: all 0.2s;
     }
 
     .btn-primary {
-      background: var(--primary);
-      color: white;
+      background: var(--text);
+      color: var(--bg);
     }
 
     .btn-primary:hover {
-      background: var(--primary-dark);
       transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
     }
 
-    /* Footer */
+    .btn-lg {
+      padding: 1.25rem 2.5rem;
+      font-size: 1.1rem;
+    }
+
+    /* FOOTER */
     footer {
-      padding: 2rem;
-      text-align: center;
-      color: var(--text-muted);
-      font-size: 0.9rem;
+      padding: 3rem 2rem;
       border-top: 1px solid var(--border);
     }
 
-    @media (max-width: 640px) {
-      .hero { padding: 8rem 1.5rem 4rem; }
-      .section { padding: 3rem 1.5rem; }
-      .project-grid { grid-template-columns: 1fr; }
-      .nav-menu { display: none; }
+    .footer-container {
+      max-width: var(--max-width);
+      margin: 0 auto;
+    }
+
+    .footer-content {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    footer a { color: var(--primary); }
+
+    @media print {
+      .navbar { display: none; }
+      .hero { padding-top: 2rem; }
     }
     
   </style>
@@ -285,506 +581,771 @@
       <ul class="nav-menu">
         <li><a href="#work">Work</a></li>
         <li><a href="#about">About</a></li>
-        <li><a href="#contact">Contact</a></li>
+        <li><a href="#contact" class="nav-cta">Start Your Journey</a></li>
       </ul>
     </div>
   </nav>
 
+  <!-- HERO -->
   <header class="hero">
     <div class="hero-content">
       <h1>The Longevity Blueprint</h1>
-      <p class="tagline">Master the science of living longer and healthier</p>
+      <p class="hero-tagline">Master the science of living longer and healthier</p>
+      <div class="hero-stats">
+        <div class="stat">
+          <span class="stat-num">49</span>
+          <span class="stat-label">Projects</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num">50+</span>
+          <span class="stat-label">Topics</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num">13</span>
+          <span class="stat-label">Categories</span>
+        </div>
+      </div>
     </div>
   </header>
 
   <main>
-    <section id="work" class="section">
+    <!-- FEATURED WORK -->
+    <section class="section section-featured">
       <div class="section-container">
-        <div class="filters">
-          <button class="filter-btn active" data-filter="all">All</button>
-          <button class="filter-btn" data-filter="biohacking-longevity-s-promise">Biohacking Longevity's Promise</button>
-          <button class="filter-btn" data-filter="the-immortal-instinct">The Immortal Instinct</button>
-          <button class="filter-btn" data-filter="mitochondria-our-cellular-powerhouses">Mitochondria: Our Cellular Powerhouses</button>
-          <button class="filter-btn" data-filter="the-three-fs-survival-imperatives">The Three Fs: Survival Imperatives</button>
-          <button class="filter-btn" data-filter="inflammation-the-silent-killer">Inflammation: The Silent Killer</button>
-          <button class="filter-btn" data-filter="sugar-s-hidden-dangers">Sugar's Hidden Dangers</button>
-          <button class="filter-btn" data-filter="biohacking-for-longevity-blueprint-status">Biohacking for Longevity Blueprint Status</button>
-          <button class="filter-btn" data-filter="investing-in-your-biology">Investing in Your Biology</button>
-          <button class="filter-btn" data-filter="the-author-s-biohacking-journey">the author's Biohacking Journey</button>
-          <button class="filter-btn" data-filter="tools-for-cellular-control">Tools for Cellular Control</button>
-          <button class="filter-btn" data-filter="simple-accessible-hacks">Simple, Accessible Hacks</button>
-          <button class="filter-btn" data-filter="the-ethics-of-extended-lifespan">The Ethics of Extended Lifespan</button>
-          <button class="filter-btn" data-filter="legacy-and-the-xprize">Legacy and the XPRIZE</button>
+        <div class="featured-header">
+          <h2>Featured Work</h2>
+          <a href="#work" class="view-all">View all →</a>
         </div>
+        <div class="featured-grid">
+          <article class="featured-card">
+            <div class="featured-image">
+              <span class="featured-icon">🎯</span>
+            </div>
+            <div class="featured-content">
+              <span class="featured-label">Featured</span>
+              <h3>**The Foundation of Biohacking</h3>
+              <p></p>
+              <a href="#the-foundation-of-biohacking" class="featured-link">View Project →</a>
+            </div>
+          </article>
+          <article class="featured-card">
+            <div class="featured-image">
+              <span class="featured-icon">⚡</span>
+            </div>
+            <div class="featured-content">
+              <span class="featured-label">Featured</span>
+              <h3>**the author and the Engineering Approach to Biohacking</h3>
+              <p></p>
+              <a href="#the-author-and-the-engineering-approach-to-biohack" class="featured-link">View Project →</a>
+            </div>
+          </article>
+          <article class="featured-card">
+            <div class="featured-image">
+              <span class="featured-icon">💡</span>
+            </div>
+            <div class="featured-content">
+              <span class="featured-label">Featured</span>
+              <h3>**Key Biohacks</h3>
+              <p></p>
+              <a href="#key-biohacks" class="featured-link">View Project →</a>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
 
-        <div class="project-grid">
-          <div class="project-card" data-category="22b16d53-2101-473a-9a91-ad7c974c43ca">
+    <!-- ALL WORK -->
+    <section id="work" class="section section-work">
+      <div class="section-container">
+        <div class="work-header">
+          <h2>All Work</h2>
+          <div class="filters">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="biohacking-longevity-s-promise">Biohacking Longevity's Promise</button>
+            <button class="filter-btn" data-filter="the-immortal-instinct">The Immortal Instinct</button>
+            <button class="filter-btn" data-filter="mitochondria-our-cellular-powerhouses">Mitochondria: Our Cellular Powerhouses</button>
+            <button class="filter-btn" data-filter="the-three-fs-survival-imperatives">The Three Fs: Survival Imperatives</button>
+            <button class="filter-btn" data-filter="inflammation-the-silent-killer">Inflammation: The Silent Killer</button>
+            <button class="filter-btn" data-filter="sugar-s-hidden-dangers">Sugar's Hidden Dangers</button>
+            <button class="filter-btn" data-filter="biohacking-for-longevity-blueprint-status">Biohacking for Longevity Blueprint Status</button>
+            <button class="filter-btn" data-filter="investing-in-your-biology">Investing in Your Biology</button>
+            <button class="filter-btn" data-filter="the-author-s-biohacking-journey">the author's Biohacking Journey</button>
+            <button class="filter-btn" data-filter="tools-for-cellular-control">Tools for Cellular Control</button>
+            <button class="filter-btn" data-filter="simple-accessible-hacks">Simple, Accessible Hacks</button>
+            <button class="filter-btn" data-filter="the-ethics-of-extended-lifespan">The Ethics of Extended Lifespan</button>
+            <button class="filter-btn" data-filter="legacy-and-the-xprize">Legacy and the XPRIZE</button>
+          </div>
+        </div>
+        <div class="work-grid">
+          <article class="project-card" data-category="b16d53-2101-473a-9a91-ad7c974c43ca" id="the-foundation-of-biohacking">
             <div class="project-image">
-              <span class="project-placeholder">🎨</span>
+              <span class="project-icon">📖</span>
             </div>
             <div class="project-info">
               <h3>**The Foundation of Biohacking</h3>
-
+              <span class="project-meta">0 topics</span>
             </div>
-          </div>
-          <div class="project-card" data-category="22b16d53-2101-473a-9a91-ad7c974c43ca">
+            <div class="project-overlay">
+              <span class="overlay-icon">↗</span>
+            </div>
+          </article>
+          <article class="project-card" data-category="b16d53-2101-473a-9a91-ad7c974c43ca" id="the-author-and-the-engineering-approach-to-biohack">
             <div class="project-image">
-              <span class="project-placeholder">💡</span>
+              <span class="project-icon">🎯</span>
             </div>
             <div class="project-info">
               <h3>**the author and the Engineering Approach to Biohacking</h3>
-
+              <span class="project-meta">0 topics</span>
             </div>
-          </div>
-          <div class="project-card" data-category="22b16d53-2101-473a-9a91-ad7c974c43ca">
+            <div class="project-overlay">
+              <span class="overlay-icon">↗</span>
+            </div>
+          </article>
+          <article class="project-card" data-category="b16d53-2101-473a-9a91-ad7c974c43ca" id="key-biohacks">
             <div class="project-image">
-              <span class="project-placeholder">📷</span>
+              <span class="project-icon">⚡</span>
             </div>
             <div class="project-info">
               <h3>**Key Biohacks</h3>
-
+              <span class="project-meta">0 topics</span>
             </div>
-          </div>
-          <div class="project-card" data-category="22b16d53-2101-473a-9a91-ad7c974c43ca">
+            <div class="project-overlay">
+              <span class="overlay-icon">↗</span>
+            </div>
+          </article>
+          <article class="project-card" data-category="b16d53-2101-473a-9a91-ad7c974c43ca" id="gw501516-cardarine">
             <div class="project-image">
-              <span class="project-placeholder">🎭</span>
+              <span class="project-icon">💡</span>
             </div>
             <div class="project-info">
               <h3>**GW501516 (Cardarine)</h3>
-
+              <span class="project-meta">0 topics</span>
             </div>
-          </div>
-          <div class="project-card" data-category="1a3481df-e382-4bee-89e8-1c15960d7463">
+            <div class="project-overlay">
+              <span class="overlay-icon">↗</span>
+            </div>
+          </article>
+          <article class="project-card" data-category="a3481df-e382-4bee-89e8-1c15960d7463" id="the-primal-drive-to-survive">
             <div class="project-image">
-              <span class="project-placeholder">✏️</span>
+              <span class="project-icon">🔧</span>
             </div>
             <div class="project-info">
               <h3>**The Primal Drive to Survive</h3>
-
+              <span class="project-meta">0 topics</span>
             </div>
-          </div>
-          <div class="project-card" data-category="1a3481df-e382-4bee-89e8-1c15960d7463">
+            <div class="project-overlay">
+              <span class="overlay-icon">↗</span>
+            </div>
+          </article>
+          <article class="project-card" data-category="a3481df-e382-4bee-89e8-1c15960d7463" id="ancient-quests-for-eternal-life">
             <div class="project-image">
-              <span class="project-placeholder">📐</span>
+              <span class="project-icon">📊</span>
             </div>
             <div class="project-info">
               <h3>**Ancient Quests for Eternal Life</h3>
-
+              <span class="project-meta">0 topics</span>
             </div>
-          </div>
-          <div class="project-card" data-category="1a3481df-e382-4bee-89e8-1c15960d7463">
+            <div class="project-overlay">
+              <span class="overlay-icon">↗</span>
+            </div>
+          </article>
+          <article class="project-card" data-category="a3481df-e382-4bee-89e8-1c15960d7463" id="the-paradox-of-self-preservation">
             <div class="project-image">
-              <span class="project-placeholder">🎬</span>
+              <span class="project-icon">🧠</span>
             </div>
             <div class="project-info">
               <h3>**The Paradox of Self-Preservation</h3>
-
+              <span class="project-meta">0 topics</span>
             </div>
-          </div>
-          <div class="project-card" data-category="1a3481df-e382-4bee-89e8-1c15960d7463">
+            <div class="project-overlay">
+              <span class="overlay-icon">↗</span>
+            </div>
+          </article>
+          <article class="project-card" data-category="a3481df-e382-4bee-89e8-1c15960d7463" id="superstitions-and-extreme-measures">
             <div class="project-image">
-              <span class="project-placeholder">🎬</span>
+              <span class="project-icon">🌟</span>
             </div>
             <div class="project-info">
               <h3>**Superstitions and Extreme Measures</h3>
-
+              <span class="project-meta">0 topics</span>
             </div>
-          </div>
-          <div class="project-card" data-category="9cf8503c-4fee-4525-a623-2d199828aee5">
+            <div class="project-overlay">
+              <span class="overlay-icon">↗</span>
+            </div>
+          </article>
+          <article class="project-card" data-category="cf8503c-4fee-4525-a623-2d199828aee5" id="mitochondria-and-the-subcellular-foundation-of-agi">
             <div class="project-image">
-              <span class="project-placeholder">📷</span>
+              <span class="project-icon">📖</span>
             </div>
             <div class="project-info">
               <h3>**Mitochondria and the Subcellular Foundation of Aging</h3>
-
+              <span class="project-meta">0 topics</span>
             </div>
-          </div>
-          <div class="project-card" data-category="9cf8503c-4fee-4525-a623-2d199828aee5">
+            <div class="project-overlay">
+              <span class="overlay-icon">↗</span>
+            </div>
+          </article>
+          <article class="project-card" data-category="cf8503c-4fee-4525-a623-2d199828aee5" id="environmental-and-lifestyle-impacts-on-cellular-he">
             <div class="project-image">
-              <span class="project-placeholder">🎬</span>
+              <span class="project-icon">🎯</span>
             </div>
             <div class="project-info">
               <h3>**Environmental and Lifestyle Impacts on Cellular Health</h3>
-
+              <span class="project-meta">0 topics</span>
             </div>
-          </div>
-          <div class="project-card" data-category="9cf8503c-4fee-4525-a623-2d199828aee5">
+            <div class="project-overlay">
+              <span class="overlay-icon">↗</span>
+            </div>
+          </article>
+          <article class="project-card" data-category="cf8503c-4fee-4525-a623-2d199828aee5" id="cellular-processes-for-repair-and-longevity">
             <div class="project-image">
-              <span class="project-placeholder">📐</span>
+              <span class="project-icon">⚡</span>
             </div>
             <div class="project-info">
               <h3>**Cellular Processes for Repair and Longevity</h3>
-
+              <span class="project-meta">0 topics</span>
             </div>
-          </div>
-          <div class="project-card" data-category="9cf8503c-4fee-4525-a623-2d199828aee5">
+            <div class="project-overlay">
+              <span class="overlay-icon">↗</span>
+            </div>
+          </article>
+          <article class="project-card" data-category="cf8503c-4fee-4525-a623-2d199828aee5" id="reactive-oxygen-species-ros-and-the-importance-of-">
             <div class="project-image">
-              <span class="project-placeholder">📐</span>
+              <span class="project-icon">💡</span>
             </div>
             <div class="project-info">
               <h3>**Reactive Oxygen Species (ROS) and the Importance of Antioxidant Defenses</h3>
-
+              <span class="project-meta">0 topics</span>
             </div>
-          </div>
-          <div class="project-card" data-category="9cf8503c-4fee-4525-a623-2d199828aee5">
+            <div class="project-overlay">
+              <span class="overlay-icon">↗</span>
+            </div>
+          </article>
+          <article class="project-card" data-category="cf8503c-4fee-4525-a623-2d199828aee5" id="nad-and-mitochondrial-optimization">
             <div class="project-image">
-              <span class="project-placeholder">📷</span>
+              <span class="project-icon">🔧</span>
             </div>
             <div class="project-info">
               <h3>**NAD+ and Mitochondrial Optimization</h3>
-
+              <span class="project-meta">0 topics</span>
             </div>
-          </div>
-          <div class="project-card" data-category="9f256303-6092-4cba-b32f-357d17c18907">
+            <div class="project-overlay">
+              <span class="overlay-icon">↗</span>
+            </div>
+          </article>
+          <article class="project-card" data-category="f256303-6092-4cba-b32f-357d17c18907" id="the-foundation">
             <div class="project-image">
-              <span class="project-placeholder">🖼️</span>
+              <span class="project-icon">📊</span>
             </div>
             <div class="project-info">
               <h3>**The Foundation</h3>
-              <p>The Three Fs and Mitochondrial Imperatives**</p>
+              <span class="project-meta">0 topics</span>
             </div>
-          </div>
-          <div class="project-card" data-category="9f256303-6092-4cba-b32f-357d17c18907">
+            <div class="project-overlay">
+              <span class="overlay-icon">↗</span>
+            </div>
+          </article>
+          <article class="project-card" data-category="f256303-6092-4cba-b32f-357d17c18907" id="maintaining-health-and-longevity">
             <div class="project-image">
-              <span class="project-placeholder">📐</span>
+              <span class="project-icon">🧠</span>
             </div>
             <div class="project-info">
               <h3>**Maintaining Health and Longevity</h3>
-              <p>Telomeres, NAD+, and the Microbiome**</p>
+              <span class="project-meta">0 topics</span>
             </div>
-          </div>
-          <div class="project-card" data-category="9f256303-6092-4cba-b32f-357d17c18907">
+            <div class="project-overlay">
+              <span class="overlay-icon">↗</span>
+            </div>
+          </article>
+          <article class="project-card" data-category="f256303-6092-4cba-b32f-357d17c18907" id="enhancement-and-healing">
             <div class="project-image">
-              <span class="project-placeholder">📐</span>
+              <span class="project-icon">🌟</span>
             </div>
             <div class="project-info">
               <h3>**Enhancement and Healing</h3>
-              <p>Supplements and Specialized Therapies**</p>
+              <span class="project-meta">0 topics</span>
             </div>
-          </div>
-          <div class="project-card" data-category="9f256303-6092-4cba-b32f-357d17c18907">
+            <div class="project-overlay">
+              <span class="overlay-icon">↗</span>
+            </div>
+          </article>
+          <article class="project-card" data-category="f256303-6092-4cba-b32f-357d17c18907" id="the-path-to-longevity-blueprint">
             <div class="project-image">
-              <span class="project-placeholder">💡</span>
+              <span class="project-icon">📖</span>
             </div>
             <div class="project-info">
               <h3>**The Path to &quot;Longevity Blueprint&quot;</h3>
-              <p>A Three-Step Process**</p>
+              <span class="project-meta">0 topics</span>
             </div>
-          </div>
-          <div class="project-card" data-category="b251170d-977c-474e-af70-6379a6e1dc8f">
+            <div class="project-overlay">
+              <span class="overlay-icon">↗</span>
+            </div>
+          </article>
+          <article class="project-card" data-category="b251170d-977c-474e-af70-6379a6e1dc8f" id="the-foundation">
             <div class="project-image">
-              <span class="project-placeholder">🖼️</span>
+              <span class="project-icon">🎯</span>
             </div>
             <div class="project-info">
               <h3>**The Foundation</h3>
-
+              <span class="project-meta">0 topics</span>
             </div>
-          </div>
-          <div class="project-card" data-category="b251170d-977c-474e-af70-6379a6e1dc8f">
+            <div class="project-overlay">
+              <span class="overlay-icon">↗</span>
+            </div>
+          </article>
+          <article class="project-card" data-category="b251170d-977c-474e-af70-6379a6e1dc8f" id="lifestyle-s-impact">
             <div class="project-image">
-              <span class="project-placeholder">📐</span>
+              <span class="project-icon">⚡</span>
             </div>
             <div class="project-info">
               <h3>**Lifestyle's Impact</h3>
-
+              <span class="project-meta">0 topics</span>
             </div>
-          </div>
-          <div class="project-card" data-category="e75bebf3-b283-46a6-ae67-24024028d7bb">
+            <div class="project-overlay">
+              <span class="overlay-icon">↗</span>
+            </div>
+          </article>
+          <article class="project-card" data-category="e75bebf3-b283-46a6-ae67-24024028d7bb" id="environmental-and-light-exposure-risks">
             <div class="project-image">
-              <span class="project-placeholder">🎨</span>
+              <span class="project-icon">💡</span>
             </div>
             <div class="project-info">
               <h3>**Environmental and Light Exposure Risks</h3>
-
+              <span class="project-meta">0 topics</span>
             </div>
-          </div>
-          <div class="project-card" data-category="e75bebf3-b283-46a6-ae67-24024028d7bb">
+            <div class="project-overlay">
+              <span class="overlay-icon">↗</span>
+            </div>
+          </article>
+          <article class="project-card" data-category="e75bebf3-b283-46a6-ae67-24024028d7bb" id="the-ozone-therapy-caveat">
             <div class="project-image">
-              <span class="project-placeholder">📷</span>
+              <span class="project-icon">🔧</span>
             </div>
             <div class="project-info">
               <h3>**The Ozone Therapy Caveat</h3>
-
+              <span class="project-meta">0 topics</span>
             </div>
-          </div>
-          <div class="project-card" data-category="e75bebf3-b283-46a6-ae67-24024028d7bb">
+            <div class="project-overlay">
+              <span class="overlay-icon">↗</span>
+            </div>
+          </article>
+          <article class="project-card" data-category="e75bebf3-b283-46a6-ae67-24024028d7bb" id="hormone-replacement-therapy">
             <div class="project-image">
-              <span class="project-placeholder">📷</span>
+              <span class="project-icon">📊</span>
             </div>
             <div class="project-info">
               <h3>**Hormone Replacement Therapy</h3>
-
+              <span class="project-meta">0 topics</span>
             </div>
-          </div>
-          <div class="project-card" data-category="f33c7c87-1c80-472e-94f8-3593b41cb5cf">
+            <div class="project-overlay">
+              <span class="overlay-icon">↗</span>
+            </div>
+          </article>
+          <article class="project-card" data-category="f33c7c87-1c80-472e-94f8-3593b41cb5cf" id="the-dawn-of-biohacking">
             <div class="project-image">
-              <span class="project-placeholder">✏️</span>
+              <span class="project-icon">🧠</span>
             </div>
             <div class="project-info">
               <h3>**The Dawn of Biohacking</h3>
-
+              <span class="project-meta">0 topics</span>
             </div>
-          </div>
-          <div class="project-card" data-category="f33c7c87-1c80-472e-94f8-3593b41cb5cf">
+            <div class="project-overlay">
+              <span class="overlay-icon">↗</span>
+            </div>
+          </article>
+          <article class="project-card" data-category="f33c7c87-1c80-472e-94f8-3593b41cb5cf" id="defining-biohacking-and-the-longevity-blueprint-go">
             <div class="project-image">
-              <span class="project-placeholder">🖼️</span>
+              <span class="project-icon">🌟</span>
             </div>
             <div class="project-info">
               <h3>**Defining Biohacking and the Longevity Blueprint Goal</h3>
-
+              <span class="project-meta">0 topics</span>
             </div>
-          </div>
-          <div class="project-card" data-category="f33c7c87-1c80-472e-94f8-3593b41cb5cf">
+            <div class="project-overlay">
+              <span class="overlay-icon">↗</span>
+            </div>
+          </article>
+          <article class="project-card" data-category="f33c7c87-1c80-472e-94f8-3593b41cb5cf" id="the-author-s-biohacking-journey-and-methodology">
             <div class="project-image">
-              <span class="project-placeholder">✏️</span>
+              <span class="project-icon">📖</span>
             </div>
             <div class="project-info">
               <h3>**The Author's Biohacking Journey and Methodology</h3>
-
+              <span class="project-meta">0 topics</span>
             </div>
-          </div>
-          <div class="project-card" data-category="f33c7c87-1c80-472e-94f8-3593b41cb5cf">
+            <div class="project-overlay">
+              <span class="overlay-icon">↗</span>
+            </div>
+          </article>
+          <article class="project-card" data-category="f33c7c87-1c80-472e-94f8-3593b41cb5cf" id="tools-and-resources-for-the-biohacker">
             <div class="project-image">
-              <span class="project-placeholder">✏️</span>
+              <span class="project-icon">🎯</span>
             </div>
             <div class="project-info">
               <h3>**Tools and Resources for the Biohacker</h3>
-
+              <span class="project-meta">0 topics</span>
             </div>
-          </div>
-          <div class="project-card" data-category="f33c7c87-1c80-472e-94f8-3593b41cb5cf">
+            <div class="project-overlay">
+              <span class="overlay-icon">↗</span>
+            </div>
+          </article>
+          <article class="project-card" data-category="f33c7c87-1c80-472e-94f8-3593b41cb5cf" id="navigating-the-legal-landscape-of-sarms">
             <div class="project-image">
-              <span class="project-placeholder">🎨</span>
+              <span class="project-icon">⚡</span>
             </div>
             <div class="project-info">
               <h3>**Navigating the Legal Landscape of SARMs</h3>
-
+              <span class="project-meta">0 topics</span>
             </div>
-          </div>
-          <div class="project-card" data-category="defabe87-09a1-4048-a7bc-1345fe16a53f">
+            <div class="project-overlay">
+              <span class="overlay-icon">↗</span>
+            </div>
+          </article>
+          <article class="project-card" data-category="defabe87-09a1-4048-a7bc-1345fe16a53f" id="biohacking">
             <div class="project-image">
-              <span class="project-placeholder">✏️</span>
+              <span class="project-icon">💡</span>
             </div>
             <div class="project-info">
               <h3>**Biohacking</h3>
-              <p>Defining and Funding the Path to Longevity**</p>
+              <span class="project-meta">0 topics</span>
             </div>
-          </div>
-          <div class="project-card" data-category="defabe87-09a1-4048-a7bc-1345fe16a53f">
+            <div class="project-overlay">
+              <span class="overlay-icon">↗</span>
+            </div>
+          </article>
+          <article class="project-card" data-category="defabe87-09a1-4048-a7bc-1345fe16a53f" id="sleep">
             <div class="project-image">
-              <span class="project-placeholder">📐</span>
+              <span class="project-icon">🔧</span>
             </div>
             <div class="project-info">
               <h3>**Sleep</h3>
-              <p>The Ultimate Biohacking Tool**</p>
+              <span class="project-meta">0 topics</span>
             </div>
-          </div>
-          <div class="project-card" data-category="defabe87-09a1-4048-a7bc-1345fe16a53f">
+            <div class="project-overlay">
+              <span class="overlay-icon">↗</span>
+            </div>
+          </article>
+          <article class="project-card" data-category="defabe87-09a1-4048-a7bc-1345fe16a53f" id="beyond-the-body">
             <div class="project-image">
-              <span class="project-placeholder">🖼️</span>
+              <span class="project-icon">📊</span>
             </div>
             <div class="project-info">
               <h3>**Beyond the Body</h3>
-              <p>Jaw Alignment, Gut Health, and Regeneration**</p>
+              <span class="project-meta">0 topics</span>
             </div>
-          </div>
-          <div class="project-card" data-category="fa1b9383-f2bd-4303-b8a2-79be8b6e0e12">
+            <div class="project-overlay">
+              <span class="overlay-icon">↗</span>
+            </div>
+          </article>
+          <article class="project-card" data-category="fa1b9383-f2bd-4303-b8a2-79be8b6e0e12" id="book-information-and-dedication">
             <div class="project-image">
-              <span class="project-placeholder">🖼️</span>
+              <span class="project-icon">🧠</span>
             </div>
             <div class="project-info">
               <h3>**Book Information and Dedication</h3>
-
+              <span class="project-meta">0 topics</span>
             </div>
-          </div>
-          <div class="project-card" data-category="fa1b9383-f2bd-4303-b8a2-79be8b6e0e12">
+            <div class="project-overlay">
+              <span class="overlay-icon">↗</span>
+            </div>
+          </article>
+          <article class="project-card" data-category="fa1b9383-f2bd-4303-b8a2-79be8b6e0e12" id="the-genesis-of-a-biohacker">
             <div class="project-image">
-              <span class="project-placeholder">📷</span>
+              <span class="project-icon">🌟</span>
             </div>
             <div class="project-info">
               <h3>**The Genesis of a Biohacker</h3>
-
+              <span class="project-meta">0 topics</span>
             </div>
-          </div>
-          <div class="project-card" data-category="fa1b9383-f2bd-4303-b8a2-79be8b6e0e12">
+            <div class="project-overlay">
+              <span class="overlay-icon">↗</span>
+            </div>
+          </article>
+          <article class="project-card" data-category="fa1b9383-f2bd-4303-b8a2-79be8b6e0e12" id="identifying-and-addressing-the-root-causes">
             <div class="project-image">
-              <span class="project-placeholder">🎭</span>
+              <span class="project-icon">📖</span>
             </div>
             <div class="project-info">
               <h3>**Identifying and Addressing the Root Causes</h3>
-
+              <span class="project-meta">0 topics</span>
             </div>
-          </div>
-          <div class="project-card" data-category="fa1b9383-f2bd-4303-b8a2-79be8b6e0e12">
+            <div class="project-overlay">
+              <span class="overlay-icon">↗</span>
+            </div>
+          </article>
+          <article class="project-card" data-category="fa1b9383-f2bd-4303-b8a2-79be8b6e0e12" id="the-author-s-investments-and-biohacking-philosophy">
             <div class="project-image">
-              <span class="project-placeholder">✏️</span>
+              <span class="project-icon">🎯</span>
             </div>
             <div class="project-info">
               <h3>**the author's Investments and Biohacking Philosophy</h3>
-
+              <span class="project-meta">0 topics</span>
             </div>
-          </div>
-          <div class="project-card" data-category="fa1b9383-f2bd-4303-b8a2-79be8b6e0e12">
+            <div class="project-overlay">
+              <span class="overlay-icon">↗</span>
+            </div>
+          </article>
+          <article class="project-card" data-category="fa1b9383-f2bd-4303-b8a2-79be8b6e0e12" id="the-evolution-of-the-author-s-biohacking-technique">
             <div class="project-image">
-              <span class="project-placeholder">📐</span>
+              <span class="project-icon">⚡</span>
             </div>
             <div class="project-info">
               <h3>**The Evolution of the author's Biohacking Techniques</h3>
-
+              <span class="project-meta">0 topics</span>
             </div>
-          </div>
-          <div class="project-card" data-category="fa1b9383-f2bd-4303-b8a2-79be8b6e0e12">
+            <div class="project-overlay">
+              <span class="overlay-icon">↗</span>
+            </div>
+          </article>
+          <article class="project-card" data-category="fa1b9383-f2bd-4303-b8a2-79be8b6e0e12" id="modern-biohacking-and-the-author-s-impact">
             <div class="project-image">
-              <span class="project-placeholder">💡</span>
+              <span class="project-icon">💡</span>
             </div>
             <div class="project-info">
               <h3>**Modern Biohacking and the author's Impact</h3>
-
+              <span class="project-meta">0 topics</span>
             </div>
-          </div>
-          <div class="project-card" data-category="b1e93872-f19c-47ec-b007-3e994faa6c94">
+            <div class="project-overlay">
+              <span class="overlay-icon">↗</span>
+            </div>
+          </article>
+          <article class="project-card" data-category="b1e93872-f19c-47ec-b007-3e994faa6c94" id="understanding-biohacking-and-cellular-control">
             <div class="project-image">
-              <span class="project-placeholder">📷</span>
+              <span class="project-icon">🔧</span>
             </div>
             <div class="project-info">
               <h3>**Understanding Biohacking and Cellular Control</h3>
-
+              <span class="project-meta">0 topics</span>
             </div>
-          </div>
-          <div class="project-card" data-category="b1e93872-f19c-47ec-b007-3e994faa6c94">
+            <div class="project-overlay">
+              <span class="overlay-icon">↗</span>
+            </div>
+          </article>
+          <article class="project-card" data-category="b1e93872-f19c-47ec-b007-3e994faa6c94" id="cellular-stressors">
             <div class="project-image">
-              <span class="project-placeholder">🎨</span>
+              <span class="project-icon">📊</span>
             </div>
             <div class="project-info">
               <h3>**Cellular Stressors</h3>
-
+              <span class="project-meta">0 topics</span>
             </div>
-          </div>
-          <div class="project-card" data-category="b1e93872-f19c-47ec-b007-3e994faa6c94">
+            <div class="project-overlay">
+              <span class="overlay-icon">↗</span>
+            </div>
+          </article>
+          <article class="project-card" data-category="b1e93872-f19c-47ec-b007-3e994faa6c94" id="the-seven-pillars-of-aging-and-key-anti-aging-stra">
             <div class="project-image">
-              <span class="project-placeholder">🎭</span>
+              <span class="project-icon">🧠</span>
             </div>
             <div class="project-info">
               <h3>**The Seven Pillars of Aging and Key Anti-Aging Strategies</h3>
-
+              <span class="project-meta">0 topics</span>
             </div>
-          </div>
-          <div class="project-card" data-category="b1e93872-f19c-47ec-b007-3e994faa6c94">
+            <div class="project-overlay">
+              <span class="overlay-icon">↗</span>
+            </div>
+          </article>
+          <article class="project-card" data-category="b1e93872-f19c-47ec-b007-3e994faa6c94" id="nutrition-and-supplements-for-cellular-health">
             <div class="project-image">
-              <span class="project-placeholder">🖼️</span>
+              <span class="project-icon">🌟</span>
             </div>
             <div class="project-info">
               <h3>**Nutrition and Supplements for Cellular Health</h3>
-
+              <span class="project-meta">0 topics</span>
             </div>
-          </div>
-          <div class="project-card" data-category="b1e93872-f19c-47ec-b007-3e994faa6c94">
+            <div class="project-overlay">
+              <span class="overlay-icon">↗</span>
+            </div>
+          </article>
+          <article class="project-card" data-category="b1e93872-f19c-47ec-b007-3e994faa6c94" id="lifestyle-interventions">
             <div class="project-image">
-              <span class="project-placeholder">📐</span>
+              <span class="project-icon">📖</span>
             </div>
             <div class="project-info">
               <h3>**Lifestyle Interventions</h3>
-
+              <span class="project-meta">0 topics</span>
             </div>
-          </div>
-          <div class="project-card" data-category="c5729ed6-de2d-48d9-8476-cfadea586174">
+            <div class="project-overlay">
+              <span class="overlay-icon">↗</span>
+            </div>
+          </article>
+          <article class="project-card" data-category="c5729ed6-de2d-48d9-8476-cfadea586174" id="mainstreaming-anti-aging-through-simple-hacks">
             <div class="project-image">
-              <span class="project-placeholder">💡</span>
+              <span class="project-icon">🎯</span>
             </div>
             <div class="project-info">
               <h3>**Mainstreaming Anti-Aging Through Simple Hacks</h3>
-
+              <span class="project-meta">1 topics</span>
             </div>
-          </div>
-          <div class="project-card" data-category="c5729ed6-de2d-48d9-8476-cfadea586174">
+            <div class="project-overlay">
+              <span class="overlay-icon">↗</span>
+            </div>
+          </article>
+          <article class="project-card" data-category="c5729ed6-de2d-48d9-8476-cfadea586174" id="optimizing-sleep-for-enhanced-well-being">
             <div class="project-image">
-              <span class="project-placeholder">🎬</span>
+              <span class="project-icon">⚡</span>
             </div>
             <div class="project-info">
               <h3>**Optimizing Sleep for Enhanced Well-being</h3>
-
+              <span class="project-meta">0 topics</span>
             </div>
-          </div>
-          <div class="project-card" data-category="c5729ed6-de2d-48d9-8476-cfadea586174">
+            <div class="project-overlay">
+              <span class="overlay-icon">↗</span>
+            </div>
+          </article>
+          <article class="project-card" data-category="c5729ed6-de2d-48d9-8476-cfadea586174" id="accurate-sleep-tracking-and-personalization">
             <div class="project-image">
-              <span class="project-placeholder">📐</span>
+              <span class="project-icon">💡</span>
             </div>
             <div class="project-info">
               <h3>**Accurate Sleep Tracking and Personalization</h3>
-
+              <span class="project-meta">0 topics</span>
             </div>
-          </div>
-          <div class="project-card" data-category="c5729ed6-de2d-48d9-8476-cfadea586174">
+            <div class="project-overlay">
+              <span class="overlay-icon">↗</span>
+            </div>
+          </article>
+          <article class="project-card" data-category="c5729ed6-de2d-48d9-8476-cfadea586174" id="accessible-alternatives-for-anti-aging-treatments">
             <div class="project-image">
-              <span class="project-placeholder">📷</span>
+              <span class="project-icon">🔧</span>
             </div>
             <div class="project-info">
               <h3>**Accessible Alternatives for Anti-Aging Treatments</h3>
-
+              <span class="project-meta">0 topics</span>
             </div>
-          </div>
-          <div class="project-card" data-category="bc8628bc-dbf7-46a4-a9ed-f310577fc350">
+            <div class="project-overlay">
+              <span class="overlay-icon">↗</span>
+            </div>
+          </article>
+          <article class="project-card" data-category="bc8628bc-dbf7-46a4-a9ed-f310577fc350" id="the-drive-for-longevity">
             <div class="project-image">
-              <span class="project-placeholder">💡</span>
+              <span class="project-icon">📊</span>
             </div>
             <div class="project-info">
               <h3>**The Drive for Longevity</h3>
-              <p>Instinct and Initial Discoveries**</p>
+              <span class="project-meta">0 topics</span>
             </div>
-          </div>
-          <div class="project-card" data-category="bc8628bc-dbf7-46a4-a9ed-f310577fc350">
+            <div class="project-overlay">
+              <span class="overlay-icon">↗</span>
+            </div>
+          </article>
+          <article class="project-card" data-category="bc8628bc-dbf7-46a4-a9ed-f310577fc350" id="nad-and-dna-repair">
             <div class="project-image">
-              <span class="project-placeholder">✏️</span>
+              <span class="project-icon">🧠</span>
             </div>
             <div class="project-info">
               <h3>**NAD+ and DNA Repair</h3>
-              <p>A Critical Connection**</p>
+              <span class="project-meta">0 topics</span>
             </div>
-          </div>
-          <div class="project-card" data-category="a09715c8-385b-4be2-a033-dbb50bb123b7">
+            <div class="project-overlay">
+              <span class="overlay-icon">↗</span>
+            </div>
+          </article>
+          <article class="project-card" data-category="a09715c8-385b-4be2-a033-dbb50bb123b7" id="financial-support-for-xprize-s-mission">
             <div class="project-image">
-              <span class="project-placeholder">✏️</span>
+              <span class="project-icon">🌟</span>
             </div>
             <div class="project-info">
               <h3>**Financial Support for XPRIZE's Mission</h3>
-
+              <span class="project-meta">0 topics</span>
             </div>
-          </div>
-          <div class="project-card" data-category="a09715c8-385b-4be2-a033-dbb50bb123b7">
+            <div class="project-overlay">
+              <span class="overlay-icon">↗</span>
+            </div>
+          </article>
+          <article class="project-card" data-category="a09715c8-385b-4be2-a033-dbb50bb123b7" id="contributing-to-a-better-future">
             <div class="project-image">
-              <span class="project-placeholder">📷</span>
+              <span class="project-icon">📖</span>
             </div>
             <div class="project-info">
               <h3>**Contributing to a Better Future</h3>
+              <span class="project-meta">0 topics</span>
+            </div>
+            <div class="project-overlay">
+              <span class="overlay-icon">↗</span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
 
+    <!-- PROCESS / APPROACH -->
+    <section class="section section-process">
+      <div class="section-container">
+        <div class="section-header">
+          <span class="section-eyebrow">My Approach</span>
+          <h2>How I Work</h2>
+        </div>
+        <div class="process-grid">
+          <div class="process-step">
+            <span class="step-num">01</span>
+            <h3>Research</h3>
+            <p>Deep dive into the subject matter to understand the landscape and opportunities.</p>
+          </div>
+          <div class="process-step">
+            <span class="step-num">02</span>
+            <h3>Strategy</h3>
+            <p>Develop a clear framework and structure to organize complex information.</p>
+          </div>
+          <div class="process-step">
+            <span class="step-num">03</span>
+            <h3>Creation</h3>
+            <p>Craft detailed content with attention to clarity and actionability.</p>
+          </div>
+          <div class="process-step">
+            <span class="step-num">04</span>
+            <h3>Refinement</h3>
+            <p>Iterate and polish until every piece delivers maximum value.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="about" class="section section-about">
+      <div class="section-container">
+        <div class="about-grid">
+          <div class="about-visual">
+            <div class="about-avatar">📚</div>
+          </div>
+          <div class="about-content">
+            <span class="section-eyebrow">About</span>
+            <h2>The Story Behind</h2>
+            <p>Master the science of living longer and healthier</p>
+            <p>Each project in this portfolio represents hours of research, analysis, and synthesis to create comprehensive guides that deliver real value.</p>
+            <div class="about-stats">
+              <div class="about-stat">
+                <span class="stat-value">49</span>
+                <span class="stat-name">Projects</span>
+              </div>
+              <div class="about-stat">
+                <span class="stat-value">50+</span>
+                <span class="stat-name">Topics Covered</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </section>
 
-
-    <section id="about" class="section section-alt">
+    <!-- CONTACT -->
+    <section id="contact" class="section section-contact">
       <div class="section-container">
-        <h2>About</h2>
-        <div class="about-content">
-          <p></p>
+        <div class="contact-box">
+          <span class="section-eyebrow">Get in Touch</span>
+          <h2>Let's Work Together</h2>
+          <p>Interested in collaborating or learning more about these projects?</p>
+          <a href="mailto:hello@example.com" class="btn btn-primary btn-lg">Start Your Journey</a>
         </div>
-      </div>
-    </section>
-
-    <section id="contact" class="section">
-      <div class="section-container">
-        <h2>Get in Touch</h2>
-        <p class="contact-intro">Interested in working together? Let's connect.</p>
-        <a href="mailto:hello@example.com" class="btn btn-primary">Start Your Journey</a>
       </div>
     </section>
   </main>
 
   <footer>
-    <div class="footer-content">
-      <p>&copy; 2026 The Longevity Blueprint. Generated with <a href="https://idiampro.com">IdiamPro</a>.</p>
+    <div class="footer-container">
+      <div class="footer-content">
+        <p>© 2026 The Longevity Blueprint. Generated with <a href="https://idiampro.com">IdiamPro</a>.</p>
+      </div>
     </div>
   </footer>
   <script>
@@ -809,13 +1370,37 @@
 
     // Smooth scroll
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      anchor.addEventListener('click', function(e) {
+        const href = this.getAttribute('href');
+        if (href && href.length > 1) {
+          const targetId = href.substring(1);
+          const target = document.getElementById(targetId);
+          if (target) {
+            e.preventDefault();
+            const headerOffset = 80;
+            const elementPosition = target.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+            window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+          }
         }
       });
+    });
+
+    // Animate on scroll
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.featured-card, .project-card, .process-step').forEach(el => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(30px)';
+      el.style.transition = 'opacity 0.5s, transform 0.5s';
+      observer.observe(el);
     });
     
   </script>

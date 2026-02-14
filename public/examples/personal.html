@@ -17,6 +17,7 @@
       --radius: 0.75rem;
       --max-width: 1200px;
     
+      --max-width: 900px;
     }
     
         :root { 
@@ -52,7 +53,7 @@
       img { max-width: 100%; height: auto; }
     
 
-    /* Navigation */
+    /* NAV */
     .navbar {
       position: fixed;
       top: 0;
@@ -61,13 +62,14 @@
       background: var(--bg);
       border-bottom: 1px solid var(--border);
       z-index: 1000;
-      padding: 0.75rem 0;
+      padding: 0;
     }
 
     .nav-container {
-      max-width: 900px;
+      max-width: var(--max-width);
       margin: 0 auto;
       padding: 0 2rem;
+      height: 60px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -75,7 +77,7 @@
 
     .nav-logo {
       font-weight: 700;
-      font-size: 1.1rem;
+      font-size: 1.15rem;
       color: var(--text);
       text-decoration: none;
     }
@@ -95,42 +97,83 @@
 
     .nav-menu a:hover { color: var(--text); }
 
-    /* Hero */
+    @media (max-width: 768px) {
+      .nav-menu { display: none; }
+    }
+
+    /* HERO */
     .hero {
-      padding: 10rem 2rem 5rem;
+      padding: 12rem 2rem 6rem;
       text-align: center;
     }
 
+    .hero-content {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
     .avatar {
-      width: 120px;
-      height: 120px;
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      width: 140px;
+      height: 140px;
+      background: linear-gradient(135deg, var(--primary), #7c3aed);
       border-radius: 50%;
-      margin: 0 auto 1.5rem;
+      margin: 0 auto 2rem;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 2.5rem;
+      font-size: 3rem;
       font-weight: 700;
       color: white;
+      box-shadow: 0 10px 30px rgba(37, 99, 235, 0.3);
     }
 
     .hero h1 {
-      font-size: clamp(2rem, 5vw, 3rem);
+      font-size: clamp(2.5rem, 5vw, 3.5rem);
       font-weight: 700;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.75rem;
+      letter-spacing: -0.02em;
     }
 
     .tagline {
-      font-size: 1.25rem;
+      font-size: 1.35rem;
       color: var(--text-muted);
       margin-bottom: 2rem;
     }
 
+    .hero-stats {
+      display: flex;
+      justify-content: center;
+      gap: 4rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat-num {
+      display: block;
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .hero-actions {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    /* BUTTONS */
     .btn {
       display: inline-block;
-      padding: 0.875rem 1.75rem;
-      border-radius: var(--radius);
+      padding: 1rem 2rem;
+      border-radius: 50px;
       font-weight: 600;
       text-decoration: none;
       transition: all 0.2s;
@@ -144,50 +187,124 @@
     .btn-primary:hover {
       background: var(--primary-dark);
       transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
     }
 
-    /* Sections */
+    .btn-outline {
+      background: transparent;
+      border: 2px solid var(--border);
+      color: var(--text);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .btn-lg {
+      padding: 1.15rem 2.5rem;
+      font-size: 1.05rem;
+    }
+
+    /* SECTIONS */
     .section {
       padding: 5rem 2rem;
     }
 
-    .section-alt {
-      background: var(--bg-alt);
-    }
-
     .section-container {
-      max-width: 800px;
+      max-width: var(--max-width);
       margin: 0 auto;
     }
 
-    .section h2 {
-      font-size: 1.75rem;
+    .section-header {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+
+    .section-eyebrow {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.75rem;
+    }
+
+    .section-header h2 {
+      font-size: 2.25rem;
       font-weight: 700;
-      margin-bottom: 2rem;
-      text-align: center;
+      margin-bottom: 0.5rem;
     }
 
-    .section-intro {
-      text-align: center;
+    .section-desc {
       color: var(--text-muted);
-      margin-bottom: 2rem;
+      font-size: 1.1rem;
     }
 
-    /* About */
-    .about-content {
-      max-width: 700px;
-      margin: 0 auto;
-      line-height: 1.8;
+    /* ABOUT */
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    .about-content h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin: 0.5rem 0 1.5rem;
     }
 
     .about-content p {
+      color: var(--text-muted);
+      line-height: 1.7;
       margin-bottom: 1rem;
     }
 
-    /* Timeline */
+    .about-highlights {
+      list-style: none;
+      margin-top: 2rem;
+    }
+
+    .about-highlights li {
+      padding: 0.5rem 0;
+      font-weight: 500;
+    }
+
+    .about-visual {
+      display: flex;
+      justify-content: center;
+    }
+
+    .visual-card {
+      width: 200px;
+      height: 200px;
+      background: var(--bg-alt);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .visual-icon {
+      font-size: 5rem;
+    }
+
+    @media (max-width: 768px) {
+      .about-grid { grid-template-columns: 1fr; }
+      .about-visual { display: none; }
+    }
+
+    /* EXPERIENCE / TIMELINE */
+    .section-experience {
+      background: var(--bg-alt);
+    }
+
     .timeline {
       position: relative;
-      padding-left: 2rem;
+      padding-left: 3rem;
     }
 
     .timeline::before {
@@ -202,7 +319,8 @@
 
     .timeline-item {
       position: relative;
-      padding-bottom: 2rem;
+      padding-bottom: 3rem;
+      scroll-margin-top: 100px;
     }
 
     .timeline-item:last-child {
@@ -211,78 +329,186 @@
 
     .timeline-marker {
       position: absolute;
-      left: -2rem;
-      top: 0.25rem;
-      width: 12px;
-      height: 12px;
+      left: -3rem;
+      top: 0;
+      width: 40px;
+      height: 40px;
       background: var(--primary);
       border-radius: 50%;
-      transform: translateX(-5px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: translateX(-19px);
+    }
+
+    .marker-num {
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 700;
     }
 
     .timeline-content h3 {
-      font-size: 1.15rem;
+      font-size: 1.35rem;
       font-weight: 600;
       margin-bottom: 0.5rem;
     }
 
-    .timeline-description {
-      color: var(--text-muted);
-      line-height: 1.6;
-    }
-
-    .timeline-description p {
-      margin-bottom: 0.5rem;
-    }
-
-    .timeline-description ul {
-      margin-left: 1.5rem;
-    }
-
-    /* Skills */
-    .skills-categories {
-      display: grid;
-      gap: 2rem;
-    }
-
-    .skill-category h3 {
-      font-size: 1rem;
-      font-weight: 600;
-      margin-bottom: 0.75rem;
-      color: var(--text-muted);
-    }
-
-    .skill-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      justify-content: center;
-    }
-
-    .skill-category .skill-tags {
-      justify-content: flex-start;
-    }
-
-    .skill-tag {
-      background: var(--bg-alt);
-      border: 1px solid var(--border);
-      padding: 0.5rem 1rem;
-      border-radius: 2rem;
+    .timeline-meta {
       font-size: 0.9rem;
-      transition: all 0.2s;
+      color: var(--text-muted);
+      display: block;
+      margin-bottom: 1rem;
     }
 
-    .skill-tag:hover {
-      border-color: var(--primary);
+    .timeline-topics {
+      list-style: none;
+    }
+
+    .timeline-topics li {
+      padding: 0.3rem 0;
+      padding-left: 1.25rem;
+      position: relative;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .timeline-topics li::before {
+      content: "→";
+      position: absolute;
+      left: 0;
       color: var(--primary);
     }
 
-    /* Contact */
-    .contact-actions {
+    /* SKILLS */
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .skill-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: all 0.2s;
+    }
+
+    .skill-card:hover {
+      border-color: var(--primary);
+      box-shadow: var(--shadow);
+    }
+
+    .skill-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .skill-icon {
+      font-size: 1.5rem;
+    }
+
+    .skill-header h4 {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .skill-bar {
+      height: 6px;
+      background: var(--bg-alt);
+      border-radius: 3px;
+      margin-bottom: 0.75rem;
+      overflow: hidden;
+    }
+
+    .skill-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), #7c3aed);
+      border-radius: 3px;
+    }
+
+    .skill-meta {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    /* ACCOMPLISHMENTS */
+    .section-accomplishments {
+      background: linear-gradient(135deg, var(--primary) 0%, #7c3aed 100%);
+      color: white;
+    }
+
+    .accomplishments-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2rem;
       text-align: center;
     }
 
-    /* Footer */
+    .accomplishment {
+      padding: 2rem 1rem;
+    }
+
+    .acc-num {
+      display: block;
+      font-size: 3rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+    }
+
+    .acc-label {
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+
+    @media (max-width: 768px) {
+      .accomplishments-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    /* CONTACT */
+    .section-contact {
+      text-align: center;
+    }
+
+    .contact-box {
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .contact-box h2 {
+      font-size: 2rem;
+      margin: 0.5rem 0 1rem;
+    }
+
+    .contact-box p {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+    }
+
+    .social-links {
+      margin-top: 2rem;
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+    }
+
+    .social-link {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.95rem;
+      transition: color 0.2s;
+    }
+
+    .social-link:hover {
+      color: var(--primary);
+    }
+
+    /* FOOTER */
     footer {
       padding: 2rem;
       text-align: center;
@@ -291,10 +517,11 @@
       border-top: 1px solid var(--border);
     }
 
-    @media (max-width: 768px) {
-      .nav-menu { display: none; }
-      .hero { padding: 8rem 1.5rem 4rem; }
-      .avatar { width: 100px; height: 100px; font-size: 2rem; }
+    footer a { color: var(--primary); }
+
+    @media print {
+      .navbar { display: none; }
+      .hero { padding-top: 2rem; }
     }
     
   </style>
@@ -313,99 +540,309 @@
     </div>
   </nav>
 
+  <!-- HERO -->
   <header class="hero">
     <div class="hero-content">
       <div class="avatar">TL</div>
       <h1>The Longevity Blueprint</h1>
       <p class="tagline">Master the science of living longer and healthier</p>
-      <div class="social-links">
-        <a href="#contact" class="btn btn-primary">Start Your Journey</a>
+      <div class="hero-stats">
+        <div class="stat">
+          <span class="stat-num">13</span>
+          <span class="stat-label">Chapters</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num">50+</span>
+          <span class="stat-label">Topics</span>
+        </div>
+      </div>
+      <div class="hero-actions">
+        <a href="#experience" class="btn btn-primary">Start Your Journey</a>
+        <a href="#contact" class="btn btn-outline">Get in Touch</a>
       </div>
     </div>
   </header>
 
   <main>
-
-    <section id="about" class="section">
+    <!-- ABOUT -->
+    <section id="about" class="section section-about">
       <div class="section-container">
-        <h2>About Me</h2>
-        <div class="about-content">
-          <p></p>
+        <div class="about-grid">
+          <div class="about-content">
+            <span class="section-eyebrow">About</span>
+            <h2>The Story</h2>
+            <p>Master the science of living longer and healthier</p>
+            <p>This profile encompasses 13 major areas of expertise with 50+ detailed topics, representing deep knowledge and practical experience.</p>
+            <ul class="about-highlights">
+              <li>📚 13 Areas of Focus</li>
+              <li>📝 50+ Detailed Topics</li>
+              <li>🎯 Actionable Insights</li>
+              <li>💡 Comprehensive Coverage</li>
+            </ul>
+          </div>
+          <div class="about-visual">
+            <div class="visual-card">
+              <span class="visual-icon">🧠</span>
+            </div>
+          </div>
         </div>
       </div>
     </section>
 
-    <section id="experience" class="section section-alt">
+    <!-- EXPERIENCE -->
+    <section id="experience" class="section section-experience">
       <div class="section-container">
-        <h2>Experience</h2>
+        <div class="section-header">
+          <span class="section-eyebrow">Background</span>
+          <h2>Experience</h2>
+          <p class="section-desc">A journey through key areas</p>
+        </div>
         <div class="timeline">
-          <div class="timeline-item">
-            <div class="timeline-marker"></div>
+          <div class="timeline-item" id="biohacking-longevity-s-promise">
+            <div class="timeline-marker">
+              <span class="marker-num">01</span>
+            </div>
             <div class="timeline-content">
-              <h3>**The Foundation of Biohacking</h3>
-              <div class="timeline-description"><p>A Historical and Personal Quest:** Biohacking, defined as changing one's internal and external environment to gain control over biology, isn't a new phenomenon. The book uses the analogy of the caveman Thog rejecting fire to illustrate humanity's historical resistance to life-extending innovations. Modern biohacking builds upon this quest, leveraging advanced knowledge and data. For author the author, this journey was deeply personal: as a young man he faced being overweight, chronically ill, and at high risk of heart attack or stroke, motivating him to seek a better path.</p></div>
+              <h3>Biohacking Longevity's Promise</h3>
+              <span class="timeline-meta">4 topics covered</span>
+              <ul class="timeline-topics">
+                <li>**The Foundation of Biohacking</li>
+                <li>**the author and the Engineering Approach to Biohacking</li>
+                <li>**Key Biohacks</li>
+              </ul>
             </div>
           </div>
-          <div class="timeline-item">
-            <div class="timeline-marker"></div>
+          <div class="timeline-item" id="the-immortal-instinct">
+            <div class="timeline-marker">
+              <span class="marker-num">02</span>
+            </div>
             <div class="timeline-content">
-              <h3>**the author and the Engineering Approach to Biohacking</h3>
-              <div class="timeline-description">** the author, having invested twenty years and over $1 million in personally hacking his own biology, is considered a pioneer in the field of biohacking. His approach prioritizes outcomes and immediate well-being, adopting an engineering and biohacking mindset rather than a traditional scientific one. This focus on practical results drives the methodologies presented in the book.</div>
+              <h3>The Immortal Instinct</h3>
+              <span class="timeline-meta">4 topics covered</span>
+              <ul class="timeline-topics">
+                <li>**The Primal Drive to Survive</li>
+                <li>**Ancient Quests for Eternal Life</li>
+                <li>**The Paradox of Self-Preservation</li>
+              </ul>
             </div>
           </div>
-          <div class="timeline-item">
-            <div class="timeline-marker"></div>
+          <div class="timeline-item" id="mitochondria-our-cellular-powerhouses">
+            <div class="timeline-marker">
+              <span class="marker-num">03</span>
+            </div>
             <div class="timeline-content">
-              <h3>**Key Biohacks</h3>
-              <div class="timeline-description">Metabolic Flexibility, Jaw Alignment, and Liver Detoxification:** The book delves into specific biohacks aimed at improving health and potentially extending lifespan. For example, maintaining metabolic flexibility, the body's ability to burn both glucose and ketones, is crucial. Staying in ketosis constantly can compromise this, so cycling in and out weekly is recommended. Addressing jaw dysfunction is also highlighted, as misaligned jaws can contribute to headaches, neurological issues, and even ear infections. Finally, the importance of liver function for healthy hair growth and overall well-being is stressed. Environmental toxins impair liver function, which is essential for T3 production. Glutathione can be used to detoxify the liver after heavy metal removal.</div>
+              <h3>Mitochondria: Our Cellular Powerhouses</h3>
+              <span class="timeline-meta">5 topics covered</span>
+              <ul class="timeline-topics">
+                <li>**Mitochondria and the Subcellular Foundation of Aging</li>
+                <li>**Environmental and Lifestyle Impacts on Cellular Health</li>
+                <li>**Cellular Processes for Repair and Longevity</li>
+              </ul>
             </div>
           </div>
-          <div class="timeline-item">
-            <div class="timeline-marker"></div>
+          <div class="timeline-item" id="the-three-fs-survival-imperatives">
+            <div class="timeline-marker">
+              <span class="marker-num">04</span>
+            </div>
             <div class="timeline-content">
-              <h3>**GW501516 (Cardarine)</h3>
-              <div class="timeline-description">An Exercise Mimetic:** The book explores pharmacological interventions that may offer benefits. GW501516 (Cardarine), often misclassified as a SARM, is discussed for its potential as an "exercise mimetic." Studies in rodents suggest it activates similar longevity-promoting genes as exercise and has demonstrated a significant increase in mitochondrial growth, hinting at enhanced energy production and cellular health.</div>
+              <h3>The Three Fs: Survival Imperatives</h3>
+              <span class="timeline-meta">4 topics covered</span>
+              <ul class="timeline-topics">
+                <li>**The Foundation</li>
+                <li>**Maintaining Health and Longevity</li>
+                <li>**Enhancement and Healing</li>
+              </ul>
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <section id="skills" class="section">
+    <!-- SKILLS -->
+    <section id="skills" class="section section-skills">
       <div class="section-container">
-        <h2>Skills</h2>
-        <p class="section-intro">Skills details coming soon.</p>
+        <div class="section-header">
+          <span class="section-eyebrow">Expertise</span>
+          <h2>Skills & Knowledge</h2>
+          <p class="section-desc">Areas of deep understanding</p>
+        </div>
+        <div class="skills-grid">
+          <div class="skill-card">
+            <div class="skill-header">
+              <span class="skill-icon">🎯</span>
+              <h4>Biohacking Longevity's Promise</h4>
+            </div>
+            <div class="skill-bar">
+              <div class="skill-fill" style="width: 90%"></div>
+            </div>
+            <span class="skill-meta">4 topics</span>
+          </div>
+          <div class="skill-card">
+            <div class="skill-header">
+              <span class="skill-icon">⚡</span>
+              <h4>The Immortal Instinct</h4>
+            </div>
+            <div class="skill-bar">
+              <div class="skill-fill" style="width: 90%"></div>
+            </div>
+            <span class="skill-meta">4 topics</span>
+          </div>
+          <div class="skill-card">
+            <div class="skill-header">
+              <span class="skill-icon">💡</span>
+              <h4>Mitochondria: Our Cellular Powerhouses</h4>
+            </div>
+            <div class="skill-bar">
+              <div class="skill-fill" style="width: 100%"></div>
+            </div>
+            <span class="skill-meta">5 topics</span>
+          </div>
+          <div class="skill-card">
+            <div class="skill-header">
+              <span class="skill-icon">🔧</span>
+              <h4>The Three Fs: Survival Imperatives</h4>
+            </div>
+            <div class="skill-bar">
+              <div class="skill-fill" style="width: 90%"></div>
+            </div>
+            <span class="skill-meta">4 topics</span>
+          </div>
+          <div class="skill-card">
+            <div class="skill-header">
+              <span class="skill-icon">📊</span>
+              <h4>Inflammation: The Silent Killer</h4>
+            </div>
+            <div class="skill-bar">
+              <div class="skill-fill" style="width: 60%"></div>
+            </div>
+            <span class="skill-meta">2 topics</span>
+          </div>
+          <div class="skill-card">
+            <div class="skill-header">
+              <span class="skill-icon">🧠</span>
+              <h4>Sugar's Hidden Dangers</h4>
+            </div>
+            <div class="skill-bar">
+              <div class="skill-fill" style="width: 75%"></div>
+            </div>
+            <span class="skill-meta">3 topics</span>
+          </div>
+          <div class="skill-card">
+            <div class="skill-header">
+              <span class="skill-icon">🌟</span>
+              <h4>Biohacking for Longevity Blueprint Status</h4>
+            </div>
+            <div class="skill-bar">
+              <div class="skill-fill" style="width: 100%"></div>
+            </div>
+            <span class="skill-meta">5 topics</span>
+          </div>
+          <div class="skill-card">
+            <div class="skill-header">
+              <span class="skill-icon">💪</span>
+              <h4>Investing in Your Biology</h4>
+            </div>
+            <div class="skill-bar">
+              <div class="skill-fill" style="width: 75%"></div>
+            </div>
+            <span class="skill-meta">3 topics</span>
+          </div>
+        </div>
       </div>
     </section>
 
-    <section id="contact" class="section section-alt">
+    <!-- ACCOMPLISHMENTS -->
+    <section class="section section-accomplishments">
       <div class="section-container">
-        <h2>Get in Touch</h2>
-        <p class="section-intro">Interested in working together? I'd love to hear from you.</p>
-        <div class="contact-actions">
-          <a href="mailto:hello@example.com" class="btn btn-primary">Start Your Journey</a>
+        <div class="accomplishments-grid">
+          <div class="accomplishment">
+            <span class="acc-num">13</span>
+            <span class="acc-label">Major Topics</span>
+          </div>
+          <div class="accomplishment">
+            <span class="acc-num">50+</span>
+            <span class="acc-label">Subtopics Covered</span>
+          </div>
+          <div class="accomplishment">
+            <span class="acc-num">∞</span>
+            <span class="acc-label">Knowledge Gained</span>
+          </div>
+          <div class="accomplishment">
+            <span class="acc-num">100%</span>
+            <span class="acc-label">Actionable</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" class="section section-contact">
+      <div class="section-container">
+        <div class="contact-box">
+          <span class="section-eyebrow">Get in Touch</span>
+          <h2>Let's Connect</h2>
+          <p>Interested in learning more or collaborating? I'd love to hear from you.</p>
+          <a href="mailto:hello@example.com" class="btn btn-primary btn-lg">Start Your Journey</a>
+          <div class="social-links">
+            <a href="#" class="social-link">LinkedIn</a>
+            <a href="#" class="social-link">Twitter</a>
+            <a href="#" class="social-link">GitHub</a>
+          </div>
         </div>
       </div>
     </section>
   </main>
 
   <footer>
-    <div class="footer-content">
-      <p>&copy; 2026 The Longevity Blueprint. Generated with <a href="https://idiampro.com">IdiamPro</a>.</p>
+    <div class="footer-container">
+      <p>© 2026 The Longevity Blueprint. Generated with <a href="https://idiampro.com">IdiamPro</a>.</p>
     </div>
   </footer>
   <script>
 
+    // Smooth scroll
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-          const offset = 70;
-          const pos = target.getBoundingClientRect().top + window.pageYOffset - offset;
-          window.scrollTo({ top: pos, behavior: 'smooth' });
+      anchor.addEventListener('click', function(e) {
+        const href = this.getAttribute('href');
+        if (href && href.length > 1) {
+          const targetId = href.substring(1);
+          const target = document.getElementById(targetId);
+          if (target) {
+            e.preventDefault();
+            const headerOffset = 70;
+            const elementPosition = target.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+            window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+          }
         }
       });
+    });
+
+    // Animate on scroll
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.timeline-item, .skill-card, .accomplishment').forEach(el => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(20px)';
+      el.style.transition = 'opacity 0.5s, transform 0.5s';
+      observer.observe(el);
+    });
+
+    // Animate skill bars
+    document.querySelectorAll('.skill-fill').forEach(bar => {
+      const width = bar.style.width;
+      bar.style.width = '0%';
+      setTimeout(() => {
+        bar.style.transition = 'width 1s ease-out';
+        bar.style.width = width;
+      }, 500);
     });
     
   </script>

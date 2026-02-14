@@ -17,6 +17,7 @@
       --radius: 0.75rem;
       --max-width: 1200px;
     
+      --max-width: 1100px;
       --success: #10b981;
     }
     
@@ -53,7 +54,7 @@
       img { max-width: 100%; height: auto; }
     
 
-    /* Navigation */
+    /* NAV */
     .navbar {
       position: fixed;
       top: 0;
@@ -62,13 +63,14 @@
       background: var(--bg);
       border-bottom: 1px solid var(--border);
       z-index: 1000;
-      padding: 0.75rem 0;
+      padding: 0;
     }
 
     .nav-container {
       max-width: var(--max-width);
       margin: 0 auto;
       padding: 0 2rem;
+      height: 60px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -76,7 +78,7 @@
 
     .nav-logo {
       font-weight: 700;
-      font-size: 1.1rem;
+      font-size: 1.15rem;
       color: var(--text);
       text-decoration: none;
     }
@@ -93,61 +95,135 @@
       font-size: 0.9rem;
     }
 
-    /* Hero */
+    .nav-cta {
+      background: var(--primary);
+      color: white;
+      padding: 0.6rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-decoration: none;
+    }
+
+    @media (max-width: 768px) {
+      .nav-menu { display: none; }
+    }
+
+    /* HERO */
     .hero {
       background: var(--bg-alt);
       padding: 10rem 2rem 5rem;
-      text-align: center;
+    }
+
+    .hero-container {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 4rem;
+      align-items: center;
     }
 
     .course-badge {
       display: inline-block;
       background: var(--primary);
       color: white;
-      padding: 0.35rem 1rem;
-      border-radius: 2rem;
+      padding: 0.4rem 1rem;
+      border-radius: 50px;
       font-size: 0.8rem;
       font-weight: 600;
       margin-bottom: 1.5rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
     }
 
     .hero h1 {
-      font-size: clamp(2rem, 5vw, 3rem);
+      font-size: clamp(2rem, 4vw, 3rem);
       font-weight: 700;
       margin-bottom: 1rem;
     }
 
-    .tagline {
-      font-size: 1.2rem;
+    .hero-tagline {
+      font-size: 1.15rem;
       color: var(--text-muted);
-      margin-bottom: 1.5rem;
-      max-width: 600px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    .course-meta {
-      display: flex;
-      justify-content: center;
-      gap: 2rem;
       margin-bottom: 2rem;
+    }
+
+    .course-stats {
+      display: flex;
+      gap: 2rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .stat {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .stat-icon {
+      font-size: 1.25rem;
+    }
+
+    .stat-value {
+      font-size: 0.95rem;
       color: var(--text-muted);
     }
 
+    .hero-cta {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .course-card {
+      background: var(--bg);
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .card-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .card-label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .progress-bar {
+      height: 8px;
+      background: var(--bg-alt);
+      border-radius: 4px;
+      margin-bottom: 0.75rem;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--success);
+      border-radius: 4px;
+    }
+
+    .card-status {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--success);
+    }
+
+    @media (max-width: 900px) {
+      .hero-container { grid-template-columns: 1fr; }
+      .hero-visual { display: none; }
+    }
+
+    /* BUTTONS */
     .btn {
       display: inline-block;
       padding: 1rem 2rem;
-      border-radius: var(--radius);
+      border-radius: 8px;
       font-weight: 600;
       text-decoration: none;
       transition: all 0.2s;
-    }
-
-    .btn-lg {
-      padding: 1.25rem 2.5rem;
-      font-size: 1.1rem;
     }
 
     .btn-primary {
@@ -160,73 +236,157 @@
       transform: translateY(-2px);
     }
 
-    /* Sections */
+    .btn-outline {
+      background: transparent;
+      border: 2px solid var(--border);
+      color: var(--text);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .btn-lg {
+      padding: 1.15rem 2.5rem;
+      font-size: 1.05rem;
+    }
+
+    /* SECTIONS */
     .section {
       padding: 5rem 2rem;
     }
 
-    .section-alt {
-      background: var(--bg-alt);
-    }
-
-    .section-cta {
-      background: var(--primary);
-      color: white;
-      text-align: center;
-    }
-
-    .section-cta .btn-primary {
-      background: white;
-      color: var(--primary);
-    }
-
-    .section-cta .section-intro {
-      color: rgba(255,255,255,0.9);
-    }
-
     .section-container {
-      max-width: 900px;
+      max-width: var(--max-width);
       margin: 0 auto;
     }
 
-    .section h2 {
-      font-size: 2rem;
-      font-weight: 700;
-      margin-bottom: 2rem;
+    .section-header {
       text-align: center;
+      margin-bottom: 4rem;
     }
 
-    .section-intro {
-      text-align: center;
+    .section-eyebrow {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.75rem;
+    }
+
+    .section-header h2 {
+      font-size: 2.25rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .section-desc {
       color: var(--text-muted);
       font-size: 1.1rem;
-      margin-bottom: 2rem;
     }
 
-    /* Learning Outcomes */
-    .learning-outcomes {
+    /* OVERVIEW */
+    .overview-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: start;
+    }
+
+    .overview-content h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin: 0.5rem 0 1.5rem;
+    }
+
+    .overview-content p {
+      color: var(--text-muted);
+      line-height: 1.7;
+      margin-bottom: 1rem;
+    }
+
+    .feature-list {
+      list-style: none;
+      margin-top: 2rem;
+    }
+
+    .feature-list li {
+      padding: 0.5rem 0;
+      font-weight: 500;
+    }
+
+    .overview-highlights {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .highlight-item {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+      padding: 1.5rem;
+      background: var(--bg-alt);
+      border-radius: 12px;
+    }
+
+    .highlight-num {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--primary);
+      opacity: 0.3;
+    }
+
+    .highlight-content h4 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .highlight-content span {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    @media (max-width: 768px) {
+      .overview-grid { grid-template-columns: 1fr; }
+    }
+
+    /* OUTCOMES */
+    .section-outcomes {
+      background: var(--bg-alt);
+    }
+
+    .outcomes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 1rem;
     }
 
-    .outcome {
+    .outcome-card {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
-      padding: 1rem;
-      background: var(--bg-alt);
-      border-radius: var(--radius);
+      gap: 1rem;
+      background: var(--bg);
+      padding: 1.25rem 1.5rem;
+      border-radius: 10px;
     }
 
     .outcome-icon {
       color: var(--success);
-      font-weight: bold;
       font-size: 1.25rem;
+      font-weight: 700;
     }
 
-    /* Curriculum */
-    .curriculum {
+    .outcome-text {
+      font-size: 0.95rem;
+    }
+
+    /* CURRICULUM */
+    .curriculum-list {
       display: flex;
       flex-direction: column;
       gap: 1rem;
@@ -235,15 +395,16 @@
     .module {
       background: var(--bg);
       border: 1px solid var(--border);
-      border-radius: var(--radius);
+      border-radius: 12px;
       overflow: hidden;
+      scroll-margin-top: 100px;
     }
 
     .module-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 1.25rem 1.5rem;
+      padding: 1.5rem;
       cursor: pointer;
       transition: background 0.2s;
     }
@@ -258,10 +419,10 @@
       gap: 0.25rem;
     }
 
-    .module-number {
-      font-size: 0.8rem;
-      color: var(--primary);
+    .module-num {
+      font-size: 0.75rem;
       font-weight: 600;
+      color: var(--primary);
       text-transform: uppercase;
       letter-spacing: 0.05em;
     }
@@ -277,37 +438,33 @@
     }
 
     .module-toggle {
-      color: var(--text-muted);
+      font-size: 1.5rem;
+      color: var(--primary);
       transition: transform 0.2s;
     }
 
-    .module.collapsed .module-toggle {
-      transform: rotate(-90deg);
+    .module.open .module-toggle {
+      transform: rotate(45deg);
     }
 
     .module-content {
+      display: none;
       padding: 0 1.5rem 1.5rem;
       border-top: 1px solid var(--border);
+      background: var(--bg-alt);
     }
 
-    .module.collapsed .module-content {
-      display: none;
-    }
-
-    .module-description {
-      color: var(--text-muted);
-      font-size: 0.95rem;
-      margin-bottom: 1rem;
-      padding-top: 1rem;
+    .module.open .module-content {
+      display: block;
     }
 
     .lesson-list {
       list-style: none;
+      padding-top: 1rem;
     }
 
     .lesson {
       display: flex;
-      align-items: center;
       gap: 1rem;
       padding: 0.75rem 0;
       border-bottom: 1px solid var(--border);
@@ -317,7 +474,7 @@
       border-bottom: none;
     }
 
-    .lesson-number {
+    .lesson-num {
       font-size: 0.85rem;
       color: var(--text-muted);
       min-width: 2.5rem;
@@ -327,7 +484,78 @@
       font-size: 0.95rem;
     }
 
-    /* Footer */
+    .lesson.more {
+      color: var(--primary);
+      font-style: italic;
+    }
+
+    /* ENROLL */
+    .section-enroll {
+      text-align: center;
+    }
+
+    .enroll-box {
+      background: linear-gradient(135deg, var(--primary) 0%, #7c3aed 100%);
+      color: white;
+      padding: 4rem;
+      border-radius: 20px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: center;
+    }
+
+    .enroll-content {
+      text-align: left;
+    }
+
+    .enroll-content .section-eyebrow {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .enroll-content h2 {
+      font-size: 2.5rem;
+      margin: 0.5rem 0 1rem;
+    }
+
+    .enroll-content p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      margin-bottom: 2rem;
+    }
+
+    .enroll-features {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .enroll-features .feature {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 1rem 1.25rem;
+      border-radius: 10px;
+    }
+
+    .feature-icon {
+      font-size: 1.5rem;
+    }
+
+    .feature-text {
+      font-weight: 500;
+    }
+
+    @media (max-width: 900px) {
+      .enroll-box {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+      .enroll-content { text-align: center; }
+    }
+
+    /* FOOTER */
     footer {
       padding: 2rem;
       text-align: center;
@@ -336,10 +564,11 @@
       border-top: 1px solid var(--border);
     }
 
-    @media (max-width: 768px) {
-      .nav-menu { display: none; }
-      .hero { padding: 8rem 1.5rem 4rem; }
-      .course-meta { flex-direction: column; gap: 0.5rem; }
+    footer a { color: var(--primary); }
+
+    @media print {
+      .navbar { display: none; }
+      .hero { padding-top: 2rem; }
     }
     
   </style>
@@ -352,441 +581,527 @@
       <ul class="nav-menu">
         <li><a href="#overview">Overview</a></li>
         <li><a href="#curriculum">Curriculum</a></li>
-        <li><a href="#enroll">Enroll</a></li>
+        <li><a href="#outcomes">Outcomes</a></li>
       </ul>
+      <a href="#enroll" class="nav-cta">Start Your Journey</a>
     </div>
   </nav>
 
+  <!-- HERO -->
   <header class="hero">
-    <div class="hero-content">
-      <div class="course-badge">Course</div>
-      <h1>The Longevity Blueprint</h1>
-      <p class="tagline">Master the science of living longer and healthier</p>
-      <div class="course-meta">
-        <span>📚 13 Modules</span>
-        <span>📝 49 Lessons</span>
+    <div class="hero-container">
+      <div class="hero-content">
+        <div class="course-badge">Comprehensive Course</div>
+        <h1>The Longevity Blueprint</h1>
+        <p class="hero-tagline">Master the science of living longer and healthier</p>
+        <div class="course-stats">
+          <div class="stat">
+            <span class="stat-icon">📚</span>
+            <span class="stat-value">13 Modules</span>
+          </div>
+          <div class="stat">
+            <span class="stat-icon">📝</span>
+            <span class="stat-value">50+ Lessons</span>
+          </div>
+          <div class="stat">
+            <span class="stat-icon">🎯</span>
+            <span class="stat-value">Self-Paced</span>
+          </div>
+        </div>
+        <div class="hero-cta">
+          <a href="#enroll" class="btn btn-primary btn-lg">Start Your Journey</a>
+          <a href="#curriculum" class="btn btn-outline">View Curriculum</a>
+        </div>
       </div>
-      <a href="#enroll" class="btn btn-primary">Start Your Journey</a>
+      <div class="hero-visual">
+        <div class="course-card">
+          <div class="card-icon">🎓</div>
+          <div class="card-info">
+            <span class="card-label">Course Progress</span>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 0%"></div>
+            </div>
+            <span class="card-status">Ready to Start</span>
+          </div>
+        </div>
+      </div>
     </div>
   </header>
 
   <main>
-    <section id="overview" class="section">
+    <!-- OVERVIEW -->
+    <section id="overview" class="section section-overview">
       <div class="section-container">
-        <h2>What You'll Learn</h2>
-        <div class="learning-outcomes">
-          <div class="outcome">
-            <span class="outcome-icon">✓</span>
-            <span>Biohacking Longevity's Promise</span>
+        <div class="overview-grid">
+          <div class="overview-content">
+            <span class="section-eyebrow">About This Course</span>
+            <h2>What You'll Master</h2>
+            <p>Master the science of living longer and healthier</p>
+            <p>This course is structured into 13 comprehensive modules, each designed to build upon the previous one, creating a complete understanding of the subject matter.</p>
+            <ul class="feature-list">
+              <li>✓ 50+ detailed lessons</li>
+              <li>✓ Structured learning path</li>
+              <li>✓ Actionable insights</li>
+              <li>✓ Comprehensive coverage</li>
+            </ul>
           </div>
-          <div class="outcome">
-            <span class="outcome-icon">✓</span>
-            <span>The Immortal Instinct</span>
-          </div>
-          <div class="outcome">
-            <span class="outcome-icon">✓</span>
-            <span>Mitochondria: Our Cellular Powerhouses</span>
-          </div>
-          <div class="outcome">
-            <span class="outcome-icon">✓</span>
-            <span>The Three Fs: Survival Imperatives</span>
+          <div class="overview-highlights">
+            <div class="highlight-item">
+              <span class="highlight-num">01</span>
+              <div class="highlight-content">
+                <h4>Biohacking Longevity's Promise</h4>
+                <span>4 lessons</span>
+              </div>
+            </div>
+            <div class="highlight-item">
+              <span class="highlight-num">02</span>
+              <div class="highlight-content">
+                <h4>The Immortal Instinct</h4>
+                <span>4 lessons</span>
+              </div>
+            </div>
+            <div class="highlight-item">
+              <span class="highlight-num">03</span>
+              <div class="highlight-content">
+                <h4>Mitochondria: Our Cellular Powerhouses</h4>
+                <span>5 lessons</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
-    <section id="curriculum" class="section section-alt">
+    <!-- LEARNING OUTCOMES -->
+    <section id="outcomes" class="section section-outcomes">
       <div class="section-container">
-        <h2>Course Curriculum</h2>
-        <div class="curriculum">
-          <div class="module" data-module="1">
-            <div class="module-header" onclick="toggleModule(1)">
+        <div class="section-header">
+          <span class="section-eyebrow">Skills You'll Gain</span>
+          <h2>Learning Outcomes</h2>
+          <p class="section-desc">By the end of this course, you will:</p>
+        </div>
+        <div class="outcomes-grid">
+          <div class="outcome-card">
+            <span class="outcome-icon">✓</span>
+            <span class="outcome-text">Master biohacking longevity's promise</span>
+          </div>
+          <div class="outcome-card">
+            <span class="outcome-icon">✓</span>
+            <span class="outcome-text">Master the immortal instinct</span>
+          </div>
+          <div class="outcome-card">
+            <span class="outcome-icon">✓</span>
+            <span class="outcome-text">Master mitochondria: our cellular powerhouses</span>
+          </div>
+          <div class="outcome-card">
+            <span class="outcome-icon">✓</span>
+            <span class="outcome-text">Master the three fs: survival imperatives</span>
+          </div>
+          <div class="outcome-card">
+            <span class="outcome-icon">✓</span>
+            <span class="outcome-text">Master inflammation: the silent killer</span>
+          </div>
+          <div class="outcome-card">
+            <span class="outcome-icon">✓</span>
+            <span class="outcome-text">Master sugar's hidden dangers</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CURRICULUM -->
+    <section id="curriculum" class="section section-curriculum">
+      <div class="section-container">
+        <div class="section-header">
+          <span class="section-eyebrow">Course Content</span>
+          <h2>Full Curriculum</h2>
+          <p class="section-desc">13 modules · 50+ lessons · Comprehensive coverage</p>
+        </div>
+        <div class="curriculum-list">
+          <div class="module" id="biohacking-longevity-s-promise">
+            <div class="module-header" onclick="toggleModule(this)">
               <div class="module-info">
-                <span class="module-number">Module 1</span>
+                <span class="module-num">Module 1</span>
                 <h3>Biohacking Longevity's Promise</h3>
                 <span class="module-meta">4 lessons</span>
               </div>
-              <span class="module-toggle">▼</span>
+              <span class="module-toggle">+</span>
             </div>
             <div class="module-content">
-              <p class="module-description"></p>
               <ul class="lesson-list">
                 <li class="lesson">
-                  <span class="lesson-number">1.1</span>
+                  <span class="lesson-num">1.1</span>
                   <span class="lesson-title">**The Foundation of Biohacking</span>
                 </li>
                 <li class="lesson">
-                  <span class="lesson-number">1.2</span>
+                  <span class="lesson-num">1.2</span>
                   <span class="lesson-title">**the author and the Engineering Approach to Biohacking</span>
                 </li>
                 <li class="lesson">
-                  <span class="lesson-number">1.3</span>
+                  <span class="lesson-num">1.3</span>
                   <span class="lesson-title">**Key Biohacks</span>
                 </li>
                 <li class="lesson">
-                  <span class="lesson-number">1.4</span>
+                  <span class="lesson-num">1.4</span>
                   <span class="lesson-title">**GW501516 (Cardarine)</span>
                 </li>
+
               </ul>
             </div>
           </div>
-          <div class="module" data-module="2">
-            <div class="module-header" onclick="toggleModule(2)">
+          <div class="module" id="the-immortal-instinct">
+            <div class="module-header" onclick="toggleModule(this)">
               <div class="module-info">
-                <span class="module-number">Module 2</span>
+                <span class="module-num">Module 2</span>
                 <h3>The Immortal Instinct</h3>
                 <span class="module-meta">4 lessons</span>
               </div>
-              <span class="module-toggle">▼</span>
+              <span class="module-toggle">+</span>
             </div>
             <div class="module-content">
-              <p class="module-description"></p>
               <ul class="lesson-list">
                 <li class="lesson">
-                  <span class="lesson-number">2.1</span>
+                  <span class="lesson-num">2.1</span>
                   <span class="lesson-title">**The Primal Drive to Survive</span>
                 </li>
                 <li class="lesson">
-                  <span class="lesson-number">2.2</span>
+                  <span class="lesson-num">2.2</span>
                   <span class="lesson-title">**Ancient Quests for Eternal Life</span>
                 </li>
                 <li class="lesson">
-                  <span class="lesson-number">2.3</span>
+                  <span class="lesson-num">2.3</span>
                   <span class="lesson-title">**The Paradox of Self-Preservation</span>
                 </li>
                 <li class="lesson">
-                  <span class="lesson-number">2.4</span>
+                  <span class="lesson-num">2.4</span>
                   <span class="lesson-title">**Superstitions and Extreme Measures</span>
                 </li>
+
               </ul>
             </div>
           </div>
-          <div class="module" data-module="3">
-            <div class="module-header" onclick="toggleModule(3)">
+          <div class="module" id="mitochondria-our-cellular-powerhouses">
+            <div class="module-header" onclick="toggleModule(this)">
               <div class="module-info">
-                <span class="module-number">Module 3</span>
+                <span class="module-num">Module 3</span>
                 <h3>Mitochondria: Our Cellular Powerhouses</h3>
                 <span class="module-meta">5 lessons</span>
               </div>
-              <span class="module-toggle">▼</span>
+              <span class="module-toggle">+</span>
             </div>
             <div class="module-content">
-              <p class="module-description"></p>
               <ul class="lesson-list">
                 <li class="lesson">
-                  <span class="lesson-number">3.1</span>
+                  <span class="lesson-num">3.1</span>
                   <span class="lesson-title">**Mitochondria and the Subcellular Foundation of Aging</span>
                 </li>
                 <li class="lesson">
-                  <span class="lesson-number">3.2</span>
+                  <span class="lesson-num">3.2</span>
                   <span class="lesson-title">**Environmental and Lifestyle Impacts on Cellular Health</span>
                 </li>
                 <li class="lesson">
-                  <span class="lesson-number">3.3</span>
+                  <span class="lesson-num">3.3</span>
                   <span class="lesson-title">**Cellular Processes for Repair and Longevity</span>
                 </li>
                 <li class="lesson">
-                  <span class="lesson-number">3.4</span>
+                  <span class="lesson-num">3.4</span>
                   <span class="lesson-title">**Reactive Oxygen Species (ROS) and the Importance of Antioxidant Defenses</span>
                 </li>
                 <li class="lesson">
-                  <span class="lesson-number">3.5</span>
+                  <span class="lesson-num">3.5</span>
                   <span class="lesson-title">**NAD+ and Mitochondrial Optimization</span>
                 </li>
+
               </ul>
             </div>
           </div>
-          <div class="module" data-module="4">
-            <div class="module-header" onclick="toggleModule(4)">
+          <div class="module" id="the-three-fs-survival-imperatives">
+            <div class="module-header" onclick="toggleModule(this)">
               <div class="module-info">
-                <span class="module-number">Module 4</span>
+                <span class="module-num">Module 4</span>
                 <h3>The Three Fs: Survival Imperatives</h3>
                 <span class="module-meta">4 lessons</span>
               </div>
-              <span class="module-toggle">▼</span>
+              <span class="module-toggle">+</span>
             </div>
             <div class="module-content">
-
               <ul class="lesson-list">
                 <li class="lesson">
-                  <span class="lesson-number">4.1</span>
+                  <span class="lesson-num">4.1</span>
                   <span class="lesson-title">**The Foundation</span>
                 </li>
                 <li class="lesson">
-                  <span class="lesson-number">4.2</span>
+                  <span class="lesson-num">4.2</span>
                   <span class="lesson-title">**Maintaining Health and Longevity</span>
                 </li>
                 <li class="lesson">
-                  <span class="lesson-number">4.3</span>
+                  <span class="lesson-num">4.3</span>
                   <span class="lesson-title">**Enhancement and Healing</span>
                 </li>
                 <li class="lesson">
-                  <span class="lesson-number">4.4</span>
+                  <span class="lesson-num">4.4</span>
                   <span class="lesson-title">**The Path to &quot;Longevity Blueprint&quot;</span>
                 </li>
+
               </ul>
             </div>
           </div>
-          <div class="module" data-module="5">
-            <div class="module-header" onclick="toggleModule(5)">
+          <div class="module" id="inflammation-the-silent-killer">
+            <div class="module-header" onclick="toggleModule(this)">
               <div class="module-info">
-                <span class="module-number">Module 5</span>
+                <span class="module-num">Module 5</span>
                 <h3>Inflammation: The Silent Killer</h3>
                 <span class="module-meta">2 lessons</span>
               </div>
-              <span class="module-toggle">▼</span>
+              <span class="module-toggle">+</span>
             </div>
             <div class="module-content">
-              <p class="module-description"></p>
               <ul class="lesson-list">
                 <li class="lesson">
-                  <span class="lesson-number">5.1</span>
+                  <span class="lesson-num">5.1</span>
                   <span class="lesson-title">**The Foundation</span>
                 </li>
                 <li class="lesson">
-                  <span class="lesson-number">5.2</span>
+                  <span class="lesson-num">5.2</span>
                   <span class="lesson-title">**Lifestyle's Impact</span>
                 </li>
+
               </ul>
             </div>
           </div>
-          <div class="module" data-module="6">
-            <div class="module-header" onclick="toggleModule(6)">
+          <div class="module" id="sugar-s-hidden-dangers">
+            <div class="module-header" onclick="toggleModule(this)">
               <div class="module-info">
-                <span class="module-number">Module 6</span>
+                <span class="module-num">Module 6</span>
                 <h3>Sugar's Hidden Dangers</h3>
                 <span class="module-meta">3 lessons</span>
               </div>
-              <span class="module-toggle">▼</span>
+              <span class="module-toggle">+</span>
             </div>
             <div class="module-content">
-
               <ul class="lesson-list">
                 <li class="lesson">
-                  <span class="lesson-number">6.1</span>
+                  <span class="lesson-num">6.1</span>
                   <span class="lesson-title">**Environmental and Light Exposure Risks</span>
                 </li>
                 <li class="lesson">
-                  <span class="lesson-number">6.2</span>
+                  <span class="lesson-num">6.2</span>
                   <span class="lesson-title">**The Ozone Therapy Caveat</span>
                 </li>
                 <li class="lesson">
-                  <span class="lesson-number">6.3</span>
+                  <span class="lesson-num">6.3</span>
                   <span class="lesson-title">**Hormone Replacement Therapy</span>
                 </li>
+
               </ul>
             </div>
           </div>
-          <div class="module" data-module="7">
-            <div class="module-header" onclick="toggleModule(7)">
+          <div class="module" id="biohacking-for-longevity-blueprint-status">
+            <div class="module-header" onclick="toggleModule(this)">
               <div class="module-info">
-                <span class="module-number">Module 7</span>
+                <span class="module-num">Module 7</span>
                 <h3>Biohacking for Longevity Blueprint Status</h3>
                 <span class="module-meta">5 lessons</span>
               </div>
-              <span class="module-toggle">▼</span>
+              <span class="module-toggle">+</span>
             </div>
             <div class="module-content">
-
               <ul class="lesson-list">
                 <li class="lesson">
-                  <span class="lesson-number">7.1</span>
+                  <span class="lesson-num">7.1</span>
                   <span class="lesson-title">**The Dawn of Biohacking</span>
                 </li>
                 <li class="lesson">
-                  <span class="lesson-number">7.2</span>
+                  <span class="lesson-num">7.2</span>
                   <span class="lesson-title">**Defining Biohacking and the Longevity Blueprint Goal</span>
                 </li>
                 <li class="lesson">
-                  <span class="lesson-number">7.3</span>
+                  <span class="lesson-num">7.3</span>
                   <span class="lesson-title">**The Author's Biohacking Journey and Methodology</span>
                 </li>
                 <li class="lesson">
-                  <span class="lesson-number">7.4</span>
+                  <span class="lesson-num">7.4</span>
                   <span class="lesson-title">**Tools and Resources for the Biohacker</span>
                 </li>
                 <li class="lesson">
-                  <span class="lesson-number">7.5</span>
+                  <span class="lesson-num">7.5</span>
                   <span class="lesson-title">**Navigating the Legal Landscape of SARMs</span>
                 </li>
+
               </ul>
             </div>
           </div>
-          <div class="module" data-module="8">
-            <div class="module-header" onclick="toggleModule(8)">
+          <div class="module" id="investing-in-your-biology">
+            <div class="module-header" onclick="toggleModule(this)">
               <div class="module-info">
-                <span class="module-number">Module 8</span>
+                <span class="module-num">Module 8</span>
                 <h3>Investing in Your Biology</h3>
                 <span class="module-meta">3 lessons</span>
               </div>
-              <span class="module-toggle">▼</span>
+              <span class="module-toggle">+</span>
             </div>
             <div class="module-content">
-
               <ul class="lesson-list">
                 <li class="lesson">
-                  <span class="lesson-number">8.1</span>
+                  <span class="lesson-num">8.1</span>
                   <span class="lesson-title">**Biohacking</span>
                 </li>
                 <li class="lesson">
-                  <span class="lesson-number">8.2</span>
+                  <span class="lesson-num">8.2</span>
                   <span class="lesson-title">**Sleep</span>
                 </li>
                 <li class="lesson">
-                  <span class="lesson-number">8.3</span>
+                  <span class="lesson-num">8.3</span>
                   <span class="lesson-title">**Beyond the Body</span>
                 </li>
+
               </ul>
             </div>
           </div>
-          <div class="module" data-module="9">
-            <div class="module-header" onclick="toggleModule(9)">
+          <div class="module" id="the-author-s-biohacking-journey">
+            <div class="module-header" onclick="toggleModule(this)">
               <div class="module-info">
-                <span class="module-number">Module 9</span>
+                <span class="module-num">Module 9</span>
                 <h3>the author's Biohacking Journey</h3>
                 <span class="module-meta">6 lessons</span>
               </div>
-              <span class="module-toggle">▼</span>
+              <span class="module-toggle">+</span>
             </div>
             <div class="module-content">
-
               <ul class="lesson-list">
                 <li class="lesson">
-                  <span class="lesson-number">9.1</span>
+                  <span class="lesson-num">9.1</span>
                   <span class="lesson-title">**Book Information and Dedication</span>
                 </li>
                 <li class="lesson">
-                  <span class="lesson-number">9.2</span>
+                  <span class="lesson-num">9.2</span>
                   <span class="lesson-title">**The Genesis of a Biohacker</span>
                 </li>
                 <li class="lesson">
-                  <span class="lesson-number">9.3</span>
+                  <span class="lesson-num">9.3</span>
                   <span class="lesson-title">**Identifying and Addressing the Root Causes</span>
                 </li>
                 <li class="lesson">
-                  <span class="lesson-number">9.4</span>
+                  <span class="lesson-num">9.4</span>
                   <span class="lesson-title">**the author's Investments and Biohacking Philosophy</span>
                 </li>
                 <li class="lesson">
-                  <span class="lesson-number">9.5</span>
+                  <span class="lesson-num">9.5</span>
                   <span class="lesson-title">**The Evolution of the author's Biohacking Techniques</span>
                 </li>
-                <li class="lesson">
-                  <span class="lesson-number">9.6</span>
-                  <span class="lesson-title">**Modern Biohacking and the author's Impact</span>
-                </li>
+                <li class="lesson more">+ 1 more lessons</li>
               </ul>
             </div>
           </div>
-          <div class="module" data-module="10">
-            <div class="module-header" onclick="toggleModule(10)">
+          <div class="module" id="tools-for-cellular-control">
+            <div class="module-header" onclick="toggleModule(this)">
               <div class="module-info">
-                <span class="module-number">Module 10</span>
+                <span class="module-num">Module 10</span>
                 <h3>Tools for Cellular Control</h3>
                 <span class="module-meta">5 lessons</span>
               </div>
-              <span class="module-toggle">▼</span>
+              <span class="module-toggle">+</span>
             </div>
             <div class="module-content">
-
               <ul class="lesson-list">
                 <li class="lesson">
-                  <span class="lesson-number">10.1</span>
+                  <span class="lesson-num">10.1</span>
                   <span class="lesson-title">**Understanding Biohacking and Cellular Control</span>
                 </li>
                 <li class="lesson">
-                  <span class="lesson-number">10.2</span>
+                  <span class="lesson-num">10.2</span>
                   <span class="lesson-title">**Cellular Stressors</span>
                 </li>
                 <li class="lesson">
-                  <span class="lesson-number">10.3</span>
+                  <span class="lesson-num">10.3</span>
                   <span class="lesson-title">**The Seven Pillars of Aging and Key Anti-Aging Strategies</span>
                 </li>
                 <li class="lesson">
-                  <span class="lesson-number">10.4</span>
+                  <span class="lesson-num">10.4</span>
                   <span class="lesson-title">**Nutrition and Supplements for Cellular Health</span>
                 </li>
                 <li class="lesson">
-                  <span class="lesson-number">10.5</span>
+                  <span class="lesson-num">10.5</span>
                   <span class="lesson-title">**Lifestyle Interventions</span>
                 </li>
+
               </ul>
             </div>
           </div>
-          <div class="module" data-module="11">
-            <div class="module-header" onclick="toggleModule(11)">
+          <div class="module" id="simple-accessible-hacks">
+            <div class="module-header" onclick="toggleModule(this)">
               <div class="module-info">
-                <span class="module-number">Module 11</span>
+                <span class="module-num">Module 11</span>
                 <h3>Simple, Accessible Hacks</h3>
                 <span class="module-meta">4 lessons</span>
               </div>
-              <span class="module-toggle">▼</span>
+              <span class="module-toggle">+</span>
             </div>
             <div class="module-content">
-
               <ul class="lesson-list">
                 <li class="lesson">
-                  <span class="lesson-number">11.1</span>
+                  <span class="lesson-num">11.1</span>
                   <span class="lesson-title">**Mainstreaming Anti-Aging Through Simple Hacks</span>
                 </li>
                 <li class="lesson">
-                  <span class="lesson-number">11.2</span>
+                  <span class="lesson-num">11.2</span>
                   <span class="lesson-title">**Optimizing Sleep for Enhanced Well-being</span>
                 </li>
                 <li class="lesson">
-                  <span class="lesson-number">11.3</span>
+                  <span class="lesson-num">11.3</span>
                   <span class="lesson-title">**Accurate Sleep Tracking and Personalization</span>
                 </li>
                 <li class="lesson">
-                  <span class="lesson-number">11.4</span>
+                  <span class="lesson-num">11.4</span>
                   <span class="lesson-title">**Accessible Alternatives for Anti-Aging Treatments</span>
                 </li>
+
               </ul>
             </div>
           </div>
-          <div class="module" data-module="12">
-            <div class="module-header" onclick="toggleModule(12)">
+          <div class="module" id="the-ethics-of-extended-lifespan">
+            <div class="module-header" onclick="toggleModule(this)">
               <div class="module-info">
-                <span class="module-number">Module 12</span>
+                <span class="module-num">Module 12</span>
                 <h3>The Ethics of Extended Lifespan</h3>
                 <span class="module-meta">2 lessons</span>
               </div>
-              <span class="module-toggle">▼</span>
+              <span class="module-toggle">+</span>
             </div>
             <div class="module-content">
-              <p class="module-description"></p>
               <ul class="lesson-list">
                 <li class="lesson">
-                  <span class="lesson-number">12.1</span>
+                  <span class="lesson-num">12.1</span>
                   <span class="lesson-title">**The Drive for Longevity</span>
                 </li>
                 <li class="lesson">
-                  <span class="lesson-number">12.2</span>
+                  <span class="lesson-num">12.2</span>
                   <span class="lesson-title">**NAD+ and DNA Repair</span>
                 </li>
+
               </ul>
             </div>
           </div>
-          <div class="module" data-module="13">
-            <div class="module-header" onclick="toggleModule(13)">
+          <div class="module" id="legacy-and-the-xprize">
+            <div class="module-header" onclick="toggleModule(this)">
               <div class="module-info">
-                <span class="module-number">Module 13</span>
+                <span class="module-num">Module 13</span>
                 <h3>Legacy and the XPRIZE</h3>
                 <span class="module-meta">2 lessons</span>
               </div>
-              <span class="module-toggle">▼</span>
+              <span class="module-toggle">+</span>
             </div>
             <div class="module-content">
-              <p class="module-description"></p>
               <ul class="lesson-list">
                 <li class="lesson">
-                  <span class="lesson-number">13.1</span>
+                  <span class="lesson-num">13.1</span>
                   <span class="lesson-title">**Financial Support for XPRIZE's Mission</span>
                 </li>
                 <li class="lesson">
-                  <span class="lesson-number">13.2</span>
+                  <span class="lesson-num">13.2</span>
                   <span class="lesson-title">**Contributing to a Better Future</span>
                 </li>
+
               </ul>
             </div>
           </div>
@@ -794,37 +1109,84 @@
       </div>
     </section>
 
-    <section id="enroll" class="section section-cta">
+    <!-- ENROLL -->
+    <section id="enroll" class="section section-enroll">
       <div class="section-container">
-        <h2>Start Learning Today</h2>
-        <p class="section-intro">Enroll now and begin your learning journey.</p>
-        <a href="#" class="btn btn-primary btn-lg">Start Your Journey</a>
+        <div class="enroll-box">
+          <div class="enroll-content">
+            <span class="section-eyebrow">Start Learning</span>
+            <h2>Enroll Today</h2>
+            <p>Get full access to all 13 modules and 50+ lessons.</p>
+            <a href="#" class="btn btn-primary btn-lg">Start Your Journey</a>
+          </div>
+          <div class="enroll-features">
+            <div class="feature">
+              <span class="feature-icon">📚</span>
+              <span class="feature-text">13 Modules</span>
+            </div>
+            <div class="feature">
+              <span class="feature-icon">📝</span>
+              <span class="feature-text">50+ Lessons</span>
+            </div>
+            <div class="feature">
+              <span class="feature-icon">♾️</span>
+              <span class="feature-text">Lifetime Access</span>
+            </div>
+            <div class="feature">
+              <span class="feature-icon">📱</span>
+              <span class="feature-text">Any Device</span>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   </main>
 
   <footer>
-    <div class="footer-content">
-      <p>&copy; 2026 The Longevity Blueprint. Generated with <a href="https://idiampro.com">IdiamPro</a>.</p>
+    <div class="footer-container">
+      <p>© 2026 The Longevity Blueprint. Generated with <a href="https://idiampro.com">IdiamPro</a>.</p>
     </div>
   </footer>
   <script>
 
-    function toggleModule(num) {
-      const module = document.querySelector('[data-module="' + num + '"]');
-      module.classList.toggle('collapsed');
+    function toggleModule(header) {
+      const module = header.parentElement;
+      module.classList.toggle('open');
     }
 
+    // Smooth scroll
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-          const offset = 80;
-          const pos = target.getBoundingClientRect().top + window.pageYOffset - offset;
-          window.scrollTo({ top: pos, behavior: 'smooth' });
+      anchor.addEventListener('click', function(e) {
+        const href = this.getAttribute('href');
+        if (href && href.length > 1) {
+          const targetId = href.substring(1);
+          const target = document.getElementById(targetId);
+          if (target) {
+            e.preventDefault();
+            const headerOffset = 70;
+            const elementPosition = target.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+            window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+          }
         }
       });
+    });
+
+    // Animate on scroll
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.module, .outcome-card, .highlight-item').forEach(el => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(20px)';
+      el.style.transition = 'opacity 0.5s, transform 0.5s';
+      observer.observe(el);
     });
     
   </script>
