@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Longevity Blueprint</title>
+  <meta name="description" content="Master the science of living longer and healthier">
+  <style>
+
+    :root {
+      
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --primary-light: #3b82f6;
+      --secondary: #64748b;
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+      --radius: 0.75rem;
+      --max-width: 1200px;
+    
+    }
+    
+        :root { 
+      --bg: #ffffff;
+      --bg-alt: #f8fafc;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+     }
+        @media (prefers-color-scheme: dark) {
+          :root { 
+      --bg: #0f172a;
+      --bg-alt: #1e293b;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --border: #334155;
+      --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3);
+     }
+        }
+      
+    
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      html { scroll-behavior: smooth; }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.6;
+      }
+      a { color: var(--primary); text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      img { max-width: 100%; height: auto; }
+    
+
+    /* Navigation */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      z-index: 1000;
+      padding: 0.75rem 0;
+    }
+
+    .nav-container {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .nav-logo {
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .nav-menu {
+      display: flex;
+      list-style: none;
+      gap: 2rem;
+    }
+
+    .nav-menu a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+
+    .nav-menu a:hover { color: var(--text); }
+
+    /* Hero */
+    .hero {
+      padding: 8rem 2rem 4rem;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .tagline {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+    }
+
+    /* Sections */
+    .section {
+      padding: 4rem 2rem;
+    }
+
+    .section-alt {
+      background: var(--bg-alt);
+    }
+
+    .section-featured {
+      background: var(--bg-alt);
+    }
+
+    .section-container {
+      max-width: var(--max-width);
+      margin: 0 auto;
+    }
+
+    .section h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 2rem;
+    }
+
+    .section-intro {
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+      max-width: 600px;
+    }
+
+    /* Featured Grid */
+    .featured-grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 2rem;
+    }
+
+    .featured-side {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .featured-post {
+      background: var(--bg);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .featured-post.main {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .featured-post.main .post-image {
+      height: 300px;
+    }
+
+    .featured-post .post-image {
+      height: 150px;
+      background: var(--bg-alt);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .post-placeholder {
+      font-size: 3rem;
+    }
+
+    .featured-post .post-content {
+      padding: 1.5rem;
+      flex: 1;
+    }
+
+    .post-category {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .featured-post h3 {
+      font-size: 1.25rem;
+      margin: 0.5rem 0;
+      line-height: 1.3;
+    }
+
+    .featured-post h3 a {
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .featured-post h3 a:hover {
+      color: var(--primary);
+    }
+
+    .featured-post p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      line-height: 1.5;
+      margin-bottom: 0.5rem;
+    }
+
+    .post-date {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* Post Grid */
+    .post-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+
+    .post-card {
+      background: var(--bg);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .post-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .post-card .post-image {
+      height: 180px;
+      background: var(--bg-alt);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .post-card .post-content {
+      padding: 1.25rem;
+    }
+
+    .post-card h3 {
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+      line-height: 1.3;
+    }
+
+    .post-card h3 a {
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .post-card h3 a:hover {
+      color: var(--primary);
+    }
+
+    .post-card p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      line-height: 1.5;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Footer */
+    footer {
+      padding: 2rem;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      border-top: 1px solid var(--border);
+    }
+
+    @media (max-width: 900px) {
+      .featured-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .nav-menu { display: none; }
+      .hero { padding: 6rem 1.5rem 3rem; }
+      .post-grid { grid-template-columns: 1fr; }
+    }
+    
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="#" class="nav-logo">The Longevity Blueprint</a>
+      <ul class="nav-menu">
+        <li><a href="#featured">Featured</a></li>
+        <li><a href="#latest">Latest</a></li>
+        <li><a href="#biohacking-longevity-s-promise">Biohacking Longevity's Promise</a></li>
+        <li><a href="#the-immortal-instinct">The Immortal Instinct</a></li>
+        <li><a href="#mitochondria-our-cellular-powerhouses">Mitochondria: Our Cellular Powerhouses</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-content">
+      <h1>The Longevity Blueprint</h1>
+      <p class="tagline">Master the science of living longer and healthier</p>
+    </div>
+  </header>
+
+  <main>
+
+    <section id="featured" class="section section-featured">
+      <div class="section-container">
+        <h2>Featured</h2>
+        <div class="featured-grid">
+          <div class="featured-main">
+            <article class="featured-post main">
+              <div class="post-image">
+                <span class="post-placeholder">📝</span>
+              </div>
+              <div class="post-content">
+                <span class="post-category">b16d53-2101-473a-9a91-ad7c974c43ca</span>
+                <h3><a href="#the-foundation-of-biohacking">**The Foundation of Biohacking</a></h3>
+
+                <span class="post-date">May 26, 2024</span>
+              </div>
+            </article>
+          </div>
+          <div class="featured-side">
+            <article class="featured-post">
+              <div class="post-image">
+                <span class="post-placeholder">✨</span>
+              </div>
+              <div class="post-content">
+                <span class="post-category">b16d53-2101-473a-9a91-ad7c974c43ca</span>
+                <h3><a href="#the-author-and-the-engineering-approach-to-biohack">**the author and the Engineering Approach to Biohacking</a></h3>
+
+                <span class="post-date">Jun 10, 2024</span>
+              </div>
+            </article>
+            <article class="featured-post">
+              <div class="post-image">
+                <span class="post-placeholder">💡</span>
+              </div>
+              <div class="post-content">
+                <span class="post-category">b16d53-2101-473a-9a91-ad7c974c43ca</span>
+                <h3><a href="#key-biohacks">**Key Biohacks</a></h3>
+
+                <span class="post-date">Jan 22, 2024</span>
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="latest" class="section">
+      <div class="section-container">
+        <h2>Latest Posts</h2>
+        <div class="post-grid">
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">📰</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#gw501516-cardarine">**GW501516 (Cardarine)</a></h3>
+
+              <span class="post-date">Jan 20, 2024</span>
+            </div>
+          </article>
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">📊</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#the-primal-drive-to-survive">**The Primal Drive to Survive</a></h3>
+
+              <span class="post-date">Oct 7, 2024</span>
+            </div>
+          </article>
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">💭</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#ancient-quests-for-eternal-life">**Ancient Quests for Eternal Life</a></h3>
+
+              <span class="post-date">Aug 16, 2024</span>
+            </div>
+          </article>
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">🎯</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#the-paradox-of-self-preservation">**The Paradox of Self-Preservation</a></h3>
+
+              <span class="post-date">May 28, 2024</span>
+            </div>
+          </article>
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">🎯</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#superstitions-and-extreme-measures">**Superstitions and Extreme Measures</a></h3>
+
+              <span class="post-date">Mar 26, 2024</span>
+            </div>
+          </article>
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">💡</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#mitochondria-and-the-subcellular-foundation-of-agi">**Mitochondria and the Subcellular Foundation of Aging</a></h3>
+
+              <span class="post-date">Dec 1, 2024</span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="biohacking-longevity-s-promise" class="section section-alt">
+      <div class="section-container">
+        <h2>Biohacking Longevity's Promise</h2>
+        <p class="section-intro"></p>
+        <div class="post-grid">
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">📝</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#the-foundation-of-biohacking">**The Foundation of Biohacking</a></h3>
+
+              <span class="post-date">Apr 10, 2024</span>
+            </div>
+          </article>
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">✨</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#the-author-and-the-engineering-approach-to-biohack">**the author and the Engineering Approach to Biohacking</a></h3>
+
+              <span class="post-date">Mar 4, 2024</span>
+            </div>
+          </article>
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">💡</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#key-biohacks">**Key Biohacks</a></h3>
+
+              <span class="post-date">Apr 19, 2024</span>
+            </div>
+          </article>
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">📰</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#gw501516-cardarine">**GW501516 (Cardarine)</a></h3>
+
+              <span class="post-date">Nov 1, 2024</span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="the-immortal-instinct" class="section section-alt">
+      <div class="section-container">
+        <h2>The Immortal Instinct</h2>
+        <p class="section-intro"></p>
+        <div class="post-grid">
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">📊</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#the-primal-drive-to-survive">**The Primal Drive to Survive</a></h3>
+
+              <span class="post-date">Jul 26, 2024</span>
+            </div>
+          </article>
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">💭</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#ancient-quests-for-eternal-life">**Ancient Quests for Eternal Life</a></h3>
+
+              <span class="post-date">Aug 4, 2024</span>
+            </div>
+          </article>
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">🎯</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#the-paradox-of-self-preservation">**The Paradox of Self-Preservation</a></h3>
+
+              <span class="post-date">Mar 22, 2024</span>
+            </div>
+          </article>
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">🎯</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#superstitions-and-extreme-measures">**Superstitions and Extreme Measures</a></h3>
+
+              <span class="post-date">Oct 12, 2024</span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="mitochondria-our-cellular-powerhouses" class="section section-alt">
+      <div class="section-container">
+        <h2>Mitochondria: Our Cellular Powerhouses</h2>
+        <p class="section-intro"></p>
+        <div class="post-grid">
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">💡</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#mitochondria-and-the-subcellular-foundation-of-agi">**Mitochondria and the Subcellular Foundation of Aging</a></h3>
+
+              <span class="post-date">Apr 7, 2024</span>
+            </div>
+          </article>
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">🎯</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#environmental-and-lifestyle-impacts-on-cellular-he">**Environmental and Lifestyle Impacts on Cellular Health</a></h3>
+
+              <span class="post-date">Sep 23, 2024</span>
+            </div>
+          </article>
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">💭</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#cellular-processes-for-repair-and-longevity">**Cellular Processes for Repair and Longevity</a></h3>
+
+              <span class="post-date">Aug 17, 2024</span>
+            </div>
+          </article>
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">💭</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#reactive-oxygen-species-ros-and-the-importance-of-">**Reactive Oxygen Species (ROS) and the Importance of Antioxidant Defenses</a></h3>
+
+              <span class="post-date">Dec 9, 2024</span>
+            </div>
+          </article>
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">💡</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#nad-and-mitochondrial-optimization">**NAD+ and Mitochondrial Optimization</a></h3>
+
+              <span class="post-date">Jul 1, 2024</span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="the-three-fs-survival-imperatives" class="section section-alt">
+      <div class="section-container">
+        <h2>The Three Fs: Survival Imperatives</h2>
+
+        <div class="post-grid">
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">🔍</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#the-foundation">**The Foundation</a></h3>
+              <p>The Three Fs and Mitochondrial Imperatives**</p>
+              <span class="post-date">Jun 8, 2024</span>
+            </div>
+          </article>
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">💭</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#maintaining-health-and-longevity">**Maintaining Health and Longevity</a></h3>
+              <p>Telomeres, NAD+, and the Microbiome**</p>
+              <span class="post-date">Aug 14, 2024</span>
+            </div>
+          </article>
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">💭</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#enhancement-and-healing">**Enhancement and Healing</a></h3>
+              <p>Supplements and Specialized Therapies**</p>
+              <span class="post-date">Sep 7, 2024</span>
+            </div>
+          </article>
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">✨</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#the-path-to-longevity-blueprint">**The Path to &quot;Longevity Blueprint&quot;</a></h3>
+              <p>A Three-Step Process**</p>
+              <span class="post-date">Jun 22, 2024</span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="inflammation-the-silent-killer" class="section section-alt">
+      <div class="section-container">
+        <h2>Inflammation: The Silent Killer</h2>
+        <p class="section-intro"></p>
+        <div class="post-grid">
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">🔍</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#the-foundation">**The Foundation</a></h3>
+
+              <span class="post-date">Aug 19, 2024</span>
+            </div>
+          </article>
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">💭</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#lifestyle-s-impact">**Lifestyle's Impact</a></h3>
+
+              <span class="post-date">Aug 17, 2024</span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="sugar-s-hidden-dangers" class="section section-alt">
+      <div class="section-container">
+        <h2>Sugar's Hidden Dangers</h2>
+
+        <div class="post-grid">
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">📝</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#environmental-and-light-exposure-risks">**Environmental and Light Exposure Risks</a></h3>
+
+              <span class="post-date">Sep 14, 2024</span>
+            </div>
+          </article>
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">💡</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#the-ozone-therapy-caveat">**The Ozone Therapy Caveat</a></h3>
+
+              <span class="post-date">Aug 9, 2024</span>
+            </div>
+          </article>
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">💡</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#hormone-replacement-therapy">**Hormone Replacement Therapy</a></h3>
+
+              <span class="post-date">Mar 13, 2024</span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="biohacking-for-longevity-blueprint-status" class="section section-alt">
+      <div class="section-container">
+        <h2>Biohacking for Longevity Blueprint Status</h2>
+
+        <div class="post-grid">
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">📊</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#the-dawn-of-biohacking">**The Dawn of Biohacking</a></h3>
+
+              <span class="post-date">Oct 3, 2024</span>
+            </div>
+          </article>
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">🔍</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#defining-biohacking-and-the-longevity-blueprint-go">**Defining Biohacking and the Longevity Blueprint Goal</a></h3>
+
+              <span class="post-date">Jul 25, 2024</span>
+            </div>
+          </article>
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">📊</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#the-author-s-biohacking-journey-and-methodology">**The Author's Biohacking Journey and Methodology</a></h3>
+
+              <span class="post-date">May 22, 2024</span>
+            </div>
+          </article>
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">📊</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#tools-and-resources-for-the-biohacker">**Tools and Resources for the Biohacker</a></h3>
+
+              <span class="post-date">Apr 3, 2024</span>
+            </div>
+          </article>
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">📝</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#navigating-the-legal-landscape-of-sarms">**Navigating the Legal Landscape of SARMs</a></h3>
+
+              <span class="post-date">May 28, 2024</span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="investing-in-your-biology" class="section section-alt">
+      <div class="section-container">
+        <h2>Investing in Your Biology</h2>
+
+        <div class="post-grid">
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">📊</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#biohacking">**Biohacking</a></h3>
+              <p>Defining and Funding the Path to Longevity**</p>
+              <span class="post-date">Aug 17, 2024</span>
+            </div>
+          </article>
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">💭</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#sleep">**Sleep</a></h3>
+              <p>The Ultimate Biohacking Tool**</p>
+              <span class="post-date">Feb 13, 2024</span>
+            </div>
+          </article>
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">🔍</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#beyond-the-body">**Beyond the Body</a></h3>
+              <p>Jaw Alignment, Gut Health, and Regeneration**</p>
+              <span class="post-date">Jul 24, 2024</span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="the-author-s-biohacking-journey" class="section section-alt">
+      <div class="section-container">
+        <h2>the author's Biohacking Journey</h2>
+
+        <div class="post-grid">
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">🔍</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#book-information-and-dedication">**Book Information and Dedication</a></h3>
+
+              <span class="post-date">Sep 15, 2024</span>
+            </div>
+          </article>
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">💡</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#the-genesis-of-a-biohacker">**The Genesis of a Biohacker</a></h3>
+
+              <span class="post-date">Feb 14, 2024</span>
+            </div>
+          </article>
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">📰</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#identifying-and-addressing-the-root-causes">**Identifying and Addressing the Root Causes</a></h3>
+
+              <span class="post-date">Feb 23, 2024</span>
+            </div>
+          </article>
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">📊</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#the-author-s-investments-and-biohacking-philosophy">**the author's Investments and Biohacking Philosophy</a></h3>
+
+              <span class="post-date">May 25, 2024</span>
+            </div>
+          </article>
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">💭</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#the-evolution-of-the-author-s-biohacking-technique">**The Evolution of the author's Biohacking Techniques</a></h3>
+
+              <span class="post-date">Jan 19, 2024</span>
+            </div>
+          </article>
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">✨</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#modern-biohacking-and-the-author-s-impact">**Modern Biohacking and the author's Impact</a></h3>
+
+              <span class="post-date">May 8, 2024</span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="tools-for-cellular-control" class="section section-alt">
+      <div class="section-container">
+        <h2>Tools for Cellular Control</h2>
+
+        <div class="post-grid">
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">💡</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#understanding-biohacking-and-cellular-control">**Understanding Biohacking and Cellular Control</a></h3>
+
+              <span class="post-date">Jan 11, 2024</span>
+            </div>
+          </article>
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">📝</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#cellular-stressors">**Cellular Stressors</a></h3>
+
+              <span class="post-date">Nov 21, 2024</span>
+            </div>
+          </article>
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">📰</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#the-seven-pillars-of-aging-and-key-anti-aging-stra">**The Seven Pillars of Aging and Key Anti-Aging Strategies</a></h3>
+
+              <span class="post-date">Jan 5, 2024</span>
+            </div>
+          </article>
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">🔍</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#nutrition-and-supplements-for-cellular-health">**Nutrition and Supplements for Cellular Health</a></h3>
+
+              <span class="post-date">Mar 15, 2024</span>
+            </div>
+          </article>
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">💭</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#lifestyle-interventions">**Lifestyle Interventions</a></h3>
+
+              <span class="post-date">Dec 18, 2024</span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="simple-accessible-hacks" class="section section-alt">
+      <div class="section-container">
+        <h2>Simple, Accessible Hacks</h2>
+
+        <div class="post-grid">
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">✨</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#mainstreaming-anti-aging-through-simple-hacks">**Mainstreaming Anti-Aging Through Simple Hacks</a></h3>
+
+              <span class="post-date">Feb 10, 2024</span>
+            </div>
+          </article>
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">🎯</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#optimizing-sleep-for-enhanced-well-being">**Optimizing Sleep for Enhanced Well-being</a></h3>
+
+              <span class="post-date">Apr 20, 2024</span>
+            </div>
+          </article>
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">💭</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#accurate-sleep-tracking-and-personalization">**Accurate Sleep Tracking and Personalization</a></h3>
+
+              <span class="post-date">Nov 6, 2024</span>
+            </div>
+          </article>
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">💡</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#accessible-alternatives-for-anti-aging-treatments">**Accessible Alternatives for Anti-Aging Treatments</a></h3>
+
+              <span class="post-date">Mar 19, 2024</span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="the-ethics-of-extended-lifespan" class="section section-alt">
+      <div class="section-container">
+        <h2>The Ethics of Extended Lifespan</h2>
+        <p class="section-intro"></p>
+        <div class="post-grid">
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">✨</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#the-drive-for-longevity">**The Drive for Longevity</a></h3>
+              <p>Instinct and Initial Discoveries**</p>
+              <span class="post-date">Dec 24, 2024</span>
+            </div>
+          </article>
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">📊</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#nad-and-dna-repair">**NAD+ and DNA Repair</a></h3>
+              <p>A Critical Connection**</p>
+              <span class="post-date">Jun 27, 2024</span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="legacy-and-the-xprize" class="section section-alt">
+      <div class="section-container">
+        <h2>Legacy and the XPRIZE</h2>
+        <p class="section-intro"></p>
+        <div class="post-grid">
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">📊</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#financial-support-for-xprize-s-mission">**Financial Support for XPRIZE's Mission</a></h3>
+
+              <span class="post-date">Aug 2, 2024</span>
+            </div>
+          </article>
+          <article class="post-card">
+            <div class="post-image">
+              <span class="post-placeholder">💡</span>
+            </div>
+            <div class="post-content">
+              <h3><a href="#contributing-to-a-better-future">**Contributing to a Better Future</a></h3>
+
+              <span class="post-date">Apr 9, 2024</span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-content">
+      <p>&copy; 2026 The Longevity Blueprint. Generated with <a href="https://idiampro.com">IdiamPro</a>.</p>
+    </div>
+  </footer>
+  <script>
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          const offset = 70;
+          const pos = target.getBoundingClientRect().top + window.pageYOffset - offset;
+          window.scrollTo({ top: pos, behavior: 'smooth' });
+        }
+      });
+    });
+    
+  </script>
+</body>
+</html>

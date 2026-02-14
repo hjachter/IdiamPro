@@ -76,6 +76,7 @@ import {
   Volume2,
   BarChart3
 } from 'lucide-react';
+import WebsitePreviewCarousel from '@/components/website-preview-carousel';
 
 // ============================================
 // CONFIGURATION
@@ -1069,6 +1070,15 @@ export default function MarketingPage() {
                     </div>
                   </div>
                 </div>
+              </div>
+
+              {/* Interactive Website Preview */}
+              <div className="mt-8">
+                <div className="text-center mb-6">
+                  <h3 className="text-2xl font-bold text-white mb-2">See It In Action</h3>
+                  <p className="text-white/60">All 8 templates generated from "The Longevity Blueprint" — a real outline about biohacking and health optimization</p>
+                </div>
+                <WebsitePreviewCarousel />
               </div>
 
               {/* Row 5 - Export & Unmerge */}

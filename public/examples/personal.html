@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Longevity Blueprint</title>
+  <meta name="description" content="Master the science of living longer and healthier">
+  <style>
+
+    :root {
+      
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --primary-light: #3b82f6;
+      --secondary: #64748b;
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+      --radius: 0.75rem;
+      --max-width: 1200px;
+    
+    }
+    
+        :root { 
+      --bg: #ffffff;
+      --bg-alt: #f8fafc;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+     }
+        @media (prefers-color-scheme: dark) {
+          :root { 
+      --bg: #0f172a;
+      --bg-alt: #1e293b;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --border: #334155;
+      --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3);
+     }
+        }
+      
+    
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      html { scroll-behavior: smooth; }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.6;
+      }
+      a { color: var(--primary); text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      img { max-width: 100%; height: auto; }
+    
+
+    /* Navigation */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      z-index: 1000;
+      padding: 0.75rem 0;
+    }
+
+    .nav-container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .nav-logo {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .nav-menu {
+      display: flex;
+      list-style: none;
+      gap: 2rem;
+    }
+
+    .nav-menu a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+
+    .nav-menu a:hover { color: var(--text); }
+
+    /* Hero */
+    .hero {
+      padding: 10rem 2rem 5rem;
+      text-align: center;
+    }
+
+    .avatar {
+      width: 120px;
+      height: 120px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      border-radius: 50%;
+      margin: 0 auto 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: white;
+    }
+
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .tagline {
+      font-size: 1.25rem;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 0.875rem 1.75rem;
+      border-radius: var(--radius);
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+
+    /* Sections */
+    .section {
+      padding: 5rem 2rem;
+    }
+
+    .section-alt {
+      background: var(--bg-alt);
+    }
+
+    .section-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .section h2 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .section-intro {
+      text-align: center;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+    }
+
+    /* About */
+    .about-content {
+      max-width: 700px;
+      margin: 0 auto;
+      line-height: 1.8;
+    }
+
+    .about-content p {
+      margin-bottom: 1rem;
+    }
+
+    /* Timeline */
+    .timeline {
+      position: relative;
+      padding-left: 2rem;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: var(--border);
+    }
+
+    .timeline-item {
+      position: relative;
+      padding-bottom: 2rem;
+    }
+
+    .timeline-item:last-child {
+      padding-bottom: 0;
+    }
+
+    .timeline-marker {
+      position: absolute;
+      left: -2rem;
+      top: 0.25rem;
+      width: 12px;
+      height: 12px;
+      background: var(--primary);
+      border-radius: 50%;
+      transform: translateX(-5px);
+    }
+
+    .timeline-content h3 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .timeline-description {
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .timeline-description p {
+      margin-bottom: 0.5rem;
+    }
+
+    .timeline-description ul {
+      margin-left: 1.5rem;
+    }
+
+    /* Skills */
+    .skills-categories {
+      display: grid;
+      gap: 2rem;
+    }
+
+    .skill-category h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .skill-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+
+    .skill-category .skill-tags {
+      justify-content: flex-start;
+    }
+
+    .skill-tag {
+      background: var(--bg-alt);
+      border: 1px solid var(--border);
+      padding: 0.5rem 1rem;
+      border-radius: 2rem;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+
+    .skill-tag:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* Contact */
+    .contact-actions {
+      text-align: center;
+    }
+
+    /* Footer */
+    footer {
+      padding: 2rem;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      border-top: 1px solid var(--border);
+    }
+
+    @media (max-width: 768px) {
+      .nav-menu { display: none; }
+      .hero { padding: 8rem 1.5rem 4rem; }
+      .avatar { width: 100px; height: 100px; font-size: 2rem; }
+    }
+    
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="#" class="nav-logo">The Longevity Blueprint</a>
+      <ul class="nav-menu">
+        <li><a href="#about">About</a></li>
+        <li><a href="#experience">Experience</a></li>
+        <li><a href="#skills">Skills</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-content">
+      <div class="avatar">TL</div>
+      <h1>The Longevity Blueprint</h1>
+      <p class="tagline">Master the science of living longer and healthier</p>
+      <div class="social-links">
+        <a href="#contact" class="btn btn-primary">Start Your Journey</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+
+    <section id="about" class="section">
+      <div class="section-container">
+        <h2>About Me</h2>
+        <div class="about-content">
+          <p></p>
+        </div>
+      </div>
+    </section>
+
+    <section id="experience" class="section section-alt">
+      <div class="section-container">
+        <h2>Experience</h2>
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-marker"></div>
+            <div class="timeline-content">
+              <h3>**The Foundation of Biohacking</h3>
+              <div class="timeline-description"><p>A Historical and Personal Quest:** Biohacking, defined as changing one's internal and external environment to gain control over biology, isn't a new phenomenon. The book uses the analogy of the caveman Thog rejecting fire to illustrate humanity's historical resistance to life-extending innovations. Modern biohacking builds upon this quest, leveraging advanced knowledge and data. For author the author, this journey was deeply personal: as a young man he faced being overweight, chronically ill, and at high risk of heart attack or stroke, motivating him to seek a better path.</p></div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-marker"></div>
+            <div class="timeline-content">
+              <h3>**the author and the Engineering Approach to Biohacking</h3>
+              <div class="timeline-description">** the author, having invested twenty years and over $1 million in personally hacking his own biology, is considered a pioneer in the field of biohacking. His approach prioritizes outcomes and immediate well-being, adopting an engineering and biohacking mindset rather than a traditional scientific one. This focus on practical results drives the methodologies presented in the book.</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-marker"></div>
+            <div class="timeline-content">
+              <h3>**Key Biohacks</h3>
+              <div class="timeline-description">Metabolic Flexibility, Jaw Alignment, and Liver Detoxification:** The book delves into specific biohacks aimed at improving health and potentially extending lifespan. For example, maintaining metabolic flexibility, the body's ability to burn both glucose and ketones, is crucial. Staying in ketosis constantly can compromise this, so cycling in and out weekly is recommended. Addressing jaw dysfunction is also highlighted, as misaligned jaws can contribute to headaches, neurological issues, and even ear infections. Finally, the importance of liver function for healthy hair growth and overall well-being is stressed. Environmental toxins impair liver function, which is essential for T3 production. Glutathione can be used to detoxify the liver after heavy metal removal.</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-marker"></div>
+            <div class="timeline-content">
+              <h3>**GW501516 (Cardarine)</h3>
+              <div class="timeline-description">An Exercise Mimetic:** The book explores pharmacological interventions that may offer benefits. GW501516 (Cardarine), often misclassified as a SARM, is discussed for its potential as an "exercise mimetic." Studies in rodents suggest it activates similar longevity-promoting genes as exercise and has demonstrated a significant increase in mitochondrial growth, hinting at enhanced energy production and cellular health.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="skills" class="section">
+      <div class="section-container">
+        <h2>Skills</h2>
+        <p class="section-intro">Skills details coming soon.</p>
+      </div>
+    </section>
+
+    <section id="contact" class="section section-alt">
+      <div class="section-container">
+        <h2>Get in Touch</h2>
+        <p class="section-intro">Interested in working together? I'd love to hear from you.</p>
+        <div class="contact-actions">
+          <a href="mailto:hello@example.com" class="btn btn-primary">Start Your Journey</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-content">
+      <p>&copy; 2026 The Longevity Blueprint. Generated with <a href="https://idiampro.com">IdiamPro</a>.</p>
+    </div>
+  </footer>
+  <script>
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          const offset = 70;
+          const pos = target.getBoundingClientRect().top + window.pageYOffset - offset;
+          window.scrollTo({ top: pos, behavior: 'smooth' });
+        }
+      });
+    });
+    
+  </script>
+</body>
+</html>
