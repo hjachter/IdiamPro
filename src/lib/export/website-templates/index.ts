@@ -4,22 +4,28 @@ import type { BaseWebsiteTemplate, WebsiteSection, WebsiteTemplateOptions } from
 import { MarketingTemplate } from './marketing-template';
 import { InformationalTemplate } from './informational-template';
 import { DocumentationTemplate } from './documentation-template';
+import { PortfolioTemplate } from './portfolio-template';
+import { EventTemplate } from './event-template';
+import { EducationalTemplate } from './educational-template';
+import { BlogTemplate } from './blog-template';
+import { PersonalTemplate } from './personal-template';
 
 // Export types
 export type { WebsiteSection, WebsiteTemplateOptions } from './base-template';
 export { BaseWebsiteTemplate } from './base-template';
 
-// Template registry
+// Template registry - all 8 website types
 const TEMPLATES: Record<string, BaseWebsiteTemplate> = {
+  // Free templates
   marketing: new MarketingTemplate(),
   informational: new InformationalTemplate(),
   documentation: new DocumentationTemplate(),
-  // Premium templates (to be implemented)
-  portfolio: new MarketingTemplate(), // Fallback to marketing for now
-  event: new MarketingTemplate(),
-  educational: new MarketingTemplate(),
-  blog: new MarketingTemplate(),
-  personal: new MarketingTemplate(),
+  // Premium templates
+  portfolio: new PortfolioTemplate(),
+  event: new EventTemplate(),
+  educational: new EducationalTemplate(),
+  blog: new BlogTemplate(),
+  personal: new PersonalTemplate(),
 };
 
 /**
