@@ -506,7 +506,7 @@ export default function MarketingPage() {
     },
     {
       question: 'Can I export my work?',
-      answer: 'IdiamPro offers 9 export formats: PDF, Markdown, HTML (collapsible website), Plain Text, OPML, Obsidian (with wiki-links), CSV, JSON Tree, and more. Your data is never locked in.'
+      answer: 'IdiamPro offers 10+ export formats including PDF, Markdown, HTML, Plain Text, OPML, Obsidian (with wiki-links), CSV, and JSON Tree. Plus, you can export any outline as a professional Marketing Website with 8 templates (Marketing, Informational, Documentation, Portfolio, Event, Educational, Blog, Personal). Your data is never locked in.'
     }
   ];
 
@@ -1012,7 +1012,66 @@ export default function MarketingPage() {
                 </div>
               </div>
 
-              {/* Row 4 - Export */}
+              {/* Row 4 - Website Generator (NEW - Highlighted) */}
+              <div className="grid md:grid-cols-1 gap-6">
+                <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border-2 border-emerald-500/40 p-8 hover:border-emerald-500/60 transition-all duration-500">
+                  <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 text-xs font-semibold">
+                    NEW
+                  </div>
+                  <div className="flex items-start gap-6">
+                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/30 flex-shrink-0">
+                      <Globe className="w-7 h-7 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-2xl font-bold text-white mb-2">
+                        Turn Any Outline Into a Website
+                      </h3>
+                      <p className="text-white/70 text-base mb-4">
+                        Export your outline as a professional, responsive website. Choose from 8 templates designed for different purposes. No coding required.
+                      </p>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                        <div className="flex items-center gap-2 text-white/60 text-sm">
+                          <span className="text-lg">🚀</span>
+                          <span>Marketing</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-white/60 text-sm">
+                          <span className="text-lg">🏢</span>
+                          <span>Informational</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-white/60 text-sm">
+                          <span className="text-lg">📚</span>
+                          <span>Documentation</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-white/60 text-sm">
+                          <span className="text-lg">🎨</span>
+                          <span>Portfolio</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-white/60 text-sm">
+                          <span className="text-lg">🎪</span>
+                          <span>Event</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-white/60 text-sm">
+                          <span className="text-lg">🎓</span>
+                          <span>Educational</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-white/60 text-sm">
+                          <span className="text-lg">📰</span>
+                          <span>Blog</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-white/60 text-sm">
+                          <span className="text-lg">👤</span>
+                          <span>Personal/CV</span>
+                        </div>
+                      </div>
+                      <p className="text-emerald-400/80 text-sm">
+                        Self-contained HTML files with responsive design, dark mode support, and smooth navigation. Host anywhere or share directly.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Row 5 - Export & Unmerge */}
               <div className="grid md:grid-cols-3 gap-6">
                 <div className="md:col-span-2 group relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-500/10 to-gray-500/10 border border-slate-500/20 p-8 hover:border-slate-500/40 transition-all duration-500">
                   <div className="flex items-start gap-6">
@@ -1021,15 +1080,16 @@ export default function MarketingPage() {
                     </div>
                     <div>
                       <h3 className="text-xl font-bold text-white mb-2">
-                        Export Anywhere in 9 Formats
+                        Export Anywhere in 10+ Formats
                       </h3>
                       <p className="text-white/60 text-sm mb-4">
-                        Your data is never locked in. Export to PDF, Markdown, HTML (collapsible website), OPML, Obsidian with wiki-links, CSV, and more.
+                        Your data is never locked in. Export to PDF, Markdown, HTML, Marketing Websites, OPML, Obsidian with wiki-links, CSV, and more.
                       </p>
                       <div className="flex flex-wrap gap-2">
                         <span className="px-2 py-1 rounded bg-white/10 text-white/60 text-xs">PDF</span>
                         <span className="px-2 py-1 rounded bg-white/10 text-white/60 text-xs">Markdown</span>
                         <span className="px-2 py-1 rounded bg-white/10 text-white/60 text-xs">HTML</span>
+                        <span className="px-2 py-1 rounded bg-emerald-500/20 text-emerald-400 text-xs border border-emerald-500/30">Website</span>
                         <span className="px-2 py-1 rounded bg-white/10 text-white/60 text-xs">OPML</span>
                         <span className="px-2 py-1 rounded bg-white/10 text-white/60 text-xs">Obsidian</span>
                         <span className="px-2 py-1 rounded bg-white/10 text-white/60 text-xs">CSV</span>
