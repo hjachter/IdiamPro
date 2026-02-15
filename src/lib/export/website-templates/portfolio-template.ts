@@ -248,10 +248,10 @@ ${projects.map((project, i) => this.renderProjectCard(project, i, options)).join
   private getStyles(options: WebsiteTemplateOptions): string {
     return `
     :root {
-      ${this.getBaseVariables()}
+      ${this.getBaseVariables(options.colorTheme)}
       --max-width: 1200px;
     }
-    ${this.getColorSchemeCSS(options.colorScheme)}
+    ${this.getColorSchemeCSS(options.colorScheme, options.colorTheme)}
     ${this.getResetCSS()}
 
     /* NAV */

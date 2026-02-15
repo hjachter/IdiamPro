@@ -241,10 +241,10 @@ ${topicCount > 3 ? `                <li class="more">+${topicCount - 3} more</li
   private getStyles(options: WebsiteTemplateOptions): string {
     return `
     :root {
-      ${this.getBaseVariables()}
+      ${this.getBaseVariables(options.colorTheme)}
       --max-width: 1200px;
     }
-    ${this.getColorSchemeCSS(options.colorScheme)}
+    ${this.getColorSchemeCSS(options.colorScheme, options.colorTheme)}
     ${this.getResetCSS()}
 
     /* NAV - Minimal, Apple-style */

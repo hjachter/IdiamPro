@@ -229,13 +229,13 @@ ${content}          </section>`;
   private getStyles(options: WebsiteTemplateOptions): string {
     return `
     :root {
-      ${this.getBaseVariables()}
+      ${this.getBaseVariables(options.colorTheme)}
       --sidebar-width: 280px;
       --toc-width: 200px;
       --header-height: 60px;
       --doc-max-width: 720px;
     }
-    ${this.getColorSchemeCSS(options.colorScheme)}
+    ${this.getColorSchemeCSS(options.colorScheme, options.colorTheme)}
     ${this.getResetCSS()}
 
     /* LAYOUT */

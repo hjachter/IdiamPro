@@ -203,11 +203,11 @@ ${posts.length > 10 ? `          <p class="archive-more">+ ${posts.length - 10} 
   private getStyles(options: WebsiteTemplateOptions): string {
     return `
     :root {
-      ${this.getBaseVariables()}
+      ${this.getBaseVariables(options.colorTheme)}
       --max-width: 1000px;
       --content-width: 680px;
     }
-    ${this.getColorSchemeCSS(options.colorScheme)}
+    ${this.getColorSchemeCSS(options.colorScheme, options.colorTheme)}
     ${this.getResetCSS()}
 
     /* NAV */

@@ -299,13 +299,16 @@ ${topics.map(t => `              <li>${this.escapeHtml(t)}</li>`).join('\n')}
   }
 
   private getStyles(options: WebsiteTemplateOptions): string {
+    const primary = options.colorTheme?.primary || '#2563eb';
+    const secondary = options.colorTheme?.secondary || '#7c3aed';
+
     return `
     :root {
-      ${this.getBaseVariables()}
-      --gradient-start: #2563eb;
-      --gradient-end: #7c3aed;
+      ${this.getBaseVariables(options.colorTheme)}
+      --gradient-start: ${primary};
+      --gradient-end: ${secondary};
     }
-    ${this.getColorSchemeCSS(options.colorScheme)}
+    ${this.getColorSchemeCSS(options.colorScheme, options.colorTheme)}
     ${this.getResetCSS()}
 
     /* NAV */

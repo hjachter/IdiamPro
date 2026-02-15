@@ -246,11 +246,11 @@ ${topics.map(t => `                <li>${this.escapeHtml(t)}</li>`).join('\n')}
   private getStyles(options: WebsiteTemplateOptions): string {
     return `
     :root {
-      ${this.getBaseVariables()}
+      ${this.getBaseVariables(options.colorTheme)}
       --max-width: 1200px;
       --accent: #8b5cf6;
     }
-    ${this.getColorSchemeCSS(options.colorScheme)}
+    ${this.getColorSchemeCSS(options.colorScheme, options.colorTheme)}
     ${this.getResetCSS()}
 
     /* NAV */

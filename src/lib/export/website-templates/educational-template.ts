@@ -229,11 +229,11 @@ ${lessonCount > 5 ? `                <li class="lesson more">+ ${lessonCount - 5
   private getStyles(options: WebsiteTemplateOptions): string {
     return `
     :root {
-      ${this.getBaseVariables()}
+      ${this.getBaseVariables(options.colorTheme)}
       --max-width: 1100px;
       --success: #10b981;
     }
-    ${this.getColorSchemeCSS(options.colorScheme)}
+    ${this.getColorSchemeCSS(options.colorScheme, options.colorTheme)}
     ${this.getResetCSS()}
 
     /* NAV */

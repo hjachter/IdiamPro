@@ -97,7 +97,11 @@
       "Bash(npm run electron:*)",
       "Bash(git log --oneline --grep=\"repaint\\\\|reload\\\\|blank\" -i)",
       "Bash(git reset:*)",
-      "Bash(npx tsx:*)"
+      "Bash(npx tsx:*)",
+      "WebFetch(domain:localhost)",
+      "Bash(brew:*)",
+      "Bash(nvm alias:*)",
+      "Bash(npm --version:*)"
     ]
   }
 }

@@ -3,12 +3,26 @@
 import type { OutlineNode } from '@/types';
 
 /**
+ * Custom color theme configuration
+ */
+export interface ColorTheme {
+  id: string;
+  primary?: string;
+  secondary?: string;
+  bg?: string;
+  text?: string;
+}
+
+/**
  * Options passed to website templates
  */
 export interface WebsiteTemplateOptions {
   title: string;
   tagline?: string;
   colorScheme: 'auto' | 'light' | 'dark';
+  colorTheme?: ColorTheme;
+  contentDepth?: 'overview' | 'standard' | 'comprehensive';
+  toneStyle?: 'professional' | 'friendly' | 'bold' | 'minimal' | 'educational';
   ctaText: string;
   guidance?: string;
   includeContent: boolean;
@@ -133,28 +147,35 @@ export abstract class BaseWebsiteTemplate {
   /**
    * Get color scheme CSS based on option
    */
-  protected getColorSchemeCSS(scheme: 'auto' | 'light' | 'dark'): string {
+  protected getColorSchemeCSS(scheme: 'auto' | 'light' | 'dark', colorTheme?: ColorTheme): string {
+    // Use custom theme colors if provided
+    const customBg = colorTheme?.bg;
+    const customText = colorTheme?.text;
+
     const lightVars = `
-      --bg: #ffffff;
-      --bg-alt: #f8fafc;
-      --text: #1e293b;
-      --text-muted: #64748b;
+      --bg: ${customBg || '#ffffff'};
+      --bg-alt: ${customBg ? this.adjustColor(customBg, -8) : '#f8fafc'};
+      --text: ${customText || '#1e293b'};
+      --text-muted: ${customText ? this.adjustColor(customText, 60) : '#64748b'};
       --border: #e2e8f0;
       --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
     `;
 
     const darkVars = `
-      --bg: #0f172a;
-      --bg-alt: #1e293b;
-      --text: #f1f5f9;
-      --text-muted: #94a3b8;
+      --bg: ${customBg || '#0f172a'};
+      --bg-alt: ${customBg ? this.adjustColor(customBg, 15) : '#1e293b'};
+      --text: ${customText || '#f1f5f9'};
+      --text-muted: ${customText ? this.adjustColor(customText, -60) : '#94a3b8'};
       --border: #334155;
       --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3);
     `;
 
-    if (scheme === 'light') {
+    // Determine if the theme is dark based on bg color
+    const isDarkTheme = colorTheme?.bg === '#0f172a' || scheme === 'dark';
+
+    if (scheme === 'light' || (colorTheme && !isDarkTheme)) {
       return `:root { ${lightVars} }`;
-    } else if (scheme === 'dark') {
+    } else if (scheme === 'dark' || isDarkTheme) {
       return `:root { ${darkVars} }`;
     } else {
       return `
@@ -169,16 +190,44 @@ export abstract class BaseWebsiteTemplate {
   /**
    * Get common base CSS variables
    */
-  protected getBaseVariables(): string {
+  protected getBaseVariables(colorTheme?: ColorTheme): string {
+    const primary = colorTheme?.primary || '#2563eb';
+    const secondary = colorTheme?.secondary || '#64748b';
+
+    // Calculate darker/lighter variants
+    const primaryDark = this.adjustColor(primary, -20);
+    const primaryLight = this.adjustColor(primary, 20);
+
     return `
-      --primary: #2563eb;
-      --primary-dark: #1d4ed8;
-      --primary-light: #3b82f6;
-      --secondary: #64748b;
+      --primary: ${primary};
+      --primary-dark: ${primaryDark};
+      --primary-light: ${primaryLight};
+      --secondary: ${secondary};
       --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
       --radius: 0.75rem;
       --max-width: 1200px;
     `;
+  }
+
+  /**
+   * Adjust a hex color's brightness
+   */
+  private adjustColor(hex: string, amount: number): string {
+    // Remove # if present
+    hex = hex.replace('#', '');
+
+    // Parse RGB values
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+
+    // Adjust values
+    const newR = Math.max(0, Math.min(255, r + amount));
+    const newG = Math.max(0, Math.min(255, g + amount));
+    const newB = Math.max(0, Math.min(255, b + amount));
+
+    // Convert back to hex
+    return `#${newR.toString(16).padStart(2, '0')}${newG.toString(16).padStart(2, '0')}${newB.toString(16).padStart(2, '0')}`;
   }
 
   /**
