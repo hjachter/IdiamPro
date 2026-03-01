@@ -249,6 +249,195 @@ export abstract class BaseWebsiteTemplate {
     `;
   }
 
+  // ============ Shared Recursive Content Renderer ============
+
+  /**
+   * Render a full content tree from sections.
+   * Entry point: iterates top-level sections and calls the recursive helper.
+   */
+  protected renderContentTree(
+    sections: WebsiteSection[],
+    startDepth: number,
+    options: WebsiteTemplateOptions
+  ): string {
+    return sections
+      .map((section, i) => this.renderContentNode(section, startDepth, i, options))
+      .join('\n');
+  }
+
+  /**
+   * Recursively render one section node with heading, content, and children.
+   */
+  private renderContentNode(
+    section: WebsiteSection,
+    depth: number,
+    index: number,
+    options: WebsiteTemplateOptions
+  ): string {
+    const contentDepth = options.contentDepth || 'overview';
+    const headingLevel = Math.min(depth + 2, 6); // h2 at depth 0, h3 at depth 1, ..., h6 at depth 4+
+    const tag = `h${headingLevel}`;
+    const title = this.cleanName(section.name);
+
+    // Content rendering based on depth
+    let contentHtml = '';
+    if (contentDepth === 'comprehensive' && section.content) {
+      contentHtml = `<div class="ct-content">${this.processContent(section.content)}</div>`;
+    } else if (contentDepth === 'standard' && section.content) {
+      const firstPara = this.extractFirstParagraph(section.content);
+      contentHtml = firstPara ? `<div class="ct-content"><p>${firstPara}</p></div>` : '';
+    }
+
+    // Children rendering based on depth
+    let childrenHtml = '';
+    if (section.children.length > 0) {
+      if (contentDepth === 'overview') {
+        // Just names for overview
+        const visibleChildren = section.children.slice(0, 5);
+        const moreCount = section.children.length - 5;
+        childrenHtml = `<ul class="ct-child-list">
+${visibleChildren.map(c => `          <li>${this.escapeHtml(this.cleanName(c.name))}</li>`).join('\n')}
+${moreCount > 0 ? `          <li class="ct-more">+${moreCount} more</li>` : ''}
+        </ul>`;
+      } else {
+        // Full recursive rendering for standard and comprehensive
+        childrenHtml = section.children
+          .map((child, i) => this.renderContentNode(child, depth + 1, i, options))
+          .join('\n');
+      }
+    }
+
+    return `      <div class="ct-node ct-depth-${depth}" id="${section.slug}">
+        <${tag} class="ct-heading">${this.escapeHtml(title)}</${tag}>
+        ${contentHtml}
+        ${childrenHtml}
+      </div>`;
+  }
+
+  /**
+   * Shared CSS for the recursive content tree.
+   * Uses existing CSS variables from each template's theme.
+   */
+  protected getContentTreeCSS(): string {
+    return `
+    /* Content Tree - Recursive Section Rendering */
+    .content-tree-section {
+      padding: 4rem 2rem;
+    }
+    .content-tree-container {
+      max-width: var(--max-width, 1200px);
+      margin: 0 auto;
+    }
+    .content-tree-container > h2 {
+      font-size: clamp(1.75rem, 3vw, 2.25rem);
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 0.5rem;
+    }
+    .content-tree-subtitle {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      margin-bottom: 3rem;
+    }
+    .ct-node {
+      margin-bottom: 1.5rem;
+    }
+    .ct-depth-0 {
+      padding: 2rem;
+      background: var(--bg-alt);
+      border-radius: var(--radius, 0.75rem);
+      margin-bottom: 2rem;
+    }
+    .ct-depth-1,
+    .ct-depth-2,
+    .ct-depth-3,
+    .ct-depth-4 {
+      padding-left: 1.5rem;
+      border-left: 3px solid var(--primary);
+      margin-left: 0.25rem;
+      margin-top: 1rem;
+    }
+    .ct-depth-2 { border-left-color: var(--secondary, var(--text-muted)); }
+    .ct-depth-3,
+    .ct-depth-4 { border-left-color: var(--border); }
+    h2.ct-heading { font-size: 1.75rem; font-weight: 700; margin-bottom: 0.75rem; text-align: left; }
+    h3.ct-heading { font-size: 1.35rem; font-weight: 600; margin-bottom: 0.5rem; }
+    h4.ct-heading { font-size: 1.15rem; font-weight: 600; margin-bottom: 0.5rem; }
+    h5.ct-heading { font-size: 1rem; font-weight: 600; margin-bottom: 0.4rem; }
+    h6.ct-heading { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.4rem; }
+    .ct-content {
+      color: var(--text-muted);
+      line-height: 1.7;
+      margin-bottom: 1rem;
+    }
+    .ct-content p { margin-bottom: 0.75rem; }
+    .ct-content ul, .ct-content ol { margin-left: 1.5rem; margin-bottom: 0.75rem; }
+    .ct-content li { margin-bottom: 0.25rem; }
+    .ct-content h4 { font-size: 1rem; font-weight: 600; margin: 1rem 0 0.5rem; color: var(--text); }
+    .ct-content blockquote {
+      border-left: 3px solid var(--primary);
+      padding-left: 1rem;
+      margin: 0.75rem 0;
+      font-style: italic;
+      color: var(--text-muted);
+    }
+    .ct-content pre {
+      background: var(--bg-alt);
+      padding: 1rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 0.75rem 0;
+      font-size: 0.9rem;
+    }
+    .ct-content table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.75rem 0;
+      font-size: 0.9rem;
+    }
+    .ct-content th, .ct-content td {
+      padding: 0.5rem 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .ct-content th { font-weight: 600; background: var(--bg-alt); }
+    .ct-child-list {
+      list-style: none;
+      margin: 0.5rem 0 1rem;
+    }
+    .ct-child-list li {
+      padding: 0.3rem 0 0.3rem 1.25rem;
+      position: relative;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+    .ct-child-list li::before {
+      content: "\\2192";
+      position: absolute;
+      left: 0;
+      color: var(--primary);
+    }
+    .ct-more {
+      font-style: italic;
+      color: var(--primary) !important;
+    }
+    .ct-more::before { content: "" !important; }
+    @media (max-width: 768px) {
+      .ct-depth-0 { padding: 1.5rem; }
+      .ct-depth-1,
+      .ct-depth-2,
+      .ct-depth-3,
+      .ct-depth-4 {
+        padding-left: 1rem;
+      }
+    }
+    @media print {
+      .ct-depth-0 { break-inside: avoid; }
+    }
+    `;
+  }
+
   /**
    * Generate the HTML document wrapper
    */

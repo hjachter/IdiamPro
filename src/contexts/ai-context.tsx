@@ -23,8 +23,8 @@ interface AIProviderProps {
 }
 
 export function AIProvider({ children }: AIProviderProps) {
-  const [plan, setPlan] = useState<SubscriptionPlan>('FREE');
-  const [features, setFeatures] = useState<AIFeatureFlags>(DEFAULT_FREE_FLAGS);
+  const [plan, setPlan] = useState<SubscriptionPlan>('PREMIUM');
+  const [features, setFeatures] = useState<AIFeatureFlags>(DEFAULT_PREMIUM_FLAGS);
   const [isInitialized, setIsInitialized] = useState(false);
 
   // Load saved plan from localStorage on mount

@@ -140,10 +140,8 @@ interface OutlinePaneProps {
   onBulkAddTag?: (tag: string) => void;
   // Search term for content highlighting
   onSearchTermChange?: (searchTerm: string, matchType?: 'name' | 'content' | 'both', matchIndex?: number) => void;
-  // PDF export
-  onExportSubtreePdf?: (nodeId: string) => void;
-  // Podcast generation
-  onGeneratePodcast?: (nodeId: string) => void;
+  // Export subtree
+  onExportSubtree?: (nodeId: string) => void;
   // Sidebar toggle (desktop)
   isSidebarOpen?: boolean;
   onToggleSidebar?: () => void;
@@ -204,8 +202,7 @@ export default function OutlinePane({
   onBulkChangeColor,
   onBulkAddTag,
   onSearchTermChange,
-  onExportSubtreePdf,
-  onGeneratePodcast,
+  onExportSubtree,
   isSidebarOpen,
   onToggleSidebar,
   onOpenMobileSidebar,
@@ -1062,6 +1059,25 @@ export default function OutlinePane({
             <TooltipContent>Expand outline (show all nodes)</TooltipContent>
           </Tooltip>
 
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                disabled={!selectedNodeId}
+                onClick={() => selectedNodeId && onExportSubtree?.(selectedNodeId)}
+                className="hover:bg-accent/20"
+              >
+                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 3v12" />
+                  <path d="m8 7 4-4 4 4" />
+                  <rect x="4" y="11" width="16" height="11" rx="2" ry="2" fill="none" />
+                </svg>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>{selectedNodeId ? 'Share subtree as...' : 'Select a node to share'}</TooltipContent>
+          </Tooltip>
+
           <AIMenu
             onGenerateOutline={onGenerateOutline}
             outlineSummary={currentOutline?.name}
@@ -1187,8 +1203,6 @@ export default function OutlinePane({
               selectedNodeIds={selectedNodeIds}
               onToggleNodeSelection={onToggleNodeSelection}
               onRangeSelect={onRangeSelect}
-              onExportSubtreePdf={onExportSubtreePdf}
-              onGeneratePodcast={onGeneratePodcast}
               maxRenderDepth={maxRenderDepth}
             />
           </ul>

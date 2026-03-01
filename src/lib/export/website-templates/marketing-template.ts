@@ -22,6 +22,7 @@ export class MarketingTemplate extends BaseWebsiteTemplate {
 
   generate(sections: WebsiteSection[], options: WebsiteTemplateOptions): string {
     const totalTopics = this.countAllChildren(sections);
+    const isFullContent = options.contentDepth === 'standard' || options.contentDepth === 'comprehensive';
 
     // Extract content intelligently for each section
     const problemSection = this.findSectionByKeywords(sections, ['problem', 'challenge', 'why', 'issue', 'pain']);
@@ -90,6 +91,16 @@ export class MarketingTemplate extends BaseWebsiteTemplate {
   </header>
 
   <main>
+${isFullContent ? `
+    <!-- FULL CONTENT TREE -->
+    <section id="inside" class="section content-tree-section">
+      <div class="content-tree-container">
+        <h2>Complete Content</h2>
+        <p class="content-tree-subtitle">Explore every chapter, section, and topic in full detail</p>
+${this.renderContentTree(sections, 0, options)}
+      </div>
+    </section>
+` : `
     <!-- PROBLEM/TRANSFORMATION SECTION -->
     <section class="section section-problem">
       <div class="section-container">
@@ -159,7 +170,7 @@ ${sections.slice(0, 4).map((section, i) => this.renderFeaturedChapter(section, i
         </div>
       </div>
     </section>
-
+`}
     <!-- FAQ SECTION -->
     <section id="faq" class="section section-faq">
       <div class="section-container">
@@ -866,6 +877,7 @@ ${topics.map(t => `              <li>${this.escapeHtml(t)}</li>`).join('\n')}
       .navbar { display: none; }
       .hero { padding-top: 2rem; }
     }
+    ${this.getContentTreeCSS()}
     `;
   }
 

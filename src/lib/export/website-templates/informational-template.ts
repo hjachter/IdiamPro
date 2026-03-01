@@ -16,6 +16,7 @@ export class InformationalTemplate extends BaseWebsiteTemplate {
 
   generate(sections: WebsiteSection[], options: WebsiteTemplateOptions): string {
     const totalTopics = this.countTopics(sections);
+    const isFullContent = options.contentDepth === 'standard' || options.contentDepth === 'comprehensive';
 
     // Use first 3 sections as "key highlights"
     const keyHighlights = sections.slice(0, 3);
@@ -66,6 +67,16 @@ export class InformationalTemplate extends BaseWebsiteTemplate {
   </header>
 
   <main>
+${isFullContent ? `
+    <!-- FULL CONTENT TREE -->
+    <section id="highlights" class="section content-tree-section">
+      <div class="content-tree-container">
+        <h2>Complete Content</h2>
+        <p class="content-tree-subtitle">Explore every chapter, section, and topic in full detail</p>
+${this.renderContentTree(sections, 0, options)}
+      </div>
+    </section>
+` : `
     <!-- HIGHLIGHTS SECTION -->
     <section id="highlights" class="section section-highlights">
       <div class="section-container">
@@ -128,7 +139,7 @@ ${sections.map((section, i) => this.renderExploreCard(section, i, options)).join
         </div>
       </div>
     </section>
-
+`}
     <!-- FINAL CTA -->
     <section id="learn-more" class="section section-cta">
       <div class="section-container">
@@ -822,6 +833,7 @@ ${topicCount > 3 ? `                <li class="more">+${topicCount - 3} more</li
       .navbar { display: none; }
       .hero { padding-top: 2rem; }
     }
+    ${this.getContentTreeCSS()}
     `;
   }
 

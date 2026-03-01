@@ -28,6 +28,7 @@ import { exportOutline, hasExporter } from '@/lib/export/index';
 import { exportSubtreeToPdf } from '@/lib/pdf-export';
 import { useToast } from '@/hooks/use-toast';
 import WebsiteExportDialog from './website-export-dialog';
+import PodcastDialog from './podcast-dialog';
 
 interface ExportDialogProps {
   open: boolean;
@@ -52,6 +53,7 @@ export default function ExportDialog({
   const [isExporting, setIsExporting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showWebsiteDialog, setShowWebsiteDialog] = useState(false);
+  const [showPodcastDialog, setShowPodcastDialog] = useState(false);
 
   const displayName = nodeName || (rootNodeId ? outline.nodes[rootNodeId]?.name : null) || outline.name;
 
@@ -90,6 +92,7 @@ export default function ExportDialog({
       'mind-maps': [],
       data: [],
       presentations: [],
+      media: [],
       social: [],
     };
 
@@ -166,17 +169,24 @@ export default function ExportDialog({
   const handleWebsiteDialogClose = (isOpen: boolean) => {
     setShowWebsiteDialog(isOpen);
     if (!isOpen) {
-      // Also close the main export dialog
+      onOpenChange(false);
+    }
+  };
+
+  // Handle podcast dialog close
+  const handlePodcastDialogClose = (isOpen: boolean) => {
+    setShowPodcastDialog(isOpen);
+    if (!isOpen) {
       onOpenChange(false);
     }
   };
 
   return (
     <>
-    <Dialog open={open && !showWebsiteDialog} onOpenChange={onOpenChange}>
+    <Dialog open={open && !showWebsiteDialog && !showPodcastDialog} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] max-h-[85vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle>Export</DialogTitle>
+          <DialogTitle>Share Subtree As...</DialogTitle>
           <DialogDescription>
             Exporting: &ldquo;{displayName}&rdquo;
             {rootNodeId && rootNodeId !== outline.rootNodeId && ' (subtree)'}
@@ -210,11 +220,21 @@ export default function ExportDialog({
                     <div className="grid grid-cols-4 gap-2">
                       {formats.map((format) => {
                         const Icon = format.icon;
-                        const isAvailable = format.id === 'pdf' || hasExporter(format.id);
+                        const isAvailable = format.id === 'pdf' || format.id === 'podcast' || hasExporter(format.id);
                         return (
                           <button
                             key={format.id}
-                            onClick={() => setSelectedFormat(format.id)}
+                            onClick={() => {
+                              if (format.id === 'website') {
+                                setShowWebsiteDialog(true);
+                                return;
+                              }
+                              if (format.id === 'podcast') {
+                                setShowPodcastDialog(true);
+                                return;
+                              }
+                              setSelectedFormat(format.id);
+                            }}
                             disabled={!isAvailable}
                             className={cn(
                               'flex flex-col items-center justify-center p-3 rounded-lg border text-center transition-colors',
@@ -309,6 +329,16 @@ export default function ExportDialog({
       rootNodeId={rootNodeId}
       nodeName={nodeName}
     />
+
+    {showPodcastDialog && (
+      <PodcastDialog
+        open={showPodcastDialog}
+        onOpenChange={handlePodcastDialogClose}
+        nodeName={nodeName || displayName}
+        nodeId={rootNodeId || outline.rootNodeId}
+        nodes={outline.nodes}
+      />
+    )}
     </>
   );
 }

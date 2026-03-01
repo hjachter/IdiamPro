@@ -16,6 +16,7 @@ export class EventTemplate extends BaseWebsiteTemplate {
 
   generate(sections: WebsiteSection[], options: WebsiteTemplateOptions): string {
     const totalTopics = this.countTopics(sections);
+    const isFullContent = options.contentDepth === 'standard' || options.contentDepth === 'comprehensive';
 
     // Extract key sections for event structure
     const highlightsSections = sections.slice(0, 4);
@@ -70,6 +71,16 @@ export class EventTemplate extends BaseWebsiteTemplate {
   </header>
 
   <main>
+${isFullContent ? `
+    <!-- FULL CONTENT TREE -->
+    <section id="about" class="section content-tree-section">
+      <div class="content-tree-container">
+        <h2>Complete Event Content</h2>
+        <p class="content-tree-subtitle">Explore every session, topic, and detail in full</p>
+${this.renderContentTree(sections, 0, options)}
+      </div>
+    </section>
+` : `
     <!-- ABOUT -->
     <section id="about" class="section section-about">
       <div class="section-container">
@@ -143,7 +154,7 @@ ${speakerSection.map((section, i) => this.renderSpeakerCard(section, i, options)
         </div>
       </div>
     </section>
-
+`}
     <!-- REGISTER -->
     <section id="register" class="section section-register">
       <div class="section-container">
@@ -758,6 +769,7 @@ ${topics.map(t => `                <li>${this.escapeHtml(t)}</li>`).join('\n')}
       .navbar { display: none; }
       .hero { padding-top: 2rem; }
     }
+    ${this.getContentTreeCSS()}
     `;
   }
 

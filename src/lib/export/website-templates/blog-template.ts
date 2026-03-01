@@ -15,6 +15,7 @@ export class BlogTemplate extends BaseWebsiteTemplate {
   readonly name = 'Blog';
 
   generate(sections: WebsiteSection[], options: WebsiteTemplateOptions): string {
+    const isFullContent = options.contentDepth === 'standard' || options.contentDepth === 'comprehensive';
     const posts = this.extractPosts(sections);
     const categories = sections.filter(s => s.children.length > 0).map(s => this.cleanName(s.name));
     const featuredPost = posts[0];
@@ -57,6 +58,16 @@ export class BlogTemplate extends BaseWebsiteTemplate {
   </header>
 
   <main>
+${isFullContent ? `
+    <!-- FULL CONTENT TREE -->
+    <section id="recent" class="section content-tree-section">
+      <div class="content-tree-container" style="max-width: var(--max-width);">
+        <h2>Complete Articles</h2>
+        <p class="content-tree-subtitle">All ${totalArticles} articles with full content</p>
+${this.renderContentTree(sections, 0, options)}
+      </div>
+    </section>
+` : `
     <!-- RECENT POSTS -->
     <section id="recent" class="section section-recent">
       <div class="section-container">
@@ -109,6 +120,7 @@ ${posts.length > 10 ? `          <p class="archive-more">+ ${posts.length - 10} 
         </div>
       </div>
     </section>
+`}
   </main>
 
   <footer>
@@ -663,6 +675,7 @@ ${posts.length > 10 ? `          <p class="archive-more">+ ${posts.length - 10} 
       .navbar { display: none; }
       .hero { padding-top: 2rem; }
     }
+    ${this.getContentTreeCSS()}
     `;
   }
 

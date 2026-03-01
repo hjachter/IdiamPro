@@ -3467,7 +3467,6 @@ export default function OutlinePro() {
                 onBulkAddTag={handleBulkAddTag}
                 onSearchTermChange={handleSearchTermChange}
                 onExportSubtree={handleExportSubtree}
-                onGeneratePodcast={handleGeneratePodcast}
                 onOpenMobileSidebar={() => setIsMobileSidebarOpen(true)}
                 canUnmerge={hasUnmergeBackup}
                 onUnmerge={handleUnmerge}
@@ -3843,7 +3842,6 @@ export default function OutlinePro() {
                 onBulkAddTag={handleBulkAddTag}
                 onSearchTermChange={handleSearchTermChange}
                 onExportSubtree={handleExportSubtree}
-                onGeneratePodcast={handleGeneratePodcast}
                 isSidebarOpen={isSidebarOpen}
                 onToggleSidebar={() => setIsSidebarOpen(prev => !prev)}
                 canUnmerge={hasUnmergeBackup}

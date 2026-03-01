@@ -16,6 +16,7 @@ export class DocumentationTemplate extends BaseWebsiteTemplate {
 
   generate(sections: WebsiteSection[], options: WebsiteTemplateOptions): string {
     const totalTopics = this.countAllTopics(sections);
+    const isFullContent = options.contentDepth === 'standard' || options.contentDepth === 'comprehensive';
 
     // Group sections into categories for sidebar
     const sidebarGroups = this.createSidebarGroups(sections);
@@ -93,7 +94,13 @@ ${sections.slice(0, 4).map((s, i) => `              <a href="#${s.slug}" class="
           </section>
 
           <!-- MAIN DOCUMENTATION -->
-${sections.map((section, i) => this.renderDocSection(section, i, options)).join('\n\n')}
+${isFullContent ? `
+          <section class="content-tree-section" style="padding: 0;">
+            <div class="content-tree-container" style="max-width: var(--doc-max-width);">
+${this.renderContentTree(sections, 0, options)}
+            </div>
+          </section>
+` : sections.map((section, i) => this.renderDocSection(section, i, options)).join('\n\n')}
 
           <!-- FOOTER -->
           <footer class="docs-footer">
@@ -811,6 +818,7 @@ ${content}          </section>`;
       .docs-main { margin-left: 0; }
       .docs-topbar { display: none; }
     }
+    ${this.getContentTreeCSS()}
     `;
   }
 

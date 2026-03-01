@@ -16,6 +16,7 @@ export class EducationalTemplate extends BaseWebsiteTemplate {
 
   generate(sections: WebsiteSection[], options: WebsiteTemplateOptions): string {
     const totalTopics = this.countTopics(sections);
+    const isFullContent = options.contentDepth === 'standard' || options.contentDepth === 'comprehensive';
     const learningOutcomes = this.extractOutcomes(sections);
 
     const body = `
@@ -73,6 +74,16 @@ export class EducationalTemplate extends BaseWebsiteTemplate {
   </header>
 
   <main>
+${isFullContent ? `
+    <!-- FULL CONTENT TREE -->
+    <section id="curriculum" class="section content-tree-section">
+      <div class="content-tree-container" style="max-width: var(--max-width);">
+        <h2>Complete Course Content</h2>
+        <p class="content-tree-subtitle">${sections.length} modules · ${totalTopics}+ lessons · Full content</p>
+${this.renderContentTree(sections, 0, options)}
+      </div>
+    </section>
+` : `
     <!-- OVERVIEW -->
     <section id="overview" class="section section-overview">
       <div class="section-container">
@@ -132,7 +143,7 @@ ${sections.map((section, i) => this.renderModule(section, i, options)).join('\n'
         </div>
       </div>
     </section>
-
+`}
     <!-- ENROLL -->
     <section id="enroll" class="section section-enroll">
       <div class="section-container">
@@ -752,6 +763,7 @@ ${lessonCount > 5 ? `                <li class="lesson more">+ ${lessonCount - 5
       .navbar { display: none; }
       .hero { padding-top: 2rem; }
     }
+    ${this.getContentTreeCSS()}
     `;
   }
 

@@ -101,7 +101,8 @@
       "WebFetch(domain:localhost)",
       "Bash(brew:*)",
       "Bash(nvm alias:*)",
-      "Bash(npm --version:*)"
+      "Bash(npm --version:*)",
+      "Bash(npm info:*)"
     ]
   }
 }

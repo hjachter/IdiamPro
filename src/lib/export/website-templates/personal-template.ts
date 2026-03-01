@@ -16,6 +16,7 @@ export class PersonalTemplate extends BaseWebsiteTemplate {
 
   generate(sections: WebsiteSection[], options: WebsiteTemplateOptions): string {
     const totalTopics = this.countTopics(sections);
+    const isFullContent = options.contentDepth === 'standard' || options.contentDepth === 'comprehensive';
     const experienceItems = sections.slice(0, 4);
     const skillItems = sections.slice(4, 8);
 
@@ -56,6 +57,16 @@ export class PersonalTemplate extends BaseWebsiteTemplate {
   </header>
 
   <main>
+${isFullContent ? `
+    <!-- FULL CONTENT TREE -->
+    <section id="about" class="section content-tree-section">
+      <div class="content-tree-container" style="max-width: var(--max-width);">
+        <h2>Complete Profile</h2>
+        <p class="content-tree-subtitle">Explore every area of expertise in full detail</p>
+${this.renderContentTree(sections, 0, options)}
+      </div>
+    </section>
+` : `
     <!-- ABOUT -->
     <section id="about" class="section section-about">
       <div class="section-container">
@@ -132,7 +143,7 @@ ${sections.slice(0, 8).map((section, i) => this.renderSkillCard(section, i, opti
         </div>
       </div>
     </section>
-
+`}
     <!-- CONTACT -->
     <section id="contact" class="section section-contact">
       <div class="section-container">
@@ -704,6 +715,7 @@ ${topics.map(t => `                <li>${this.escapeHtml(t)}</li>`).join('\n')}
       .navbar { display: none; }
       .hero { padding-top: 2rem; }
     }
+    ${this.getContentTreeCSS()}
     `;
   }
 

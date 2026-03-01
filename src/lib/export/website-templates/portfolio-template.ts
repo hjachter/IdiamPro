@@ -15,6 +15,7 @@ export class PortfolioTemplate extends BaseWebsiteTemplate {
   readonly name = 'Portfolio';
 
   generate(sections: WebsiteSection[], options: WebsiteTemplateOptions): string {
+    const isFullContent = options.contentDepth === 'standard' || options.contentDepth === 'comprehensive';
     // Treat top sections as categories/projects
     const projects = this.extractProjects(sections);
     const categories = this.extractCategories(sections);
@@ -56,6 +57,16 @@ export class PortfolioTemplate extends BaseWebsiteTemplate {
   </header>
 
   <main>
+${isFullContent ? `
+    <!-- FULL CONTENT TREE -->
+    <section id="work" class="section content-tree-section">
+      <div class="content-tree-container">
+        <h2>Complete Portfolio</h2>
+        <p class="content-tree-subtitle">Explore every project and topic in full detail</p>
+${this.renderContentTree(sections, 0, options)}
+      </div>
+    </section>
+` : `
     <!-- FEATURED WORK -->
     <section class="section section-featured">
       <div class="section-container">
@@ -116,7 +127,7 @@ ${projects.map((project, i) => this.renderProjectCard(project, i, options)).join
         </div>
       </div>
     </section>
-
+`}
     <!-- ABOUT -->
     <section id="about" class="section section-about">
       <div class="section-container">
@@ -771,6 +782,7 @@ ${projects.map((project, i) => this.renderProjectCard(project, i, options)).join
       .navbar { display: none; }
       .hero { padding-top: 2rem; }
     }
+    ${this.getContentTreeCSS()}
     `;
   }
 

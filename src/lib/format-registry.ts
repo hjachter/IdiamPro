@@ -7,6 +7,7 @@ import {
   BookOpen,
   Network,
   MessageSquare,
+  Mic,
   File,
   type LucideIcon,
 } from 'lucide-react';
@@ -18,6 +19,7 @@ export type FormatCategory =
   | 'mind-maps'
   | 'data'
   | 'presentations'
+  | 'media'
   | 'social';
 
 export interface FormatDefinition {
@@ -45,6 +47,7 @@ export const FORMAT_CATEGORY_LABELS: Record<FormatCategory, string> = {
   'mind-maps': 'Mind Maps',
   data: 'Data',
   presentations: 'Presentations',
+  media: 'Media',
   social: 'Social',
 };
 
@@ -90,7 +93,7 @@ export const FORMAT_REGISTRY: Record<string, FormatDefinition> = {
   },
   html: {
     id: 'html',
-    name: 'HTML Website',
+    name: 'HTML',
     description: 'Self-contained webpage with collapsible sections',
     category: 'documents',
     extensions: ['.html', '.htm'],
@@ -151,8 +154,8 @@ export const FORMAT_REGISTRY: Record<string, FormatDefinition> = {
   },
   website: {
     id: 'website',
-    name: 'Marketing Website',
-    description: 'Professional website with hero, sections, and navigation',
+    name: 'Website',
+    description: 'Professional website with templates, themes, and navigation',
     category: 'documents',
     extensions: ['.html'],
     mimeTypes: ['text/html'],
@@ -427,6 +430,20 @@ export const FORMAT_REGISTRY: Record<string, FormatDefinition> = {
     platformSupport: { electron: true, capacitor: true, web: true },
   },
 
+  // Media
+  podcast: {
+    id: 'podcast',
+    name: 'Podcast',
+    description: 'AI-generated audio podcast from your outline',
+    category: 'media',
+    extensions: ['.mp3'],
+    mimeTypes: ['audio/mpeg'],
+    icon: Mic,
+    supportsExport: true,
+    supportsImport: false,
+    platformSupport: { electron: true, capacitor: true, web: true },
+  },
+
   // Social
   'twitter-thread': {
     id: 'twitter-thread',
@@ -489,7 +506,7 @@ export function detectFormatFromFile(file: File): FormatDefinition | null {
 }
 
 export function getFormatCategories(): FormatCategory[] {
-  return ['documents', 'outliners', 'note-apps', 'mind-maps', 'data', 'presentations', 'social'];
+  return ['documents', 'outliners', 'note-apps', 'mind-maps', 'data', 'presentations', 'media', 'social'];
 }
 
 export function getExportFormatsByCategory(): Record<FormatCategory, FormatDefinition[]> {
@@ -500,6 +517,7 @@ export function getExportFormatsByCategory(): Record<FormatCategory, FormatDefin
     'mind-maps': [],
     data: [],
     presentations: [],
+    media: [],
     social: [],
   };
 
@@ -518,6 +536,7 @@ export function getImportFormatsByCategory(): Record<FormatCategory, FormatDefin
     'mind-maps': [],
     data: [],
     presentations: [],
+    media: [],
     social: [],
   };
 

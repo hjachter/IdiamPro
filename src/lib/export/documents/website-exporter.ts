@@ -11,6 +11,9 @@ import { getWebsiteTemplate, type WebsiteSection, type WebsiteTemplateOptions } 
 interface WebsiteExportOptions extends ExportOptions {
   websiteType?: string;
   colorScheme?: 'auto' | 'light' | 'dark';
+  colorTheme?: { id: string; primary?: string; secondary?: string; bg?: string; text?: string };
+  contentDepth?: 'overview' | 'standard' | 'comprehensive';
+  toneStyle?: 'professional' | 'friendly' | 'bold' | 'minimal' | 'educational';
   ctaText?: string;
   guidance?: string;
 }
@@ -62,6 +65,9 @@ export class WebsiteExporter extends BaseExporter {
       title,
       tagline,
       colorScheme: options?.colorScheme || 'auto',
+      colorTheme: options?.colorTheme,
+      contentDepth: options?.contentDepth || 'overview',
+      toneStyle: options?.toneStyle || 'professional',
       ctaText: options?.ctaText || 'Get Started',
       guidance: options?.guidance,
       includeContent,
