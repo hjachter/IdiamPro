@@ -95,7 +95,7 @@ ${sections.slice(0, 4).map((s, i) => `              <a href="#${s.slug}" class="
 
           <!-- MAIN DOCUMENTATION -->
 ${isFullContent ? `
-          <section class="content-tree-section" style="padding: 0;">
+          <section class="content-tree-section">
             <div class="content-tree-container" style="max-width: var(--doc-max-width);">
 ${this.renderContentTree(sections, 0, options)}
             </div>

@@ -82,16 +82,8 @@ import WebsitePreviewCarousel from '@/components/website-preview-carousel';
 // CONFIGURATION
 // ============================================
 
-// App URL - points to the app route
-const APP_URL = '/app';
-
 // Launch date: April 1, 2026
 const LAUNCH_DATE = new Date('2026-04-01T00:00:00');
-
-// Navigate to the app
-const launchApp = () => {
-  window.location.href = APP_URL;
-};
 
 // ============================================
 // COMPONENTS
@@ -271,7 +263,10 @@ function PricingCard({
       </ul>
 
       <Button
-        onClick={launchApp}
+        onClick={() => {
+          console.log('PricingCard button clicked');
+          window.location.href = '/app';
+        }}
         className={`w-full ${highlighted
           ? 'bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-lg'
           : 'bg-white/10 hover:bg-white/20 text-white border border-white/20'
@@ -423,6 +418,12 @@ export default function MarketingPage() {
     setMounted(true);
   }, []);
 
+  // Navigate to the app
+  const launchApp = () => {
+    console.log('launchApp called');
+    window.location.href = '/app';
+  };
+
   // Data
   const allFeatures = [
     { icon: Brain, title: 'AI Content Generation', description: 'Generate content for any node with one click' },
@@ -531,10 +532,10 @@ export default function MarketingPage() {
 
   return (
     <div className="min-h-screen h-full bg-gray-950 text-white overflow-x-hidden overflow-y-auto">
-      {/* Background gradients */}
-      <div className="fixed inset-0 bg-gradient-to-br from-violet-950 via-gray-950 to-indigo-950" />
-      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-violet-900/20 via-transparent to-transparent" />
-      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-indigo-900/20 via-transparent to-transparent" />
+      {/* Background gradients - pointer-events-none to allow clicks through */}
+      <div className="fixed inset-0 bg-gradient-to-br from-violet-950 via-gray-950 to-indigo-950 pointer-events-none" />
+      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-violet-900/20 via-transparent to-transparent pointer-events-none" />
+      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-indigo-900/20 via-transparent to-transparent pointer-events-none" />
 
       <ParticlesBackground />
 

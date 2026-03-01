@@ -27,16 +27,14 @@ export function AIProvider({ children }: AIProviderProps) {
   const [features, setFeatures] = useState<AIFeatureFlags>(DEFAULT_PREMIUM_FLAGS);
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // Load saved plan from localStorage on mount
+  // Beta: Force PREMIUM plan for all users during beta testing
+  // TODO: Re-enable localStorage plan loading when subscription billing is live
   useEffect(() => {
     try {
-      const savedPlan = localStorage.getItem(AI_PLAN_STORAGE_KEY) as SubscriptionPlan | null;
-      if (savedPlan === 'FREE' || savedPlan === 'BASIC' || savedPlan === 'PREMIUM' || savedPlan === 'ACADEMIC') {
-        setPlan(savedPlan);
-        setFeatures(savedPlan === 'FREE' ? DEFAULT_FREE_FLAGS : DEFAULT_PREMIUM_FLAGS);
-      }
+      // Ensure localStorage is set to PREMIUM for beta
+      localStorage.setItem(AI_PLAN_STORAGE_KEY, 'PREMIUM');
     } catch (error) {
-      console.error('Failed to load AI plan from storage:', error);
+      console.error('Failed to save AI plan to storage:', error);
     }
     setIsInitialized(true);
   }, []);

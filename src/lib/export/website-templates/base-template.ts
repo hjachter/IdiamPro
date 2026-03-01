@@ -348,6 +348,12 @@ ${moreCount > 0 ? `          <li class="ct-more">+${moreCount} more</li>` : ''}
       background: var(--bg-alt);
       border-radius: var(--radius, 0.75rem);
       margin-bottom: 2rem;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow, 0 4px 6px -1px rgb(0 0 0 / 0.1));
+    }
+    .ct-depth-0:nth-child(even) {
+      background: var(--bg);
+      border: 1px solid var(--border);
     }
     .ct-depth-1,
     .ct-depth-2,
