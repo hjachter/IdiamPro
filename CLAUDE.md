@@ -137,6 +137,16 @@ node tests/electron-test.js
 - **iCloud Drive** causes code signing issues - use `xattr -cr` to strip resource forks before signing
 - **DerivedData** should be outside iCloud Drive to avoid build failures
 
+### Electron Restart - Auto
+
+Whenever code changes require an Electron restart to take effect (e.g. after modifying components, fixing bugs, changing localStorage behavior), **restart Electron automatically** — never ask the user to do it. Use this command:
+
+```bash
+pkill -f "IdiamPro" 2>/dev/null; pkill -f "electron" 2>/dev/null; sleep 1; rm -rf .next && npm run electron:dev > /dev/null 2>&1 &
+```
+
+This kills the running app, clears the `.next` cache (which often gets stale), and relaunches. Cmd+R does not work in Electron for hot reload, so a full restart is the only reliable way to pick up changes.
+
 ---
 
 ## Git Workflow & Deployment

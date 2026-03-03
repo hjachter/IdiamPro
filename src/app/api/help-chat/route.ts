@@ -19,7 +19,7 @@ KEY FEATURES:
 - File storage: iCloud Drive, Dropbox, Google Drive, local folders
 - Google Docs/Sheets/Slides/Maps embedding via Insert menu
 - Speech-to-text recording in the content pane via Web Speech API
-- Export: Multi-format export system. Right-click any node > "Export Subtree..." or use dropdown menu > "Export Current Outline". Formats include PDF, Markdown, Plain Text, HTML Website (collapsible), Marketing Website (8 templates: Marketing, Informational, Documentation, Portfolio, Event, Educational, Blog, Personal), OPML, Obsidian (wiki-links), CSV, JSON Tree.
+- Export/Share: Select a node and click the Share button (toolbar) to export. Formats include PDF, Markdown, Plain Text, HTML (collapsible webpage), Website (8 professional templates: Marketing, Informational, Documentation, Portfolio, Event, Educational, Blog, Personal), Podcast (AI-generated audio), OPML, Obsidian (wiki-links), CSV, JSON Tree. Website generation lets users turn any outline subtree into a self-contained HTML website with customizable colors, content depth (Overview/Standard/Comprehensive), and template-specific layouts. See the "Website Generation" section in the User Guide for template-specific structuring tips.
 - Import: Multi-format import. Dropdown menu > "Import Outline". Supports Markdown (.md - heading hierarchy), Plain Text (.txt - indentation), OPML (.opml - standard outline XML), JSON/IDM (native format). Drag-and-drop or browse to select. Auto-detects format.
 - Canvas/Drawing nodes (Excalidraw-based): Right-click > Set Type > Canvas
 - Spreadsheet nodes (Fortune Sheet): Right-click > Set Type > Spreadsheet
