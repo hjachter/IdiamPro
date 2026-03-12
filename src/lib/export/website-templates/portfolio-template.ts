@@ -25,7 +25,7 @@ export class PortfolioTemplate extends BaseWebsiteTemplate {
     const body = `
   <nav class="navbar">
     <div class="nav-container">
-      <a href="#" class="nav-logo">${this.escapeHtml(options.title)}</a>
+      <a href="#work" class="nav-logo">${this.escapeHtml(options.title)}</a>
       <ul class="nav-menu">
         <li><a href="#work">Work</a></li>
         <li><a href="#about">About</a></li>
@@ -91,7 +91,7 @@ ${categories.map(cat => `            <button class="filter-btn" data-filter="${t
           </div>
         </div>
         <div class="work-grid">
-${projects.map((project, i) => this.renderProjectCard(project, i, options)).join('\n')}
+${projects.map((project, i) => this.renderProjectCard(project, i, options, sections)).join('\n')}
         </div>
       </div>
     </section>
@@ -162,7 +162,7 @@ ${projects.map((project, i) => this.renderProjectCard(project, i, options)).join
           <span class="section-eyebrow">Get in Touch</span>
           <h2>Let's Work Together</h2>
           <p>Interested in collaborating or learning more about these projects?</p>
-          <a href="mailto:hello@example.com" class="btn btn-primary btn-lg">${this.escapeHtml(options.ctaText)}</a>
+          <a href="#work" class="btn btn-primary btn-lg">${this.escapeHtml(options.ctaText)}</a>
         </div>
       </div>
     </section>
@@ -234,12 +234,14 @@ ${projects.map((project, i) => this.renderProjectCard(project, i, options)).join
           </article>`;
   }
 
-  private renderProjectCard(project: WebsiteSection, index: number, options: WebsiteTemplateOptions): string {
+  private renderProjectCard(project: WebsiteSection, index: number, options: WebsiteTemplateOptions, sections: WebsiteSection[] = []): string {
     const title = this.cleanName(project.name);
     const icons = ['📖', '🎯', '⚡', '💡', '🔧', '📊', '🧠', '🌟'];
     const topicCount = project.children.length;
-    const category = project.node.parentId
-      ? this.slugify(this.cleanName(project.node.parentId))
+    // Find the parent section name to match filter button slugs
+    const parentSection = sections.find(s => s.children.some(c => c.slug === project.slug));
+    const category = parentSection
+      ? this.slugify(this.cleanName(parentSection.name))
       : 'general';
 
     return `          <article class="project-card" data-category="${category}" id="${project.slug}">

@@ -22,6 +22,15 @@ import { useAI } from '@/contexts/ai-context';
 import { exportOutline } from '@/lib/export/index';
 import { useToast } from '@/hooks/use-toast';
 
+// Helper: check if a hex color is dark
+function isHexDark(hex: string): boolean {
+  hex = hex.replace('#', '');
+  const r = parseInt(hex.substring(0, 2), 16) / 255;
+  const g = parseInt(hex.substring(2, 4), 16) / 255;
+  const b = parseInt(hex.substring(4, 6), 16) / 255;
+  return (0.2126 * r + 0.7152 * g + 0.0722 * b) < 0.5;
+}
+
 // ============================================
 // WIZARD CONFIGURATION
 // ============================================
@@ -136,7 +145,7 @@ const COLOR_THEMES = [
     description: 'Professional and trustworthy',
     primary: '#2563eb',
     secondary: '#0891b2',
-    bg: '#ffffff',
+    bg: '#eef4ff',
     text: '#1e293b',
     preview: 'bg-gradient-to-r from-blue-600 to-cyan-600',
   },
@@ -146,7 +155,7 @@ const COLOR_THEMES = [
     description: 'Creative and innovative',
     primary: '#7c3aed',
     secondary: '#a855f7',
-    bg: '#ffffff',
+    bg: '#f3eeff',
     text: '#1e293b',
     preview: 'bg-gradient-to-r from-violet-600 to-purple-600',
   },
@@ -156,7 +165,7 @@ const COLOR_THEMES = [
     description: 'Growth and sustainability',
     primary: '#059669',
     secondary: '#10b981',
-    bg: '#ffffff',
+    bg: '#edfcf5',
     text: '#1e293b',
     preview: 'bg-gradient-to-r from-emerald-600 to-green-500',
   },
@@ -166,7 +175,7 @@ const COLOR_THEMES = [
     description: 'Friendly and approachable',
     primary: '#f97316',
     secondary: '#fb923c',
-    bg: '#ffffff',
+    bg: '#fff5ed',
     text: '#1e293b',
     preview: 'bg-gradient-to-r from-orange-500 to-amber-500',
   },
@@ -176,7 +185,7 @@ const COLOR_THEMES = [
     description: 'Sophisticated and modern',
     primary: '#e11d48',
     secondary: '#f43f5e',
-    bg: '#ffffff',
+    bg: '#fff0f3',
     text: '#1e293b',
     preview: 'bg-gradient-to-r from-rose-600 to-pink-500',
   },
@@ -186,7 +195,7 @@ const COLOR_THEMES = [
     description: 'Corporate and serious',
     primary: '#475569',
     secondary: '#64748b',
-    bg: '#ffffff',
+    bg: '#f1f5f9',
     text: '#0f172a',
     preview: 'bg-gradient-to-r from-slate-600 to-slate-500',
   },
@@ -209,6 +218,16 @@ const COLOR_THEMES = [
     bg: '#0f172a',
     text: '#f1f5f9',
     preview: 'bg-gradient-to-r from-green-600 to-emerald-500',
+  },
+  {
+    id: 'clean',
+    name: 'Clean White',
+    description: 'Minimal and clean',
+    primary: '#2563eb',
+    secondary: '#64748b',
+    bg: '#ffffff',
+    text: '#1e293b',
+    preview: 'bg-gradient-to-r from-gray-100 to-white',
   },
 ];
 
@@ -381,7 +400,7 @@ export default function WebsiteExportDialog({
         includeContent: selectedDepth !== 'overview',
         title: displayName,
         websiteType: selectedType.id,
-        colorScheme: theme?.bg === '#0f172a' ? 'dark' : 'light',
+        colorScheme: theme?.bg && isHexDark(theme.bg) ? 'dark' : 'light',
         colorTheme: {
           id: selectedTheme,
           primary: theme?.primary,

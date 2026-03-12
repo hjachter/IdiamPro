@@ -98,6 +98,60 @@ export type AIProvider = 'cloud' | 'local' | 'auto';
 // AI reasoning depth - controls how thoroughly the AI analyzes and responds
 export type AIDepth = 'quick' | 'standard' | 'deep';
 
+export type AITone = 'academic' | 'professional' | 'friendly' | 'storytelling';
+export type AILevel = 'elementary' | 'high-school' | 'college' | 'graduate' | 'expert';
+
+export const AI_TONE_CONFIG: Record<AITone, { label: string; description: string; icon: string }> = {
+  academic: {
+    label: 'Academic',
+    description: 'Scholarly, formal, research-oriented',
+    icon: '🎓',
+  },
+  professional: {
+    label: 'Professional',
+    description: 'Clear, business-appropriate, authoritative',
+    icon: '💼',
+  },
+  friendly: {
+    label: 'Friendly',
+    description: 'Warm, conversational, easy to follow',
+    icon: '😊',
+  },
+  storytelling: {
+    label: 'Storytelling',
+    description: 'Narrative-driven, engaging, vivid',
+    icon: '📖',
+  },
+};
+
+export const AI_LEVEL_CONFIG: Record<AILevel, { label: string; description: string; icon: string }> = {
+  elementary: {
+    label: 'Elementary',
+    description: 'Simple words, short sentences (grades 3-5)',
+    icon: '🧒',
+  },
+  'high-school': {
+    label: 'High School',
+    description: 'Clear explanations, moderate vocabulary',
+    icon: '📚',
+  },
+  college: {
+    label: 'College',
+    description: 'Detailed analysis, domain terminology',
+    icon: '🏛️',
+  },
+  graduate: {
+    label: 'Graduate',
+    description: 'Advanced concepts, technical depth',
+    icon: '🔬',
+  },
+  expert: {
+    label: 'Expert',
+    description: 'Specialist-level, assumes deep knowledge',
+    icon: '🧪',
+  },
+};
+
 export const AI_DEPTH_CONFIG: Record<AIDepth, { label: string; description: string; icon: string }> = {
   quick: {
     label: 'Quick',

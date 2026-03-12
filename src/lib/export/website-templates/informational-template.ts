@@ -20,13 +20,10 @@ export class InformationalTemplate extends BaseWebsiteTemplate {
 
     // Use first 3 sections as "key highlights"
     const keyHighlights = sections.slice(0, 3);
-    // Remaining sections for deep dive
-    const deepDiveSections = sections.slice(3);
-
     const body = `
   <nav class="navbar">
     <div class="nav-container">
-      <a href="#" class="nav-logo">${this.escapeHtml(options.title)}</a>
+      <a href="#overview" class="nav-logo">${this.escapeHtml(options.title)}</a>
       <button class="nav-toggle" onclick="toggleNav()" aria-label="Toggle navigation">
         <span></span><span></span><span></span>
       </button>
@@ -130,11 +127,11 @@ ${sections.map((section, i) => this.renderExploreCard(section, i, options)).join
           </div>
           <div class="spec-item">
             <span class="spec-label">Format</span>
-            <span class="spec-value">Structured Guide</span>
+            <span class="spec-value">Interactive Guide</span>
           </div>
           <div class="spec-item">
-            <span class="spec-label">Coverage</span>
-            <span class="spec-value">Comprehensive</span>
+            <span class="spec-label">Depth</span>
+            <span class="spec-value">${Math.round(totalTopics / sections.length)} avg per chapter</span>
           </div>
         </div>
       </div>

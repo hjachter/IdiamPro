@@ -339,8 +339,8 @@ async function createWindow() {
 
   // Load from localhost in development, deployed web app in production
   const startUrl = process.env.NODE_ENV === 'development'
-    ? 'http://localhost:9002'
-    : 'https://idiam-pro.vercel.app';
+    ? 'http://localhost:9002/app'
+    : 'https://idiam-pro.vercel.app/app';
 
   mainWindow.loadURL(startUrl);
 
@@ -372,10 +372,22 @@ async function createWindow() {
     mainWindow.webContents.openDevTools();
   }
 
-  // Capture browser console errors to a debug file
-  const debugLogPath = path.join(app.getPath('home'), 'Documents', 'IDM Outlines', '.browser-errors.log');
+  // Auto-recover from ChunkLoadError (stale webpack chunks after dev rebuild)
+  let chunkErrorReloadTimer = null;
   mainWindow.webContents.on('console-message', (event, level, message, line, sourceId) => {
-    // Capture all console messages (level 0=log, 1=info, 2=warn, 3=error)
+    // Detect ChunkLoadError and auto-reload after a short debounce
+    if (level >= 2 && message.includes('ChunkLoadError') && !chunkErrorReloadTimer) {
+      console.log('[IdiamPro] ChunkLoadError detected — auto-reloading in 1s...');
+      chunkErrorReloadTimer = setTimeout(() => {
+        if (mainWindow && !mainWindow.isDestroyed()) {
+          mainWindow.webContents.reload();
+        }
+        chunkErrorReloadTimer = null;
+      }, 1000);
+    }
+
+    // Capture browser console errors to a debug file
+    const debugLogPath = path.join(app.getPath('home'), 'Documents', 'IDM Outlines', '.browser-errors.log');
     if (level >= 0) {
       const entry = `[${new Date().toISOString()}] L${level}: ${message}\n  at ${sourceId}:${line}\n`;
       try { fs.appendFileSync(debugLogPath, entry); } catch {}

@@ -22,7 +22,7 @@ export class EducationalTemplate extends BaseWebsiteTemplate {
     const body = `
   <nav class="navbar">
     <div class="nav-container">
-      <a href="#" class="nav-logo">${this.escapeHtml(options.title)}</a>
+      <a href="#overview" class="nav-logo">${this.escapeHtml(options.title)}</a>
       <ul class="nav-menu">
         <li><a href="#overview">Overview</a></li>
         <li><a href="#curriculum">Curriculum</a></li>
@@ -36,7 +36,7 @@ export class EducationalTemplate extends BaseWebsiteTemplate {
   <header class="hero">
     <div class="hero-container">
       <div class="hero-content">
-        <div class="course-badge">Comprehensive Course</div>
+        <div class="course-badge">${sections.length} Modules · ${totalTopics}+ Lessons</div>
         <h1>${this.escapeHtml(options.title)}</h1>
         <p class="hero-tagline">${options.tagline ? this.escapeHtml(options.tagline) : 'Master essential skills and knowledge'}</p>
         <div class="course-stats">
@@ -50,7 +50,7 @@ export class EducationalTemplate extends BaseWebsiteTemplate {
           </div>
           <div class="stat">
             <span class="stat-icon">🎯</span>
-            <span class="stat-value">Self-Paced</span>
+            <span class="stat-value">${sections.length > 0 ? Math.round(totalTopics / sections.length) : 0} Avg/Module</span>
           </div>
         </div>
         <div class="hero-cta">
@@ -95,9 +95,9 @@ ${this.renderContentTree(sections, 0, options)}
             <p>This course is structured into ${sections.length} comprehensive modules, each designed to build upon the previous one, creating a complete understanding of the subject matter.</p>
             <ul class="feature-list">
               <li>✓ ${totalTopics}+ detailed lessons</li>
-              <li>✓ Structured learning path</li>
-              <li>✓ Actionable insights</li>
-              <li>✓ Comprehensive coverage</li>
+              <li>✓ ${sections.length} structured modules</li>
+              <li>✓ ${sections.slice(0, 3).map(s => this.cleanName(s.name)).join(', ')}</li>
+              <li>✓ Full content included</li>
             </ul>
           </div>
           <div class="overview-highlights">
@@ -152,7 +152,7 @@ ${sections.map((section, i) => this.renderModule(section, i, options)).join('\n'
             <span class="section-eyebrow">Start Learning</span>
             <h2>Enroll Today</h2>
             <p>Get full access to all ${sections.length} modules and ${totalTopics}+ lessons.</p>
-            <a href="#" class="btn btn-primary btn-lg">${this.escapeHtml(options.ctaText)}</a>
+            <a href="#curriculum" class="btn btn-primary btn-lg">${this.escapeHtml(options.ctaText)}</a>
           </div>
           <div class="enroll-features">
             <div class="feature">
@@ -164,12 +164,12 @@ ${sections.map((section, i) => this.renderModule(section, i, options)).join('\n'
               <span class="feature-text">${totalTopics}+ Lessons</span>
             </div>
             <div class="feature">
-              <span class="feature-icon">♾️</span>
-              <span class="feature-text">Lifetime Access</span>
+              <span class="feature-icon">📊</span>
+              <span class="feature-text">${sections.reduce((sum, s) => sum + s.children.length, 0)} Key Points</span>
             </div>
             <div class="feature">
-              <span class="feature-icon">📱</span>
-              <span class="feature-text">Any Device</span>
+              <span class="feature-icon">🔍</span>
+              <span class="feature-text">Full Content</span>
             </div>
           </div>
         </div>
@@ -206,7 +206,9 @@ ${sections.map((section, i) => this.renderModule(section, i, options)).join('\n'
   private extractOutcomes(sections: WebsiteSection[]): string[] {
     const outcomes: string[] = [];
     for (const section of sections.slice(0, 6)) {
-      outcomes.push(`Master ${this.cleanName(section.name).toLowerCase()}`);
+      const name = this.cleanName(section.name);
+      const topicCount = section.children.length;
+      outcomes.push(`Understand ${name.toLowerCase()} (${topicCount} lessons)`);
     }
     return outcomes;
   }

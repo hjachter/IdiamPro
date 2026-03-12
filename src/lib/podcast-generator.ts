@@ -100,10 +100,10 @@ export function getDefaultVoices(style: PodcastStyle): Record<string, OpenAIVoic
 /**
  * Length target word counts for the script.
  */
-const LENGTH_TARGETS: Record<PodcastLength, { min: number; max: number; label: string }> = {
-  brief: { min: 300, max: 450, label: '2-3 minutes' },
-  standard: { min: 750, max: 1200, label: '5-8 minutes' },
-  detailed: { min: 1500, max: 2250, label: '10-15 minutes' },
+const LENGTH_TARGETS: Record<PodcastLength, { min: number; max: number; minSegments: number; label: string }> = {
+  brief: { min: 300, max: 450, minSegments: 12, label: '2-3 minutes' },
+  standard: { min: 750, max: 1200, minSegments: 30, label: '5-8 minutes' },
+  detailed: { min: 1500, max: 2250, minSegments: 60, label: '10-15 minutes' },
 };
 
 /**
@@ -133,7 +133,15 @@ CRITICAL STYLE RULES:
 OUTPUT FORMAT:
 - Output ONLY a valid JSON array: [{"speaker": "Name", "text": "..."}]
 - No markdown, no code fences, no explanation — ONLY the JSON array
-- Target total script length: ${target.min}-${target.max} words (approximately ${target.label} of audio)
+
+CRITICAL LENGTH REQUIREMENT — THIS IS MANDATORY:
+- You MUST generate between ${target.min} and ${target.max} total words of dialogue
+- This means at least ${target.minSegments} dialogue segments (speaker turns)
+- The final podcast should be approximately ${target.label} of audio
+- Each segment should be 1-4 sentences (15-60 words)
+- Do NOT stop early. Cover ALL major topics from the source content.
+- If the content is long, discuss EVERY section — do not skip or summarize away sections
+- Count your words mentally as you write. If you're under ${target.min} words, KEEP GOING.
 
 SPEAKERS: ${speakerNames.join(', ')}`;
 

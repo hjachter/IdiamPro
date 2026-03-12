@@ -31,7 +31,7 @@ export class DocumentationTemplate extends BaseWebsiteTemplate {
       </div>
 
       <div class="sidebar-search">
-        <input type="text" placeholder="Search docs..." disabled>
+        <input type="text" placeholder="Search docs..." id="docsSearch" oninput="filterNav(this.value)">
         <span class="search-hint">⌘K</span>
       </div>
 
@@ -47,8 +47,8 @@ ${sidebarGroups.map(group => this.renderSidebarGroup(group)).join('\n')}
       </nav>
 
       <div class="sidebar-footer">
-        <a href="#" class="sidebar-link">📖 Full Guide</a>
-        <a href="#" class="sidebar-link">💬 Support</a>
+        <a href="#getting-started" class="sidebar-link">📖 Back to Top</a>
+        <span class="sidebar-link" style="color:var(--text-muted);font-size:0.75rem;opacity:0.7">Generated with IdiamPro</span>
       </div>
     </aside>
 
@@ -83,8 +83,8 @@ ${sidebarGroups.map(group => this.renderSidebarGroup(group)).join('\n')}
             <h2>Quick Start</h2>
             <p>Jump to any section below to begin exploring the documentation.</p>
             <div class="quick-links">
-${sections.slice(0, 4).map((s, i) => `              <a href="#${s.slug}" class="quick-link">
-                <span class="quick-icon">${['📖', '🎯', '⚡', '💡'][i]}</span>
+${sections.slice(0, 6).map((s, i) => `              <a href="#${s.slug}" class="quick-link">
+                <span class="quick-icon">${['📖', '🎯', '⚡', '💡', '🔧', '🧠'][i]}</span>
                 <span class="quick-text">
                   <strong>${this.escapeHtml(this.cleanName(s.name))}</strong>
                   <span>${s.children.length} topics</span>
@@ -106,12 +106,10 @@ ${this.renderContentTree(sections, 0, options)}
           <footer class="docs-footer">
             <div class="footer-nav">
               <div class="footer-prev">
-                <span>Previous</span>
-                <a href="#">Introduction</a>
+                <a href="#getting-started">↑ Back to Top</a>
               </div>
               <div class="footer-next">
-                <span>Next</span>
-                <a href="#">Getting Started</a>
+                <span>${sections.length} chapters · ${totalTopics}+ topics</span>
               </div>
             </div>
             <p class="footer-credit">Generated with <a href="https://idiampro.com">IdiamPro</a></p>
@@ -123,7 +121,7 @@ ${this.renderContentTree(sections, 0, options)}
           <div class="toc-sticky">
             <h4>On This Page</h4>
             <ul>
-${sections.slice(0, 6).map(s => `              <li><a href="#${s.slug}">${this.escapeHtml(this.cleanName(s.name).slice(0, 30))}</a></li>`).join('\n')}
+${sections.map(s => `              <li><a href="#${s.slug}" class="toc-link">${this.escapeHtml(this.cleanName(s.name))}</a></li>`).join('\n')}
             </ul>
           </div>
         </aside>
@@ -504,8 +502,14 @@ ${content}          </section>`;
 
     .quick-links {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 1rem;
+    }
+
+    @media (max-width: 1100px) {
+      .quick-links {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
 
     .quick-link {
@@ -726,8 +730,13 @@ ${content}          </section>`;
       transition: color 0.15s;
     }
 
-    .toc-sticky a:hover {
+    .toc-sticky a:hover,
+    .toc-sticky a.active {
       color: var(--primary);
+    }
+
+    .toc-sticky a.active {
+      font-weight: 600;
     }
 
     /* FOOTER */
@@ -829,14 +838,15 @@ ${content}          </section>`;
       document.querySelector('.sidebar-overlay').classList.toggle('active');
     }
 
-    // Active nav tracking
-    const sections = document.querySelectorAll('.doc-section');
+    // Active nav tracking - works with both .doc-section and .ct-node.ct-depth-0
+    const sections = document.querySelectorAll('.doc-section, .ct-node.ct-depth-0');
     const navLinks = document.querySelectorAll('.nav-item');
+    const tocLinks = document.querySelectorAll('.toc-link');
 
     function updateActiveNav() {
       let current = '';
       sections.forEach(section => {
-        const sectionTop = section.offsetTop - 100;
+        const sectionTop = section.offsetTop - 120;
         if (window.pageYOffset >= sectionTop) {
           current = section.getAttribute('id');
         }
@@ -848,10 +858,54 @@ ${content}          </section>`;
           link.classList.add('active');
         }
       });
+
+      tocLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === '#' + current) {
+          link.classList.add('active');
+        }
+      });
     }
 
     window.addEventListener('scroll', updateActiveNav);
     updateActiveNav();
+
+    // Sidebar search / filter
+    function filterNav(query) {
+      const q = query.toLowerCase().trim();
+      const navItems = document.querySelectorAll('.nav-item:not(.nav-intro)');
+      const navSections = document.querySelectorAll('.nav-section');
+
+      if (!q) {
+        navItems.forEach(item => item.style.display = '');
+        navSections.forEach(sec => sec.style.display = '');
+        return;
+      }
+
+      navSections.forEach(sec => {
+        const items = sec.querySelectorAll('.nav-item');
+        let hasVisible = false;
+        items.forEach(item => {
+          const text = item.textContent.toLowerCase();
+          if (text.includes(q)) {
+            item.style.display = '';
+            hasVisible = true;
+          } else {
+            item.style.display = 'none';
+          }
+        });
+        sec.style.display = hasVisible ? '' : 'none';
+      });
+    }
+
+    // Cmd+K / Ctrl+K focuses search
+    document.addEventListener('keydown', function(e) {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        var input = document.getElementById('docsSearch');
+        if (input) input.focus();
+      }
+    });
 
     // Smooth scroll
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {

@@ -25,7 +25,6 @@ import {
   type FormatCategory,
 } from '@/lib/format-registry';
 import { exportOutline, hasExporter } from '@/lib/export/index';
-import { exportSubtreeToPdf } from '@/lib/pdf-export';
 import { useToast } from '@/hooks/use-toast';
 import WebsiteExportDialog from './website-export-dialog';
 import PodcastDialog from './podcast-dialog';
@@ -118,8 +117,9 @@ export default function ExportDialog({
 
     setIsExporting(true);
     try {
-      // PDF uses the existing exporter for now
+      // PDF uses the existing exporter — lazy-loaded to keep bundle small
       if (selectedFormat === 'pdf') {
+        const { exportSubtreeToPdf } = await import('@/lib/pdf-export');
         await exportSubtreeToPdf(
           outline.nodes,
           rootNodeId || outline.rootNodeId,
@@ -184,7 +184,7 @@ export default function ExportDialog({
   return (
     <>
     <Dialog open={open && !showWebsiteDialog && !showPodcastDialog} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[85vh] flex flex-col">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Share Subtree As...</DialogTitle>
           <DialogDescription>
@@ -193,7 +193,7 @@ export default function ExportDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 min-h-0 flex flex-col gap-4">
+        <div className="flex flex-col gap-4">
           {/* Search */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -206,8 +206,8 @@ export default function ExportDialog({
           </div>
 
           {/* Format Grid */}
-          <ScrollArea className="flex-1 min-h-[200px] max-h-[300px]">
-            <div className="space-y-4 pr-4">
+          <div>
+            <div className="space-y-4">
               {(Object.keys(formatsByCategory) as FormatCategory[]).map((category) => {
                 const formats = formatsByCategory[category];
                 if (formats.length === 0) return null;
@@ -256,7 +256,7 @@ export default function ExportDialog({
                 );
               })}
             </div>
-          </ScrollArea>
+          </div>
 
           {/* Options (shown when format selected) */}
           {selectedFormatDef && (
@@ -301,7 +301,7 @@ export default function ExportDialog({
           )}
         </div>
 
-        <DialogFooter className="mt-4">
+        <DialogFooter className="mt-4 flex-shrink-0">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>

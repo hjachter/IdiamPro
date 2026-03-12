@@ -7,12 +7,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Bot } from 'lucide-react';
-import type { AIDepth } from '@/types';
-import { AI_DEPTH_CONFIG } from '@/types';
+import type { AIDepth, AITone, AILevel } from '@/types';
+import { AI_DEPTH_CONFIG, AI_TONE_CONFIG, AI_LEVEL_CONFIG } from '@/types';
 
 interface AiGenerateDialogProps {
   children: React.ReactNode;
-  onGenerate: (topic: string, depth: AIDepth) => Promise<void>;
+  onGenerate: (topic: string, depth: AIDepth, tone: AITone, level: AILevel) => Promise<void>;
   isLoading: boolean;
 }
 
@@ -20,20 +20,27 @@ export default function AiGenerateDialog({ children, onGenerate, isLoading }: Ai
   const [open, setOpen] = useState(false);
   const [topic, setTopic] = useState('');
   const [depth, setDepth] = useState<AIDepth>('standard');
+  const [tone, setTone] = useState<AITone>('professional');
+  const [level, setLevel] = useState<AILevel>('college');
 
-  // Load default depth from localStorage when dialog opens
+  // Load defaults from localStorage when dialog opens
   useEffect(() => {
     if (open) {
       const savedDepth = localStorage.getItem('aiDepth') as AIDepth | null;
-      if (savedDepth) {
-        setDepth(savedDepth);
-      }
+      const savedTone = localStorage.getItem('aiTone') as AITone | null;
+      const savedLevel = localStorage.getItem('aiLevel') as AILevel | null;
+      if (savedDepth) setDepth(savedDepth);
+      if (savedTone) setTone(savedTone);
+      if (savedLevel) setLevel(savedLevel);
     }
   }, [open]);
 
   const handleSubmit = async () => {
     if (topic.trim()) {
-      await onGenerate(topic, depth);
+      // Save preferences for next time
+      localStorage.setItem('aiTone', tone);
+      localStorage.setItem('aiLevel', level);
+      await onGenerate(topic, depth, tone, level);
       setOpen(false);
       setTopic('');
     }
@@ -42,7 +49,7 @@ export default function AiGenerateDialog({ children, onGenerate, isLoading }: Ai
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2"><Bot /> Generate Outline from Topic</DialogTitle>
           <DialogDescription>
@@ -83,8 +90,48 @@ export default function AiGenerateDialog({ children, onGenerate, isLoading }: Ai
               </SelectContent>
             </Select>
           </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label className="text-right">
+              Tone
+            </Label>
+            <Select value={tone} onValueChange={(v) => setTone(v as AITone)}>
+              <SelectTrigger className="col-span-3">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {(Object.keys(AI_TONE_CONFIG) as AITone[]).map((t) => (
+                  <SelectItem key={t} value={t}>
+                    <div className="flex items-center gap-2">
+                      <span>{AI_TONE_CONFIG[t].icon}</span>
+                      <span>{AI_TONE_CONFIG[t].label}</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label className="text-right">
+              Level
+            </Label>
+            <Select value={level} onValueChange={(v) => setLevel(v as AILevel)}>
+              <SelectTrigger className="col-span-3">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {(Object.keys(AI_LEVEL_CONFIG) as AILevel[]).map((l) => (
+                  <SelectItem key={l} value={l}>
+                    <div className="flex items-center gap-2">
+                      <span>{AI_LEVEL_CONFIG[l].icon}</span>
+                      <span>{AI_LEVEL_CONFIG[l].label}</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <p className="text-xs text-muted-foreground text-right">
-            {AI_DEPTH_CONFIG[depth].description}
+            {AI_TONE_CONFIG[tone].description} · {AI_LEVEL_CONFIG[level].description}
           </p>
         </div>
         <DialogFooter>

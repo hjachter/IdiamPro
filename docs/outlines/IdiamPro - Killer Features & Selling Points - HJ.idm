@@ -74,10 +74,50 @@
         "sp-1",
         "sp-4",
         "sp-3",
-        "sp-2"
+        "sp-2",
+        "kf-podcast",
+        "kf-tone-level",
+        "kf-website-gen",
+        "kf-30-export"
       ],
       "isCollapsed": false,
       "prefix": "1"
+    },
+    "kf-podcast": {
+      "id": "kf-podcast",
+      "name": "AI Podcast Studio: Edit, Customize & Produce",
+      "content": "<p><strong>The Problem:</strong> AI-generated podcasts are rigid — you get what you get with no way to refine the output.</p><p><strong>IdiamPro's Solution:</strong> A full podcast production studio built into your outliner. Generate podcasts from any subtree with complete creative control.</p><p><strong>Key Benefits:</strong></p><p>• <strong>Edit the AI prompt</strong> - Customize exactly how the AI writes your podcast script before generation</p><p>• <strong>Edit the script</strong> - Review and refine every line of dialogue, add/remove segments, change speakers</p><p>• <strong>Multiple styles</strong> - Two-host discussion, interview, debate, or solo narrator</p><p>• <strong>Voice selection</strong> - Choose from 6 distinct AI voices for each speaker</p><p>• <strong>Length control</strong> - Brief (2-3 min), Standard (5-8 min), or Detailed (10-15 min)</p><p>• <strong>HD audio</strong> - Standard or HD quality text-to-speech</p><p><strong>Workflow:</strong> Configure → Edit Prompt → Generate Script → Edit Script → Generate Audio → Preview & Save</p><p><strong>Premium Feature</strong> - Available in evaluation mode</p>",
+      "type": "chapter",
+      "parentId": "26b2b7d4-2374-426f-b8d9-5bb71f64df16",
+      "childrenIds": [],
+      "prefix": "1.5"
+    },
+    "kf-tone-level": {
+      "id": "kf-tone-level",
+      "name": "Adjustable Tone & Reading Level for AI Generation",
+      "content": "<p><strong>The Problem:</strong> AI-generated outlines come out in one generic style, regardless of audience or purpose.</p><p><strong>IdiamPro's Solution:</strong> Set the tone and reading level before generating any outline. The AI adapts its writing style to match your needs.</p><p><strong>Tone Options:</strong></p><p>• <strong>Academic</strong> - Scholarly, formal, research-oriented with citations and evidence</p><p>• <strong>Professional</strong> - Clear, business-appropriate, authoritative</p><p>• <strong>Friendly</strong> - Warm, conversational, easy to follow</p><p>• <strong>Storytelling</strong> - Narrative-driven, engaging, vivid descriptions</p><p><strong>Level Options:</strong></p><p>• <strong>Elementary</strong> - Simple words, short sentences (grades 3-5)</p><p>• <strong>High School</strong> - Clear explanations, moderate vocabulary</p><p>• <strong>College</strong> - Detailed analysis, domain terminology</p><p>• <strong>Graduate</strong> - Advanced concepts, technical depth</p><p>• <strong>Expert</strong> - Specialist-level, assumes deep knowledge</p><p><strong>Use Case:</strong> Generate a cold fusion outline at Elementary level, then produce a podcast — a 6th grader can understand nuclear physics and plan a science project!</p>",
+      "type": "chapter",
+      "parentId": "26b2b7d4-2374-426f-b8d9-5bb71f64df16",
+      "childrenIds": [],
+      "prefix": "1.6"
+    },
+    "kf-website-gen": {
+      "id": "kf-website-gen",
+      "name": "One-Click Website Generation from Outlines",
+      "content": "<p><strong>The Problem:</strong> Turning structured content into a website requires web development skills, separate tools, and hours of work.</p><p><strong>IdiamPro's Solution:</strong> Generate beautiful, complete websites from any outline with one click. Choose from 8 professional templates.</p><p><strong>Templates:</strong></p><p>• Marketing Landing Page • Blog/Article • Documentation • Portfolio • Educational Course • Event/Conference • Informational • Personal</p><p><strong>Key Benefits:</strong></p><p>• <strong>Instant websites</strong> - Your outline structure becomes navigation, sections, and content</p><p>• <strong>Customizable</strong> - Choose colors, fonts, layouts, and branding</p><p>• <strong>Responsive design</strong> - Looks great on desktop, tablet, and mobile</p><p>• <strong>Self-contained HTML</strong> - Download and host anywhere, no dependencies</p><p>• <strong>Professional quality</strong> - Ready for clients, presentations, or publishing</p>",
+      "type": "chapter",
+      "parentId": "26b2b7d4-2374-426f-b8d9-5bb71f64df16",
+      "childrenIds": [],
+      "prefix": "1.7"
+    },
+    "kf-30-export": {
+      "id": "kf-30-export",
+      "name": "30+ Export Formats: Share Anywhere",
+      "content": "<p><strong>The Problem:</strong> Most outliners export to 2-3 formats. When you need your content in a specific format, you're stuck.</p><p><strong>IdiamPro's Solution:</strong> Export to 30+ formats across 8 categories — documents, outliners, note apps, mind maps, presentations, data formats, media, and social.</p><p><strong>Categories:</strong></p><p>• <strong>Documents</strong> - PDF, Word (DOCX), LaTeX, EPUB, Blog HTML, Interactive Outline</p><p>• <strong>Outliners</strong> - OPML, Markdown, Plain Text, JSON, Org Mode, TaskPaper</p><p>• <strong>Note Apps</strong> - Notion, Evernote (ENEX)</p><p>• <strong>Mind Maps</strong> - FreeMind, MindNode, XMind</p><p>• <strong>Data</strong> - CSV, XML, YAML</p><p>• <strong>Presentations</strong> - PowerPoint, Reveal.js, Google Slides</p><p>• <strong>Media</strong> - Podcast, Website</p><p>• <strong>Social</strong> - Twitter Thread, LinkedIn Post</p><p><strong>Comparison:</strong> Typical outliner: 3-5 formats. IdiamPro: 30+ formats. Your content goes wherever you need it.</p>",
+      "type": "chapter",
+      "parentId": "26b2b7d4-2374-426f-b8d9-5bb71f64df16",
+      "childrenIds": [],
+      "prefix": "1.8"
     },
     "a5ddf474-fe4d-442c-8797-fb4a1364207d": {
       "id": "a5ddf474-fe4d-442c-8797-fb4a1364207d",

@@ -18,12 +18,10 @@ export class PersonalTemplate extends BaseWebsiteTemplate {
     const totalTopics = this.countTopics(sections);
     const isFullContent = options.contentDepth === 'standard' || options.contentDepth === 'comprehensive';
     const experienceItems = sections.slice(0, 4);
-    const skillItems = sections.slice(4, 8);
-
     const body = `
   <nav class="navbar">
     <div class="nav-container">
-      <a href="#" class="nav-logo">${this.escapeHtml(options.title)}</a>
+      <a href="#about" class="nav-logo">${this.escapeHtml(options.title)}</a>
       <ul class="nav-menu">
         <li><a href="#about">About</a></li>
         <li><a href="#experience">Experience</a></li>
@@ -151,12 +149,7 @@ ${sections.slice(0, 8).map((section, i) => this.renderSkillCard(section, i, opti
           <span class="section-eyebrow">Get in Touch</span>
           <h2>Let's Connect</h2>
           <p>Interested in learning more or collaborating? I'd love to hear from you.</p>
-          <a href="mailto:hello@example.com" class="btn btn-primary btn-lg">${this.escapeHtml(options.ctaText)}</a>
-          <div class="social-links">
-            <a href="#" class="social-link">LinkedIn</a>
-            <a href="#" class="social-link">Twitter</a>
-            <a href="#" class="social-link">GitHub</a>
-          </div>
+          <a href="#about" class="btn btn-primary btn-lg">${this.escapeHtml(options.ctaText)}</a>
         </div>
       </div>
     </section>
@@ -680,24 +673,6 @@ ${topics.map(t => `                <li>${this.escapeHtml(t)}</li>`).join('\n')}
       color: var(--text-muted);
       font-size: 1.1rem;
       margin-bottom: 2rem;
-    }
-
-    .social-links {
-      margin-top: 2rem;
-      display: flex;
-      justify-content: center;
-      gap: 1.5rem;
-    }
-
-    .social-link {
-      color: var(--text-muted);
-      text-decoration: none;
-      font-size: 0.95rem;
-      transition: color 0.2s;
-    }
-
-    .social-link:hover {
-      color: var(--primary);
     }
 
     /* FOOTER */

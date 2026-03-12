@@ -40,7 +40,7 @@ export class MarketingTemplate extends BaseWebsiteTemplate {
     const body = `
   <nav class="navbar">
     <div class="nav-container">
-      <a href="#" class="nav-logo">${this.escapeHtml(options.title)}</a>
+      <a href="#top" class="nav-logo">${this.escapeHtml(options.title)}</a>
       <button class="nav-toggle" onclick="toggleNav()" aria-label="Toggle navigation">
         <span></span><span></span><span></span>
       </button>
@@ -58,7 +58,7 @@ export class MarketingTemplate extends BaseWebsiteTemplate {
   <header class="hero">
     <div class="hero-container">
       <div class="hero-content">
-        <p class="hero-eyebrow">The Complete Guide</p>
+        <p class="hero-eyebrow">${sections.length} Chapters · ${totalTopics}+ Topics</p>
         <h1>${this.escapeHtml(options.title)}</h1>
         <p class="hero-subtitle">${options.tagline ? this.escapeHtml(options.tagline) : heroSubtitle}</p>
         <div class="hero-stats">
@@ -71,8 +71,8 @@ export class MarketingTemplate extends BaseWebsiteTemplate {
             <span class="stat-label">Topics</span>
           </div>
           <div class="stat">
-            <span class="stat-number">100%</span>
-            <span class="stat-label">Actionable</span>
+            <span class="stat-number">${sections.reduce((sum, s) => sum + s.children.length, 0)}</span>
+            <span class="stat-label">Key Points</span>
           </div>
         </div>
         <div class="hero-cta">

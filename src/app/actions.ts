@@ -28,6 +28,8 @@ import type {
   TranscriptionOptions,
   MergeStrategy,
   AIDepth,
+  AITone,
+  AILevel,
 } from '@/types';
 import { parseMarkdownToNodes } from '@/lib/outline-utils';
 import { v4 as uuidv4 } from 'uuid';
@@ -221,10 +223,12 @@ ${existingContent ? 'Build upon or enhance the existing content.' : 'Create new 
 
 export async function generateOutlineAction(
   topic: string,
-  depth: AIDepth = 'standard'
+  depth: AIDepth = 'standard',
+  tone: AITone = 'professional',
+  level: AILevel = 'college'
 ): Promise<string> {
   try {
-    const result = await generateOutlineFromTopic({ topic, depth });
+    const result = await generateOutlineFromTopic({ topic, depth, tone, level });
     return result.outline;
   } catch (error) {
     console.error('Error generating outline:', error);

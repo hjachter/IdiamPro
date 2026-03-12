@@ -6,7 +6,7 @@ import DOMPurify from 'dompurify';
 import { v4 as uuidv4 } from 'uuid';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { useIsMobile } from "@/hooks/use-mobile";
-import type { Outline, OutlineNode, NodeType, NodeMap, NodeGenerationContext, ExternalSourceInput, IngestPreview, AIDepth } from '@/types';
+import type { Outline, OutlineNode, NodeType, NodeMap, NodeGenerationContext, ExternalSourceInput, IngestPreview, AIDepth, AITone, AILevel } from '@/types';
 import { getInitialGuide } from '@/lib/initial-guide';
 import { getWelcomeOutline, hasSeenWelcome, markWelcomeSeen } from '@/lib/welcome-outline';
 import { addNode, addNodeAfter, removeNode, updateNode, moveNode, parseMarkdownToNodes, recalculatePrefixesForBranch, buildOutlineTreeString, generateMindmapFromSubtree, generateFlowchartFromSubtree } from '@/lib/outline-utils';
@@ -27,10 +27,10 @@ import KeyboardShortcutsDialog, { useKeyboardShortcuts } from './keyboard-shortc
 import BulkResearchDialog from './bulk-research-dialog';
 import HelpChatDialog from './help-chat-dialog';
 import KnowledgeChatDialog from './knowledge-chat-dialog';
-import ExportDialog from './export-dialog';
-import PodcastDialog from './podcast-dialog';
-import { exportOutlineToJson } from '@/lib/export';
-import { exportSubtreeToPdf } from '@/lib/pdf-export';
+import dynamic from 'next/dynamic';
+
+const ExportDialog = dynamic(() => import('./export-dialog'), { ssr: false, loading: () => null });
+const PodcastDialog = dynamic(() => import('./podcast-dialog'), { ssr: false, loading: () => null });
 import { isElectron, electronCheckPendingImports, electronDeletePendingImport, electronClearAllPendingImports, electronSaveOutlineToFile, electronGetOutlineMtime, onElectronWindowFocus, type PendingImportResult } from '@/lib/electron-storage';
 import type { BulkResearchSources } from '@/types';
 
@@ -740,26 +740,28 @@ export default function OutlinePro() {
       if (e.key === 'Escape' && isFocusMode) {
         e.preventDefault();
         setIsFocusMode(false);
-        toast({
-          title: "Focus Mode Off",
-          description: "Returned to normal view",
-          duration: 1500,
-        });
+        setTimeout(() => {
+          toast({
+            title: "Focus Mode Off",
+            description: "Returned to normal view",
+            duration: 1500,
+          });
+        }, 0);
         return;
       }
 
       // Cmd+Shift+F or Ctrl+Shift+F to toggle focus mode
       if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'f') {
         e.preventDefault();
-        setIsFocusMode(prev => {
-          const next = !prev;
+        const next = !isFocusMode;
+        setIsFocusMode(next);
+        setTimeout(() => {
           toast({
             title: next ? "Focus Mode On" : "Focus Mode Off",
             description: next ? "Press Escape to exit" : "Returned to normal view",
             duration: 1500,
           });
-          return next;
-        });
+        }, 0);
         return;
       }
 
@@ -1649,11 +1651,11 @@ export default function OutlinePro() {
   }, [currentOutlineId, toast]);
 
   // FIXED: handleGenerateOutline uses functional update pattern
-  const handleGenerateOutline = useCallback(async (topic: string, depth: AIDepth = 'standard') => {
+  const handleGenerateOutline = useCallback(async (topic: string, depth: AIDepth = 'standard', tone: AITone = 'professional', level: AILevel = 'college') => {
     setIsLoadingAI(true);
     aiLoadingStartTime.current = Date.now();
     try {
-      const markdown = await generateOutlineAction(topic, depth);
+      const markdown = await generateOutlineAction(topic, depth, tone, level);
       const { rootNodeId, nodes } = parseMarkdownToNodes(markdown, topic);
       const newOutlineId = uuidv4();
       const newOutline: Outline = {

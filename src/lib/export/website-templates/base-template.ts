@@ -157,7 +157,7 @@ export abstract class BaseWebsiteTemplate {
       --bg-alt: ${customBg ? this.adjustColor(customBg, -8) : '#f8fafc'};
       --text: ${customText || '#1e293b'};
       --text-muted: ${customText ? this.adjustColor(customText, 60) : '#64748b'};
-      --border: #e2e8f0;
+      --border: ${customBg ? this.adjustColor(customBg, -18) : '#e2e8f0'};
       --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
     `;
 
@@ -170,8 +170,8 @@ export abstract class BaseWebsiteTemplate {
       --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3);
     `;
 
-    // Determine if the theme is dark based on bg color
-    const isDarkTheme = colorTheme?.bg === '#0f172a' || scheme === 'dark';
+    // Determine if the theme is dark based on bg color luminance
+    const isDarkTheme = scheme === 'dark' || (customBg ? this.isColorDark(customBg) : false);
 
     if (scheme === 'light' || (colorTheme && !isDarkTheme)) {
       return `:root { ${lightVars} }`;
@@ -228,6 +228,19 @@ export abstract class BaseWebsiteTemplate {
 
     // Convert back to hex
     return `#${newR.toString(16).padStart(2, '0')}${newG.toString(16).padStart(2, '0')}${newB.toString(16).padStart(2, '0')}`;
+  }
+
+  /**
+   * Check if a hex color is dark using relative luminance
+   */
+  private isColorDark(hex: string): boolean {
+    hex = hex.replace('#', '');
+    const r = parseInt(hex.substring(0, 2), 16) / 255;
+    const g = parseInt(hex.substring(2, 4), 16) / 255;
+    const b = parseInt(hex.substring(4, 6), 16) / 255;
+    // sRGB luminance
+    const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    return luminance < 0.5;
   }
 
   /**

@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -15,10 +15,10 @@ import { Sparkles, FileText, Crown, Loader2, Library, Brain } from 'lucide-react
 import { useAI, useAIFeature } from '@/contexts/ai-context';
 import AiGenerateDialog from './ai-generate-dialog';
 
-import type { AIDepth } from '@/types';
+import type { AIDepth, AITone, AILevel } from '@/types';
 
 interface AIMenuProps {
-  onGenerateOutline: (topic: string, depth: AIDepth) => Promise<void>;
+  onGenerateOutline: (topic: string, depth: AIDepth, tone: AITone, level: AILevel) => Promise<void>;
   outlineSummary?: string;
   isLoadingAI: boolean;
   disabled?: boolean;
@@ -36,6 +36,7 @@ export default function AIMenu({
 }: AIMenuProps) {
   const { isPremium } = useAI();
   const contentGenEnabled = useAIFeature('enableAIContentGeneration');
+  const [menuOpen, setMenuOpen] = useState(false);
 
   // Check if any AI features are enabled
   const hasAnyFeature = contentGenEnabled;
@@ -44,8 +45,13 @@ export default function AIMenu({
     return null;
   }
 
+  const handleGenerate = async (topic: string, depth: AIDepth, tone: AITone, level: AILevel) => {
+    setMenuOpen(false);
+    await onGenerateOutline(topic, depth, tone, level);
+  };
+
   return (
-    <DropdownMenu>
+    <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
@@ -81,7 +87,7 @@ export default function AIMenu({
         <DropdownMenuSeparator />
 
         {contentGenEnabled && (
-          <AiGenerateDialog onGenerate={onGenerateOutline} isLoading={isLoadingAI}>
+          <AiGenerateDialog onGenerate={handleGenerate} isLoading={isLoadingAI}>
             <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="cursor-pointer">
               <FileText className="mr-2 h-4 w-4" />
               Generate Outline from Topic

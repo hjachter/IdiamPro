@@ -25,7 +25,7 @@ export class EventTemplate extends BaseWebsiteTemplate {
     const body = `
   <nav class="navbar">
     <div class="nav-container">
-      <a href="#" class="nav-logo">${this.escapeHtml(options.title)}</a>
+      <a href="#about" class="nav-logo">${this.escapeHtml(options.title)}</a>
       <ul class="nav-menu">
         <li><a href="#about">About</a></li>
         <li><a href="#highlights">Highlights</a></li>
@@ -40,7 +40,7 @@ export class EventTemplate extends BaseWebsiteTemplate {
   <header class="hero">
     <div class="hero-bg"></div>
     <div class="hero-content">
-      <div class="event-badge">Featured Event</div>
+      <div class="event-badge">${sections.length} Chapters · ${totalTopics}+ Topics</div>
       <h1>${this.escapeHtml(options.title)}</h1>
       <p class="hero-tagline">${options.tagline ? this.escapeHtml(options.tagline) : 'Join us for this transformative experience'}</p>
       <div class="event-info">
@@ -48,14 +48,14 @@ export class EventTemplate extends BaseWebsiteTemplate {
           <span class="info-icon">📅</span>
           <div class="info-text">
             <span class="info-label">Date</span>
-            <span class="info-value">Coming Soon</span>
+            <span class="info-value">${this.formatDate()}</span>
           </div>
         </div>
         <div class="info-item">
           <span class="info-icon">📍</span>
           <div class="info-text">
-            <span class="info-label">Location</span>
-            <span class="info-value">Virtual & In-Person</span>
+            <span class="info-label">Format</span>
+            <span class="info-value">Interactive Guide</span>
           </div>
         </div>
         <div class="info-item">
@@ -101,12 +101,12 @@ ${this.renderContentTree(sections, 0, options)}
               <span class="stat-label">Topics</span>
             </div>
             <div class="stat-card">
-              <span class="stat-num">100%</span>
-              <span class="stat-label">Actionable</span>
+              <span class="stat-num">${sections.reduce((sum, s) => sum + s.children.length, 0)}</span>
+              <span class="stat-label">Key Points</span>
             </div>
             <div class="stat-card">
-              <span class="stat-num">∞</span>
-              <span class="stat-label">Insights</span>
+              <span class="stat-num">${sections.length > 0 ? Math.round(totalTopics / sections.length) : 0}</span>
+              <span class="stat-label">Avg per Chapter</span>
             </div>
           </div>
         </div>
@@ -162,11 +162,11 @@ ${speakerSection.map((section, i) => this.renderSpeakerCard(section, i, options)
           <span class="section-eyebrow">Join Us</span>
           <h2>Secure Your Spot</h2>
           <p>Be part of this transformative experience. Access ${sections.length} chapters and ${totalTopics}+ topics.</p>
-          <a href="#" class="btn btn-primary btn-lg">${this.escapeHtml(options.ctaText)}</a>
+          <a href="#about" class="btn btn-primary btn-lg">${this.escapeHtml(options.ctaText)}</a>
           <div class="register-features">
-            <span>✓ Full Access</span>
-            <span>✓ All Topics</span>
-            <span>✓ Resources Included</span>
+            <span>✓ ${sections.length} Chapters</span>
+            <span>✓ ${totalTopics}+ Topics</span>
+            <span>✓ Full Content</span>
           </div>
         </div>
       </div>
@@ -195,6 +195,11 @@ ${speakerSection.map((section, i) => this.renderSpeakerCard(section, i, options)
       body,
       this.getScripts()
     );
+  }
+
+  private formatDate(): string {
+    const date = new Date();
+    return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
   }
 
   private countTopics(sections: WebsiteSection[]): number {

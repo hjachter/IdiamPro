@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { ai } from '@/ai/genkit';
-import type { NodeMap, PodcastConfig, PodcastScriptSegment, OpenAIVoice } from '@/types';
-import { extractSubtreeContent, buildScriptPrompt, parseScriptResponse } from '@/lib/podcast-generator';
+import type { PodcastScriptSegment, OpenAIVoice } from '@/types';
 
 const SSE_HEADERS = {
   'Content-Type': 'text/event-stream',
@@ -21,10 +19,6 @@ function errorMessage(err: unknown): string {
   return 'An unknown error occurred';
 }
 
-/**
- * Call OpenAI TTS API for a single text segment.
- * Returns the MP3 audio as a Buffer.
- */
 async function synthesizeSpeech(
   text: string,
   voice: OpenAIVoice,
@@ -57,9 +51,6 @@ async function synthesizeSpeech(
   return Buffer.from(arrayBuffer);
 }
 
-/**
- * Retry a TTS call with exponential backoff.
- */
 async function synthesizeWithRetry(
   text: string,
   voice: OpenAIVoice,
@@ -73,7 +64,6 @@ async function synthesizeWithRetry(
     } catch (err) {
       const msg = errorMessage(err);
       if (msg.startsWith('RATE_LIMIT:') && attempt < maxRetries) {
-        // Exponential backoff: 2s, 4s
         const delay = Math.pow(2, attempt + 1) * 1000;
         console.log(`[Podcast] TTS rate limited, retrying in ${delay}ms (attempt ${attempt + 1}/${maxRetries})`);
         await new Promise(resolve => setTimeout(resolve, delay));
@@ -85,23 +75,26 @@ async function synthesizeWithRetry(
         continue;
       }
       console.error(`[Podcast] TTS failed after ${maxRetries + 1} attempts: ${msg}`);
-      return null; // Skip this segment
+      return null;
     }
   }
   return null;
 }
 
+/**
+ * TTS-only: takes edited script segments and synthesizes audio.
+ * Streams progress via SSE.
+ */
 export async function POST(request: NextRequest) {
   try {
-    const { nodes, rootId, config } = await request.json() as {
-      nodes: NodeMap;
-      rootId: string;
-      config: PodcastConfig;
+    const { segments, ttsModel } = await request.json() as {
+      segments: PodcastScriptSegment[];
+      ttsModel: 'tts-1' | 'tts-1-hd';
     };
 
-    if (!nodes || !rootId || !config) {
+    if (!segments || segments.length === 0) {
       return NextResponse.json(
-        { error: 'Missing required fields: nodes, rootId, config' },
+        { error: 'Missing required field: segments' },
         { status: 400 }
       );
     }
@@ -109,7 +102,7 @@ export async function POST(request: NextRequest) {
     const openaiKey = process.env.OPENAI_API_KEY;
     if (!openaiKey) {
       return NextResponse.json(
-        { error: 'OPENAI_API_KEY not configured. Add OPENAI_API_KEY to your .env.local file to enable podcast generation.' },
+        { error: 'OPENAI_API_KEY not configured.' },
         { status: 500 }
       );
     }
@@ -120,62 +113,13 @@ export async function POST(request: NextRequest) {
         const close = () => { if (!closed) { closed = true; controller.close(); } };
 
         try {
-          // Phase 1: Extract content and generate script
-          controller.enqueue(encoder.encode(sseEvent({
-            phase: 'script',
-            message: 'Generating podcast script...',
-            percent: 5,
-          })));
-
-          const content = extractSubtreeContent(nodes, rootId);
-          if (!content.trim()) {
-            throw new Error('No content found in the selected subtree');
-          }
-
-          const speakers = Object.keys(config.voices);
-          const { system, user } = buildScriptPrompt(content, config.style, config.length, speakers);
-
-          controller.enqueue(encoder.encode(sseEvent({
-            phase: 'script',
-            message: 'Waiting for AI to write the script...',
-            percent: 10,
-          })));
-
-          // Use non-streaming generation for the script (we need the full text to parse JSON)
-          const { text: scriptText } = await ai.generate({
-            model: 'googleai/gemini-2.0-flash',
-            prompt: `${system}\n\n${user}`,
-            config: {
-              maxOutputTokens: 8192,
-              temperature: 0.9,
-            },
-          });
-
-          controller.enqueue(encoder.encode(sseEvent({
-            phase: 'script',
-            message: 'Parsing script...',
-            percent: 15,
-          })));
-
-          const segments = parseScriptResponse(scriptText, config.voices);
-          console.log(`[Podcast] Script generated: ${segments.length} segments`);
-
-          // Phase 2: Text-to-speech for each segment
-          controller.enqueue(encoder.encode(sseEvent({
-            phase: 'tts',
-            message: `Synthesizing audio (0/${segments.length} segments)...`,
-            percent: 15,
-            totalSegments: segments.length,
-            segmentIndex: 0,
-          })));
-
           const audioBuffers: Buffer[] = [];
           let failedCount = 0;
-          const maxFailures = Math.ceil(segments.length * 0.2); // Abort if >20% fail
+          const maxFailures = Math.ceil(segments.length * 0.2);
 
           for (let i = 0; i < segments.length; i++) {
             const segment = segments[i];
-            const percent = 15 + Math.round((i / segments.length) * 75);
+            const percent = Math.round((i / segments.length) * 90);
 
             controller.enqueue(encoder.encode(sseEvent({
               phase: 'tts',
@@ -188,7 +132,7 @@ export async function POST(request: NextRequest) {
             const audioBuffer = await synthesizeWithRetry(
               segment.text,
               segment.voice,
-              config.ttsModel,
+              ttsModel || 'tts-1',
               openaiKey,
             );
 
@@ -202,7 +146,6 @@ export async function POST(request: NextRequest) {
             }
           }
 
-          // Phase 3: Combine audio
           controller.enqueue(encoder.encode(sseEvent({
             phase: 'combining',
             message: 'Combining audio segments...',
@@ -215,7 +158,6 @@ export async function POST(request: NextRequest) {
 
           console.log(`[Podcast] Audio combined: ${totalLength} bytes, ${audioBuffers.length} chunks`);
 
-          // Phase 4: Done - send audio and script
           controller.enqueue(encoder.encode(sseEvent({
             phase: 'done',
             message: 'Podcast generated successfully!',
@@ -224,18 +166,15 @@ export async function POST(request: NextRequest) {
             scriptSegments: segments,
             failedSegments: failedCount,
           })));
-
         } catch (err) {
-          console.error('[Podcast] Generation error:', err);
+          console.error('[Podcast TTS] Error:', err);
           try {
             controller.enqueue(encoder.encode(sseEvent({
               phase: 'error',
               message: errorMessage(err),
               percent: 0,
             })));
-          } catch {
-            // Controller may already be closed
-          }
+          } catch { /* controller may be closed */ }
         } finally {
           close();
         }
@@ -244,9 +183,9 @@ export async function POST(request: NextRequest) {
 
     return new Response(stream, { headers: SSE_HEADERS });
   } catch (error) {
-    console.error('[Podcast] Route error:', error);
+    console.error('[Podcast TTS] Route error:', error);
     return NextResponse.json(
-      { error: 'Failed to start podcast generation' },
+      { error: 'Failed to start audio synthesis' },
       { status: 500 }
     );
   }

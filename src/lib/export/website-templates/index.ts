@@ -1,50 +1,49 @@
 'use client';
 
 import type { BaseWebsiteTemplate, WebsiteSection, WebsiteTemplateOptions } from './base-template';
-import { MarketingTemplate } from './marketing-template';
-import { InformationalTemplate } from './informational-template';
-import { DocumentationTemplate } from './documentation-template';
-import { PortfolioTemplate } from './portfolio-template';
-import { EventTemplate } from './event-template';
-import { EducationalTemplate } from './educational-template';
-import { BlogTemplate } from './blog-template';
-import { PersonalTemplate } from './personal-template';
 
 // Export types
 export type { WebsiteSection, WebsiteTemplateOptions } from './base-template';
 export { BaseWebsiteTemplate } from './base-template';
 
-// Template registry - all 8 website types
-const TEMPLATES: Record<string, BaseWebsiteTemplate> = {
+// Lazy template factories — each template is only instantiated on first use
+const TEMPLATE_FACTORIES: Record<string, () => BaseWebsiteTemplate> = {
   // Free templates
-  marketing: new MarketingTemplate(),
-  informational: new InformationalTemplate(),
-  documentation: new DocumentationTemplate(),
+  marketing: () => new (require('./marketing-template').MarketingTemplate)(),
+  informational: () => new (require('./informational-template').InformationalTemplate)(),
+  documentation: () => new (require('./documentation-template').DocumentationTemplate)(),
   // Premium templates
-  portfolio: new PortfolioTemplate(),
-  event: new EventTemplate(),
-  educational: new EducationalTemplate(),
-  blog: new BlogTemplate(),
-  personal: new PersonalTemplate(),
+  portfolio: () => new (require('./portfolio-template').PortfolioTemplate)(),
+  event: () => new (require('./event-template').EventTemplate)(),
+  educational: () => new (require('./educational-template').EducationalTemplate)(),
+  blog: () => new (require('./blog-template').BlogTemplate)(),
+  personal: () => new (require('./personal-template').PersonalTemplate)(),
 };
 
+// Cache of instantiated templates
+const templateCache: Record<string, BaseWebsiteTemplate> = {};
+
 /**
- * Get a website template by ID
+ * Get a website template by ID (lazy-instantiated)
  */
 export function getWebsiteTemplate(id: string): BaseWebsiteTemplate {
-  return TEMPLATES[id] || TEMPLATES.marketing;
+  const templateId = id in TEMPLATE_FACTORIES ? id : 'marketing';
+  if (!templateCache[templateId]) {
+    templateCache[templateId] = TEMPLATE_FACTORIES[templateId]();
+  }
+  return templateCache[templateId];
 }
 
 /**
  * Get all available template IDs
  */
 export function getAvailableTemplates(): string[] {
-  return Object.keys(TEMPLATES);
+  return Object.keys(TEMPLATE_FACTORIES);
 }
 
 /**
  * Check if a template exists
  */
 export function hasTemplate(id: string): boolean {
-  return id in TEMPLATES;
+  return id in TEMPLATE_FACTORIES;
 }

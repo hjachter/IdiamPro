@@ -5,7 +5,7 @@ import type { OutlineNode, NodeMap } from '@/types';
 import NodeIcon from './node-icon';
 import { TagBadge } from './tag-badge';
 import { TagManager } from './tag-manager';
-import { ChevronRight, Plus, Trash2, Edit3, ChevronDown, ChevronUp, Copy, Scissors, ClipboardPaste, CopyPlus, Sparkles, CheckSquare2, Square, Palette, Check, Star, Tag } from 'lucide-react';
+import { ChevronRight, Plus, Trash2, Edit3, ChevronDown, ChevronUp, Copy, Scissors, ClipboardPaste, CopyPlus, Sparkles, CheckSquare2, Square, Palette, Check, Star, Tag, Share } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import {
@@ -57,6 +57,8 @@ interface NodeItemProps {
   selectedNodeIds?: Set<string>;
   onToggleNodeSelection?: (nodeId: string, isCtrlClick: boolean) => void;
   onRangeSelect?: (nodeId: string) => void;
+  // Export/Share subtree
+  onExportSubtree?: (nodeId: string) => void;
   // Progressive rendering - max depth to render (for large outlines)
   maxRenderDepth?: number;
 }
@@ -157,6 +159,7 @@ export default function NodeItem({
   selectedNodeIds,
   onToggleNodeSelection,
   onRangeSelect,
+  onExportSubtree,
   maxRenderDepth,
 }: NodeItemProps) {
   const node = nodes[nodeId];
@@ -672,6 +675,13 @@ export default function NodeItem({
               </ContextMenuItem>
             )}
 
+            {onExportSubtree && (
+              <ContextMenuItem onClick={(e) => { e.stopPropagation(); onExportSubtree(node.id); }}>
+                <Share className="mr-2 h-4 w-4" />
+                Share Subtree As...
+              </ContextMenuItem>
+            )}
+
             <ContextMenuSeparator />
             {onCopySubtree && (
               <ContextMenuItem onClick={(e) => { e.stopPropagation(); onCopySubtree(node.id); }}>
@@ -947,6 +957,7 @@ export default function NodeItem({
                         selectedNodeIds={selectedNodeIds}
                         onToggleNodeSelection={onToggleNodeSelection}
                         onRangeSelect={onRangeSelect}
+                        onExportSubtree={onExportSubtree}
                         maxRenderDepth={maxRenderDepth}
                     />
                 ))}

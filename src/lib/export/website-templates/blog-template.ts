@@ -25,7 +25,7 @@ export class BlogTemplate extends BaseWebsiteTemplate {
     const body = `
   <nav class="navbar">
     <div class="nav-container">
-      <a href="#" class="nav-logo">${this.escapeHtml(options.title)}</a>
+      <a href="#featured" class="nav-logo">${this.escapeHtml(options.title)}</a>
       <ul class="nav-menu">
         <li><a href="#featured">Featured</a></li>
         <li><a href="#recent">Recent</a></li>
@@ -102,10 +102,10 @@ ${sections.map((section, i) => this.renderTopicCard(section, i, options)).join('
           <h2>Stay Updated</h2>
           <p>Get the latest articles and insights delivered to your inbox.</p>
           <form class="subscribe-form" onsubmit="return false;">
-            <input type="email" placeholder="Enter your email" disabled>
+            <input type="email" placeholder="Enter your email" id="subscribeEmail">
             <button type="submit" class="btn btn-primary">${this.escapeHtml(options.ctaText)}</button>
           </form>
-          <span class="subscribe-note">Join ${Math.floor(totalArticles * 100)}+ readers</span>
+          <span class="subscribe-note">${totalArticles} articles across ${sections.length} topics</span>
         </div>
       </div>
     </section>
