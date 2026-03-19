@@ -520,7 +520,7 @@ export default function ContentPane({
         openOnClick: true,
         autolink: true,
         linkOnPaste: true,
-        protocols: ['http', 'https', 'mailto', 'tel', { scheme: 'data', optionalSlashes: true }],
+        protocols: ['http', 'https', 'mailto', 'tel', 'message', 'notes', 'bear', 'craft', 'obsidian', 'notion', { scheme: 'data', optionalSlashes: true }],
         HTMLAttributes: {
           target: '_blank',
           rel: 'noopener noreferrer',
@@ -701,44 +701,79 @@ export default function ContentPane({
           }
         }
 
-        // Check for images embedded in pasted HTML (e.g. Apple Notes scanned docs, web pages)
+        // Check pasted HTML content
         const html = event.clipboardData?.getData('text/html');
         if (html && editorRef.current) {
-          // Extract <img> tags with src attributes (data URLs or blob URLs)
+          // Detect rich email/app HTML that would lose formatting through TipTap
+          // (Apple Mail, Gmail, Outlook, etc. use complex table layouts and inline styles)
+          const isRichEmail = html.includes('Cocoa HTML Writer') ||
+            html.includes('Microsoft') ||
+            html.includes('Outlook') ||
+            (/<table[\s>]/i.test(html) && /<td[\s>]/i.test(html) && html.length > 500);
+
+          if (isRichEmail) {
+            // Insert as a preserved HTML block with original styling
+            event.preventDefault();
+
+            // Extract just the <body> content, keeping styles
+            const doc = new DOMParser().parseFromString(html, 'text/html');
+            const styles = doc.querySelectorAll('style');
+            let styleText = '';
+            styles.forEach(s => { styleText += s.textContent || ''; });
+
+            // Clean up the body HTML: remove scripts, fix relative URLs
+            const body = doc.body;
+            body.querySelectorAll('script').forEach(s => s.remove());
+
+            // Wrap in a scoped container with original styles
+            const scopedHtml = `<div class="pasted-rich-content" style="all: initial; font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif; color: inherit;">
+              <style scoped>${styleText.replace(/\bbody\b/g, '.pasted-rich-content')}</style>
+              ${body.innerHTML}
+            </div>`;
+
+            editorRef.current.commands.insertContent(scopedHtml);
+            return true;
+          }
+
+          // For non-email HTML: check for image-only pastes
           const imgMatch = html.match(/<img[^>]+src=["']([^"']+)["']/i);
           if (imgMatch && imgMatch[1]) {
-            const src = imgMatch[1];
+            const hasLinks = /<a\s+[^>]*href=/i.test(html);
+            const strippedText = html.replace(/<[^>]+>/g, '').trim();
+            const hasSignificantText = strippedText.length > 20;
 
-            // If it's already a data URL, insert directly
-            if (src.startsWith('data:image/')) {
-              event.preventDefault();
-              (editorRef.current.commands as any).setImageBlock(src, 'Pasted image');
-              return true;
-            }
+            // Only intercept for image-only pastes (no links or meaningful text)
+            if (!hasLinks && !hasSignificantText) {
+              const src = imgMatch[1];
 
-            // If it's a blob URL or http URL, try to fetch and convert to data URL
-            if (src.startsWith('blob:') || src.startsWith('http')) {
-              event.preventDefault();
-              fetch(src)
-                .then(res => res.blob())
-                .then(blob => {
-                  if (!blob.type.startsWith('image/')) return;
-                  const reader = new FileReader();
-                  reader.onload = (e) => {
-                    const dataUrl = e.target?.result as string;
-                    if (dataUrl && editorRef.current) {
-                      (editorRef.current.commands as any).setImageBlock(dataUrl, 'Pasted image');
+              if (src.startsWith('data:image/')) {
+                event.preventDefault();
+                (editorRef.current.commands as any).setImageBlock(src, 'Pasted image');
+                return true;
+              }
+
+              if (src.startsWith('blob:') || src.startsWith('http')) {
+                event.preventDefault();
+                fetch(src)
+                  .then(res => res.blob())
+                  .then(blob => {
+                    if (!blob.type.startsWith('image/')) return;
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                      const dataUrl = e.target?.result as string;
+                      if (dataUrl && editorRef.current) {
+                        (editorRef.current.commands as any).setImageBlock(dataUrl, 'Pasted image');
+                      }
+                    };
+                    reader.readAsDataURL(blob);
+                  })
+                  .catch(() => {
+                    if (editorRef.current) {
+                      (editorRef.current.commands as any).setImageBlock(src, 'Pasted image');
                     }
-                  };
-                  reader.readAsDataURL(blob);
-                })
-                .catch(() => {
-                  // If fetch fails (cross-origin), insert with original URL
-                  if (editorRef.current) {
-                    (editorRef.current.commands as any).setImageBlock(src, 'Pasted image');
-                  }
-                });
-              return true;
+                  });
+                return true;
+              }
             }
           }
         }

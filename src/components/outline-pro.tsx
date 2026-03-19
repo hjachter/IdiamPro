@@ -111,6 +111,7 @@ export default function OutlinePro() {
   const [mobileView, setMobileView] = useState<MobileView>('stacked');
   const [isLoadingAI, setIsLoadingAI] = useState(false);
   const aiLoadingStartTime = useRef<number | null>(null);
+  const aiCancelledRef = useRef(false);
   const [isLoadingLazyOutline, setIsLoadingLazyOutline] = useState(false);
   const [loadingOutlineInfo, setLoadingOutlineInfo] = useState<{
     name: string;
@@ -1650,8 +1651,20 @@ export default function OutlinePro() {
     });
   }, [currentOutlineId, toast]);
 
+  // Cancel any running AI operation and restore UI to ready state
+  const handleCancelAI = useCallback(() => {
+    aiCancelledRef.current = true;
+    setIsLoadingAI(false);
+    aiLoadingStartTime.current = null;
+    toast({
+      title: 'Operation Cancelled',
+      description: 'AI operation was stopped. Any work completed so far has been kept.',
+    });
+  }, [toast]);
+
   // FIXED: handleGenerateOutline uses functional update pattern
   const handleGenerateOutline = useCallback(async (topic: string, depth: AIDepth = 'standard', tone: AITone = 'professional', level: AILevel = 'college') => {
+    aiCancelledRef.current = false;
     setIsLoadingAI(true);
     aiLoadingStartTime.current = Date.now();
     try {
@@ -1687,6 +1700,7 @@ export default function OutlinePro() {
     // Capture the node ID before the async operation
     const nodeIdToUpdate = selectedNode.id;
 
+    aiCancelledRef.current = false;
     setIsLoadingAI(true);
     aiLoadingStartTime.current = Date.now();
     try {
@@ -1792,6 +1806,7 @@ export default function OutlinePro() {
       return;
     }
 
+    aiCancelledRef.current = false;
     setIsLoadingAI(true);
     aiLoadingStartTime.current = Date.now();
 
@@ -1818,6 +1833,9 @@ export default function OutlinePro() {
 
     // Process descendants sequentially with rate limiting
     for (let i = 0; i < allDescendantIds.length; i++) {
+      // Check if user cancelled
+      if (aiCancelledRef.current) break;
+
       const descendantId = allDescendantIds[i];
       const descendantNode = nodes[descendantId];
       if (!descendantNode) continue;
@@ -1910,6 +1928,17 @@ export default function OutlinePro() {
       console.error('Failed to generate subtree diagram:', e);
     }
 
+    // If cancelled, the cancel handler already cleaned up — just show summary
+    if (aiCancelledRef.current) {
+      if (successCount > 0) {
+        toast({
+          title: "Cancelled",
+          description: `Stopped after generating ${successCount} of ${totalDescendants} descendants. Completed work was kept.`,
+        });
+      }
+      return;
+    }
+
     setIsLoadingAI(false);
     aiLoadingStartTime.current = null;
 
@@ -1997,6 +2026,7 @@ export default function OutlinePro() {
       ? `Outline: ${currentOutline.name}\n\nCurrent structure:\n${buildOutlineTreeString(currentOutline.nodes, currentOutline.rootNodeId)}`
       : undefined;
 
+    aiCancelledRef.current = false;
     setIsLoadingAI(true);
     aiLoadingStartTime.current = Date.now();
     try {
@@ -2038,6 +2068,7 @@ export default function OutlinePro() {
 
   // Bulk Research Import (PREMIUM) - Synthesizes multiple sources
   const handleBulkResearch = useCallback(async (input: BulkResearchSources): Promise<void> => {
+    aiCancelledRef.current = false;
     setIsLoadingAI(true);
     aiLoadingStartTime.current = Date.now();
     try {
@@ -3449,6 +3480,7 @@ export default function OutlinePro() {
                 onRefreshGuide={handleRefreshGuide}
                 onFolderSelected={handleFolderSelected}
                 isLoadingAI={isLoadingAI}
+                onCancelAI={handleCancelAI}
                 externalSearchOpen={isSearchOpen}
                 onSearchOpenChange={setIsSearchOpen}
                 onGenerateContentForChildren={handleGenerateContentForChildren}
@@ -3824,6 +3856,7 @@ export default function OutlinePro() {
                 onRefreshGuide={handleRefreshGuide}
                 onFolderSelected={handleFolderSelected}
                 isLoadingAI={isLoadingAI}
+                onCancelAI={handleCancelAI}
                 externalSearchOpen={isSearchOpen}
                 onSearchOpenChange={setIsSearchOpen}
                 onGenerateContentForChildren={handleGenerateContentForChildren}

@@ -315,6 +315,35 @@ button:active:not(:disabled),
 .tiptap.font-size-lg { font-size: 1.125rem; }
 .tiptap.font-size-xl { font-size: 1.25rem; }
 
+/* Pasted rich content (emails, Apple Notes, etc.) */
+.tiptap .pasted-rich-content {
+  border: 1px solid hsl(var(--border));
+  border-radius: 6px;
+  padding: 12px;
+  margin: 8px 0;
+  overflow-x: auto;
+  background: hsl(var(--card));
+}
+
+.tiptap .pasted-rich-content table {
+  border-collapse: collapse;
+}
+
+.tiptap .pasted-rich-content td,
+.tiptap .pasted-rich-content th {
+  vertical-align: top;
+}
+
+.tiptap .pasted-rich-content img {
+  max-width: 100%;
+  height: auto;
+}
+
+.tiptap .pasted-rich-content a {
+  color: hsl(var(--primary));
+  text-decoration: underline;
+}
+
 /* Apple-like toolbar styling */
 .toolbar-button {
   @apply rounded-lg transition-all duration-150;

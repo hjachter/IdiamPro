@@ -9,7 +9,7 @@ import { MultiSelectToolbar } from './multi-select-toolbar';
 import FileImportDialog from './file-import-dialog';
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { ChevronDown, FilePlus, Plus, Trash2, Edit, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, Settings, Search, Command, PanelLeft, PanelLeftClose, Brain } from 'lucide-react';
+import { ChevronDown, FilePlus, Plus, Trash2, Edit, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, Settings, Search, Command, PanelLeft, PanelLeftClose, Brain, StopCircle } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Input } from './ui/input';
@@ -110,6 +110,7 @@ interface OutlinePaneProps {
   onRefreshGuide: () => void;
   onFolderSelected?: () => void;
   isLoadingAI: boolean;
+  onCancelAI?: () => void;
   // Search-related props for expanding ancestors
   onExpandAncestors?: (nodeIds: string[]) => void;
   // External control for search (for command palette)
@@ -182,6 +183,7 @@ export default function OutlinePane({
   onRefreshGuide,
   onFolderSelected,
   isLoadingAI,
+  onCancelAI,
   onExpandAncestors,
   externalSearchOpen,
   onSearchOpenChange,
@@ -1085,6 +1087,22 @@ export default function OutlinePane({
             onOpenBulkResearch={onOpenBulkResearch}
             onOpenKnowledgeChat={onOpenKnowledgeChat}
           />
+
+          {isLoadingAI && onCancelAI && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={onCancelAI}
+                  className="border-red-500/50 hover:bg-red-500/20 animate-pulse"
+                >
+                  <StopCircle className="h-4 w-4 text-red-500" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Stop AI operation</TooltipContent>
+            </Tooltip>
+          )}
 
           {canUnmerge && onUnmerge && (
             <Tooltip>
