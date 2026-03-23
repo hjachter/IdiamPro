@@ -376,10 +376,8 @@ async function createWindow() {
     setTimeout(nudge, 4000);          // After slow dev recompilations
   });
 
-  // Open DevTools in development
-  if (process.env.NODE_ENV === 'development') {
-    mainWindow.webContents.openDevTools();
-  }
+  // DevTools available via View > Toggle Developer Tools (Cmd+Option+I)
+  // Not opened automatically to keep the window clean
 
   // Auto-recover from ChunkLoadError (stale webpack chunks after dev rebuild)
   let chunkErrorReloadTimer = null;

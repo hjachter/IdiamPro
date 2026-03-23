@@ -323,7 +323,7 @@
     "privacy-policy": {
       "id": "privacy-policy",
       "name": "Privacy Policy",
-      "content": "<p><strong>Estimated Cost:</strong> $500-2,000 (generator + lawyer review)</p><p></p><p><span style=\"color: rgb(34, 197, 94);\">[CLAUDE]</span> can draft complete Privacy Policy.</p><p><span style=\"color: rgb(239, 68, 68);\">[LAWYER]</span> review recommended for GDPR/CCPA sections.</p>",
+      "content": "<p><strong>Status: IMPLEMENTED</strong></p><p></p><p>Privacy policy page is live at <code>/privacy</code>. Covers:</p><ul><li><p>Local-only data storage</p></li><li><p>Third-party AI services (Google Gemini, OpenAI, AssemblyAI)</p></li><li><p>Microphone access for transcription</p></li><li><p>Children's privacy (COPPA)</p></li><li><p>Consent controls and revocation</p></li></ul><p></p><p>Linked from AI Consent Dialog and Settings page.</p>",
       "type": "chapter",
       "parentId": "root-legal",
       "childrenIds": [
@@ -733,7 +733,8 @@
       "parentId": "root-legal",
       "childrenIds": [
         "gemini-terms",
-        "future-providers"
+        "future-providers",
+        "ai-consent-compliance"
       ],
       "isCollapsed": true,
       "prefix": "5"
@@ -1212,6 +1213,13 @@
       "childrenIds": [],
       "isCollapsed": false,
       "prefix": ""
+    },
+    "ai-consent-compliance": {
+      "id": "ai-consent-compliance",
+      "name": "AI Data Consent (Apple Guideline 5.1.2(i))",
+      "content": "<p><strong>Status: IMPLEMENTED</strong></p><p></p><p>Apple requires apps to obtain consent before sending user data to third-party services. Implementation:</p><ul><li><p>Consent dialog appears on first AI feature use</p></li><li><p>Names all three AI providers and what data is sent</p></li><li><p>Two-step decline: warning lists disabled features before confirming</p></li><li><p>Settings \u2192 Data &amp; Privacy toggle to revoke/grant</p></li><li><p>All AI operations gated by consent check</p></li><li><p>Privacy policy linked from consent dialog</p></li></ul>",
+      "childrenIds": [],
+      "isExpanded": false
     }
   },
   "createdAt": "2025-01-14T00:00:00.000Z",

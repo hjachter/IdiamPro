@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, X, ChevronUp, ChevronDown, Globe, FileText } from 'lucide-react';
+import { Search, X, ChevronUp, ChevronDown, Globe, FileText, Type, AlignLeft } from 'lucide-react';
 import type { Outline } from '@/types';
 import {
   Tooltip,
@@ -47,8 +47,12 @@ function stripHtml(html: string): string {
 // For large outlines (>5000 nodes), only search leaf nodes for performance
 function searchOutline(
   outline: Outline,
-  searchTerm: string
+  searchTerm: string,
+  searchNames: boolean = true,
+  searchContent: boolean = true
 ): SearchMatch[] {
+  if (!searchNames && !searchContent) return [];
+
   const matches: SearchMatch[] = [];
   const lowerSearchTerm = searchTerm.toLowerCase();
   const nodes = Object.values(outline.nodes);
@@ -66,12 +70,11 @@ function searchOutline(
   }
 
   for (const node of nodesToSearch) {
-    const nameMatch = node.name.toLowerCase().includes(lowerSearchTerm);
-    // Only check content for leaf nodes or small outlines (content check is expensive)
-    const contentText = (!isLargeOutline || !node.childrenIds?.length)
+    const nameMatch = searchNames && node.name.toLowerCase().includes(lowerSearchTerm);
+    const contentText = searchContent && (!isLargeOutline || !node.childrenIds?.length)
       ? stripHtml(node.content || '')
       : '';
-    const contentMatch = contentText.toLowerCase().includes(lowerSearchTerm);
+    const contentMatch = searchContent && contentText.toLowerCase().includes(lowerSearchTerm);
 
     if (nameMatch || contentMatch) {
       matches.push({
@@ -100,6 +103,8 @@ export default function OutlineSearch({
 }: OutlineSearchProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchScope, setSearchScope] = useState<'current' | 'all'>('current');
+  const [searchNames, setSearchNames] = useState(true);
+  const [searchContent, setSearchContent] = useState(true);
   const inputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -112,7 +117,7 @@ export default function OutlineSearch({
   }, [isOpen]);
 
   // Debounced search
-  const performSearch = useCallback((term: string, scope: 'current' | 'all') => {
+  const performSearch = useCallback((term: string, scope: 'current' | 'all', names: boolean, content: boolean) => {
     if (term.length < 2) {
       onSearchResults([], term);
       return;
@@ -121,11 +126,11 @@ export default function OutlineSearch({
     let matches: SearchMatch[] = [];
 
     if (scope === 'current' && currentOutline) {
-      matches = searchOutline(currentOutline, term);
+      matches = searchOutline(currentOutline, term, names, content);
     } else if (scope === 'all') {
       outlines.forEach((outline) => {
         if (!outline.isGuide) {
-          matches.push(...searchOutline(outline, term));
+          matches.push(...searchOutline(outline, term, names, content));
         }
       });
     }
@@ -140,7 +145,7 @@ export default function OutlineSearch({
     }
 
     debounceRef.current = setTimeout(() => {
-      performSearch(searchTerm, searchScope);
+      performSearch(searchTerm, searchScope, searchNames, searchContent);
     }, 150); // 150ms debounce for real-time feel
 
     return () => {
@@ -148,7 +153,7 @@ export default function OutlineSearch({
         clearTimeout(debounceRef.current);
       }
     };
-  }, [searchTerm, searchScope, performSearch]);
+  }, [searchTerm, searchScope, searchNames, searchContent, performSearch]);
 
   // Handle keyboard shortcuts
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -216,7 +221,7 @@ export default function OutlineSearch({
               <Button
                 variant={searchScope === 'all' ? 'default' : 'outline'}
                 size="icon"
-                className="h-8 w-8"
+                className={`h-8 w-8 ${searchScope !== 'all' ? 'hover:bg-background opacity-50 hover:opacity-70' : ''}`}
                 onClick={toggleScope}
               >
                 {searchScope === 'all' ? (
@@ -229,6 +234,44 @@ export default function OutlineSearch({
             <TooltipContent>
               {searchScope === 'all' ? 'Searching all outlines' : 'Searching current outline'}
             </TooltipContent>
+          </Tooltip>
+
+          {/* Search names toggle */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant={searchNames ? 'default' : 'outline'}
+                size="icon"
+                className={`h-8 w-8 ${!searchNames ? 'hover:bg-background opacity-50 hover:opacity-70' : ''}`}
+                onClick={() => {
+                  // Don't allow both to be off
+                  if (searchNames && !searchContent) return;
+                  setSearchNames(prev => !prev);
+                }}
+              >
+                <AlignLeft className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>{searchNames ? 'Searching node names' : 'Not searching node names'}</TooltipContent>
+          </Tooltip>
+
+          {/* Search content toggle */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant={searchContent ? 'default' : 'outline'}
+                size="icon"
+                className={`h-8 w-8 ${!searchContent ? 'hover:bg-background opacity-50 hover:opacity-70' : ''}`}
+                onClick={() => {
+                  // Don't allow both to be off
+                  if (searchContent && !searchNames) return;
+                  setSearchContent(prev => !prev);
+                }}
+              >
+                <Type className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>{searchContent ? 'Searching content' : 'Not searching content'}</TooltipContent>
           </Tooltip>
 
           {/* Navigation buttons */}
