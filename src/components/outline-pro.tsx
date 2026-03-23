@@ -27,6 +27,7 @@ import KeyboardShortcutsDialog, { useKeyboardShortcuts } from './keyboard-shortc
 import BulkResearchDialog from './bulk-research-dialog';
 import HelpChatDialog from './help-chat-dialog';
 import KnowledgeChatDialog from './knowledge-chat-dialog';
+import AIConsentDialog from './ai-consent-dialog';
 import dynamic from 'next/dynamic';
 
 const ExportDialog = dynamic(() => import('./export-dialog'), { ssr: false, loading: () => null });
@@ -112,6 +113,8 @@ export default function OutlinePro() {
   const [isLoadingAI, setIsLoadingAI] = useState(false);
   const aiLoadingStartTime = useRef<number | null>(null);
   const aiCancelledRef = useRef(false);
+  const [aiConsentDialogOpen, setAiConsentDialogOpen] = useState(false);
+  const pendingAiAction = useRef<(() => void) | null>(null);
   const [isLoadingLazyOutline, setIsLoadingLazyOutline] = useState(false);
   const [loadingOutlineInfo, setLoadingOutlineInfo] = useState<{
     name: string;
@@ -374,6 +377,44 @@ export default function OutlinePro() {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, []);
 
+  // Check for external modifications to the current outline
+  // Shared logic used by both focus handler and periodic poll
+  const checkExternalModification = useCallback(async () => {
+    const currentOutline = outlines.find(o => o.id === currentOutlineId) as LazyOutline | undefined;
+    if (!currentOutline) return;
+    if (currentOutline.isGuide) return;
+    if (currentOutline._isLazyLoaded) return;
+    if (!currentOutline._fileName) return;
+
+    // Skip reload if the user recently edited this outline in-app (their work takes priority)
+    const lastEdit = lastEditTimeRef.current.get(currentOutlineId) || 0;
+    if (Date.now() - lastEdit < 10000) return;
+
+    try {
+      const diskMtime = await electronGetOutlineMtime(currentOutline);
+      const lastKnown = lastKnownMtimeRef.current.get(currentOutlineId);
+
+      if (diskMtime && lastKnown && diskMtime > lastKnown + 1000) {
+        console.log(`[Mtime] External change detected for "${currentOutline.name}" (disk: ${diskMtime}, known: ${lastKnown})`);
+        const freshOutline = await loadSingleOutlineOnDemand(currentOutline._fileName);
+        if (freshOutline) {
+          // Clear dirty flag for this outline so we don't overwrite the reload
+          dirtyOutlineIdsRef.current.delete(currentOutlineId);
+          setOutlinesFromDisk(current =>
+            current.map(o => o.id === currentOutlineId ? freshOutline : o)
+          );
+          lastKnownMtimeRef.current.set(currentOutlineId, diskMtime);
+          toast({
+            title: 'Outline Reloaded',
+            description: `"${currentOutline.name}" was modified externally and has been refreshed.`,
+          });
+        }
+      }
+    } catch (error) {
+      console.error('[Mtime] Error checking file mtime:', error);
+    }
+  }, [currentOutlineId, outlines, toast, setOutlinesFromDisk]);
+
   // Reload current outline from disk when Electron window regains focus (external edit detection)
   useEffect(() => {
     if (!isClient) return;
@@ -382,39 +423,7 @@ export default function OutlinePro() {
 
     const handleWindowFocus = () => {
       if (debounceTimer) clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(async () => {
-        const currentOutline = outlines.find(o => o.id === currentOutlineId) as LazyOutline | undefined;
-        if (!currentOutline) return;
-        if (currentOutline.isGuide) return;
-        if (currentOutline._isLazyLoaded) return;
-        if (!currentOutline._fileName) return;
-
-        // Skip reload if the user recently edited this outline in-app (their work takes priority)
-        const lastEdit = lastEditTimeRef.current.get(currentOutlineId) || 0;
-        if (Date.now() - lastEdit < 10000) return;
-
-        try {
-          const diskMtime = await electronGetOutlineMtime(currentOutline);
-          const lastKnown = lastKnownMtimeRef.current.get(currentOutlineId);
-
-          if (diskMtime && lastKnown && diskMtime > lastKnown + 1000) {
-            console.log(`[Focus] External change detected for "${currentOutline.name}" (disk: ${diskMtime}, known: ${lastKnown})`);
-            const freshOutline = await loadSingleOutlineOnDemand(currentOutline._fileName);
-            if (freshOutline) {
-              setOutlinesFromDisk(current =>
-                current.map(o => o.id === currentOutlineId ? freshOutline : o)
-              );
-              lastKnownMtimeRef.current.set(currentOutlineId, diskMtime);
-              toast({
-                title: 'Outline Reloaded',
-                description: `"${currentOutline.name}" was modified externally and has been refreshed.`,
-              });
-            }
-          }
-        } catch (error) {
-          console.error('[Focus] Error checking file mtime:', error);
-        }
-      }, 300);
+      debounceTimer = setTimeout(checkExternalModification, 300);
     };
 
     const unsubscribe = onElectronWindowFocus(handleWindowFocus);
@@ -423,7 +432,15 @@ export default function OutlinePro() {
       if (debounceTimer) clearTimeout(debounceTimer);
       unsubscribe?.();
     };
-  }, [isClient, currentOutlineId, outlines, toast, setOutlinesFromDisk]);
+  }, [isClient, checkExternalModification]);
+
+  // Periodic poll for external modifications (catches edits by Claude Code while app is in foreground)
+  useEffect(() => {
+    if (!isClient || !isElectron()) return;
+
+    const interval = setInterval(checkExternalModification, 5000);
+    return () => clearInterval(interval);
+  }, [isClient, checkExternalModification]);
 
   // Initial load: Load data from storage
   useEffect(() => {
@@ -1662,8 +1679,39 @@ export default function OutlinePro() {
     });
   }, [toast]);
 
+  // AI Consent gate - checks localStorage, shows dialog if not consented
+  const checkAiConsent = useCallback((action: () => void): boolean => {
+    const consent = localStorage.getItem('aiDataConsent');
+    if (consent === 'granted') {
+      return true; // proceed
+    }
+    // Store the pending action and show consent dialog
+    pendingAiAction.current = action;
+    setAiConsentDialogOpen(true);
+    return false; // don't proceed yet
+  }, []);
+
+  const handleAiConsentGranted = useCallback(() => {
+    localStorage.setItem('aiDataConsent', 'granted');
+    setAiConsentDialogOpen(false);
+    toast({ title: 'AI Consent Granted', description: 'AI features are now enabled. You can revoke this in Settings.' });
+    // Run the pending action
+    if (pendingAiAction.current) {
+      const action = pendingAiAction.current;
+      pendingAiAction.current = null;
+      action();
+    }
+  }, [toast]);
+
+  const handleAiConsentDeclined = useCallback(() => {
+    setAiConsentDialogOpen(false);
+    pendingAiAction.current = null;
+    toast({ title: 'AI Features Disabled', description: 'You can enable AI features later in Settings.' });
+  }, [toast]);
+
   // FIXED: handleGenerateOutline uses functional update pattern
   const handleGenerateOutline = useCallback(async (topic: string, depth: AIDepth = 'standard', tone: AITone = 'professional', level: AILevel = 'college') => {
+    if (!checkAiConsent(() => handleGenerateOutline(topic, depth, tone, level))) return;
     aiCancelledRef.current = false;
     setIsLoadingAI(true);
     aiLoadingStartTime.current = Date.now();
@@ -1696,6 +1744,7 @@ export default function OutlinePro() {
   // FIXED: handleExpandContent uses functional update pattern (legacy)
   const handleExpandContent = useCallback(async () => {
     if (!selectedNode) return;
+    if (!checkAiConsent(() => handleExpandContent())) return;
 
     // Capture the node ID before the async operation
     const nodeIdToUpdate = selectedNode.id;
@@ -1704,7 +1753,7 @@ export default function OutlinePro() {
     setIsLoadingAI(true);
     aiLoadingStartTime.current = Date.now();
     try {
-      const content = await expandContentAction(selectedNode.name, plan);
+      const content = await expandContentAction(selectedNode.name);
 
       // Use functional update to ensure we're updating the latest state
       setOutlines(currentOutlines => {
@@ -1739,7 +1788,7 @@ export default function OutlinePro() {
   // Enhanced content generation with context - returns generated content
   const handleGenerateContentForNode = useCallback(async (context: NodeGenerationContext): Promise<string> => {
     try {
-      const content = await generateContentForNodeAction(context, plan);
+      const content = await generateContentForNodeAction(context);
       return content;
     } catch (e) {
       toast({
@@ -1770,6 +1819,7 @@ export default function OutlinePro() {
   // Generate content for all children of a node
   const handleGenerateContentForChildren = useCallback(async (parentNodeId: string) => {
     if (!currentOutline) return;
+    if (!checkAiConsent(() => handleGenerateContentForChildren(parentNodeId))) return;
 
     const nodes = currentOutline.nodes;
     const parentNode = nodes[parentNodeId];
@@ -1849,7 +1899,7 @@ export default function OutlinePro() {
           existingContent: descendantNode.content || '',
         };
 
-        const generatedContent = await generateContentForNodeAction(context, plan);
+        const generatedContent = await generateContentForNodeAction(context);
 
         // Update the node - APPEND new content after existing content
         setOutlines(currentOutlines => {
@@ -2021,6 +2071,7 @@ export default function OutlinePro() {
 
   // Ingest external source - auto-applies for MVP
   const handleIngestSource = useCallback(async (source: ExternalSourceInput): Promise<void> => {
+    if (!checkAiConsent(() => handleIngestSource(source))) return;
     // Build full outline structure for intelligent merging
     const outlineSummary = currentOutline
       ? `Outline: ${currentOutline.name}\n\nCurrent structure:\n${buildOutlineTreeString(currentOutline.nodes, currentOutline.rootNodeId)}`
@@ -2068,6 +2119,7 @@ export default function OutlinePro() {
 
   // Bulk Research Import (PREMIUM) - Synthesizes multiple sources
   const handleBulkResearch = useCallback(async (input: BulkResearchSources): Promise<void> => {
+    if (!checkAiConsent(() => handleBulkResearch(input))) return;
     aiCancelledRef.current = false;
     setIsLoadingAI(true);
     aiLoadingStartTime.current = Date.now();
@@ -3640,6 +3692,12 @@ export default function OutlinePro() {
         open={isTemplatesDialogOpen}
         onOpenChange={setIsTemplatesDialogOpen}
         onCreateFromTemplate={handleCreateFromTemplate}
+      />
+
+      <AIConsentDialog
+        open={aiConsentDialogOpen}
+        onConsent={handleAiConsentGranted}
+        onDecline={handleAiConsentDeclined}
       />
 
       <HelpChatDialog

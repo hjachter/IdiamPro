@@ -1290,6 +1290,13 @@ export default function ContentPane({
   const handleGenerateImage = async () => {
     if (!imagePrompt.trim() || !editor) return;
 
+    // Check AI consent
+    const consent = localStorage.getItem('aiDataConsent');
+    if (consent !== 'granted') {
+      toast({ title: 'AI Consent Required', description: 'Please enable AI data processing in Settings before using AI features.', variant: 'destructive' });
+      return;
+    }
+
     setIsGeneratingImage(true);
     try {
       const result = await generateImageAction(imagePrompt.trim(), {

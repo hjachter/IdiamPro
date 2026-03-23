@@ -2115,9 +2115,9 @@ export async function generateImageAction(
   error?: string;
 }> {
   try {
-    const apiKey = process.env.GOOGLE_API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      throw new Error('GOOGLE_API_KEY is not configured');
+      throw new Error('GEMINI_API_KEY is not configured');
     }
 
     const genai = new GoogleGenAI({ apiKey });

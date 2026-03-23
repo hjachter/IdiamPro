@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Folder, Info, Smartphone, Cpu, Cloud, Loader2, CheckCircle, XCircle, Crown } from 'lucide-react';
+import { Folder, Info, Smartphone, Cpu, Cloud, Loader2, CheckCircle, XCircle, Crown, Shield } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useAI } from '@/contexts/ai-context';
 import AIPlanDialog from './ai-plan-dialog';
@@ -32,6 +32,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
   const [open, setOpen] = useState(false);
   const [dataFolder, setDataFolder] = useState<string>('Browser Storage (Default)');
   const [confirmDelete, setConfirmDelete] = useState<boolean>(true);
+  const [aiDataConsent, setAiDataConsent] = useState<boolean>(false);
   const { toast } = useToast();
   const { isPremium, plan } = useAI();
 
@@ -89,6 +90,10 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
     if (savedConfirmDelete !== null) {
       setConfirmDelete(savedConfirmDelete === 'true');
     }
+
+    // Load AI consent setting
+    const savedConsent = localStorage.getItem('aiDataConsent');
+    setAiDataConsent(savedConsent === 'granted');
 
     // Load AI depth setting
     const savedAiDepth = localStorage.getItem('aiDepth') as AIDepth | null;
@@ -153,6 +158,17 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
   const handleConfirmDeleteChange = (checked: boolean) => {
     setConfirmDelete(checked);
     localStorage.setItem('confirmDelete', String(checked));
+  };
+
+  const handleAiConsentChange = (checked: boolean) => {
+    setAiDataConsent(checked);
+    localStorage.setItem('aiDataConsent', checked ? 'granted' : 'revoked');
+    toast({
+      title: checked ? 'AI Consent Granted' : 'AI Consent Revoked',
+      description: checked
+        ? 'AI features are now enabled.'
+        : 'AI features are disabled. Your data will not be sent to AI services.',
+    });
   };
 
   const handleSelectFolder = async () => {
@@ -348,6 +364,35 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
             <p className="text-xs text-muted-foreground">
               Show confirmation dialog when deleting nodes or subtrees
             </p>
+          </div>
+
+          {/* Data & Privacy Section */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-medium flex items-center gap-2">
+              <Shield className="h-4 w-4" />
+              Data &amp; Privacy
+            </h3>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="ai-consent" className="text-sm">
+                Allow AI data processing
+              </Label>
+              <Switch
+                id="ai-consent"
+                checked={aiDataConsent}
+                onCheckedChange={handleAiConsentChange}
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              When enabled, your outline content may be sent to <strong>Google Gemini</strong>, <strong>OpenAI</strong>, and <strong>AssemblyAI</strong> for AI features. No data is stored beyond processing.
+            </p>
+            <a
+              href="/privacy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-blue-500 hover:underline"
+            >
+              View Privacy Policy
+            </a>
           </div>
 
           {/* Local AI (Ollama) Section - Desktop only, not available on iOS */}

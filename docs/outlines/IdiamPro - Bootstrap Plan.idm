@@ -12,6 +12,7 @@
       "childrenIds": [
         "pm-session-notes",
         "project-roadmap",
+        "bootstrap-checklist",
         "phase-1",
         "phase-2",
         "phase-3",
@@ -21,7 +22,8 @@
         "revenue-strategy",
         "ai-provider-costs",
         "profitability-model",
-        "marketing-influencers"
+        "marketing-influencers",
+        "compliance-section"
       ],
       "isCollapsed": false,
       "prefix": ""
@@ -539,7 +541,9 @@
       "content": "<p><strong>READ THIS FIRST AT EVERY SESSION START</strong></p><p></p><p><strong>Roles:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\"><p><strong>Claude</strong> = Project Manager (PM) — track schedule, recommend priorities, flag deviations from plan</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p><strong>Howard</strong> = Product Visionary / Owner — sets vision, approves direction, makes final calls</p></li></ul><p></p><p><strong>Two Primary Outlines (read both at session start):</strong></p><ol><li data-type=\"taskItem\" data-checked=\"false\"><p><strong>Bootstrap Plan</strong> (this file) — drives development, project management, scheduling</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p><strong>IdiamPro Marketing</strong> — drives public-facing efforts, vision, website content</p></li></ol><p></p><p><strong>Current Priority Sequence:</strong></p><ol><li data-type=\"taskItem\" data-checked=\"false\"><p>Website generation (first universal output format, proof of concept)</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>Audience visibility system (tags for public/customer/developer/internal content)</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>API key settings UI (needed for AssemblyAI and future integrations)</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>Subscription/payment infrastructure (Stripe, RevenueCat)</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>Video production (scripts first, then recording)</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>MCP server (review 3 planning docs in IDM Outlines folder first)</p></li></ol><p></p><p><strong>Working Rules:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\"><p>If implementation deviates from what the outlines specify, flag it to Howard immediately</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>Other outlines in the IDM Outlines folder provide supporting context — consult as needed</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>Howard is a biophysicist by training with 30+ years in the computer industry — a trained research scientist</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>Howard coined the 'Knowledge Molecule' concept (DNA analogy for living outlines) — use this terminology in marketing contexts</p></li></ul><p></p><p><strong>Pricing (Source of Truth — Marketing Outline):</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\"><p>Free: $0 — 25 expansions/month, 10 outline gens, PDF export</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>Pro: $12/month or $115/year (20% annual savings)</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>Power: $28/month or $269/year (20% annual savings)</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>Education/Nonprofit: 50% discount</p></li></ul><p></p><p><strong>Session Log:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\"><p>Marketing outline reviewed and updated (sections 1-10). Pricing aligned across both outlines. Knowledge Molecule concept added. Video sections split into public/internal. 3-tier model established.</p></li></ul><p></p>",
       "type": "chapter",
       "parentId": "root-bootstrap",
-      "childrenIds": [],
+      "childrenIds": [
+        "session-actions-log"
+      ],
       "isCollapsed": false,
       "prefix": "PM"
     },
@@ -684,11 +688,231 @@
       "childrenIds": [],
       "isCollapsed": false,
       "prefix": "9.6"
+    },
+    "compliance-section": {
+      "id": "compliance-section",
+      "name": "App Store Compliance & Submission Readiness",
+      "content": "<p><strong>Apple App Store Compliance Audit — March 2026</strong></p><p>Comprehensive review of IdiamPro against current Apple App Store Review Guidelines. Based on detailed analysis in the IdiamPro - Development outline (Section 10.1).</p><p><strong>Current Status: NOT READY FOR SUBMISSION</strong></p><p>Key blockers: (1) No AI data-sharing consent flow, (2) No in-app purchase implementation, (3) Missing privacy policy/nutrition labels, (4) API key rotation needed.</p>",
+      "type": "chapter",
+      "parentId": "root-bootstrap",
+      "childrenIds": [
+        "comp-verdict",
+        "comp-api-inventory",
+        "comp-ai-consent",
+        "comp-iap",
+        "comp-privacy",
+        "comp-api-security",
+        "comp-capacitor",
+        "comp-todo"
+      ],
+      "isCollapsed": false,
+      "prefix": "11"
+    },
+    "comp-verdict": {
+      "id": "comp-verdict",
+      "name": "Verdict: What Is and Isn't a Problem",
+      "content": "<p><strong>NOT a problem (your friend's concern):</strong></p><p>Bundling third-party npm packages (TipTap, Radix UI, Mermaid, Excalidraw, etc.) is <strong>fully allowed</strong>. Apple's \"self-contained\" rule means the app cannot <em>download and execute code at runtime</em>. All our 76+ npm packages are compiled and bundled into the app binary at build time — this is standard practice and Apple explicitly approves it.</p><p><strong>WHAT IS a problem:</strong></p><ul><li><strong>Guideline 5.1.2(i) — AI Data Sharing</strong>: We send user content to Google Gemini and OpenAI without explicit, named consent. This is a <em>rejection-level</em> violation added November 2025.</li><li><strong>No In-App Purchase</strong>: We reference Premium tiers and rate limits but have no StoreKit IAP implementation. Apple requires IAP for all digital content/subscriptions.</li><li><strong>Missing Privacy Policy &amp; Nutrition Labels</strong>: Required for App Store Connect submission.</li><li><strong>API Key Security</strong>: Keys should be server-side only, never in client bundles.</li></ul>",
+      "type": "document",
+      "parentId": "compliance-section",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "11.1"
+    },
+    "comp-api-inventory": {
+      "id": "comp-api-inventory",
+      "name": "External API Calls Inventory",
+      "content": "<p>All runtime external API calls IdiamPro makes:</p><p></p><ul><li><p><strong>Google Gemini 2.0 Flash</strong> — Sends: user outline content, prompts. Purpose: AI generation, content expansion, source extraction. <em>Requires Guideline 5.1.2(i) consent.</em></p></li><li><p><strong>OpenAI TTS</strong> — Sends: podcast script text. Purpose: text-to-speech synthesis. <em>Requires consent + privacy disclosure.</em></p></li><li><p><strong>AssemblyAI</strong> — Sends: audio recordings. Purpose: transcription with diarization. <em>Requires consent + privacy disclosure.</em></p></li><li><p><strong>YouTube oEmbed</strong> — Sends: video URL. Purpose: fetch video title. <em>Low risk — no user data.</em></p></li><li><p><strong>Google Fonts</strong> — Sends: nothing (preconnect only). Purpose: typography. <em>No issue — bundle fonts locally instead.</em></p></li></ul><p></p><p><strong>Good news:</strong> All API calls go through our Next.js server routes (not directly from the client). The architecture is correct — we just need consent UI and privacy disclosures.</p>",
+      "type": "document",
+      "parentId": "compliance-section",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "11.2"
+    },
+    "comp-ai-consent": {
+      "id": "comp-ai-consent",
+      "name": "Guideline 5.1.2(i) — AI Consent (CRITICAL)",
+      "content": "<p><strong>Apple's November 2025 rule:</strong> Apps that share personal data with third-party AI services must:</p><ol><li>Clearly disclose that data is shared with third-party AI</li><li>Identify the AI provider <strong>by name</strong> (e.g., \"Google Gemini,\" \"OpenAI\")</li><li>Obtain <strong>explicit user permission</strong> before sharing</li><li>Proxying through your own server does NOT exempt you</li></ol><p><strong>Workaround — Implementation Plan:</strong></p><ul><li>Add a one-time <strong>AI Consent Dialog</strong> on first use of any AI feature</li><li>Text: \"IdiamPro uses Google Gemini for AI text generation and OpenAI for podcast audio synthesis. Your outline content is sent to these services to generate results. No data is stored by these providers beyond processing your request.\"</li><li>Two buttons: \"I Agree\" (saves consent to localStorage) and \"Learn More\" (links to privacy policy)</li><li>If user declines, AI features are disabled but the app remains fully functional for manual outlining</li><li>Add consent status to Settings dialog so user can revoke/re-grant</li></ul>",
+      "type": "document",
+      "parentId": "compliance-section",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "11.3"
+    },
+    "comp-iap": {
+      "id": "comp-iap",
+      "name": "In-App Purchase Requirements",
+      "content": "<p><strong>Current state:</strong> Code references FREE/BASIC/PREMIUM/ACADEMIC tiers with rate limiting, but the plan is hardcoded to PREMIUM for beta. No actual payment implementation.</p><p><strong>Apple's rule:</strong> All digital content and subscription features sold within iOS apps must use Apple's StoreKit In-App Purchase system (Apple takes 15-30% commission).</p><p><strong>Options:</strong></p><ol><li><strong>Implement StoreKit IAP</strong> via RevenueCat or direct StoreKit 2 — safest approach, works globally</li><li><strong>External payment link (US only)</strong> — May 2025 court ruling allows a single external link. Apple's 27% commission on external purchases is barred while injunction holds. Risky if ruling is overturned.</li><li><strong>Make it free during beta</strong> — Ship with all features unlocked, add IAP later. This is the simplest short-term approach and avoids App Review friction.</li></ol><p><strong>Recommendation:</strong> Ship beta with features free. Implement RevenueCat IAP before commercial launch. RevenueCat handles subscription management, receipt validation, and cross-platform sync.</p>",
+      "type": "document",
+      "parentId": "compliance-section",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "11.4"
+    },
+    "comp-privacy": {
+      "id": "comp-privacy",
+      "name": "Privacy Policy & App Privacy Labels",
+      "content": "<p><strong>Required before App Store submission:</strong></p><ul><li><strong>Privacy Policy URL</strong> — Must be hosted and linked in App Store Connect. Must disclose:</li><ul><li>Data sent to Google Gemini (outline text, prompts)</li><li>Data sent to OpenAI (podcast script text for TTS)</li><li>Data sent to AssemblyAI (audio recordings for transcription)</li><li>Local-only data storage (outlines on device, no cloud sync)</li><li>Microphone usage (speech recognition, recording)</li></ul><li><strong>App Privacy \"Nutrition Labels\"</strong> — Declare in App Store Connect:</li><ul><li>Data type: \"User Content\" — Purpose: \"App Functionality\" — Linked to User: No — Tracking: No</li><li>Data type: \"Audio Data\" — Purpose: \"App Functionality\" (transcription)</li></ul><li><strong>SDK Privacy Manifests</strong> — Apple requires privacy manifests for certain SDKs. Check if any of our dependencies are on Apple's required list (Xcode will flag these during build).</li></ul>",
+      "type": "document",
+      "parentId": "compliance-section",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "11.5"
+    },
+    "comp-api-security": {
+      "id": "comp-api-security",
+      "name": "API Key Security",
+      "content": "<p><strong>Current risk:</strong> API keys in <code>.env.local</code> are used server-side via Next.js API routes — this is architecturally correct. However:</p><ul><li>Keys must never be committed to git or bundled in client code</li><li>For iOS production: keys live on the Vercel backend (environment variables in Vercel dashboard), not in the app binary</li><li>The iOS app loads from Vercel, so API calls go: iOS → Vercel → Google/OpenAI. Keys never leave the server.</li></ul><p><strong>Action items:</strong></p><ol><li>Verify .env.local is in .gitignore (it is)</li><li>Set API keys in Vercel dashboard environment variables for production</li><li>Rotate current keys before any public release (they've been visible in dev logs)</li><li>Add rate limiting per-user on API routes to prevent abuse</li></ol>",
+      "type": "document",
+      "parentId": "compliance-section",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "11.6"
+    },
+    "comp-capacitor": {
+      "id": "comp-capacitor",
+      "name": "Capacitor & WKWebView Compliance",
+      "content": "<p><strong>Status: LOW RISK</strong></p><p>Apple allows Capacitor/WKWebView apps as long as they provide \"substantial functionality\" beyond a simple website wrapper (Guideline 4.2). IdiamPro qualifies because it provides:</p><ul><li>Native file system access (Capacitor Filesystem plugin)</li><li>Native share sheet (Capacitor Share plugin)</li><li>Microphone access for recording</li><li>Rich interactive outlining, AI generation, diagram creation, podcast production</li><li>Local data storage and offline document management</li></ul><p><strong>One concern:</strong> Production iOS app currently loads from <code>https://idiam-pro.vercel.app</code>. For App Store reliability, consider bundling a static export in the app binary so it works fully offline, with Vercel as an optional update source.</p><p><strong>No dynamic code execution found:</strong> No eval(), no remote script loading, no downloaded executables. All code is bundled at build time. This is fully compliant.</p>",
+      "type": "document",
+      "parentId": "compliance-section",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "11.7"
+    },
+    "comp-todo": {
+      "id": "comp-todo",
+      "name": "TODO: Compliance Action Items",
+      "content": "<p><strong>Pre-Submission Checklist</strong> — All items must be completed before Apple App Store submission.</p><p></p><p><strong>CRITICAL (Blockers):</strong></p><ul><li><p>☐ <strong>Implement AI Consent Dialog</strong> — One-time consent screen before first AI feature use. Must name Google Gemini and OpenAI explicitly. Save consent to localStorage. Add revoke option in Settings. (Guideline 5.1.2(i))</p></li><li><p>☐ <strong>Implement In-App Purchases</strong> — Integrate RevenueCat or StoreKit 2 for subscription tiers. OR ship beta with all features free and add IAP before commercial launch.</p></li><li><p>☐ <strong>Create Privacy Policy</strong> — Host at a public URL. Disclose data sent to Gemini, OpenAI, AssemblyAI. Describe local-only storage, microphone usage.</p></li><li><p>☐ <strong>Configure App Privacy Nutrition Labels</strong> — Declare in App Store Connect: User Content (App Functionality), Audio Data (App Functionality). Linked to User: No. Tracking: No.</p></li></ul><p></p><p><strong>HIGH PRIORITY:</strong></p><ul><li><p>☐ <strong>Rotate API Keys</strong> — Generate fresh Gemini and OpenAI keys before any public release. Current keys have been visible in dev logs.</p></li><li><p>☐ <strong>Set API Keys in Vercel Dashboard</strong> — Ensure production uses Vercel environment variables, not bundled keys.</p></li><li><p>☐ <strong>Add Per-User Rate Limiting</strong> — Protect API routes from abuse.</p></li><li><p>☐ <strong>Bundle Google Fonts Locally</strong> — Remove Google Fonts preconnect; bundle font files in the app to eliminate external dependency.</p></li></ul><p></p><p><strong>RECOMMENDED (Pre-Launch):</strong></p><ul><li><p>☐ <strong>Consider Static Export for iOS</strong> — Bundle app as static export in the binary for offline support, instead of loading from Vercel at runtime.</p></li><li><p>☐ <strong>Check SDK Privacy Manifests</strong> — Xcode will flag required manifests during build. Address any that come up.</p></li><li><p>☐ <strong>Test on Physical iOS Device</strong> — Run full test suite on iPhone before submission.</p></li><li><p>☐ <strong>Prepare App Store Listing</strong> — Screenshots, description, keywords, category (Productivity).</p></li></ul>",
+      "type": "document",
+      "parentId": "compliance-section",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "11.8"
+    },
+    "bootstrap-checklist": {
+      "id": "bootstrap-checklist",
+      "name": "BOOTSTRAP CHECKLIST",
+      "content": "<p><strong>Master checklist for launching IdiamPro.</strong> Check off items as they are completed. Organized by milestone — work through roughly in order, though some tasks can be done in parallel.</p><p></p><p>Status key: ☐ = Not started &nbsp; ☑ = Done &nbsp; 🔄 = In progress</p>",
+      "type": "chapter",
+      "parentId": "root-bootstrap",
+      "childrenIds": [
+        "cl-m1",
+        "cl-m2",
+        "cl-m3",
+        "cl-m4",
+        "cl-m5",
+        "cl-m6",
+        "cl-compliance",
+        "cl-marketing"
+      ],
+      "isCollapsed": false,
+      "prefix": "CL"
+    },
+    "cl-m1": {
+      "id": "cl-m1",
+      "name": "M1: Business Foundation",
+      "content": "<p><strong>Milestone 1 — Starting point, no dependencies</strong></p><p></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\"><label><input type=\"checkbox\"></label><div><p>Register idiampro.com domain (~$12/year)</p></div></li><li data-type=\"taskItem\" data-checked=\"true\"><label><input type=\"checkbox\" checked=\"checked\"></label><div><p>Enroll in Apple Developer Program ($99/year) — <em>Renewed 2026-03-22</em></p></div></li><li data-type=\"taskItem\" data-checked=\"false\"><label><input type=\"checkbox\"></label><div><p>Set up business email (@idiampro.com)</p></div></li><li data-type=\"taskItem\" data-checked=\"false\"><label><input type=\"checkbox\"></label><div><p>Register Google Play developer account ($25 one-time)</p></div></li><li data-type=\"taskItem\" data-checked=\"true\"><label><input type=\"checkbox\" checked=\"checked\"></label><div><p>Create privacy policy — <em>Done: /privacy page implemented 2026-03-22</em></p></div></li><li data-type=\"taskItem\" data-checked=\"false\"><label><input type=\"checkbox\"></label><div><p>Create terms of service page</p></div></li><li data-type=\"taskItem\" data-checked=\"false\"><label><input type=\"checkbox\"></label><div><p>Set up business bank account or payment entity (for Stripe)</p></div></li></ul>",
+      "type": "document",
+      "parentId": "bootstrap-checklist",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "CL.1"
+    },
+    "cl-m2": {
+      "id": "cl-m2",
+      "name": "M2: Web Presence",
+      "content": "<p><strong>Milestone 2 — Depends on: domain registered (M1)</strong></p><p></p><ul data-type=\"taskList\"><li data-checked=\"true\" data-type=\"taskItem\"><label><input type=\"checkbox\" checked=\"checked\"><span></span></label><div><p>Deploy landing page on Vercel — <em>Done: idiam-pro.vercel.app is live</em></p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Point custom domain (idiampro.com) to Vercel</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Add email waitlist / signup capture to landing page</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Set up analytics (PostHog or GA4)</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Create social profiles: Twitter/X, LinkedIn, Product Hunt</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Begin build-in-public content cadence</p></div></li></ul><p></p>",
+      "type": "document",
+      "parentId": "bootstrap-checklist",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "CL.2"
+    },
+    "cl-m3": {
+      "id": "cl-m3",
+      "name": "M3: Subscription & Payment Infrastructure",
+      "content": "<p><strong>Milestone 3 — Depends on: business bank account (M1), landing page (M2)</strong></p><p></p><ul data-type=\"taskList\"><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Set up Stripe account and test mode</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Implement user authentication (email + OAuth)</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Integrate RevenueCat (unifies App Store + Stripe subscriptions)</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Wire up 3-tier feature gating (Free/Pro/Power) in app</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Build API key settings UI (for user-supplied keys)</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Implement audience visibility system (public/customer/developer)</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Test end-to-end subscription flow</p></div></li></ul><p></p>",
+      "type": "document",
+      "parentId": "bootstrap-checklist",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "CL.3"
+    },
+    "cl-m4": {
+      "id": "cl-m4",
+      "name": "M4: Mac App Store Submission",
+      "content": "<p><strong>Milestone 4 — Depends on: Apple Developer (M1), subscriptions (M3)</strong></p><p></p><ul data-type=\"taskList\"><li data-checked=\"true\" data-type=\"taskItem\"><label><input type=\"checkbox\" checked=\"checked\"><span></span></label><div><p>Electron packaging configured — <em>Done: electron-builder in package.json</em></p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Finalize code signing with Developer ID certificate</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Configure notarization for macOS</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Verify sandboxing compliance</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Generate App Store screenshots (multiple sizes)</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Create app preview video</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Write App Store metadata (title, subtitle, description, keywords)</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Submit to Mac App Store review</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Address review feedback (if any)</p></div></li></ul><p></p>",
+      "type": "document",
+      "parentId": "bootstrap-checklist",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "CL.4"
+    },
+    "cl-m5": {
+      "id": "cl-m5",
+      "name": "M5: iOS App Store Submission",
+      "content": "<p><strong>Milestone 5 — Depends on: Apple Developer (M1), subscriptions (M3)</strong></p><p></p><ul data-type=\"taskList\"><li data-checked=\"true\" data-type=\"taskItem\"><label><input type=\"checkbox\" checked=\"checked\"><span></span></label><div><p>Capacitor build configured — <em>Done: cap sync ios working</em></p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>iOS-specific UI polish and gesture testing</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>TestFlight beta (internal + small external group)</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Generate iOS App Store screenshots (all device sizes)</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Submit to iOS App Store review</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Address review feedback (if any)</p></div></li></ul><p></p>",
+      "type": "document",
+      "parentId": "bootstrap-checklist",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "CL.5"
+    },
+    "cl-m6": {
+      "id": "cl-m6",
+      "name": "M6: Launch Readiness",
+      "content": "<p><strong>Milestone 6 — Depends on: Mac app live (M4), iOS app live (M5), website (M2)</strong></p><p></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\"><label><input type=\"checkbox\"></label><div><p>Update website with App Store download links</p></div></li><li data-type=\"taskItem\" data-checked=\"false\"><label><input type=\"checkbox\"></label><div><p>Prepare Product Hunt launch profile</p></div></li><li data-type=\"taskItem\" data-checked=\"false\"><label><input type=\"checkbox\"></label><div><p>Draft launch announcement (email list, social, communities)</p></div></li><li data-type=\"taskItem\" data-checked=\"false\"><label><input type=\"checkbox\"></label><div><p>Verify cross-platform subscription sync works end-to-end</p></div></li><li data-type=\"taskItem\" data-checked=\"false\"><label><input type=\"checkbox\"></label><div><p>Send launch announcements</p></div></li></ul>",
+      "type": "document",
+      "parentId": "bootstrap-checklist",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "CL.6"
+    },
+    "cl-compliance": {
+      "id": "cl-compliance",
+      "name": "App Store Compliance",
+      "content": "<p><strong>Required before App Store submission (see Section 11 for details)</strong></p><p></p><p><strong>CRITICAL (Blockers):</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"true\"><label><input type=\"checkbox\" checked=\"checked\"></label><div><p>Implement AI Consent Dialog — <em>Done 2026-03-22: consent dialog on first AI use, names Gemini/OpenAI/AssemblyAI</em></p></div></li><li data-type=\"taskItem\" data-checked=\"false\"><label><input type=\"checkbox\"></label><div><p>Implement In-App Purchases (RevenueCat or StoreKit 2) — <em>or ship beta free</em></p></div></li><li data-type=\"taskItem\" data-checked=\"true\"><label><input type=\"checkbox\" checked=\"checked\"></label><div><p>Create Privacy Policy page — <em>Done 2026-03-22: hosted at /privacy</em></p></div></li><li data-type=\"taskItem\" data-checked=\"false\"><label><input type=\"checkbox\"></label><div><p>Configure App Privacy Nutrition Labels in App Store Connect</p></div></li></ul><p></p><p><strong>HIGH PRIORITY:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\"><label><input type=\"checkbox\"></label><div><p>Rotate API keys before public release</p></div></li><li data-type=\"taskItem\" data-checked=\"false\"><label><input type=\"checkbox\"></label><div><p>Set API keys in Vercel dashboard environment variables</p></div></li><li data-type=\"taskItem\" data-checked=\"false\"><label><input type=\"checkbox\"></label><div><p>Add per-user rate limiting on API routes</p></div></li><li data-type=\"taskItem\" data-checked=\"false\"><label><input type=\"checkbox\"></label><div><p>Bundle Google Fonts locally (remove external preconnect)</p></div></li></ul><p></p><p><strong>RECOMMENDED:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\"><label><input type=\"checkbox\"></label><div><p>Consider static export for iOS (offline support)</p></div></li><li data-type=\"taskItem\" data-checked=\"false\"><label><input type=\"checkbox\"></label><div><p>Check SDK privacy manifests (Xcode will flag)</p></div></li><li data-type=\"taskItem\" data-checked=\"false\"><label><input type=\"checkbox\"></label><div><p>Test on physical iOS device</p></div></li><li data-type=\"taskItem\" data-checked=\"false\"><label><input type=\"checkbox\"></label><div><p>Prepare App Store listing assets</p></div></li></ul>",
+      "type": "document",
+      "parentId": "bootstrap-checklist",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "CL.7"
+    },
+    "cl-marketing": {
+      "id": "cl-marketing",
+      "name": "Marketing & Outreach",
+      "content": "<p><strong>Pre-launch and launch marketing tasks</strong></p><p></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\"><label><input type=\"checkbox\"></label><div><p>Identify target influencers (productivity / PKM YouTubers)</p></div></li><li data-type=\"taskItem\" data-checked=\"false\"><label><input type=\"checkbox\"></label><div><p>Prepare influencer outreach emails</p></div></li><li data-type=\"taskItem\" data-checked=\"false\"><label><input type=\"checkbox\"></label><div><p>Create demo video / walkthrough</p></div></li><li data-type=\"taskItem\" data-checked=\"false\"><label><input type=\"checkbox\"></label><div><p>Write Product Hunt listing copy</p></div></li><li data-type=\"taskItem\" data-checked=\"false\"><label><input type=\"checkbox\"></label><div><p>Prepare beta tester onboarding materials</p></div></li><li data-type=\"taskItem\" data-checked=\"false\"><label><input type=\"checkbox\"></label><div><p>Set up feedback collection system</p></div></li></ul>",
+      "type": "document",
+      "parentId": "bootstrap-checklist",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "CL.8"
+    },
+    "session-actions-log": {
+      "id": "session-actions-log",
+      "name": "Session Actions Log",
+      "content": "<p>Proactive outline updates made by Claude during each session. Check here to see what changed.</p>",
+      "type": "chapter",
+      "parentId": "pm-session-notes",
+      "childrenIds": [
+        "session-2026-03-23"
+      ],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "session-2026-03-23": {
+      "id": "session-2026-03-23",
+      "name": "Sunday, March 22, 2026 — 11:00 PM",
+      "content": "<p><strong>Proactive outline updates this session:</strong></p><p></p><ul><li><p>Added Section 11 (App Store Compliance) to Bootstrap Plan — 7 detail nodes + TODO checklist from Development outline audit</p></li><li><p>Added BOOTSTRAP CHECKLIST (CL) with 8 milestone sections and pre-checked completed items</p></li><li><p>Checked off \"Apple Developer Program\" in CL.1 (user confirmed renewal)</p></li><li><p>Checked off \"AI Consent Dialog\" and \"Privacy Policy\" in CL.7 (implemented this session)</p></li><li><p>Fixed CL.1 checkboxes overwritten by app — converted Unicode checkmarks to interactive TipTap TaskList format</p></li><li><p>Added 5-second external modification polling to prevent app from overwriting Claude's outline edits</p></li><li><p>Updated Development outline 10.1.2 — replaced broken HTML table with bulleted list</p></li><li><p>Added level 3 prefixes (10.1.1–10.1.7) to all Apple compliance child nodes</p></li></ul>",
+      "type": "document",
+      "parentId": "session-actions-log",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
     }
   },
   "isGuide": false,
-  "lastModified": 1771025269308,
+  "lastModified": 1774249832563,
   "_fileName": "IdiamPro - Bootstrap Plan.idm",
   "_isLazyLoaded": false,
-  "_fileSize": 87385
+  "_fileSize": 114250
 }
