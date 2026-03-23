@@ -344,6 +344,15 @@ async function createWindow() {
 
   mainWindow.loadURL(startUrl);
 
+  // Let macOS dictation (double-press Fn) work by not consuming function key events.
+  // Electron's Chromium layer can swallow key-before-input events, blocking dictation.
+  mainWindow.webContents.on('before-input-event', (event, input) => {
+    // Pass through all function keys (F1-F24) and the Fn key itself
+    if (input.key && (input.key.startsWith('F') && /^F\d+$/.test(input.key))) {
+      event.preventDefault(); // Tell Electron not to handle it — let macOS process it
+    }
+  });
+
   // Show window when ready to prevent flashing
   mainWindow.once('ready-to-show', () => {
     mainWindow.show();
