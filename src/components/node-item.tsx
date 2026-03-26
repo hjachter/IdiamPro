@@ -545,7 +545,7 @@ export default function NodeItem({
                     }}
                 >
                     {node.metadata?.isCompleted ? (
-                        <CheckSquare2 size={16} className="text-blue-500" />
+                        <CheckSquare2 size={16} className="text-blue-500 dark:text-blue-400" />
                     ) : (
                         <Square size={16} className="text-muted-foreground" />
                     )}
@@ -615,7 +615,7 @@ export default function NodeItem({
                     className={cn(
                         "p-1 rounded-md transition-colors shrink-0",
                         node.metadata?.isPinned
-                          ? "text-yellow-500 hover:text-yellow-600"
+                          ? "text-yellow-500 hover:text-yellow-600 dark:text-yellow-400 dark:hover:text-yellow-300"
                           : "text-muted-foreground/30 hover:text-muted-foreground opacity-0 group-hover:opacity-100"
                     )}
                     onClick={(e) => {

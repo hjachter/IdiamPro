@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Folder, Info, Smartphone, Cpu, Cloud, Loader2, CheckCircle, XCircle, Crown, Shield } from 'lucide-react';
+import { Folder, Info, Smartphone, Cpu, Cloud, Loader2, CheckCircle, XCircle, Crown, Shield, Moon, Sun } from 'lucide-react';
+import { useTheme } from 'next-themes';
 import { Badge } from '@/components/ui/badge';
 import { useAI } from '@/contexts/ai-context';
 import AIPlanDialog from './ai-plan-dialog';
@@ -35,6 +36,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
   const [aiDataConsent, setAiDataConsent] = useState<boolean>(false);
   const { toast } = useToast();
   const { isPremium, plan } = useAI();
+  const { theme, setTheme } = useTheme();
 
   // Format plan name for display
   const planDisplayName = {
@@ -294,7 +296,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
                   <span>
                     Select a folder where all your outlines will be saved. {isElectron() ? 'Your outlines are saved as .idm files.' : 'Currently using browser storage by default.'}
                     {!isElectron() && !('showDirectoryPicker' in window) && (
-                      <span className="block mt-1 text-amber-400">
+                      <span className="block mt-1 text-amber-600 dark:text-amber-400">
                         Note: Folder selection is not supported in your browser. Use Chrome, Edge, or the Desktop app for this feature.
                       </span>
                     )}
@@ -366,6 +368,28 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
             </p>
           </div>
 
+          {/* Appearance Section */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-medium">Appearance</h3>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="theme-toggle" className="text-sm">
+                Theme
+              </Label>
+              <div className="flex items-center gap-2">
+                <Sun className="h-4 w-4 text-muted-foreground" />
+                <Switch
+                  id="theme-toggle"
+                  checked={theme === 'dark'}
+                  onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
+                />
+                <Moon className="h-4 w-4 text-muted-foreground" />
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Switch between light and dark mode
+            </p>
+          </div>
+
           {/* Data & Privacy Section */}
           <div className="space-y-3">
             <h3 className="text-sm font-medium flex items-center gap-2">
@@ -389,7 +413,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
               href="/privacy"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs text-blue-500 hover:underline"
+              className="text-xs text-sky-500 dark:text-sky-400 hover:underline"
             >
               View Privacy Policy
             </a>

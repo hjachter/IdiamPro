@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { AIProvider } from '@/contexts/ai-context';
 import ErrorBoundary from '@/components/error-boundary';
 import { PWAInstaller } from '@/components/pwa-installer';
+import { ThemeProvider } from 'next-themes';
 
 export const metadata: Metadata = {
   title: 'IdiamPro - Professional Outlining',
@@ -31,7 +32,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark h-full overflow-hidden" suppressHydrationWarning>
+    <html lang="en" className="h-full overflow-hidden" suppressHydrationWarning>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
         <meta name="theme-color" content="#242424" />
@@ -41,14 +42,16 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased h-full overflow-hidden">
         <PWAInstaller />
-        <ErrorBoundary>
-          <div className="h-full">
-            <AIProvider>
-              {children}
-            </AIProvider>
-          </div>
-          <Toaster />
-        </ErrorBoundary>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+          <ErrorBoundary>
+            <div className="h-full">
+              <AIProvider>
+                {children}
+              </AIProvider>
+            </div>
+            <Toaster />
+          </ErrorBoundary>
+        </ThemeProvider>
       </body>
     </html>
   );

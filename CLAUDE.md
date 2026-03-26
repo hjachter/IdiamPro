@@ -1,5 +1,11 @@
 # IdiamPro - Claude Code Guidelines
 
+## ⚠️ COMMUNICATION RULE — NO CODE OR TERMINAL OUTPUT ⚠️
+
+**This user is vibe programming. NEVER show code, diffs, terminal commands, file paths, build output, or tool narration in responses. ONLY show plain-language conversation: what was done, decisions needed, results, and errors. This rule applies to EVERY response with ZERO exceptions. Violating this rule wastes the user's time and breaks trust.**
+
+---
+
 ## Platform: Cross-Platform (macOS + iOS via Capacitor)
 
 This is a professional outlining application that runs on both macOS (web) and iOS (native via Capacitor). All features must work on BOTH platforms.

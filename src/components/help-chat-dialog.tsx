@@ -191,8 +191,8 @@ export default function HelpChatDialog({ open, onOpenChange }: HelpChatDialogPro
       <DialogContent className="max-w-2xl h-[600px] flex flex-col p-0">
         <DialogHeader className="px-6 pt-6 pb-4 border-b">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-red-500/10 rounded-lg">
-              <CircleHelp className="h-6 w-6 text-red-500" />
+            <div className="p-2 bg-red-500/10 dark:bg-red-400/10 rounded-lg">
+              <CircleHelp className="h-6 w-6 text-red-500 dark:text-red-400" />
             </div>
             <div>
               <DialogTitle>IdiamPro Help</DialogTitle>
@@ -215,8 +215,8 @@ export default function HelpChatDialog({ open, onOpenChange }: HelpChatDialogPro
                 )}
               >
                 {message.role === 'assistant' && (
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-violet-500/10 flex items-center justify-center">
-                    <Sparkles className="h-4 w-4 text-violet-500" />
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                    <Sparkles className="h-4 w-4 text-emerald-500 dark:text-emerald-400" />
                   </div>
                 )}
                 <div
@@ -238,8 +238,8 @@ export default function HelpChatDialog({ open, onOpenChange }: HelpChatDialogPro
             ))}
             {isLoading && (
               <div className="flex gap-3 justify-start">
-                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-violet-500/10 flex items-center justify-center">
-                  <Loader2 className="h-4 w-4 text-violet-500 animate-spin" />
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                  <Loader2 className="h-4 w-4 text-emerald-500 dark:text-emerald-400 animate-spin" />
                 </div>
                 <div className="bg-muted rounded-lg px-4 py-2">
                   <p className="text-sm text-muted-foreground">Thinking...</p>

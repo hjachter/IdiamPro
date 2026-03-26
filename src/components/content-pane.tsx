@@ -524,7 +524,7 @@ export default function ContentPane({
         HTMLAttributes: {
           target: '_blank',
           rel: 'noopener noreferrer',
-          class: 'text-blue-500 hover:text-blue-600 underline cursor-pointer',
+          class: 'text-sky-500 hover:text-sky-600 dark:text-sky-400 dark:hover:text-sky-300 underline cursor-pointer',
         },
       }),
       Placeholder.configure({
@@ -1960,7 +1960,7 @@ export default function ContentPane({
         <DialogContent className="sm:max-w-[600px] max-h-[80vh] flex flex-col">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <MessageSquare className="h-5 w-5 text-purple-600" />
+              <MessageSquare className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
               Ask AI
             </DialogTitle>
             <DialogDescription>
@@ -1993,8 +1993,8 @@ export default function ContentPane({
 
             {/* AI Response */}
             {(isGenerating || aiResponse) && (
-              <div className="border rounded-lg p-4 bg-purple-50 dark:bg-purple-950/30">
-                <div className="flex items-center gap-2 mb-2 text-sm font-medium text-purple-700 dark:text-purple-300">
+              <div className="border rounded-lg p-4 bg-emerald-50 dark:bg-emerald-950/30">
+                <div className="flex items-center gap-2 mb-2 text-sm font-medium text-emerald-700 dark:text-emerald-300">
                   <Sparkles className="h-4 w-4" />
                   AI Response
                 </div>
@@ -2044,7 +2044,7 @@ export default function ContentPane({
                   </Button>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button className="bg-green-600 hover:bg-green-700">
+                      <Button className="bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600">
                         <Check className="mr-2 h-4 w-4" />
                         Save to Node
                         <ChevronDown className="ml-2 h-3 w-3" />
@@ -2097,7 +2097,7 @@ export default function ContentPane({
                 <Button
                   onClick={handleGenerateFromPrompt}
                   disabled={!customPrompt.trim() || isGenerating}
-                  className="bg-purple-600 hover:bg-purple-700"
+                  className="bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600"
                 >
                   {isGenerating ? (
                     <>
@@ -2122,7 +2122,7 @@ export default function ContentPane({
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <ImagePlus className="h-5 w-5 text-violet-600" />
+              <ImagePlus className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
               Generate AI Image
             </DialogTitle>
             <DialogDescription>
@@ -2171,7 +2171,7 @@ export default function ContentPane({
             <Button
               onClick={handleGenerateImage}
               disabled={!imagePrompt.trim() || isGeneratingImage}
-              className="bg-violet-600 hover:bg-violet-700"
+              className="bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600"
             >
               {isGeneratingImage ? (
                 <>
@@ -2330,7 +2330,7 @@ export default function ContentPane({
                   size="sm"
                   onClick={() => setPromptDialogOpen(true)}
                   disabled={isGenerating || isLoadingAI}
-                  className="text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-950 px-2"
+                  className="text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950 px-2"
                 >
                   <MessageSquare className="h-4 w-4" />
                   <span className="ml-1.5 text-xs hidden sm:inline">Ask AI</span>
@@ -2406,7 +2406,7 @@ export default function ContentPane({
                   <DropdownMenuLabel className="text-xs text-muted-foreground">Bulk Actions</DropdownMenuLabel>
                   <DropdownMenuItem
                     onClick={() => onGenerateContentForDescendants(node.id)}
-                    className="text-amber-600"
+                    className="text-amber-600 dark:text-amber-400"
                   >
                     <Layers className="h-4 w-4 mr-2" />
                     Generate for Descendants
@@ -2424,7 +2424,7 @@ export default function ContentPane({
                 size="sm"
                 onClick={handleOpenImageDialog}
                 disabled={isGeneratingImage || isGuide}
-                className="text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-950 px-2"
+                className="text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950 px-2"
               >
                 {isGeneratingImage ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -2446,7 +2446,7 @@ export default function ContentPane({
                     <Button
                       variant="outline"
                       size="sm"
-                      className="text-green-600 hover:bg-green-50 dark:hover:bg-green-950 px-2"
+                      className="text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-950 px-2"
                     >
                       <Network className="h-4 w-4" />
                       <span className="ml-1.5 text-xs hidden sm:inline">Diagram</span>
@@ -2673,7 +2673,7 @@ export default function ContentPane({
 
         {/* Quote node - quote text with citation */}
         {node.type === 'quote' && (
-          <Card className="border-l-4 border-l-purple-500">
+          <Card className="border-l-4 border-l-emerald-500 dark:border-l-emerald-400">
             <CardContent className="p-6">
               <blockquote className="space-y-4">
                 <div className="space-y-2">
@@ -2682,7 +2682,7 @@ export default function ContentPane({
                     value={node.content || ''}
                     onChange={(e) => onUpdate(node.id, { content: e.target.value })}
                     placeholder="Enter quote text..."
-                    className="w-full min-h-[120px] p-3 text-lg italic border rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-purple-500 text-foreground bg-background"
+                    className="w-full min-h-[120px] p-3 text-lg italic border rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:focus:ring-emerald-400 text-foreground bg-background"
                   />
                 </div>
                 <div className="space-y-2">

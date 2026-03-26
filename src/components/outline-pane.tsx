@@ -1097,7 +1097,7 @@ export default function OutlinePane({
                   onClick={onCancelAI}
                   className="border-red-500/50 hover:bg-red-500/20 animate-pulse"
                 >
-                  <StopCircle className="h-4 w-4 text-red-500" />
+                  <StopCircle className="h-4 w-4 text-red-500 dark:text-red-400" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>Stop AI operation</TooltipContent>
@@ -1113,7 +1113,7 @@ export default function OutlinePane({
                   onClick={onUnmerge}
                   className="hover:bg-orange-500/20 border-orange-500/30"
                 >
-                  <RotateCcw className="h-4 w-4 text-orange-500" />
+                  <RotateCcw className="h-4 w-4 text-orange-500 dark:text-orange-400" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>Unmerge — Restore outline to pre-merge state</TooltipContent>
@@ -1151,7 +1151,7 @@ export default function OutlinePane({
                 onClick={onOpenHelp}
                 className="hover:bg-red-500/20 border-red-500/30"
               >
-                <span className="text-red-500 font-bold text-lg leading-none">?</span>
+                <span className="text-red-500 dark:text-red-400 font-bold text-lg leading-none">?</span>
               </Button>
             </TooltipTrigger>
             <TooltipContent>Help & Support</TooltipContent>
