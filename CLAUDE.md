@@ -64,7 +64,7 @@ Every time a new user-facing feature is implemented, it **must** also be documen
 
 This includes: new keyboard shortcuts, new node types, new toolbar/menu items, new settings, new gestures, new dialogs, and any change to existing feature behavior. Never merge a feature without its documentation.
 
-**Note:** The "How it works" outline is for explaining *how the app is built* (components, data flow, architecture) in non-technical language. Only update it when features change the app's structure or behavior significantly.
+**Note:** The "How it works" outline is for explaining *how the main app is built* (components, data flow, architecture) in non-technical language. Only update it when features change the app's structure or behavior significantly. MCP server features belong in `IdiamPro-MCP-Plan.idm` instead.
 
 ---
 
@@ -80,22 +80,29 @@ Critical project outlines are stored in **two locations**:
 cp "~/Documents/IDM Outlines/IdiamPro - Testing.idm" docs/outlines/
 ```
 
-**Outlines in the project folder:**
-- IdiamPro - Testing.idm
-- IdiamPro - How it works.idm
-- IdiamPro - Development.idm
-- IdiamPro - Bootstrap Plan.idm
-- IdiamPro - Current Features.idm
-- IdiamPro - Legal and Compliance.idm
-- IdiamPro - Killer Features & Selling Points.idm
-- IdiamPro - Killer Features & Selling Points - HJ.idm
-- IdiamPro - Group.idm
-- IdiamPro - Testing.idm
-- IdiamPro-BizDev.idm
-- IdiamPro-Planning.idm
-- IdiamPro-Marketing.idm
-- IdiamPro-MCP-Plan.idm
-- Developer Guide.idm
+**Outlines in the project folder (`docs/outlines/`):**
+
+*App & Architecture:*
+- `IdiamPro - How it works.idm` — Plain-language explanation of how the app is built
+- `IdiamPro - Development.idm` — Milestones, architecture, issues, app store submission
+- `IdiamPro - Current Features.idm` — Comprehensive catalog of all implemented features
+- `IdiamPro - Testing.idm` — Automated test results + manual test checklists
+- `Developer Guide.idm` — Quick-start guide for developers working on the codebase
+
+*Business & Strategy:*
+- `IdiamPro-Planning.idm` — Executive business plan, market analysis, financial projections
+- `IdiamPro-BizDev.idm` — Business development, investor pitch, partnerships
+- `IdiamPro-Marketing.idm` — Marketing copy, feature descriptions, pricing tiers, video content
+- `IdiamPro - Bootstrap Plan.idm` — Bootstrapping roadmap from web presence to App Store
+- `IdiamPro - Legal and Compliance.idm` — TOS, privacy policy, API compliance, IP
+
+*Product & Features:*
+- `IdiamPro - Killer Features & Selling Points.idm` — Key differentiators and workflows
+- `IdiamPro - Killer Features & Selling Points - HJ.idm` — Howard's expanded version
+- `IdiamPro - Group.idm` — Group/collaboration features planning
+
+*MCP Server:*
+- `IdiamPro-MCP-Plan.idm` — MCP server: architecture, tools, auth, commercialization, test procedures
 
 **Important:** The user edits outlines in IdiamPro (from `~/Documents/IDM Outlines/`). After significant changes, sync to `docs/outlines/` and commit.
 
@@ -142,6 +149,7 @@ node tests/electron-test.js
 - **Capacitor** requires Node >= 22 for CLI commands (`npx cap sync`, `npx cap run`)
 - **iCloud Drive** causes code signing issues - use `xattr -cr` to strip resource forks before signing
 - **DerivedData** should be outside iCloud Drive to avoid build failures
+- **MCP Server** lives in `mcp-server/` with its own `package.json`. Build with `cd mcp-server && npm run build`. Dev mode: `npm run dev`. See `mcp-server/README.md` for Claude Desktop/Code configuration.
 
 ### Electron Restart - Auto
 
