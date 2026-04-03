@@ -89,6 +89,13 @@ AI FEATURES:
 - Unmerge: After merging research into an existing outline, an Unmerge button (orange circular arrow) appears in the toolbar right after the Research & Import button. Click it to restore the outline to its pre-merge state. The button persists until you click it or perform another merge. You can freely edit the outline and still unmerge later. The backup survives app restarts. Only the most recent merge can be unmerged.
 - Generate Podcast: Right-click any node > "Generate Podcast". Choose a style (Two-Host, Narrator, Interview, Debate), assign voices, pick a length (Brief/Standard/Detailed), and select audio quality (Standard/HD). AI generates a script via Gemini, then synthesizes speech via OpenAI TTS. Preview the audio in-app and save as MP3. All preferences (style, voices, length, quality) are remembered across sessions. Requires OPENAI_API_KEY.
 
+MCP SERVER (API ACCESS):
+- IdiamPro includes an MCP (Model Context Protocol) server for programmatic access to outlines
+- AI assistants like Claude can read, write, search, and organize outlines directly
+- 16 tools: list/get/search outlines, create/update/delete/move nodes, tag operations, export as Markdown, API key management
+- Setup: Build the mcp-server/ directory, add to Claude Desktop config, restart
+- Ask Claude: "list my outlines", "search for nodes about X", "export outline as markdown"
+
 MOBILE:
 - Stacked View: outline + content side by side
 - Content View: full-screen editor mode

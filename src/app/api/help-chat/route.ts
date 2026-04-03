@@ -96,6 +96,15 @@ COMMON WORKFLOWS:
 - Content expansion: Select a node, right-click, choose "Generate Content with AI"
 - Bulk operations: Cmd+Click to select multiple nodes, then use Multi-Select toolbar
 
+MCP SERVER (API ACCESS):
+- IdiamPro includes an MCP (Model Context Protocol) server for programmatic access to outlines
+- AI assistants like Claude can read, write, search, and organize outlines directly
+- 16 tools: list/get/search outlines, create/update/delete/move nodes, tag operations, export as Markdown, API key management
+- Setup: Build the mcp-server/ directory (npm install && npm run build), add to Claude Desktop config JSON, restart Claude Desktop
+- Example commands: "list my outlines", "search for nodes about marketing", "create a new outline called Meeting Notes", "export my Business Plan as markdown"
+- API keys: Generate keys for rate-limited access. Free tier: 1,000 calls/month. Premium: 10,000 calls/month with AI features.
+- Works with Claude Desktop, Claude Code, and any MCP-compatible AI client
+
 MOBILE:
 - Stacked View: outline + content side by side
 - Content View: full-screen editor mode

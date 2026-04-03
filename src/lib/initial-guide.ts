@@ -332,6 +332,20 @@ This guide cannot be deleted, but you can copy it to create your own customized 
 
   createNode(nodes, sidebarSearchId, advancedId, "Sidebar Search", "Quickly find outlines by name using the search field in the sidebar.\n\n**How to use:**\n1. Type in the search field below the Outlines header\n2. The list filters in real time to show only matching outlines\n3. The count updates to show matches vs total (e.g., \"5 / 42\")\n4. Click the X button or clear the text to show all outlines again\n\n**Details:**\n- Search is case-insensitive\n- The User Guide is also filtered by search\n- Available in both the desktop sidebar and the mobile sidebar sheet\n- On mobile, the search clears automatically when you select an outline");
 
+  // === MCP SERVER (API ACCESS) ===
+  const mcpId = uuidv4();
+  const mcpOverviewId = uuidv4();
+  const mcpToolsId = uuidv4();
+  const mcpSetupId = uuidv4();
+
+  createNode(nodes, mcpId, rootId, "MCP Server (API Access)", "IdiamPro includes an MCP (Model Context Protocol) server that lets AI assistants like Claude read, write, search, and organize your outlines programmatically.\n\n**What This Means:**\nYou can ask Claude (or any MCP-compatible AI) to work with your outlines directly — list them, search across all your content, create new outlines, add nodes, tag and organize content, and export outlines as Markdown.\n\n**Why It Matters:**\nInstead of manually copying content between AI conversations and your outlines, the AI can read and write directly. This enables powerful workflows like automated research synthesis, bulk organization, and cross-outline analysis.", []);
+
+  createNode(nodes, mcpOverviewId, mcpId, "Available Tools", "The MCP server provides 16 tools organized into categories:\n\n**Read Operations:**\n• list_outlines — See all your outlines with metadata\n• get_outline — Get the full structure of any outline\n• get_node — Retrieve a specific node\n• search_nodes — Full-text search across names and content\n\n**Write Operations:**\n• create_outline — Create a new outline from scratch\n• create_node — Add nodes to any outline\n• update_node — Edit node names and content\n• delete_node — Remove nodes and descendants\n• move_node — Reorganize nodes between parents\n\n**Tags:**\n• add_tag / remove_tag — Manage tags on nodes\n• list_tags — See all tags across outlines\n• filter_by_tags — Find nodes by tag\n\n**Export:**\n• export_outline — Export as Markdown or plain text\n\n**Key Management:**\n• generate_api_key / list_api_keys / revoke_api_key");
+
+  createNode(nodes, mcpToolsId, mcpId, "Example Workflows", "**Research Aggregation:**\n\"Search all my outlines for nodes about machine learning and create a summary outline\"\n\n**Bulk Organization:**\n\"Tag all nodes containing 'TODO' with a 'task' tag across every outline\"\n\n**Content Export:**\n\"Export my Business Plan outline as Markdown so I can share it\"\n\n**Cross-Outline Analysis:**\n\"Find everything I've written about competitors across all outlines\"\n\n**Automated Note-Taking:**\n\"Create a new outline called 'Daily Standup' and add today's agenda items\"");
+
+  createNode(nodes, mcpSetupId, mcpId, "Setup", "**For Claude Desktop:**\n1. The MCP server is included with IdiamPro in the mcp-server/ directory\n2. Build it: open Terminal, navigate to the mcp-server folder, run npm install and npm run build\n3. Add the server to your Claude Desktop configuration file\n4. Restart Claude Desktop\n5. Ask Claude to 'list my outlines' to verify it works\n\n**For Claude Code:**\nAdd the server to your .claude/settings.json MCP servers section.\n\nSee the README in the mcp-server/ folder for detailed configuration instructions.");
+
   // === NODE NUMBERING ===
   const numberingId = uuidv4();
 
