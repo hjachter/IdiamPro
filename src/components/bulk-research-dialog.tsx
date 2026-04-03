@@ -37,12 +37,12 @@ type SourceEntry = ExternalSourceInput & {
 
 // Source type configuration for cleaner UI
 const SOURCE_TYPES = {
-  youtube: { label: 'YouTube Video', icon: Youtube, color: 'text-red-500' },
+  youtube: { label: 'YouTube Video', icon: Youtube, color: 'text-red-500 dark:text-red-400' },
   web: { label: 'Web Page', icon: Globe, color: 'text-indigo-500' },
-  pdf: { label: 'PDF Document', icon: FileText, color: 'text-blue-500' },
-  recording: { label: 'Conversation / Audio', icon: Mic, color: 'text-red-600' },
+  pdf: { label: 'PDF Document', icon: FileText, color: 'text-emerald-500 dark:text-emerald-400' },
+  recording: { label: 'Conversation / Audio', icon: Mic, color: 'text-red-600 dark:text-red-400' },
   text: { label: 'Text / Notes', icon: Type, color: 'text-green-500' },
-  image: { label: 'Image (OCR)', icon: ImageIcon, color: 'text-purple-500' },
+  image: { label: 'Image (OCR)', icon: ImageIcon, color: 'text-emerald-500 dark:text-emerald-400' },
   doc: { label: 'Office Document', icon: FileArchive, color: 'text-orange-500' },
   video: { label: 'Video File', icon: VideoIcon, color: 'text-teal-500' },
   outline: { label: 'Outline File (.idm)', icon: FolderOpen, color: 'text-amber-500' },
@@ -764,7 +764,7 @@ export default function BulkResearchDialog({
                           )}
                           {inputMethod === 'file' && (
                             <>
-                              <FileText className="w-4 h-4 text-blue-500" />
+                              <FileText className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
                               <span className="text-sm font-medium">Select a File</span>
                             </>
                           )}
@@ -776,7 +776,7 @@ export default function BulkResearchDialog({
                           )}
                           {inputMethod === 'recording' && (
                             <>
-                              <Mic className="w-4 h-4 text-red-600" />
+                              <Mic className="w-4 h-4 text-red-600 dark:text-red-400" />
                               <span className="text-sm font-medium">Conversation</span>
                             </>
                           )}
@@ -860,7 +860,7 @@ export default function BulkResearchDialog({
                             </SelectItem>
                             <SelectItem value="file">
                               <div className="flex items-center gap-2">
-                                <FileText className="w-4 h-4 text-blue-500 flex-shrink-0" />
+                                <FileText className="w-4 h-4 text-emerald-500 dark:text-emerald-400 flex-shrink-0" />
                                 <div className="flex flex-col items-start">
                                   <span className="font-medium">Select a File</span>
                                   <span className="text-xs text-muted-foreground">PDF, Word, images, audio, video</span>
@@ -1254,16 +1254,16 @@ export default function BulkResearchDialog({
         {/* Processing status indicator */}
         {isSubmitting && (
           <div className="flex items-center gap-3 p-4 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800">
-            <Loader2 className="h-6 w-6 animate-spin text-blue-600 dark:text-blue-400 flex-shrink-0" />
+            <Loader2 className="h-6 w-6 animate-spin text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
             <div className="text-sm">
-              <p className="font-medium text-blue-800 dark:text-blue-200">Processing your sources...</p>
-              <p className="text-blue-600 dark:text-blue-400 text-xs mt-1">
+              <p className="font-medium text-emerald-800 dark:text-emerald-200">Processing your sources...</p>
+              <p className="text-emerald-600 dark:text-emerald-400 text-xs mt-1">
                 Extracting content and organizing into an outline.
               </p>
-              <p className="text-blue-500 dark:text-blue-500 text-xs mt-2 font-medium">
+              <p className="text-emerald-500 dark:text-emerald-400 text-xs mt-2 font-medium">
                 Short content: 1-2 minutes • Long documents/books: 5-10 minutes
               </p>
-              <p className="text-blue-400 dark:text-blue-600 text-xs mt-1">
+              <p className="text-emerald-400 dark:text-emerald-500 text-xs mt-1">
                 Please keep this window open until complete.
               </p>
             </div>

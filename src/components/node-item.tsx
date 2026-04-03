@@ -461,16 +461,6 @@ export default function NodeItem({
         {dropPosition === 'before' && <div className="absolute left-0 top-0 w-full h-1 bg-primary rounded pointer-events-none z-20" />}
         {dropPosition === 'after' && <div className="absolute left-0 bottom-0 w-full h-1 bg-primary rounded pointer-events-none z-20" />}
 
-        {/* Depth indicator line with gradient colors */}
-        {level > 0 && (
-          <div
-            className="absolute left-0 top-1 bottom-1 w-0.5 rounded-full"
-            style={{
-              marginLeft: `${(level - 1) * 1.5 + 0.5}rem`,
-              backgroundColor: `hsl(var(--depth-${Math.min(level, 5)}) / ${Math.max(0.15, 0.5 - level * 0.08)})`,
-            }}
-          />
-        )}
 
         <ContextMenu>
           <ContextMenuTrigger asChild>
@@ -486,8 +476,8 @@ export default function NodeItem({
                 isHighlighted && !isSelected && "bg-yellow-100 dark:bg-yellow-900/30",
                 // Multi-select indicator (blue ring + background)
                 isMultiSelected && !isSelected && "bg-blue-50 dark:bg-blue-900/20 ring-2 ring-blue-500/50",
-                // Left border: custom color takes priority, then chapter color
-                node.metadata?.color ? "border-l-4" : (isChapter && !isRoot && "border-l-2 border-l-[hsl(var(--node-chapter)/0.4)]")
+                // Left border: custom color only (user-assigned)
+                node.metadata?.color && "border-l-4"
             )}
             style={{
               paddingLeft: `${level * 1.5 + 0.5}rem`,

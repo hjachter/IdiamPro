@@ -70,7 +70,7 @@ export default function AIMenu({
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel className="flex items-center justify-between">
           <span className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-violet-400" />
+            <Sparkles className="h-4 w-4 text-emerald-500 dark:text-emerald-400" />
             AI Features
           </span>
           <Badge variant={isPremium ? "default" : "secondary"} className="text-xs">

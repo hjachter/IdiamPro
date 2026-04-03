@@ -108,7 +108,7 @@ export default function YouTubePickerDialog({
               <p className="text-sm text-destructive">{error}</p>
             )}
             {url && isValidYouTubeUrl(url) && (
-              <p className="text-sm text-green-600">✓ Valid YouTube URL</p>
+              <p className="text-sm text-green-600 dark:text-green-400">✓ Valid YouTube URL</p>
             )}
           </div>
         </div>

@@ -520,7 +520,7 @@ export default function PodcastDialog({
         <DialogHeader>
           <DialogTitle>
             Generate Podcast
-            <span className="ml-2 inline-flex items-center gap-1 text-xs font-normal bg-gradient-to-r from-purple-500/20 to-blue-500/20 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded-full border border-purple-300/30">
+            <span className="ml-2 inline-flex items-center gap-1 text-xs font-normal bg-gradient-to-r from-emerald-500/20 to-emerald-500/20 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-300/30">
               <Sparkles className="h-3 w-3" />
               Premium
             </span>

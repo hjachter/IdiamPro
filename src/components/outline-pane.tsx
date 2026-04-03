@@ -532,8 +532,17 @@ export default function OutlinePane({
 
   const handleCloseSearch = useCallback(() => {
     setIsSearchOpen(false);
-    // Don't clear search state - user said "leave as-is"
+    // Keep highlights visible after closing search bar
   }, []);
+
+  const handleClearSearch = useCallback(() => {
+    setSearchMatches([]);
+    setSearchTerm('');
+    setCurrentMatchIndex(0);
+    if (onSearchTermChange) {
+      onSearchTermChange('');
+    }
+  }, [onSearchTermChange]);
 
   // Keyboard event handler for Tab/Shift+Tab, clipboard shortcuts, and search
   // Separate useEffect for multi-selection keyboard shortcuts (Escape and Tab)
@@ -542,11 +551,33 @@ export default function OutlinePane({
       const target = e.target as HTMLElement;
       if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) return;
 
-      // Handle Escape to clear multi-selection
+      // Cascading Escape: each press dismisses one layer of active state
       if (e.key === 'Escape') {
+        e.preventDefault();
+        // 1. Close search bar if open
+        if (isSearchOpen) {
+          handleCloseSearch();
+          return;
+        }
+        // 2. Clear search highlights if present
+        if (searchMatches.length > 0) {
+          handleClearSearch();
+          return;
+        }
+        // 3. Cancel active AI operation
+        if (isLoadingAI && onCancelAI) {
+          onCancelAI();
+          return;
+        }
+        // 4. Clear multi-selection
         if (selectedNodeIds && selectedNodeIds.size > 0 && onClearSelection) {
-          e.preventDefault();
           onClearSelection();
+          return;
+        }
+        // 5. Deselect current node
+        if (selectedNodeId) {
+          onSelectNode('', false);
+          return;
         }
         return;
       }
@@ -564,7 +595,7 @@ export default function OutlinePane({
 
     document.addEventListener('keydown', handleMultiSelectKeys);
     return () => document.removeEventListener('keydown', handleMultiSelectKeys);
-  }, [selectedNodeIds, onClearSelection, handleBulkIndent, handleBulkOutdent]);
+  }, [selectedNodeIds, onClearSelection, handleBulkIndent, handleBulkOutdent, isSearchOpen, searchMatches, handleClearSearch, handleCloseSearch, isLoadingAI, onCancelAI, selectedNodeId, onSelectNode]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -1163,6 +1194,7 @@ export default function OutlinePane({
       <OutlineSearch
         isOpen={isSearchOpen}
         onClose={handleCloseSearch}
+        onClear={handleClearSearch}
         outlines={outlines}
         currentOutline={currentOutline}
         onSearchResults={handleSearchResults}

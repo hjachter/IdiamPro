@@ -437,6 +437,13 @@ export default function ContentPane({
     return false;
   });
 
+  const [diagramType, setDiagramType] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('idiampro-diagram-type') || 'auto';
+    }
+    return 'auto';
+  });
+
   const [promptDialogOpen, setPromptDialogOpen] = useState(false);
 
   // File input ref for generic file import
@@ -474,6 +481,12 @@ export default function ContentPane({
       localStorage.setItem('idiampro-include-diagram', String(includeDiagram));
     }
   }, [includeDiagram]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('idiampro-diagram-type', diagramType);
+    }
+  }, [diagramType]);
 
   // Force SpreadsheetEditor to remount when navigating to a node
   // This ensures Fortune Sheet loads fresh data from props
@@ -1212,6 +1225,7 @@ export default function ContentPane({
           ancestorPath,
           existingContent: editor.getText(),
           includeDiagram,
+          diagramType: includeDiagram ? diagramType : undefined,
         };
 
         const generatedContent = await onGenerateContent(context);
@@ -1247,6 +1261,7 @@ export default function ContentPane({
         existingContent: editor.getText(),
         customPrompt: customPrompt.trim(),
         includeDiagram,
+        diagramType: includeDiagram ? diagramType : undefined,
       };
 
       const generatedContent = await onGenerateContent(context);
@@ -2330,7 +2345,7 @@ export default function ContentPane({
                   size="sm"
                   onClick={() => setPromptDialogOpen(true)}
                   disabled={isGenerating || isLoadingAI}
-                  className="text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950 px-2"
+                  className="text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 hover:text-emerald-800 dark:hover:bg-emerald-950 dark:hover:text-emerald-300 px-2"
                 >
                   <MessageSquare className="h-4 w-4" />
                   <span className="ml-1.5 text-xs hidden sm:inline">Ask AI</span>
@@ -2400,6 +2415,22 @@ export default function ContentPane({
               >
                 Include diagram
               </DropdownMenuCheckboxItem>
+              {includeDiagram && (
+                <>
+                  <DropdownMenuLabel className="text-xs text-muted-foreground pl-6">Diagram Type</DropdownMenuLabel>
+                  <DropdownMenuRadioGroup value={diagramType} onValueChange={setDiagramType}>
+                    <DropdownMenuRadioItem value="auto" className="pl-6">Auto (AI chooses)</DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="flowchart" className="pl-6">Flowchart</DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="sequenceDiagram" className="pl-6">Sequence Diagram</DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="mindmap" className="pl-6">Mind Map</DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="stateDiagram" className="pl-6">State Diagram</DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="gantt" className="pl-6">Gantt Chart</DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="pie" className="pl-6">Pie Chart</DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="erDiagram" className="pl-6">ER Diagram</DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="classDiagram" className="pl-6">Class Diagram</DropdownMenuRadioItem>
+                  </DropdownMenuRadioGroup>
+                </>
+              )}
               {onGenerateContentForDescendants && node && node.childrenIds.length > 0 && (
                 <>
                   <DropdownMenuSeparator />
@@ -2424,7 +2455,7 @@ export default function ContentPane({
                 size="sm"
                 onClick={handleOpenImageDialog}
                 disabled={isGeneratingImage || isGuide}
-                className="text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950 px-2"
+                className="text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 hover:text-emerald-800 dark:hover:bg-emerald-950 dark:hover:text-emerald-300 px-2"
               >
                 {isGeneratingImage ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -2446,7 +2477,7 @@ export default function ContentPane({
                     <Button
                       variant="outline"
                       size="sm"
-                      className="text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-950 px-2"
+                      className="text-green-600 dark:text-green-400 hover:bg-green-100 hover:text-green-800 dark:hover:bg-green-950 dark:hover:text-green-300 px-2"
                     >
                       <Network className="h-4 w-4" />
                       <span className="ml-1.5 text-xs hidden sm:inline">Diagram</span>

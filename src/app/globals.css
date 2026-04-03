@@ -81,19 +81,19 @@ body {
     --card-foreground: 0 0% 100%;
     --popover: 0 0% 17%; /* #2C2C2E */
     --popover-foreground: 0 0% 100%;
-    --primary: 211 100% 50%; /* iOS blue works in both modes */
+    --primary: 211 100% 68%; /* Brighter blue for dark mode readability */
     --primary-foreground: 0 0% 100%;
     --secondary: 0 0% 17%;
     --secondary-foreground: 0 0% 100%;
     --muted: 0 0% 17%;
     --muted-foreground: 0 0% 60%;
-    --accent: 211 100% 50%;
+    --accent: 211 100% 68%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 100% 50%;
     --destructive-foreground: 0 0% 100%;
     --border: 0 0% 22%; /* Subtle borders in dark mode */
     --input: 0 0% 22%;
-    --ring: 211 100% 50%;
+    --ring: 211 100% 68%;
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;

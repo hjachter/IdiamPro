@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, X, ChevronUp, ChevronDown, Globe, FileText, Type, AlignLeft } from 'lucide-react';
+import { Search, X, ChevronUp, ChevronDown, Globe, FileText, Type, AlignLeft, Eraser } from 'lucide-react';
 import type { Outline } from '@/types';
 import {
   Tooltip,
@@ -23,6 +23,7 @@ export interface SearchMatch {
 interface OutlineSearchProps {
   isOpen: boolean;
   onClose: () => void;
+  onClear: () => void;
   outlines: Outline[];
   currentOutline: Outline | undefined;
   onSearchResults: (matches: SearchMatch[], searchTerm: string) => void;
@@ -93,6 +94,7 @@ function searchOutline(
 export default function OutlineSearch({
   isOpen,
   onClose,
+  onClear,
   outlines,
   currentOutline,
   onSearchResults,
@@ -305,6 +307,25 @@ export default function OutlineSearch({
             <TooltipContent>Next match (Enter)</TooltipContent>
           </Tooltip>
 
+          {/* Clear highlights button */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => {
+                  onClear();
+                  onClose();
+                }}
+                disabled={totalMatches === 0}
+              >
+                <Eraser className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Clear highlights and close search</TooltipContent>
+          </Tooltip>
+
           {/* Close button */}
           <Tooltip>
             <TooltipTrigger asChild>
@@ -317,7 +338,7 @@ export default function OutlineSearch({
                 <X className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Close search (Esc)</TooltipContent>
+            <TooltipContent>Close search, keep highlights</TooltipContent>
           </Tooltip>
         </TooltipProvider>
       </div>

@@ -184,6 +184,7 @@ export interface NodeGenerationContext {
   existingContent: string;
   customPrompt?: string;  // Optional custom prompt for user-directed generation
   includeDiagram?: boolean;  // Whether to include Mermaid diagrams in generated content
+  diagramType?: string;  // Preferred diagram type: auto, flowchart, sequenceDiagram, mindmap, gantt, pie, classDiagram, stateDiagram, erDiagram
 }
 
 // External source types for ingestion

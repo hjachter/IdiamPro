@@ -1409,17 +1409,16 @@ export default function OutlinePro() {
         : `${(fileSizeBytes / 1024).toFixed(0)} KB`;
 
       // Show loading dialog - phase 1: reading from disk
-      // Use flushSync to ensure the UI updates immediately before async work
       console.log('[Progress] Setting loading state - phase: reading');
-      flushSync(() => {
-        setLoadingOutlineInfo({
-          name: outlineToSelect.name,
-          fileSize: fileSizeDisplay,
-          estimatedNodes: outlineToSelect._estimatedNodeCount || 0,
-          phase: 'reading',
-        });
-        setIsLoadingLazyOutline(true);
+      setLoadingOutlineInfo({
+        name: outlineToSelect.name,
+        fileSize: fileSizeDisplay,
+        estimatedNodes: outlineToSelect._estimatedNodeCount || 0,
+        phase: 'reading',
       });
+      setIsLoadingLazyOutline(true);
+      // Yield to allow React to render the loading state before async work
+      await new Promise(resolve => setTimeout(resolve, 0));
       console.log('[Progress] isLoadingLazyOutline set to true');
 
       try {

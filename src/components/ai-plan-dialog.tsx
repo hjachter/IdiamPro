@@ -44,7 +44,7 @@ const PLANS: {
     price: '$9.99',
     period: '/month',
     description: 'For regular knowledge workers',
-    icon: <Star className="h-4 w-4 text-blue-500" />,
+    icon: <Star className="h-4 w-4 text-emerald-500 dark:text-emerald-400" />,
     features: [
       'Unlimited outlines',
       '50 AI generations/month',
@@ -130,7 +130,7 @@ export default function AIPlanDialog({ children }: AIPlanDialogProps) {
                 onClick={() => handleSwitchPlan(p.id)}
               >
                 {p.badge && (
-                  <Badge className="mb-2 bg-yellow-500 text-black text-xs">{p.badge}</Badge>
+                  <Badge className="mb-2 bg-yellow-500 dark:bg-yellow-400 text-black text-xs">{p.badge}</Badge>
                 )}
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="font-semibold text-base flex items-center gap-2">

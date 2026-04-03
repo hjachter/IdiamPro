@@ -120,7 +120,7 @@ export default function GoogleDocsPickerDialog({
               <p className="text-sm text-destructive">{error}</p>
             )}
             {url && isValidGoogleDocsUrl(url) && (
-              <p className="text-sm text-green-600">✓ Valid Google Docs URL</p>
+              <p className="text-sm text-green-600 dark:text-green-400">✓ Valid Google Docs URL</p>
             )}
           </div>
         </div>

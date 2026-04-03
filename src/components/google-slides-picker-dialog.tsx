@@ -120,7 +120,7 @@ export default function GoogleSlidesPickerDialog({
               <p className="text-sm text-destructive">{error}</p>
             )}
             {url && isValidGoogleSlidesUrl(url) && (
-              <p className="text-sm text-green-600">✓ Valid Google Slides URL</p>
+              <p className="text-sm text-green-600 dark:text-green-400">✓ Valid Google Slides URL</p>
             )}
           </div>
         </div>

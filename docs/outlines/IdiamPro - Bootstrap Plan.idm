@@ -895,7 +895,9 @@
       "parentId": "pm-session-notes",
       "childrenIds": [
         "session-2026-03-23",
-        "session-2026-03-23b"
+        "session-2026-03-23b",
+        "session-2026-03-27",
+        "session-2026-04-02"
       ],
       "isCollapsed": false,
       "prefix": ""
@@ -914,6 +916,20 @@
       "id": "session-2026-03-23b",
       "name": "Sunday, March 23, 2026 \u2014 2:30 AM (continued)",
       "content": "<p><strong>Proactive updates this session:</strong></p><p></p><ul><li><p>Added search filter toggles (Names/Content) to outline search bar</p></li><li><p>Added two-step AI consent decline flow \u2014 warning screen lists all features that will be disabled before confirming</p></li><li><p>Disabled auto-open DevTools in Electron dev mode for cleaner testing</p></li><li><p>Fixed Generate Content server action parameter mismatch</p></li><li><p>Fixed Generate AI Diagram env var (GOOGLE_API_KEY \u2192 GEMINI_API_KEY)</p></li><li><p>Added external modification polling (5-second interval) to prevent app from overwriting Claude's outline edits</p></li><li><p>Added Fn key pass-through in Electron for macOS dictation</p></li><li><p>Updated documentation: initial-guide, help-chat context, API route for AI consent feature</p></li><li><p>Outline sweep: updated How It Works (AI consent system, external mod detection, search filters), Killer Features (5 new entries), Current Features (search filters, AI consent, privacy policy), Testing (3 new manual test procedures), Legal &amp; Compliance (privacy policy + AI consent status \u2192 IMPLEMENTED)</p></li></ul>",
+      "childrenIds": [],
+      "isExpanded": true
+    },
+    "session-2026-03-27": {
+      "id": "session-2026-03-27",
+      "name": "Thursday, March 27, 2026",
+      "content": "<p><strong>Proactive updates this session:</strong></p><ul><li><p>Changed all purple/violet icon colors to emerald green for dark mode readability</p></li><li><p>Added light/dark mode theme toggle in Settings (using next-themes)</p></li><li><p>Added dark mode variants to all icon colors across every component</p></li><li><p>Replaced dark blue icons with sky blue for better contrast</p></li><li><p>Fixed search filter toggle buttons \u2014 now go dim immediately on click</p></li><li><p>Swapped search filter icons (outline icon for names, T for content)</p></li><li><p>Checked availability of 53 candidate product names \u2014 37 taken, 16 available</p></li><li><p>Added Available/Taken child nodes to Killer Features outline</p></li><li><p>Added no-code-output rule to top of CLAUDE.md for stronger enforcement</p></li></ul>",
+      "childrenIds": [],
+      "isExpanded": true
+    },
+    "session-2026-04-02": {
+      "id": "session-2026-04-02",
+      "name": "Wednesday, April 2\u20133, 2026",
+      "content": "<p><strong>Proactive updates this session:</strong></p><ul><li><p>Removed depth indicator lines and chapter border indicators from outline tree for cleaner look</p></li><li><p>Brightened dark mode primary color (iOS blue \u2192 brighter sky blue) for better readability</p></li><li><p>Comprehensive color scan \u2014 fixed 13 visibility issues across all components for both light/dark modes</p></li><li><p>Added diagram type selector to Generate Content dropdown (9 types including Auto)</p></li><li><p>Fixed green button hover disappearing in light mode</p></li><li><p>Implemented cascading Escape key \u2014 dismisses search, highlights, AI ops, multi-select, deselect in priority order</p></li><li><p>Added Clear button (eraser icon) to search bar for clearing highlights</p></li><li><p>Fixed flushSync crash in outline lazy loading</p></li><li><p>Added ITSAppUsesNonExemptEncryption flag to Info.plist</p></li><li><p>TestFlight: uploaded macOS build, configured App Store Connect compliance, deployed to iMac via TestFlight</p></li></ul>",
       "childrenIds": [],
       "isExpanded": true
     }

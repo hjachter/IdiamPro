@@ -50,12 +50,29 @@
     "sec-names": {
       "id": "sec-names",
       "name": "Alternative Product Names",
-      "content": "<p><strong>Writing Focus:</strong> AuthorPro, AutoBook, WriteFrame, StoryMap, ChapterFlow, BookForge, PlotTree, NovelArchitect</p><p><strong>Research Focus:</strong> ResearchPro, ScholarFlow, ThesisBuilder, LitReview, AcademicTree, SourceSync, KnowledgeMap</p><p><strong>Knowledge Mgmt:</strong> MindVault, BrainTree, ThinkBase, IdeaForge, SecondMind, ThoughtTree, MindFrame</p><p><strong>Business Focus:</strong> PlanPro, StrategyTree, ExecOutline, BoardBrief, ProjectFrame, ProposalPro, DecisionTree</p><p><strong>AI Emphasis:</strong> AIOutliner, SmartOutline, AIWriter, ThinkAI, AutoOutline, SmartDraft, AIBrain</p><p><strong>Outlining Focus:</strong> OutlinePro, TreeNote, StructureApp, NodeFlow, BranchNote, OutlineForge, NestedNote</p><p><strong>Brandable:</strong> Structly, Outlinr, Nodelux, Treeva, Maplix, Branchly, Nestify, Outloom, Thinkvine, Mindloom</p>",
+      "content": "<p><strong>Writing Focus:</strong> <del>AuthorPro</del>, <del>AutoBook</del>, <strong>WriteFrame</strong>, <del>StoryMap</del>, <strong>ChapterFlow</strong>, <del>BookForge</del>, <del>PlotTree</del>, <strong>NovelArchitect</strong></p><p><strong>Research Focus:</strong> <del>ResearchPro</del>, <del>ScholarFlow</del>, <strong>ThesisBuilder</strong>, <strong>LitReview</strong>, <del>AcademicTree</del>, <del>SourceSync</del>, <del>KnowledgeMap</del></p><p><strong>Knowledge Mgmt:</strong> <del>MindVault</del>, <del>BrainTree</del>, <del>ThinkBase</del>, <del>IdeaForge</del>, <del>SecondMind</del>, <del>ThoughtTree</del>, <del>MindFrame</del></p><p><strong>Business Focus:</strong> <del>PlanPro</del>, <strong>StrategyTree</strong>, <strong>ExecOutline</strong>, <strong>BoardBrief</strong>, <del>ProjectFrame</del>, <del>ProposalPro</del>, <del>DecisionTree</del></p><p><strong>AI Emphasis:</strong> <strong>AIOutliner</strong>, <del>SmartOutline</del>, <del>AIWriter</del>, <del>ThinkAI</del>, <strong>AutoOutline</strong>, <del>SmartDraft</del>, <del>AIBrain</del></p><p><strong>Outlining Focus:</strong> <strong>OutlinePro</strong>, <del>TreeNote</del>, <del>StructureApp</del>, <del>NodeFlow</del>, <strong>BranchNote</strong>, <strong>OutlineForge</strong>, <del>NestedNote</del></p><p><strong>Brandable:</strong> <del>Structly</del>, <strong>Outlinr</strong>, <strong>Nodelux</strong>, <del>Treeva</del>, <del>Maplix</del>, <del>Branchly</del>, <del>Nestify</del>, <strong>Outloom</strong>, <del>Thinkvine</del>, <del>Mindloom</del></p><p></p><p><em>Names in <strong>bold</strong> are available. <del>Struck-through</del> names are already in use by other products. (Checked March 2026)</em></p>",
       "type": "chapter",
       "parentId": "sp-root",
-      "childrenIds": [],
+      "childrenIds": [
+        "names-available",
+        "names-taken"
+      ],
       "prefix": "4",
       "isCollapsed": false
+    },
+    "names-available": {
+      "id": "names-available",
+      "name": "AVAILABLE Names (checked March 2026)",
+      "content": "<p><strong>WriteFrame</strong>, <strong>ChapterFlow</strong>, <strong>NovelArchitect</strong>, <strong>ThesisBuilder</strong>, <strong>LitReview</strong>, <strong>StrategyTree</strong>, <strong>ExecOutline</strong>, <strong>BoardBrief</strong>, <strong>AIOutliner</strong>, <strong>AutoOutline</strong>, <strong>OutlinePro</strong>, <strong>BranchNote</strong>, <strong>OutlineForge</strong>, <strong>Outlinr</strong>, <strong>Nodelux</strong>, <strong>Outloom</strong></p>",
+      "childrenIds": [],
+      "isExpanded": false
+    },
+    "names-taken": {
+      "id": "names-taken",
+      "name": "TAKEN Names (in use by other products)",
+      "content": "<p>AIBrain, AIWriter, AcademicTree, AuthorPro, AutoBook, BookForge, BrainTree, Branchly, DecisionTree, IdeaForge, KnowledgeMap, Maplix, MindFrame, MindVault, Mindloom, NestedNote, Nestify, NodeFlow, PlanPro, PlotTree, ProjectFrame, ProposalPro, ResearchPro, ScholarFlow, SecondMind, SmartDraft, SmartOutline, SourceSync, StoryMap, Structly, StructureApp, ThinkAI, ThinkBase, Thinkvine, ThoughtTree, TreeNote, Treeva</p>",
+      "childrenIds": [],
+      "isExpanded": false
     }
   },
   "isGuide": false,

@@ -267,14 +267,18 @@ export async function generateContentForNodeAction(
       : '';
 
     // Diagram generation instructions when enabled
+    const diagramTypeInstruction = context.diagramType && context.diagramType !== 'auto'
+      ? `You MUST use a ${context.diagramType} diagram type. Do not use any other diagram type.`
+      : `Choose the most appropriate diagram type from: flowchart, sequenceDiagram, mindmap, gantt, pie, classDiagram, stateDiagram, erDiagram.`;
+
     const diagramInstructions = context.includeDiagram
-      ? `\n\nIMPORTANT: If this content would benefit from a visual diagram (process flow, hierarchy, comparison, timeline, sequence, or relationships), include a Mermaid diagram. Use this exact format:
+      ? `\n\nIMPORTANT: Include a Mermaid diagram that visualizes the key concepts, processes, or relationships in this content. Use this exact format:
 
 \`\`\`mermaid
 [diagram code here]
 \`\`\`
 
-Supported diagram types: flowchart, sequenceDiagram, mindmap, gantt, pie, classDiagram, stateDiagram, erDiagram.
+${diagramTypeInstruction}
 
 MERMAID SYNTAX RULES (critical - diagrams will fail if violated):
 - Node/participant names must be simple identifiers (letters, numbers, underscores only)
@@ -283,9 +287,7 @@ MERMAID SYNTAX RULES (critical - diagrams will fail if violated):
 - RIGHT: B[Retention D1 D7 D30] or B[Retention Metrics]
 - Use short names like "Platform" not "Platform (iOS, Mac, Web)"
 - For descriptive labels in flowcharts, use: NodeID[Descriptive Label]
-- Keep the diagram simple and focused
-
-Only include a diagram if it genuinely helps explain the content - don't force one where text alone is clearer.`
+- Keep the diagram simple and focused`
       : '';
 
     let enhancedTitle: string;
@@ -2123,7 +2125,7 @@ export async function generateImageAction(
     const genai = new GoogleGenAI({ apiKey });
 
     const response = await genai.models.generateImages({
-      model: 'imagen-3.0-generate-002',
+      model: 'imagen-4.0-generate-001',
       prompt: prompt,
       config: {
         numberOfImages: 1,

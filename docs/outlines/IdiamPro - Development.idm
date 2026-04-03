@@ -427,11 +427,144 @@
       "parentId": "17a29ec6-74ba-4196-8f2f-f7dc8a59f862",
       "childrenIds": [
         "c532b50b-823b-4309-b717-2ec786dc73a2",
+        "a1b2c3d4-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
         "54cc09ae-6bc3-42e5-a415-3bb3170e001d",
         "55b7c505-c1bb-4c96-823a-71dea3b8a6a7"
       ],
       "isCollapsed": true,
       "prefix": "10"
+    },
+    "a1b2c3d4-5e6f-7a8b-9c0d-1e2f3a4b5c6d": {
+      "id": "a1b2c3d4-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
+      "name": "TestFlight Beta Distribution",
+      "content": "<p><strong>TestFlight Beta Distribution — Established March 2026</strong></p><p></p><p><strong>What is TestFlight?</strong></p><p>TestFlight is Apple's official app for distributing beta (pre-release) versions of apps to testers. Think of it like a private App Store just for your team. Instead of plugging each device into your Mac with a cable, you upload the app once and everyone downloads it wirelessly — just like installing an app from the App Store.</p><p></p><p><strong>Why we use it:</strong></p><ul><li><p>Install IdiamPro on any iPhone, iPad, or Mac without cables</p></li><li><p>Push updates wirelessly — testers just tap \"Update\" in the TestFlight app</p></li><li><p>Add new testers by simply sending them an email invitation</p></li><li><p>Each build stays available for 90 days</p></li></ul><p></p><hr><p><strong>How the workflows fit together:</strong></p><p></p><p><strong>ONE-TIME SETUP (do these once, then never again):</strong></p><ol><li><p><strong>Set up prerequisites</strong> (10.2.1) — Get your developer account, install Xcode, accept agreements</p></li><li><p><strong>Register the app</strong> (10.2.2) — Tell Apple that IdiamPro exists</p></li><li><p><strong>Connect each device once</strong> (10.2.3) — Plug in each iPhone/iPad via cable so Xcode can register it</p></li><li><p><strong>Set up your test group</strong> (10.2.6) — Create a group in App Store Connect and add testers by email</p></li></ol><p></p><p><strong>FIRST BUILD (do these to get the app on your devices the first time):</strong></p><ol><li><p><strong>Create an archive</strong> (10.2.4) — Package the app in Xcode</p></li><li><p><strong>Upload the build</strong> (10.2.5) — Send the packaged app to Apple</p></li><li><p><strong>Install on each device</strong> (10.2.7) — Open TestFlight on the device and tap Install</p></li></ol><p></p><p><strong>EVERY UPDATE (repeat these whenever you change the app):</strong></p><ol><li><p><strong>Create a new archive</strong> (10.2.4) — Package the updated app</p></li><li><p><strong>Upload the new build</strong> (10.2.5) — Send it to Apple</p></li><li><p><strong>Update on each device</strong> (10.2.8) — Open TestFlight and tap Update</p></li></ol><p></p><p><strong>AS NEEDED (reference these when something goes wrong):</strong></p><ul><li><p><strong>Fix app icon issues</strong> (10.2.9) — If the upload fails because of the icon</p></li><li><p><strong>Fix common problems</strong> (10.2.10) — Look up error messages and solutions</p></li><li><p><strong>Check deployment status</strong> (10.2.11) — See which devices have the app and when builds expire</p></li></ul><p></p><hr><p></p><p><strong>Key terms:</strong></p><ul><li><p><strong>Build</strong> — A packaged version of the app, ready to install. Each time we make changes and want to test them, we create a new build.</p></li><li><p><strong>Archive</strong> — The process of packaging the app into a build. Done in Xcode (Apple's development tool).</p></li><li><p><strong>App Store Connect</strong> — Apple's website where you manage your apps, testers, and builds. This is where TestFlight lives.</p></li><li><p><strong>Internal Tester</strong> — Someone on your developer team who can install beta builds. Limited to 100 people.</p></li><li><p><strong>Bundle ID</strong> — A unique name that identifies your app to Apple (ours is com.idiampro.app). Like a Social Security number for the app.</p></li></ul>",
+      "type": "document",
+      "parentId": "516fed31-8ef1-4804-b052-05b47adb0142",
+      "childrenIds": [
+        "tf-child-01-prerequisites",
+        "tf-child-02-app-store-connect",
+        "tf-child-03-register-device",
+        "tf-child-04-create-archive",
+        "tf-child-05-upload-build",
+        "tf-child-06-configure-testflight",
+        "tf-child-07-install-on-device",
+        "tf-child-08-push-update",
+        "tf-child-09-app-icon",
+        "tf-child-10-troubleshooting",
+        "tf-child-11-status"
+      ],
+      "isCollapsed": false,
+      "prefix": "10.2"
+    },
+    "tf-child-01-prerequisites": {
+      "id": "tf-child-01-prerequisites",
+      "name": "Set Up These Prerequisites First (One-Time Only)",
+      "content": "<p><strong>Do this once before your first TestFlight upload.</strong> After completing these steps, you won't need to repeat them.</p><p></p><p><strong>1. Get a paid Apple Developer Account</strong></p><p>Go to developer.apple.com/account and sign up for the Apple Developer Program ($99/year). A free Apple ID is not enough — you must have the paid membership to use TestFlight. Once enrolled, Apple assigns you a Team ID (ours is RRXN3CLBJH) — you don't need to memorize this, but it's how Apple identifies your account.</p><p></p><p><strong>2. Install Xcode on your Mac</strong></p><p>Open the Mac App Store, search for \"Xcode,\" and download it. Xcode is Apple's free development tool that we use to package and upload the app. It's a large download (several GB), so plan accordingly.</p><p></p><p><strong>3. Connect at least one device to your Mac with a cable</strong></p><p>Plug in any iPhone or iPad via USB at least once so Xcode can register it with your developer account. After this first cable connection, all future distribution happens wirelessly through TestFlight.</p><p></p><p><strong>4. Accept the iOS Paid Apps Agreement</strong></p><p>Go to appstoreconnect.apple.com, navigate to the Business section, and accept the \"iOS Paid Apps\" agreement. If it says \"expired,\" follow the on-screen prompts to renew it. Also fill in your tax and banking information when asked — Apple requires this before you can distribute apps.</p>",
+      "type": "document",
+      "parentId": "a1b2c3d4-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "10.2.1"
+    },
+    "tf-child-02-app-store-connect": {
+      "id": "tf-child-02-app-store-connect",
+      "name": "Register Your App in App Store Connect",
+      "content": "<p><strong>Tell Apple your app exists so you can start uploading builds.</strong> You only need to do this once.</p><p></p><p><strong>Follow these steps:</strong></p><ol><li><p>Open your browser and go to appstoreconnect.apple.com</p></li><li><p>Sign in with your Apple Developer account</p></li><li><p>Click <strong>Apps</strong> in the top menu</p></li><li><p>Click the <strong>\"+\" button</strong> to create a new app</p></li><li><p>Fill in the form:</p><ul><li><p><strong>Platform:</strong> Select iOS and macOS</p></li><li><p><strong>Name:</strong> Type \"IdiamPro\" — this is the name users will see</p></li><li><p><strong>Primary Language:</strong> Choose English</p></li><li><p><strong>Bundle ID:</strong> Pick com.idiampro.app from the dropdown. (A Bundle ID is a unique name that identifies your app to Apple, like a Social Security number for the app.) If you don't see it in the dropdown, you need to register it first — go to developer.apple.com → Certificates, Identifiers &amp; Profiles → Identifiers and add it there.</p></li><li><p><strong>SKU:</strong> Type \"idiampro\" — this is just an internal code for your own bookkeeping, nobody else ever sees it</p></li></ul></li><li><p>Click <strong>Create</strong></p></li></ol><p></p><p><strong>Skip the marketing fields.</strong> Don't worry about promotional text, descriptions, screenshots, or pricing. None of that is needed for TestFlight — it's only required later if you publish to the public App Store.</p>",
+      "type": "document",
+      "parentId": "a1b2c3d4-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "10.2.2"
+    },
+    "tf-child-03-register-device": {
+      "id": "tf-child-03-register-device",
+      "name": "Connect and Register a New Device",
+      "content": "<p><strong>Connect each new device to your Mac once so Apple knows it's authorized.</strong> After this one-time cable connection, all future app distribution happens wirelessly through TestFlight.</p><p></p><p><strong>Before you start, do these three things on the device:</strong></p><ol><li><p><strong>Unlock the device</strong> — leave it on the Home Screen</p></li><li><p><strong>Turn on Developer Mode</strong> — go to Settings → Privacy &amp; Security → Developer Mode → toggle it On. The device will ask you to restart — go ahead and restart it, then confirm when asked</p></li><li><p><strong>Grab a USB cable</strong> that connects the device to your Mac</p></li></ol><p></p><p><strong>Now register the device:</strong></p><ol><li><p>Plug the device into your Mac with the cable (make sure the device is unlocked)</p></li><li><p>On your Mac, open <strong>Xcode</strong></p></li><li><p>Go to <strong>Window → Devices and Simulators</strong></p></li><li><p>Look for your device in the left sidebar. If it appears under \"Discovered,\" click on it and click <strong>Pair</strong></p></li><li><p>Look at your device screen — tap <strong>\"Trust This Computer\"</strong> when the prompt appears, then enter your device passcode</p></li><li><p>Wait for the pairing to finish — your device will move from \"Discovered\" to the main connected devices list</p></li></ol><p></p><p><strong>If the \"Trust This Computer\" prompt doesn't appear on your device:</strong></p><ol><li><p>Make sure the device is unlocked (showing the Home Screen) when you plug in</p></li><li><p>Unplug the cable and plug it back in</p></li><li><p>If it still doesn't appear, go to the device's Settings → General → Transfer or Reset → Reset → Reset Location &amp; Privacy. Don't worry — this only resets which computers the device trusts. It does NOT erase any of your data or apps. Then plug the cable back in and the prompt should appear.</p></li></ol><p></p><p><strong>Check if wireless debugging works (optional):</strong> Unplug the cable and look at Xcode's Devices and Simulators window. If your device still appears as connected, wireless debugging is already enabled — you can push debug builds without a cable too.</p>",
+      "type": "document",
+      "parentId": "a1b2c3d4-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "10.2.3"
+    },
+    "tf-child-04-create-archive": {
+      "id": "tf-child-04-create-archive",
+      "name": "Create an Archive (Package the App for Distribution)",
+      "content": "<p><strong>Package IdiamPro into a build that can be uploaded to Apple.</strong> Think of archiving like putting the app into a shipping box — it bundles everything together so it's ready to send. Do this every time you want to push a new version to TestFlight.</p><p></p><p><strong>Let Claude Code handle the prep work:</strong></p><p>Claude Code will automatically sync the latest code to the iOS project and open Xcode for you. If you're doing it yourself, ask Claude Code to run the sync and open commands.</p><p></p><p><strong>Then follow these steps in Xcode:</strong></p><ol><li><p><strong>Verify the signing team.</strong> Click on \"App\" in Xcode's left sidebar, then click the \"Signing &amp; Capabilities\" tab. Look at the <strong>Team</strong> dropdown — make sure it says <strong>\"Howard Jachter\"</strong> (your paid account). If it says \"Howard Jachter (personal team),\" change it. The personal team won't work for TestFlight.</p></li><li><p><strong>Set the device target to universal.</strong> Find the device selector in Xcode's top toolbar (it might show a specific device name like \"iPad Mini\"). Click it and change it to <strong>\"Any iOS Device (arm64).\"</strong> This tells Xcode to build a version that works on all iPhones and iPads. <strong>Important:</strong> The Archive option stays grayed out until you select this.</p></li><li><p><strong>Start the archive.</strong> Go to <strong>Product → Archive</strong> in Xcode's menu bar.</p></li><li><p><strong>Wait for it to finish.</strong> This takes a few minutes. When done, an Archives window will pop up showing your new build with today's date and time.</p></li></ol><p></p><p><strong>If \"Archive\" is grayed out:</strong> Go back to step 2 — change the device selector to \"Any iOS Device (arm64).\"</p><p><strong>If you get a signing or team error:</strong> Go back to step 1 — switch to your paid developer account.</p>",
+      "type": "document",
+      "parentId": "a1b2c3d4-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "10.2.4"
+    },
+    "tf-child-05-upload-build": {
+      "id": "tf-child-05-upload-build",
+      "name": "Upload the Build to Apple",
+      "content": "<p><strong>Send your packaged app to Apple's servers so TestFlight can distribute it to all your devices.</strong></p><p></p><p><strong>Follow these steps:</strong></p><ol><li><p>In the <strong>Archives window</strong> that appeared after archiving, <strong>click on your new archive</strong> (the one with today's date and time) to select it</p></li><li><p>Click the <strong>\"Distribute App\"</strong> button on the right side</p></li><li><p>You'll see several options. <strong>Select \"TestFlight Internal Only\"</strong> — this sends the app to your private test group (up to 100 people)</p></li><li><p><strong>Click through the remaining prompts</strong>, keeping the default settings</p></li><li><p><strong>Wait for the upload to complete.</strong> You'll see \"Preparing\" then \"Uploading\" with a progress bar</p></li><li><p><strong>Look for the green checkmark</strong> and the message \"Uploaded to App Store Connect\" — that means it worked</p></li></ol><p></p><p><strong>What do the other distribution options mean?</strong></p><ul><li><p><strong>App Store Connect</strong> — Use this only when you're ready to publish to the public App Store</p></li><li><p><strong>TestFlight Internal Only</strong> — What we use. Sends the app to your team members wirelessly</p></li><li><p><strong>Release Testing</strong> — For larger public beta tests (up to 10,000 people). We don't need this yet.</p></li><li><p><strong>Enterprise / Debugging / Custom</strong> — Special cases that don't apply to us</p></li></ul><p></p><p><strong>What happens next:</strong> Apple takes 5-15 minutes to process the build on their servers. After that, it will appear in TestFlight and your testers can download it. You can check the processing status in App Store Connect.</p>",
+      "type": "document",
+      "parentId": "a1b2c3d4-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "10.2.5"
+    },
+    "tf-child-06-configure-testflight": {
+      "id": "tf-child-06-configure-testflight",
+      "name": "Set Up Your Test Group and Add Testers",
+      "content": "<p><strong>Tell Apple who is allowed to download your app.</strong> Apple doesn't automatically share your build with anyone — you need to create a test group and add people to it.</p><p></p><p><strong>Create a test group:</strong></p><ol><li><p>Open your browser and go to <strong>appstoreconnect.apple.com</strong></p></li><li><p>Click <strong>Apps</strong>, then click on <strong>IdiamPro</strong></p></li><li><p>Click on <strong>iOS app</strong></p></li><li><p>Click the <strong>TestFlight</strong> tab in the top navigation bar</p></li><li><p>In the left sidebar, click <strong>Internal Testing</strong></p></li><li><p>Click the <strong>\"+\" button</strong> to create a new group — name it something like \"IdiamPro Developer\" or \"Beta Testers\"</p></li><li><p>Click <strong>Add Testers</strong> and type in the Apple ID email address of each person who should get the app (including yourself — use the same email as your developer account, e.g., hjachter@gmail.com)</p></li></ol><p></p><p><strong>Handle the \"Missing Compliance\" notice:</strong></p><p>After Apple finishes processing a build, you'll see a yellow warning that says \"Missing Compliance — Manage.\" This is Apple asking whether your app uses encryption (they need to know for international export regulations). Don't worry, this is quick:</p><ol><li><p>Click <strong>Manage</strong></p></li><li><p>When asked about encryption type, select <strong>\"Neither\"</strong> — IdiamPro only uses standard HTTPS web connections, which are automatically exempt</p></li><li><p>Click <strong>Save</strong></p></li></ol><p>Once you do this, the build becomes available and your testers will receive email invitations.</p>",
+      "type": "document",
+      "parentId": "a1b2c3d4-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "10.2.6"
+    },
+    "tf-child-07-install-on-device": {
+      "id": "tf-child-07-install-on-device",
+      "name": "Install IdiamPro on Your Device",
+      "content": "<p><strong>Download IdiamPro onto your iPhone, iPad, or Mac.</strong> No cables needed — everything happens over Wi-Fi, just like downloading from the App Store.</p><p></p><p><strong>FIRST: Delete any existing copy of IdiamPro on the device.</strong></p><p>If the device already has IdiamPro installed (from Xcode via cable, or an older TestFlight build), delete it before installing. On an iPhone or iPad: long-press the IdiamPro icon on the Home Screen → tap \"Remove App\" → tap \"Delete App.\" On a Mac: drag IdiamPro from the Applications folder to the Trash. Skipping this step can cause the installation to freeze at about 75%.</p><p></p><p><strong>Then follow these steps on the device:</strong></p><ol><li><p><strong>Download the TestFlight app.</strong> Open the App Store on the device, search for \"TestFlight\" (it's made by Apple), and install it — it's free</p></li><li><p><strong>Open TestFlight</strong> and sign in with the Apple ID that was added as a tester (e.g., hjachter@gmail.com)</p></li><li><p><strong>Check your email</strong> for an invitation from Apple. Look for a message titled something like \"You've been invited to test IdiamPro.\" <strong>Important tip:</strong> Check your Gmail app or email provider's app — these invitations often don't show up in Apple's built-in Mail app</p></li><li><p><strong>Tap \"View in TestFlight\"</strong> in the email. This opens the TestFlight app and shows IdiamPro ready to install</p></li><li><p><strong>Tap Install</strong> and wait for it to finish</p></li></ol><p></p><p><strong>Installing on your Mac (iMac, MacBook, etc.):</strong></p><p>Since all your Macs use Apple Silicon chips, they can run iPhone and iPad apps directly. Open the TestFlight app on your Mac (download it from the Mac App Store if you don't have it), sign in with your tester Apple ID, and install IdiamPro the same way. Delete any existing Electron (desktop) version of IdiamPro from your Applications folder first to avoid confusion.</p><p></p><p><strong>If TestFlight asks for a \"redeem code\":</strong></p><p>You haven't been added as a tester yet. Go to App Store Connect on your Mac and add your email to the Internal Testing group (see section 10.2.6).</p><p></p><p><strong>If you see \"Unable to accept invite\":</strong></p><p>You already accepted the invitation. Just open the TestFlight app directly (don't click the email link again) — IdiamPro should already be listed there.</p>",
+      "type": "document",
+      "parentId": "a1b2c3d4-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "10.2.7"
+    },
+    "tf-child-08-push-update": {
+      "id": "tf-child-08-push-update",
+      "name": "Push an Update to All Your Devices",
+      "content": "<p><strong>Send a new version of IdiamPro to all your testers' devices.</strong> This is the workflow you'll repeat every time you make changes and want to test them on your iPhone, iPad, or Mac.</p><p></p><p><strong>On your Mac, do these steps:</strong></p><ol><li><p><strong>Make your code changes</strong> — work with Claude Code as usual to add features or fix bugs</p></li><li><p><strong>Tell Claude Code to commit and push</strong> — this saves your changes and uploads the code</p></li><li><p><strong>Create a new archive in Xcode</strong> — follow section 10.2.4 (Claude Code handles the prep work for you)</p></li><li><p><strong>Upload the build to Apple</strong> — follow section 10.2.5</p></li><li><p><strong>Handle the compliance question if asked</strong> — select \"Neither\" for encryption (section 10.2.6)</p></li></ol><p></p><p><strong>On each device, get the update:</strong></p><ol><li><p><strong>Open the TestFlight app</strong></p></li><li><p>You'll see an <strong>\"Update\" button</strong> next to IdiamPro</p></li><li><p><strong>Tap Update</strong> to install the latest version</p></li></ol><p></p><p><strong>Good to know:</strong> TestFlight automatically notifies testers when a new build is available, so you'll get a notification on each device reminding you to update.</p>",
+      "type": "document",
+      "parentId": "a1b2c3d4-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "10.2.8"
+    },
+    "tf-child-09-app-icon": {
+      "id": "tf-child-09-app-icon",
+      "name": "Fix App Icon Issues",
+      "content": "<p><strong>Make sure the app icon meets Apple's strict requirements, or the upload will fail.</strong></p><p></p><p>The app icon is what users see on their Home Screen, in TestFlight, and in the App Store. Apple is very particular about icon specifications — if anything is off, the upload gets rejected.</p><p></p><p><strong>Rules Apple enforces:</strong></p><ul><li><p>The main icon must be exactly <strong>1024 × 1024 pixels</strong> (pixels are the tiny dots that make up the image)</p></li><li><p>It must be a <strong>PNG file</strong> — this is a common image format, like JPEG but higher quality</p></li><li><p>It must <strong>NOT have transparency</strong> — the background must be a solid color, not see-through. In technical terms, this means \"no alpha channel.\" An alpha channel is an invisible layer in an image that controls transparency. If the icon has one, Apple rejects the upload.</p></li><li><p>All the smaller icon sizes (used for different screen sizes and contexts) must also be the correct dimensions</p></li></ul><p></p><p><strong>You don't need to manage icons yourself.</strong> Claude Code generates all the required icon sizes from a single master icon file. If you ever get a \"Missing app icon\" error during upload, just tell Claude Code — it will diagnose the issue (usually a wrong size or an unwanted alpha channel) and fix it automatically.</p>",
+      "type": "document",
+      "parentId": "a1b2c3d4-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "10.2.9"
+    },
+    "tf-child-10-troubleshooting": {
+      "id": "tf-child-10-troubleshooting",
+      "name": "Fix Common Problems",
+      "content": "<p><strong>Look up the error message or symptom you're seeing and follow the fix.</strong></p><p></p><p><strong>\"Missing app icon\" — upload fails</strong></p><p>Tell Claude Code about the error. The icon is either the wrong size or has transparency (see section 10.2.9). Claude Code will fix it automatically.</p><p></p><p><strong>\"No devices from which to generate a provisioning profile\"</strong></p><p>Connect at least one iPhone or iPad to your Mac with a cable and let Xcode register it (follow section 10.2.3). A \"provisioning profile\" is a digital certificate Apple creates that says \"this app is allowed to run on these specific devices.\" You don't need to understand how it works — just know that plugging in a device and registering it in Xcode solves this error.</p><p></p><p><strong>\"Archive\" is grayed out — can't click it</strong></p><p>Change the device selector in Xcode's top toolbar to \"Any iOS Device (arm64)\" instead of a specific device name. Archive only works when this universal target is selected.</p><p></p><p><strong>\"App does not have an associated developer team\"</strong></p><p>Open the project settings in Xcode: click \"App\" in the left sidebar → click the \"Signing &amp; Capabilities\" tab → change the Team dropdown to your paid developer account (\"Howard Jachter\", not the one that says \"personal team\").</p><p></p><p><strong>TestFlight asks for a \"redeem code\"</strong></p><p>You haven't been added as a tester yet. Go to App Store Connect → TestFlight → Internal Testing and add your Apple ID email to a test group (see section 10.2.6).</p><p></p><p><strong>Installation freezes at about 75%</strong></p><p>An older version of the app (installed from Xcode via cable) is conflicting with the TestFlight download. Delete IdiamPro from the device first, then try installing from TestFlight again.</p><p></p><p><strong>\"Unable to accept invite\" error</strong></p><p>You already accepted the invitation earlier. Open the TestFlight app directly on the device (don't click the email link again) — IdiamPro should be listed there ready to install.</p><p></p><p><strong>\"Trust This Computer\" prompt never appears on the device</strong></p><p>Make sure the device screen is unlocked when you plug in the cable. Try unplugging and re-plugging. If it still won't appear, go to the device's Settings → General → Transfer or Reset → Reset → Reset Location &amp; Privacy. This only resets which computers the device trusts — it does NOT erase data. Then plug the cable back in.</p><p></p><p><strong>Device shows under \"Discovered\" in Xcode but won't pair</strong></p><p>Turn on Developer Mode on the device: go to Settings → Privacy &amp; Security → Developer Mode → toggle it On. The device will restart. After restarting, try the pairing again.</p><p></p><p><strong>\"Agreement Expired\" in App Store Connect</strong></p><p>Go to App Store Connect → click on \"Business\" → follow the prompts to renew the iOS Paid Apps agreement. You may also need to re-verify your tax and banking information.</p>",
+      "type": "document",
+      "parentId": "a1b2c3d4-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "10.2.10"
+    },
+    "tf-child-11-status": {
+      "id": "tf-child-11-status",
+      "name": "Check Deployment Status",
+      "content": "<p><strong>Track which devices have IdiamPro installed and when builds expire.</strong></p><p></p><p><strong>Build History:</strong></p><ul><li><p><strong>Build 1.0 (1)</strong> — Uploaded March 30, 2026. Expires late June 2026 (90 days from upload).</p></li></ul><p></p><p><strong>App Store Connect Setup:</strong></p><ul><li><p>App name: IdiamPro</p></li><li><p>Bundle ID: com.idiampro.app</p></li><li><p>Platforms registered: iOS and macOS</p></li><li><p>Test group: \"IdiamPro Developer\"</p></li><li><p>Tester: hjachter@gmail.com</p></li></ul><p></p><p><strong>Device Installation Status:</strong></p><ul><li><p><strong>iPad Pro (M4)</strong> — Installed and working via TestFlight</p></li><li><p><strong>iPad Mini 6</strong> — Pending. Has an old Xcode-installed version that needs to be deleted first, then install from TestFlight.</p></li><li><p><strong>iPhone</strong> — Pending. Device is paired in Xcode. Open TestFlight on the phone and install.</p></li><li><p><strong>iMac (M1)</strong> — Pending. All Apple Silicon Macs can run iOS apps via TestFlight. Delete any existing IdiamPro desktop (Electron) version from Applications first, then install from TestFlight on the Mac.</p></li></ul><p></p><p><strong>Remember:</strong></p><ul><li><p>Builds expire after 90 days — upload a new build before the deadline to keep testing uninterrupted</p></li><li><p>Always delete any existing IdiamPro version from a device before installing from TestFlight</p></li></ul>",
+      "type": "document",
+      "parentId": "a1b2c3d4-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "10.2.11"
     },
     "c532b50b-823b-4309-b717-2ec786dc73a2": {
       "id": "c532b50b-823b-4309-b717-2ec786dc73a2",
@@ -459,17 +592,17 @@
       "parentId": "516fed31-8ef1-4804-b052-05b47adb0142",
       "childrenIds": [],
       "isCollapsed": false,
-      "prefix": "10.2"
+      "prefix": "10.3"
     },
     "55b7c505-c1bb-4c96-823a-71dea3b8a6a7": {
       "id": "55b7c505-c1bb-4c96-823a-71dea3b8a6a7",
       "name": "Supported Platforms",
-      "content": "<p><strong>macOS</strong></p><p>&nbsp; - .dmg installer (universal: Intel + Apple Silicon)</p><p>&nbsp; - .zip for auto-updates</p><p></p><p>&nbsp; <strong>Windows</strong></p><p>&nbsp; - .exe NSIS installer (x64 + ARM64)</p><p>&nbsp; - Portable .exe (x64 + ARM64)</p><p></p><p>&nbsp; <strong>Linux</strong></p><p>&nbsp; - .AppImage (x64 + ARM64)</p><p>&nbsp; - .deb Debian/Ubuntu package (x64 + ARM64)</p><p></p><p>&nbsp; <strong>Web</strong></p><p>&nbsp; - Webapp via Vercel (any browser)</p><p></p><p>&nbsp; <strong>Mobile</strong> (configured but not built yet)</p><p>&nbsp; - iOS via Capacitor (requires Xcode)</p><p>&nbsp; - Android via Capacitor (requires Android Studio)</p>",
+      "content": "<p><strong>macOS</strong></p><p>&nbsp; - .dmg installer (universal: Intel + Apple Silicon)</p><p>&nbsp; - .zip for auto-updates</p><p></p><p>&nbsp; <strong>Windows</strong></p><p>&nbsp; - .exe NSIS installer (x64 + ARM64)</p><p>&nbsp; - Portable .exe (x64 + ARM64)</p><p></p><p>&nbsp; <strong>Linux</strong></p><p>&nbsp; - .AppImage (x64 + ARM64)</p><p>&nbsp; - .deb Debian/Ubuntu package (x64 + ARM64)</p><p></p><p>&nbsp; <strong>Web</strong></p><p>&nbsp; - Webapp via Vercel (any browser)</p><p></p><p>&nbsp; <strong>Mobile</strong></p><p>&nbsp; - iOS via Capacitor + TestFlight (iPhone, iPad)</p><p>&nbsp; - Android via Capacitor (requires Android Studio)</p>",
       "type": "document",
       "parentId": "516fed31-8ef1-4804-b052-05b47adb0142",
       "childrenIds": [],
       "isCollapsed": false,
-      "prefix": "10.3"
+      "prefix": "10.4"
     },
     "99f5011b-cfe6-4e1f-a088-4936418fbff4": {
       "id": "99f5011b-cfe6-4e1f-a088-4936418fbff4",

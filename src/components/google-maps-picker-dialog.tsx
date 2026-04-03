@@ -140,7 +140,7 @@ export default function GoogleMapsPickerDialog({
               <p className="text-sm text-destructive">{error}</p>
             )}
             {url && isValidGoogleMapsUrl(url) && (
-              <p className="text-sm text-green-600">✓ Valid Google Maps URL</p>
+              <p className="text-sm text-green-600 dark:text-green-400">✓ Valid Google Maps URL</p>
             )}
           </div>
         </div>

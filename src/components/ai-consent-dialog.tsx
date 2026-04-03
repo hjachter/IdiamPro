@@ -81,7 +81,7 @@ export default function AIConsentDialog({ open, onConsent, onDecline }: AIConsen
           <>
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                <Shield className="h-5 w-5 text-blue-500" />
+                <Shield className="h-5 w-5 text-emerald-500 dark:text-emerald-400" />
                 AI Data Processing Consent
               </DialogTitle>
               <DialogDescription>
@@ -126,7 +126,7 @@ export default function AIConsentDialog({ open, onConsent, onDecline }: AIConsen
                 href="/privacy"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-xs text-blue-500 hover:underline flex items-center gap-1"
+                className="text-xs text-emerald-500 dark:text-emerald-400 hover:underline flex items-center gap-1"
               >
                 Read our Privacy Policy <ExternalLink className="h-3 w-3" />
               </a>

@@ -1,6 +1,6 @@
 import { Node, mergeAttributes } from '@tiptap/core';
 import { ReactNodeViewRenderer, NodeViewWrapper } from '@tiptap/react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import mermaid from 'mermaid';
 import { isAllowedEmbedUrl } from '@/lib/security';
 
@@ -208,7 +208,7 @@ const MermaidRenderer = ({ code }: { code: string }) => {
 
   if (error) {
     return (
-      <div className="mermaid-error p-4 bg-red-50 border border-red-200 rounded-md text-red-600 text-sm">
+      <div className="mermaid-error p-4 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-md text-red-600 dark:text-red-400 text-sm">
         <strong>Diagram Error:</strong> {error}
         <pre className="mt-2 text-xs bg-red-100 p-2 rounded overflow-x-auto">{code}</pre>
       </div>
@@ -729,6 +729,20 @@ const ImageBlockView = ({ src, alt }: { src: string; alt: string }) => {
     setIsFullscreen(true);
   };
 
+  const closeFullscreen = useCallback(() => {
+    setIsFullscreen(false);
+  }, []);
+
+  // Close on Escape key
+  useEffect(() => {
+    if (!isFullscreen) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') closeFullscreen();
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [isFullscreen, closeFullscreen]);
+
   return (
     <>
       <style>{`
@@ -754,32 +768,12 @@ const ImageBlockView = ({ src, alt }: { src: string; alt: string }) => {
           object-fit: contain;
           border-radius: 8px;
         }
-        .image-fullscreen-close {
-          position: absolute;
-          top: -40px;
-          right: 0;
-          width: 32px;
-          height: 32px;
-          border-radius: 50%;
-          background: #ef4444;
-          color: white;
-          border: none;
-          cursor: pointer;
-          font-size: 20px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 10;
-        }
-        .image-fullscreen-close:hover {
-          background: #dc2626;
-        }
         .image-fullscreen-hint {
-          position: absolute;
-          bottom: -24px;
+          position: fixed;
+          bottom: 20px;
           left: 50%;
           transform: translateX(-50%);
-          font-size: 11px;
+          font-size: 13px;
           color: #9ca3af;
           white-space: nowrap;
         }
@@ -801,24 +795,11 @@ const ImageBlockView = ({ src, alt }: { src: string; alt: string }) => {
         />
       </div>
       {isFullscreen && (
-        <div
-          className="image-fullscreen-overlay"
-          onClick={() => setIsFullscreen(false)}
-        >
-          <div
-            className="image-fullscreen-content"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              className="image-fullscreen-close"
-              onClick={() => setIsFullscreen(false)}
-              aria-label="Close fullscreen"
-            >
-              ×
-            </button>
+        <div className="image-fullscreen-overlay" onClick={closeFullscreen}>
+          <div className="image-fullscreen-content" onClick={(e) => e.stopPropagation()}>
             <img src={src} alt={alt || ''} />
-            <div className="image-fullscreen-hint">Click outside or press × to close</div>
           </div>
+          <div className="image-fullscreen-hint">{typeof navigator !== 'undefined' && /iPad|iPhone|iPod/.test(navigator.userAgent) ? 'Tap outside the image to restore' : 'Click outside the image or press Escape to close'}</div>
         </div>
       )}
     </>
