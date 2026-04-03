@@ -85,16 +85,16 @@ cp "~/Documents/IDM Outlines/IdiamPro - Testing.idm" docs/outlines/
 - IdiamPro - How it works.idm
 - IdiamPro - Development.idm
 - IdiamPro - Bootstrap Plan.idm
-- IdiamPro - Business Development.idm
+- IdiamPro - Current Features.idm
 - IdiamPro - Legal and Compliance.idm
 - IdiamPro - Killer Features & Selling Points.idm
-- IdiamPro Marketing.idm, IdiamPro Marketing 2.idm
-- IdiamPro Planning.idm, IdiamPro-Planning.idm
-- IdiamPro-BizDev.idm, IdiamPro - Group.idm
-- IdiamPro MCP Server - Development & Commercialization Plan.idm
+- IdiamPro - Killer Features & Selling Points - HJ.idm
+- IdiamPro - Group.idm
+- IdiamPro - Testing.idm
+- IdiamPro-BizDev.idm
+- IdiamPro-Planning.idm
+- IdiamPro-Marketing.idm
 - IdiamPro-MCP-Plan.idm
-- IdiamPro_ AI-Native Outlining Platform with MCP Access.idm
-- IdiamPro_ AI-Native Platform via Model Context Protocol.idm
 - Developer Guide.idm
 
 **Important:** The user edits outlines in IdiamPro (from `~/Documents/IDM Outlines/`). After significant changes, sync to `docs/outlines/` and commit.
