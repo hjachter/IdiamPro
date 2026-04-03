@@ -424,7 +424,7 @@
         "external-mod-detection"
       ],
       "isCollapsed": true,
-      "prefix": "10"
+      "prefix": "11"
     },
     "tech-stack": {
       "id": "tech-stack",
@@ -434,7 +434,7 @@
       "parentId": "under-the-hood",
       "childrenIds": [],
       "isCollapsed": true,
-      "prefix": "10.1"
+      "prefix": "11.1"
     },
     "tech-components": {
       "id": "tech-components",
@@ -444,7 +444,7 @@
       "parentId": "under-the-hood",
       "childrenIds": [],
       "isCollapsed": true,
-      "prefix": "10.2"
+      "prefix": "11.2"
     },
     "tech-data-flow": {
       "id": "tech-data-flow",
@@ -454,28 +454,31 @@
       "parentId": "under-the-hood",
       "childrenIds": [],
       "isCollapsed": true,
-      "prefix": "10.3"
+      "prefix": "11.3"
     },
     "ai-consent-system": {
       "id": "ai-consent-system",
       "name": "AI Data Consent System",
       "content": "<p>Before any AI feature can be used, the app asks for your consent to send data to third-party AI services (Google Gemini, OpenAI, AssemblyAI). This is required by Apple's App Store guidelines.</p><p></p><p><strong>How it works:</strong></p><ul><li><p>On first use of any AI feature, a consent dialog appears explaining which services process your data</p></li><li><p>If you agree, all AI features work normally</p></li><li><p>If you decline, a warning screen lists all features that will be disabled, and asks you to confirm</p></li><li><p>You can change your choice anytime in Settings \u2192 Data &amp; Privacy</p></li><li><p>Consent status is stored in localStorage</p></li></ul>",
       "childrenIds": [],
-      "isExpanded": false
+      "isExpanded": false,
+      "prefix": "7.6"
     },
     "external-mod-detection": {
       "id": "external-mod-detection",
       "name": "External Modification Detection",
       "content": "<p>The app detects when outline files are modified externally (e.g., by Claude Code or another process) while the app is running.</p><p></p><p><strong>How it works:</strong></p><ul><li><p>Every 5 seconds, the app checks the file modification time (mtime) of the current outline on disk</p></li><li><p>If the file has changed since last load, the app automatically reloads it and clears the dirty flag</p></li><li><p>This prevents the app from overwriting external changes with its stale in-memory version</p></li><li><p>The check also runs when the window regains focus</p></li></ul>",
       "childrenIds": [],
-      "isExpanded": false
+      "isExpanded": false,
+      "prefix": "11.4"
     },
     "search-filters": {
       "id": "search-filters",
       "name": "Search Filters",
       "content": "<p>The search bar (Ctrl/Cmd+F) includes filter toggles that let you narrow what gets searched:</p><p></p><ul><li><p><strong>Names filter</strong> (T icon) \u2014 search node titles/names</p></li><li><p><strong>Content filter</strong> (paragraph icon) \u2014 search node body content</p></li><li><p>Both are on by default; toggle either off to focus your search</p></li><li><p>At least one must remain on at all times</p></li><li><p>Works with both current-outline and all-outlines search scope</p></li></ul>",
       "childrenIds": [],
-      "isExpanded": false
+      "isExpanded": false,
+      "prefix": "5.4"
     },
     "0327d255-2c28-48e2-b1de-114d2c7fc3c7": {
       "id": "0327d255-2c28-48e2-b1de-114d2c7fc3c7",
@@ -490,7 +493,7 @@
         "b668f377-1793-4bd7-b90b-3f5d46df4762"
       ],
       "isCollapsed": false,
-      "prefix": ""
+      "prefix": "10"
     },
     "f001957f-18fd-4b4f-a6c9-7d42c8518da6": {
       "id": "f001957f-18fd-4b4f-a6c9-7d42c8518da6",
@@ -500,7 +503,7 @@
       "parentId": "0327d255-2c28-48e2-b1de-114d2c7fc3c7",
       "childrenIds": [],
       "isCollapsed": false,
-      "prefix": ""
+      "prefix": "10.1"
     },
     "cbf4e3ad-401b-4ad0-9e6f-422da330dc8c": {
       "id": "cbf4e3ad-401b-4ad0-9e6f-422da330dc8c",
@@ -510,7 +513,7 @@
       "parentId": "0327d255-2c28-48e2-b1de-114d2c7fc3c7",
       "childrenIds": [],
       "isCollapsed": false,
-      "prefix": ""
+      "prefix": "10.2"
     },
     "fa5b834a-2dbc-4908-8a38-aeaacb895313": {
       "id": "fa5b834a-2dbc-4908-8a38-aeaacb895313",
@@ -520,7 +523,7 @@
       "parentId": "0327d255-2c28-48e2-b1de-114d2c7fc3c7",
       "childrenIds": [],
       "isCollapsed": false,
-      "prefix": ""
+      "prefix": "10.3"
     },
     "b668f377-1793-4bd7-b90b-3f5d46df4762": {
       "id": "b668f377-1793-4bd7-b90b-3f5d46df4762",
@@ -530,7 +533,7 @@
       "parentId": "0327d255-2c28-48e2-b1de-114d2c7fc3c7",
       "childrenIds": [],
       "isCollapsed": false,
-      "prefix": ""
+      "prefix": "10.4"
     }
   },
   "lastModified": 1775241896013,

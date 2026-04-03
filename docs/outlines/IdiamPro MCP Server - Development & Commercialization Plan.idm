@@ -482,7 +482,7 @@
       "type": "note",
       "parentId": "0b4b1874-027a-4b81-9918-1c126b9e6619",
       "childrenIds": [],
-      "prefix": "10",
+      "prefix": "12",
       "metadata": {
         "createdAt": 1768038036243,
         "updatedAt": 1768038036243
@@ -795,7 +795,7 @@
         "mcp-custom-dir"
       ],
       "isExpanded": true,
-      "prefix": ""
+      "prefix": "10"
     },
     "mcp-install": {
       "id": "mcp-install",
@@ -803,7 +803,7 @@
       "content": "<p><strong>Prerequisites:</strong></p><ul><li><p>Node.js 18 or later</p></li><li><p>IdiamPro installed with outlines in ~/Documents/IDM Outlines/</p></li><li><p>Claude Desktop (for AI assistant integration)</p></li></ul><p></p><p><strong>Install from the project:</strong></p><ol><li><p>Navigate to the mcp-server directory inside the IdiamPro project</p></li><li><p>Run npm install to install dependencies</p></li><li><p>Run npm run build to compile the server</p></li></ol><p></p><p><strong>Verify it works:</strong></p><p>Run npm run dev \u2014 you should see \"Starting server v0.1.0\" and \"Server connected via stdio\" in the output.</p>",
       "childrenIds": [],
       "isExpanded": true,
-      "prefix": ""
+      "prefix": "10.1"
     },
     "mcp-claude-config": {
       "id": "mcp-claude-config",
@@ -811,7 +811,7 @@
       "content": "<p>To connect the MCP server to Claude Desktop:</p><p></p><ol><li><p>Open Claude Desktop</p></li><li><p>Go to <strong>Settings \u2192 Developer \u2192 MCP Servers</strong></p></li><li><p>Click <strong>Add Server</strong></p></li><li><p>Set the server name to <strong>idiampro</strong></p></li><li><p>Set the command to: <strong>node</strong></p></li><li><p>Set the arguments to the full path of the compiled server, for example: <strong>/path/to/IdiamPro/mcp-server/dist/index.js</strong></p></li><li><p>Save and restart Claude Desktop</p></li></ol><p></p><p>Claude will now have access to all your IdiamPro outlines. You can verify by asking Claude: <em>\"Can you list my IdiamPro outlines?\"</em></p>",
       "childrenIds": [],
       "isExpanded": true,
-      "prefix": ""
+      "prefix": "10.2"
     },
     "mcp-tools-ref": {
       "id": "mcp-tools-ref",
@@ -819,7 +819,7 @@
       "content": "<p><strong>12 tools are available in the free tier:</strong></p><p></p><p><strong>Read Operations:</strong></p><ul><li><p><strong>list_outlines</strong> \u2014 List all outlines with name, file, node count, last modified date</p></li><li><p><strong>get_outline</strong> \u2014 Get the full structure of an outline including all nodes</p></li><li><p><strong>get_node</strong> \u2014 Get a specific node by ID with its content</p></li><li><p><strong>search_nodes</strong> \u2014 Search across outlines by node name or content</p></li></ul><p></p><p><strong>Write Operations:</strong></p><ul><li><p><strong>create_node</strong> \u2014 Create a new node under a parent, with optional position</p></li><li><p><strong>update_node</strong> \u2014 Update a node's name and/or content</p></li><li><p><strong>delete_node</strong> \u2014 Delete a node and all its children</p></li><li><p><strong>move_node</strong> \u2014 Move a node to a different parent</p></li></ul><p></p><p><strong>Tag Operations:</strong></p><ul><li><p><strong>add_tag</strong> \u2014 Add a tag to a node</p></li><li><p><strong>remove_tag</strong> \u2014 Remove a tag from a node</p></li><li><p><strong>list_tags</strong> \u2014 List all unique tags across outlines</p></li><li><p><strong>filter_by_tags</strong> \u2014 Find all nodes matching specific tags</p></li></ul>",
       "childrenIds": [],
       "isExpanded": true,
-      "prefix": ""
+      "prefix": "10.3"
     },
     "mcp-examples": {
       "id": "mcp-examples",
@@ -827,7 +827,7 @@
       "content": "<p>Once connected, you can have natural conversations like these:</p><p></p><p><strong>Exploring your outlines:</strong></p><ul><li><p><em>\"List all my outlines in IdiamPro\"</em></p></li><li><p><em>\"Open my Development outline and show me the top-level sections\"</em></p></li><li><p><em>\"Search all my outlines for anything about TestFlight\"</em></p></li></ul><p></p><p><strong>Creating and organizing:</strong></p><ul><li><p><em>\"Create a new section called 'Q2 Goals' in my Business Development outline\"</em></p></li><li><p><em>\"Move the 'Pricing' section from my Planning outline to the Marketing outline\"</em></p></li><li><p><em>\"Add the tag 'urgent' to all nodes in my Bootstrap Plan that mention deadlines\"</em></p></li></ul><p></p><p><strong>Research and content:</strong></p><ul><li><p><em>\"Find all nodes tagged 'todo' across my project outlines and give me a summary\"</em></p></li><li><p><em>\"What does my MCP plan say about pricing tiers?\"</em></p></li><li><p><em>\"Create an outline node summarizing the key decisions we've made about compliance\"</em></p></li></ul>",
       "childrenIds": [],
       "isExpanded": true,
-      "prefix": ""
+      "prefix": "10.4"
     },
     "mcp-custom-dir": {
       "id": "mcp-custom-dir",
@@ -835,7 +835,7 @@
       "content": "<p>By default, the server looks for outlines in <strong>~/Documents/IDM Outlines/</strong>. To use a different directory, pass the --outlines-dir flag when starting the server:</p><p></p><p>In your Claude Desktop MCP configuration, add the flag to the arguments list. For example, if your outlines are in ~/MyOutlines, add <strong>--outlines-dir</strong> followed by the full path.</p><p></p><p>This is useful if you keep outlines in a different location or want to test with a separate set of files.</p>",
       "childrenIds": [],
       "isExpanded": true,
-      "prefix": ""
+      "prefix": "10.5"
     },
     "7adf45bf-bf03-4296-996e-26494b9e5fd7": {
       "id": "7adf45bf-bf03-4296-996e-26494b9e5fd7",
@@ -854,7 +854,7 @@
         "7cd4c0ca-2d6f-4524-958f-829c19b1d31e"
       ],
       "isCollapsed": false,
-      "prefix": ""
+      "prefix": "11"
     },
     "3ec8cfbc-6ee5-4cd4-a0db-932c3b2165c4": {
       "id": "3ec8cfbc-6ee5-4cd4-a0db-932c3b2165c4",
@@ -864,7 +864,7 @@
       "parentId": "7adf45bf-bf03-4296-996e-26494b9e5fd7",
       "childrenIds": [],
       "isCollapsed": false,
-      "prefix": ""
+      "prefix": "11.1"
     },
     "448d1eba-f04d-4868-a821-22c351081dda": {
       "id": "448d1eba-f04d-4868-a821-22c351081dda",
@@ -874,7 +874,7 @@
       "parentId": "7adf45bf-bf03-4296-996e-26494b9e5fd7",
       "childrenIds": [],
       "isCollapsed": false,
-      "prefix": ""
+      "prefix": "11.2"
     },
     "4be8a226-6fa2-4053-91c5-b786552c72d1": {
       "id": "4be8a226-6fa2-4053-91c5-b786552c72d1",
@@ -884,7 +884,7 @@
       "parentId": "7adf45bf-bf03-4296-996e-26494b9e5fd7",
       "childrenIds": [],
       "isCollapsed": false,
-      "prefix": ""
+      "prefix": "11.3"
     },
     "efa1b176-4df4-4451-8281-a85add62899e": {
       "id": "efa1b176-4df4-4451-8281-a85add62899e",
@@ -894,7 +894,7 @@
       "parentId": "7adf45bf-bf03-4296-996e-26494b9e5fd7",
       "childrenIds": [],
       "isCollapsed": false,
-      "prefix": ""
+      "prefix": "11.4"
     },
     "55bdade7-11c3-4447-807f-e7bf0cfe7e20": {
       "id": "55bdade7-11c3-4447-807f-e7bf0cfe7e20",
@@ -904,7 +904,7 @@
       "parentId": "7adf45bf-bf03-4296-996e-26494b9e5fd7",
       "childrenIds": [],
       "isCollapsed": false,
-      "prefix": ""
+      "prefix": "11.5"
     },
     "f6b702b8-7479-4673-ac26-5565238a97ed": {
       "id": "f6b702b8-7479-4673-ac26-5565238a97ed",
@@ -914,7 +914,7 @@
       "parentId": "7adf45bf-bf03-4296-996e-26494b9e5fd7",
       "childrenIds": [],
       "isCollapsed": false,
-      "prefix": ""
+      "prefix": "11.6"
     },
     "fa79229e-f693-4acf-aa53-178651dfafca": {
       "id": "fa79229e-f693-4acf-aa53-178651dfafca",
@@ -924,7 +924,7 @@
       "parentId": "7adf45bf-bf03-4296-996e-26494b9e5fd7",
       "childrenIds": [],
       "isCollapsed": false,
-      "prefix": ""
+      "prefix": "11.7"
     },
     "7cd4c0ca-2d6f-4524-958f-829c19b1d31e": {
       "id": "7cd4c0ca-2d6f-4524-958f-829c19b1d31e",
@@ -934,7 +934,7 @@
       "parentId": "7adf45bf-bf03-4296-996e-26494b9e5fd7",
       "childrenIds": [],
       "isCollapsed": false,
-      "prefix": ""
+      "prefix": "11.8"
     }
   },
   "lastModified": 1775241964973,
