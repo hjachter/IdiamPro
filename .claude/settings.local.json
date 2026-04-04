@@ -9,7 +9,30 @@
       "Grep(*)",
       "WebSearch",
       "WebFetch(*)",
-      "Skill(*)"
+      "Skill(*)",
+      "mcp__idiampro__list_outlines",
+      "mcp__idiampro__get_outline",
+      "mcp__idiampro__get_node",
+      "mcp__idiampro__search_nodes",
+      "mcp__idiampro__create_outline",
+      "mcp__idiampro__create_node",
+      "mcp__idiampro__update_node",
+      "mcp__idiampro__delete_node",
+      "mcp__idiampro__move_node",
+      "mcp__idiampro__add_tag",
+      "mcp__idiampro__remove_tag",
+      "mcp__idiampro__list_tags",
+      "mcp__idiampro__filter_by_tags",
+      "mcp__idiampro__export_outline",
+      "mcp__idiampro__generate_api_key",
+      "mcp__idiampro__list_api_keys",
+      "mcp__idiampro__revoke_api_key"
     ]
+  },
+  "mcpServers": {
+    "idiampro": {
+      "command": "node",
+      "args": ["/Users/howardjachter/Library/Mobile Documents/com~apple~CloudDocs/ClaudeProjects/IdiamPro/mcp-server/dist/index.js"]
+    }
   }
 }

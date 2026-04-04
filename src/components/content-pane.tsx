@@ -125,7 +125,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Image from 'next/image';
 import { ArrowLeft, Sparkles, Loader2, Eraser, Scissors, Copy, Clipboard, Type, Undo, Redo, List, ListOrdered, ListX, Minus, FileText, Sheet, Presentation, Video, Map, AppWindow, Plus, Bold, Italic, Strikethrough, Code, Heading1, Heading2, Heading3, Mic, MicOff, ChevronRight, Home, Pencil, ALargeSmall, Check, Calendar, Brush, Network, GitBranch, MessageSquare, ImagePlus, Table, Layers, Image as ImageIcon, Film, CheckSquare, Paperclip, LayoutGrid } from 'lucide-react';
-import { generateImageAction, generateContentForNodeAction } from '@/app/actions';
+import { generateImageAction, generateImageDescriptionAction, generateContentForNodeAction } from '@/app/actions';
 import dynamic from 'next/dynamic';
 
 // Dynamically import DrawingCanvas to avoid SSR issues with Excalidraw
@@ -158,6 +158,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import EmbedUrlDialog, { type EmbedType } from './embed-url-dialog';
 import YouTubePickerDialog from './youtube-picker-dialog';
 import GoogleDocsPickerDialog from './google-docs-picker-dialog';
@@ -462,6 +463,7 @@ export default function ContentPane({
   const [imagePrompt, setImagePrompt] = useState('');
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const [imageAspectRatio, setImageAspectRatio] = useState<'1:1' | '16:9' | '9:16' | '4:3' | '3:4'>('1:1');
+  const [includeImageDescription, setIncludeImageDescription] = useState(true);
 
   // Persist preferences to localStorage
   useEffect(() => {
@@ -1319,9 +1321,39 @@ export default function ContentPane({
       });
 
       if (result.success && result.imageBase64) {
-        // Insert image into editor as base64 data URL using ImageBlock for better persistence
         const dataUrl = `data:${result.mimeType};base64,${result.imageBase64}`;
-        (editor.commands as any).setImageBlock(dataUrl);
+
+        // If description requested, generate it first then insert both together
+        if (includeImageDescription) {
+          let captionHtml = '';
+          try {
+            const descResult = await generateImageDescriptionAction(
+              imagePrompt.trim(),
+              node?.name || 'Untitled'
+            );
+            if (descResult.success && descResult.description) {
+              captionHtml = descResult.description;
+            }
+          } catch (descError) {
+            console.error('Failed to generate image description:', descError);
+          }
+
+          // Insert image first, then caption below it
+          (editor.commands as any).setImageBlock(dataUrl);
+          if (captionHtml) {
+            editor.commands.insertContent({
+              type: 'paragraph',
+              content: [{
+                type: 'text',
+                marks: [{ type: 'italic' }],
+                text: captionHtml,
+              }],
+            });
+          }
+        } else {
+          // Just insert the image
+          (editor.commands as any).setImageBlock(dataUrl);
+        }
 
         toast({
           title: "Image Generated",
@@ -2177,6 +2209,21 @@ export default function ContentPane({
                 </SelectContent>
               </Select>
             </div>
+
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="include-description"
+                checked={includeImageDescription}
+                onCheckedChange={(checked) => setIncludeImageDescription(checked === true)}
+                disabled={isGeneratingImage}
+              />
+              <label
+                htmlFor="include-description"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Include descriptive caption
+              </label>
+            </div>
           </div>
 
           <DialogFooter>
@@ -2394,7 +2441,7 @@ export default function ContentPane({
                   : 'Generate content from custom prompt'}
               </TooltipContent>
             </Tooltip>
-            <DropdownMenuContent align="start" className="w-48">
+            <DropdownMenuContent align="start" className="w-48 max-h-[70vh] overflow-y-auto">
               <DropdownMenuLabel className="text-xs text-muted-foreground">Source</DropdownMenuLabel>
               <DropdownMenuRadioGroup value={generateSource} onValueChange={(v) => setGenerateSource(v as GenerateSource)}>
                 <DropdownMenuRadioItem value="context">From context</DropdownMenuRadioItem>
@@ -2407,30 +2454,6 @@ export default function ContentPane({
                 <DropdownMenuRadioItem value="prepend">Prepend (above)</DropdownMenuRadioItem>
                 <DropdownMenuRadioItem value="replace">Replace</DropdownMenuRadioItem>
               </DropdownMenuRadioGroup>
-              <DropdownMenuSeparator />
-              <DropdownMenuLabel className="text-xs text-muted-foreground">Enhancements</DropdownMenuLabel>
-              <DropdownMenuCheckboxItem
-                checked={includeDiagram}
-                onCheckedChange={setIncludeDiagram}
-              >
-                Include diagram
-              </DropdownMenuCheckboxItem>
-              {includeDiagram && (
-                <>
-                  <DropdownMenuLabel className="text-xs text-muted-foreground pl-6">Diagram Type</DropdownMenuLabel>
-                  <DropdownMenuRadioGroup value={diagramType} onValueChange={setDiagramType}>
-                    <DropdownMenuRadioItem value="auto" className="pl-6">Auto (AI chooses)</DropdownMenuRadioItem>
-                    <DropdownMenuRadioItem value="flowchart" className="pl-6">Flowchart</DropdownMenuRadioItem>
-                    <DropdownMenuRadioItem value="sequenceDiagram" className="pl-6">Sequence Diagram</DropdownMenuRadioItem>
-                    <DropdownMenuRadioItem value="mindmap" className="pl-6">Mind Map</DropdownMenuRadioItem>
-                    <DropdownMenuRadioItem value="stateDiagram" className="pl-6">State Diagram</DropdownMenuRadioItem>
-                    <DropdownMenuRadioItem value="gantt" className="pl-6">Gantt Chart</DropdownMenuRadioItem>
-                    <DropdownMenuRadioItem value="pie" className="pl-6">Pie Chart</DropdownMenuRadioItem>
-                    <DropdownMenuRadioItem value="erDiagram" className="pl-6">ER Diagram</DropdownMenuRadioItem>
-                    <DropdownMenuRadioItem value="classDiagram" className="pl-6">Class Diagram</DropdownMenuRadioItem>
-                  </DropdownMenuRadioGroup>
-                </>
-              )}
               {onGenerateContentForDescendants && node && node.childrenIds.length > 0 && (
                 <>
                   <DropdownMenuSeparator />

@@ -120,6 +120,12 @@ Just proceed with the work. The user trusts Claude to make good decisions.
 
 ---
 
+## Voice Mode - Auto-Start
+
+At the start of every new session, **automatically enable voice mode** by running `/voice`. The user prefers to interact via voice input (hold Space to record). Do not wait to be asked.
+
+---
+
 ## Automated Testing
 
 IdiamPro has a Playwright-based test suite for automated UI testing of the Electron app.

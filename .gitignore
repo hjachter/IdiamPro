@@ -43,3 +43,5 @@ next-env.d.ts
 /ios
 /android
 test-screenshots/
+mcp-server/dist/
+mcp-server/node_modules/

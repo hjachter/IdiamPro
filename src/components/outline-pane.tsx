@@ -16,6 +16,7 @@ import { Input } from './ui/input';
 import SettingsDialog from './settings-dialog';
 import type { NodeType } from '@/types';
 import { exportOutlineToJson, exportAllOutlinesToJson, shareBackupFile, shareOutlineFile } from '@/lib/export';
+import { loadStorageData, saveAllOutlines } from '@/lib/storage-manager';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useToast } from '@/hooks/use-toast';
 
@@ -737,57 +738,73 @@ export default function OutlinePane({
   };
 
   const handleBackupAll = async () => {
-    if (isCapacitor()) {
-      // In native app, use Share sheet to export file
-      const result = await shareBackupFile(outlines);
-      if (result.success) {
-        toast({
-          title: 'Backup Ready',
-          description: `${result.count} outline${result.count !== 1 ? 's' : ''} ready to share.`,
-        });
-      } else {
-        toast({
-          title: 'Backup Failed',
-          description: 'Could not create backup file.',
-          variant: 'destructive',
-        });
+    // Save all sidebar outlines to the storage folder
+    try {
+      const userOutlines = outlines.filter(o => !o.isGuide);
+      if (userOutlines.length === 0) {
+        toast({ title: 'Nothing to Backup', description: 'No outlines to save.' });
+        return;
       }
-    } else {
-      // In browser (including mobile Safari), use file download
-      exportAllOutlinesToJson(outlines);
+      // Save all outlines to disk (mark them all as dirty so they all get written)
+      const allDirtyIds = new Set(userOutlines.map(o => o.id));
+      await saveAllOutlines(outlines, outlines.find(o => !o.isGuide)?.id || '', allDirtyIds);
+      toast({
+        title: 'Backup Complete',
+        description: `${userOutlines.length} outline${userOutlines.length !== 1 ? 's' : ''} saved to storage.`,
+      });
+    } catch (error) {
+      console.error('Failed to backup outlines:', error);
+      toast({
+        title: 'Backup Failed',
+        description: 'Could not save outlines to storage.',
+        variant: 'destructive',
+      });
     }
   };
 
-  const handleRestoreAllClick = () => {
-    // Use file picker on all platforms (works on iOS via Files app too)
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.json,.idm,application/json,application/octet-stream';
-    input.onchange = (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-      if (file) {
-        handleRestoreAll(file);
+  const handleRestoreAllClick = async () => {
+    // Scan the default storage folder and add any missing outlines to the sidebar
+    try {
+      const storageData = await loadStorageData();
+      const diskOutlines = storageData.outlines || [];
+
+      if (diskOutlines.length === 0) {
+        toast({ title: 'No Outlines Found', description: 'No outline files found in the storage folder.' });
+        return;
       }
-    };
-    input.click();
-  };
 
-  const handleRestoreAll = (file: File) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const content = e.target?.result as string;
-        const restoredOutlines = JSON.parse(content) as Outline[];
+      // Find outlines on disk that aren't already in the sidebar
+      const existingIds = new Set(outlines.map(o => o.id));
+      const existingNames = new Set(outlines.map(o => o.name.toLowerCase()));
+      const newOutlines = diskOutlines.filter(o =>
+        !o.isGuide && !existingIds.has(o.id) && !existingNames.has(o.name.toLowerCase())
+      );
 
-        // Import each outline
-        restoredOutlines.forEach(outline => {
-          onImportOutline(new File([JSON.stringify(outline)], `${outline.name}.json`, { type: 'application/json' }));
+      if (newOutlines.length === 0) {
+        toast({
+          title: 'All Synced',
+          description: `All ${diskOutlines.filter(o => !o.isGuide).length} outlines from storage are already loaded.`,
         });
-      } catch (error) {
-        console.error('Failed to restore outlines:', error);
+        return;
       }
-    };
-    reader.readAsText(file);
+
+      // Add each missing outline to the sidebar
+      newOutlines.forEach(outline => {
+        onAddImportedOutline(outline, false);
+      });
+
+      toast({
+        title: 'Restore Complete',
+        description: `Added ${newOutlines.length} outline${newOutlines.length !== 1 ? 's' : ''} from storage.`,
+      });
+    } catch (error) {
+      console.error('Failed to restore outlines:', error);
+      toast({
+        title: 'Restore Failed',
+        description: 'Could not read outlines from storage folder.',
+        variant: 'destructive',
+      });
+    }
   };
 
   // const handleImportAsChapterClick = () => {

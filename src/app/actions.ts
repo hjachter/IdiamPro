@@ -2157,3 +2157,50 @@ export async function generateImageAction(
     };
   }
 }
+
+/**
+ * Generate a descriptive caption for an AI-generated image (PREMIUM Feature)
+ *
+ * Uses Gemini to create a meaningful textual description that explains
+ * what the image represents and its conceptual significance.
+ */
+export async function generateImageDescriptionAction(
+  imagePrompt: string,
+  nodeName: string
+): Promise<{
+  success: boolean;
+  description?: string;
+  error?: string;
+}> {
+  try {
+    const { text } = await withRateLimitRetry(
+      () => ai.generate({
+        model: 'googleai/gemini-2.0-flash',
+        prompt: `You are writing a descriptive caption for an illustration. The image was generated from this prompt: "${imagePrompt}" for a section titled "${nodeName}".
+
+Write a description that fully explains what the image depicts and why it matters. Your description should:
+- Clearly describe the key elements, relationships, and structure shown in the image
+- Connect the visual to the concept or topic it illustrates
+- Highlight the key insights or takeaways the viewer should get from it
+- For complex diagrams, explain the flow, components, and how they interact
+
+The description should be as long as needed to clearly convey the meaning — a simple image might need a few sentences, while a complex diagram or flowchart may need a full paragraph or more. Be thorough but avoid filler. Write in a clear, professional tone. Do NOT mention that the image is AI-generated.
+
+Return ONLY the description text, no prefixes like "Caption:" or "Description:".`,
+      }),
+      1,
+      'image description generation'
+    );
+
+    return {
+      success: true,
+      description: text.trim(),
+    };
+  } catch (error) {
+    console.error('Error generating image description:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Description generation failed',
+    };
+  }
+}
