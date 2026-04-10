@@ -10,15 +10,28 @@ const OLLAMA_BASE_URL = 'http://localhost:11434';
 
 // Recommended models for different tasks
 export const OLLAMA_MODELS = {
-  // Good balance of quality and speed
-  default: 'llama3.2',
-  // Faster, lighter models
-  fast: 'phi3',
-  // Higher quality (requires more RAM)
-  quality: 'llama3.1',
+  // Good balance of quality and speed (Gemma 4 E4B - multimodal, ~3-4GB RAM)
+  default: 'gemma4:e4b',
+  // Faster, lighter models (Gemma 4 E2B - mobile-friendly, ~1.5GB RAM)
+  fast: 'gemma4:e2b',
+  // Higher quality (Gemma 4 26B MoE - 16GB+ RAM, fast despite size)
+  quality: 'gemma4:26b',
+  // Maximum quality (Gemma 4 31B Dense - 24GB+ RAM)
+  premium: 'gemma4:31b',
+  // Legacy fallback for low-memory systems
+  legacy: 'llama3.2',
   // Code-focused
   code: 'codellama',
 } as const;
+
+// Memory requirements (approximate, in GB) for each Gemma 4 variant
+export const MODEL_MEMORY_REQUIREMENTS: Record<string, number> = {
+  'gemma4:e2b': 1.5,
+  'gemma4:e4b': 4,
+  'gemma4:26b': 16,
+  'gemma4:31b': 24,
+  'llama3.2': 3,
+};
 
 export interface OllamaModel {
   name: string;
@@ -92,22 +105,86 @@ export async function hasModel(modelName: string): Promise<boolean> {
 }
 
 /**
- * Get the best available model from installed models
+ * Estimate available system memory in GB.
+ * Returns a conservative estimate. Falls back to 8GB if detection fails.
+ */
+function getAvailableMemoryGB(): number {
+  try {
+    // In Electron/Node, navigator.deviceMemory is available in some contexts
+    if (typeof navigator !== 'undefined' && 'deviceMemory' in navigator) {
+      return (navigator as any).deviceMemory || 8;
+    }
+    // In Node.js context (server-side actions), use os module
+    if (typeof process !== 'undefined' && process.versions?.node) {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const os = require('os');
+      return Math.round(os.totalmem() / (1024 ** 3));
+    }
+  } catch {
+    // Detection failed
+  }
+  return 8; // Conservative default
+}
+
+/**
+ * Get the best available model from installed models.
+ * Prefers Gemma 4 variants over llama3.2, with hardware-aware selection
+ * based on available system memory.
  */
 export async function getBestAvailableModel(): Promise<string | null> {
   const models = await getOllamaModels();
   if (models.length === 0) return null;
 
-  // Priority order for model selection
-  const priority = ['llama3.2', 'llama3.1', 'llama3', 'mistral', 'phi3', 'phi'];
+  const availableMemoryGB = getAvailableMemoryGB();
+
+  // Build priority list based on available memory.
+  // Larger Gemma 4 variants are preferred when memory permits.
+  // Falls back to llama3.2 and other models for lower-spec systems.
+  let priority: string[];
+
+  if (availableMemoryGB >= 24) {
+    // High-end: prefer maximum quality
+    priority = ['gemma4:31b', 'gemma4:26b', 'gemma4:e4b', 'gemma4:e2b', 'llama3.2', 'llama3.1', 'llama3', 'mistral', 'phi3', 'phi'];
+  } else if (availableMemoryGB >= 16) {
+    // Power user: prefer 26B MoE (fast despite size)
+    priority = ['gemma4:26b', 'gemma4:e4b', 'gemma4:e2b', 'llama3.2', 'llama3.1', 'llama3', 'mistral', 'phi3', 'phi'];
+  } else if (availableMemoryGB >= 8) {
+    // Standard: prefer E4B (multimodal, modest footprint)
+    priority = ['gemma4:e4b', 'gemma4:e2b', 'llama3.2', 'llama3.1', 'llama3', 'mistral', 'phi3', 'phi'];
+  } else {
+    // Low memory: prefer lightest models
+    priority = ['gemma4:e2b', 'llama3.2', 'phi3', 'phi', 'gemma4:e4b'];
+  }
 
   for (const preferred of priority) {
     const found = models.find(m => m.name.startsWith(preferred));
-    if (found) return found.name;
+    if (found) {
+      console.log(`[Ollama] Selected model: ${found.name} (system memory: ${availableMemoryGB}GB)`);
+      return found.name;
+    }
   }
 
   // Return first available model if none in priority list
   return models[0]?.name || null;
+}
+
+/**
+ * Check if any Gemma 4 variant is installed
+ */
+export async function hasGemma4(): Promise<boolean> {
+  const models = await getOllamaModels();
+  return models.some(m => m.name.startsWith('gemma4'));
+}
+
+/**
+ * Get the recommended Gemma 4 variant for this system
+ */
+export function getRecommendedGemma4Variant(): string {
+  const memoryGB = getAvailableMemoryGB();
+  if (memoryGB >= 24) return 'gemma4:31b';
+  if (memoryGB >= 16) return 'gemma4:26b';
+  if (memoryGB >= 8) return 'gemma4:e4b';
+  return 'gemma4:e2b';
 }
 
 /**
@@ -117,7 +194,7 @@ export async function generateWithOllama(options: OllamaGenerateOptions): Promis
   const model = options.model || await getBestAvailableModel();
 
   if (!model) {
-    throw new Error('No Ollama models installed. Please install a model with: ollama pull llama3.2');
+    throw new Error('No Ollama models installed. Please install a model with: ollama pull gemma4:e4b (or ollama pull llama3.2 for low-memory systems)');
   }
 
   const response = await fetch(`${OLLAMA_BASE_URL}/api/generate`, {
@@ -155,7 +232,7 @@ export async function* generateWithOllamaStream(
   const model = options.model || await getBestAvailableModel();
 
   if (!model) {
-    throw new Error('No Ollama models installed. Please install a model with: ollama pull llama3.2');
+    throw new Error('No Ollama models installed. Please install a model with: ollama pull gemma4:e4b (or ollama pull llama3.2 for low-memory systems)');
   }
 
   const response = await fetch(`${OLLAMA_BASE_URL}/api/generate`, {
@@ -215,7 +292,7 @@ export async function chatWithOllama(
   const model = options?.model || await getBestAvailableModel();
 
   if (!model) {
-    throw new Error('No Ollama models installed. Please install a model with: ollama pull llama3.2');
+    throw new Error('No Ollama models installed. Please install a model with: ollama pull gemma4:e4b (or ollama pull llama3.2 for low-memory systems)');
   }
 
   const response = await fetch(`${OLLAMA_BASE_URL}/api/chat`, {

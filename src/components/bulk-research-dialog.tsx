@@ -712,7 +712,7 @@ export default function BulkResearchDialog({
                         Install Ollama
                       </Button>
                       <p className="text-xs text-muted-foreground">
-                        After installing, run: <code className="bg-muted px-1 rounded">ollama pull llama3.2</code>
+                        After installing (v0.20+), run: <code className="bg-muted px-1 rounded">ollama pull gemma4:e4b</code>
                       </p>
                     </div>
                   </div>

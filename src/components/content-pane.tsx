@@ -458,12 +458,13 @@ export default function ContentPane({
   const [customPrompt, setCustomPrompt] = useState('');
   const [aiResponse, setAiResponse] = useState<string | null>(null);
 
-  // Image generation state
+  // Image/diagram generation state
   const [imagePromptDialogOpen, setImagePromptDialogOpen] = useState(false);
   const [imagePrompt, setImagePrompt] = useState('');
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const [imageAspectRatio, setImageAspectRatio] = useState<'1:1' | '16:9' | '9:16' | '4:3' | '3:4'>('1:1');
   const [includeImageDescription, setIncludeImageDescription] = useState(true);
+  const [imageVisualType, setImageVisualType] = useState<string>('illustration');
 
   // Persist preferences to localStorage
   useEffect(() => {
@@ -1295,19 +1296,36 @@ export default function ContentPane({
     setCustomPrompt('');
   };
 
-  // Image generation handlers
+  // Image/diagram generation handlers
   const handleOpenImageDialog = () => {
-    // Pre-fill with a suggestion based on the node name
+    // Pre-fill with a suggestion based on the node name and selected type
     if (node) {
-      setImagePrompt(`An illustration of ${node.name}`);
+      if (imageVisualType === 'illustration') {
+        setImagePrompt(`An illustration of ${node.name}`);
+      } else if (imageVisualType === 'mindmap' || imageVisualType === 'flowchart') {
+        setImagePrompt(''); // These auto-generate from outline structure
+      } else {
+        setImagePrompt(`A ${imageVisualType} diagram for ${node.name}`);
+      }
     }
     setImagePromptDialogOpen(true);
   };
 
   const handleGenerateImage = async () => {
-    if (!imagePrompt.trim() || !editor) return;
+    if (!editor) return;
 
-    // Check AI consent
+    // For structure-based diagrams (mindmap/flowchart), generate from outline structure
+    if (imageVisualType === 'mindmap' || imageVisualType === 'flowchart') {
+      if (!node || !nodes) return;
+      handleGenerateSubtreeDiagram(imageVisualType as 'mindmap' | 'flowchart');
+      setImagePromptDialogOpen(false);
+      setImagePrompt('');
+      return;
+    }
+
+    // For AI-generated diagrams, need a prompt and consent
+    if (!imagePrompt.trim()) return;
+
     const consent = localStorage.getItem('aiDataConsent');
     if (consent !== 'granted') {
       toast({ title: 'AI Consent Required', description: 'Please enable AI data processing in Settings before using AI features.', variant: 'destructive' });
@@ -1316,6 +1334,35 @@ export default function ContentPane({
 
     setIsGeneratingImage(true);
     try {
+      // For Mermaid diagram types, use AI to generate Mermaid code
+      const mermaidTypes = ['sequenceDiagram', 'stateDiagram', 'gantt', 'pie', 'erDiagram', 'classDiagram'];
+      if (mermaidTypes.includes(imageVisualType)) {
+        if (!onGenerateContent || !node) return;
+
+        const context: NodeGenerationContext = {
+          nodeId: node.id,
+          nodeName: node.name,
+          ancestorPath,
+          existingContent: editor.getText(),
+          customPrompt: imagePrompt.trim(),
+          includeDiagram: true,
+          diagramType: imageVisualType,
+        };
+
+        const generatedContent = await onGenerateContent(context);
+        applyGeneratedContent(generatedContent, 'append');
+
+        toast({
+          title: "Diagram Generated",
+          description: "Diagram has been added to your content.",
+        });
+
+        setImagePromptDialogOpen(false);
+        setImagePrompt('');
+        return;
+      }
+
+      // For illustration type, use Google Imagen to generate an AI image
       const result = await generateImageAction(imagePrompt.trim(), {
         aspectRatio: imageAspectRatio,
       });
@@ -1323,36 +1370,29 @@ export default function ContentPane({
       if (result.success && result.imageBase64) {
         const dataUrl = `data:${result.mimeType};base64,${result.imageBase64}`;
 
-        // If description requested, generate it first then insert both together
+        // Insert image first
+        (editor.commands as any).setImageBlock(dataUrl);
+
+        // Generate and insert descriptive caption below if enabled
         if (includeImageDescription) {
-          let captionHtml = '';
           try {
             const descResult = await generateImageDescriptionAction(
               imagePrompt.trim(),
               node?.name || 'Untitled'
             );
             if (descResult.success && descResult.description) {
-              captionHtml = descResult.description;
+              editor.commands.insertContent({
+                type: 'paragraph',
+                content: [{
+                  type: 'text',
+                  marks: [{ type: 'italic' }],
+                  text: descResult.description,
+                }],
+              });
             }
           } catch (descError) {
             console.error('Failed to generate image description:', descError);
           }
-
-          // Insert image first, then caption below it
-          (editor.commands as any).setImageBlock(dataUrl);
-          if (captionHtml) {
-            editor.commands.insertContent({
-              type: 'paragraph',
-              content: [{
-                type: 'text',
-                marks: [{ type: 'italic' }],
-                text: captionHtml,
-              }],
-            });
-          }
-        } else {
-          // Just insert the image
-          (editor.commands as any).setImageBlock(dataUrl);
         }
 
         toast({
@@ -1373,7 +1413,7 @@ export default function ContentPane({
       console.error('Error generating image:', error);
       toast({
         title: "Error",
-        description: "Failed to generate image. Please try again.",
+        description: "Failed to generate visual. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -2170,60 +2210,108 @@ export default function ContentPane({
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <ImagePlus className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-              Generate AI Image
+              Generate Visual
             </DialogTitle>
             <DialogDescription>
-              Describe the image you want to create. Be specific about style, colors, and composition.
+              Choose a visual type and describe what you want to create.
             </DialogDescription>
           </DialogHeader>
 
           <div className="py-4 space-y-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Image Description</label>
-              <Textarea
-                placeholder="E.g., A serene mountain landscape at sunset with soft pastel colors, digital art style"
-                value={imagePrompt}
-                onChange={(e) => setImagePrompt(e.target.value)}
-                className="min-h-[100px] resize-none"
-                autoFocus
-                disabled={isGeneratingImage}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Aspect Ratio</label>
+              <label className="text-sm font-medium">Visual Type</label>
               <Select
-                value={imageAspectRatio}
-                onValueChange={(v) => setImageAspectRatio(v as typeof imageAspectRatio)}
+                value={imageVisualType}
+                onValueChange={(v) => {
+                  setImageVisualType(v);
+                  // Update prompt suggestion based on type
+                  if (node) {
+                    if (v === 'illustration') setImagePrompt(`An illustration of ${node.name}`);
+                    else if (v === 'mindmap' || v === 'flowchart') setImagePrompt('');
+                    else setImagePrompt(`A ${v.replace(/([A-Z])/g, ' $1').toLowerCase().trim()} for ${node.name}`);
+                  }
+                }}
                 disabled={isGeneratingImage}
               >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="1:1">Square (1:1)</SelectItem>
-                  <SelectItem value="16:9">Landscape (16:9)</SelectItem>
-                  <SelectItem value="9:16">Portrait (9:16)</SelectItem>
-                  <SelectItem value="4:3">Standard (4:3)</SelectItem>
-                  <SelectItem value="3:4">Portrait Standard (3:4)</SelectItem>
+                  <SelectItem value="illustration">Conceptual Illustration</SelectItem>
+                  <SelectItem value="flowchart">Flowchart</SelectItem>
+                  <SelectItem value="mindmap">Mind Map</SelectItem>
+                  <SelectItem value="sequenceDiagram">Sequence Diagram</SelectItem>
+                  <SelectItem value="stateDiagram">State Diagram</SelectItem>
+                  <SelectItem value="gantt">Gantt Chart</SelectItem>
+                  <SelectItem value="pie">Pie Chart</SelectItem>
+                  <SelectItem value="erDiagram">ER Diagram</SelectItem>
+                  <SelectItem value="classDiagram">Class Diagram</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="include-description"
-                checked={includeImageDescription}
-                onCheckedChange={(checked) => setIncludeImageDescription(checked === true)}
-                disabled={isGeneratingImage}
-              />
-              <label
-                htmlFor="include-description"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
-                Include descriptive caption
-              </label>
-            </div>
+            {imageVisualType !== 'mindmap' && imageVisualType !== 'flowchart' && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium">
+                  {imageVisualType === 'illustration' ? 'Image Description' : 'Diagram Description'}
+                </label>
+                <Textarea
+                  placeholder={imageVisualType === 'illustration'
+                    ? "E.g., A serene mountain landscape at sunset with soft pastel colors, digital art style"
+                    : "Describe what the diagram should show — the AI will generate the appropriate diagram"}
+                  value={imagePrompt}
+                  onChange={(e) => setImagePrompt(e.target.value)}
+                  className="min-h-[100px] resize-none"
+                  autoFocus
+                  disabled={isGeneratingImage}
+                />
+              </div>
+            )}
+
+            {(imageVisualType === 'mindmap' || imageVisualType === 'flowchart') && (
+              <p className="text-sm text-muted-foreground">
+                This will automatically generate a {imageVisualType === 'mindmap' ? 'mind map' : 'flowchart'} from the current node&apos;s outline structure. No description needed.
+              </p>
+            )}
+
+            {imageVisualType === 'illustration' && (
+              <>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Aspect Ratio</label>
+                  <Select
+                    value={imageAspectRatio}
+                    onValueChange={(v) => setImageAspectRatio(v as typeof imageAspectRatio)}
+                    disabled={isGeneratingImage}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1:1">Square (1:1)</SelectItem>
+                      <SelectItem value="16:9">Landscape (16:9)</SelectItem>
+                      <SelectItem value="9:16">Portrait (9:16)</SelectItem>
+                      <SelectItem value="4:3">Standard (4:3)</SelectItem>
+                      <SelectItem value="3:4">Portrait Standard (3:4)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="include-description"
+                    checked={includeImageDescription}
+                    onCheckedChange={(checked) => setIncludeImageDescription(checked === true)}
+                    disabled={isGeneratingImage}
+                  />
+                  <label
+                    htmlFor="include-description"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    Include descriptive caption
+                  </label>
+                </div>
+              </>
+            )}
           </div>
 
           <DialogFooter>
@@ -2232,7 +2320,7 @@ export default function ContentPane({
             </Button>
             <Button
               onClick={handleGenerateImage}
-              disabled={!imagePrompt.trim() || isGeneratingImage}
+              disabled={(imageVisualType !== 'mindmap' && imageVisualType !== 'flowchart' && !imagePrompt.trim()) || isGeneratingImage}
               className="bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600"
             >
               {isGeneratingImage ? (
@@ -2243,7 +2331,7 @@ export default function ContentPane({
               ) : (
                 <>
                   <ImagePlus className="mr-2 h-4 w-4" />
-                  Generate Image
+                  Generate
                 </>
               )}
             </Button>

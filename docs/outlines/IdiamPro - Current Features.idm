@@ -710,7 +710,7 @@
     "99e64397-d0fd-442e-af2c-c9be677aff26": {
       "id": "99e64397-d0fd-442e-af2c-c9be677aff26",
       "name": "AI Features",
-      "content": "<p>Comprehensive AI capabilities powered by Gemini (cloud) or Ollama (local).</p>",
+      "content": "<p>Comprehensive AI capabilities powered by Gemini (cloud) or Ollama with Gemma 4 (local).</p>",
       "type": "chapter",
       "parentId": "0855ebbc-563f-40a1-a524-55b6b5c69833",
       "childrenIds": [
@@ -811,7 +811,7 @@
     "7264c8d7-3b2c-4cca-81cf-5ad6df5198d4": {
       "id": "7264c8d7-3b2c-4cca-81cf-5ad6df5198d4",
       "name": "Local AI (Ollama)",
-      "content": "<p>Settings > AI Provider: Cloud, Local (Ollama), or Auto (fallback). Recommended models: llama3.2, phi3, llama3.1. Custom endpoints supported. No rate limits with local AI.</p>",
+      "content": "<p>Settings > AI Provider: Cloud, Local (Ollama), or Auto (fallback). Recommended models (Gemma 4 \u2014 released April 2026): gemma-4-e4b (4GB RAM, multimodal), gemma-4-26b (16GB+ RAM), gemma-4-31b (24GB+ RAM, max quality). Legacy: llama3.2 for low-memory systems. Requires Ollama 0.20+ for Gemma 4. Custom endpoints supported. No rate limits with local AI.</p>",
       "type": "document",
       "parentId": "99e64397-d0fd-442e-af2c-c9be677aff26",
       "childrenIds": [],
@@ -1485,7 +1485,7 @@
     "8cb357d6-374d-44e3-8ea8-0ace4299a8d6": {
       "id": "8cb357d6-374d-44e3-8ea8-0ace4299a8d6",
       "name": "AI Provider",
-      "content": "<p>Cloud (Gemini), Local (Ollama), or Auto (tries cloud, falls back to local on rate limit).</p>",
+      "content": "<p>Cloud (Gemini), Local (Ollama with Gemma 4 by default), or Auto (tries cloud, falls back to local on rate limit).</p>",
       "type": "document",
       "parentId": "fab392c3-fbcc-42a9-b874-2830368b97f9",
       "childrenIds": [],
@@ -1507,7 +1507,7 @@
     "1b48434f-7f42-4945-ac17-2c7e99c8f9cc": {
       "id": "1b48434f-7f42-4945-ac17-2c7e99c8f9cc",
       "name": "Ollama Configuration",
-      "content": "<p>Model selection from available models. Status check for availability. Custom endpoint support.</p>",
+      "content": "<p>Model selection auto-detects best Gemma 4 variant based on system memory. Gemma 4 variants: e2b (1.5GB), e4b (4GB, recommended), 26b MoE (16GB+), 31b dense (24GB+). Legacy llama3.2 supported for low-memory systems. Status check for availability. Custom endpoint support. Requires Ollama 0.20+ for Gemma 4 support.</p>",
       "type": "document",
       "parentId": "fab392c3-fbcc-42a9-b874-2830368b97f9",
       "childrenIds": [],
@@ -1698,7 +1698,7 @@
       "isExpanded": false
     }
   },
-  "lastModified": 1774254029326,
+  "lastModified": 1775803519645,
   "isGuide": false,
   "_fileSize": 67531,
   "_fileName": "IdiamPro - Current Features.idm",

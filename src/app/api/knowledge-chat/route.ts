@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ai } from '@/ai/genkit';
+import { getBestAvailableModel } from '@/lib/ollama-service';
 import type { AIDepth } from '@/types';
 
 interface Message {
@@ -8,7 +9,7 @@ interface Message {
 }
 
 const OLLAMA_BASE_URL = 'http://localhost:11434';
-// llama3.2 context window is 128K tokens but quality degrades past ~8K.
+// Local models like Gemma 4 and llama3.2 have 128K context windows but quality degrades past ~8K.
 // Truncate context to keep total prompt under ~6K tokens (~24K chars).
 const OLLAMA_MAX_CONTEXT_CHARS = 24000;
 
@@ -48,11 +49,14 @@ async function pipeOllama(
   fullPrompt: string,
   truncated: boolean,
 ) {
+  // Auto-select best available model (prefers Gemma 4 variants based on system memory)
+  const selectedModel = await getBestAvailableModel() || 'gemma4:e4b';
+
   const response = await fetch(`${OLLAMA_BASE_URL}/api/chat`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      model: 'llama3.2',
+      model: selectedModel,
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: fullPrompt },
@@ -115,9 +119,9 @@ async function pipeOllama(
   }
 
   controller.enqueue(encoder.encode(
-    sseEvent({ done: true, provider: 'Ollama llama3.2' })
+    sseEvent({ done: true, provider: `Ollama ${selectedModel}` })
   ));
-  console.log('[KnowledgeChat] Streaming response via Ollama');
+  console.log(`[KnowledgeChat] Streaming response via Ollama (${selectedModel})`);
 }
 
 /** Send all Gemini tokens through the given controller. */

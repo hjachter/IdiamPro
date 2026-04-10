@@ -425,10 +425,9 @@ async function generateTitleFromContent(content: string): Promise<string> {
 
 ${content.substring(0, 3000)}`;
 
-    // Ollama fallback for title generation
+    // Ollama fallback for title generation (auto-selects best available model)
     const ollamaTitleFallback = async () => {
       const ollamaTitle = await generateWithOllama({
-        model: 'llama3.2',
         prompt: titlePrompt,
         system: 'You generate concise titles. Return ONLY the title, nothing else.',
         temperature: 0.5,
@@ -1998,10 +1997,9 @@ Generate the outline with content:`;
 
 ${childContent.substring(0, 5000)}`;
 
-          // Ollama fallback for root summary
+          // Ollama fallback for root summary (auto-selects best available model)
           const ollamaSummaryFallback = async () => {
             const ollamaSummary = await generateWithOllama({
-              model: 'llama3.2',
               prompt: summaryPrompt,
               system: 'You are a helpful assistant that writes clear, concise summaries.',
               temperature: 0.7,

@@ -128,16 +128,51 @@ At the start of every new session, **automatically enable voice mode** by runnin
 
 ## Automated Testing
 
-IdiamPro has a Playwright-based test suite for automated UI testing of the Electron app.
+IdiamPro has a Playwright-based test suite for automated UI testing of the Electron app. **Always prefer Playwright over asking the user to click things manually.** You can drive the UI, type into fields, take screenshots, and read responses — there is no reason to make the user perform UI actions one step at a time.
 
-**Run tests:**
+### "TEST EVERYTHING" — Trigger Phrase
+
+When the user says **"TEST EVERYTHING"** (or any clear variant: "run all tests", "test it all"), do the following automatically without asking:
+
+1. **Close any running Electron instance** (`pkill -f "Electron.app/Contents/MacOS/Electron"`) — Playwright will spawn its own.
+2. **Make sure the dev server is running** on port 9002 (start it in the background if not).
+3. **Run every Playwright test script in `tests/`**, in order:
+   - `node tests/electron-test.js` — core feature suite
+   - `node tests/gemma4-smoke-test.js` — Gemma 4 / local AI smoke test
+   - Any future `tests/*-test.js` scripts as they're added
+4. **Capture the full output** and **read every report file** (`test-screenshots/**/report.{json,md}`).
+5. **Summarize** in plain language: pass/fail counts per script, which tests failed and why, any new bugs surfaced.
+6. **Update the `IdiamPro - Testing` outline** with the latest results, then sync to `docs/outlines/`.
+7. **File any new bugs as tasks** (TaskCreate) so they don't get lost.
+
+The user wants this to be a one-word command — they should never have to babysit a test run.
+
+### Writing New Tests
+
+When adding new tests, follow the patterns in `tests/electron-test.js` and `tests/gemma4-smoke-test.js`:
+- Launch Electron via `playwright._electron.launch`
+- Find the main window (skip DevTools windows)
+- Take a screenshot at every step
+- Use resilient selectors with diagnostic dumps when they fail
+- Output a structured `report.json` and `report.md` to `test-screenshots/<suite-name>/`
+- Exit with non-zero on failure
+
+### Manual Testing Fallback
+
+Only fall back to asking the user to click things if:
+- Playwright cannot reach the UI element (selector debugging fails)
+- The test requires a hardware or external service that can't be automated (TestFlight upload, real device gestures)
+- The user explicitly says "I'll do it manually"
+
+**Run a single test suite:**
 ```bash
 node tests/electron-test.js
+node tests/gemma4-smoke-test.js
 ```
 
 **Test outline:** The `IdiamPro - Testing` outline (`~/Documents/IDM Outlines/IdiamPro - Testing.idm` + sync to `docs/outlines/`) contains:
 - Automated test status (Playwright results)
-- Manual test checklists for all features
+- Manual test checklists for the few things that can't be automated
 - Test run log for recording results
 
 **When to update the TESTS outline:**

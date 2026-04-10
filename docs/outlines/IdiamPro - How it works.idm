@@ -315,7 +315,7 @@
     "ai-providers": {
       "id": "ai-providers",
       "name": "AI Service Providers",
-      "content": "<p>IdiamPro can use different AI services depending on your preferences:</p><p><strong>Google Gemini (Default):</strong></p><ul><li>Fast and capable</li><li>Requires internet connection</li><li>Uses Google's servers</li></ul><p><strong>Ollama (Local):</strong></p><ul><li>Runs on your own computer</li><li>No data sent to external servers</li><li>Requires installing Ollama software separately</li><li>Slower but more private</li></ul><p><strong>OpenAI:</strong></p><ul><li>Used for image generation (DALL-E)</li><li>Used for podcast voices (text-to-speech)</li></ul><p>You can switch between providers in Settings. The app will try local AI first and fall back to cloud services if needed.</p>",
+      "content": "<p>IdiamPro can use different AI services depending on your preferences:</p><p><strong>Google Gemini (Default):</strong></p><ul><li>Fast and capable</li><li>Requires internet connection</li><li>Uses Google's servers</li></ul><p><strong>Ollama with Gemma 4 (Local):</strong></p><ul><li>Runs on your own computer</li><li>No data sent to external servers</li><li>Requires installing Ollama software separately (v0.20+)</li><li>Default model: Gemma 4 E4B (multimodal, ~4GB RAM) \u2014 can process images locally</li><li>Auto-selects best variant based on system memory: e2b (1.5GB), e4b (4GB), 26b MoE (16GB+), 31b dense (24GB+)</li><li>Falls back to llama3.2 for low-memory systems</li><li>More private; speed depends on hardware</li></ul><p><strong>OpenAI:</strong></p><ul><li>Used for image generation (DALL-E)</li><li>Used for podcast voices (text-to-speech)</li></ul><p>You can switch between providers in Settings. The app will try local AI first and fall back to cloud services if needed.</p>",
       "type": "document",
       "parentId": "ai-features",
       "childrenIds": [],
@@ -480,7 +480,7 @@
       "prefix": "5.4"
     }
   },
-  "lastModified": 1775242826953,
+  "lastModified": 1775803631955,
   "_fileSize": 35244,
   "_fileName": "IdiamPro - How it works.idm",
   "_isLazyLoaded": false
