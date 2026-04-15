@@ -182,8 +182,12 @@ export default function NodeItem({
   const [swipeOffset, setSwipeOffset] = React.useState(0);
   const SWIPE_THRESHOLD = 40; // pixels needed to trigger indent/outdent
   const swipeTriggeredRef = React.useRef(false);
+  // Records the input device of the most recent pointerdown so handleClick
+  // can branch behavior (touch → tap-again-to-edit, mouse → click-to-select).
+  const lastPointerTypeRef = React.useRef<string>('mouse');
 
   const handlePointerDown = (e: React.PointerEvent) => {
+    lastPointerTypeRef.current = e.pointerType;
     // Only use swipe gestures for touch input, not mouse (to preserve drag and drop)
     if (isRoot || isEditing || e.pointerType === 'mouse') return;
     pointerStartRef.current = { x: e.clientX, y: e.clientY, time: Date.now(), pointerId: e.pointerId };
@@ -191,8 +195,10 @@ export default function NodeItem({
     setSwipeOffset(0);
     // Capture pointer to receive move events even outside element
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
-    // Prevent default to avoid zoom/scroll (only for touch)
-    e.preventDefault();
+    // NOTE: do NOT preventDefault() here. iOS WebKit suppresses the synthesized
+    // click event when preventDefault is called on the touch-equivalent
+    // pointerdown, which would break single-tap selection. We only suppress
+    // default behavior in handlePointerMove once we detect actual swipe motion.
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
@@ -443,6 +449,14 @@ export default function NodeItem({
         // Regular click when multi-select is active: clear selection
         onToggleNodeSelection(node.id, false);
       }
+    }
+
+    // Touch (iOS): tapping the already-selected node enters edit mode.
+    // This is the iOS equivalent of double-click on desktop, per the gesture
+    // model in CLAUDE.md (Tap selected node → edit name).
+    if (isSelected && lastPointerTypeRef.current !== 'mouse' && !isRoot) {
+      setIsEditing(true);
+      return;
     }
 
     // Desktop: single click selects, double-click handled by onDoubleClick
