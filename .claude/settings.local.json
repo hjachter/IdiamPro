@@ -26,13 +26,21 @@
       "mcp__idiampro__export_outline",
       "mcp__idiampro__generate_api_key",
       "mcp__idiampro__list_api_keys",
-      "mcp__idiampro__revoke_api_key"
+      "mcp__idiampro__revoke_api_key",
+      "Bash(rm -rf .next)",
+      "Bash(npm run:*)",
+      "Bash(python3 -c ':*)",
+      "Bash(node tests/gemma4-smoke-test.js)",
+      "Bash(curl -s -o /dev/null -w \"dev_server: HTTP %{http_code}\\\\n\" http://localhost:9002/)",
+      "Bash(echo \"electron starting, pid $!\")"
     ]
   },
   "mcpServers": {
     "idiampro": {
       "command": "node",
-      "args": ["/Users/howardjachter/Library/Mobile Documents/com~apple~CloudDocs/ClaudeProjects/IdiamPro/mcp-server/dist/index.js"]
+      "args": [
+        "/Users/howardjachter/Library/Mobile Documents/com~apple~CloudDocs/ClaudeProjects/IdiamPro/mcp-server/dist/index.js"
+      ]
     }
   }
 }

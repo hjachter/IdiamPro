@@ -62,6 +62,7 @@ async function pipeOllama(
         { role: 'user', content: fullPrompt },
       ],
       stream: true,
+      think: false, // Disable Gemma 4 reasoning mode — internal thoughts otherwise eat the num_predict budget and leave message.content empty
       options: { temperature: 0.7, num_predict: 2000, num_ctx: 8192 },
     }),
   });

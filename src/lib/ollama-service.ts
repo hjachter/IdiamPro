@@ -207,6 +207,7 @@ export async function generateWithOllama(options: OllamaGenerateOptions): Promis
       prompt: options.prompt,
       system: options.system,
       stream: false,
+      think: false, // Disable Gemma 4 reasoning mode — it consumes the token budget and leaves content empty
       options: {
         temperature: options.temperature ?? 0.7,
         num_predict: options.maxTokens ?? 2000,
@@ -245,6 +246,7 @@ export async function* generateWithOllamaStream(
       prompt: options.prompt,
       system: options.system,
       stream: true,
+      think: false, // See note in generateWithOllama
       options: {
         temperature: options.temperature ?? 0.7,
         num_predict: options.maxTokens ?? 2000,
@@ -304,6 +306,7 @@ export async function chatWithOllama(
       model,
       messages,
       stream: false,
+      think: false, // See note in generateWithOllama
       options: {
         temperature: options?.temperature ?? 0.7,
         num_predict: options?.maxTokens ?? 2000,
