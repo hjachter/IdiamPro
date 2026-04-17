@@ -32,7 +32,18 @@
       "Bash(python3 -c ':*)",
       "Bash(node tests/gemma4-smoke-test.js)",
       "Bash(curl -s -o /dev/null -w \"dev_server: HTTP %{http_code}\\\\n\" http://localhost:9002/)",
-      "Bash(echo \"electron starting, pid $!\")"
+      "Bash(echo \"electron starting, pid $!\")",
+      "Bash(cp \"/Users/howardjachter/Documents/IDM Outlines/IdiamPro - Current Features.idm\" \"/Users/howardjachter/Library/Mobile Documents/com~apple~CloudDocs/ClaudeProjects/IdiamPro/docs/outlines/IdiamPro - Current Features.idm\")",
+      "Bash(cp \"/Users/howardjachter/Documents/IDM Outlines/IdiamPro - Testing.idm\" \"/Users/howardjachter/Library/Mobile Documents/com~apple~CloudDocs/ClaudeProjects/IdiamPro/docs/outlines/IdiamPro - Testing.idm\")",
+      "Bash(timeout 5 node dist/index.js)",
+      "Bash(gtimeout 5 node dist/index.js)",
+      "Bash(grep -n \"missing required\\\\|required.*field\" src/*.ts src/**/*.ts)",
+      "Bash(node tests/mcp-server-test.js)",
+      "Bash(pkill -f \"Electron.app/Contents/MacOS/Electron\")",
+      "Bash(node tests/electron-test.js)",
+      "Bash(pkill -f \"next dev\")",
+      "Bash(pkill -f \"Electron.app\")",
+      "Bash(curl -s -X POST http://localhost:9002/api/knowledge-chat -H 'Content-Type: application/json' -d '{\"messages\":[{\"role\":\"user\",\"content\":\"Which outlines mention Gemma 4 or Ollama?\"}],\"context\":\"# Outline A\\\\nThis is about cooking\\\\n---\\\\n# Outline B\\\\nThis discusses Gemma 4 and Ollama integration with IdiamPro\\\\n---\\\\n# Outline C\\\\nThis is about gardening\\\\n---\\\\n# Outline D\\\\nOllama is configured in settings for local AI\",\"mode\":\"all\",\"depth\":\"quick\",\"aiProvider\":\"local\"}')"
     ]
   },
   "mcpServers": {

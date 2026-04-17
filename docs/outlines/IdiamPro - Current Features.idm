@@ -6,7 +6,7 @@
     "0855ebbc-563f-40a1-a524-55b6b5c69833": {
       "id": "0855ebbc-563f-40a1-a524-55b6b5c69833",
       "name": "IdiamPro - Current Features",
-      "content": "<p>Comprehensive list of every feature in IdiamPro \u2014 the AI-native professional outlining platform. Cross-platform: macOS (Electron), iOS (Capacitor), and Web.</p>",
+      "content": "<p>Comprehensive list of every feature in IdiamPro — the AI-native professional outlining platform. Cross-platform: macOS (Electron), iOS (Capacitor), and Web.</p>",
       "type": "root",
       "parentId": null,
       "childrenIds": [
@@ -474,7 +474,7 @@
     "9f2bead2-bf61-434a-9100-fd8055dc5ea4": {
       "id": "9f2bead2-bf61-434a-9100-fd8055dc5ea4",
       "name": "Outline Search",
-      "content": "<p>Full-text search across outline nodes with Ctrl/Cmd+F.</p><p></p><p><strong>Features:</strong></p><ul><li><p>Search current outline or all outlines (globe toggle)</p></li><li><p>Filter by node names (T icon) or content (paragraph icon) \u2014 toggle independently</p></li><li><p>Real-time results with 150ms debounce</p></li><li><p>Navigate matches with Enter/Shift+Enter or arrow buttons</p></li><li><p>Match counter shows current position</p></li><li><p>Large outline optimization: outlines with 5000+ nodes search leaf nodes only</p></li></ul>",
+      "content": "<p>Full-text search across outline nodes with Ctrl/Cmd+F.</p><p></p><p><strong>Features:</strong></p><ul><li><p>Search current outline or all outlines (globe toggle)</p></li><li><p>Filter by node names (T icon) or content (paragraph icon) — toggle independently</p></li><li><p>Real-time results with 150ms debounce</p></li><li><p>Navigate matches with Enter/Shift+Enter or arrow buttons</p></li><li><p>Match counter shows current position</p></li><li><p>Large outline optimization: outlines with 5000+ nodes search leaf nodes only</p></li></ul>",
       "type": "document",
       "parentId": "a19474f3-3a9c-4e28-a7c4-d0d2143d3d56",
       "childrenIds": [],
@@ -800,7 +800,7 @@
     "98c744e6-f7a7-4ffd-833d-d7b4d7d0bd00": {
       "id": "98c744e6-f7a7-4ffd-833d-d7b4d7d0bd00",
       "name": "Chat Modes",
-      "content": "<p>Current Outline mode queries active outline only. All Outlines mode queries everything \u2014 your 'Second Brain'. Streaming word-by-word responses with source attribution.</p>",
+      "content": "<p>Current Outline mode queries active outline only. All Outlines mode queries everything — your 'Second Brain'. Streaming word-by-word responses with source attribution.</p>",
       "type": "document",
       "parentId": "63cdae02-1798-4608-a55f-b05c93abbce3",
       "childrenIds": [],
@@ -810,8 +810,8 @@
     },
     "7264c8d7-3b2c-4cca-81cf-5ad6df5198d4": {
       "id": "7264c8d7-3b2c-4cca-81cf-5ad6df5198d4",
-      "name": "Local AI (Ollama)",
-      "content": "<p>Settings > AI Provider: Cloud, Local (Ollama), or Auto (fallback). Recommended models (Gemma 4 \u2014 released April 2026): gemma-4-e4b (4GB RAM, multimodal), gemma-4-26b (16GB+ RAM), gemma-4-31b (24GB+ RAM, max quality). Legacy: llama3.2 for low-memory systems. Requires Ollama 0.20+ for Gemma 4. Custom endpoints supported. No rate limits with local AI.</p>",
+      "name": "Local AI (Ollama + Gemma 4)",
+      "content": "<p><strong>Settings &gt; AI Provider:</strong> Cloud, Local (Ollama), or Auto (fallback).</p>\n<p><strong>Recommended models (Gemma 4 — released April 2, 2026):</strong></p>\n<ul>\n<li><code>gemma4:e4b</code> — multimodal, ~4GB RAM, recommended default. Reads images (incl. OCR-quality text extraction).</li>\n<li><code>gemma4:e2b</code> — lightweight, ~1.5GB RAM, mobile-friendly, multimodal.</li>\n<li><code>gemma4:26b</code> — Mixture of Experts, 16GB+ RAM. Fast despite size.</li>\n<li><code>gemma4:31b</code> — dense, 24GB+ RAM. Maximum quality.</li>\n</ul>\n<p><strong>Legacy fallback:</strong> <code>llama3.2</code> — for systems with less than 4GB RAM, or as a fast option for short factual queries (~2-3x faster than Gemma 4 e4b on simple prompts on M-series Macs).</p>\n<p><strong>Requirements:</strong> Ollama v0.20+ for Gemma 4 support. Install with <code>brew install ollama</code> or from ollama.com, then <code>ollama pull gemma4:e4b</code>.</p>\n<p><strong>Auto-selection:</strong> IdiamPro picks the largest variant the system can run based on detected memory: ≥24GB → 31b, ≥16GB → 26b, ≥8GB → e4b, &lt;8GB → e2b.</p>\n<p><strong>Implementation notes:</strong> Reasoning/thinking mode is disabled (<code>think: false</code>) on every Ollama call to prevent hidden reasoning from consuming the visible-token budget. Image vision support is wired through Ollama's <code>images</code> field — when running locally, all image processing stays on-device.</p>",
       "type": "document",
       "parentId": "99e64397-d0fd-442e-af2c-c9be677aff26",
       "childrenIds": [],
@@ -1686,7 +1686,7 @@
     "feat-ai-consent": {
       "id": "feat-ai-consent",
       "name": "AI Data Consent",
-      "content": "<p>Apple-compliant consent dialog shown before first AI feature use. Explains which third-party services process data (Google Gemini, OpenAI, AssemblyAI). Two-step decline flow warns about feature loss. Manageable in Settings \u2192 Data &amp; Privacy.</p>",
+      "content": "<p>Apple-compliant consent dialog shown before first AI feature use. Explains which third-party services process data (Google Gemini, OpenAI, AssemblyAI). Two-step decline flow warns about feature loss. Manageable in Settings → Data &amp; Privacy.</p>",
       "childrenIds": [],
       "isExpanded": false
     },

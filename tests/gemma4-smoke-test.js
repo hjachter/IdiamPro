@@ -91,29 +91,39 @@ async function shot(name) {
 }
 
 /**
- * Close any open Radix dialog and wait for it to be fully gone.
- * Strategy: click the X close button (sr-only text "Close" inside [role=dialog]),
- * then verify the dialog is no longer in the DOM.
+ * Close ALL open Radix dialogs and wait for them to be fully gone.
+ * Strategy: repeatedly press Escape and click X buttons until no dialogs remain.
  */
 async function closeDialog(label = 'dialog') {
-  const closeBtn = page.locator('[role="dialog"] button').filter({ has: page.locator('span.sr-only:text("Close")') }).last();
-  try {
-    if (await closeBtn.isVisible({ timeout: 1000 }).catch(() => false)) {
-      await closeBtn.click({ timeout: 3000 });
-    } else {
-      // Fallback: press Escape on body
-      await page.locator('body').press('Escape');
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const dialogCount = await page.locator('[role="dialog"]').count().catch(() => 0);
+    if (dialogCount === 0) break;
+
+    // Try clicking the X close button
+    const closeBtn = page.locator('[role="dialog"] button').filter({ has: page.locator('span.sr-only:text("Close")') }).last();
+    try {
+      if (await closeBtn.isVisible({ timeout: 500 }).catch(() => false)) {
+        await closeBtn.click({ timeout: 2000, force: true });
+      } else {
+        await page.keyboard.press('Escape');
+      }
+    } catch {
+      await page.keyboard.press('Escape').catch(() => {});
     }
-  } catch {
-    await page.locator('body').press('Escape').catch(() => {});
+    await page.waitForTimeout(500);
   }
-  // Wait for dialog to be gone
-  try {
-    await page.locator('[role="dialog"]').first().waitFor({ state: 'hidden', timeout: 5000 });
-  } catch {
-    console.log(`  warn: ${label} dialog did not close cleanly`);
-  }
+  // Final wait for any animation
   await page.waitForTimeout(300);
+}
+
+/**
+ * Ensure no dialogs are open before starting a test.
+ */
+async function ensureNoDialogs() {
+  const count = await page.locator('[role="dialog"]').count().catch(() => 0);
+  if (count > 0) {
+    await closeDialog('stale');
+  }
 }
 
 /* ─────────────────────────── Test 1 ─────────────────────────── */
@@ -481,6 +491,7 @@ async function runAll() {
 
     for (const c of cases) {
       console.log(`\n─── ${c.name} ───`);
+      await ensureNoDialogs();
       const t0 = Date.now();
       const r = await c.fn();
       const dur = Date.now() - t0;

@@ -19,15 +19,52 @@ const SSE_HEADERS = {
   'Connection': 'keep-alive',
 };
 
-function truncateForOllama(context: string): { text: string; truncated: boolean } {
+// Simple stopwords to exclude from keyword extraction
+const STOPWORDS = new Set(['the','a','an','is','are','was','were','be','been','being','have','has','had','do','does','did','will','would','could','should','may','might','shall','can','to','of','in','for','on','with','at','by','from','as','or','and','but','not','no','this','that','it','its','my','your','all','any','which','what','who','how','when','where','why','about','into','through','during','before','after','above','below','between','out','up','down','if','then','than','so','just','also','very','much','more','most','other','some','such','only']);
+
+function extractKeywords(text: string): string[] {
+  return text.toLowerCase()
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .split(/\s+/)
+    .filter(w => w.length >= 3 && !STOPWORDS.has(w));
+}
+
+function truncateForOllama(context: string, userQuery: string): { text: string; truncated: boolean } {
   if (context.length <= OLLAMA_MAX_CONTEXT_CHARS) {
     return { text: context, truncated: false };
   }
-  const truncated = context.slice(0, OLLAMA_MAX_CONTEXT_CHARS);
-  // Cut at last complete section (---) to avoid mid-sentence breaks
-  const lastSeparator = truncated.lastIndexOf('\n---\n');
-  const cutPoint = lastSeparator > OLLAMA_MAX_CONTEXT_CHARS / 2 ? lastSeparator : OLLAMA_MAX_CONTEXT_CHARS;
-  return { text: truncated.slice(0, cutPoint) + '\n\n[... remaining outlines truncated for local AI ...]', truncated: true };
+
+  // Split context into outline chunks at the "---" separator boundaries.
+  // Each chunk typically starts with "# OutlineName" and contains that outline's content.
+  const chunks = context.split('\n---\n').filter(c => c.trim());
+
+  // Score each chunk by how many query keywords it contains
+  const keywords = extractKeywords(userQuery);
+  const scored = chunks.map(chunk => {
+    const lower = chunk.toLowerCase();
+    const score = keywords.reduce((s, kw) => s + (lower.includes(kw) ? 1 : 0), 0);
+    return { chunk, score };
+  });
+
+  // Sort by relevance (highest first), then pack up to the character limit
+  scored.sort((a, b) => b.score - a.score);
+
+  const packed: string[] = [];
+  let totalLen = 0;
+  for (const { chunk } of scored) {
+    if (totalLen + chunk.length + 5 > OLLAMA_MAX_CONTEXT_CHARS) continue;
+    packed.push(chunk);
+    totalLen += chunk.length + 5; // +5 for the separator
+  }
+
+  const result = packed.join('\n---\n');
+  const wasReduced = packed.length < chunks.length;
+  return {
+    text: wasReduced
+      ? result + '\n\n[... remaining outlines truncated for local AI ...]'
+      : result,
+    truncated: wasReduced,
+  };
 }
 
 function sseEvent(data: Record<string, unknown>): string {
@@ -258,7 +295,9 @@ Use markdown formatting for clarity.`;
     const userPrompt = `OUTLINE CONTENT:\n${context}\n\nConversation:\n${conversationHistory}\n\nProvide a helpful, clear response grounded in the outline content above.`;
 
     // Prepare Ollama prompt (may or may not be used depending on provider)
-    const { text: truncatedContext, truncated } = truncateForOllama(context);
+    // Pass the latest user message as the query for relevance-based truncation
+    const latestUserMessage = messages.filter(m => m.role === 'user').pop()?.content || '';
+    const { text: truncatedContext, truncated } = truncateForOllama(context, latestUserMessage);
     const ollamaPrompt = `OUTLINE CONTENT:\n${truncatedContext}\n\nConversation:\n${conversationHistory}\n\nProvide a helpful, clear response grounded in the outline content above.`;
     if (truncated && (aiProvider === 'local' || aiProvider === 'auto')) {
       console.log(`[KnowledgeChat] Context truncated from ${context.length} to ${truncatedContext.length} chars for Ollama`);
