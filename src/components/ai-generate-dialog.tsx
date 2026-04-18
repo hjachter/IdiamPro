@@ -14,16 +14,17 @@ interface AiGenerateDialogProps {
   children: React.ReactNode;
   onGenerate: (topic: string, depth: AIDepth, tone: AITone, level: AILevel) => Promise<void>;
   isLoading: boolean;
+  initialTopic?: string;
 }
 
-export default function AiGenerateDialog({ children, onGenerate, isLoading }: AiGenerateDialogProps) {
+export default function AiGenerateDialog({ children, onGenerate, isLoading, initialTopic }: AiGenerateDialogProps) {
   const [open, setOpen] = useState(false);
   const [topic, setTopic] = useState('');
   const [depth, setDepth] = useState<AIDepth>('standard');
   const [tone, setTone] = useState<AITone>('professional');
   const [level, setLevel] = useState<AILevel>('college');
 
-  // Load defaults from localStorage when dialog opens
+  // Load defaults and pre-fill topic from selected node when dialog opens
   useEffect(() => {
     if (open) {
       const savedDepth = localStorage.getItem('aiDepth') as AIDepth | null;
@@ -32,8 +33,9 @@ export default function AiGenerateDialog({ children, onGenerate, isLoading }: Ai
       if (savedDepth) setDepth(savedDepth);
       if (savedTone) setTone(savedTone);
       if (savedLevel) setLevel(savedLevel);
+      if (initialTopic) setTopic(initialTopic);
     }
-  }, [open]);
+  }, [open, initialTopic]);
 
   const handleSubmit = async () => {
     if (topic.trim()) {
@@ -51,9 +53,9 @@ export default function AiGenerateDialog({ children, onGenerate, isLoading }: Ai
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2"><Bot /> Generate Outline from Topic</DialogTitle>
+          <DialogTitle className="flex items-center gap-2"><Bot /> Generate Subtree from Topic</DialogTitle>
           <DialogDescription>
-            Enter a topic, and AI will generate a structured outline for you. This will create a new outline.
+            Enter a topic and AI will generate a structured subtree under the selected node. Edit the topic if you want to refine it.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">

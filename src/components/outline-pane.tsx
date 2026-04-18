@@ -1207,6 +1207,7 @@ export default function OutlinePane({
             isLoadingAI={isLoadingAI}
             onOpenBulkResearch={onOpenBulkResearch}
             onOpenKnowledgeChat={onOpenKnowledgeChat}
+            selectedNodeName={selectedNodeId && currentOutline?.nodes[selectedNodeId]?.name || ''}
           />
 
           {isLoadingAI && onCancelAI && (

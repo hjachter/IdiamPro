@@ -24,6 +24,7 @@ interface AIMenuProps {
   disabled?: boolean;
   onOpenBulkResearch?: () => void;
   onOpenKnowledgeChat?: () => void;
+  selectedNodeName?: string;
 }
 
 export default function AIMenu({
@@ -33,6 +34,7 @@ export default function AIMenu({
   disabled,
   onOpenBulkResearch,
   onOpenKnowledgeChat,
+  selectedNodeName,
 }: AIMenuProps) {
   const { isPremium } = useAI();
   const contentGenEnabled = useAIFeature('enableAIContentGeneration');
@@ -87,10 +89,10 @@ export default function AIMenu({
         <DropdownMenuSeparator />
 
         {contentGenEnabled && (
-          <AiGenerateDialog onGenerate={handleGenerate} isLoading={isLoadingAI}>
+          <AiGenerateDialog onGenerate={handleGenerate} isLoading={isLoadingAI} initialTopic={selectedNodeName}>
             <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="cursor-pointer">
               <FileText className="mr-2 h-4 w-4" />
-              Generate Outline from Topic
+              Generate Subtree from Topic
             </DropdownMenuItem>
           </AiGenerateDialog>
         )}

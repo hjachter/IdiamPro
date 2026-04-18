@@ -1701,37 +1701,76 @@ export default function OutlinePro() {
     toast({ title: 'AI Features Disabled', description: 'You can enable AI features later in Settings.' });
   }, [toast]);
 
-  // FIXED: handleGenerateOutline uses functional update pattern
+  // Generate a subtree from a topic and insert it as children of the selected node
   const handleGenerateOutline = useCallback(async (topic: string, depth: AIDepth = 'standard', tone: AITone = 'professional', level: AILevel = 'college') => {
     if (!checkAiConsent(() => handleGenerateOutline(topic, depth, tone, level))) return;
+    if (!selectedNodeId || !currentOutlineId) return;
+
+    const parentId = selectedNodeId;
     aiCancelledRef.current = false;
     setIsLoadingAI(true);
     aiLoadingStartTime.current = Date.now();
     try {
       const markdown = await generateOutlineAction(topic, depth, tone, level);
-      const { rootNodeId, nodes } = parseMarkdownToNodes(markdown, topic);
-      const newOutlineId = uuidv4();
-      const newOutline: Outline = {
-        id: newOutlineId,
-        name: topic,
-        rootNodeId,
-        nodes,
-      };
+      const { rootNodeId: generatedRootId, nodes: generatedNodes } = parseMarkdownToNodes(markdown, topic);
 
-      setOutlines(currentOutlines => [...currentOutlines, newOutline]);
-      setCurrentOutlineId(newOutlineId);
-      setSelectedNodeId(rootNodeId);
+      // Remap all generated node IDs to fresh UUIDs
+      const idMapping: Record<string, string> = {};
+      Object.keys(generatedNodes).forEach(oldId => {
+        idMapping[oldId] = uuidv4();
+      });
+
+      setOutlines(currentOutlines => {
+        return currentOutlines.map(o => {
+          if (o.id !== currentOutlineId) return o;
+
+          const newNodes = { ...o.nodes };
+
+          // The generated root's children become direct children of the selected node
+          const generatedRoot = generatedNodes[generatedRootId];
+          const topLevelChildIds = generatedRoot.childrenIds;
+
+          // Clone all generated nodes (except the generated root itself) with new IDs
+          Object.entries(generatedNodes).forEach(([oldId, node]) => {
+            if (oldId === generatedRootId) return; // skip the generated root
+            const newId = idMapping[oldId];
+            const isTopLevel = topLevelChildIds.includes(oldId);
+            newNodes[newId] = {
+              ...node,
+              id: newId,
+              parentId: isTopLevel ? parentId : idMapping[node.parentId] || parentId,
+              childrenIds: node.childrenIds.map(cid => idMapping[cid] || cid),
+            };
+          });
+
+          // Add the top-level generated children to the selected node
+          const parentNode = newNodes[parentId];
+          const newChildIds = topLevelChildIds.map(id => idMapping[id]);
+          newNodes[parentId] = {
+            ...parentNode,
+            childrenIds: [...parentNode.childrenIds, ...newChildIds],
+            isCollapsed: false, // expand to show new children
+          };
+
+          return { ...o, nodes: newNodes };
+        });
+      });
+
+      toast({
+        title: "Subtree Generated",
+        description: `AI-generated subtree for "${topic}" added under the selected node.`,
+      });
     } catch (e) {
       toast({
         variant: "destructive",
         title: "AI Error",
-        description: (e as Error).message || "Could not generate outline.",
+        description: (e as Error).message || "Could not generate subtree.",
       });
     } finally {
       setIsLoadingAI(false);
       aiLoadingStartTime.current = null;
     }
-  }, [toast]);
+  }, [toast, selectedNodeId, currentOutlineId]);
 
   // FIXED: handleExpandContent uses functional update pattern (legacy)
   const handleExpandContent = useCallback(async () => {
