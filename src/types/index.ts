@@ -61,6 +61,7 @@ export interface Outline {
   rootNodeId: string;
   nodes: NodeMap;
   isGuide?: boolean;
+  isSecondBrain?: boolean; // Reserved single outline — the user's personal knowledge base
   lastModified?: number; // Unix timestamp
 }
 

@@ -43,7 +43,9 @@
       "Bash(node tests/electron-test.js)",
       "Bash(pkill -f \"next dev\")",
       "Bash(pkill -f \"Electron.app\")",
-      "Bash(curl -s -X POST http://localhost:9002/api/knowledge-chat -H 'Content-Type: application/json' -d '{\"messages\":[{\"role\":\"user\",\"content\":\"Which outlines mention Gemma 4 or Ollama?\"}],\"context\":\"# Outline A\\\\nThis is about cooking\\\\n---\\\\n# Outline B\\\\nThis discusses Gemma 4 and Ollama integration with IdiamPro\\\\n---\\\\n# Outline C\\\\nThis is about gardening\\\\n---\\\\n# Outline D\\\\nOllama is configured in settings for local AI\",\"mode\":\"all\",\"depth\":\"quick\",\"aiProvider\":\"local\"}')"
+      "Bash(curl -s -X POST http://localhost:9002/api/knowledge-chat -H 'Content-Type: application/json' -d '{\"messages\":[{\"role\":\"user\",\"content\":\"Which outlines mention Gemma 4 or Ollama?\"}],\"context\":\"# Outline A\\\\nThis is about cooking\\\\n---\\\\n# Outline B\\\\nThis discusses Gemma 4 and Ollama integration with IdiamPro\\\\n---\\\\n# Outline C\\\\nThis is about gardening\\\\n---\\\\n# Outline D\\\\nOllama is configured in settings for local AI\",\"mode\":\"all\",\"depth\":\"quick\",\"aiProvider\":\"local\"}')",
+      "Bash(python3 scripts/create_conversation_log.py)",
+      "Bash(defaults read:*)"
     ]
   },
   "mcpServers": {

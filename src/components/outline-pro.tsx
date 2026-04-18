@@ -467,6 +467,28 @@ export default function OutlinePro() {
         const validOutlines = userOutlines.filter(o => o && isValidOutline(o));
         const loadedOutlines = [guide, ...validOutlines];
 
+        // Auto-create the Second Brain outline if none exists
+        if (!loadedOutlines.some(o => o.isSecondBrain)) {
+          const sbRootId = 'second-brain-root';
+          const secondBrain: Outline = {
+            id: 'second-brain',
+            name: 'Second Brain',
+            rootNodeId: sbRootId,
+            isSecondBrain: true,
+            nodes: {
+              [sbRootId]: {
+                id: sbRootId,
+                name: 'Second Brain',
+                parentId: null as unknown as string,
+                childrenIds: [],
+                type: 'root' as const,
+                content: '<p>Your personal knowledge base. Save anything here — notes, research, ideas, articles, images — and search it all with Knowledge Chat.</p><p><em>The app that makes the Second Brain method actually work.</em></p>',
+              },
+            },
+          };
+          loadedOutlines.push(secondBrain);
+        }
+
         setOutlinesFromDisk(loadedOutlines);
 
         // Record initial mtime baseline for all loaded outlines
@@ -3114,6 +3136,69 @@ export default function OutlinePro() {
   }, [selectedNodeIds, currentOutlineId, toast]);
 
   // Export handlers
+  const handleSaveToSecondBrain = useCallback((nodeId: string) => {
+    const sourceOutline = outlines.find(o => o.id === currentOutlineId);
+    if (!sourceOutline) return;
+
+    const secondBrain = outlines.find(o => o.isSecondBrain);
+    if (!secondBrain) {
+      toast({ title: "No Second Brain", description: "Second Brain outline not found.", variant: "destructive" });
+      return;
+    }
+
+    // Don't save from Second Brain into itself
+    if (sourceOutline.isSecondBrain) {
+      toast({ title: "Already in Second Brain", description: "This node is already in your Second Brain." });
+      return;
+    }
+
+    // Collect the subtree to copy
+    const subtreeNodes = collectSubtree(sourceOutline.nodes, nodeId);
+
+    // Create new IDs for all nodes
+    const idMapping: Record<string, string> = {};
+    Object.keys(subtreeNodes).forEach(oldId => {
+      idMapping[oldId] = uuidv4();
+    });
+
+    setOutlines(currentOutlines => {
+      const sb = currentOutlines.find(o => o.isSecondBrain);
+      if (!sb) return currentOutlines;
+
+      const newNodes = { ...sb.nodes };
+
+      // Create cloned nodes with new IDs
+      Object.entries(subtreeNodes).forEach(([oldId, node]) => {
+        const newId = idMapping[oldId];
+        const isSubtreeRoot = oldId === nodeId;
+        newNodes[newId] = {
+          ...node,
+          id: newId,
+          parentId: isSubtreeRoot ? sb.rootNodeId : idMapping[node.parentId] || sb.rootNodeId,
+          childrenIds: node.childrenIds.map(cid => idMapping[cid] || cid),
+        };
+      });
+
+      // Add the subtree root as a child of the Second Brain root
+      const sbRoot = newNodes[sb.rootNodeId];
+      newNodes[sb.rootNodeId] = {
+        ...sbRoot,
+        childrenIds: [...sbRoot.childrenIds, idMapping[nodeId]],
+      };
+
+      return currentOutlines.map(o =>
+        o.isSecondBrain ? { ...o, nodes: newNodes } : o
+      );
+    });
+
+    const nodeName = sourceOutline.nodes[nodeId]?.name || 'Node';
+    const childCount = Object.keys(subtreeNodes).length - 1;
+    toast({
+      title: "Saved to Second Brain",
+      description: `"${nodeName}"${childCount > 0 ? ` and ${childCount} child node${childCount === 1 ? '' : 's'}` : ''} added to your Second Brain.`,
+    });
+  }, [currentOutlineId, outlines, collectSubtree, toast, setOutlines]);
+
   const handleExportSubtree = useCallback((nodeId: string) => {
     setExportNodeId(nodeId);
     setExportDialogOpen(true);
@@ -3552,6 +3637,7 @@ export default function OutlinePro() {
                 onBulkAddTag={handleBulkAddTag}
                 onSearchTermChange={handleSearchTermChange}
                 onExportSubtree={handleExportSubtree}
+                onSaveToSecondBrain={handleSaveToSecondBrain}
                 onOpenMobileSidebar={() => setIsMobileSidebarOpen(true)}
                 canUnmerge={hasUnmergeBackup}
                 onUnmerge={handleUnmerge}
@@ -3934,6 +4020,7 @@ export default function OutlinePro() {
                 onBulkAddTag={handleBulkAddTag}
                 onSearchTermChange={handleSearchTermChange}
                 onExportSubtree={handleExportSubtree}
+                onSaveToSecondBrain={handleSaveToSecondBrain}
                 isSidebarOpen={isSidebarOpen}
                 onToggleSidebar={() => setIsSidebarOpen(prev => !prev)}
                 canUnmerge={hasUnmergeBackup}

@@ -20,7 +20,7 @@ interface Message {
   provider?: string;
 }
 
-type ChatMode = 'current' | 'all';
+type ChatMode = 'current' | 'all' | 'secondbrain';
 
 interface KnowledgeChatDialogProps {
   open: boolean;
@@ -81,6 +81,21 @@ export default function KnowledgeChatDialog({
           return;
         }
         const { text, nodeCount } = serializeOutline(currentOutline);
+        setContext(text);
+        setContextMeta({
+          outlineCount: 1,
+          nodeCount,
+          estimatedTokens: Math.round(text.length / 4),
+        });
+      } else if (chatMode === 'secondbrain') {
+        // Second Brain mode: serialize only the Second Brain outline
+        const sb = outlines.find(o => o.isSecondBrain);
+        if (!sb) {
+          setContext('');
+          setContextMeta({ outlineCount: 0, nodeCount: 0, estimatedTokens: 0 });
+          return;
+        }
+        const { text, nodeCount } = serializeOutline(sb);
         setContext(text);
         setContextMeta({
           outlineCount: 1,
@@ -354,6 +369,17 @@ export default function KnowledgeChatDialog({
               >
                 All Outlines
               </button>
+              <button
+                onClick={() => handleModeChange('secondbrain')}
+                className={cn(
+                  'flex-1 px-3 py-1.5 text-sm rounded-md transition-colors',
+                  mode === 'secondbrain'
+                    ? 'bg-emerald-500 text-white shadow-sm font-medium'
+                    : 'text-muted-foreground hover:text-foreground'
+                )}
+              >
+                🧠 Second Brain
+              </button>
             </div>
             <Select value={depth} onValueChange={(v) => setDepth(v as AIDepth)}>
               <SelectTrigger className="w-[130px]">
@@ -384,6 +410,8 @@ export default function KnowledgeChatDialog({
                 <span>
                   {mode === 'current'
                     ? currentOutline?.name || 'No outline selected'
+                    : mode === 'secondbrain'
+                    ? '🧠 Second Brain'
                     : `${contextMeta.outlineCount} outline${contextMeta.outlineCount !== 1 ? 's' : ''}`
                   }
                 </span>
@@ -483,6 +511,8 @@ export default function KnowledgeChatDialog({
               placeholder={
                 mode === 'current'
                   ? 'Ask about this outline...'
+                  : mode === 'secondbrain'
+                  ? 'Ask your Second Brain...'
                   : 'Ask about all your outlines...'
               }
               disabled={isLoading || isOverTokenLimit || !context}

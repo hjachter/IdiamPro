@@ -144,6 +144,8 @@ interface OutlinePaneProps {
   onSearchTermChange?: (searchTerm: string, matchType?: 'name' | 'content' | 'both', matchIndex?: number) => void;
   // Export subtree
   onExportSubtree?: (nodeId: string) => void;
+  // Save to Second Brain
+  onSaveToSecondBrain?: (nodeId: string) => void;
   // Sidebar toggle (desktop)
   isSidebarOpen?: boolean;
   onToggleSidebar?: () => void;
@@ -206,6 +208,7 @@ export default function OutlinePane({
   onBulkAddTag,
   onSearchTermChange,
   onExportSubtree,
+  onSaveToSecondBrain,
   isSidebarOpen,
   onToggleSidebar,
   onOpenMobileSidebar,
@@ -871,6 +874,7 @@ export default function OutlinePane({
             <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="flex-grow font-headline text-lg font-bold truncate justify-between">
                     <span className="truncate">
+                        {currentOutline?.isSecondBrain && '🧠 '}
                         {currentOutline?.isGuide && '📖 '}
                         {currentOutline?.name}
                     </span>
@@ -893,12 +897,12 @@ export default function OutlinePane({
                         handleStartRename(currentOutline.id, currentOutline.name);
                     }
                     setDropdownOpen(false);
-                }} disabled={currentOutline?.isGuide} className="cursor-pointer">
+                }} disabled={currentOutline?.isGuide || currentOutline?.isSecondBrain} className="cursor-pointer">
                     <Edit className="mr-2 h-4 w-4" /> Rename
                 </DropdownMenuItem>
                 <AlertDialog>
                     <AlertDialogTrigger asChild>
-                        <DropdownMenuItem className="text-destructive cursor-pointer" disabled={currentOutline?.isGuide} onSelect={(e) => e.preventDefault()}>
+                        <DropdownMenuItem className="text-destructive cursor-pointer" disabled={currentOutline?.isGuide || currentOutline?.isSecondBrain} onSelect={(e) => e.preventDefault()}>
                             <Trash2 className="mr-2 h-4 w-4" /> Delete
                         </DropdownMenuItem>
                     </AlertDialogTrigger>
@@ -955,7 +959,14 @@ export default function OutlinePane({
                             outlineSearch === '' ||
                             outline.name.toLowerCase().includes(outlineSearch.toLowerCase())
                         )
-                        .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }))
+                        .sort((a, b) => {
+                            // Second Brain always first, then guides, then alphabetical
+                            if (a.isSecondBrain && !b.isSecondBrain) return -1;
+                            if (!a.isSecondBrain && b.isSecondBrain) return 1;
+                            if (a.isGuide && !b.isGuide) return -1;
+                            if (!a.isGuide && b.isGuide) return 1;
+                            return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
+                        })
                         .map(outline => {
                             const nodeCount = Object.keys(outline.nodes).length;
                             const lastMod = outline.lastModified;
@@ -970,7 +981,7 @@ export default function OutlinePane({
                                     className="cursor-pointer flex justify-between items-center"
                                 >
                                     <span className="truncate">
-                                        {outline.isGuide && '📖 '}{outline.name}
+                                        {outline.isSecondBrain && '🧠 '}{outline.isGuide && '📖 '}{outline.name}
                                     </span>
                                     <span className="text-xs text-muted-foreground ml-2 flex-shrink-0">
                                         {nodeCount} {nodeCount === 1 ? 'node' : 'nodes'}
@@ -1271,6 +1282,7 @@ export default function OutlinePane({
               onToggleNodeSelection={onToggleNodeSelection}
               onRangeSelect={onRangeSelect}
               onExportSubtree={onExportSubtree}
+              onSaveToSecondBrain={onSaveToSecondBrain}
               maxRenderDepth={maxRenderDepth}
             />
           </ul>

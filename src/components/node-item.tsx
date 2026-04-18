@@ -59,6 +59,8 @@ interface NodeItemProps {
   onRangeSelect?: (nodeId: string) => void;
   // Export/Share subtree
   onExportSubtree?: (nodeId: string) => void;
+  // Save to Second Brain
+  onSaveToSecondBrain?: (nodeId: string) => void;
   // Progressive rendering - max depth to render (for large outlines)
   maxRenderDepth?: number;
 }
@@ -160,6 +162,7 @@ export default function NodeItem({
   onToggleNodeSelection,
   onRangeSelect,
   onExportSubtree,
+  onSaveToSecondBrain,
   maxRenderDepth,
 }: NodeItemProps) {
   const node = nodes[nodeId];
@@ -686,6 +689,13 @@ export default function NodeItem({
               </ContextMenuItem>
             )}
 
+            {onSaveToSecondBrain && (
+              <ContextMenuItem onClick={(e) => { e.stopPropagation(); onSaveToSecondBrain(node.id); }}>
+                <span className="mr-2 text-base">🧠</span>
+                Save to Second Brain
+              </ContextMenuItem>
+            )}
+
             <ContextMenuSeparator />
             {onCopySubtree && (
               <ContextMenuItem onClick={(e) => { e.stopPropagation(); onCopySubtree(node.id); }}>
@@ -962,6 +972,7 @@ export default function NodeItem({
                         onToggleNodeSelection={onToggleNodeSelection}
                         onRangeSelect={onRangeSelect}
                         onExportSubtree={onExportSubtree}
+                        onSaveToSecondBrain={onSaveToSecondBrain}
                         maxRenderDepth={maxRenderDepth}
                     />
                 ))}
