@@ -724,6 +724,42 @@ export const GoogleMaps = Node.create({
 // Image block view component with fullscreen support
 const ImageBlockView = ({ src, alt }: { src: string; alt: string }) => {
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isDescribing, setIsDescribing] = useState(false);
+  const [description, setDescription] = useState<string | null>(null);
+
+  const handleDescribe = async () => {
+    if (isDescribing) return;
+    setIsDescribing(true);
+    setDescription(null);
+    try {
+      // Extract base64 from data URL, or fetch if it's a regular URL
+      let base64 = '';
+      if (src.startsWith('data:')) {
+        base64 = src.split(',')[1] || '';
+      } else {
+        const resp = await fetch(src);
+        const blob = await resp.blob();
+        const reader = new FileReader();
+        base64 = await new Promise<string>((resolve) => {
+          reader.onload = () => resolve((reader.result as string).split(',')[1] || '');
+          reader.readAsDataURL(blob);
+        });
+      }
+      // Get AI provider from localStorage
+      const provider = (typeof localStorage !== 'undefined' && localStorage.getItem('aiProvider') as 'cloud' | 'local' | 'auto') || 'auto';
+      const { describeImageAction } = await import('@/app/actions');
+      const result = await describeImageAction(base64, alt || '', provider);
+      if (result.success && result.description) {
+        setDescription(result.description);
+      } else {
+        setDescription(`Error: ${result.error || 'Unknown error'}`);
+      }
+    } catch (err) {
+      setDescription(`Error: ${err instanceof Error ? err.message : 'Failed'}`);
+    } finally {
+      setIsDescribing(false);
+    }
+  };
 
   const openFullscreen = () => {
     setIsFullscreen(true);
@@ -778,21 +814,41 @@ const ImageBlockView = ({ src, alt }: { src: string; alt: string }) => {
           white-space: nowrap;
         }
       `}</style>
-      <div
-        className="image-embed my-4 cursor-zoom-in"
-        onDoubleClick={openFullscreen}
-        title="Double-click to enlarge"
-      >
-        <img
-          src={src}
-          alt={alt || ''}
-          className="h-auto rounded-lg"
-          style={{
-            minWidth: '400px',
-            maxWidth: '800px',
-            width: 'auto',
-          }}
-        />
+      <div className="image-embed my-4">
+        <div
+          className="cursor-zoom-in"
+          onDoubleClick={openFullscreen}
+          title="Double-click to enlarge"
+        >
+          <img
+            src={src}
+            alt={alt || ''}
+            className="h-auto rounded-lg"
+            style={{
+              minWidth: '400px',
+              maxWidth: '800px',
+              width: 'auto',
+            }}
+          />
+        </div>
+        {/* AI Describe button */}
+        <div className="flex items-center gap-2 mt-1">
+          <button
+            onClick={handleDescribe}
+            disabled={isDescribing}
+            className="text-xs px-2 py-1 rounded bg-primary/10 hover:bg-primary/20 text-primary transition-colors disabled:opacity-50"
+          >
+            {isDescribing ? 'Describing...' : '✦ Describe with AI'}
+          </button>
+          {description && !description.startsWith('Error:') && (
+            <span className="text-xs text-muted-foreground">Done</span>
+          )}
+        </div>
+        {description && (
+          <div className={`text-sm mt-2 p-3 rounded-lg ${description.startsWith('Error:') ? 'bg-destructive/10 text-destructive' : 'bg-muted/50 italic'}`}>
+            {description}
+          </div>
+        )}
       </div>
       {isFullscreen && (
         <div className="image-fullscreen-overlay" onClick={closeFullscreen}>

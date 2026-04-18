@@ -2202,3 +2202,90 @@ Return ONLY the description text, no prefixes like "Caption:" or "Description:".
     };
   }
 }
+
+/**
+ * Describe a user-supplied image using AI vision (local Gemma 4 or cloud Gemini).
+ *
+ * When provider is 'local' or 'auto' with Ollama available, the image bytes
+ * stay entirely on-device — nothing is sent to the cloud.
+ *
+ * @param imageBase64 - Base64-encoded image data (no data: prefix)
+ * @param context - Optional context: node name, surrounding text, user instruction
+ * @param provider - 'cloud' | 'local' | 'auto'
+ */
+export async function describeImageAction(
+  imageBase64: string,
+  context: string = '',
+  provider: 'cloud' | 'local' | 'auto' = 'auto'
+): Promise<{
+  success: boolean;
+  description?: string;
+  provider?: string;
+  error?: string;
+}> {
+  const prompt = context
+    ? `Describe this image in detail. Context: ${context}. Focus on what is depicted, key elements, text if visible, and relevance to the context. Return ONLY the description.`
+    : `Describe this image in detail: what is depicted, key elements, any visible text, layout, and purpose. Return ONLY the description.`;
+
+  // Try local first if provider allows it
+  if (provider === 'local' || provider === 'auto') {
+    try {
+      const available = await isOllamaAvailable();
+      if (available) {
+        const model = await getBestAvailableModel();
+        if (model) {
+          const response = await fetch('http://localhost:11434/api/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              model,
+              prompt,
+              images: [imageBase64],
+              stream: false,
+              think: false,
+              options: { temperature: 0.3, num_predict: 1000 },
+            }),
+          });
+          if (response.ok) {
+            const data = await response.json();
+            if (data.response) {
+              return { success: true, description: data.response.trim(), provider: `Ollama ${model}` };
+            }
+          }
+        }
+      }
+      // If provider was explicitly 'local' and Ollama failed, don't fall through to cloud
+      if (provider === 'local') {
+        return { success: false, error: 'Ollama is not available. Check that Ollama is running with a Gemma 4 model installed.' };
+      }
+    } catch (err) {
+      if (provider === 'local') {
+        return { success: false, error: `Local AI failed: ${err instanceof Error ? err.message : 'Unknown error'}` };
+      }
+      // Auto mode: fall through to cloud
+    }
+  }
+
+  // Cloud path (Gemini)
+  try {
+    const genai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
+    const result = await genai.models.generateContent({
+      model: 'gemini-2.0-flash',
+      contents: [{
+        role: 'user',
+        parts: [
+          { text: prompt },
+          { inlineData: { mimeType: 'image/png', data: imageBase64 } },
+        ],
+      }],
+    });
+    const text = result.text || '';
+    return { success: true, description: text.trim(), provider: 'Gemini 2.0 Flash' };
+  } catch (error) {
+    console.error('Error describing image:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Image description failed',
+    };
+  }
+}
