@@ -3199,6 +3199,31 @@ export default function OutlinePro() {
     });
   }, [currentOutlineId, outlines, collectSubtree, toast, setOutlines]);
 
+  const handleOpenSecondBrain = useCallback(() => {
+    const sb = outlines.find(o => o.isSecondBrain);
+    if (sb) {
+      setCurrentOutlineId(sb.id);
+      setSelectedNodeId(sb.rootNodeId);
+    }
+  }, [outlines]);
+
+  const handleSearchSecondBrain = useCallback(() => {
+    setIsKnowledgeChatOpen(true);
+    // The Knowledge Chat dialog will need to be told to switch to secondbrain mode
+    // We store a flag that the dialog checks on open
+    localStorage.setItem('knowledgeChatInitMode', 'secondbrain');
+  }, []);
+
+  const handleImportToSecondBrain = useCallback(() => {
+    // Switch to the Second Brain outline first, then open Research & Import
+    const sb = outlines.find(o => o.isSecondBrain);
+    if (sb) {
+      setCurrentOutlineId(sb.id);
+      setSelectedNodeId(sb.rootNodeId);
+    }
+    setIsBulkResearchOpen(true);
+  }, [outlines]);
+
   const handleExportSubtree = useCallback((nodeId: string) => {
     setExportNodeId(nodeId);
     setExportDialogOpen(true);
@@ -3638,6 +3663,9 @@ export default function OutlinePro() {
                 onSearchTermChange={handleSearchTermChange}
                 onExportSubtree={handleExportSubtree}
                 onSaveToSecondBrain={handleSaveToSecondBrain}
+                onOpenSecondBrain={handleOpenSecondBrain}
+                onSearchSecondBrain={handleSearchSecondBrain}
+                onImportToSecondBrain={handleImportToSecondBrain}
                 onOpenMobileSidebar={() => setIsMobileSidebarOpen(true)}
                 canUnmerge={hasUnmergeBackup}
                 onUnmerge={handleUnmerge}
@@ -4021,6 +4049,9 @@ export default function OutlinePro() {
                 onSearchTermChange={handleSearchTermChange}
                 onExportSubtree={handleExportSubtree}
                 onSaveToSecondBrain={handleSaveToSecondBrain}
+                onOpenSecondBrain={handleOpenSecondBrain}
+                onSearchSecondBrain={handleSearchSecondBrain}
+                onImportToSecondBrain={handleImportToSecondBrain}
                 isSidebarOpen={isSidebarOpen}
                 onToggleSidebar={() => setIsSidebarOpen(prev => !prev)}
                 canUnmerge={hasUnmergeBackup}

@@ -60,12 +60,18 @@ export default function KnowledgeChatDialog({
 
   const currentOutline = outlines.find(o => o.id === currentOutlineId);
 
-  // Load default depth from localStorage when dialog opens
+  // Load default depth and check for initial mode override when dialog opens
   useEffect(() => {
     if (open) {
       const savedDepth = localStorage.getItem('aiDepth') as AIDepth | null;
       if (savedDepth) {
         setDepth(savedDepth);
+      }
+      // Check if we should open in a specific mode (e.g., from Second Brain menu)
+      const initMode = localStorage.getItem('knowledgeChatInitMode') as ChatMode | null;
+      if (initMode) {
+        setMode(initMode);
+        localStorage.removeItem('knowledgeChatInitMode');
       }
     }
   }, [open]);

@@ -146,6 +146,10 @@ interface OutlinePaneProps {
   onExportSubtree?: (nodeId: string) => void;
   // Save to Second Brain
   onSaveToSecondBrain?: (nodeId: string) => void;
+  // Second Brain navigation
+  onOpenSecondBrain?: () => void;
+  onSearchSecondBrain?: () => void;
+  onImportToSecondBrain?: () => void;
   // Sidebar toggle (desktop)
   isSidebarOpen?: boolean;
   onToggleSidebar?: () => void;
@@ -209,6 +213,9 @@ export default function OutlinePane({
   onSearchTermChange,
   onExportSubtree,
   onSaveToSecondBrain,
+  onOpenSecondBrain,
+  onSearchSecondBrain,
+  onImportToSecondBrain,
   isSidebarOpen,
   onToggleSidebar,
   onOpenMobileSidebar,
@@ -1104,24 +1111,6 @@ export default function OutlinePane({
 
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="outline" size="icon" onClick={onCollapseAll} disabled={!currentOutline} className="hover:bg-accent/20">
-                <ChevronsUp className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Collapse outline (show chapters only)</TooltipContent>
-          </Tooltip>
-
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="outline" size="icon" onClick={onExpandAll} disabled={!currentOutline} className="hover:bg-accent/20">
-                <ChevronsDown className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Expand outline (show all nodes)</TooltipContent>
-          </Tooltip>
-
-          <Tooltip>
-            <TooltipTrigger asChild>
               <Button
                 variant="outline"
                 size="icon"
@@ -1138,6 +1127,62 @@ export default function OutlinePane({
             </TooltipTrigger>
             <TooltipContent>{selectedNodeId ? 'Share subtree as...' : 'Select a node to share'}</TooltipContent>
           </Tooltip>
+
+          {/* Second Brain Menu */}
+          <DropdownMenu>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20"
+                    title="Second Brain"
+                  >
+                    <Brain className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+              </TooltipTrigger>
+              <TooltipContent>Second Brain</TooltipContent>
+            </Tooltip>
+            <DropdownMenuContent align="end" className="w-52">
+              <DropdownMenuLabel className="flex items-center gap-2">
+                <span className="text-base">🧠</span>
+                Second Brain
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onSelect={() => onOpenSecondBrain?.()} className="cursor-pointer">
+                <Brain className="mr-2 h-4 w-4" />
+                Open Second Brain
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onSelect={() => selectedNodeId && onSaveToSecondBrain?.(selectedNodeId)}
+                disabled={!selectedNodeId || currentOutline?.isSecondBrain}
+                className="cursor-pointer"
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Save Selection to Second Brain
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onSelect={() => onSearchSecondBrain?.()} className="cursor-pointer">
+                <Search className="mr-2 h-4 w-4" />
+                Search Second Brain
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => onImportToSecondBrain?.()} className="cursor-pointer">
+                <Library className="mr-2 h-4 w-4" />
+                Import to Second Brain
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onSelect={onCollapseAll} disabled={!currentOutline} className="cursor-pointer">
+                <ChevronsUp className="mr-2 h-4 w-4" />
+                Collapse All
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={onExpandAll} disabled={!currentOutline} className="cursor-pointer">
+                <ChevronsDown className="mr-2 h-4 w-4" />
+                Expand All
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           <AIMenu
             onGenerateOutline={onGenerateOutline}
@@ -1181,20 +1226,6 @@ export default function OutlinePane({
 
           {/* Visual spacer */}
           <div className="w-px h-6 bg-border/50 mx-0.5"></div>
-
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={onOpenCommandPalette}
-                className="hover:bg-accent/20"
-              >
-                <Command className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Command Palette (⌘K)</TooltipContent>
-          </Tooltip>
 
           <SettingsDialog onFolderSelected={onFolderSelected}>
             <Button variant="outline" size="icon" title="Settings" className="hover:bg-accent/20">
