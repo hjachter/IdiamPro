@@ -2042,16 +2042,16 @@ export default function ContentPane({
         onSave={handleSaveDrawing}
       />
 
-      {/* Ask AI Dialog */}
+      {/* Expand with AI Dialog */}
       <Dialog open={promptDialogOpen} onOpenChange={handleClosePromptDialog}>
         <DialogContent className="sm:max-w-[600px] max-h-[80vh] flex flex-col">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <MessageSquare className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-              Ask AI
+              Expand with AI
             </DialogTitle>
             <DialogDescription>
-              Tell me what you'd like for "{node?.name}" - I can write, expand, summarize, reformat, or answer general questions.
+              Tell me what you'd like for "{node?.name}" — I can write, expand, summarize, or reformat this content.
             </DialogDescription>
           </DialogHeader>
 
@@ -2483,10 +2483,10 @@ export default function ContentPane({
                   className="text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 hover:text-emerald-800 dark:hover:bg-emerald-950 dark:hover:text-emerald-300 px-2"
                 >
                   <MessageSquare className="h-4 w-4" />
-                  <span className="ml-1.5 text-xs hidden sm:inline">Ask AI</span>
+                  <span className="ml-1.5 text-xs hidden sm:inline">Expand</span>
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>Chat with AI about this content</TooltipContent>
+              <TooltipContent>Expand or rewrite this content with AI</TooltipContent>
             </Tooltip>
           )}
 
