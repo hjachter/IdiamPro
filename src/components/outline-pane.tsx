@@ -233,6 +233,9 @@ export default function OutlinePane({
   // const isMobile = useIsMobile();
   const { toast } = useToast();
 
+  // Collapse/Expand toggle state
+  const [isAllCollapsed, setIsAllCollapsed] = useState(false);
+
   // Search state
   const [isSearchOpenInternal, setIsSearchOpenInternal] = useState(false);
   const [searchMatches, setSearchMatches] = useState<SearchMatch[]>([]);
@@ -1106,7 +1109,30 @@ export default function OutlinePane({
                 <Search className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Search outline (Ctrl+F)</TooltipContent>
+            <TooltipContent>Search outline (⌘F)</TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                disabled={!currentOutline}
+                onClick={() => {
+                  if (isAllCollapsed) {
+                    onExpandAll();
+                    setIsAllCollapsed(false);
+                  } else {
+                    onCollapseAll();
+                    setIsAllCollapsed(true);
+                  }
+                }}
+                className="hover:bg-accent/20"
+              >
+                {isAllCollapsed ? <ChevronsDown className="h-4 w-4" /> : <ChevronsUp className="h-4 w-4" />}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>{isAllCollapsed ? 'Expand all (⌘E)' : 'Collapse all (⌘E)'}</TooltipContent>
           </Tooltip>
 
           <Tooltip>
@@ -1171,15 +1197,6 @@ export default function OutlinePane({
               <DropdownMenuItem onSelect={() => onImportToSecondBrain?.()} className="cursor-pointer">
                 <Library className="mr-2 h-4 w-4" />
                 Import to Second Brain
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onSelect={onCollapseAll} disabled={!currentOutline} className="cursor-pointer">
-                <ChevronsUp className="mr-2 h-4 w-4" />
-                Collapse All
-              </DropdownMenuItem>
-              <DropdownMenuItem onSelect={onExpandAll} disabled={!currentOutline} className="cursor-pointer">
-                <ChevronsDown className="mr-2 h-4 w-4" />
-                Expand All
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

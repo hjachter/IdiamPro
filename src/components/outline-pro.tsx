@@ -853,11 +853,55 @@ export default function OutlinePro() {
 
         return;
       }
+
+      // Don't intercept shortcuts when typing in inputs
+      const target = e.target as HTMLElement;
+      const isTyping = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.contentEditable === 'true';
+      if (isTyping) return;
+
+      // Cmd+E — Toggle collapse/expand all
+      if ((e.metaKey || e.ctrlKey) && e.key === 'e') {
+        e.preventDefault();
+        // Check if root's direct children are mostly collapsed to decide direction
+        const outline = outlines.find(o => o.id === currentOutlineId);
+        if (outline) {
+          const root = outline.nodes[outline.rootNodeId];
+          const childNodes = (root?.childrenIds || []).map(id => outline.nodes[id]).filter(Boolean);
+          const mostlyCollapsed = childNodes.length > 0 && childNodes.filter(n => n.isCollapsed).length > childNodes.length / 2;
+          if (mostlyCollapsed) {
+            handleExpandAll();
+          } else {
+            handleCollapseAll();
+          }
+        }
+        return;
+      }
+
+      // Cmd+B — Open Second Brain
+      if ((e.metaKey || e.ctrlKey) && e.key === 'b') {
+        e.preventDefault();
+        handleOpenSecondBrain();
+        return;
+      }
+
+      // Cmd+Shift+B — Save selection to Second Brain
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'B') {
+        e.preventDefault();
+        if (selectedNodeId) handleSaveToSecondBrain(selectedNodeId);
+        return;
+      }
+
+      // Cmd+Shift+S — Search Second Brain
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'S') {
+        e.preventDefault();
+        handleSearchSecondBrain();
+        return;
+      }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isFocusMode, toast, selectedNodeId, currentOutlineId, outlines]);
+  }, [isFocusMode, toast, selectedNodeId, currentOutlineId, outlines, handleOpenSecondBrain, handleSaveToSecondBrain, handleSearchSecondBrain, handleCollapseAll, handleExpandAll]);
 
   // handleSelectNode - navigate param controls whether to switch to full content view on mobile
   // On mobile with stacked layout: selection updates preview, navigate=true goes to full content
