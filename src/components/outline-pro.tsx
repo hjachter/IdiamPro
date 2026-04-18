@@ -1097,97 +1097,67 @@ export default function OutlinePro() {
     });
   }, [currentOutlineId]);
 
-  // Collapse all nodes - simply collapse chapters (direct children of root)
-  // This is fast because we only modify a handful of nodes, not the entire tree.
-  // Descendants stay in their current state but are visually hidden.
-  const handleCollapseAll = useCallback(() => {
-    setOutlines(currentOutlines => {
-      return currentOutlines.map(o => {
-        if (o.id === currentOutlineId) {
-          const newNodes = { ...o.nodes };
-          const rootNode = newNodes[o.rootNodeId];
-          if (!rootNode) return o;
-
-          // Just collapse all chapters (immediate children of root)
-          // This hides everything visually without modifying thousands of nodes
-          rootNode.childrenIds.forEach(childId => {
-            if (newNodes[childId]) {
-              newNodes[childId] = { ...newNodes[childId], isCollapsed: true };
-            }
-          });
-
-          return { ...o, nodes: newNodes };
-        }
-        return o;
-      });
-    });
-  }, [currentOutlineId]);
-
-  // Expand all nodes
-  // Small outlines: expands entire outline. Large outlines: scoped to selected node's subtree (3 levels max).
-  const handleExpandAll = useCallback(() => {
-    if (!selectedNodeId) return;
-
-    const currentOutline = outlines.find(o => o.id === currentOutlineId);
-    if (!currentOutline) return;
-
-    const nodeCount = Object.keys(currentOutline.nodes).length;
-    const LARGE_OUTLINE_THRESHOLD = 5000;
-    const isLargeOutline = nodeCount > LARGE_OUTLINE_THRESHOLD;
-
-    setOutlines(currentOutlines => {
-      return currentOutlines.map(o => {
-        if (o.id === currentOutlineId) {
-          const newNodes = { ...o.nodes };
-
-          if (!isLargeOutline) {
-            // Small outline: expand everything
-            Object.keys(newNodes).forEach(nodeId => {
-              if (newNodes[nodeId].isCollapsed) {
-                newNodes[nodeId] = { ...newNodes[nodeId], isCollapsed: false };
-              }
-            });
-          } else {
-            // Large outline: scope to selected node, max 3 levels
-            const nodeDepths = new Map<string, number>();
-            const queue: { id: string; depth: number }[] = [{ id: selectedNodeId, depth: 0 }];
-
-            while (queue.length > 0) {
-              const { id, depth } = queue.shift()!;
-              if (nodeDepths.has(id)) continue;
-              nodeDepths.set(id, depth);
-
-              const node = newNodes[id];
-              if (node?.childrenIds) {
-                for (const childId of node.childrenIds) {
-                  if (!nodeDepths.has(childId)) {
-                    queue.push({ id: childId, depth: depth + 1 });
-                  }
-                }
-              }
-            }
-
-            // Expand only nodes within 3 levels of selected node
-            nodeDepths.forEach((depth, nodeId) => {
-              if (depth < 3 && newNodes[nodeId]?.isCollapsed) {
-                newNodes[nodeId] = { ...newNodes[nodeId], isCollapsed: false };
-              }
-            });
-          }
-
-          return { ...o, nodes: newNodes };
-        }
-        return o;
-      });
-    });
-
-    if (isLargeOutline) {
-      toast({
-        title: 'Expanded 3 Levels',
-        description: `Large outline - expanded 3 levels from "${currentOutline.nodes[selectedNodeId]?.name || 'selected node'}".`,
-      });
+  // Collect all descendant node IDs from a starting node
+  const collectDescendantIds = useCallback((nodes: Record<string, OutlineNode>, startId: string): string[] => {
+    const ids: string[] = [];
+    const queue = [startId];
+    while (queue.length > 0) {
+      const id = queue.shift()!;
+      ids.push(id);
+      const node = nodes[id];
+      if (node?.childrenIds) {
+        queue.push(...node.childrenIds);
+      }
     }
-  }, [currentOutlineId, outlines, selectedNodeId, toast]);
+    return ids;
+  }, []);
+
+  // Collapse all descendants of the selected node
+  const handleCollapseAll = useCallback(() => {
+    const targetId = selectedNodeId;
+    if (!targetId) return;
+
+    setOutlines(currentOutlines => {
+      return currentOutlines.map(o => {
+        if (o.id === currentOutlineId) {
+          const descendantIds = collectDescendantIds(o.nodes, targetId);
+          const newNodes = { ...o.nodes };
+          for (const id of descendantIds) {
+            const node = newNodes[id];
+            if (node && node.childrenIds.length > 0 && !node.isCollapsed) {
+              newNodes[id] = { ...node, isCollapsed: true };
+            }
+          }
+          return { ...o, nodes: newNodes };
+        }
+        return o;
+      });
+    });
+  }, [currentOutlineId, selectedNodeId, collectDescendantIds]);
+
+  // Expand all descendants of the selected node
+  const handleExpandAll = useCallback(() => {
+    const targetId = selectedNodeId;
+    if (!targetId) return;
+
+    setOutlines(currentOutlines => {
+      return currentOutlines.map(o => {
+        if (o.id === currentOutlineId) {
+          const descendantIds = collectDescendantIds(o.nodes, targetId);
+          const newNodes = { ...o.nodes };
+          for (const id of descendantIds) {
+            const node = newNodes[id];
+            if (node && node.isCollapsed) {
+              newNodes[id] = { ...node, isCollapsed: false };
+            }
+          }
+          return { ...o, nodes: newNodes };
+        }
+        return o;
+      });
+    });
+
+  }, [currentOutlineId, selectedNodeId, collectDescendantIds]);
 
   // Expand specific ancestor nodes (for search results)
   const handleExpandAncestors = useCallback((nodeIds: string[]) => {
