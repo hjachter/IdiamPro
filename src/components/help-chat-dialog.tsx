@@ -78,11 +78,13 @@ GESTURES (iOS):
 - Long-press: Context menu
 
 AI FEATURES:
-- Generate outline from topic (Free tier: 10/month, Premium: 100/month)
-- Expand node content with AI (Free: 50/month, Premium: 500/month)
+- Generate Subtree from Topic: AI menu > Generate Subtree. Topic is pre-filled with the selected node's name (editable). Result is inserted as children of the selected node. (Free tier: 10/month, Premium: 100/month)
+- Expand with AI: Content toolbar button (was "Ask AI"). Writes, expands, summarizes, or reformats the current node's content. (Free: 50/month, Premium: 500/month)
 - Create Content for Descendants: Right-click a parent > generates content for all children at once
 - Research & Import synthesis (Free: 3 sources, Premium: 50+ sources). Nodes always have short names (2-6 words) as tree labels with detailed content in the content pane, even in comprehensive mode. Merging into an existing outline integrates content under shared themes rather than appending separately.
-- Knowledge Chat: Query your outlines with natural language. Click the brain icon (blue) in the toolbar. Two modes: Current Outline (queries active outline) or All Outlines / Second Brain (queries all outlines at once). AI answers based only on your outline content, referencing specific sections. Responses stream in word-by-word for immediate feedback.
+- Knowledge Chat: Query your outlines with natural language. AI Features menu > Knowledge Chat, or Second Brain menu > Search Second Brain. Three modes: Current Outline, All Outlines, and Second Brain. AI answers based only on your outline content, referencing specific sections. Responses stream in word-by-word.
+- Second Brain: A special always-present outline (🧠 icon) for accumulating everything you want to remember. Save any node to it via right-click > "Save to Second Brain" or the brain menu. Search it via Knowledge Chat's Second Brain mode. Keyboard shortcuts: ⌘B (open), ⌘⇧B (save selection), ⌘⇧S (search). Cannot be deleted or renamed.
+- Describe with AI: Every embedded image has a "Describe with AI" button. Uses Gemma 4 vision (local) or Gemini (cloud) to generate a description. When local, no image data leaves your device.
 - Local AI / Ollama: Settings > AI Provider. Choose Cloud, Local (Ollama on localhost:11434), or Auto. Recommended models: gemma4:e4b (multimodal, 4GB RAM), gemma4:26b (16GB+ RAM, fastest large model), gemma4:31b (24GB+ RAM, max quality). Legacy: llama3.2 (3GB RAM, low-spec systems). Requires Ollama 0.20+ for Gemma 4 support.
 - AI Data Consent: On first use of any AI feature, a consent dialog appears explaining that data is sent to Google Gemini, OpenAI, and AssemblyAI. Users must agree before AI features work. If you click Decline, a warning screen lists all features that will be disabled and asks you to confirm. Consent can be revoked in Settings > Data & Privacy. Privacy policy available at /privacy.
 - Pending Import Recovery (Desktop): If import times out or app closes, result is saved and recovery dialog appears on next launch

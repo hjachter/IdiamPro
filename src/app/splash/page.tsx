@@ -177,7 +177,7 @@ function OutlinePreview() {
             <div className="w-3 h-3 rounded-full bg-green-500/80" />
           </div>
           <div className="flex-1 text-center">
-            <span className="text-xs text-white/40 font-medium">IdiamPro</span>
+            <span className="text-xs text-white/40 font-medium">SecondBrainWare</span>
           </div>
         </div>
 
@@ -298,7 +298,7 @@ export default function SplashPage() {
               <Layers className="w-5 h-5 text-white" />
             </div>
             <span className="text-xl font-bold bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">
-              IdiamPro
+              SecondBrainWare
             </span>
           </div>
           <div className="flex items-center gap-4">
@@ -403,7 +403,7 @@ export default function SplashPage() {
           <div className="max-w-6xl mx-auto relative">
             <div className="text-center mb-16">
               <h2 className="text-3xl lg:text-4xl font-bold mb-4">
-                What makes IdiamPro{' '}
+                What makes SecondBrainWare{' '}
                 <span className="bg-gradient-to-r from-violet-400 to-indigo-400 bg-clip-text text-transparent">
                   different
                 </span>
@@ -423,7 +423,7 @@ export default function SplashPage() {
                   <div>
                     <h3 className="text-xl font-semibold text-white mb-2">Ask AI: Save Great Answers Forever</h3>
                     <p className="text-white/50 text-sm leading-relaxed">
-                      Traditional chat apps lose your AI answers in chat history. IdiamPro lets you save responses
+                      Traditional chat apps lose your AI answers in chat history. SecondBrainWare lets you save responses
                       directly to your outline—permanently searchable and organized.
                     </p>
                   </div>
@@ -492,7 +492,7 @@ export default function SplashPage() {
                 </span>
               </h2>
               <p className="text-white/50 max-w-2xl mx-auto">
-                From PhD students to CEOs, IdiamPro adapts to your workflow.
+                From PhD students to CEOs, SecondBrainWare adapts to your workflow.
               </p>
             </div>
 
@@ -679,7 +679,7 @@ export default function SplashPage() {
               </span>
             </h2>
             <p className="text-white/50 mb-8 text-lg">
-              Join researchers, authors, and professionals who've upgraded their workflow with IdiamPro.
+              Join researchers, authors, and professionals who've upgraded their workflow with SecondBrainWare.
             </p>
             <Button
               onClick={() => router.push('/')}
@@ -700,7 +700,7 @@ export default function SplashPage() {
           <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">
               <Layers className="w-5 h-5 text-violet-400" />
-              <span className="text-white/60">IdiamPro</span>
+              <span className="text-white/60">SecondBrainWare</span>
             </div>
             <p className="text-white/40 text-sm">
               Built for thinkers, writers, and creators.
