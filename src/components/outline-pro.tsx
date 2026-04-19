@@ -3171,6 +3171,14 @@ export default function OutlinePro() {
       idMapping[oldId] = uuidv4();
     });
 
+    // Snapshot the Second Brain before modification so user can unmerge
+    const sbSnapshot = JSON.parse(JSON.stringify(secondBrain));
+    preMergeSnapshotRef.current = sbSnapshot;
+    setHasUnmergeBackup(true);
+    saveUnmergeBackup(sbSnapshot).catch(err =>
+      console.error('[Unmerge] Failed to persist Second Brain backup:', err)
+    );
+
     setOutlines(currentOutlines => {
       const sb = currentOutlines.find(o => o.isSecondBrain);
       if (!sb) return currentOutlines;
