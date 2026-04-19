@@ -219,12 +219,70 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
     }
   };
 
+  const [expandedGuide, setExpandedGuide] = useState<string | null>(null);
+
   const aiProviders = [
-    { id: 'gemini', name: 'Google Gemini', placeholder: 'AIza...', hint: 'Get key at ai.google.dev' },
-    { id: 'openai', name: 'OpenAI', placeholder: 'sk-...', hint: 'Get key at platform.openai.com' },
-    { id: 'anthropic', name: 'Anthropic Claude', placeholder: 'sk-ant-...', hint: 'Get key at console.anthropic.com' },
-    { id: 'mistral', name: 'Mistral AI', placeholder: 'M...', hint: 'Get key at console.mistral.ai' },
-    { id: 'groq', name: 'Groq', placeholder: 'gsk_...', hint: 'Get key at console.groq.com (fast inference)' },
+    {
+      id: 'gemini', name: 'Google Gemini', placeholder: 'AIza...',
+      free: true, recommended: true,
+      keyUrl: 'https://aistudio.google.com/apikey',
+      cost: 'Free tier: 60 requests/min. No credit card required.',
+      steps: [
+        'Click "Get Key" to open Google AI Studio',
+        'Sign in with your Google account',
+        'Click "Create API Key" (blue button)',
+        'Copy the key and paste it below',
+      ],
+    },
+    {
+      id: 'openai', name: 'OpenAI', placeholder: 'sk-...',
+      free: false, recommended: false,
+      keyUrl: 'https://platform.openai.com/api-keys',
+      cost: 'Pay-as-you-go. ~$0.01-0.03 per 1K tokens. Required for podcast generation.',
+      steps: [
+        'Click "Get Key" to open OpenAI\'s API keys page',
+        'Sign in or create an account',
+        'Click "Create new secret key"',
+        'Copy the key immediately (it won\'t be shown again)',
+        'Add a payment method if you haven\'t already',
+      ],
+    },
+    {
+      id: 'anthropic', name: 'Anthropic Claude', placeholder: 'sk-ant-...',
+      free: false, recommended: false,
+      keyUrl: 'https://console.anthropic.com/settings/keys',
+      cost: 'Pay-as-you-go. ~$0.003-0.015 per 1K tokens. Best for long reasoning tasks.',
+      steps: [
+        'Click "Get Key" to open Anthropic Console',
+        'Sign in or create an account',
+        'Go to Settings > API Keys',
+        'Click "Create Key" and copy it',
+      ],
+    },
+    {
+      id: 'mistral', name: 'Mistral AI', placeholder: 'M...',
+      free: false, recommended: false,
+      keyUrl: 'https://console.mistral.ai/api-keys',
+      cost: 'Pay-as-you-go. Competitive pricing. Strong multilingual support.',
+      steps: [
+        'Click "Get Key" to open Mistral Console',
+        'Sign in or create an account',
+        'Click "Create new key"',
+        'Copy the key and paste it below',
+      ],
+    },
+    {
+      id: 'groq', name: 'Groq', placeholder: 'gsk_...',
+      free: true, recommended: false,
+      keyUrl: 'https://console.groq.com/keys',
+      cost: 'Free tier available. Extremely fast inference. No credit card required.',
+      steps: [
+        'Click "Get Key" to open Groq Console',
+        'Sign in with Google or create an account',
+        'Click "Create API Key"',
+        'Copy the key and paste it below',
+      ],
+    },
   ];
 
   const handleAiConsentChange = (checked: boolean) => {
@@ -490,41 +548,110 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
               <Cloud className="h-4 w-4" />
               AI Service Keys
             </h3>
+
+            {/* Quick start recommendation */}
+            {!apiKeys['gemini'] && (
+              <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400 mb-1">
+                  Quick Start — Set up in 2 minutes
+                </p>
+                <p className="text-xs text-muted-foreground mb-2">
+                  Google Gemini is free and powers most SecondBrainWare AI features. No credit card required.
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-emerald-600 dark:text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/10"
+                  onClick={() => setExpandedGuide('gemini')}
+                >
+                  Set Up Gemini (Free)
+                </Button>
+              </div>
+            )}
+
             <p className="text-xs text-muted-foreground">
-              Add your own API keys to use different AI providers. Keys are stored locally on your device and never sent to our servers.
+              Keys are stored locally on your device and never sent to our servers.
             </p>
-            <div className="space-y-2">
+
+            <div className="space-y-3">
               {aiProviders.map(provider => (
-                <div key={provider.id} className="flex items-center gap-2">
-                  <div className="flex-1 min-w-0">
-                    <Label className="text-xs text-muted-foreground">{provider.name}</Label>
-                    <div className="flex gap-1.5 mt-0.5">
-                      <Input
-                        type="password"
-                        value={apiKeys[provider.id] || ''}
-                        onChange={(e) => handleApiKeyChange(provider.id, e.target.value)}
-                        placeholder={provider.placeholder}
-                        className="text-xs h-8 font-mono"
-                      />
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-8 px-2 flex-shrink-0"
-                        disabled={!apiKeys[provider.id]?.trim() || testingProvider === provider.id}
-                        onClick={() => handleTestApiKey(provider.id)}
-                      >
-                        {testingProvider === provider.id ? (
-                          <Loader2 className="h-3 w-3 animate-spin" />
-                        ) : providerStatus[provider.id] === 'ok' ? (
-                          <CheckCircle className="h-3 w-3 text-green-500" />
-                        ) : providerStatus[provider.id] === 'error' ? (
-                          <XCircle className="h-3 w-3 text-red-500" />
-                        ) : (
-                          <span className="text-xs">Test</span>
-                        )}
-                      </Button>
+                <div key={provider.id} className="rounded-lg border border-border/50 p-2.5">
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center gap-2">
+                      <Label className="text-xs font-medium">{provider.name}</Label>
+                      {provider.free && (
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-medium">
+                          Free
+                        </span>
+                      )}
+                      {provider.recommended && (
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 font-medium">
+                          Recommended
+                        </span>
+                      )}
+                      {apiKeys[provider.id] && providerStatus[provider.id] === 'ok' && (
+                        <CheckCircle className="h-3 w-3 text-green-500" />
+                      )}
                     </div>
-                    <p className="text-[10px] text-muted-foreground/60 mt-0.5">{provider.hint}</p>
+                    {!apiKeys[provider.id] && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 text-xs text-primary"
+                        onClick={() => setExpandedGuide(expandedGuide === provider.id ? null : provider.id)}
+                      >
+                        {expandedGuide === provider.id ? 'Hide Guide' : 'Get Key'}
+                      </Button>
+                    )}
+                  </div>
+
+                  {/* Setup guide (expandable) */}
+                  {expandedGuide === provider.id && (
+                    <div className="mb-2 p-2 rounded bg-muted/50 text-xs space-y-1.5">
+                      <ol className="space-y-1 list-decimal list-inside text-muted-foreground">
+                        {provider.steps.map((step, i) => (
+                          <li key={i}>{i === 0 ? (
+                            <a
+                              href={provider.keyUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-primary underline hover:no-underline"
+                              onClick={(e) => { e.preventDefault(); window.open(provider.keyUrl, '_blank'); }}
+                            >
+                              {step}
+                            </a>
+                          ) : step}</li>
+                        ))}
+                      </ol>
+                      <p className="text-[10px] text-muted-foreground/70 italic">{provider.cost}</p>
+                    </div>
+                  )}
+
+                  <div className="flex gap-1.5">
+                    <Input
+                      type="password"
+                      value={apiKeys[provider.id] || ''}
+                      onChange={(e) => handleApiKeyChange(provider.id, e.target.value)}
+                      placeholder={provider.placeholder}
+                      className="text-xs h-8 font-mono"
+                    />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-8 px-2 flex-shrink-0"
+                      disabled={!apiKeys[provider.id]?.trim() || testingProvider === provider.id}
+                      onClick={() => handleTestApiKey(provider.id)}
+                    >
+                      {testingProvider === provider.id ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : providerStatus[provider.id] === 'ok' ? (
+                        <CheckCircle className="h-3 w-3 text-green-500" />
+                      ) : providerStatus[provider.id] === 'error' ? (
+                        <XCircle className="h-3 w-3 text-red-500" />
+                      ) : (
+                        <span className="text-xs">Test</span>
+                      )}
+                    </Button>
                   </div>
                 </div>
               ))}
