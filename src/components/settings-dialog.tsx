@@ -50,6 +50,11 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
   const [aiDepth, setAiDepth] = useState<AIDepth>('standard');
 
   // Local AI (Ollama) state
+  // API Key management
+  const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
+  const [testingProvider, setTestingProvider] = useState<string | null>(null);
+  const [providerStatus, setProviderStatus] = useState<Record<string, 'untested' | 'ok' | 'error'>>({});
+
   const [aiProvider, setAiProvider] = useState<AIProvider>('cloud');
   const [ollamaStatus, setOllamaStatus] = useState<{
     checking: boolean;
@@ -102,6 +107,14 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
     if (savedAiDepth) {
       setAiDepth(savedAiDepth);
     }
+
+    // Load API keys
+    const savedKeys: Record<string, string> = {};
+    for (const provider of ['gemini', 'openai', 'anthropic', 'mistral', 'groq']) {
+      const key = localStorage.getItem(`apiKey_${provider}`);
+      if (key) savedKeys[provider] = key;
+    }
+    setApiKeys(savedKeys);
 
     // Load local AI settings
     const savedAiProvider = localStorage.getItem('aiProvider') as AIProvider | null;
@@ -161,6 +174,57 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
     setConfirmDelete(checked);
     localStorage.setItem('confirmDelete', String(checked));
   };
+
+  const handleApiKeyChange = (provider: string, value: string) => {
+    setApiKeys(prev => ({ ...prev, [provider]: value }));
+    if (value.trim()) {
+      localStorage.setItem(`apiKey_${provider}`, value.trim());
+    } else {
+      localStorage.removeItem(`apiKey_${provider}`);
+    }
+    setProviderStatus(prev => ({ ...prev, [provider]: 'untested' }));
+  };
+
+  const handleTestApiKey = async (provider: string) => {
+    const key = apiKeys[provider];
+    if (!key?.trim()) return;
+    setTestingProvider(provider);
+    try {
+      let ok = false;
+      if (provider === 'gemini') {
+        const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${key}`);
+        ok = resp.ok;
+      } else if (provider === 'openai') {
+        const resp = await fetch('https://api.openai.com/v1/models', { headers: { 'Authorization': `Bearer ${key}` } });
+        ok = resp.ok;
+      } else if (provider === 'anthropic') {
+        // Anthropic doesn't have a simple list-models endpoint accessible from browser
+        // We'll do a minimal call to check auth
+        ok = key.startsWith('sk-ant-');
+      } else if (provider === 'mistral') {
+        const resp = await fetch('https://api.mistral.ai/v1/models', { headers: { 'Authorization': `Bearer ${key}` } });
+        ok = resp.ok;
+      } else if (provider === 'groq') {
+        const resp = await fetch('https://api.groq.com/openai/v1/models', { headers: { 'Authorization': `Bearer ${key}` } });
+        ok = resp.ok;
+      }
+      setProviderStatus(prev => ({ ...prev, [provider]: ok ? 'ok' : 'error' }));
+      toast({ title: ok ? 'Connection successful' : 'Connection failed', description: ok ? `${provider} API key is valid.` : `Could not verify ${provider} API key.`, variant: ok ? 'default' : 'destructive' });
+    } catch {
+      setProviderStatus(prev => ({ ...prev, [provider]: 'error' }));
+      toast({ title: 'Connection failed', description: `Could not reach ${provider} API.`, variant: 'destructive' });
+    } finally {
+      setTestingProvider(null);
+    }
+  };
+
+  const aiProviders = [
+    { id: 'gemini', name: 'Google Gemini', placeholder: 'AIza...', hint: 'Get key at ai.google.dev' },
+    { id: 'openai', name: 'OpenAI', placeholder: 'sk-...', hint: 'Get key at platform.openai.com' },
+    { id: 'anthropic', name: 'Anthropic Claude', placeholder: 'sk-ant-...', hint: 'Get key at console.anthropic.com' },
+    { id: 'mistral', name: 'Mistral AI', placeholder: 'M...', hint: 'Get key at console.mistral.ai' },
+    { id: 'groq', name: 'Groq', placeholder: 'gsk_...', hint: 'Get key at console.groq.com (fast inference)' },
+  ];
 
   const handleAiConsentChange = (checked: boolean) => {
     setAiDataConsent(checked);
@@ -248,7 +312,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Settings</DialogTitle>
           <DialogDescription>
@@ -417,6 +481,53 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
             >
               View Privacy Policy
             </a>
+          </div>
+
+          {/* AI Service API Keys */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-medium flex items-center gap-2">
+              <Cloud className="h-4 w-4" />
+              AI Service Keys
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              Add your own API keys to use different AI providers. Keys are stored locally on your device and never sent to our servers.
+            </p>
+            <div className="space-y-2">
+              {aiProviders.map(provider => (
+                <div key={provider.id} className="flex items-center gap-2">
+                  <div className="flex-1 min-w-0">
+                    <Label className="text-xs text-muted-foreground">{provider.name}</Label>
+                    <div className="flex gap-1.5 mt-0.5">
+                      <Input
+                        type="password"
+                        value={apiKeys[provider.id] || ''}
+                        onChange={(e) => handleApiKeyChange(provider.id, e.target.value)}
+                        placeholder={provider.placeholder}
+                        className="text-xs h-8 font-mono"
+                      />
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-8 px-2 flex-shrink-0"
+                        disabled={!apiKeys[provider.id]?.trim() || testingProvider === provider.id}
+                        onClick={() => handleTestApiKey(provider.id)}
+                      >
+                        {testingProvider === provider.id ? (
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                        ) : providerStatus[provider.id] === 'ok' ? (
+                          <CheckCircle className="h-3 w-3 text-green-500" />
+                        ) : providerStatus[provider.id] === 'error' ? (
+                          <XCircle className="h-3 w-3 text-red-500" />
+                        ) : (
+                          <span className="text-xs">Test</span>
+                        )}
+                      </Button>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground/60 mt-0.5">{provider.hint}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Local AI (Ollama) Section - Desktop only, not available on iOS */}
