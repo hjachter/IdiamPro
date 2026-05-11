@@ -59,7 +59,7 @@ export default function AIMenu({
           variant="outline"
           size="icon"
           disabled={disabled || isLoadingAI}
-          className="text-primary hover:bg-primary/20"
+          className="text-primary hover:bg-primary/20 active:scale-95 active:bg-accent/30"
           title="AI Features"
         >
           {isLoadingAI ? (
