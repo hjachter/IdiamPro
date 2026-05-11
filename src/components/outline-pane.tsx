@@ -886,7 +886,7 @@ export default function OutlinePane({
             if (!open) setOutlineSearch('');
         }}>
             <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="flex-grow font-headline text-lg font-bold truncate justify-between">
+                <Button variant="outline" className="flex-grow font-headline text-lg font-bold truncate justify-between active:scale-95 active:bg-accent/30">
                     <span className="truncate">
                         {currentOutline?.isSecondBrain && '🧠 '}
                         {currentOutline?.isGuide && '📖 '}
@@ -925,7 +925,7 @@ export default function OutlinePane({
                             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                             <AlertDialogDescription>This will permanently delete the "{currentOutline?.name}" outline and all its content.</AlertDialogDescription>
                         </AlertDialogHeader>
-                        <AlertDialogFooter>
+                        <AlertDialogFooter className="flex-col-reverse sm:flex-row sm:justify-end gap-2">
                             <AlertDialogCancel>Cancel</AlertDialogCancel>
                             <AlertDialogAction onClick={() => currentOutline && onDeleteOutline(currentOutline.id)} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
                         </AlertDialogFooter>
@@ -1094,7 +1094,7 @@ export default function OutlinePane({
                   This will permanently delete "{selectedNode ? (selectedNode as OutlineNode).name : ''}" and all its children.
                 </AlertDialogDescription>
               </AlertDialogHeader>
-              <AlertDialogFooter>
+              <AlertDialogFooter className="flex-col-reverse sm:flex-row sm:justify-end gap-2">
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                 <AlertDialogAction onClick={() => {
                   selectedNodeId && onDeleteNode(selectedNodeId);
@@ -1113,7 +1113,7 @@ export default function OutlinePane({
                 <Search className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Search outline (⌘F)</TooltipContent>
+            <TooltipContent>Search outline{!isMobile && ' (⌘F)'}</TooltipContent>
           </Tooltip>
 
           <Tooltip>
@@ -1136,7 +1136,7 @@ export default function OutlinePane({
                 {isAllCollapsed ? <ChevronsDown className="h-4 w-4" /> : <ChevronsUp className="h-4 w-4" />}
               </Button>
             </TooltipTrigger>
-            <TooltipContent>{isAllCollapsed ? 'Expand all (⌘E)' : 'Collapse all (⌘E)'}</TooltipContent>
+            <TooltipContent>{isAllCollapsed ? 'Expand all' : 'Collapse all'}{!isMobile && ' (⌘E)'}</TooltipContent>
           </Tooltip>
 
           <Tooltip>
@@ -1158,6 +1158,22 @@ export default function OutlinePane({
             <TooltipContent>{selectedNodeId ? 'Share subtree as...' : 'Select a node to share'}</TooltipContent>
           </Tooltip>
 
+          {/* Command Palette - touch-accessible entry point */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => onOpenCommandPalette?.()}
+                className="hover:bg-accent/20 active:scale-95 active:bg-accent/30"
+                title="Command palette"
+              >
+                <Command className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Command palette{!isMobile && ' (⌘K)'}</TooltipContent>
+          </Tooltip>
+
           {/* Quick Capture - one-tap shortcut */}
           <Tooltip>
             <TooltipTrigger asChild>
@@ -1171,7 +1187,7 @@ export default function OutlinePane({
                 <Inbox className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>{isMobile ? 'Quick Capture' : 'Quick Capture (⌘⇧I)'}</TooltipContent>
+            <TooltipContent>Quick Capture{!isMobile && ' (⌘⇧I)'}</TooltipContent>
           </Tooltip>
 
           {/* Second Brain Menu */}
@@ -1182,7 +1198,7 @@ export default function OutlinePane({
                   <Button
                     variant="outline"
                     size="icon"
-                    className="text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20"
+                    className="text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 active:scale-95 active:bg-accent/30"
                     title="Second Brain"
                   >
                     <Brain className="h-4 w-4" />

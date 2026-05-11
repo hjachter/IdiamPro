@@ -200,7 +200,6 @@ import { GoogleDocs, GoogleSheets, GoogleSlides, GoogleMaps, MermaidBlock, Video
 import PdfImportDialog, { type PdfImportAction } from './pdf-import-dialog';
 import { TaskList } from '@tiptap/extension-list/task-list';
 import { TaskItem } from '@tiptap/extension-list/task-item';
-import { useSpeechRecognition } from '@/lib/use-speech-recognition';
 import { Extension } from '@tiptap/core';
 import { Decoration, DecorationSet } from '@tiptap/pm/view';
 import { Plugin, PluginKey } from '@tiptap/pm/state';
@@ -499,17 +498,6 @@ export default function ContentPane({
 
   const aiContentEnabled = useAIFeature('enableAIContentGeneration');
   const { toast } = useToast();
-
-  // Speech recognition
-  const {
-    isListening,
-    transcript,
-    interimTranscript,
-    isSupported: speechSupported,
-    startListening,
-    stopListening,
-    resetTranscript,
-  } = useSpeechRecognition();
 
   // Only create editor for node types that need rich text editing
   // Also check if content looks like spreadsheet JSON data - if so, don't use rich text editor
@@ -970,24 +958,6 @@ export default function ContentPane({
       }
     }
   }, [editor, searchTerm, currentMatchIndex, currentMatchType, shouldUseRichTextEditor, node?.id, node?.name]);
-
-  // Insert transcript when speech recognition completes
-  useEffect(() => {
-    if (transcript && editor) {
-      // Insert the transcribed text at cursor position
-      editor.chain().focus().insertContent(transcript + ' ').run();
-      resetTranscript();
-    }
-  }, [transcript, editor, resetTranscript]);
-
-  // Speech recognition toggle handler
-  const handleSpeechToggle = () => {
-    if (isListening) {
-      stopListening();
-    } else {
-      startListening();
-    }
-  };
 
   // Handle converting last paste to code block (undo + repaste as code)
   const handleConvertToCodeBlock = useCallback((text: string) => {
@@ -2615,12 +2585,6 @@ export default function ContentPane({
           )}
         </TooltipProvider>
 
-        {/* Interim transcript indicator */}
-        {isListening && interimTranscript && (
-          <span className="text-sm text-muted-foreground italic truncate max-w-[200px]">
-            {interimTranscript}...
-          </span>
-        )}
       </div>
 
       <main className="flex-grow overflow-y-auto p-6 space-y-4">

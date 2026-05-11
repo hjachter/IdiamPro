@@ -791,7 +791,7 @@ export default function BulkResearchDialog({
                               type="button"
                               variant="ghost"
                               size="sm"
-                              className="h-6 text-xs text-muted-foreground"
+                              className="h-8 text-xs text-muted-foreground"
                               onClick={() => {
                                 setSourceInputMethod(prev => {
                                   const updated = { ...prev };
@@ -1147,7 +1147,7 @@ export default function BulkResearchDialog({
                                         step={0.1}
                                         value={playbackTime[source.id] || 0}
                                         onChange={(e) => handleSeek(source.id, parseFloat(e.target.value))}
-                                        className="flex-1 h-2 accent-primary cursor-pointer"
+                                        className="flex-1 h-2 accent-primary active:accent-primary/80 cursor-pointer"
                                       />
                                       <span className="text-xs font-mono w-10">
                                         {formatDuration(recordedAudio[source.id].duration)}

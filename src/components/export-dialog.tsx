@@ -217,7 +217,7 @@ export default function ExportDialog({
                     <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">
                       {FORMAT_CATEGORY_LABELS[category]}
                     </h3>
-                    <div className="grid grid-cols-4 gap-2">
+                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                       {formats.map((format) => {
                         const Icon = format.icon;
                         const isAvailable = format.id === 'pdf' || format.id === 'podcast' || hasExporter(format.id);
