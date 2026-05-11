@@ -19,7 +19,8 @@
         "ai-features",
         "file-management",
         "keyboard-mouse",
-        "under-the-hood"
+        "under-the-hood",
+        "second-brain-8232afad"
       ],
       "isCollapsed": false,
       "prefix": ""
@@ -478,9 +479,49 @@
       "childrenIds": [],
       "isExpanded": false,
       "prefix": "5.4"
+    },
+    "second-brain-8232afad": {
+      "id": "second-brain-8232afad",
+      "name": "Second Brain",
+      "content": "<p>The Second Brain is a special outline that acts as a personal knowledge vault. Anything you save from anywhere in the app lands here as a new top-level entry, so you build up a searchable trail of ideas, snippets, and references over time. Three features make it fast and friendly to use: a global quick-capture shortcut, a dashboard that surfaces what's new and what's worth revisiting, and behind-the-scenes auto-tagging that organizes entries without you having to think about it. Each of these reads from or writes to the same Second Brain outline file, which means everything stays in one place and your saves are never locked away in a separate database.</p>",
+      "type": "document",
+      "parentId": "root",
+      "childrenIds": [
+        "sb-quick-capture-186c33",
+        "sb-dashboard-798f18",
+        "sb-auto-tag-104ed1"
+      ],
+      "isExpanded": false
+    },
+    "sb-quick-capture-186c33": {
+      "id": "sb-quick-capture-186c33",
+      "name": "Quick Capture",
+      "content": "<p>Quick Capture is a floating dialog that appears from anywhere in the app when you press Cmd+Shift+I. The shortcut is wired up as a global keyboard listener, so it works whether you're editing an outline, browsing the dashboard, or just looking at the menu. When you type something and confirm, the app opens the Second Brain outline behind the scenes, finds (or creates) a node called the Inbox at the very top, and adds your text as a new child entry under it. The Inbox sits above your other saves on purpose, so you always know where fresh captures land. The dialog closes immediately afterward, letting you get back to whatever you were doing without interrupting your flow.</p>",
+      "type": "document",
+      "parentId": "second-brain-8232afad",
+      "childrenIds": [],
+      "isExpanded": false
+    },
+    "sb-dashboard-798f18": {
+      "id": "sb-dashboard-798f18",
+      "name": "Second Brain Dashboard",
+      "content": "<p>The Second Brain Dashboard is a view you open from the Brain menu. When it loads, it reads the Second Brain outline directly and walks through every top-level entry under the root. From that traversal it builds four panels: a total count of entries, a list of recent saves from the last seven days (using each node's creation timestamp), a revisit pile of older entries the app pulls forward so they don't get forgotten, and a top-tags summary built by counting the tag values stored in each node's metadata. Every item in every panel is clickable; clicking jumps the main outline view straight to that entry. Because the dashboard reads the outline live, it always reflects the current state of your Second Brain.</p>",
+      "type": "document",
+      "parentId": "second-brain-8232afad",
+      "childrenIds": [],
+      "isExpanded": false
+    },
+    "sb-auto-tag-104ed1": {
+      "id": "sb-auto-tag-104ed1",
+      "name": "Smart Auto-Tagging",
+      "content": "<p>Smart Auto-Tagging runs every time something is saved to the Second Brain, whether through the Cmd+Shift+B save shortcut or a Quick Capture entry. As soon as the new node is written, the app quietly sends the saved text to Gemini and asks for one to three short, hyphenated tags that describe the content. When the response comes back, those tags are written into the new node's metadata silently, with no popup or confirmation, so the save still feels instant. The dashboard then picks those tags up automatically the next time it tallies its top-tags panel. If the AI call fails or Gemini is unreachable, the save still succeeds, the node just goes in untagged and life carries on.</p>",
+      "type": "document",
+      "parentId": "second-brain-8232afad",
+      "childrenIds": [],
+      "isExpanded": false
     }
   },
-  "lastModified": 1775803631955,
+  "lastModified": 1778530860266,
   "_fileSize": 35244,
   "_fileName": "IdiamPro - How it works.idm",
   "_isLazyLoaded": false

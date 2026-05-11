@@ -2,7 +2,7 @@
   "id": "selling-points-2026",
   "name": "IdiamPro - Killer Features & Selling Points",
   "rootNodeId": "sp-root",
-  "lastModified": 1769860043219,
+  "lastModified": 1778530317159,
   "nodes": {
     "sp-root": {
       "id": "sp-root",
@@ -21,10 +21,14 @@
     "sec-features": {
       "id": "sec-features",
       "name": "Killer Features",
-      "content": "<p><strong>1. Ask AI: Save Great Answers Forever</strong></p><p>Traditional chat apps lose your AI answers in chat history. IdiamPro lets you save responses directly to your outline - permanently searchable.</p><p><strong>2. Visual Diagrams from Any Subtree</strong></p><p>One-click Mind Map or Flowchart generation for any branch. Auto-generated when creating content from children.</p><p><strong>3. Cross-Platform, One Subscription</strong></p><p>Subscribe once, use on Mac, iPhone, iPad, and web. Seamless sync everywhere.</p><p><strong>4. Research Mode: Build Knowledge from Any Source</strong></p><p>Import YouTube transcripts, PDFs, and text. AI organizes into your outline structure with source tracking.</p><p></p><p><strong>Recently Added:</strong></p><ul><li><p><strong>AI Data Consent System</strong> \u2014 Apple-compliant consent flow with two-step decline warning, Settings toggle, and privacy policy page</p></li><li><p><strong>Search Filters</strong> \u2014 Toggle between searching node names, content, or both for precise results</p></li><li><p><strong>Live External Modification Detection</strong> \u2014 App auto-reloads outlines modified by external tools (like Claude Code) every 5 seconds</p></li><li><p><strong>macOS Dictation Support</strong> \u2014 Function key pass-through enables native macOS dictation in Electron</p></li><li><p><strong>Website Generation</strong> \u2014 Export any outline as a fully styled, multi-page website with 8 professional templates</p></li></ul>",
+      "content": "<p><strong>1. Ask AI: Save Great Answers Forever</strong></p><p>Traditional chat apps lose your AI answers in chat history. IdiamPro lets you save responses directly to your outline - permanently searchable.</p><p><strong>2. Visual Diagrams from Any Subtree</strong></p><p>One-click Mind Map or Flowchart generation for any branch. Auto-generated when creating content from children.</p><p><strong>3. Cross-Platform, One Subscription</strong></p><p>Subscribe once, use on Mac, iPhone, iPad, and web. Seamless sync everywhere.</p><p><strong>4. Research Mode: Build Knowledge from Any Source</strong></p><p>Import YouTube transcripts, PDFs, and text. AI organizes into your outline structure with source tracking.</p><p></p><p><strong>Recently Added:</strong></p><ul><li><p><strong>AI Data Consent System</strong> \u2014 Apple-compliant consent flow with two-step decline warning, Settings toggle, and privacy policy page</p></li><li><p><strong>Search Filters</strong> \u2014 Toggle between searching node names, content, or both for precise results</p></li><li><p><strong>Live External Modification Detection</strong> \u2014 App auto-reloads outlines modified by external tools (like Claude Code) every 5 seconds</p></li><li><p><strong>macOS Dictation Support</strong> \u2014 Function key pass-through enables native macOS dictation in Electron</p></li><li><p><strong>Website Generation</strong> \u2014 Export any outline as a fully styled, multi-page website with 8 professional templates</p></li></ul><p></p>",
       "type": "chapter",
       "parentId": "sp-root",
-      "childrenIds": [],
+      "childrenIds": [
+        "kf-2a47a8ff42",
+        "kf-eb8cb625fa",
+        "kf-eac19fb868"
+      ],
       "prefix": "1",
       "isCollapsed": false
     },
@@ -50,7 +54,7 @@
     "sec-names": {
       "id": "sec-names",
       "name": "Alternative Product Names",
-      "content": "<p><strong>Writing Focus:</strong> <del>AuthorPro</del>, <del>AutoBook</del>, <strong>WriteFrame</strong>, <del>StoryMap</del>, <strong>ChapterFlow</strong>, <del>BookForge</del>, <del>PlotTree</del>, <strong>NovelArchitect</strong></p><p><strong>Research Focus:</strong> <del>ResearchPro</del>, <del>ScholarFlow</del>, <strong>ThesisBuilder</strong>, <strong>LitReview</strong>, <del>AcademicTree</del>, <del>SourceSync</del>, <del>KnowledgeMap</del></p><p><strong>Knowledge Mgmt:</strong> <del>MindVault</del>, <del>BrainTree</del>, <del>ThinkBase</del>, <del>IdeaForge</del>, <del>SecondMind</del>, <del>ThoughtTree</del>, <del>MindFrame</del></p><p><strong>Business Focus:</strong> <del>PlanPro</del>, <strong>StrategyTree</strong>, <strong>ExecOutline</strong>, <strong>BoardBrief</strong>, <del>ProjectFrame</del>, <del>ProposalPro</del>, <del>DecisionTree</del></p><p><strong>AI Emphasis:</strong> <strong>AIOutliner</strong>, <del>SmartOutline</del>, <del>AIWriter</del>, <del>ThinkAI</del>, <strong>AutoOutline</strong>, <del>SmartDraft</del>, <del>AIBrain</del></p><p><strong>Outlining Focus:</strong> <strong>OutlinePro</strong>, <del>TreeNote</del>, <del>StructureApp</del>, <del>NodeFlow</del>, <strong>BranchNote</strong>, <strong>OutlineForge</strong>, <del>NestedNote</del></p><p><strong>Brandable:</strong> <del>Structly</del>, <strong>Outlinr</strong>, <strong>Nodelux</strong>, <del>Treeva</del>, <del>Maplix</del>, <del>Branchly</del>, <del>Nestify</del>, <strong>Outloom</strong>, <del>Thinkvine</del>, <del>Mindloom</del></p><p></p><p><em>Names in <strong>bold</strong> are available. <del>Struck-through</del> names are already in use by other products. (Checked March 2026)</em></p>",
+      "content": "<p><strong>Writing Focus:</strong> AuthorPro, AutoBook, WriteFrame, StoryMap, ChapterFlow, BookForge, PlotTree, NovelArchitect</p><p><strong>Research Focus:</strong> ResearchPro, ScholarFlow, ThesisBuilder, LitReview, AcademicTree, SourceSync, KnowledgeMap</p><p><strong>Knowledge Mgmt:</strong> MindVault, BrainTree, ThinkBase, IdeaForge, SecondMind, ThoughtTree, MindFrame</p><p><strong>Business Focus:</strong> PlanPro, StrategyTree, ExecOutline, BoardBrief, ProjectFrame, ProposalPro, DecisionTree</p><p><strong>AI Emphasis:</strong> AIOutliner, SmartOutline, AIWriter, ThinkAI, AutoOutline, SmartDraft, AIBrain</p><p><strong>Outlining Focus:</strong> OutlinePro, TreeNote, StructureApp, NodeFlow, BranchNote, OutlineForge, NestedNote</p><p><strong>Brandable:</strong> Structly, Outlinr, Nodelux, Treeva, Maplix, Branchly, Nestify, Outloom, Thinkvine, Mindloom</p><p><br><strong>Available</strong> <strong>names</strong> <strong>(16):</strong></p><p>&nbsp; - WriteFrame, ChapterFlow, NovelArchitect, ThesisBuilder, LitReview</p><p>&nbsp; - StrategyTree, ExecOutline, BoardBrief</p><p>&nbsp; - AIOutliner, AutoOutline, OutlinePro, BranchNote, OutlineForge, Outlinr</p><p>&nbsp; - Outloom (partially \u2014 domain parked but no product)</p><p>&nbsp; - Nodelux (partially \u2014 small e-commerce, not software)</p><p><br></p><p>&nbsp; <strong>Taken</strong> <strong>names</strong> <strong>(37):</strong></p><p>&nbsp; - AuthorPro, AutoBook, StoryMap, BookForge, PlotTree</p><p>&nbsp; - ResearchPro, ScholarFlow, AcademicTree, SourceSync, KnowledgeMap</p><p>&nbsp; - MindVault, BrainTree (PayPal!), ThinkBase, IdeaForge (public company), SecondMind, ThoughtTree, MindFrame</p><p>&nbsp; - PlanPro, ProjectFrame, ProposalPro, DecisionTree</p><p>&nbsp; - SmartOutline, AIWriter, ThinkAI, SmartDraft, AIBrain</p><p>&nbsp; - TreeNote, StructureApp, NodeFlow, NestedNote</p><p>&nbsp; - Structly, Treeva, Maplix, Branchly, Nestify, Thinkvine, Mindloom</p><p></p><p>&nbsp;The strongest available candidates in my view are <strong>OutlineForge</strong>, <strong>Outlinr</strong>, <strong>WriteFrame</strong>, and <strong>ChapterFlow</strong> \u2014 they're distinctive, not generic, and have clean namespaces.</p><p><br></p><p></p><p></p><p></p><p></p>",
       "type": "chapter",
       "parentId": "sp-root",
       "childrenIds": [
@@ -63,20 +67,47 @@
     "names-available": {
       "id": "names-available",
       "name": "AVAILABLE Names (checked March 2026)",
-      "content": "<p><strong>WriteFrame</strong>, <strong>ChapterFlow</strong>, <strong>NovelArchitect</strong>, <strong>ThesisBuilder</strong>, <strong>LitReview</strong>, <strong>StrategyTree</strong>, <strong>ExecOutline</strong>, <strong>BoardBrief</strong>, <strong>AIOutliner</strong>, <strong>AutoOutline</strong>, <strong>OutlinePro</strong>, <strong>BranchNote</strong>, <strong>OutlineForge</strong>, <strong>Outlinr</strong>, <strong>Nodelux</strong>, <strong>Outloom</strong></p>",
+      "content": "<p><strong>WriteFrame</strong>, <strong>ChapterFlow</strong>, <strong>NovelArchitect</strong>, <strong>ThesisBuilder</strong>, <strong>LitReview</strong>, <strong>StrategyTree</strong>, <strong>ExecOutline</strong>, <strong>BoardBrief</strong>, <strong>AIOutliner</strong>, <strong>AutoOutline</strong>, <strong>OutlinePro</strong>, <strong>BranchNote</strong>, <strong>OutlineForge</strong>, <strong>Outlinr</strong>, <strong>Nodelux</strong>, <strong>Outloom</strong></p><p></p><p></p><p>&nbsp;<strong>So, You don't like IdiamPro then? &nbsp; &nbsp;</strong> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</p><p>&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</p><p>\u23fa Ha! I wasn't suggesting we change the name \u2014 just checking the alternatives you had listed since you asked. IdiamPro is a great name \u2014 it's unique, &nbsp; &nbsp; &nbsp;</p><p>&nbsp; memorable, and has zero conflicts. Those alternatives were just brainstorming options in the outline.</p><p></p>",
       "childrenIds": [],
       "isExpanded": false
     },
     "names-taken": {
       "id": "names-taken",
       "name": "TAKEN Names (in use by other products)",
-      "content": "<p>AIBrain, AIWriter, AcademicTree, AuthorPro, AutoBook, BookForge, BrainTree, Branchly, DecisionTree, IdeaForge, KnowledgeMap, Maplix, MindFrame, MindVault, Mindloom, NestedNote, Nestify, NodeFlow, PlanPro, PlotTree, ProjectFrame, ProposalPro, ResearchPro, ScholarFlow, SecondMind, SmartDraft, SmartOutline, SourceSync, StoryMap, Structly, StructureApp, ThinkAI, ThinkBase, Thinkvine, ThoughtTree, TreeNote, Treeva</p>",
+      "content": "<p><s>AIBrain, AIWriter, AcademicTree, AuthorPro, AutoBook, BookForge, BrainTree, Branchly, DecisionTree, IdeaForge, KnowledgeMap, Maplix, MindFrame, MindVault, Mindloom, NestedNote, Nestify, NodeFlow, PlanPro, PlotTree, ProjectFrame, ProposalPro, ResearchPro, ScholarFlow, SecondMind, SmartDraft, SmartOutline, SourceSync, StoryMap, Structly, StructureApp, ThinkAI, ThinkBase, Thinkvine, ThoughtTree, TreeNote, Treeva</s></p>",
       "childrenIds": [],
+      "isExpanded": false
+    },
+    "kf-2a47a8ff42": {
+      "id": "kf-2a47a8ff42",
+      "name": "Quick Capture (Second Brain)",
+      "parentId": "sec-features",
+      "childrenIds": [],
+      "type": "document",
+      "content": "<p><strong>What:</strong> One-keystroke capture from anywhere in the app. Hit Cmd+Shift+I, type or paste, hit Enter \u2014 it lands in your Second Brain Inbox. No need to be inside any specific outline.</p><p><strong>Why it matters:</strong> Memory research shows we lose ~50% of new information within an hour, 70% within a day. The friction between a thought and its capture is where value dies. Quick Capture turns capture into a reflex, not a chore.</p><p><strong>Differentiator:</strong> Every successful note tool (Apple Notes, Drafts, Bear, Notion) has a scratchpad. IdiamPro's version lands the captured thought directly into the AI-searchable Second Brain \u2014 instant input, AI-powered retrieval.</p>",
+      "isExpanded": false
+    },
+    "kf-eb8cb625fa": {
+      "id": "kf-eb8cb625fa",
+      "name": "Second Brain Dashboard",
+      "parentId": "sec-features",
+      "childrenIds": [],
+      "type": "document",
+      "content": "<p><strong>What:</strong> A visual home for your Second Brain showing total entries, recent saves with snippets, and a \"revisit pile\" of older content worth re-engaging with.</p><p><strong>Why it matters:</strong> Capture without retrieval is a graveyard (the Evernote lesson). The dashboard gives users the feeling that their effort compounds \u2014 visible proof that yesterday's save matters today. It transforms Second Brain from a sink into a living archive.</p><p><strong>Differentiator:</strong> Most outline tools are write-only. The Dashboard is the resting state \u2014 the place users open the app to be reminded of what they care about.</p>",
+      "isExpanded": false
+    },
+    "kf-eac19fb868": {
+      "id": "kf-eac19fb868",
+      "name": "Smart Auto-Tagging (Second Brain)",
+      "parentId": "sec-features",
+      "childrenIds": [],
+      "type": "document",
+      "content": "<p><strong>What:</strong> When you save to Second Brain, AI suggests 1\u20133 tags from the content. Accept, edit, or skip \u2014 tags persist as metadata and power future filtering and search.</p><p><strong>Why it matters:</strong> Manual tagging fails universally \u2014 folders go stale, categories drift, taxonomies collapse. Asking the user to organize at save time breaks the capture habit. AI silently doing it means the system gets smarter the more it's used, with no effort from the user.</p><p><strong>Differentiator:</strong> Every PKM tool has tagging. Almost none have AI doing it for you. This is the AI-native value proposition that justifies the Premium tier: not \"here's a chat dropped in,\" but \"the tool that organizes itself.\"</p>",
       "isExpanded": false
     }
   },
   "isGuide": false,
-  "_fileSize": 5209,
+  "_fileSize": 8773,
   "_fileName": "IdiamPro - Killer Features & Selling Points.idm",
   "_isLazyLoaded": false
 }

@@ -9,7 +9,7 @@ import { MultiSelectToolbar } from './multi-select-toolbar';
 import FileImportDialog from './file-import-dialog';
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { ChevronDown, FilePlus, Plus, Trash2, Edit, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, Settings, Search, Command, PanelLeft, PanelLeftClose, Brain, StopCircle } from 'lucide-react';
+import { ChevronDown, FilePlus, Plus, Trash2, Edit, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, Settings, Search, Command, PanelLeft, PanelLeftClose, Brain, StopCircle, Inbox, LayoutDashboard } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Input } from './ui/input';
@@ -150,6 +150,8 @@ interface OutlinePaneProps {
   onOpenSecondBrain?: () => void;
   onSearchSecondBrain?: () => void;
   onImportToSecondBrain?: () => void;
+  onOpenQuickCapture?: () => void;
+  onOpenSecondBrainDashboard?: () => void;
   // Sidebar toggle (desktop)
   isSidebarOpen?: boolean;
   onToggleSidebar?: () => void;
@@ -216,6 +218,8 @@ export default function OutlinePane({
   onOpenSecondBrain,
   onSearchSecondBrain,
   onImportToSecondBrain,
+  onOpenQuickCapture,
+  onOpenSecondBrainDashboard,
   isSidebarOpen,
   onToggleSidebar,
   onOpenMobileSidebar,
@@ -230,7 +234,7 @@ export default function OutlinePane({
   const [importDialogOpen, setImportDialogOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   // const outlinePaneRef = useRef<HTMLDivElement>(null);
-  // const isMobile = useIsMobile();
+  const isMobile = useIsMobile();
   const { toast } = useToast();
 
   // Collapse/Expand toggle state
@@ -1154,6 +1158,22 @@ export default function OutlinePane({
             <TooltipContent>{selectedNodeId ? 'Share subtree as...' : 'Select a node to share'}</TooltipContent>
           </Tooltip>
 
+          {/* Quick Capture - one-tap shortcut */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => onOpenQuickCapture?.()}
+                className="text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20"
+                title="Quick Capture"
+              >
+                <Inbox className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>{isMobile ? 'Quick Capture' : 'Quick Capture (⌘⇧I)'}</TooltipContent>
+          </Tooltip>
+
           {/* Second Brain Menu */}
           <DropdownMenu>
             <Tooltip>
@@ -1177,6 +1197,11 @@ export default function OutlinePane({
                 Second Brain
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
+              <DropdownMenuItem onSelect={() => onOpenQuickCapture?.()} className="cursor-pointer">
+                <Inbox className="mr-2 h-4 w-4" />
+                Quick Capture
+                {!isMobile && <span className="ml-auto text-xs text-muted-foreground">⌘⇧I</span>}
+              </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => onOpenSecondBrain?.()} className="cursor-pointer">
                 <Brain className="mr-2 h-4 w-4" />
                 Open Second Brain
@@ -1193,6 +1218,10 @@ export default function OutlinePane({
               <DropdownMenuItem onSelect={() => onSearchSecondBrain?.()} className="cursor-pointer">
                 <Search className="mr-2 h-4 w-4" />
                 Search Second Brain
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => onOpenSecondBrainDashboard?.()} className="cursor-pointer">
+                <LayoutDashboard className="mr-2 h-4 w-4" />
+                View Dashboard
               </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => onImportToSecondBrain?.()} className="cursor-pointer">
                 <Library className="mr-2 h-4 w-4" />

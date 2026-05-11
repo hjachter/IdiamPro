@@ -2,6 +2,7 @@
 
 import { generateOutlineFromTopic } from '@/ai/flows/generate-outline-from-topic';
 import { expandNodeContent } from '@/ai/flows/expand-node-content';
+import { suggestTags } from '@/ai/flows/suggest-tags';
 import {
   extractPdfFromUrl,
   extractPdfFromFile,
@@ -246,6 +247,23 @@ export async function expandContentAction(
   } catch (error) {
     console.error('Error expanding content:', error);
     throw new Error('Failed to expand content.');
+  }
+}
+
+/**
+ * Suggest 1-3 short topical tags for a Second Brain entry.
+ * Returns empty array on error — caller treats tagging as best-effort.
+ */
+export async function suggestTagsAction(
+  title: string,
+  content?: string
+): Promise<string[]> {
+  try {
+    const result = await suggestTags({ title, content });
+    return result.tags;
+  } catch (error) {
+    console.error('Error suggesting tags:', error);
+    return [];
   }
 }
 

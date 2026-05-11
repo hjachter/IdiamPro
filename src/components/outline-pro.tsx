@@ -28,6 +28,9 @@ import BulkResearchDialog from './bulk-research-dialog';
 import HelpChatDialog from './help-chat-dialog';
 import KnowledgeChatDialog from './knowledge-chat-dialog';
 import AIConsentDialog from './ai-consent-dialog';
+import { QuickCaptureDialog } from './quick-capture-dialog';
+import { SecondBrainDashboardDialog } from './second-brain-dashboard-dialog';
+import { suggestTagsAction } from '@/app/actions';
 import dynamic from 'next/dynamic';
 
 const ExportDialog = dynamic(() => import('./export-dialog'), { ssr: false, loading: () => null });
@@ -208,6 +211,12 @@ export default function OutlinePro() {
 
   // Knowledge chat dialog state
   const [isKnowledgeChatOpen, setIsKnowledgeChatOpen] = useState(false);
+
+  // Second Brain Quick Capture dialog state
+  const [isQuickCaptureOpen, setIsQuickCaptureOpen] = useState(false);
+
+  // Second Brain Dashboard dialog state
+  const [isSecondBrainDashboardOpen, setIsSecondBrainDashboardOpen] = useState(false);
 
   // Export dialog state
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
@@ -3210,11 +3219,43 @@ export default function OutlinePro() {
     });
 
     const nodeName = sourceOutline.nodes[nodeId]?.name || 'Node';
+    const nodeContent = sourceOutline.nodes[nodeId]?.content || '';
     const childCount = Object.keys(subtreeNodes).length - 1;
     toast({
       title: "Saved to Second Brain",
       description: `"${nodeName}"${childCount > 0 ? ` and ${childCount} child node${childCount === 1 ? '' : 's'}` : ''} added to your Second Brain.`,
     });
+
+    // Fire-and-forget auto-tagging on the subtree-root node copy
+    const newSubtreeRootId = idMapping[nodeId];
+    suggestTagsAction(nodeName, nodeContent)
+      .then(tags => {
+        if (!tags || tags.length === 0) return;
+        setOutlines(currentOutlines =>
+          currentOutlines.map(o => {
+            if (!o.isSecondBrain) return o;
+            const node = o.nodes[newSubtreeRootId];
+            if (!node) return o;
+            const existingTags = node.metadata?.tags || [];
+            const mergedTags = Array.from(new Set([...existingTags, ...tags]));
+            return {
+              ...o,
+              nodes: {
+                ...o.nodes,
+                [newSubtreeRootId]: {
+                  ...node,
+                  metadata: { ...node.metadata, tags: mergedTags },
+                },
+              },
+            };
+          })
+        );
+        toast({
+          title: "Tagged with",
+          description: tags.map(t => `#${t}`).join(' '),
+        });
+      })
+      .catch(err => console.error('[Auto-tag] suggestTagsAction failed:', err));
   }, [currentOutlineId, outlines, collectSubtree, toast, setOutlines]);
 
   const handleOpenSecondBrain = useCallback(() => {
@@ -3241,6 +3282,131 @@ export default function OutlinePro() {
     }
     setIsBulkResearchOpen(true);
   }, [outlines]);
+
+  const handleOpenQuickCapture = useCallback(() => {
+    setIsQuickCaptureOpen(true);
+  }, []);
+
+  const handleOpenSecondBrainDashboard = useCallback(() => {
+    setIsSecondBrainDashboardOpen(true);
+  }, []);
+
+  const handleJumpToSecondBrainNode = useCallback((nodeId: string) => {
+    const sb = outlines.find(o => o.isSecondBrain);
+    if (!sb) return;
+    setCurrentOutlineId(sb.id);
+    setSelectedNodeId(nodeId);
+  }, [outlines, setCurrentOutlineId, setSelectedNodeId]);
+
+  const handleQuickCapture = useCallback((text: string) => {
+    const trimmed = text.trim();
+    if (!trimmed) return;
+
+    const secondBrain = outlines.find(o => o.isSecondBrain);
+    if (!secondBrain) {
+      toast({ title: "No Second Brain found", description: "Please create a Second Brain outline first.", variant: "destructive" });
+      return;
+    }
+
+    // Derive name (first 60 chars) and remaining content (as <p>...</p>)
+    const entryName = trimmed.length > 60 ? trimmed.slice(0, 60) : trimmed;
+    const remainder = trimmed.length > 60 ? trimmed.slice(60) : '';
+    const entryContent = remainder ? `<p>${remainder}</p>` : '';
+    const entryId = uuidv4();
+    const now = Date.now();
+
+    let inboxIdForTagging: string | null = null;
+
+    setOutlines(currentOutlines => {
+      const sb = currentOutlines.find(o => o.isSecondBrain);
+      if (!sb) return currentOutlines;
+
+      const sbRoot = sb.nodes[sb.rootNodeId];
+      if (!sbRoot) return currentOutlines;
+
+      // Find existing Inbox among direct children of the SB root
+      let inboxId = sbRoot.childrenIds.find(cid => sb.nodes[cid]?.name === '📥 Inbox') || null;
+
+      const newNodes = { ...sb.nodes };
+      let newRootChildrenIds = sbRoot.childrenIds;
+
+      if (!inboxId) {
+        // Create the Inbox node lazily
+        inboxId = uuidv4();
+        newNodes[inboxId] = {
+          id: inboxId,
+          name: '📥 Inbox',
+          content: '',
+          type: 'document',
+          parentId: sb.rootNodeId,
+          childrenIds: [entryId],
+          prefix: '',
+          metadata: { createdAt: now, updatedAt: now },
+        };
+        newRootChildrenIds = [inboxId, ...sbRoot.childrenIds];
+      } else {
+        const existingInbox = newNodes[inboxId];
+        newNodes[inboxId] = {
+          ...existingInbox,
+          childrenIds: [...existingInbox.childrenIds, entryId],
+        };
+      }
+
+      // Add the new entry node under the Inbox
+      newNodes[entryId] = {
+        id: entryId,
+        name: entryName,
+        content: entryContent,
+        type: 'document',
+        parentId: inboxId,
+        childrenIds: [],
+        prefix: '',
+        metadata: { createdAt: now, updatedAt: now },
+      };
+
+      // Update SB root's children if Inbox was newly created
+      newNodes[sb.rootNodeId] = {
+        ...sbRoot,
+        childrenIds: newRootChildrenIds,
+      };
+
+      inboxIdForTagging = inboxId;
+
+      return currentOutlines.map(o =>
+        o.isSecondBrain ? { ...o, nodes: newNodes } : o
+      );
+    });
+
+    toast({ title: "Saved to Inbox", description: `"${entryName}" added to your Second Brain Inbox.` });
+
+    // Fire-and-forget tag suggestion
+    suggestTagsAction(entryName, entryContent)
+      .then(tags => {
+        if (!tags || tags.length === 0) return;
+        setOutlines(currentOutlines =>
+          currentOutlines.map(o => {
+            if (!o.isSecondBrain) return o;
+            const node = o.nodes[entryId];
+            if (!node) return o;
+            return {
+              ...o,
+              nodes: {
+                ...o.nodes,
+                [entryId]: {
+                  ...node,
+                  metadata: { ...node.metadata, tags },
+                },
+              },
+            };
+          })
+        );
+        toast({
+          title: "Tagged with",
+          description: tags.map(t => `#${t}`).join(' '),
+        });
+      })
+      .catch(err => console.error('[Quick Capture Auto-tag] suggestTagsAction failed:', err));
+  }, [outlines, setOutlines, toast]);
 
   // Keyboard shortcuts for Second Brain and collapse/expand
   useEffect(() => {
@@ -3286,11 +3452,18 @@ export default function OutlinePro() {
         handleSearchSecondBrain();
         return;
       }
+
+      // Cmd+Shift+I — Quick capture to Second Brain Inbox
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && (e.key === 'I' || e.key === 'i')) {
+        e.preventDefault();
+        setIsQuickCaptureOpen(true);
+        return;
+      }
     };
 
     document.addEventListener('keydown', handleSecondBrainKeys);
     return () => document.removeEventListener('keydown', handleSecondBrainKeys);
-  }, [outlines, currentOutlineId, selectedNodeId, handleOpenSecondBrain, handleSaveToSecondBrain, handleSearchSecondBrain, handleCollapseAll, handleExpandAll]);
+  }, [outlines, currentOutlineId, selectedNodeId, handleOpenSecondBrain, handleSaveToSecondBrain, handleSearchSecondBrain, handleCollapseAll, handleExpandAll, setIsQuickCaptureOpen]);
 
   const handleExportSubtree = useCallback((nodeId: string) => {
     setExportNodeId(nodeId);
@@ -3503,6 +3676,19 @@ export default function OutlinePro() {
           onOpenChange={setIsKnowledgeChatOpen}
           outlines={outlines}
           currentOutlineId={currentOutlineId}
+        />
+
+        <QuickCaptureDialog
+          open={isQuickCaptureOpen}
+          onOpenChange={setIsQuickCaptureOpen}
+          onCapture={handleQuickCapture}
+        />
+        <SecondBrainDashboardDialog
+          open={isSecondBrainDashboardOpen}
+          onOpenChange={setIsSecondBrainDashboardOpen}
+          secondBrain={outlines.find(o => o.isSecondBrain) || null}
+          onOpenSecondBrain={handleOpenSecondBrain}
+          onJumpToNode={handleJumpToSecondBrainNode}
         />
 
         {currentOutline && (
@@ -3733,6 +3919,8 @@ export default function OutlinePro() {
                 onSaveToSecondBrain={handleSaveToSecondBrain}
                 onOpenSecondBrain={handleOpenSecondBrain}
                 onSearchSecondBrain={handleSearchSecondBrain}
+                onOpenQuickCapture={handleOpenQuickCapture}
+                onOpenSecondBrainDashboard={handleOpenSecondBrainDashboard}
                 onImportToSecondBrain={handleImportToSecondBrain}
                 onOpenMobileSidebar={() => setIsMobileSidebarOpen(true)}
                 canUnmerge={hasUnmergeBackup}
@@ -3891,6 +4079,19 @@ export default function OutlinePro() {
         onOpenChange={setIsKnowledgeChatOpen}
         outlines={outlines}
         currentOutlineId={currentOutlineId}
+      />
+
+      <QuickCaptureDialog
+        open={isQuickCaptureOpen}
+        onOpenChange={setIsQuickCaptureOpen}
+        onCapture={handleQuickCapture}
+      />
+      <SecondBrainDashboardDialog
+        open={isSecondBrainDashboardOpen}
+        onOpenChange={setIsSecondBrainDashboardOpen}
+        secondBrain={outlines.find(o => o.isSecondBrain) || null}
+        onOpenSecondBrain={handleOpenSecondBrain}
+        onJumpToNode={handleJumpToSecondBrainNode}
       />
 
       {currentOutline && (
@@ -4119,6 +4320,8 @@ export default function OutlinePro() {
                 onSaveToSecondBrain={handleSaveToSecondBrain}
                 onOpenSecondBrain={handleOpenSecondBrain}
                 onSearchSecondBrain={handleSearchSecondBrain}
+                onOpenQuickCapture={handleOpenQuickCapture}
+                onOpenSecondBrainDashboard={handleOpenSecondBrainDashboard}
                 onImportToSecondBrain={handleImportToSecondBrain}
                 isSidebarOpen={isSidebarOpen}
                 onToggleSidebar={() => setIsSidebarOpen(prev => !prev)}

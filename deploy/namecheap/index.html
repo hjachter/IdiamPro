@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SecondBrainWare — The App That Makes the Second Brain Method Actually Work</title>
+  <meta name="description" content="SecondBrainWare is an AI-powered personal knowledge management platform. Capture everything, organize it into structured knowledge, and search it all with AI. Private, local-first, and built for researchers, professionals, and lifelong learners.">
+  <meta name="keywords" content="second brain, knowledge management, AI outliner, research synthesis, personal knowledge base, note taking, Gemma 4, local AI">
+  <meta property="og:title" content="SecondBrainWare — Build Your Second Brain">
+  <meta property="og:description" content="The app that makes the Second Brain method actually work. AI-powered knowledge management for researchers, professionals, and lifelong learners.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://2ndbrainware.com">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0a0a0f;
+      --surface: #12121a;
+      --border: rgba(255,255,255,0.06);
+      --text: #e4e4e7;
+      --text-dim: #71717a;
+      --accent: #8b5cf6;
+      --accent-glow: rgba(139,92,246,0.15);
+      --emerald: #10b981;
+      --emerald-glow: rgba(16,185,129,0.15);
+    }
+    body {
+      font-family: 'Inter', -apple-system, system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+    /* Nav */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+      padding: 16px 24px;
+      background: rgba(10,10,15,0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    nav .inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 20px; color: white; text-decoration: none; }
+    .logo span { color: var(--accent); }
+    .cta-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 24px; border-radius: 8px; font-weight: 600; font-size: 14px;
+      text-decoration: none; transition: all 0.2s;
+    }
+    .cta-primary {
+      background: linear-gradient(135deg, var(--accent), #6366f1);
+      color: white;
+      box-shadow: 0 4px 20px rgba(139,92,246,0.3);
+    }
+    .cta-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 30px rgba(139,92,246,0.4); }
+    .cta-secondary {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .cta-secondary:hover { border-color: var(--accent); }
+
+    /* Hero */
+    .hero {
+      padding: 160px 0 100px;
+      text-align: center;
+      position: relative;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+      width: 800px; height: 500px;
+      background: radial-gradient(ellipse, var(--accent-glow) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(40px, 6vw, 72px);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 24px;
+    }
+    .hero h1 .gradient {
+      background: linear-gradient(135deg, var(--accent), #818cf8, #6366f1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero .tagline {
+      font-size: 20px;
+      color: var(--emerald);
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    .hero .subtitle {
+      font-size: 18px;
+      color: var(--text-dim);
+      max-width: 680px;
+      margin: 0 auto 40px;
+    }
+    .hero-ctas { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+    /* Features */
+    .features { padding: 80px 0; }
+    .features h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 36px; font-weight: 700;
+      text-align: center; margin-bottom: 60px;
+    }
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+    }
+    .feature-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      transition: border-color 0.2s;
+    }
+    .feature-card:hover { border-color: var(--accent); }
+    .feature-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 16px; font-size: 24px;
+    }
+    .feature-card h3 { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+    .feature-card p { font-size: 14px; color: var(--text-dim); line-height: 1.6; }
+
+    /* Second Brain section */
+    .second-brain {
+      padding: 80px 0;
+      text-align: center;
+    }
+    .second-brain h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 36px; font-weight: 700;
+      margin-bottom: 16px;
+    }
+    .second-brain .desc {
+      font-size: 18px; color: var(--text-dim);
+      max-width: 700px; margin: 0 auto 40px;
+    }
+    .brain-features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+      text-align: left;
+    }
+    .brain-feature {
+      background: var(--emerald-glow);
+      border: 1px solid rgba(16,185,129,0.2);
+      border-radius: 12px;
+      padding: 24px;
+    }
+    .brain-feature h4 { font-size: 15px; font-weight: 600; margin-bottom: 6px; color: var(--emerald); }
+    .brain-feature p { font-size: 13px; color: var(--text-dim); }
+
+    /* Audience */
+    .audience { padding: 80px 0; }
+    .audience h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 36px; font-weight: 700;
+      text-align: center; margin-bottom: 40px;
+    }
+    .audience-tags {
+      display: flex; flex-wrap: wrap; gap: 12px; justify-content: center;
+    }
+    .audience-tag {
+      padding: 10px 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-size: 14px;
+      color: var(--text-dim);
+    }
+
+    /* Privacy */
+    .privacy {
+      padding: 60px 0;
+      text-align: center;
+    }
+    .privacy h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 28px; font-weight: 700; margin-bottom: 12px;
+    }
+    .privacy p { font-size: 16px; color: var(--text-dim); max-width: 600px; margin: 0 auto; }
+
+    /* Footer */
+    footer {
+      padding: 40px 0;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 13px;
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+
+    /* CTA banner */
+    .cta-banner {
+      padding: 80px 0;
+      text-align: center;
+      background: linear-gradient(180deg, transparent, var(--accent-glow));
+    }
+    .cta-banner h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 36px; font-weight: 700; margin-bottom: 16px;
+    }
+    .cta-banner p { font-size: 18px; color: var(--text-dim); margin-bottom: 32px; }
+
+    @media (max-width: 640px) {
+      .hero { padding: 120px 0 60px; }
+      .hero-ctas { flex-direction: column; align-items: center; }
+      .feature-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="inner">
+    <a href="/" class="logo">Second<span>Brain</span>Ware</a>
+    <a href="https://idiampro.vercel.app/app" class="cta-btn cta-primary">Launch App &rarr;</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="container">
+    <h1>
+      Build Your<br>
+      <span class="gradient">Second Brain</span>
+    </h1>
+    <p class="tagline">The app that makes the Second Brain method actually work.</p>
+    <p class="subtitle">
+      Capture everything you encounter — articles, research, ideas, images, audio, video.
+      Organize it into structured knowledge. Search it all with AI.
+      Private, local-first, and built for people who think for a living.
+    </p>
+    <div class="hero-ctas">
+      <a href="https://idiampro.vercel.app/app" class="cta-btn cta-primary">Try SecondBrainWare Free &rarr;</a>
+      <a href="#features" class="cta-btn cta-secondary">See Features</a>
+    </div>
+  </div>
+</section>
+
+<section class="second-brain" id="second-brain">
+  <div class="container">
+    <h2>&#129504; Your Second Brain, Actually Built</h2>
+    <p class="desc">
+      A dedicated, always-present knowledge base where everything you want to remember lives.
+      Save anything from any outline. Search it all with natural language. Never lose an idea again.
+    </p>
+    <div class="brain-features">
+      <div class="brain-feature">
+        <h4>Save Anything</h4>
+        <p>Right-click any node in any outline and send it to your Second Brain. Or merge entire outlines into it.</p>
+      </div>
+      <div class="brain-feature">
+        <h4>Search with AI</h4>
+        <p>Ask your Second Brain questions in plain English. AI finds the answer from everything you've ever saved.</p>
+      </div>
+      <div class="brain-feature">
+        <h4>Always Private</h4>
+        <p>Run AI locally with Gemma 4 — your knowledge never leaves your device. No cloud required.</p>
+      </div>
+      <div class="brain-feature">
+        <h4>Import Everything</h4>
+        <p>YouTube, PDFs, web pages, audio, images, documents — import from any source and synthesize with AI.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="features" id="features">
+  <div class="container">
+    <h2>Everything You Need to Think Better</h2>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-icon" style="background: var(--accent-glow);">&#10024;</div>
+        <h3>AI-Powered Outlining</h3>
+        <p>Generate subtrees from any topic. Expand content with AI. Create structured knowledge from raw ideas in seconds.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background: var(--emerald-glow);">&#128218;</div>
+        <h3>Research & Import</h3>
+        <p>Pull in content from YouTube, PDFs, web pages, audio, video, images, and documents. AI synthesizes multiple sources into coherent outlines.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background: rgba(59,130,246,0.15);">&#128269;</div>
+        <h3>Knowledge Chat</h3>
+        <p>Query your outlines with natural language. Ask questions across all your content. Your AI-powered personal search engine.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background: rgba(244,63,94,0.15);">&#127911;</div>
+        <h3>Generate Podcasts</h3>
+        <p>Turn any outline into a conversational audio podcast. Choose hosts, styles, and length. AI writes the script and synthesizes speech.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background: rgba(245,158,11,0.15);">&#127760;</div>
+        <h3>Website Generation</h3>
+        <p>Export any outline as a professional website. 8 templates for marketing, documentation, portfolios, events, and more.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background: rgba(168,85,247,0.15);">&#128274;</div>
+        <h3>Local AI (Private)</h3>
+        <p>Run everything locally with Gemma 4. Your data stays on your device. No cloud, no tracking, works offline.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="audience" id="audience">
+  <div class="container">
+    <h2>Built For People Who Think For a Living</h2>
+    <div class="audience-tags">
+      <span class="audience-tag">&#127891; PhD Researchers</span>
+      <span class="audience-tag">&#128300; Scientists</span>
+      <span class="audience-tag">&#9878;&#65039; Legal Professionals</span>
+      <span class="audience-tag">&#128218; Authors & Writers</span>
+      <span class="audience-tag">&#127979; Students</span>
+      <span class="audience-tag">&#128188; Consultants</span>
+      <span class="audience-tag">&#128240; Journalists</span>
+      <span class="audience-tag">&#128187; Engineers</span>
+      <span class="audience-tag">&#127973; Medical Professionals</span>
+      <span class="audience-tag">&#128161; Lifelong Learners</span>
+    </div>
+  </div>
+</section>
+
+<section class="privacy">
+  <div class="container">
+    <h2>&#128274; Your Knowledge. Your Device. Your Rules.</h2>
+    <p>
+      SecondBrainWare is local-first. Your outlines live on your device.
+      AI can run entirely local with Gemma 4 — no data ever leaves your machine.
+      We never sell your data. Ever.
+    </p>
+  </div>
+</section>
+
+<section class="cta-banner">
+  <div class="container">
+    <h2>Start Building Your Second Brain Today</h2>
+    <p>Free to use. No credit card required. Works on Mac, iOS, and web.</p>
+    <a href="https://idiampro.vercel.app/app" class="cta-btn cta-primary">Launch SecondBrainWare &rarr;</a>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <p>&copy; 2026 SecondBrainWare. All rights reserved. | <a href="https://idiampro.vercel.app/privacy">Privacy Policy</a></p>
+  </div>
+</footer>
+
+</body>
+</html>
