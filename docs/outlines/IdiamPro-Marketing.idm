@@ -2,7 +2,7 @@
   "id": "marketing-outline-v2",
   "name": "IdiamPro Marketing 2",
   "rootNodeId": "root",
-  "lastModified": 1775803678056,
+  "lastModified": 1778529690506,
   "nodes": {
     "root": {
       "id": "root",
@@ -193,7 +193,8 @@
         "feat-export",
         "feat-organization",
         "feat-templates",
-        "feat-videos"
+        "feat-videos",
+        "considered-features-13bc9bc0"
       ],
       "isCollapsed": true,
       "prefix": "4"
@@ -946,6 +947,56 @@
       "childrenIds": [],
       "isCollapsed": false,
       "prefix": "10.4"
+    },
+    "considered-features-13bc9bc0": {
+      "id": "considered-features-13bc9bc0",
+      "name": "Considered Features \u2014 Value Cases",
+      "parentId": "features",
+      "childrenIds": [
+        "cf-qc-23fbc6",
+        "cf-db-43d5dd",
+        "cf-sat-b56dc0",
+        "cf-caveat-15d9ec"
+      ],
+      "type": "chapter",
+      "content": "<p><strong>Proposed Second Brain features with strategic value cases. Status: Considered, not yet built. Decision pending real user feedback (post-TestFlight).</strong></p>\n<p>Each pitch leads with the human behavior driving the problem, then the product response, then the business angle. Bar to build is high \u2014 see <em>Simplicity is the Product</em> principle.</p>",
+      "isExpanded": true
+    },
+    "cf-qc-23fbc6": {
+      "id": "cf-qc-23fbc6",
+      "name": "1. Quick Capture",
+      "parentId": "considered-features-13bc9bc0",
+      "childrenIds": [],
+      "type": "document",
+      "content": "<p><strong>Pitch: \"The friction between thought and capture is where value dies.\"</strong></p>\n<p>People don't lack good ideas. They lose them. Memory research is brutal on this: we forget about half of new information within an hour, 70% within a day. The cost of writing a thought down decides whether it survives. If capture takes 5 keystrokes and a context switch, ideas evaporate. If it takes 1 keystroke from anywhere, the product becomes a habit.</p>\n<p>This is why every successful note tool \u2014 Apple Notes, Drafts, Bear, Obsidian, Notion \u2014 has some flavor of \"scratchpad\" or quick-input mode. It's not a feature; it's <em>the</em> primitive. Capture is the foundation of every personal knowledge management framework that's ever worked (Getting Things Done, Building a Second Brain, Zettelkasten). Without low-friction capture, the rest of the system is theater.</p>\n<p><strong>Business angle:</strong> Daily active usage is the lifeblood of subscription products. Users who capture daily renew. Users who capture monthly churn. Quick capture is the single biggest lever for retention in this category.</p>\n<p><strong>Proposed UX:</strong> Global shortcut (e.g., Cmd+Shift+I) opens a small floating dialog from anywhere. Type or paste, hit Enter, lands in a \"\ud83d\udce5 Inbox\" section at the top of the Second Brain outline. Organize later.</p>",
+      "isExpanded": false
+    },
+    "cf-db-43d5dd": {
+      "id": "cf-db-43d5dd",
+      "name": "2. Dashboard",
+      "parentId": "considered-features-13bc9bc0",
+      "childrenIds": [],
+      "type": "document",
+      "content": "<p><strong>Pitch: \"Without proof of accumulation, people stop trusting the system.\"</strong></p>\n<p>This is the lesson of Evernote's collapse: people saved hundreds of notes, lost the thread of what was in there, gradually stopped trusting it, and gave up. Capture without a sense of what you've accumulated turns into a write-only graveyard. The dashboard exists to give the user the <em>feeling</em> that their effort is compounding \u2014 that yesterday's save matters today.</p>\n<p>It's also the screenshot people post: \"Look at my Second Brain.\" That's organic marketing. And it's the trigger for re-engagement \u2014 when a user sees \"you saved 12 things this week,\" that's a justification of their subscription that no email campaign can match.</p>\n<p>This is less about features and more about converting Second Brain from a sink (things go in) into an archive (things come back out). Without a dashboard, retrieval depends entirely on Knowledge Chat search. That's powerful but ephemeral. A dashboard is the resting state \u2014 the thing you see when you open the app on a quiet morning.</p>\n<p><strong>Proposed UX:</strong> A read-only panel accessible from the Brain menu showing: total entries, recent saves (last 7 days with snippets), and a \"review pile\" of older entries to revisit.</p>",
+      "isExpanded": false
+    },
+    "cf-sat-b56dc0": {
+      "id": "cf-sat-b56dc0",
+      "name": "3. Smart Auto-Tagging",
+      "parentId": "considered-features-13bc9bc0",
+      "childrenIds": [],
+      "type": "document",
+      "content": "<p><strong>Pitch: \"The user captures; the system organizes.\"</strong></p>\n<p>Every PKM tool that's ever asked users to tag manually has watched users not tag manually. The cognitive load of \"what should I call this?\" is enough friction to break the capture habit. Folders go unmaintained. Categories drift. By year two, the system is a mess and the user is shopping for a new app.</p>\n<p>AI silently doing the organizational work is the AI-native value proposition: not \"here's a chat dropped in,\" but \"the system gets smarter the more you use it, with no effort on your part.\" It's the iCloud Photos \"People\" album of personal knowledge \u2014 emergent structure from raw input.</p>\n<p>This is also our <strong>moat and our marketing demo.</strong> \"Save anything. We tag it. Filter by topic without ever organizing.\" Every competitor has tagging. Almost none have AI doing it for you. It's a 30-second video that sells the Premium tier.</p>\n<p><strong>Proposed UX:</strong> On save, AI suggests 1\u20133 tags (using node metadata schema that already exists but is unused). User accepts, edits, or skips. Tags later power filter/search.</p>",
+      "isExpanded": false
+    },
+    "cf-caveat-15d9ec": {
+      "id": "cf-caveat-15d9ec",
+      "name": "Honest Caveat & Recommended Sequence",
+      "parentId": "considered-features-13bc9bc0",
+      "childrenIds": [],
+      "type": "document",
+      "content": "<p><strong>The honest co-founder version (not for the pitch deck):</strong></p>\n<p>The strongest case is for #1 alone. Quick capture is foundational; it changes whether the product gets used at all. #2 and #3 are accelerants \u2014 valuable, but they only matter if people are already capturing. If people aren't capturing because friction is too high, building a dashboard for the empty graveyard is wasted work.</p>\n<p><strong>Recommended sequence:</strong></p>\n<ol>\n<li>Ship #1 (Quick Capture).</li>\n<li>Watch real-user behavior post-TestFlight.</li>\n<li>Decide #2 and #3 based on whether captured volume justifies them \u2014 not based on the pitch alone.</li>\n</ol>\n<p><strong>Reminder:</strong> All three are aspirational. Howard explicitly stated on 2026-05-08 that current Second Brain pain points were already addressed in earlier work. Do not build any of these without a validated user pain point.</p>",
+      "isExpanded": false
     }
   },
   "isGuide": false,
