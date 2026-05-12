@@ -43,7 +43,6 @@ export interface OutlineNode {
   metadata?: {
     tags?: string[];           // Tags for organization
     color?: NodeColor;         // Visual color
-    isPinned?: boolean;        // Pin to top
     isCompleted?: boolean;     // For task nodes
     codeLanguage?: string;     // For code nodes
     url?: string;              // For link nodes

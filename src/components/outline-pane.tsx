@@ -9,7 +9,7 @@ import { MultiSelectToolbar } from './multi-select-toolbar';
 import FileImportDialog from './file-import-dialog';
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { ChevronDown, FilePlus, Plus, Trash2, Edit, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, Settings, Search, Command, PanelLeft, PanelLeftClose, Brain, StopCircle, Inbox, LayoutDashboard } from 'lucide-react';
+import { ChevronDown, FilePlus, Plus, Trash2, Edit, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, Settings, Search, Command, PanelLeft, PanelLeftClose, Brain, StopCircle, Inbox, LayoutDashboard, Focus } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Input } from './ui/input';
@@ -19,6 +19,7 @@ import { exportOutlineToJson, exportAllOutlinesToJson, shareBackupFile, shareOut
 import { loadStorageData, saveAllOutlines } from '@/lib/storage-manager';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 // Check if running in Capacitor native app (not just mobile browser)
 function isCapacitor(): boolean {
@@ -160,6 +161,9 @@ interface OutlinePaneProps {
   // Unmerge button
   canUnmerge?: boolean;
   onUnmerge?: () => void;
+  // Focus Mode
+  isFocusMode?: boolean;
+  onToggleFocusMode?: () => void;
 }
 
 export default function OutlinePane({
@@ -225,6 +229,8 @@ export default function OutlinePane({
   onOpenMobileSidebar,
   canUnmerge,
   onUnmerge,
+  isFocusMode,
+  onToggleFocusMode,
 }: OutlinePaneProps) {
   const [renameId, setRenameId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
@@ -1115,6 +1121,33 @@ export default function OutlinePane({
             </TooltipTrigger>
             <TooltipContent>Search outline{!isMobile && ' (⌘F)'}</TooltipContent>
           </Tooltip>
+
+          {/* Focus Mode toggle (FIX 2) */}
+          {onToggleFocusMode && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={onToggleFocusMode}
+                  disabled={!selectedNodeId}
+                  className={cn(
+                    "hover:bg-accent/20 active:scale-95 active:bg-accent/30",
+                    isFocusMode && "bg-primary/15 ring-1 ring-primary/40 text-primary"
+                  )}
+                  aria-pressed={isFocusMode}
+                  aria-label="Focus Mode"
+                >
+                  <Focus className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                {selectedNodeId
+                  ? `Focus Mode${!isMobile ? ' (⌘⇧F)' : ''}`
+                  : 'Select a node to enter Focus Mode'}
+              </TooltipContent>
+            </Tooltip>
+          )}
 
           <Tooltip>
             <TooltipTrigger asChild>

@@ -4,8 +4,8 @@ import React from 'react';
 import type { OutlineNode, NodeMap } from '@/types';
 import NodeIcon from './node-icon';
 import { TagBadge } from './tag-badge';
-import { TagManager } from './tag-manager';
-import { ChevronRight, Plus, Trash2, Edit3, ChevronDown, ChevronUp, Copy, Scissors, ClipboardPaste, CopyPlus, Sparkles, CheckSquare2, Square, Palette, Check, Star, Tag, Share } from 'lucide-react';
+import NodePropertiesDialog from './node-properties-dialog';
+import { ChevronRight, Plus, Trash2, Edit3, ChevronDown, ChevronUp, Copy, Scissors, ClipboardPaste, CopyPlus, Sparkles, CheckSquare2, Square, Sliders, Share } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import {
@@ -15,9 +15,6 @@ import {
   ContextMenuSeparator,
   ContextMenuShortcut,
   ContextMenuTrigger,
-  ContextMenuSub,
-  ContextMenuSubTrigger,
-  ContextMenuSubContent,
 } from '@/components/ui/context-menu';
 
 // Module-level variable to track the currently dragged node ID
@@ -171,7 +168,7 @@ export default function NodeItem({
   const [dropPosition, setDropPosition] = React.useState<DropPosition>(null);
   const [isDragging, setIsDragging] = React.useState(false);
   const isMultiSelected = selectedNodeIds?.has(nodeId) || false;
-  const [isTagManagerOpen, setIsTagManagerOpen] = React.useState(false);
+  const [isPropertiesOpen, setIsPropertiesOpen] = React.useState(false);
 
   const itemRef = React.useRef<HTMLLIElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -179,6 +176,12 @@ export default function NodeItem({
   // Double-tap detection for touch devices
   const lastTapRef = React.useRef<number>(0);
   const tapTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+
+  // Long-press detection for entering multi-select mode on touch (FIX 1)
+  // 500ms hold with no movement enters multi-select.
+  const longPressTimerRef = React.useRef<NodeJS.Timeout | null>(null);
+  const longPressTriggeredRef = React.useRef(false);
+  const LONG_PRESS_DURATION = 500;
 
   // Swipe gesture detection for indent/outdent (works with both touch and mouse/pointer)
   const pointerStartRef = React.useRef<{ x: number; y: number; time: number; pointerId: number } | null>(null);
@@ -188,6 +191,24 @@ export default function NodeItem({
   // Records the input device of the most recent pointerdown so handleClick
   // can branch behavior (touch → tap-again-to-edit, mouse → click-to-select).
   const lastPointerTypeRef = React.useRef<string>('mouse');
+
+  // Trigger lightweight haptic feedback (vibration) when available.
+  const triggerHaptic = React.useCallback((duration: number = 20) => {
+    try {
+      if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+        navigator.vibrate(duration);
+      }
+    } catch {
+      // Ignore - vibration not supported or blocked
+    }
+  }, []);
+
+  const cancelLongPress = React.useCallback(() => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+  }, []);
 
   const handlePointerDown = (e: React.PointerEvent) => {
     lastPointerTypeRef.current = e.pointerType;
@@ -246,6 +267,39 @@ export default function NodeItem({
     return wasSwipe;
   };
 
+  // Touch long-press for multi-select entry (FIX 1).
+  // Coexists with drag-init (movement cancels timer → drag wins per FIX 5)
+  // and system context-menu (browser default fires after this; we win at 500ms).
+  const handleTouchStart = React.useCallback((e: React.TouchEvent) => {
+    if (isRoot || isEditing) return;
+    longPressTriggeredRef.current = false;
+    cancelLongPress();
+    longPressTimerRef.current = setTimeout(() => {
+      longPressTimerRef.current = null;
+      // Skip if user is already in multi-select mode (taps handle toggling there)
+      if (selectedNodeIds && selectedNodeIds.size > 0) return;
+      if (!onToggleNodeSelection) return;
+      longPressTriggeredRef.current = true;
+      triggerHaptic(25);
+      // Enter multi-select and add this node. Use isCtrlClick=true semantics
+      // so the parent handler clears single-selection and toggles set membership.
+      onToggleNodeSelection(nodeId, true);
+    }, LONG_PRESS_DURATION);
+  }, [isRoot, isEditing, selectedNodeIds, onToggleNodeSelection, nodeId, cancelLongPress, triggerHaptic]);
+
+  const handleTouchMove = React.useCallback(() => {
+    // Any finger motion cancels long-press → defers to drag/swipe (FIX 5).
+    cancelLongPress();
+  }, [cancelLongPress]);
+
+  const handleTouchEnd = React.useCallback(() => {
+    cancelLongPress();
+  }, [cancelLongPress]);
+
+  const handleTouchCancel = React.useCallback(() => {
+    cancelLongPress();
+  }, [cancelLongPress]);
+
   React.useEffect(() => {
     if (isEditing && inputRef.current) {
       inputRef.current.focus();
@@ -275,6 +329,9 @@ export default function NodeItem({
       if (tapTimeoutRef.current) {
         clearTimeout(tapTimeoutRef.current);
       }
+      if (longPressTimerRef.current) {
+        clearTimeout(longPressTimerRef.current);
+      }
     };
   }, []);
 
@@ -290,6 +347,8 @@ export default function NodeItem({
       e.preventDefault();
       return;
     }
+    // FIX 5: drag started — make sure pending long-press doesn't fire.
+    cancelLongPress();
     e.stopPropagation();
     e.dataTransfer.setData('application/outline-node-id', node.id);
     e.dataTransfer.effectAllowed = 'move';
@@ -433,6 +492,14 @@ export default function NodeItem({
     // Skip if this click was triggered by a touch event
     if (touchHandledRef.current) return;
 
+    // If a long-press just fired (entered multi-select), swallow the synthesized click.
+    if (longPressTriggeredRef.current) {
+      longPressTriggeredRef.current = false;
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+
     // Don't handle if already editing
     if (isEditing) return;
 
@@ -449,8 +516,12 @@ export default function NodeItem({
         onToggleNodeSelection(node.id, true);
         return;
       } else if (selectedNodeIds && selectedNodeIds.size > 0) {
-        // Regular click when multi-select is active: clear selection
-        onToggleNodeSelection(node.id, false);
+        // Already in multi-select mode: a plain tap/click toggles this node's membership.
+        // This is the FIX 1 path for touch users — once multi-select is entered via
+        // long-press, plain taps add/remove nodes from the selection.
+        e.preventDefault();
+        onToggleNodeSelection(node.id, true);
+        return;
       }
     }
 
@@ -517,6 +588,10 @@ export default function NodeItem({
             onPointerCancel={(e) => {
               handlePointerUp(e);
             }}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            onTouchCancel={handleTouchCancel}
             onDoubleClick={() => { if (!isEditing) setIsEditing(true); }}
             draggable={!isRoot}
             onDragStart={handleDragStart}
@@ -524,13 +599,14 @@ export default function NodeItem({
         >
             <button
                 className={cn(
-                    "p-1 rounded-md hover:bg-primary/20",
+                    "inline-flex items-center justify-center min-h-8 min-w-8 rounded-md hover:bg-primary/20 active:scale-95 active:bg-accent/30 transition-colors",
                     isChapter ? "visible" : "invisible"
                 )}
                 onClick={(e) => {
                     e.stopPropagation();
                     onToggleCollapse(node.id);
                 }}
+                aria-label={node.isCollapsed ? "Expand" : "Collapse"}
             >
                 <ChevronRight size={16} className={cn("transition-transform", !node.isCollapsed && "rotate-90")} />
             </button>
@@ -540,7 +616,7 @@ export default function NodeItem({
             )}
             {node.type === 'task' && (
                 <button
-                    className="p-1 rounded-md hover:bg-primary/20 ml-1"
+                    className="inline-flex items-center justify-center min-h-8 min-w-8 rounded-md hover:bg-primary/20 active:scale-95 active:bg-accent/30 transition-colors ml-1"
                     onClick={(e) => {
                         e.stopPropagation();
                         onUpdateNode(nodeId, {
@@ -550,6 +626,7 @@ export default function NodeItem({
                             },
                         });
                     }}
+                    aria-label={node.metadata?.isCompleted ? "Mark task incomplete" : "Mark task complete"}
                 >
                     {node.metadata?.isCompleted ? (
                         <CheckSquare2 size={16} className="text-blue-500 dark:text-blue-400" />
@@ -616,30 +693,6 @@ export default function NodeItem({
                         </div>
                     )}
                 </div>
-            )}
-            {!isRoot && (
-                <button
-                    className={cn(
-                        "p-1 rounded-md transition-colors shrink-0",
-                        node.metadata?.isPinned
-                          ? "text-yellow-500 hover:text-yellow-600 dark:text-yellow-400 dark:hover:text-yellow-300"
-                          : "text-muted-foreground/30 hover:text-muted-foreground opacity-0 group-hover:opacity-100"
-                    )}
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        onUpdateNode(nodeId, {
-                            metadata: {
-                                ...node.metadata,
-                                isPinned: !node.metadata?.isPinned,
-                            },
-                        });
-                    }}
-                >
-                    <Star
-                        size={16}
-                        className={node.metadata?.isPinned ? "fill-yellow-500" : ""}
-                    />
-                </button>
             )}
             </div>
           </ContextMenuTrigger>
@@ -728,192 +781,6 @@ export default function NodeItem({
               </ContextMenuItem>
             )}
 
-            {!isRoot && (
-              <>
-                <ContextMenuSeparator />
-                <ContextMenuSub>
-                  <ContextMenuSubTrigger>
-                    <Edit3 className="mr-2 h-4 w-4" />
-                    Set Type
-                  </ContextMenuSubTrigger>
-                  <ContextMenuSubContent>
-                    <ContextMenuItem onClick={() => onUpdateNode(nodeId, { type: 'chapter' })}>
-                      {node.type === 'chapter' && <Check className="mr-2 h-4 w-4" />}
-                      {node.type !== 'chapter' && <span className="mr-2 h-4 w-4" />}
-                      Chapter
-                    </ContextMenuItem>
-                    <ContextMenuItem onClick={() => onUpdateNode(nodeId, { type: 'document' })}>
-                      {node.type === 'document' && <Check className="mr-2 h-4 w-4" />}
-                      {node.type !== 'document' && <span className="mr-2 h-4 w-4" />}
-                      Document
-                    </ContextMenuItem>
-                    <ContextMenuItem onClick={() => onUpdateNode(nodeId, { type: 'note' })}>
-                      {node.type === 'note' && <Check className="mr-2 h-4 w-4" />}
-                      {node.type !== 'note' && <span className="mr-2 h-4 w-4" />}
-                      Note
-                    </ContextMenuItem>
-                    <ContextMenuSeparator />
-                    <ContextMenuItem onClick={() => onUpdateNode(nodeId, { type: 'task' })}>
-                      {node.type === 'task' && <Check className="mr-2 h-4 w-4" />}
-                      {node.type !== 'task' && <span className="mr-2 h-4 w-4" />}
-                      Task
-                    </ContextMenuItem>
-                    <ContextMenuItem onClick={() => onUpdateNode(nodeId, { type: 'link', content: '' })}>
-                      {node.type === 'link' && <Check className="mr-2 h-4 w-4" />}
-                      {node.type !== 'link' && <span className="mr-2 h-4 w-4" />}
-                      Link
-                    </ContextMenuItem>
-                    <ContextMenuItem onClick={() => onUpdateNode(nodeId, { type: 'code', content: '' })}>
-                      {node.type === 'code' && <Check className="mr-2 h-4 w-4" />}
-                      {node.type !== 'code' && <span className="mr-2 h-4 w-4" />}
-                      Code
-                    </ContextMenuItem>
-                    <ContextMenuItem onClick={() => onUpdateNode(nodeId, { type: 'quote', content: '' })}>
-                      {node.type === 'quote' && <Check className="mr-2 h-4 w-4" />}
-                      {node.type !== 'quote' && <span className="mr-2 h-4 w-4" />}
-                      Quote
-                    </ContextMenuItem>
-                    <ContextMenuItem onClick={() => onUpdateNode(nodeId, { type: 'date', content: '' })}>
-                      {node.type === 'date' && <Check className="mr-2 h-4 w-4" />}
-                      {node.type !== 'date' && <span className="mr-2 h-4 w-4" />}
-                      Date
-                    </ContextMenuItem>
-                    <ContextMenuSeparator />
-                    <ContextMenuItem onClick={() => onUpdateNode(nodeId, { type: 'canvas' })}>
-                      {node.type === 'canvas' && <Check className="mr-2 h-4 w-4" />}
-                      {node.type !== 'canvas' && <span className="mr-2 h-4 w-4" />}
-                      Canvas
-                    </ContextMenuItem>
-                  </ContextMenuSubContent>
-                </ContextMenuSub>
-                <ContextMenuSub>
-                  <ContextMenuSubTrigger>
-                    <Palette className="mr-2 h-4 w-4" />
-                    Set Color
-                  </ContextMenuSubTrigger>
-                  <ContextMenuSubContent>
-                    <ContextMenuItem
-                      onClick={() => {
-                        onUpdateNode(nodeId, {
-                          metadata: {
-                            ...node.metadata,
-                            color: undefined,
-                          },
-                        });
-                      }}
-                    >
-                      {!node.metadata?.color && <Check className="mr-2 h-4 w-4" />}
-                      {!node.metadata?.color || <span className="mr-2 h-4 w-4" />}
-                      Default
-                    </ContextMenuItem>
-                    <ContextMenuItem
-                      onClick={() => {
-                        onUpdateNode(nodeId, {
-                          metadata: {
-                            ...node.metadata,
-                            color: 'red',
-                          },
-                        });
-                      }}
-                    >
-                      {node.metadata?.color === 'red' && <Check className="mr-2 h-4 w-4" />}
-                      {node.metadata?.color !== 'red' && <span className="mr-2 h-4 w-4" />}
-                      Red
-                    </ContextMenuItem>
-                    <ContextMenuItem
-                      onClick={() => {
-                        onUpdateNode(nodeId, {
-                          metadata: {
-                            ...node.metadata,
-                            color: 'orange',
-                          },
-                        });
-                      }}
-                    >
-                      {node.metadata?.color === 'orange' && <Check className="mr-2 h-4 w-4" />}
-                      {node.metadata?.color !== 'orange' && <span className="mr-2 h-4 w-4" />}
-                      Orange
-                    </ContextMenuItem>
-                    <ContextMenuItem
-                      onClick={() => {
-                        onUpdateNode(nodeId, {
-                          metadata: {
-                            ...node.metadata,
-                            color: 'yellow',
-                          },
-                        });
-                      }}
-                    >
-                      {node.metadata?.color === 'yellow' && <Check className="mr-2 h-4 w-4" />}
-                      {node.metadata?.color !== 'yellow' && <span className="mr-2 h-4 w-4" />}
-                      Yellow
-                    </ContextMenuItem>
-                    <ContextMenuItem
-                      onClick={() => {
-                        onUpdateNode(nodeId, {
-                          metadata: {
-                            ...node.metadata,
-                            color: 'green',
-                          },
-                        });
-                      }}
-                    >
-                      {node.metadata?.color === 'green' && <Check className="mr-2 h-4 w-4" />}
-                      {node.metadata?.color !== 'green' && <span className="mr-2 h-4 w-4" />}
-                      Green
-                    </ContextMenuItem>
-                    <ContextMenuItem
-                      onClick={() => {
-                        onUpdateNode(nodeId, {
-                          metadata: {
-                            ...node.metadata,
-                            color: 'blue',
-                          },
-                        });
-                      }}
-                    >
-                      {node.metadata?.color === 'blue' && <Check className="mr-2 h-4 w-4" />}
-                      {node.metadata?.color !== 'blue' && <span className="mr-2 h-4 w-4" />}
-                      Blue
-                    </ContextMenuItem>
-                    <ContextMenuItem
-                      onClick={() => {
-                        onUpdateNode(nodeId, {
-                          metadata: {
-                            ...node.metadata,
-                            color: 'purple',
-                          },
-                        });
-                      }}
-                    >
-                      {node.metadata?.color === 'purple' && <Check className="mr-2 h-4 w-4" />}
-                      {node.metadata?.color !== 'purple' && <span className="mr-2 h-4 w-4" />}
-                      Purple
-                    </ContextMenuItem>
-                    <ContextMenuItem
-                      onClick={() => {
-                        onUpdateNode(nodeId, {
-                          metadata: {
-                            ...node.metadata,
-                            color: 'pink',
-                          },
-                        });
-                      }}
-                    >
-                      {node.metadata?.color === 'pink' && <Check className="mr-2 h-4 w-4" />}
-                      {node.metadata?.color !== 'pink' && <span className="mr-2 h-4 w-4" />}
-                      Pink
-                    </ContextMenuItem>
-                  </ContextMenuSubContent>
-                </ContextMenuSub>
-                <ContextMenuSeparator />
-                <ContextMenuItem onClick={() => setIsTagManagerOpen(true)}>
-                  <Tag className="mr-2 h-4 w-4" />
-                  Manage Tags...
-                </ContextMenuItem>
-              </>
-            )}
-
             {!isRoot && onDeleteNode && (
               <>
                 <ContextMenuSeparator />
@@ -924,6 +791,16 @@ export default function NodeItem({
                   <Trash2 className="mr-2 h-4 w-4" />
                   Delete Node
                   <ContextMenuShortcut>Del</ContextMenuShortcut>
+                </ContextMenuItem>
+              </>
+            )}
+
+            {!isRoot && (
+              <>
+                <ContextMenuSeparator />
+                <ContextMenuItem onClick={(e) => { e.stopPropagation(); setIsPropertiesOpen(true); }}>
+                  <Sliders className="mr-2 h-4 w-4" />
+                  Properties...
                 </ContextMenuItem>
               </>
             )}
@@ -981,23 +858,13 @@ export default function NodeItem({
             </>
         )}
 
-        {/* Tag Manager Dialog */}
-        <TagManager
-          open={isTagManagerOpen}
-          onOpenChange={setIsTagManagerOpen}
+        {/* Properties Dialog (replaces Type submenu, Color submenu, Tag manager) */}
+        <NodePropertiesDialog
+          open={isPropertiesOpen}
+          onOpenChange={setIsPropertiesOpen}
+          node={node}
           nodes={nodes}
-          currentNodeId={nodeId}
-          onAddTagToNode={(tag) => {
-            const existingTags = node.metadata?.tags || [];
-            if (!existingTags.includes(tag)) {
-              onUpdateNode(nodeId, {
-                metadata: {
-                  ...node.metadata,
-                  tags: [...existingTags, tag],
-                },
-              });
-            }
-          }}
+          onUpdateNode={onUpdateNode}
         />
     </li>
   );

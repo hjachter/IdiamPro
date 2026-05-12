@@ -3926,6 +3926,8 @@ export default function OutlinePro() {
                 onOpenMobileSidebar={() => setIsMobileSidebarOpen(true)}
                 canUnmerge={hasUnmergeBackup}
                 onUnmerge={handleUnmerge}
+                isFocusMode={isFocusMode}
+                onToggleFocusMode={() => setIsFocusMode(prev => !prev)}
               />
             </div>
             {/* Content Preview - takes ~30%, tap to expand */}
@@ -4328,6 +4330,8 @@ export default function OutlinePro() {
                 onToggleSidebar={() => setIsSidebarOpen(prev => !prev)}
                 canUnmerge={hasUnmergeBackup}
                 onUnmerge={handleUnmerge}
+                isFocusMode={isFocusMode}
+                onToggleFocusMode={() => setIsFocusMode(prev => !prev)}
               />
             </div>
           </ResizablePanel>

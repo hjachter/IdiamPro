@@ -307,9 +307,9 @@ This guide cannot be deleted, but you can copy it to create your own customized 
   const dateNodesId = uuidv4();
   const tagsId = uuidv4();
   const colorsId = uuidv4();
-  const pinningId = uuidv4();
+  const nodeInteractionsId = uuidv4();
 
-  createNode(nodes, advancedId, rootId, "Advanced Node Features", "IdiamPro supports specialized node types, organization tools like tags and colors, and pinning important nodes. These features help you create more structured and visually organized outlines.", []);
+  createNode(nodes, advancedId, rootId, "Advanced Node Features", "IdiamPro supports specialized node types and organization tools like tags and colors. These features help you create more structured and visually organized outlines.", []);
 
   createNode(nodes, nodeTypesId, advancedId, "Node Types", "Beyond standard document and chapter nodes, IdiamPro supports several specialized node types, each with unique editors and functionality. Access these by right-clicking a node and selecting 'Set Type' from the context menu.", []);
 
@@ -334,7 +334,7 @@ This guide cannot be deleted, but you can copy it to create your own customized 
 
   createNode(nodes, colorsId, advancedId, "Node Colors", "Add visual distinction to nodes with custom colors displayed as a left border.\n\nHow to use:\n- Right-click any node > 'Set Color'\n- Choose from 8 colors + default\n- 4px colored left border appears on the node\n- Great for prioritizing or categorizing\n- Works alongside chapter colors\n\nColors: Red, Orange, Yellow, Green, Blue, Purple, Pink");
 
-  createNode(nodes, pinningId, advancedId, "Pinning Nodes", "Pin important nodes to keep them easily accessible.\n\nFeatures:\n- Star icon appears on hover\n- Click star to toggle pin status\n- Pinned nodes show filled yellow star\n- Visual highlighting for pinned items\n- Perfect for frequently accessed nodes");
+  createNode(nodes, nodeInteractionsId, advancedId, "Node Interactions", "How to interact with nodes on desktop and mobile.\n\n**Selecting a node:**\n- Desktop: Click the node\n- Mobile: Tap the node\n\n**Renaming a node:**\n- Desktop: Double-click the node, or select it and press Enter\n- Mobile: Tap the already-selected node again\n\n**Multi-select (selecting many nodes for bulk operations):**\n- Desktop: Cmd/Ctrl+Click to toggle a node in the selection, Shift+Click to select a range\n- Mobile: Long-press any node (~half a second, don't move your finger) to enter multi-select mode — the long-pressed node becomes the first selection, then plain taps on other nodes toggle them in or out\n- A blue ring shows which nodes are selected. The multi-select toolbar appears at the bottom with bulk actions (color, tag, indent/outdent, delete).\n- Press Escape (desktop) or tap the Cancel button in the toolbar to exit multi-select mode.\n\n**Focus Mode:**\n- Select a node, then click the Focus button in the toolbar (target icon) or press Cmd+Shift+F\n- Only the selected node and its descendants are shown — everything else is hidden\n- Click the button again or press Escape to return to the full outline\n- The button highlights when Focus Mode is active\n\n**Properties dialog:**\n- Right-click (desktop) or long-press for the system menu (mobile) on any node and choose 'Properties...'\n- A single dialog shows Type, Color, and Tags for that node\n- Replaces the older separate 'Set Type', 'Set Color', and 'Manage Tags' submenus — fewer menu items, same power\n\n**Larger tap targets (mobile):**\n- The chevron (expand/collapse) and task checkbox now have a 32px hit area for reliable one-tap operation on touch screens. The visible icons stay the same size.\n\n**Note on gestures:** Long-press + still finger enters multi-select. Long-press + movement initiates drag. The system right-click menu still appears for long-presses that the browser interprets as such.");
 
   // === MULTI-SELECT & BULK OPERATIONS ===
   const multiSelectId = uuidv4();

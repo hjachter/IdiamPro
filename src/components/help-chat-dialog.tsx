@@ -30,6 +30,8 @@ KEY FEATURES:
 - Rich content editor with markdown support, clipboard image paste (Cmd+V), drag-and-drop images, link paste (URLs auto-link, rich HTML links preserved)
 - Import File button (paperclip icon): import any file from your device. Auto-detects type — images embed inline, videos embed with player controls, audio files embed with native audio player, PDFs show a dialog to extract text or insert as link, other files insert as download links
 - Multi-select nodes for bulk operations (delete, change color, add tags)
+- Node multi-select (desktop): Cmd/Ctrl+Click toggles a node in the selection, Shift+Click selects a range
+- Node multi-select (mobile): Long-press any node in the outline (~500ms, no finger movement) to enter multi-select mode; once entered, plain taps on other nodes add/remove them from the selection. Provides light haptic feedback on entry where supported. Press Escape (desktop) or use the toolbar Cancel button to exit.
 - Sidebar multi-select (desktop): Cmd/Ctrl+Click or Shift+Click outlines in the sidebar to select multiple, then bulk delete
 - Sidebar multi-select (mobile): Long-press any outline in the mobile sidebar sheet to enter select mode, then tap additional outlines to toggle them; a top bar provides Cancel and Delete
 - Sidebar rename (mobile): Tap the ⋯ menu on the right of any outline row and choose Rename for an inline rename field (Enter saves, Escape cancels)
@@ -65,7 +67,7 @@ KEYBOARD SHORTCUTS:
 - Cmd+D: Duplicate node
 - Delete/Backspace: Delete selected node (with confirmation if enabled)
 - Cmd+Backspace: Delete node
-- Cmd+Shift+F: Focus Mode (isolate subtree, Esc to exit)
+- Cmd+Shift+F: Focus Mode (isolate subtree, Esc to exit). Also available as a Focus button in the outline toolbar — highlights when active, disabled when no node is selected.
 - Ctrl+F: Search (current outline or all outlines). Collapsed nodes containing matches auto-expand to reveal results. Filter toggles let you search node names only, content only, or both.
 - Up/Down arrows: Navigate between nodes
 - Left/Right arrows: Collapse/expand nodes
@@ -79,7 +81,14 @@ GESTURES (iOS):
 - Double-tap: Create sibling node
 - Swipe right: Indent
 - Swipe left: Outdent
-- Long-press: Context menu
+- Long-press (still finger, ~500ms): Enter multi-select mode (this node becomes the first selection). Subsequent plain taps toggle other nodes in/out of selection.
+- Long-press + drag: Move node (drag and drop)
+- Long-press (browser default): System context menu may also appear for long-press gestures
+
+NODE CONTEXT MENU (right-click / long-press):
+- Trimmed to essentials: Add Sibling, Rename, Collapse/Expand, AI actions, Share, Save to Second Brain, Copy/Cut/Paste/Duplicate, Delete, and Properties...
+- Type, Color, and Tags now live in a single Properties... dialog (one item at the bottom of the context menu) instead of three separate submenus.
+- Pin/star functionality has been removed. There is no longer a star icon on node rows.
 
 AI FEATURES:
 - Generate Subtree from Topic: AI menu > Generate Subtree. Topic is pre-filled with the selected node's name (editable). Result is inserted as children of the selected node. (Free tier: 10/month, Premium: 100/month)
