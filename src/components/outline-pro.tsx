@@ -3726,6 +3726,7 @@ export default function OutlinePro() {
           onCreateOutline={handleCreateOutline}
           onCreateFromTemplate={handleCreateFromTemplate}
           onDeleteOutline={handleDeleteOutline}
+          onRenameOutline={handleRenameOutline}
           onOpenGuide={handleOpenGuide}
           onShowWelcome={handleShowWelcome}
         />

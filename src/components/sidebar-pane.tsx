@@ -47,6 +47,7 @@ import { templates, type Template } from '@/lib/templates';
 import type { Outline } from '@/types';
 import type { LazyOutline } from '@/lib/storage-manager';
 import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface SidebarPaneProps {
   outlines: Outline[];
@@ -71,6 +72,7 @@ export default function SidebarPane({
   onOpenGuide,
   onShowWelcome,
 }: SidebarPaneProps) {
+  const isMobile = useIsMobile();
   const [templatesOpen, setTemplatesOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [outlineToDelete, setOutlineToDelete] = useState<Outline | null>(null);
@@ -390,10 +392,15 @@ export default function SidebarPane({
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+                        className={cn(
+                          "h-9 w-9 shrink-0 transition-opacity duration-150",
+                          isMobile
+                            ? "opacity-100"
+                            : "opacity-0 group-hover:opacity-100"
+                        )}
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <MoreHorizontal className="h-3 w-3" />
+                        <MoreHorizontal className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="elevation-2">
