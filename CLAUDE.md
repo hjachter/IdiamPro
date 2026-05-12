@@ -6,9 +6,41 @@
 
 ---
 
-## Platform: Cross-Platform (macOS + iOS via Capacitor)
+## Platform Support & Rosetta Stone
 
-This is a professional outlining application that runs on both macOS (web) and iOS (native via Capacitor). All features must work on BOTH platforms.
+IdiamPro/SecondBrainWare targets 6 platforms. macOS, iOS, and Web are actively shipped. Windows and Linux have build configurations ready but no distributed builds yet. Android is compatible by design via Capacitor but the Android project is not yet scaffolded. All new features must work on Apple platforms first, and should remain compatible with the others without platform-specific assumptions wherever possible.
+
+### Platform Support Matrix
+
+| Platform | Build Path | Status | Distribution |
+|---|---|---|---|
+| macOS | Electron | Production | Self-hosted DMG, TestFlight planned |
+| iOS | Capacitor | Production | TestFlight (in queue) |
+| Web | Vercel | Production | Auto-deploy on git push |
+| Windows | Electron | Build config ready | Not yet built/distributed |
+| Linux | Electron | Build config ready | Not yet built/distributed |
+| Android | Capacitor | Not scaffolded | Future work |
+
+### Action-to-Input Rosetta Stone
+
+| Action | macOS | Windows/Linux | iOS/Android | Web |
+|---|---|---|---|---|
+| Copy / Paste / Select All | Cmd+C/V/A | Ctrl+C/V/A | Long-press → menu | Cmd/Ctrl+C/V/A |
+| Undo / Redo | Cmd+Z / Cmd+Shift+Z | Ctrl+Z / Ctrl+Shift+Z | Toolbar buttons | Both |
+| Bold / Italic / Headings | Cmd+B/I or BubbleMenu | Ctrl+B/I or BubbleMenu | BubbleMenu only | Both |
+| Open Second Brain | Cmd+B | Ctrl+B | Brain menu | Both |
+| Save to Second Brain | Cmd+Shift+B | Ctrl+Shift+B | Brain menu | Both |
+| Quick Capture | Cmd+Shift+I or toolbar | Ctrl+Shift+I or toolbar | Toolbar button | Both |
+| Search Second Brain | Cmd+Shift+S | Ctrl+Shift+S | Brain menu | Both |
+| Indent / Outdent | Tab / Shift+Tab | Tab / Shift+Tab | Swipe right / left | Tab / Shift+Tab |
+| Drag-reorder nodes | Drag | Drag | Long-press + drag | Drag |
+| Context menu | Right-click | Right-click | Long-press | Right-click |
+| Edit node name | Double-click | Double-click | Tap-again on selected | Double-click |
+| Multi-select | Cmd+Click | Ctrl+Click | (needs audit) | Cmd/Ctrl+Click |
+| Command Palette | Cmd+K or toolbar | Ctrl+K or toolbar | Toolbar button | Both |
+| Search current outline | Cmd+F | Ctrl+F | Search field | Cmd/Ctrl+F |
+| Focus mode | Cmd+Shift+F | Ctrl+Shift+F | (needs button — TODO) | Cmd/Ctrl+Shift+F |
+| Collapse / expand all | Cmd+E | Ctrl+E | (needs button — TODO) | Cmd/Ctrl+E |
 
 ---
 
@@ -24,20 +56,6 @@ When the user proposes features, WARN them if any of these iOS-reserved gestures
 | **Edge swipes** | Back navigation, app switcher | In-app buttons |
 | **F-keys (F1-F12)** | Hardware (brightness, volume, etc.) | Use letter keys or Return/Enter |
 | **Three-finger gestures** | System multitasking | Avoid entirely |
-
----
-
-## Current Gesture Model (Conflict-Free)
-
-| Action | macOS | iOS |
-|--------|-------|-----|
-| Select node | Click | Tap |
-| Create sibling node | Enter/Return key | N/A |
-| Edit node name | Double-click | Tap again (on selected node) |
-| Indent | Tab | Swipe right |
-| Outdent | Shift+Tab | Swipe left |
-| Drag & drop | Drag | Long-press + drag |
-| Context menu | Right-click | Long-press |
 
 ---
 

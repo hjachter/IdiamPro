@@ -1,0 +1,196 @@
+{
+  "id": "build-metrics",
+  "name": "IdiamPro - Build Metrics",
+  "rootNodeId": "root",
+  "nodes": {
+    "root": {
+      "id": "root",
+      "name": "IdiamPro - Build Metrics",
+      "content": "<p>Wall-clock session time invested per feature, measured from first conversational prompt about the feature to the commit that shipped it. This is human + Claude collaborative time, not pure compute time. Maintained as a running record.</p><p>Purpose: quantify how much real product work an agentic coding partnership ships in a given hour of session time. Intended to be shared with Anthropic as build-velocity evidence.</p>",
+      "type": "chapter",
+      "parentId": null,
+      "childrenIds": [
+        "methodology",
+        "session-2026-05-11",
+        "prior-sessions"
+      ],
+      "isExpanded": true,
+      "prefix": ""
+    },
+    "methodology": {
+      "id": "methodology",
+      "name": "Methodology",
+      "content": "<p>Each row captures one user-facing feature that shipped in a single commit (or, occasionally, an uncommitted in-progress slice). Numbers are gathered from two sources:</p><ul><li><strong>Git</strong> — the commit hash, authoring timestamp, file count, and line-count delta (insertions / deletions).</li><li><strong>Claude Code JSONL transcripts</strong> — the first user message in which the feature was requested, used as the session start time.</li></ul><p><strong>Session duration</strong> = commit timestamp minus first-prompt timestamp, rounded to the nearest 5 minutes.</p><p><strong>Caveats:</strong></p><ul><li>Wall-clock minutes include conversational back-and-forth, tangents, dictation issues, restart pauses, and the user reading and responding. It is not pure coding time.</li><li>When a session ranged across an unrelated tangent (e.g. troubleshooting an OS-level dictation beep) the duration is reported honestly and annotated.</li><li>For features built in prior sessions, JSONL data is not always available or worth excavating. Those rows show commit date only with no duration.</li><li>Line counts are net diff at commit time. Refactors that delete code can show a small or negative footprint despite hours of work.</li></ul><p>This outline is intentionally a running ledger. Add a new row at the top of the relevant chapter every time a feature ships.</p>",
+      "type": "document",
+      "parentId": "root",
+      "childrenIds": [],
+      "isExpanded": true,
+      "prefix": "1"
+    },
+    "session-2026-05-11": {
+      "id": "session-2026-05-11",
+      "name": "Features shipped in session 2026-05-11",
+      "content": "<p>All five entries below were built within a single Claude Code session that began ~2026-05-07 and remained active through 2026-05-12 03:54 UTC. Times in row durations are UTC.</p><p><strong>Total measured session-minutes today: ~213 minutes</strong> (3h33m) across three committed features. Two additional features (editor cross-platform fixes, Rosetta Stone rollout) are listed separately — Rosetta is measured, editor fixes are uncommitted.</p>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": [
+        "feat-sb-v2",
+        "feat-cross-platform-audit",
+        "feat-ai-menu-touch",
+        "feat-editor-fixes",
+        "feat-rosetta-rollout"
+      ],
+      "isExpanded": true,
+      "prefix": "2"
+    },
+    "feat-sb-v2": {
+      "id": "feat-sb-v2",
+      "name": "Second Brain v2 — Quick Capture, Dashboard, Smart Auto-Tagging",
+      "content": "<ul><li><strong>Date completed:</strong> 2026-05-11</li><li><strong>Session duration:</strong> ~45 minutes (20:11 UTC first prompt &rarr; 20:55 UTC commit)</li><li><strong>Commit:</strong> <code>d19b681</code></li><li><strong>Files changed:</strong> 13</li><li><strong>Lines changed:</strong> +1162 / -47</li></ul><p>Three new Second Brain features delivered in a single commit: a Quick Capture floating dialog (Cmd+Shift+I and toolbar button) that lands in an Inbox section, a Dashboard view with totals / recent saves / top tags / clickable entries, and Smart Auto-Tagging powered by a Gemini flow that suggests 1&ndash;3 short topical tags on every save. Includes cross-platform polish: touch-aware Enter key in Quick Capture, active press feedback on dashboard rows, hidden shortcut hints on touch devices, and a toolbar button so iPhone users get one-tap access.</p>",
+      "type": "document",
+      "parentId": "session-2026-05-11",
+      "childrenIds": [],
+      "isExpanded": true,
+      "prefix": "1"
+    },
+    "feat-cross-platform-audit": {
+      "id": "feat-cross-platform-audit",
+      "name": "Cross-platform audit fixes (toolbar + dialogs)",
+      "content": "<ul><li><strong>Date completed:</strong> 2026-05-11</li><li><strong>Session duration:</strong> ~140 minutes wall-clock (20:43 UTC first prompt &rarr; 23:03 UTC commit) &mdash; includes a ~50 minute tangent debugging a macOS dictation double-beep issue unrelated to the app</li><li><strong>Effective coding time:</strong> ~90 minutes</li><li><strong>Commit:</strong> <code>49e72c0</code></li><li><strong>Files changed:</strong> 5</li><li><strong>Lines changed:</strong> +27 / -47</li></ul><p>Sweeping toolbar and dialog audit against the platform support matrix. Added a Command Palette toolbar button (unlocks Cmd+K-only features on touch), active-press feedback on dropdown menu triggers, bumped tap-target heights on Bulk Research and dropdown menu items, made the Export format grid responsive (3 columns mobile / 4 desktop), added active state on the Bulk Research audio slider, vertical-stacked the delete confirmation buttons on mobile, and hid keyboard shortcut hints in tooltips on touch devices. Also removed an orphaned <code>useSpeechRecognition</code> hook usage from content-pane that was registering a stale Web Speech API listener with no UI consumer.</p>",
+      "type": "document",
+      "parentId": "session-2026-05-11",
+      "childrenIds": [],
+      "isExpanded": true,
+      "prefix": "2"
+    },
+    "feat-ai-menu-touch": {
+      "id": "feat-ai-menu-touch",
+      "name": "AI menu touch feedback",
+      "content": "<ul><li><strong>Date completed:</strong> 2026-05-11</li><li><strong>Session duration:</strong> ~10 minutes (23:24 UTC first prompt &rarr; 23:31 UTC commit)</li><li><strong>Commit:</strong> <code>688c32c</code></li><li><strong>Files changed:</strong> 1</li><li><strong>Lines changed:</strong> +1 / -1</li></ul><p>Small UX-parity fix. The AI menu dropdown trigger was missing the <code>active:scale-95 active:bg-accent/30</code> active-press treatment applied elsewhere. One-line change brought it into parity with Brain menu, outline selector, and Command Palette buttons.</p>",
+      "type": "document",
+      "parentId": "session-2026-05-11",
+      "childrenIds": [],
+      "isExpanded": true,
+      "prefix": "3"
+    },
+    "feat-editor-fixes": {
+      "id": "feat-editor-fixes",
+      "name": "Editor cross-platform fixes (BubbleMenu, Undo/Redo, Lists)",
+      "content": "<ul><li><strong>Date completed:</strong> in progress (uncommitted at time of writing)</li><li><strong>Session duration:</strong> not yet measurable &mdash; first prompt 2026-05-11T23:43 UTC, work resumed 2026-05-12T03:12 UTC after an overnight break</li><li><strong>Commit:</strong> not yet committed</li><li><strong>Files changed (working tree):</strong> 9 (includes Rosetta Stone rollout edits)</li><li><strong>Lines changed (working tree):</strong> +218 / -26</li></ul><p>Audit of the content-pane editor flagged that several core editing affordances were broken or invisible on iPhone (BubbleMenu surface, undo/redo, list controls). Fixes in progress in <code>content-pane.tsx</code>. Treated as a separate row because it is genuinely separate work; will be replaced with a measured row once committed.</p>",
+      "type": "document",
+      "parentId": "session-2026-05-11",
+      "childrenIds": [],
+      "isExpanded": true,
+      "prefix": "4"
+    },
+    "feat-rosetta-rollout": {
+      "id": "feat-rosetta-rollout",
+      "name": "Rosetta Stone documentation rollout",
+      "content": "<ul><li><strong>Date completed:</strong> 2026-05-12 (uncommitted at time of writing, awaiting commit alongside editor fixes)</li><li><strong>Session duration:</strong> ~20 minutes (03:28 UTC first prompt &rarr; 03:49 UTC rollout reported complete)</li><li><strong>Commit:</strong> pending</li><li><strong>Files changed:</strong> 6 (CLAUDE.md, the new Rosetta outline in two locations, website tagline, plus help-chat context updates)</li></ul><p>Created the <em>IdiamPro - Platform Rosetta Stone</em> outline that defines canonical cross-platform input equivalence across macOS, iOS, Web, Windows, Linux, and Android. Updated CLAUDE.md to reference the Rosetta as the authoritative cross-platform input source, and adjusted the website tagline / Killer Features / Marketing / How It Works outlines to reflect the six-platform target. Sets up a single source of truth for every future feature's platform-coverage row.</p>",
+      "type": "document",
+      "parentId": "session-2026-05-11",
+      "childrenIds": [],
+      "isExpanded": true,
+      "prefix": "5"
+    },
+    "prior-sessions": {
+      "id": "prior-sessions",
+      "name": "Features from prior sessions",
+      "content": "<p>Selected user-facing feature commits from April 2026. Session-minutes were not recorded at the time. Listed in reverse chronological order. These rows establish a baseline catalogue; future commits will be added with full timing.</p>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": [
+        "prior-api-key-setup",
+        "prior-llm-key-mgmt",
+        "prior-rebrand-secondbrainware",
+        "prior-second-brain-phase1",
+        "prior-gemma4-vision",
+        "prior-ios-gesture-fixes",
+        "prior-gemma4-migration",
+        "prior-ai-image-descriptions"
+      ],
+      "isExpanded": true,
+      "prefix": "3"
+    },
+    "prior-api-key-setup": {
+      "id": "prior-api-key-setup",
+      "name": "Guided LLM API key setup",
+      "content": "<ul><li><strong>Date completed:</strong> 2026-04-19</li><li><strong>Commit:</strong> <code>6275307</code></li><li><strong>Files changed:</strong> 1</li><li><strong>Lines changed:</strong> +159 / -32</li><li><strong>Session duration:</strong> (prior session &mdash; not measured)</li></ul><p>Step-by-step in-app instructions for obtaining and pasting an API key for each supported LLM provider, surfaced inside the Settings dialog.</p>",
+      "type": "document",
+      "parentId": "prior-sessions",
+      "childrenIds": [],
+      "isExpanded": true,
+      "prefix": "1"
+    },
+    "prior-llm-key-mgmt": {
+      "id": "prior-llm-key-mgmt",
+      "name": "LLM API key management UI",
+      "content": "<ul><li><strong>Date completed:</strong> 2026-04-19</li><li><strong>Commit:</strong> <code>3688849</code></li><li><strong>Files changed:</strong> 1</li><li><strong>Lines changed:</strong> +112 / -1</li><li><strong>Session duration:</strong> (prior session &mdash; not measured)</li></ul><p>Added a key-management section to the Settings dialog and fixed dialog scrolling.</p>",
+      "type": "document",
+      "parentId": "prior-sessions",
+      "childrenIds": [],
+      "isExpanded": true,
+      "prefix": "2"
+    },
+    "prior-rebrand-secondbrainware": {
+      "id": "prior-rebrand-secondbrainware",
+      "name": "Rebrand website to SecondBrainWare",
+      "content": "<ul><li><strong>Date completed:</strong> 2026-04-18</li><li><strong>Commit:</strong> <code>f2069df</code></li><li><strong>Files changed:</strong> 6</li><li><strong>Lines changed:</strong> +103 / -85</li><li><strong>Session duration:</strong> (prior session &mdash; not measured)</li></ul><p>Updated the public-facing site and all in-app documentation to use the SecondBrainWare brand while keeping the internal IdiamPro codebase identifier intact.</p>",
+      "type": "document",
+      "parentId": "prior-sessions",
+      "childrenIds": [],
+      "isExpanded": true,
+      "prefix": "3"
+    },
+    "prior-second-brain-phase1": {
+      "id": "prior-second-brain-phase1",
+      "name": "Second Brain — Phase 1 (reserved outline, save action, Knowledge Chat)",
+      "content": "<ul><li><strong>Date completed:</strong> 2026-04-17</li><li><strong>Commit:</strong> <code>c2fbe5a</code></li><li><strong>Files changed:</strong> 6</li><li><strong>Lines changed:</strong> +149 / -6</li><li><strong>Session duration:</strong> (prior session &mdash; not measured)</li></ul><p>The original Second Brain feature: a reserved outline that collects saved fragments, a Save action surfaced from any node, and a Knowledge Chat mode that queries the Second Brain corpus.</p>",
+      "type": "document",
+      "parentId": "prior-sessions",
+      "childrenIds": [],
+      "isExpanded": true,
+      "prefix": "4"
+    },
+    "prior-gemma4-vision": {
+      "id": "prior-gemma4-vision",
+      "name": "Gemma 4 vision for user-supplied images",
+      "content": "<ul><li><strong>Date completed:</strong> 2026-04-17</li><li><strong>Commit:</strong> <code>d0d5588</code></li><li><strong>Files changed:</strong> 2</li><li><strong>Lines changed:</strong> +158 / -15</li><li><strong>Session duration:</strong> (prior session &mdash; not measured)</li></ul><p>Local Gemma 4 vision support plus a describe-with-AI button so any image dropped into a node can be captioned locally.</p>",
+      "type": "document",
+      "parentId": "prior-sessions",
+      "childrenIds": [],
+      "isExpanded": true,
+      "prefix": "5"
+    },
+    "prior-ios-gesture-fixes": {
+      "id": "prior-ios-gesture-fixes",
+      "name": "iOS gesture and layout bug fixes",
+      "content": "<ul><li><strong>Date completed:</strong> 2026-04-15</li><li><strong>Commit:</strong> <code>5528483</code></li><li><strong>Files changed:</strong> 2</li><li><strong>Lines changed:</strong> +37 / -7</li><li><strong>Session duration:</strong> (prior session &mdash; not measured)</li></ul><p>Three correctness fixes to iOS gesture handling and layout behavior in the node tree.</p>",
+      "type": "document",
+      "parentId": "prior-sessions",
+      "childrenIds": [],
+      "isExpanded": true,
+      "prefix": "6"
+    },
+    "prior-gemma4-migration": {
+      "id": "prior-gemma4-migration",
+      "name": "Migrate local AI from llama3.2 to Gemma 4",
+      "content": "<ul><li><strong>Date completed:</strong> 2026-04-10</li><li><strong>Commit:</strong> <code>3625bfc</code></li><li><strong>Files changed:</strong> 15</li><li><strong>Lines changed:</strong> +947 / -115</li><li><strong>Session duration:</strong> (prior session &mdash; not measured)</li></ul><p>Replaced the default local model with Gemma 4 across every Ollama call path, plus a dedicated Playwright smoke test that validates the model is reachable and answering.</p>",
+      "type": "document",
+      "parentId": "prior-sessions",
+      "childrenIds": [],
+      "isExpanded": true,
+      "prefix": "7"
+    },
+    "prior-ai-image-descriptions": {
+      "id": "prior-ai-image-descriptions",
+      "name": "AI image descriptions and backup redesign",
+      "content": "<ul><li><strong>Date completed:</strong> 2026-04-03</li><li><strong>Commit:</strong> <code>1b3850d</code></li><li><strong>Files changed:</strong> 6</li><li><strong>Lines changed:</strong> +189 / -71</li><li><strong>Session duration:</strong> (prior session &mdash; not measured)</li></ul><p>Added AI-generated image descriptions, redesigned the backup / restore flow, and cleaned up the Generate menu structure.</p>",
+      "type": "document",
+      "parentId": "prior-sessions",
+      "childrenIds": [],
+      "isExpanded": true,
+      "prefix": "8"
+    }
+  }
+}

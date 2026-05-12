@@ -191,6 +191,9 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { ChevronDown } from 'lucide-react';
 import { useEditor, EditorContent } from '@tiptap/react';
+import { BubbleMenu } from '@tiptap/react/menus';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { ListChecks } from 'lucide-react';
 import StarterKit from '@tiptap/starter-kit';
 import ImageExt from '@tiptap/extension-image';
 import Youtube from '@tiptap/extension-youtube';
@@ -498,6 +501,7 @@ export default function ContentPane({
 
   const aiContentEnabled = useAIFeature('enableAIContentGeneration');
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   // Only create editor for node types that need rich text editing
   // Also check if content looks like spreadsheet JSON data - if so, don't use rich text editor
@@ -2372,6 +2376,93 @@ export default function ContentPane({
       {/* Toolbar */}
       <div className="flex-shrink-0 border-b border-border/50 px-4 py-2 flex items-center gap-2 bg-[hsl(var(--toolbar-bg))]">
         <TooltipProvider delayDuration={300}>
+          {/* Undo / Redo (touch-accessible) */}
+          {shouldUseRichTextEditor && editor && (
+            <>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => editor.chain().focus().undo().run()}
+                    disabled={!editor.can().undo()}
+                    aria-label="Undo"
+                    className="active:scale-95 active:bg-accent/30"
+                  >
+                    <Undo className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>{isMobile ? 'Undo' : 'Undo (⌘Z)'}</TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => editor.chain().focus().redo().run()}
+                    disabled={!editor.can().redo()}
+                    aria-label="Redo"
+                    className="active:scale-95 active:bg-accent/30"
+                  >
+                    <Redo className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>{isMobile ? 'Redo' : 'Redo (⌘⇧Z)'}</TooltipContent>
+              </Tooltip>
+
+              <div className="w-px h-6 bg-border/50 mx-1" />
+
+              {/* List controls (touch-accessible) */}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => editor.chain().focus().toggleBulletList().run()}
+                    aria-label="Bullet list"
+                    className={`active:scale-95 active:bg-accent/30 ${editor.isActive('bulletList') ? 'bg-accent' : ''}`}
+                  >
+                    <List className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Bullet list</TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => editor.chain().focus().toggleOrderedList().run()}
+                    aria-label="Numbered list"
+                    className={`active:scale-95 active:bg-accent/30 ${editor.isActive('orderedList') ? 'bg-accent' : ''}`}
+                  >
+                    <ListOrdered className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Numbered list</TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => editor.chain().focus().toggleTaskList().run()}
+                    aria-label="Checklist"
+                    className={`active:scale-95 active:bg-accent/30 ${editor.isActive('taskList') ? 'bg-accent' : ''}`}
+                  >
+                    <ListChecks className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Checklist</TooltipContent>
+              </Tooltip>
+
+              <div className="w-px h-6 bg-border/50 mx-1" />
+            </>
+          )}
+
           {/* Add Content Button */}
           <Tooltip>
             <DropdownMenu>
@@ -2871,7 +2962,86 @@ export default function ContentPane({
               </div>
             )}
             {editor ? (
-              <EditorContent editor={editor} />
+              <>
+                <BubbleMenu
+                  editor={editor}
+                  options={{ placement: 'top' }}
+                  className="flex items-center gap-0.5 rounded-md border bg-popover p-1 shadow-md"
+                >
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Bold"
+                    onClick={() => editor.chain().focus().toggleBold().run()}
+                    className={`h-8 w-8 active:scale-95 active:bg-accent/30 ${editor.isActive('bold') ? 'bg-accent' : ''}`}
+                  >
+                    <Bold className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Italic"
+                    onClick={() => editor.chain().focus().toggleItalic().run()}
+                    className={`h-8 w-8 active:scale-95 active:bg-accent/30 ${editor.isActive('italic') ? 'bg-accent' : ''}`}
+                  >
+                    <Italic className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Strikethrough"
+                    onClick={() => editor.chain().focus().toggleStrike().run()}
+                    className={`h-8 w-8 active:scale-95 active:bg-accent/30 ${editor.isActive('strike') ? 'bg-accent' : ''}`}
+                  >
+                    <Strikethrough className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Inline code"
+                    onClick={() => editor.chain().focus().toggleCode().run()}
+                    className={`h-8 w-8 active:scale-95 active:bg-accent/30 ${editor.isActive('code') ? 'bg-accent' : ''}`}
+                  >
+                    <Code className="h-4 w-4" />
+                  </Button>
+                  <div className="w-px h-5 bg-border/50 mx-0.5" />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Heading 1"
+                    onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+                    className={`h-8 w-8 active:scale-95 active:bg-accent/30 ${editor.isActive('heading', { level: 1 }) ? 'bg-accent' : ''}`}
+                  >
+                    <Heading1 className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Heading 2"
+                    onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+                    className={`h-8 w-8 active:scale-95 active:bg-accent/30 ${editor.isActive('heading', { level: 2 }) ? 'bg-accent' : ''}`}
+                  >
+                    <Heading2 className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Heading 3"
+                    onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+                    className={`h-8 w-8 active:scale-95 active:bg-accent/30 ${editor.isActive('heading', { level: 3 }) ? 'bg-accent' : ''}`}
+                  >
+                    <Heading3 className="h-4 w-4" />
+                  </Button>
+                </BubbleMenu>
+                <EditorContent editor={editor} />
+              </>
             ) : (
               <div className="text-muted-foreground">Loading editor...</div>
             )}

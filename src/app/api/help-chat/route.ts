@@ -15,7 +15,7 @@ KEY FEATURES:
 - Sidebar search: Type in the search field below the Outlines header to filter outlines by name (works on desktop and mobile)
 - Tags and color-coding for organization
 - Automatic backups (Desktop): Every save creates a timestamped backup in the backups/ folder. Throttled to one per 5 minutes per outline. Last 10 backups kept per outline. Recover by renaming a backup file in Finder.
-- Cross-platform: Web, macOS Desktop (Electron), iOS (Capacitor)
+- Cross-platform: macOS Desktop (Electron), iOS (Capacitor), and Web (Vercel) are actively shipped. Windows and Linux Electron builds are configured. Android via Capacitor is on the roadmap. See the Platform Rosetta Stone for input mappings across all platforms.
 - File storage: iCloud Drive, Dropbox, Google Drive, local folders
 - Google Docs/Sheets/Slides/Maps embedding via Insert menu
 - Speech-to-text recording in the content pane via Web Speech API
@@ -29,6 +29,8 @@ CONTENT EDITOR:
 - Lists: Ordered, unordered, and checklist lists
 - Code blocks
 - Undo (Cmd+Z), Redo (Cmd+Shift+Z)
+- Touch-accessible toolbar: The content pane toolbar has Undo/Redo buttons and Bullet List, Numbered List, and Checklist buttons at the left end — one-tap access on iPhone, iPad, and desktop without needing the right-click menu.
+- Floating formatting toolbar: Select text in the editor and a small floating menu appears with Bold, Italic, Strikethrough, Inline Code, and Heading 1/2/3 buttons. Active formatting is highlighted. Works on touch and desktop.
 - Google Docs/Sheets/Slides/Maps embedding via Insert menu (paste URL)
 - Speech-to-text: Click microphone button, speak, text is transcribed locally
 
