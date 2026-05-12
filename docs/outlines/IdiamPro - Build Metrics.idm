@@ -20,7 +20,7 @@
     "methodology": {
       "id": "methodology",
       "name": "Methodology",
-      "content": "<p>Each row captures one user-facing feature that shipped in a single commit (or, occasionally, an uncommitted in-progress slice). Numbers are gathered from two sources:</p><ul><li><strong>Git</strong> — the commit hash, authoring timestamp, file count, and line-count delta (insertions / deletions).</li><li><strong>Claude Code JSONL transcripts</strong> — the first user message in which the feature was requested, used as the session start time.</li></ul><p><strong>Session duration</strong> = commit timestamp minus first-prompt timestamp, rounded to the nearest 5 minutes.</p><p><strong>Caveats:</strong></p><ul><li>Wall-clock minutes include conversational back-and-forth, tangents, dictation issues, restart pauses, and the user reading and responding. It is not pure coding time.</li><li>When a session ranged across an unrelated tangent (e.g. troubleshooting an OS-level dictation beep) the duration is reported honestly and annotated.</li><li>For features built in prior sessions, JSONL data is not always available or worth excavating. Those rows show commit date only with no duration.</li><li>Line counts are net diff at commit time. Refactors that delete code can show a small or negative footprint despite hours of work.</li></ul><p>This outline is intentionally a running ledger. Add a new row at the top of the relevant chapter every time a feature ships.</p>",
+      "content": "<p>Each row captures one user-facing feature that shipped in a single commit (or, occasionally, an uncommitted in-progress slice). Numbers are gathered from two sources:</p><ul><li><strong>Git</strong> \u2014 the commit hash, authoring timestamp, file count, and line-count delta (insertions / deletions).</li><li><strong>Claude Code JSONL transcripts</strong> \u2014 the first user message in which the feature was requested, used as the session start time.</li></ul><p><strong>Session duration</strong> = commit timestamp minus first-prompt timestamp, rounded to the nearest 5 minutes.</p><p><strong>Caveats:</strong></p><ul><li>Wall-clock minutes include conversational back-and-forth, tangents, dictation issues, restart pauses, and the user reading and responding. It is not pure coding time.</li><li>When a session ranged across an unrelated tangent (e.g. troubleshooting an OS-level dictation beep) the duration is reported honestly and annotated.</li><li>For features built in prior sessions, JSONL data is not always available or worth excavating. Those rows show commit date only with no duration.</li><li>Line counts are net diff at commit time. Refactors that delete code can show a small or negative footprint despite hours of work.</li></ul><p>This outline is intentionally a running ledger. Add a new row at the top of the relevant chapter every time a feature ships.</p>",
       "type": "document",
       "parentId": "root",
       "childrenIds": [],
@@ -30,7 +30,7 @@
     "session-2026-05-11": {
       "id": "session-2026-05-11",
       "name": "Features shipped in session 2026-05-11",
-      "content": "<p>All five entries below were built within a single Claude Code session that began ~2026-05-07 and remained active through 2026-05-12 03:54 UTC. Times in row durations are UTC.</p><p><strong>Total measured session-minutes today: ~213 minutes</strong> (3h33m) across three committed features. Two additional features (editor cross-platform fixes, Rosetta Stone rollout) are listed separately — Rosetta is measured, editor fixes are uncommitted.</p>",
+      "content": "<p>All five entries below were built within a single Claude Code session that began ~2026-05-07 and remained active through 2026-05-12 03:54 UTC. Times in row durations are UTC.</p><p><strong>Total measured session-minutes today: ~213 minutes</strong> (3h33m) across three committed features. Two additional features (editor cross-platform fixes, Rosetta Stone rollout) shipped late in the session \u2014 both included in commit <code>770e379</code>.</p>",
       "type": "chapter",
       "parentId": "root",
       "childrenIds": [
@@ -45,7 +45,7 @@
     },
     "feat-sb-v2": {
       "id": "feat-sb-v2",
-      "name": "Second Brain v2 — Quick Capture, Dashboard, Smart Auto-Tagging",
+      "name": "Second Brain v2 \u2014 Quick Capture, Dashboard, Smart Auto-Tagging",
       "content": "<ul><li><strong>Date completed:</strong> 2026-05-11</li><li><strong>Session duration:</strong> ~45 minutes (20:11 UTC first prompt &rarr; 20:55 UTC commit)</li><li><strong>Commit:</strong> <code>d19b681</code></li><li><strong>Files changed:</strong> 13</li><li><strong>Lines changed:</strong> +1162 / -47</li></ul><p>Three new Second Brain features delivered in a single commit: a Quick Capture floating dialog (Cmd+Shift+I and toolbar button) that lands in an Inbox section, a Dashboard view with totals / recent saves / top tags / clickable entries, and Smart Auto-Tagging powered by a Gemini flow that suggests 1&ndash;3 short topical tags on every save. Includes cross-platform polish: touch-aware Enter key in Quick Capture, active press feedback on dashboard rows, hidden shortcut hints on touch devices, and a toolbar button so iPhone users get one-tap access.</p>",
       "type": "document",
       "parentId": "session-2026-05-11",
@@ -76,7 +76,7 @@
     "feat-editor-fixes": {
       "id": "feat-editor-fixes",
       "name": "Editor cross-platform fixes (BubbleMenu, Undo/Redo, Lists)",
-      "content": "<ul><li><strong>Date completed:</strong> in progress (uncommitted at time of writing)</li><li><strong>Session duration:</strong> not yet measurable &mdash; first prompt 2026-05-11T23:43 UTC, work resumed 2026-05-12T03:12 UTC after an overnight break</li><li><strong>Commit:</strong> not yet committed</li><li><strong>Files changed (working tree):</strong> 9 (includes Rosetta Stone rollout edits)</li><li><strong>Lines changed (working tree):</strong> +218 / -26</li></ul><p>Audit of the content-pane editor flagged that several core editing affordances were broken or invisible on iPhone (BubbleMenu surface, undo/redo, list controls). Fixes in progress in <code>content-pane.tsx</code>. Treated as a separate row because it is genuinely separate work; will be replaced with a measured row once committed.</p>",
+      "content": "<ul><li><strong>Date completed:</strong> in progress (<code>770e379</code> at time of writing)</li><li><strong>Session duration:</strong> not yet measurable &mdash; first prompt 2026-05-11T23:43 UTC, work resumed 2026-05-12T03:12 UTC after an overnight break</li><li><strong>Commit:</strong> not yet committed</li><li><strong>Files changed (working tree):</strong> 9 (includes Rosetta Stone rollout edits)</li><li><strong>Lines changed (working tree):</strong> +218 / -26</li></ul><p>Audit of the content-pane editor flagged that several core editing affordances were broken or invisible on iPhone (BubbleMenu surface, undo/redo, list controls). Fixes in progress in <code>content-pane.tsx</code>. Treated as a separate row because it is genuinely separate work; will be replaced with a measured row once committed.</p>",
       "type": "document",
       "parentId": "session-2026-05-11",
       "childrenIds": [],
@@ -86,7 +86,7 @@
     "feat-rosetta-rollout": {
       "id": "feat-rosetta-rollout",
       "name": "Rosetta Stone documentation rollout",
-      "content": "<ul><li><strong>Date completed:</strong> 2026-05-12 (uncommitted at time of writing, awaiting commit alongside editor fixes)</li><li><strong>Session duration:</strong> ~20 minutes (03:28 UTC first prompt &rarr; 03:49 UTC rollout reported complete)</li><li><strong>Commit:</strong> pending</li><li><strong>Files changed:</strong> 6 (CLAUDE.md, the new Rosetta outline in two locations, website tagline, plus help-chat context updates)</li></ul><p>Created the <em>IdiamPro - Platform Rosetta Stone</em> outline that defines canonical cross-platform input equivalence across macOS, iOS, Web, Windows, Linux, and Android. Updated CLAUDE.md to reference the Rosetta as the authoritative cross-platform input source, and adjusted the website tagline / Killer Features / Marketing / How It Works outlines to reflect the six-platform target. Sets up a single source of truth for every future feature's platform-coverage row.</p>",
+      "content": "<ul><li><strong>Date completed:</strong> 2026-05-12 (<code>770e379</code> at time of writing, awaiting commit alongside editor fixes)</li><li><strong>Session duration:</strong> ~20 minutes (03:28 UTC first prompt &rarr; 03:49 UTC rollout reported complete)</li><li><strong>Commit:</strong> pending</li><li><strong>Files changed:</strong> 6 (CLAUDE.md, the new Rosetta outline in two locations, website tagline, plus help-chat context updates)</li></ul><p>Created the <em>IdiamPro - Platform Rosetta Stone</em> outline that defines canonical cross-platform input equivalence across macOS, iOS, Web, Windows, Linux, and Android. Updated CLAUDE.md to reference the Rosetta as the authoritative cross-platform input source, and adjusted the website tagline / Killer Features / Marketing / How It Works outlines to reflect the six-platform target. Sets up a single source of truth for every future feature's platform-coverage row.</p>",
       "type": "document",
       "parentId": "session-2026-05-11",
       "childrenIds": [],
@@ -144,7 +144,7 @@
     },
     "prior-second-brain-phase1": {
       "id": "prior-second-brain-phase1",
-      "name": "Second Brain — Phase 1 (reserved outline, save action, Knowledge Chat)",
+      "name": "Second Brain \u2014 Phase 1 (reserved outline, save action, Knowledge Chat)",
       "content": "<ul><li><strong>Date completed:</strong> 2026-04-17</li><li><strong>Commit:</strong> <code>c2fbe5a</code></li><li><strong>Files changed:</strong> 6</li><li><strong>Lines changed:</strong> +149 / -6</li><li><strong>Session duration:</strong> (prior session &mdash; not measured)</li></ul><p>The original Second Brain feature: a reserved outline that collects saved fragments, a Save action surfaced from any node, and a Knowledge Chat mode that queries the Second Brain corpus.</p>",
       "type": "document",
       "parentId": "prior-sessions",
@@ -192,5 +192,6 @@
       "isExpanded": true,
       "prefix": "8"
     }
-  }
+  },
+  "lastModified": 1778558741452
 }
