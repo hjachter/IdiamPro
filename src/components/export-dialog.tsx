@@ -184,7 +184,7 @@ export default function ExportDialog({
   return (
     <>
     <Dialog open={open && !showWebsiteDialog && !showPodcastDialog} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Share Subtree As...</DialogTitle>
           <DialogDescription>
@@ -193,18 +193,18 @@ export default function ExportDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col gap-4">
-          {/* Search */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search formats..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9"
-            />
-          </div>
+        {/* Search — kept outside the scrolling area so its focus ring isn't clipped */}
+        <div className="relative px-0.5 pt-0.5">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search formats..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9"
+          />
+        </div>
 
+        <div className="flex flex-col gap-4 flex-1 min-h-0 overflow-y-auto pr-1 pt-1">
           {/* Format Grid */}
           <div>
             <div className="space-y-4">
