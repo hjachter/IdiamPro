@@ -200,17 +200,17 @@ export default function SidebarPane({
   return (
     <div className="h-full w-full flex flex-col bg-background/80 sidebar-shadow">
       {/* Header with commands */}
-      <div className="flex-shrink-0 p-3 border-b border-border/60 space-y-3">
+      <div className="flex-shrink-0 px-3 pt-2 pb-2 border-b border-border/60 space-y-2">
         <div className="flex items-center justify-between">
           <span className="font-semibold text-sm tracking-tight">IdiamPro</span>
         </div>
 
         {/* Quick actions at top */}
-        <div className="space-y-1.5">
+        <div className="space-y-1">
           <Button
             variant="outline"
             size="sm"
-            className="w-full justify-start gap-2 h-9 font-medium shadow-sm hover:shadow transition-all duration-150"
+            className="w-full justify-start gap-2 h-8 font-medium shadow-sm hover:shadow transition-all duration-150"
             onClick={onCreateOutline}
           >
             <Plus className="h-4 w-4" />
@@ -219,7 +219,7 @@ export default function SidebarPane({
           <Button
             variant="ghost"
             size="sm"
-            className="w-full justify-start gap-2 h-9 text-muted-foreground hover:text-foreground transition-colors duration-150"
+            className="w-full justify-start gap-2 h-8 text-muted-foreground hover:text-foreground transition-colors duration-150"
             onClick={onOpenGuide}
           >
             <BookOpen className="h-4 w-4" />
@@ -228,7 +228,7 @@ export default function SidebarPane({
           <Button
             variant="ghost"
             size="sm"
-            className="w-full justify-start gap-2 h-9 text-muted-foreground hover:text-foreground transition-colors duration-150"
+            className="w-full justify-start gap-2 h-8 text-muted-foreground hover:text-foreground transition-colors duration-150"
             onClick={onShowWelcome}
           >
             <Rocket className="h-4 w-4" />
@@ -239,7 +239,7 @@ export default function SidebarPane({
         {/* Templates Section (collapsible) */}
         <Collapsible open={templatesOpen} onOpenChange={setTemplatesOpen}>
           <CollapsibleTrigger asChild>
-            <Button variant="ghost" className="w-full justify-start gap-2 h-8 px-2 text-muted-foreground hover:text-foreground transition-colors duration-150">
+            <Button variant="ghost" className="w-full justify-start gap-2 h-7 px-2 text-muted-foreground hover:text-foreground transition-colors duration-150">
               <span className="transition-transform duration-200" style={{ transform: templatesOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}>
                 <ChevronRight className="h-4 w-4" />
               </span>
@@ -248,12 +248,12 @@ export default function SidebarPane({
               <span className="ml-auto text-xs text-muted-foreground/70">{templates.length}</span>
             </Button>
           </CollapsibleTrigger>
-          <CollapsibleContent className="mt-1 animate-in slide-in-from-top-1 duration-200">
+          <CollapsibleContent className="mt-0.5 animate-in slide-in-from-top-1 duration-200">
             <div className="grid grid-cols-1 gap-0.5 max-h-48 overflow-y-auto pl-2">
               {templates.map(template => (
                 <div
                   key={template.id}
-                  className="flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer text-sm transition-all duration-150 hover:bg-muted/80 hover:translate-x-0.5 active:bg-muted"
+                  className="flex items-center gap-2 px-2 py-1 rounded-md cursor-pointer text-sm transition-all duration-150 hover:bg-muted/80 hover:translate-x-0.5 active:bg-muted"
                   onClick={() => handleSelectTemplate(template)}
                 >
                   <span className="text-base">{template.icon}</span>
@@ -266,16 +266,16 @@ export default function SidebarPane({
       </div>
 
       {/* Outlines list header */}
-      <div className="flex items-center gap-2 px-3 py-2 border-b border-border/40 bg-muted/30">
-        <FileText className="h-4 w-4 text-muted-foreground" />
-        <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Outlines</span>
-        <span className="ml-auto text-xs text-muted-foreground/70 tabular-nums">
+      <div className="flex items-center gap-2 px-3 py-1 border-b border-border/40 bg-muted/30">
+        <FileText className="h-3.5 w-3.5 text-muted-foreground" />
+        <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Outlines</span>
+        <span className="ml-auto text-[10px] text-muted-foreground/70 tabular-nums">
           {outlineSearch ? `${filteredOutlines.length} / ${uniqueUserOutlines.length}` : uniqueUserOutlines.length}
         </span>
       </div>
 
       {/* Search input */}
-      <div className="flex-shrink-0 px-2 py-1.5 border-b border-border/40">
+      <div className="flex-shrink-0 px-2 py-1 border-b border-border/40">
         <div className="relative flex items-center">
           <Search className="absolute left-2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
           <Input
@@ -326,12 +326,12 @@ export default function SidebarPane({
 
       {/* Scrollable outline list at bottom */}
       <ScrollArea className="flex-1">
-        <div className="p-2 space-y-0.5">
+        <div className="p-1">
           {/* User Guide */}
           {guide && showGuide && (
             <div
               className={cn(
-                "group flex items-center gap-2 px-2 py-2 rounded-md cursor-pointer text-sm transition-all duration-150",
+                "group flex items-center gap-2 px-2 py-1 rounded-md cursor-pointer text-sm transition-all duration-150",
                 currentOutlineId === guide.id
                   ? "bg-primary/10 text-primary border-l-2 border-primary -ml-0.5 pl-[calc(0.5rem+2px)]"
                   : "hover:bg-muted/60 hover:translate-x-0.5"
@@ -349,7 +349,7 @@ export default function SidebarPane({
               <ContextMenuTrigger asChild>
                 <div
                   className={cn(
-                    "group flex items-center gap-2 px-2 py-2 rounded-md cursor-pointer text-sm transition-all duration-150",
+                    "group flex items-center gap-2 px-2 py-1 rounded-md cursor-pointer text-sm transition-all duration-150",
                     selectedOutlineIds.has(outline.id)
                       ? "bg-primary/20 text-primary font-medium ring-1 ring-primary/30"
                       : currentOutlineId === outline.id
@@ -393,7 +393,7 @@ export default function SidebarPane({
                         variant="ghost"
                         size="icon"
                         className={cn(
-                          "h-9 w-9 shrink-0 transition-opacity duration-150",
+                          "h-6 w-6 shrink-0 transition-opacity duration-150",
                           isMobile
                             ? "opacity-100"
                             : "opacity-0 group-hover:opacity-100"

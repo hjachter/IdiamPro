@@ -160,19 +160,9 @@ export default function OutlinePro() {
   // Focus mode state
   const [isFocusMode, setIsFocusMode] = useState(false);
 
-  // Sidebar state (persisted to localStorage)
-  const [isSidebarOpen, setIsSidebarOpen] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('idiampro-sidebar-open');
-      return saved !== null ? saved === 'true' : true; // Default open
-    }
-    return true;
-  });
-
-  // Persist sidebar state
-  useEffect(() => {
-    localStorage.setItem('idiampro-sidebar-open', String(isSidebarOpen));
-  }, [isSidebarOpen]);
+  // Sidebar state — always open on app start so an outline can be selected.
+  // The user can toggle it closed during a session, but every fresh start brings it back.
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   // Toast must be declared before any useEffect that uses it
   const { toast } = useToast();

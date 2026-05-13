@@ -43,7 +43,8 @@ KEY FEATURES:
 - Google Docs/Sheets/Slides/Maps embedding via Insert menu
 - Speech-to-text recording in the content pane via Web Speech API
 - Export/Share: Select a node and click the Share button (toolbar) to export. Formats include PDF, Markdown, Plain Text, HTML (collapsible webpage), Interactive Outline (read-only IdiamPro-style viewer with sidebar navigation, search, dark/light mode), Website (8 professional templates: Marketing, Informational, Documentation, Portfolio, Event, Educational, Blog, Personal), Podcast (AI-generated audio), OPML, Obsidian (wiki-links), CSV, JSON Tree.
-- Import: Multi-format import. Dropdown menu > "Import Outline". Supports Markdown (.md - heading hierarchy), Plain Text (.txt - indentation), OPML (.opml - standard outline XML), JSON/IDM (native format). Drag-and-drop or browse to select. Auto-detects format.
+- Outline management: The sidebar (panel-toggle button at top-left of toolbar) is the sole path for switching, creating, renaming, deleting, and searching outlines. The toolbar shows the current outline name as a read-only title plus a wrench icon (admin menu) for Import Outline, Export Current Outline, Backup All Outlines, Restore All Outlines, and Refresh User Guide.
+- Import: Multi-format import via the toolbar wrench (admin) menu > "Import Outline". Supports Markdown (.md - heading hierarchy), Plain Text (.txt - indentation), OPML (.opml - standard outline XML), JSON/IDM (native format). Drag-and-drop or browse to select. Auto-detects format.
 - Canvas/Drawing nodes (Excalidraw-based): Right-click > Set Type > Canvas
 - Spreadsheet nodes (Fortune Sheet): Right-click > Set Type > Spreadsheet
 

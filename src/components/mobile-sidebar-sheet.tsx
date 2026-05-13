@@ -354,7 +354,7 @@ export default function MobileSidebarSheet({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="bottom" className="h-[85vh] rounded-t-xl p-0 flex flex-col elevation-3">
         {/* Header with title */}
-        <SheetHeader className="flex-shrink-0 px-4 py-3 border-b border-border/60">
+        <SheetHeader className="flex-shrink-0 px-4 py-2 border-b border-border/60">
           <div className="flex items-center justify-between">
             <SheetTitle className="font-semibold tracking-tight">IdiamPro</SheetTitle>
           </div>
@@ -389,13 +389,13 @@ export default function MobileSidebarSheet({
           </div>
         ) : (
           /* Commands section - fixed at top */
-          <div className="flex-shrink-0 p-3 border-b border-border/60 space-y-3">
+          <div className="flex-shrink-0 px-3 pt-2 pb-2 border-b border-border/60 space-y-2">
             {/* Quick actions */}
             <div className="flex gap-2">
               <Button
                 variant="outline"
                 size="sm"
-                className="flex-1 justify-center gap-2 h-11 font-medium shadow-sm hover:shadow transition-all duration-150"
+                className="flex-1 justify-center gap-2 h-10 font-medium shadow-sm hover:shadow transition-all duration-150"
                 onClick={() => {
                   onCreateOutline();
                   onOpenChange(false);
@@ -407,7 +407,7 @@ export default function MobileSidebarSheet({
               <Button
                 variant="ghost"
                 size="sm"
-                className="flex-1 justify-center gap-2 h-11 text-muted-foreground hover:text-foreground transition-colors duration-150"
+                className="flex-1 justify-center gap-2 h-10 text-muted-foreground hover:text-foreground transition-colors duration-150"
                 onClick={handleShowWelcome}
               >
                 <Rocket className="h-4 w-4" />
@@ -418,24 +418,24 @@ export default function MobileSidebarSheet({
             {/* Templates Section (collapsible) */}
             <Collapsible open={templatesOpen} onOpenChange={setTemplatesOpen}>
               <CollapsibleTrigger asChild>
-                <Button variant="ghost" className="w-full justify-start gap-2 h-10 px-3 text-muted-foreground hover:text-foreground transition-colors duration-150">
+                <Button variant="ghost" className="w-full justify-start gap-2 h-8 px-3 text-muted-foreground hover:text-foreground transition-colors duration-150">
                   <span className="transition-transform duration-200" style={{ transform: templatesOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}>
                     <ChevronRight className="h-4 w-4" />
                   </span>
                   <LayoutTemplate className="h-4 w-4" />
-                  <span className="font-medium">Templates</span>
+                  <span className="text-sm font-medium">Templates</span>
                   <span className="ml-auto text-xs text-muted-foreground/70">{templates.length}</span>
                 </Button>
               </CollapsibleTrigger>
-              <CollapsibleContent className="mt-1 animate-in slide-in-from-top-1 duration-200">
-                <div className="grid grid-cols-1 gap-1.5 px-1 max-h-48 overflow-y-auto">
+              <CollapsibleContent className="mt-0.5 animate-in slide-in-from-top-1 duration-200">
+                <div className="grid grid-cols-1 gap-1 px-1 max-h-48 overflow-y-auto">
                   {templates.map(template => (
                     <div
                       key={template.id}
-                      className="flex items-center gap-2 px-3 py-2.5 rounded-lg cursor-pointer transition-all duration-150 hover:bg-muted/80 active:bg-muted active:scale-[0.98]"
+                      className="flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer transition-all duration-150 hover:bg-muted/80 active:bg-muted active:scale-[0.98]"
                       onClick={() => handleSelectTemplate(template)}
                     >
-                      <span className="text-xl">{template.icon}</span>
+                      <span className="text-lg">{template.icon}</span>
                       <span className="text-sm truncate">{template.name}</span>
                     </div>
                   ))}
@@ -446,17 +446,17 @@ export default function MobileSidebarSheet({
         )}
 
         {/* Outlines list header */}
-        <div className="flex-shrink-0 flex items-center gap-2 px-4 py-2 border-b border-border/40 bg-muted/30">
-          <FileText className="h-4 w-4 text-muted-foreground" />
-          <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Outlines</span>
-          <span className="ml-auto text-xs text-muted-foreground/70 tabular-nums">
+        <div className="flex-shrink-0 flex items-center gap-2 px-4 py-1 border-b border-border/40 bg-muted/30">
+          <FileText className="h-3.5 w-3.5 text-muted-foreground" />
+          <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Outlines</span>
+          <span className="ml-auto text-[10px] text-muted-foreground/70 tabular-nums">
             {outlineSearch ? `${filteredOutlines.length} / ${userOutlines.length}` : userOutlines.length}
           </span>
         </div>
 
         {/* Search input */}
         {!isSelectMode && (
-          <div className="flex-shrink-0 px-3 py-2 border-b border-border/40">
+          <div className="flex-shrink-0 px-3 py-1 border-b border-border/40">
             <div className="relative flex items-center">
               <Search className="absolute left-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
               <Input
@@ -464,7 +464,7 @@ export default function MobileSidebarSheet({
                 onChange={(e) => setOutlineSearch(e.target.value)}
                 onKeyDown={(e) => e.stopPropagation()}
                 placeholder="Search outlines..."
-                className="h-10 pl-8 pr-8 text-sm bg-muted/40 border-border/50"
+                className="h-9 pl-8 pr-8 text-sm bg-muted/40 border-border/50"
               />
               {outlineSearch && (
                 <button

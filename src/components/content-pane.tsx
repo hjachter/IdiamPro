@@ -2328,7 +2328,7 @@ export default function ContentPane({
               className="text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-700 hover:bg-blue-100 dark:hover:bg-blue-900"
             >
               <Copy className="w-4 h-4 mr-1" />
-              Copy Outline
+              Copy User Guide
             </Button>
           )}
         </div>

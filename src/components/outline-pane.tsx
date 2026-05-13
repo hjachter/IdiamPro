@@ -9,10 +9,9 @@ import { MultiSelectToolbar } from './multi-select-toolbar';
 import FileImportDialog from './file-import-dialog';
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { ChevronDown, FilePlus, Plus, Trash2, Edit, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, Settings, Search, Command, PanelLeft, PanelLeftClose, Brain, StopCircle, Inbox, LayoutDashboard, Focus } from 'lucide-react';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Plus, Trash2, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, Settings, Search, Command, PanelLeft, PanelLeftClose, Brain, StopCircle, Inbox, LayoutDashboard, Focus, Wrench } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter } from "@/components/ui/alert-dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Input } from './ui/input';
 import SettingsDialog from './settings-dialog';
 import type { NodeType } from '@/types';
 import { exportOutlineToJson, exportAllOutlinesToJson, shareBackupFile, shareOutlineFile } from '@/lib/export';
@@ -232,10 +231,6 @@ export default function OutlinePane({
   isFocusMode,
   onToggleFocusMode,
 }: OutlinePaneProps) {
-  const [renameId, setRenameId] = useState<string | null>(null);
-  const [renameValue, setRenameValue] = useState('');
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [outlineSearch, setOutlineSearch] = useState('');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [importDialogOpen, setImportDialogOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -734,19 +729,6 @@ export default function OutlinePane({
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [selectedNodeId, currentOutline, handleIndent, handleOutdent, hasClipboard, onCopySubtree, onCutSubtree, onPasteSubtree, onDuplicateNode, justCreatedNodeId, onTriggerEdit, getVisibleNodeIds, onSelectNode]);
 
-  const handleStartRename = (id: string, currentName: string) => {
-    setRenameId(id);
-    setRenameValue(currentName);
-  };
-
-  const handleRenameSubmit = () => {
-    if (renameId && renameValue) {
-      onRenameOutline(renameId, renameValue);
-    }
-    setRenameId(null);
-    setRenameValue('');
-  };
-
   const handleImportClick = () => {
     setImportDialogOpen(true);
   };
@@ -875,152 +857,75 @@ export default function OutlinePane({
           </TooltipProvider>
         )}
 
-        {/* Mobile sidebar button */}
+        {/* Mobile sidebar button - larger tap target on mobile */}
         {onOpenMobileSidebar && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 shrink-0"
-            onClick={onOpenMobileSidebar}
-          >
-            <PanelLeft className="h-4 w-4" />
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={cn("shrink-0", isMobile ? "h-10 w-10" : "h-8 w-8")}
+                  onClick={onOpenMobileSidebar}
+                  aria-label="Open outlines sidebar"
+                >
+                  <PanelLeft className={cn(isMobile ? "h-5 w-5" : "h-4 w-4")} />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">Outlines</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         )}
 
-        <DropdownMenu open={dropdownOpen} onOpenChange={(open) => {
-            setDropdownOpen(open);
-            if (!open) setOutlineSearch('');
-        }}>
-            <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="flex-grow font-headline text-lg font-bold truncate justify-between active:scale-95 active:bg-accent/30">
-                    <span className="truncate">
-                        {currentOutline?.isSecondBrain && '🧠 '}
-                        {currentOutline?.isGuide && '📖 '}
-                        {currentOutline?.name}
-                    </span>
-                    <ChevronDown className="h-4 w-4 shrink-0" />
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-[var(--radix-dropdown-menu-trigger-width)] min-w-[280px] max-h-[80vh] flex flex-col">
-                {/* Commands at top - always visible */}
-                <DropdownMenuItem onSelect={onCreateOutline} className="cursor-pointer"><FilePlus className="mr-2 h-4 w-4" />New Outline</DropdownMenuItem>
-                <DropdownMenuItem onSelect={handleImportClick} className="cursor-pointer">
-                    <FileUp className="mr-2 h-4 w-4" /> Import Outline
-                </DropdownMenuItem>
-                <DropdownMenuItem onSelect={onExportOutline} disabled={!currentOutline} className="cursor-pointer">
-                    <FileDown className="mr-2 h-4 w-4" /> Export Current Outline
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuLabel>Manage Current Outline</DropdownMenuLabel>
-                <DropdownMenuItem onSelect={() => {
-                    if (currentOutline) {
-                        handleStartRename(currentOutline.id, currentOutline.name);
-                    }
-                    setDropdownOpen(false);
-                }} disabled={currentOutline?.isGuide || currentOutline?.isSecondBrain} className="cursor-pointer">
-                    <Edit className="mr-2 h-4 w-4" /> Rename
-                </DropdownMenuItem>
-                <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                        <DropdownMenuItem className="text-destructive cursor-pointer" disabled={currentOutline?.isGuide || currentOutline?.isSecondBrain} onSelect={(e) => e.preventDefault()}>
-                            <Trash2 className="mr-2 h-4 w-4" /> Delete
-                        </DropdownMenuItem>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                        <AlertDialogHeader>
-                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                            <AlertDialogDescription>This will permanently delete the "{currentOutline?.name}" outline and all its content.</AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter className="flex-col-reverse sm:flex-row sm:justify-end gap-2">
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => currentOutline && onDeleteOutline(currentOutline.id)} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
-                <DropdownMenuSeparator />
-                <DropdownMenuLabel>Backup & Restore</DropdownMenuLabel>
-                <DropdownMenuItem onSelect={handleBackupAll} className="cursor-pointer">
-                    <FileDown className="mr-2 h-4 w-4" /> Backup All Outlines
-                </DropdownMenuItem>
-                <DropdownMenuItem onSelect={handleRestoreAllClick} className="cursor-pointer">
-                    <FileUp className="mr-2 h-4 w-4" /> Restore All Outlines
-                </DropdownMenuItem>
-                <DropdownMenuItem onSelect={onRefreshGuide} className="cursor-pointer">
-                    <RotateCcw className="mr-2 h-4 w-4" /> Refresh User Guide
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
+        {/* Current outline title (read-only; switching happens in sidebar) */}
+        <div className="flex-grow font-headline text-lg font-bold truncate px-2 py-1" title={currentOutline?.name}>
+            <span className="truncate">
+                {currentOutline?.isSecondBrain && '🧠 '}
+                {currentOutline?.isGuide && '📖 '}
+                {currentOutline?.name}
+            </span>
+        </div>
 
-                {/* Search field */}
-                <div className="px-2 py-1.5">
-                    <div className="flex items-center gap-2 px-2 py-1.5 rounded-md border bg-background">
-                        <Search className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                        <input
-                            type="text"
-                            placeholder="Search outlines..."
-                            value={outlineSearch}
-                            onChange={(e) => setOutlineSearch(e.target.value)}
-                            className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-                            onClick={(e) => e.stopPropagation()}
-                            onKeyDown={(e) => e.stopPropagation()}
-                        />
-                    </div>
-                </div>
-
-                {/* Scrollable outline list */}
-                <DropdownMenuLabel className="text-xs">
-                    Outlines ({outlines.filter(o =>
-                        outlineSearch === '' ||
-                        o.name.toLowerCase().includes(outlineSearch.toLowerCase())
-                    ).length})
-                </DropdownMenuLabel>
-                <div className="overflow-y-auto max-h-[40vh] flex-1">
-                    {[...outlines]
-                        .filter(outline =>
-                            outlineSearch === '' ||
-                            outline.name.toLowerCase().includes(outlineSearch.toLowerCase())
-                        )
-                        .sort((a, b) => {
-                            // Second Brain always first, then guides, then alphabetical
-                            if (a.isSecondBrain && !b.isSecondBrain) return -1;
-                            if (!a.isSecondBrain && b.isSecondBrain) return 1;
-                            if (a.isGuide && !b.isGuide) return -1;
-                            if (!a.isGuide && b.isGuide) return 1;
-                            return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
-                        })
-                        .map(outline => {
-                            const nodeCount = Object.keys(outline.nodes).length;
-                            const lastMod = outline.lastModified;
-                            const timeAgo = lastMod ? formatTimeAgo(lastMod) : null;
-                            return (
-                                <DropdownMenuItem
-                                    key={outline.id}
-                                    onSelect={() => {
-                                        onSelectOutline(outline.id);
-                                        setOutlineSearch('');
-                                    }}
-                                    className="cursor-pointer flex justify-between items-center"
-                                >
-                                    <span className="truncate">
-                                        {outline.isSecondBrain && '🧠 '}{outline.isGuide && '📖 '}{outline.name}
-                                    </span>
-                                    <span className="text-xs text-muted-foreground ml-2 flex-shrink-0">
-                                        {nodeCount} {nodeCount === 1 ? 'node' : 'nodes'}
-                                        {timeAgo && ` · ${timeAgo}`}
-                                    </span>
-                                </DropdownMenuItem>
-                            );
-                        })}
-                    {outlines.filter(o =>
-                        outlineSearch !== '' &&
-                        o.name.toLowerCase().includes(outlineSearch.toLowerCase())
-                    ).length === 0 && outlineSearch !== '' && (
-                        <div className="px-2 py-3 text-sm text-muted-foreground text-center">
-                            No outlines match "{outlineSearch}"
-                        </div>
-                    )}
-                </div>
-            </DropdownMenuContent>
-        </DropdownMenu>
+        {/* Admin menu — outline-level actions that don't live in the sidebar */}
+        <TooltipProvider>
+            <DropdownMenu>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <DropdownMenuTrigger asChild>
+                            <Button
+                                variant="outline"
+                                size="icon"
+                                className="shrink-0 active:scale-95 active:bg-accent/30"
+                                aria-label="More actions"
+                            >
+                                <Wrench className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom">More actions</TooltipContent>
+                </Tooltip>
+                <DropdownMenuContent align="end" className="w-56 p-0.5">
+                    <DropdownMenuLabel className="py-1 text-xs uppercase tracking-wide text-muted-foreground">Outline</DropdownMenuLabel>
+                    <DropdownMenuItem onSelect={handleImportClick} className="cursor-pointer py-1">
+                        <FileUp className="mr-2 h-4 w-4" /> Import Outline
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onSelect={onExportOutline} disabled={!currentOutline} className="cursor-pointer py-1">
+                        <FileDown className="mr-2 h-4 w-4" /> Export Current Outline
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator className="my-0.5" />
+                    <DropdownMenuLabel className="py-1 text-xs uppercase tracking-wide text-muted-foreground">Backup & Restore</DropdownMenuLabel>
+                    <DropdownMenuItem onSelect={handleBackupAll} className="cursor-pointer py-1">
+                        <FileDown className="mr-2 h-4 w-4" /> Backup All Outlines
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onSelect={handleRestoreAllClick} className="cursor-pointer py-1">
+                        <FileUp className="mr-2 h-4 w-4" /> Restore All Outlines
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onSelect={onRefreshGuide} className="cursor-pointer py-1">
+                        <RotateCcw className="mr-2 h-4 w-4" /> Refresh User Guide
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+        </TooltipProvider>
 
         {/* File input for backup restore (JSON arrays) - kept for backward compatibility */}
         <input
@@ -1038,25 +943,6 @@ export default function OutlinePane({
             onImportComplete={(outline) => onAddImportedOutline(outline, false)}
         />
 
-        {renameId && (
-            <AlertDialog open={!!renameId} onOpenChange={(open) => !open && setRenameId(null)}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Rename Outline</AlertDialogTitle>
-                    </AlertDialogHeader>
-                    <Input
-                        autoFocus
-                        value={renameValue}
-                        onChange={(e) => setRenameValue(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && handleRenameSubmit()}
-                    />
-                    <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleRenameSubmit}>Save</AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
-        )}
       </div>
 
       <TooltipProvider delayDuration={300}>
