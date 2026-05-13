@@ -20,8 +20,10 @@ const shortcutGroups: ShortcutGroup[] = [
     title: 'General',
     shortcuts: [
       { keys: ['⌘', 'K'], description: 'Open command palette' },
+      { keys: ['⌘', 'B'], description: 'Toggle sidebar' },
       { keys: ['⌃', 'F'], description: 'Search outline' },
       { keys: ['⌘', '⇧', 'F'], description: 'Toggle focus mode' },
+      { keys: ['⌘', 'E'], description: 'Collapse / expand all' },
       { keys: ['Esc'], description: 'Exit focus mode' },
       { keys: ['?'], description: 'Show keyboard shortcuts' },
     ],
@@ -37,7 +39,7 @@ const shortcutGroups: ShortcutGroup[] = [
   {
     title: 'Editing',
     shortcuts: [
-      { keys: ['⌘', 'N'], description: 'New node (sibling)' },
+      { keys: ['Enter'], description: 'New sibling node' },
       { keys: ['⌘', 'D'], description: 'Duplicate node' },
       { keys: ['⌫'], description: 'Delete node' },
       { keys: ['Tab'], description: 'Indent node' },

@@ -121,7 +121,7 @@ export default function CommandPalette({
           <CommandItem onSelect={() => runCommand(onCreateNode)}>
             <Plus className="mr-2 h-4 w-4" />
             <span>New Node</span>
-            <CommandShortcut>⌘N</CommandShortcut>
+            <CommandShortcut>Enter</CommandShortcut>
           </CommandItem>
           <CommandItem onSelect={() => runCommand(onCreateOutline)}>
             <FileText className="mr-2 h-4 w-4" />

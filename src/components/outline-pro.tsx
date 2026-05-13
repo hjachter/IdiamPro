@@ -804,60 +804,11 @@ export default function OutlinePro() {
         return;
       }
 
-      // Cmd++ (Cmd+Shift+=) to create sibling node (can be pressed repeatedly)
-      if ((e.metaKey || e.ctrlKey) && e.shiftKey && (e.key === '+' || e.key === '=' || e.code === 'Equal')) {
-        // Check if user is typing in an input/textarea
-        const target = e.target as HTMLElement;
-        if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.contentEditable === 'true') {
-          return; // Don't intercept when typing
-        }
-
-        e.preventDefault();
-        e.stopPropagation();
-
-        if (!selectedNodeId) return;
-
-        // Clear multi-select first
-        setSelectedNodeIds(new Set());
-
-        // Copy the EXACT logic from handleCreateNode
-        setOutlines(currentOutlines => {
-          let newNodeId: string | null = null;
-
-          const newOutlines = currentOutlines.map(o => {
-            if (o.id === currentOutlineId) {
-              const { newNodes, newNodeId: createdNodeId } = addNodeAfter(
-                o.nodes,
-                selectedNodeId,
-                'document',
-                'New Node',
-                ''
-              );
-              newNodeId = createdNodeId;
-              return { ...o, nodes: newNodes };
-            }
-            return o;
-          });
-
-          // Schedule the selection update after this state update - EXACT copy from handleCreateNode
-          if (newNodeId) {
-            const capturedNewNodeId = newNodeId;
-            setTimeout(() => {
-              setSelectedNodeId(capturedNewNodeId);
-            }, 0);
-          }
-
-          return newOutlines;
-        });
-
-        return;
-      }
-
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isFocusMode, toast, selectedNodeId, currentOutlineId, outlines]);
+  }, [isFocusMode, toast]);
 
   // handleSelectNode - navigate param controls whether to switch to full content view on mobile
   // On mobile with stacked layout: selection updates preview, navigate=true goes to full content
@@ -3422,12 +3373,8 @@ export default function OutlinePro() {
         return;
       }
 
-      // Cmd+B — Open Second Brain
-      if ((e.metaKey || e.ctrlKey) && !e.shiftKey && e.key === 'b') {
-        e.preventDefault();
-        handleOpenSecondBrain();
-        return;
-      }
+      // Cmd+B is reserved for sidebar toggle (platform convention: Notion, VS Code).
+      // Second Brain is accessed via toolbar Brain button / menu — no shortcut.
 
       // Cmd+Shift+B — Save selection to Second Brain
       if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'B') {
@@ -3453,7 +3400,7 @@ export default function OutlinePro() {
 
     document.addEventListener('keydown', handleSecondBrainKeys);
     return () => document.removeEventListener('keydown', handleSecondBrainKeys);
-  }, [outlines, currentOutlineId, selectedNodeId, handleOpenSecondBrain, handleSaveToSecondBrain, handleSearchSecondBrain, handleCollapseAll, handleExpandAll, setIsQuickCaptureOpen]);
+  }, [outlines, currentOutlineId, selectedNodeId, handleSaveToSecondBrain, handleSearchSecondBrain, handleCollapseAll, handleExpandAll, setIsQuickCaptureOpen]);
 
   const handleExportSubtree = useCallback((nodeId: string) => {
     setExportNodeId(nodeId);

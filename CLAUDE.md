@@ -28,7 +28,8 @@ IdiamPro/SecondBrainWare targets 6 platforms. macOS, iOS, and Web are actively s
 | Copy / Paste / Select All | Cmd+C/V/A | Ctrl+C/V/A | Long-press → menu | Cmd/Ctrl+C/V/A |
 | Undo / Redo | Cmd+Z / Cmd+Shift+Z | Ctrl+Z / Ctrl+Shift+Z | Toolbar buttons | Both |
 | Bold / Italic / Headings | Cmd+B/I or BubbleMenu | Ctrl+B/I or BubbleMenu | BubbleMenu only | Both |
-| Open Second Brain | Cmd+B | Ctrl+B | Brain menu | Both |
+| Toggle sidebar | Cmd+B | Ctrl+B | Sidebar button | Cmd/Ctrl+B |
+| Open Second Brain | Brain menu / toolbar button | Brain menu / toolbar button | Brain menu | Brain menu / toolbar button |
 | Save to Second Brain | Cmd+Shift+B | Ctrl+Shift+B | Brain menu | Both |
 | Quick Capture | Cmd+Shift+I or toolbar | Ctrl+Shift+I or toolbar | Toolbar button | Both |
 | Search Second Brain | Cmd+Shift+S | Ctrl+Shift+S | Brain menu | Both |
@@ -39,8 +40,8 @@ IdiamPro/SecondBrainWare targets 6 platforms. macOS, iOS, and Web are actively s
 | Multi-select | Cmd+Click | Ctrl+Click | (needs audit) | Cmd/Ctrl+Click |
 | Command Palette | Cmd+K or toolbar | Ctrl+K or toolbar | Toolbar button | Both |
 | Search current outline | Cmd+F | Ctrl+F | Search field | Cmd/Ctrl+F |
-| Focus mode | Cmd+Shift+F | Ctrl+Shift+F | (needs button — TODO) | Cmd/Ctrl+Shift+F |
-| Collapse / expand all | Cmd+E | Ctrl+E | (needs button — TODO) | Cmd/Ctrl+E |
+| Focus mode | Cmd+Shift+F | Ctrl+Shift+F | Focus toolbar button | Cmd/Ctrl+Shift+F or button |
+| Collapse / expand all | Cmd+E | Ctrl+E | Chevron toolbar button | Cmd/Ctrl+E or button |
 
 ---
 

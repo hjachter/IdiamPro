@@ -27,7 +27,8 @@
       "childrenIds": [
         "kf-2a47a8ff42",
         "kf-eb8cb625fa",
-        "kf-eac19fb868"
+        "kf-eac19fb868",
+        "kf-livebooks"
       ],
       "prefix": "1",
       "isCollapsed": false
@@ -103,6 +104,15 @@
       "childrenIds": [],
       "type": "document",
       "content": "<p><strong>What:</strong> When you save to Second Brain, AI suggests 1\u20133 tags from the content. Accept, edit, or skip \u2014 tags persist as metadata and power future filtering and search.</p><p><strong>Why it matters:</strong> Manual tagging fails universally \u2014 folders go stale, categories drift, taxonomies collapse. Asking the user to organize at save time breaks the capture habit. AI silently doing it means the system gets smarter the more it's used, with no effort from the user.</p><p><strong>Differentiator:</strong> Every PKM tool has tagging. Almost none have AI doing it for you. This is the AI-native value proposition that justifies the Premium tier: not \"here's a chat dropped in,\" but \"the tool that organizes itself.\"</p>",
+      "isExpanded": false
+    },
+    "kf-livebooks": {
+      "id": "kf-livebooks",
+      "name": "LIVE BOOKS (proposed)",
+      "parentId": "sec-features",
+      "childrenIds": [],
+      "type": "document",
+      "content": "<p><strong>Status:</strong> Proposed feature \u2014 added to roadmap 2026-05-13. Not yet scoped or implemented.</p><p><strong>What:</strong> Take any outline and refresh its content against the latest information on the internet. Available to both authors and readers of an outline, against any outline.</p><p><strong>Triggers / use cases:</strong></p><ul><li><p>User upgrades their AI engine (new API key, new model version)</p></li><li><p>Time passes \u2014 technologies mature, cultural references shift, facts evolve</p></li><li><p>Reader of a third-party outline wants the latest take on the topic, not the author's frozen snapshot</p></li></ul><p><strong>Why it matters:</strong> Static documents go stale. Today's outline about \"the latest AI models\" is wrong in six weeks. LIVE BOOKS turns an outline into a living document that ages well, automatically.</p><p><strong>Differentiator:</strong> Wikipedia is community-edited but slow; AI chat is fresh but ephemeral. LIVE BOOKS is the third path \u2014 your personal structured knowledge, kept current by AI on demand, with author and reader both empowered to refresh.</p><p><strong>Open questions to resolve before scoping:</strong></p><ul><li><p>Per-node opt-in vs. whole-outline refresh? Mix?</p></li><li><p>Diff / review step before applying changes, or trust-and-go?</p></li><li><p>Author canonical version vs. reader's personal updated copy \u2014 how do these reconcile?</p></li><li><p>Cost model \u2014 web search + LLM synthesis per node is expensive; metered, tiered, or one-shot?</p></li><li><p>Citation / source attribution \u2014 do refreshed nodes show where the new info came from?</p></li><li><p>What happens to nodes the user manually edited? Skip them? Flag conflicts?</p></li></ul>",
       "isExpanded": false
     }
   },

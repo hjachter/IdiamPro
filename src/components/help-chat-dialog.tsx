@@ -59,15 +59,14 @@ CONTENT EDITOR:
 - Speech-to-text: Click microphone button, speak, text is transcribed locally
 
 KEYBOARD SHORTCUTS:
-- Cmd+N: New outline
 - Enter/Return: Create new sibling node
 - Tab: Indent node
 - Shift+Tab: Outdent node
 - Cmd+K: Command palette (also: Expand All, Collapse All)
-- Cmd+/: Toggle collapse
+- Cmd+E: Toggle collapse/expand all (also available as a toolbar button)
+- Cmd+B: Toggle sidebar (platform convention; Second Brain is accessed via toolbar Brain button)
 - Cmd+D: Duplicate node
 - Delete/Backspace: Delete selected node (with confirmation if enabled)
-- Cmd+Backspace: Delete node
 - Cmd+Shift+F: Focus Mode (isolate subtree, Esc to exit). Also available as a Focus button in the outline toolbar — highlights when active, disabled when no node is selected.
 - Ctrl+F: Search (current outline or all outlines). Collapsed nodes containing matches auto-expand to reveal results. Filter toggles let you search node names only, content only, or both.
 - Up/Down arrows: Navigate between nodes
@@ -97,7 +96,7 @@ AI FEATURES:
 - Create Content for Descendants: Right-click a parent > generates content for all children at once
 - Research & Import synthesis (Free: 3 sources, Premium: 50+ sources). Nodes always have short names (2-6 words) as tree labels with detailed content in the content pane, even in comprehensive mode. Merging into an existing outline integrates content under shared themes rather than appending separately.
 - Knowledge Chat: Query your outlines with natural language. AI Features menu > Knowledge Chat, or Second Brain menu > Search Second Brain. Three modes: Current Outline, All Outlines, and Second Brain. AI answers based only on your outline content, referencing specific sections. Responses stream in word-by-word.
-- Second Brain: A special always-present outline (🧠 icon) for accumulating everything you want to remember. Save any node to it via right-click > "Save to Second Brain" or the brain menu. Search it via Knowledge Chat's Second Brain mode. Keyboard shortcuts: ⌘B (open), ⌘⇧B (save selection), ⌘⇧S (search). Cannot be deleted or renamed.
+- Second Brain: A special always-present outline (🧠 icon) for accumulating everything you want to remember. Save any node to it via right-click > "Save to Second Brain" or the brain menu. Open it from the Brain toolbar menu (no shortcut — Cmd+B is reserved for the sidebar). Search it via Knowledge Chat's Second Brain mode. Keyboard shortcuts: ⌘⇧B (save selection), ⌘⇧S (search). Cannot be deleted or renamed.
 - Quick Capture (Cmd+Shift+I): Opens a floating dialog from anywhere. Type or paste any thought, hit Enter, it lands in a "📥 Inbox" section at the top of Second Brain. No need to be inside any outline.
 - Second Brain Dashboard: Brain menu > View Dashboard. Shows total entries, recent saves (last 7 days), a "revisit pile" of older entries, and top tags. Click any entry to jump to it.
 - Smart Auto-Tagging: When you save anything to Second Brain (including via Quick Capture), AI suggests 1-3 short topical tags and applies them automatically. Tags are stored as node metadata and shown in the dashboard. You can edit tags later via the existing tag UI.
@@ -119,6 +118,7 @@ MOBILE:
 - Stacked View: outline + content side by side
 - Content View: full-screen editor mode
 - Toggle between views with the toolbar button
+- Touch-accessible toolbar buttons mirror every keyboard shortcut for iPad/iPhone: Focus Mode (target icon), Collapse All / Expand All (double-chevron icon), Search, Command Palette, Quick Capture, and the Second Brain Brain menu. No iOS user is gated by a keyboard-only feature.
 
 Answer user questions clearly and concisely. If they ask how to do something, provide step-by-step instructions.`;
 
