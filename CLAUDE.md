@@ -123,6 +123,10 @@ cp "~/Documents/IDM Outlines/IdiamPro - Testing.idm" docs/outlines/
 *MCP Server:*
 - `IdiamPro-MCP-Plan.idm` — MCP server: architecture, tools, auth, commercialization, test procedures
 
+*Live dashboards (auto-maintained by Claude):*
+- `IdiamPro - Launch Progress.idm` — Percentage-complete bar graph + completed / waiting / next-up lists. **Update this outline whenever a task status changes**, then sync to `~/Documents/IDM Outlines/`. The user reads it to see where we are relative to launch at a glance.
+- `IdiamPro - Bootstrap Plan.idm` — The root node's `content` field holds a mirror of the launch-progress bar graph (top of the content, before the "━━━" separator). **Keep this section in sync with the Launch Progress outline** every time it updates.
+
 **Important:** The user edits outlines in IdiamPro (from `~/Documents/IDM Outlines/`). After significant changes, sync to `docs/outlines/` and commit.
 
 ---

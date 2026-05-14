@@ -1,0 +1,76 @@
+{
+  "id": "launch-progress",
+  "name": "IdiamPro - Launch Progress",
+  "rootNodeId": "lp-root",
+  "lastModified": 1747160000000,
+  "nodes": {
+    "lp-root": {
+      "id": "lp-root",
+      "name": "Launch Progress",
+      "content": "<p><strong>Last updated:</strong> 2026-05-13</p><p></p><p><strong>Overall: 27% complete (13/48 tasks)</strong></p><pre><code>████████░░░░░░░░░░░░░░░░░░░░░░</code></pre><p></p><p><strong>By category:</strong></p><p>Documents &amp; drafts:&nbsp;&nbsp;&nbsp; 100% <code>████████████████████████</code> 10/10</p><p>Code changes:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 18% <code>████░░░░░░░░░░░░░░░░░░░░</code> 2/11</p><p>Decision docs:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 100% <code>████████████████████████</code> 3/3</p><p>Bug fixes:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 100% <code>████████████████████████</code> 1/1</p><p>Awaiting your decisions: &nbsp;0% <code>░░░░░░░░░░░░░░░░░░░░░░░░</code> 0/5</p><p>External / user-only:&nbsp;&nbsp;&nbsp;&nbsp; 0% <code>░░░░░░░░░░░░░░░░░░░░░░░░</code> 0/9</p><p>Post-launch (deferred):&nbsp;&nbsp; 0% <code>░░░░░░░░░░░░░░░░░░░░░░░░</code> 0/9</p>",
+      "type": "root",
+      "parentId": null,
+      "childrenIds": [
+        "lp-completed",
+        "lp-decisions",
+        "lp-external",
+        "lp-next",
+        "lp-deferred"
+      ],
+      "prefix": ""
+    },
+    "lp-completed": {
+      "id": "lp-completed",
+      "name": "Completed (13)",
+      "parentId": "lp-root",
+      "childrenIds": [],
+      "type": "chapter",
+      "content": "<p>Sentry crash reporting integrated across web, Electron, edge runtime. Free-tier safe. Needs a DSN from you to start collecting reports.</p><p>Accessibility audit (WCAG 2.1 AA). About 23 fixes applied — icon-only buttons got aria-labels, the outline now has proper ARIA tree semantics. Build clean.</p><p>Terms of Service draft. Marked DRAFT — needs lawyer review and a jurisdiction choice.</p><p>Refund Policy + dispute handling SOP. 14-day window, 3-day SLA, BYOK carve-outs documented.</p><p>App Privacy Nutrition Labels recommendation. Row-by-row answers ready for App Store Connect.</p><p>AI Consent reviewer documentation. Step-by-step for Apple App Review.</p><p>Incident Response + Backup/DR playbook. SEV ladder, scenario runbooks, post-mortem template.</p><p>Email deliverability setup guide. Resend + Google Workspace recommended. SPF/DKIM/DMARC steps.</p><p>Mac App Store decision: DMG-only for v1 (sandboxing would break Ollama, file access, MCP).</p><p>Sign in with Apple audit: not required — no auth exists today.</p><p>Launch announcement drafts: Product Hunt, Hacker News, Twitter, LinkedIn.</p><p>Beta tester + influencer outreach templates. Nick Milo (Linking Your Thinking) is the top target.</p><p>Knowledge Chat &quot;All Outlines&quot; test bug fixed. 38/38 tests passing.</p>",
+      "isCollapsed": false,
+      "prefix": "1"
+    },
+    "lp-decisions": {
+      "id": "lp-decisions",
+      "name": "Waiting on your decisions (5)",
+      "parentId": "lp-root",
+      "childrenIds": [],
+      "type": "chapter",
+      "content": "<p><strong>Auth provider</strong> — NextAuth.js, Clerk, or Supabase Auth? Unblocks user authentication (#32), which unblocks billing, feature gating, BYOK key storage.</p><p><strong>Billing architecture</strong> — Stripe + RevenueCat for cross-platform receipts, or RevenueCat-only? Unblocks subscription billing backend (#15).</p><p><strong>Final tagline + pricing</strong> — Need to pick the tagline and decide whether to call out the price ($12/mo? $9.99/mo?) in Product Hunt and LinkedIn copy.</p><p><strong>Support email confirmation</strong> — support@2ndbrainware.com or something else? Affects refund policy, incident response, customer support setup.</p><p><strong>Status page vendor + Postgres provider + Lawyer-on-call + Legal jurisdiction</strong> — Needed to finalize the docs already drafted.</p>",
+      "isCollapsed": false,
+      "prefix": "2"
+    },
+    "lp-external": {
+      "id": "lp-external",
+      "name": "Waiting on external / user-only (9)",
+      "parentId": "lp-root",
+      "childrenIds": [],
+      "type": "chapter",
+      "content": "<p>Apple Developer cert ($99/yr) — verify account active, configure Team ID</p><p>Privacy Policy lawyer review — already drafted at /privacy, needs sign-off</p><p>Sentry DSN — create free Sentry account, paste DSN into Vercel env vars</p><p>Custom domain DNS — point secondbrainware.com to Vercel</p><p>iOS TestFlight upload — needs your office / fast internet</p><p>Real-device test pass — Mac primary, then iPhone/iPad verification</p><p>Business infrastructure — LLC, bank account, Stripe Atlas entity, Google Play developer account</p><p>4 enterprise API responses — passive monitoring of inboxes</p><p>Customer support tooling pick — email-only, Help Scout, Front, etc.</p>",
+      "isCollapsed": false,
+      "prefix": "3"
+    },
+    "lp-next": {
+      "id": "lp-next",
+      "name": "Next to tackle (P0 code work)",
+      "parentId": "lp-root",
+      "childrenIds": [],
+      "type": "chapter",
+      "content": "<p>Ranked by what unblocks the most other work:</p><p></p><p><strong>1. Production security hardening (#35)</strong> — per-user rate limiting on AI routes, env-var audit, Google Fonts localization, secret rotation.</p><p><strong>2. GDPR/CCPA data deletion + export flows (#40)</strong> — required for EU users, Apple may flag if absent.</p><p><strong>3. Web SEO + analytics (#23)</strong> — meta tags, sitemap, robots.txt, lightweight analytics.</p><p><strong>4. Launch metrics dashboard (#47)</strong> — pick 5-7 numbers for launch week (signups, activation, retention, conversion).</p><p><strong>5. Onboarding email sequence (#46)</strong> — welcome + 3-5 drip emails after signup.</p><p></p><p>Blocked on your decisions:</p><p><strong>6. User authentication (#32)</strong> — foundational, blocks #15/#33/#34</p><p><strong>7. Subscription billing backend (#15)</strong> — blocks paid features</p><p><strong>8. Feature gating + tier enforcement (#33)</strong> — needs billing first</p><p><strong>9. BYOK API key entry UI (#34)</strong> — needs auth first</p><p><strong>10. Web payment / Stripe (#22)</strong> — needs billing backend first</p>",
+      "isCollapsed": false,
+      "prefix": "4"
+    },
+    "lp-deferred": {
+      "id": "lp-deferred",
+      "name": "Post-launch / deferred (9)",
+      "parentId": "lp-root",
+      "childrenIds": [],
+      "type": "chapter",
+      "content": "<p>Not launch-blocking. These ship after the Apple version is live and monetized.</p><p></p><p>LIVE BOOKS — design + implementation (the 6 open design questions remain)</p><p>Android Capacitor scaffolding</p><p>Windows distributed build</p><p>Linux distributed build</p><p>MCP Server Phase 2 (free CRUD tools)</p><p>MCP Server Phase 3 (premium AI/ingest tools)</p><p>MCP Server Phase 4 (dual-licensing strategy)</p><p>MCP Server Test 8 (Claude Desktop end-to-end)</p><p>Collaboration / Group features — entire Group outline is design-only</p><p>Build managed API proxy tier (v2 of monetization, after first enterprise agreement)</p><p>iOS multi-select audit (refinement)</p>",
+      "isCollapsed": false,
+      "prefix": "5"
+    }
+  },
+  "isGuide": false,
+  "_fileName": "IdiamPro - Launch Progress.idm",
+  "_isLazyLoaded": false
+}
