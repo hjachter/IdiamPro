@@ -4,6 +4,25 @@ const fs = require('fs');
 const { spawn } = require('child_process');
 const net = require('net');
 
+// ========== Sentry crash reporting (main + renderer) ==========
+// Initialized as early as possible so startup crashes are captured.
+// No-op when SENTRY_DSN is not set or NODE_ENV === 'development'.
+try {
+  const sentryDsn = process.env.SENTRY_DSN;
+  if (sentryDsn && process.env.NODE_ENV !== 'development') {
+    const Sentry = require('@sentry/electron/main');
+    Sentry.init({
+      dsn: sentryDsn,
+      environment: process.env.NODE_ENV || 'production',
+      tracesSampleRate: 0.1,
+      // The main-process SDK automatically captures errors from all renderer
+      // processes via the Electron crashReporter + IPC bridge.
+    });
+  }
+} catch (err) {
+  console.warn('[Sentry] init skipped:', err && err.message);
+}
+
 // Track dev server process
 let devServerProcess = null;
 

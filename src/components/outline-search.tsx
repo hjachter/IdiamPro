@@ -210,6 +210,7 @@ export default function OutlineSearch({
               size="icon"
               className="absolute right-1 top-1/2 -translate-y-1/2 h-6 w-6"
               onClick={handleClear}
+              aria-label="Clear search"
             >
               <X className="h-3 w-3" />
             </Button>
@@ -225,6 +226,8 @@ export default function OutlineSearch({
                 size="icon"
                 className={`h-8 w-8 ${searchScope !== 'all' ? 'hover:bg-background opacity-50 hover:opacity-70' : ''}`}
                 onClick={toggleScope}
+                aria-label={searchScope === 'all' ? 'Searching all outlines' : 'Searching current outline'}
+                aria-pressed={searchScope === 'all'}
               >
                 {searchScope === 'all' ? (
                   <Globe className="h-4 w-4" />
@@ -250,6 +253,8 @@ export default function OutlineSearch({
                   if (searchNames && !searchContent) return;
                   setSearchNames(prev => !prev);
                 }}
+                aria-label="Search node names"
+                aria-pressed={searchNames}
               >
                 <AlignLeft className="h-4 w-4" />
               </Button>
@@ -269,6 +274,8 @@ export default function OutlineSearch({
                   if (searchContent && !searchNames) return;
                   setSearchContent(prev => !prev);
                 }}
+                aria-label="Search node content"
+                aria-pressed={searchContent}
               >
                 <Type className="h-4 w-4" />
               </Button>
@@ -285,6 +292,7 @@ export default function OutlineSearch({
                 className="h-8 w-8"
                 onClick={onPrevMatch}
                 disabled={totalMatches === 0}
+                aria-label="Previous match"
               >
                 <ChevronUp className="h-4 w-4" />
               </Button>
@@ -300,6 +308,7 @@ export default function OutlineSearch({
                 className="h-8 w-8"
                 onClick={onNextMatch}
                 disabled={totalMatches === 0}
+                aria-label="Next match"
               >
                 <ChevronDown className="h-4 w-4" />
               </Button>
@@ -319,6 +328,7 @@ export default function OutlineSearch({
                   onClose();
                 }}
                 disabled={totalMatches === 0}
+                aria-label="Clear highlights and close search"
               >
                 <Eraser className="h-4 w-4" />
               </Button>
@@ -334,6 +344,7 @@ export default function OutlineSearch({
                 size="icon"
                 className="h-8 w-8"
                 onClick={onClose}
+                aria-label="Close search"
               >
                 <X className="h-4 w-4" />
               </Button>

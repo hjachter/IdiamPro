@@ -399,6 +399,7 @@ export default function SidebarPane({
                             : "opacity-0 group-hover:opacity-100"
                         )}
                         onClick={(e) => e.stopPropagation()}
+                        aria-label={`Actions for ${outline.name}`}
                       >
                         <MoreHorizontal className="h-4 w-4" />
                       </Button>

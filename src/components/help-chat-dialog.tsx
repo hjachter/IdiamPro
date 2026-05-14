@@ -291,6 +291,7 @@ export default function HelpChatDialog({ open, onOpenChange }: HelpChatDialogPro
               onClick={handleSend}
               disabled={!input.trim() || isLoading}
               size="icon"
+              aria-label="Send message"
             >
               {isLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />

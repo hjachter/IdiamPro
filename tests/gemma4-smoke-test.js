@@ -301,7 +301,9 @@ async function testKnowledgeChatCurrent() {
       return { passed: false, details: d };
     }
 
-    // DON'T close — leave it open for Test 4 (All Outlines uses the same dialog)
+    // Test runner calls ensureNoDialogs() between tests so we can close here;
+    // Test 4 opens its own Knowledge Chat instance.
+    await closeDialog('Knowledge Chat');
     return { passed: true, details: d };
   } catch (e) {
     d.error = e.message;
@@ -314,7 +316,9 @@ async function testKnowledgeChatCurrent() {
 async function testKnowledgeChatAllOutlines() {
   const d = { steps: [] };
   try {
-    // Knowledge Chat dialog should still be open from Test 3
+    // Open Knowledge Chat fresh — the test runner closes dialogs between tests.
+    await openKnowledgeChat();
+    d.steps.push('Opened Knowledge Chat');
     const allBtn = page.locator('[role="dialog"] button:has-text("All Outlines")').first();
     if (!(await allBtn.isVisible({ timeout: 2000 }).catch(() => false))) {
       d.error = 'All Outlines button not found in Knowledge Chat';

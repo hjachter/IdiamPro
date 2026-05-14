@@ -2468,7 +2468,7 @@ export default function ContentPane({
             <DropdownMenu>
               <TooltipTrigger asChild>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="icon">
+                  <Button variant="outline" size="icon" aria-label="Insert app">
                     <LayoutGrid className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -2524,7 +2524,7 @@ export default function ContentPane({
           {/* Import File Button */}
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="outline" size="icon" onClick={handleImportFile}>
+              <Button variant="outline" size="icon" onClick={handleImportFile} aria-label="Insert file">
                 <Paperclip className="h-4 w-4" />
               </Button>
             </TooltipTrigger>

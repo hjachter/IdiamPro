@@ -541,6 +541,10 @@ export default function NodeItem({
     <li
       ref={itemRef}
       className="relative list-none my-0.5"
+      role="treeitem"
+      aria-level={level + 1}
+      aria-selected={isSelected}
+      aria-expanded={node.childrenIds.length > 0 ? !node.isCollapsed : undefined}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
@@ -818,7 +822,7 @@ export default function NodeItem({
                   {node.childrenIds.length} items
                 </div>
               ) : (
-                <ul>
+                <ul role="group">
                 {node.childrenIds.map((childId) => (
                     <NodeItem
                         key={childId}

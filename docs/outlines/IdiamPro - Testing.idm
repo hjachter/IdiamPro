@@ -22,7 +22,8 @@
         "gemma4-tests",
         "manual-procedures",
         "testing-guidance",
-        "known-gaps"
+        "known-gaps",
+        "test-run-log"
       ],
       "prefix": ""
     },
@@ -248,11 +249,32 @@
       "parentId": "root",
       "childrenIds": [],
       "type": "document",
-      "content": "<p><strong>Script:</strong> <code>tests/gemma4-smoke-test.js</code></p>\n<p><strong>Run:</strong> <code>node tests/gemma4-smoke-test.js</code></p>\n<p><strong>Status:</strong> 6/6 passing as of last run (April 2026).</p>\n<p><strong>What it verifies:</strong></p>\n<ol>\n<li><strong>Settings — Provider is Local:</strong> Settings dialog opens, AI Provider section is found, \"Ollama running\" status is shown, no \"Install Ollama\" warning.</li>\n<li><strong>Help Chat via Gemma 4:</strong> Help Chat opens, accepts a question about keyboard shortcuts, streams a response that mentions \"Enter\" / \"Return\", input becomes re-enabled when streaming finishes.</li>\n<li><strong>Knowledge Chat — Current Outline:</strong> Switches to Current Outline mode, sends a question about the loaded outline, gets a substantive (200+ char) streamed response.</li>\n<li><strong>Knowledge Chat — All Outlines:</strong> Switches to All Outlines mode, asks a cross-outline question, verifies the truncation notice appears (confirms local-AI path was used). Currently surfaces a known truncation bug.</li>\n<li><strong>Research &amp; Import dialog:</strong> Opens cleanly, references local AI, no install warning.</li>\n<li><strong>Node Content Expansion:</strong> Right-click on a node opens the context menu cleanly.</li>\n</ol>\n<p><strong>Patterns established by this script (reusable for future tests):</strong></p>\n<ul>\n<li>Use Radix dialog X-button (<code>span.sr-only:text(\"Close\")</code>) to close dialogs cleanly — Escape doesn't always work with overlay layers.</li>\n<li>Use <code>input.isDisabled() === false</code> as the deterministic streaming-done signal. Text-growth detection has false positives during natural pauses in the stream.</li>\n<li>Knowledge Chat input has mode-specific placeholders: \"Ask about this outline...\" (Current) vs \"Ask about all your outlines...\" (All).</li>\n<li>AI Features menu items accessed via <code>getByRole('menuitem', { name: ... })</code>.</li>\n</ul>\n<p><strong>Output:</strong> Reports written to <code>test-screenshots/gemma4-smoke/report.{json,md}</code>; per-step screenshots saved alongside.</p>"
+      "content": "<p><strong>Script:</strong> <code>tests/gemma4-smoke-test.js</code></p>\n<p><strong>Run:</strong> <code>node tests/gemma4-smoke-test.js</code></p>\n<p><strong>Status:</strong> 6/6 passing after the 2026-05-13 fix (Test 4 now opens its own Knowledge Chat dialog instead of assuming the previous test left it open). The 2026-05-13 run itself was 5/6; see the Test Run Log for details.</p>\n<p><strong>What it verifies:</strong></p>\n<ol>\n<li><strong>Settings — Provider is Local:</strong> Settings dialog opens, AI Provider section is found, \"Ollama running\" status is shown, no \"Install Ollama\" warning.</li>\n<li><strong>Help Chat via Gemma 4:</strong> Help Chat opens, accepts a question about keyboard shortcuts, streams a response that mentions \"Enter\" / \"Return\", input becomes re-enabled when streaming finishes.</li>\n<li><strong>Knowledge Chat — Current Outline:</strong> Switches to Current Outline mode, sends a question about the loaded outline, gets a substantive (200+ char) streamed response.</li>\n<li><strong>Knowledge Chat — All Outlines:</strong> Switches to All Outlines mode, asks a cross-outline question, verifies the truncation notice appears (confirms local-AI path was used). Currently surfaces a known truncation bug.</li>\n<li><strong>Research &amp; Import dialog:</strong> Opens cleanly, references local AI, no install warning.</li>\n<li><strong>Node Content Expansion:</strong> Right-click on a node opens the context menu cleanly.</li>\n</ol>\n<p><strong>Patterns established by this script (reusable for future tests):</strong></p>\n<ul>\n<li>Use Radix dialog X-button (<code>span.sr-only:text(\"Close\")</code>) to close dialogs cleanly — Escape doesn't always work with overlay layers.</li>\n<li>Use <code>input.isDisabled() === false</code> as the deterministic streaming-done signal. Text-growth detection has false positives during natural pauses in the stream.</li>\n<li>Knowledge Chat input has mode-specific placeholders: \"Ask about this outline...\" (Current) vs \"Ask about all your outlines...\" (All).</li>\n<li>AI Features menu items accessed via <code>getByRole('menuitem', { name: ... })</code>.</li>\n</ul>\n<p><strong>Output:</strong> Reports written to <code>test-screenshots/gemma4-smoke/report.{json,md}</code>; per-step screenshots saved alongside.</p>"
+    },
+    "test-run-log": {
+      "id": "test-run-log",
+      "name": "Test Run Log",
+      "parentId": "root",
+      "childrenIds": [
+        "run-2026-05-13"
+      ],
+      "type": "chapter",
+      "prefix": "13",
+      "isCollapsed": false,
+      "content": "<p>Chronological log of full test-suite runs. Each entry records the date, the scripts executed, pass/fail counts, root causes for any failures, and follow-up actions taken.</p><p>Most recent run first.</p>"
+    },
+    "run-2026-05-13": {
+      "id": "run-2026-05-13",
+      "name": "2026-05-13 — Full suite, 37/38 passing (97%)",
+      "parentId": "test-run-log",
+      "childrenIds": [],
+      "type": "document",
+      "prefix": "13.1",
+      "content": "<p><strong>Trigger:</strong> \"TEST EVERYTHING\" run on 2026-05-13.</p><p><strong>Summary:</strong> 37 of 38 tests passing across three Playwright/Node test scripts. One failure, root-caused and fixed the same day.</p><h3>Scripts and Results</h3><ul><li><p><strong>tests/electron-test.js</strong> — 8/8 passed in 44.67s. Covered: User Guide, Welcome Tour, Create Outline, Settings Dialog, Keyboard Navigation, Collapse/Expand, Templates, Dark Mode.</p></li><li><p><strong>tests/gemma4-smoke-test.js</strong> — 5/6 passed in 39.68s. Failing test: Knowledge Chat \"All Outlines\" mode (Test 4).</p></li><li><p><strong>tests/mcp-server-test.js</strong> — 24/24 passed. Covered: full CRUD on outlines, tag operations, search, export, and API-key operations.</p></li></ul><h3>Failure: gemma4 Test 4 — Knowledge Chat \"All Outlines\"</h3><p><strong>Symptom:</strong> Test 4 could not locate the Knowledge Chat input and timed out.</p><p><strong>Root cause:</strong> Test bug, not an app bug. Test 4 assumed the Knowledge Chat dialog was still open from Test 3 (\"Current Outline\" mode). The runner closes dialogs between tests for isolation, so when Test 4 ran the dialog was gone and the mode-toggle selector matched nothing.</p><p><strong>Fix:</strong> Test 4 now opens the Knowledge Chat dialog itself before switching to \"All Outlines\" mode. Filed as <strong>Task #48</strong> and resolved the same day. Re-running the suite afterward took gemma4 to 6/6.</p><h3>Follow-up</h3><ul><li><p>Updated the Status line on the gemma4 section above to reflect the post-fix 6/6.</p></li><li><p>No app code changed; the change was in <code>tests/gemma4-smoke-test.js</code>.</p></li><li><p>Lesson recorded for future tests: each Playwright test must set up its own dialog state and not depend on prior tests.</p></li></ul><h3>Artifacts</h3><ul><li><p><code>test-screenshots/electron-test/report.{json,md}</code></p></li><li><p><code>test-screenshots/gemma4-smoke/report.{json,md}</code></p></li><li><p><code>test-screenshots/mcp-server/report.{json,md}</code></p></li></ul>"
     }
   },
   "_fileSize": 40308,
   "_fileName": "IdiamPro - Testing.idm",
   "_isLazyLoaded": false,
-  "lastModified": 1771019893898
+  "lastModified": 1778716800000
 }

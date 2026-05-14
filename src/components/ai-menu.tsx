@@ -61,6 +61,7 @@ export default function AIMenu({
           disabled={disabled || isLoadingAI}
           className="text-primary hover:bg-primary/20 active:scale-95 active:bg-accent/30"
           title="AI Features"
+          aria-label="AI features menu"
         >
           {isLoadingAI ? (
             <Loader2 className="h-4 w-4 animate-spin" />

@@ -211,6 +211,18 @@ node tests/gemma4-smoke-test.js
 - **DerivedData** should be outside iCloud Drive to avoid build failures
 - **MCP Server** lives in `mcp-server/` with its own `package.json`. Build with `cd mcp-server && npm run build`. Dev mode: `npm run dev`. See `mcp-server/README.md` for Claude Desktop/Code configuration.
 
+### Sentry crash reporting
+
+Sentry is wired into the web (Next.js), Electron main + renderer, and iOS (renderer via the Capacitor webview pulls the web bundle's client SDK). Everything is gated on env vars — with no DSN set, the SDKs no-op silently and there is no runtime overhead.
+
+Required env vars (set in `.env.local` for dev/Electron, and in Vercel project settings for production web):
+
+- `SENTRY_DSN` — server + Electron main + edge runtime DSN
+- `NEXT_PUBLIC_SENTRY_DSN` — browser/renderer DSN (can be the same as `SENTRY_DSN`)
+- `SENTRY_AUTH_TOKEN` — optional, only needed to upload source maps at build time
+
+See `.env.example` for the full list. Configs live at `sentry.client.config.ts`, `sentry.server.config.ts`, `sentry.edge.config.ts`, and the Electron main-process init at the top of `electron/main.js`. `tracesSampleRate` is set to 0.1 (10%) to stay on the Sentry free tier. Localhost / development errors are filtered out.
+
 ### Electron Restart - Auto
 
 Whenever code changes require an Electron restart to take effect (e.g. after modifying components, fixing bugs, changing localStorage behavior), **restart Electron automatically** — never ask the user to do it. Use this command:

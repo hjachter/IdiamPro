@@ -842,6 +842,8 @@ export default function OutlinePane({
                   size="icon"
                   className="h-8 w-8 shrink-0"
                   onClick={onToggleSidebar}
+                  aria-label={isSidebarOpen ? 'Hide sidebar' : 'Show sidebar'}
+                  aria-expanded={isSidebarOpen}
                 >
                   {isSidebarOpen ? (
                     <PanelLeftClose className="h-4 w-4" />
@@ -949,7 +951,7 @@ export default function OutlinePane({
         <div className="flex-shrink-0 flex items-center justify-center gap-1.5 px-2 py-1.5 bg-[hsl(var(--toolbar-bg))] rounded-xl border border-border/30">
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="outline" size="icon" onClick={() => onCreateNode()} disabled={!selectedNodeId || currentOutline?.isGuide} className="hover:bg-accent/20">
+              <Button variant="outline" size="icon" onClick={() => onCreateNode()} disabled={!selectedNodeId || currentOutline?.isGuide} className="hover:bg-accent/20" aria-label="Add sibling node">
                 <Plus className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
@@ -964,6 +966,7 @@ export default function OutlinePane({
                   size="icon"
                   disabled={!selectedNodeId || isSelectedNodeRoot || currentOutline?.isGuide}
                   className="text-destructive hover:bg-destructive/20"
+                  aria-label="Delete node"
                   onClick={() => {
                     if (currentOutline?.isGuide) return;
                     const confirmDelete = localStorage.getItem('confirmDelete') !== 'false';
@@ -1001,7 +1004,7 @@ export default function OutlinePane({
 
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="outline" size="icon" onClick={() => setIsSearchOpen(true)} disabled={!currentOutline} className="hover:bg-accent/20">
+              <Button variant="outline" size="icon" onClick={() => setIsSearchOpen(true)} disabled={!currentOutline} className="hover:bg-accent/20" aria-label="Search outline">
                 <Search className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
@@ -1051,6 +1054,7 @@ export default function OutlinePane({
                   }
                 }}
                 className="hover:bg-accent/20"
+                aria-label={isAllCollapsed ? 'Expand all' : 'Collapse all'}
               >
                 {isAllCollapsed ? <ChevronsDown className="h-4 w-4" /> : <ChevronsUp className="h-4 w-4" />}
               </Button>
@@ -1066,8 +1070,9 @@ export default function OutlinePane({
                 disabled={!selectedNodeId}
                 onClick={() => selectedNodeId && onExportSubtree?.(selectedNodeId)}
                 className="hover:bg-accent/20"
+                aria-label="Share subtree"
               >
-                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <path d="M12 3v12" />
                   <path d="m8 7 4-4 4 4" />
                   <rect x="4" y="11" width="16" height="11" rx="2" ry="2" fill="none" />
@@ -1086,6 +1091,7 @@ export default function OutlinePane({
                 onClick={() => onOpenCommandPalette?.()}
                 className="hover:bg-accent/20 active:scale-95 active:bg-accent/30"
                 title="Command palette"
+                aria-label="Command palette"
               >
                 <Command className="h-4 w-4" />
               </Button>
@@ -1102,6 +1108,7 @@ export default function OutlinePane({
                 onClick={() => onOpenQuickCapture?.()}
                 className="text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20"
                 title="Quick Capture"
+                aria-label="Quick Capture"
               >
                 <Inbox className="h-4 w-4" />
               </Button>
@@ -1119,6 +1126,7 @@ export default function OutlinePane({
                     size="icon"
                     className="text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 active:scale-95 active:bg-accent/30"
                     title="Second Brain"
+                    aria-label="Second Brain menu"
                   >
                     <Brain className="h-4 w-4" />
                   </Button>
@@ -1182,6 +1190,7 @@ export default function OutlinePane({
                   size="icon"
                   onClick={onCancelAI}
                   className="border-red-500/50 hover:bg-red-500/20 animate-pulse"
+                  aria-label="Stop AI operation"
                 >
                   <StopCircle className="h-4 w-4 text-red-500 dark:text-red-400" />
                 </Button>
@@ -1198,6 +1207,7 @@ export default function OutlinePane({
                   size="icon"
                   onClick={onUnmerge}
                   className="hover:bg-orange-500/20 border-orange-500/30"
+                  aria-label="Unmerge — restore outline to pre-merge state"
                 >
                   <RotateCcw className="h-4 w-4 text-orange-500 dark:text-orange-400" />
                 </Button>
@@ -1210,7 +1220,7 @@ export default function OutlinePane({
           <div className="w-px h-6 bg-border/50 mx-0.5"></div>
 
           <SettingsDialog onFolderSelected={onFolderSelected}>
-            <Button variant="outline" size="icon" title="Settings" className="hover:bg-accent/20">
+            <Button variant="outline" size="icon" title="Settings" aria-label="Settings" className="hover:bg-accent/20">
               <Settings className="h-4 w-4" />
             </Button>
           </SettingsDialog>
@@ -1222,8 +1232,9 @@ export default function OutlinePane({
                 size="icon"
                 onClick={onOpenHelp}
                 className="hover:bg-red-500/20 border-red-500/30"
+                aria-label="Help and support"
               >
-                <span className="text-red-500 dark:text-red-400 font-bold text-lg leading-none">?</span>
+                <span aria-hidden="true" className="text-red-500 dark:text-red-400 font-bold text-lg leading-none">?</span>
               </Button>
             </TooltipTrigger>
             <TooltipContent>Help & Support</TooltipContent>
@@ -1258,6 +1269,8 @@ export default function OutlinePane({
         {rootNode && currentOutline && (
           <ul
             className="select-none"
+            role="tree"
+            aria-label={currentOutline.name || 'Outline'}
             onClick={(e) => {
               // Also handle clicks on the ul but not on nodes
               if (e.target === e.currentTarget && selectedNodeIds && selectedNodeIds.size > 0) {
