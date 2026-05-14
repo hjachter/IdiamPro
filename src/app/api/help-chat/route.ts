@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ai } from '@/ai/genkit';
+import { enforceRateLimit } from '@/lib/rate-limit';
 
 // App context for AI to understand what IdiamPro does
 const APP_CONTEXT = `You are a helpful assistant for IdiamPro, a professional outlining application with AI-powered features.
@@ -87,6 +88,7 @@ AI FEATURES:
 - Describe with AI: Every embedded image has a "Describe with AI" button. Uses local or cloud vision AI to generate descriptions.
 - Local AI / Ollama: Settings > AI Provider. Choose Cloud, Local (Ollama on localhost:11434), or Auto. Recommended models: gemma4:e4b (multimodal, 4GB RAM), gemma4:26b (16GB+ RAM, fastest large model), gemma4:31b (24GB+ RAM, max quality). Legacy: llama3.2 (3GB RAM, low-spec systems). Requires Ollama 0.20+ for Gemma 4 support.
 - AI Data Consent: On first use of any AI feature, a consent dialog appears explaining that data is sent to Google Gemini, OpenAI, and AssemblyAI. Users must agree before AI features work. If you click Decline, a warning screen lists all features that will be disabled and asks you to confirm. Consent can be revoked in Settings > Data & Privacy. Privacy policy available at /privacy.
+- Privacy & Data (GDPR/CCPA): Settings > Privacy & Data has two buttons. "Export my data" generates a .zip archive containing every outline (as .idm files), localStorage preferences, all stored AI API keys, and your AI consent state — saved via native dialog on desktop, Share sheet on iOS, or browser download on web. "Delete all my data" requires a two-step confirmation (warning dialog, then type DELETE) and permanently wipes outlines, settings, API keys, and consent state from this device, then reloads the app to its fresh-install state. Both work even with AI consent revoked. Neither touches anything outside IdiamPro's data scope.
 - Pending Import Recovery (Desktop): If import times out or app closes, result is saved and recovery dialog appears on next launch
 - Unmerge: After merging research into an existing outline, an Unmerge button (orange circular arrow) appears in the toolbar right after the Research & Import button. Click it to restore the outline to its pre-merge state. The button persists until you click it or perform another merge. You can freely edit the outline and still unmerge later. The backup survives app restarts. Only the most recent merge can be unmerged.
 - Generate Podcast: Right-click any node > "Generate Podcast". Choose a style (Two-Host, Narrator, Interview, Debate), assign voices, pick a length (Brief/Standard/Detailed), and select audio quality (Standard/HD). AI generates a script via Gemini, then synthesizes speech via OpenAI TTS. Preview the audio in-app and save as MP3. All preferences (style, voices, length, quality) are remembered across sessions. Requires OPENAI_API_KEY.
@@ -137,6 +139,10 @@ interface Message {
 }
 
 export async function POST(request: NextRequest) {
+  // Per-IP rate limit: 30 requests per minute (chat tier).
+  const limited = enforceRateLimit(request, { limit: 30, namespace: 'help-chat' });
+  if (limited) return limited;
+
   try {
     const { messages } = await request.json() as { messages: Message[] };
 

@@ -45,3 +45,7 @@ next-env.d.ts
 test-screenshots/
 mcp-server/dist/
 mcp-server/node_modules/
+
+# iCloud exclusion shadow copies (see scripts/setup-icloud-exclusions.sh)
+*.nosync
+*.nosync/

@@ -5,11 +5,20 @@ import { AIProvider } from '@/contexts/ai-context';
 import ErrorBoundary from '@/components/error-boundary';
 import { PWAInstaller } from '@/components/pwa-installer';
 import { ThemeProvider } from 'next-themes';
+import { Analytics } from '@vercel/analytics/react';
 
+// NOTE: /og-image.png is referenced below but has not been designed yet.
+// A 1200x630 PNG should be added to /public/og-image.png before production launch.
 export const metadata: Metadata = {
-  title: 'IdiamPro - Professional Outlining',
-  description: 'Professional outlining with AI-powered assistance.',
+  metadataBase: new URL('https://secondbrainware.com'),
+  title: {
+    default: 'SecondBrainWare — AI-native outliner for thinkers and researchers',
+    template: '%s | SecondBrainWare',
+  },
+  description:
+    'SecondBrainWare is an AI-native outliner that helps you think, research, and write. Local-first, BYOK, cross-platform — the outline editor your second brain deserves.',
   manifest: '/manifest.json',
+  applicationName: 'SecondBrainWare',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
@@ -17,12 +26,43 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
+      { url: '/favicon.ico' },
       { url: '/icons/favicon-16.png', sizes: '16x16', type: 'image/png' },
       { url: '/icons/favicon-32.png', sizes: '32x32', type: 'image/png' },
     ],
     apple: [
       { url: '/icons/icon-180.png', sizes: '180x180', type: 'image/png' },
     ],
+    shortcut: '/favicon.ico',
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: 'https://secondbrainware.com',
+    siteName: 'SecondBrainWare',
+    title: 'SecondBrainWare — AI-native outliner for thinkers and researchers',
+    description:
+      'An AI-native outliner that helps you think, research, and write. Local-first, BYOK, cross-platform.',
+    images: [
+      {
+        // TODO: design and add /public/og-image.png (1200x630)
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'SecondBrainWare — AI-native outliner',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'SecondBrainWare — AI-native outliner for thinkers and researchers',
+    description:
+      'An AI-native outliner that helps you think, research, and write. Local-first, BYOK, cross-platform.',
+    images: ['/og-image.png'],
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
 };
 
@@ -52,6 +92,8 @@ export default function RootLayout({
             <Toaster />
           </ErrorBoundary>
         </ThemeProvider>
+        {/* Vercel Analytics — must be enabled in the Vercel project settings (Analytics tab) to start collecting. No-op in dev. */}
+        <Analytics />
       </body>
     </html>
   );

@@ -20,7 +20,8 @@
         "file-management",
         "keyboard-mouse",
         "under-the-hood",
-        "second-brain-8232afad"
+        "second-brain-8232afad",
+        "privacy-data-flows"
       ],
       "isCollapsed": false,
       "prefix": ""
@@ -519,6 +520,16 @@
       "parentId": "second-brain-8232afad",
       "childrenIds": [],
       "isExpanded": false
+    },
+    "privacy-data-flows": {
+      "id": "privacy-data-flows",
+      "name": "Privacy & Data Flows",
+      "content": "<p>Because IdiamPro stores every piece of user data locally (outlines, settings, AI consent state, API keys), it ships with two GDPR/CCPA-style controls that operate entirely on the device. Both live at the bottom of the Settings dialog under the <strong>Privacy &amp; Data</strong> heading.</p><p></p><p><strong>Export my data</strong> calls a single helper that gathers everything into a JSZip archive: each outline is written as its own <code>.idm</code> file under <code>outlines/</code>, all known IdiamPro localStorage keys are serialized into <code>settings/localStorage.json</code>, AI consent is broken out into <code>settings/ai-consent.json</code>, and a <code>manifest.json</code> plus a human-readable <code>README.txt</code> describe the bundle. The save step picks a platform-appropriate destination &mdash; Electron's native save dialog on desktop, the Capacitor Share sheet on iOS (so the user can drop the file into the Files app, AirDrop, email, or anywhere else), the File System Access API or a regular browser download on web. The export runs even when AI consent is revoked because it never calls any remote service.</p><p></p><p><strong>Delete all my data</strong> is gated behind a two-step confirmation: a warning dialog that lists what will be removed, then a typed-confirmation dialog that only enables its Delete button when the user types DELETE in capital letters. On confirmation the helper iterates every non-guide outline through the active storage backend (Electron file system, File System Access folder, or localStorage), clears every IdiamPro-owned localStorage key (preserving any unrelated keys belonging to other apps on the same origin), clears sessionStorage, and reloads the page so the app re-initializes in a clean fresh-install state.</p><p></p><p>Both flows live in <code>src/lib/privacy-data.ts</code> and reuse the existing <code>storage-manager</code> abstractions, so they automatically pick the right storage backend for whichever platform the app is running on.</p>",
+      "type": "document",
+      "parentId": "root",
+      "childrenIds": [],
+      "isExpanded": false,
+      "prefix": "11"
     }
   },
   "lastModified": 1778530860266,

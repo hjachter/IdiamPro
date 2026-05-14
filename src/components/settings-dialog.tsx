@@ -7,7 +7,18 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { Folder, Info, Smartphone, Cpu, Cloud, Loader2, CheckCircle, XCircle, Crown, Shield, Moon, Sun } from 'lucide-react';
+import { Folder, Info, Smartphone, Cpu, Cloud, Loader2, CheckCircle, XCircle, Crown, Shield, Moon, Sun, Download, Trash2, AlertTriangle } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { exportAllUserData, deleteAllUserData, inspectUserDataScope } from '@/lib/privacy-data';
 import { useTheme } from 'next-themes';
 import { Badge } from '@/components/ui/badge';
 import { useAI } from '@/contexts/ai-context';
@@ -220,6 +231,95 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
   };
 
   const [expandedGuide, setExpandedGuide] = useState<string | null>(null);
+
+  // Privacy & Data state
+  const [isExporting, setIsExporting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteStep, setDeleteStep] = useState<'idle' | 'warn' | 'confirm'>('idle');
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [scope, setScope] = useState<{ outlines: number; appKeys: string[] } | null>(null);
+
+  // Load the scope summary when the dialog opens — shown in delete confirmation.
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const result = await inspectUserDataScope();
+        if (!cancelled) setScope(result);
+      } catch (err) {
+        console.warn('Could not inspect user data scope:', err);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [open]);
+
+  const handleExportData = async () => {
+    if (isExporting) return;
+    setIsExporting(true);
+    try {
+      const result = await exportAllUserData();
+      if (result.status === 'saved') {
+        toast({
+          title: 'Export complete',
+          description: `Saved ${result.outlineCount} outline${result.outlineCount === 1 ? '' : 's'} and your settings to ${result.filename}.`,
+        });
+      } else {
+        toast({
+          title: 'Export cancelled',
+          description: 'No file was saved.',
+        });
+      }
+    } catch (err) {
+      console.error('Export failed:', err);
+      toast({
+        variant: 'destructive',
+        title: 'Export failed',
+        description: (err as Error)?.message || 'Could not generate the data archive.',
+      });
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleStartDelete = () => {
+    setDeleteConfirmText('');
+    setDeleteStep('warn');
+  };
+
+  const handleProceedToConfirm = () => {
+    setDeleteConfirmText('');
+    setDeleteStep('confirm');
+  };
+
+  const handleCancelDelete = () => {
+    setDeleteStep('idle');
+    setDeleteConfirmText('');
+  };
+
+  const handleFinalDelete = async () => {
+    if (deleteConfirmText.trim() !== 'DELETE') return;
+    setIsDeleting(true);
+    try {
+      const result = await deleteAllUserData();
+      toast({
+        title: 'Data deleted',
+        description: `Removed ${result.outlinesDeleted} outline${result.outlinesDeleted === 1 ? '' : 's'} and ${result.localStorageKeysCleared} setting${result.localStorageKeysCleared === 1 ? '' : 's'}. Reloading…`,
+      });
+      // deleteAllUserData triggers a reload itself; UI tear-down handled by reload.
+    } catch (err) {
+      console.error('Delete failed:', err);
+      setIsDeleting(false);
+      setDeleteStep('idle');
+      toast({
+        variant: 'destructive',
+        title: 'Delete failed',
+        description: (err as Error)?.message || 'Could not clear all data.',
+      });
+    }
+  };
 
   const aiProviders = [
     {
@@ -747,6 +847,56 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
               </p>
             </div>
           )}
+
+          {/* Privacy & Data — GDPR/CCPA export and delete */}
+          <div className="space-y-3 pt-2 border-t border-border/40">
+            <h3 className="text-sm font-medium flex items-center gap-2">
+              <Shield className="h-4 w-4" />
+              Privacy &amp; Data
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              IdiamPro stores all your data locally on this device. Use these
+              tools to export everything we hold or to delete it permanently.
+            </p>
+
+            <div className="space-y-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full justify-start"
+                onClick={handleExportData}
+                disabled={isExporting}
+              >
+                {isExporting ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Download className="mr-2 h-4 w-4" />
+                )}
+                {isExporting ? 'Preparing archive…' : 'Export my data'}
+              </Button>
+              <p className="text-xs text-muted-foreground">
+                Saves a single .zip with every outline (as .idm files), your
+                settings, API keys, and AI consent state.
+              </p>
+            </div>
+
+            <div className="space-y-2 pt-1">
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full justify-start text-destructive border-destructive/40 hover:bg-destructive/10 hover:text-destructive"
+                onClick={handleStartDelete}
+                disabled={isDeleting}
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete all my data…
+              </Button>
+              <p className="text-xs text-muted-foreground">
+                Wipes outlines, settings, API keys, and AI consent from this
+                device. Cannot be undone. Reloads the app afterwards.
+              </p>
+            </div>
+          </div>
         </div>
 
         <div className="flex justify-end gap-2">
@@ -755,6 +905,94 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
           </Button>
         </div>
       </DialogContent>
+
+      {/* Step 1 — warning */}
+      <AlertDialog open={deleteStep === 'warn'} onOpenChange={(o) => { if (!o) handleCancelDelete(); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-destructive" />
+              Delete all your IdiamPro data?
+            </AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-2 text-sm">
+                <p>
+                  This will permanently remove everything IdiamPro stores on
+                  this device:
+                </p>
+                <ul className="list-disc list-inside text-xs space-y-1">
+                  <li>
+                    {scope ? `${scope.outlines} outline${scope.outlines === 1 ? '' : 's'}` : 'All your outlines'}
+                  </li>
+                  <li>Settings, preferences, theme, and saved folder</li>
+                  <li>All AI provider API keys stored on this device</li>
+                  <li>AI data-processing consent state</li>
+                </ul>
+                <p className="text-xs text-muted-foreground pt-1">
+                  We strongly recommend running <strong>Export my data</strong>
+                  {' '}first so you have a backup. This action cannot be undone.
+                </p>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={handleCancelDelete}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={(e) => { e.preventDefault(); handleProceedToConfirm(); }}
+            >
+              Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Step 2 — typed confirmation */}
+      <AlertDialog open={deleteStep === 'confirm'} onOpenChange={(o) => { if (!o && !isDeleting) handleCancelDelete(); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-destructive" />
+              Type DELETE to confirm
+            </AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-3 text-sm">
+                <p>
+                  This will permanently erase all your IdiamPro data on this
+                  device. Type <strong>DELETE</strong> in the box below to
+                  confirm.
+                </p>
+                <Input
+                  autoFocus
+                  value={deleteConfirmText}
+                  onChange={(e) => setDeleteConfirmText(e.target.value)}
+                  placeholder="DELETE"
+                  disabled={isDeleting}
+                />
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={handleCancelDelete} disabled={isDeleting}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50"
+              disabled={deleteConfirmText.trim() !== 'DELETE' || isDeleting}
+              onClick={(e) => { e.preventDefault(); handleFinalDelete(); }}
+            >
+              {isDeleting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Deleting…
+                </>
+              ) : (
+                'Delete everything'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Dialog>
   );
 }

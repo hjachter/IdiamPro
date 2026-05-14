@@ -1,3 +1,13 @@
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Privacy Policy',
+  description:
+    'How SecondBrainWare handles your data: local-first storage, BYOK AI keys, and what we do (and do not) collect.',
+  alternates: { canonical: '/privacy' },
+  robots: { index: true, follow: true },
+};
+
 export default function PrivacyPolicyPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
