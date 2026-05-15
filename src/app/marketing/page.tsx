@@ -442,46 +442,46 @@ export default function MarketingPage() {
 
   const useCases = [
     {
+      icon: Scale,
+      title: 'Trial Prep',
+      subtitle: 'Attorneys & Paralegals',
+      description: 'Upload 200 pages of medical records, expert reports, and prior testimony. SecondBrainWare builds a chronological timeline, flags contradictions between sources, and produces a one-page list of questions to ask the witness. Three days of paralegal work — done in twenty minutes.',
+      gradient: 'bg-gradient-to-br from-slate-500 to-gray-600'
+    },
+    {
       icon: Microscope,
-      title: 'Research Aggregation',
+      title: 'Literature Reviews',
       subtitle: 'Researchers & PhD Students',
-      description: 'Synthesize 50+ papers into a unified literature review. AI finds connections you might miss.',
+      description: 'Drop fifty research papers into one outline. SecondBrainWare groups them by methodology, summarizes each finding in plain English, and shows where the field agrees and where it\'s still fighting. You arrive at the writing stage already knowing the structure of your argument.',
       gradient: 'bg-gradient-to-br from-blue-500 to-cyan-600'
     },
     {
       icon: BookMarked,
-      title: 'Book Writing',
+      title: 'Writing Non-Fiction',
       subtitle: 'Authors & Writers',
-      description: 'Import research, generate outlines, auto-create chapter content. Write books 10x faster.',
+      description: 'Import interview transcripts, archival research, and your own notes. SecondBrainWare drafts chapter outlines from your source material, suggests where each anecdote fits the narrative, and flags chapters where you\'re thin on evidence — so you know what to research next.',
       gradient: 'bg-gradient-to-br from-amber-500 to-orange-600'
     },
     {
+      icon: Lightbulb,
+      title: 'Client Engagements',
+      subtitle: 'Consultants & Analysts',
+      description: 'Combine client emails, stakeholder interviews, and competitive research into one outline. SecondBrainWare produces a slide-deck outline organized by client priority, with every claim traceable back to the email, transcript, or report that supports it.',
+      gradient: 'bg-gradient-to-br from-emerald-500 to-teal-600'
+    },
+    {
       icon: Video,
-      title: 'Video Course Notes',
+      title: 'Learning from Video',
       subtitle: 'Students & Learners',
-      description: 'Import YouTube lectures, get auto-transcripts, create structured study guides.',
+      description: 'Paste a link to a 90-minute lecture. SecondBrainWare transcribes it, organizes the content by topic with timestamps, and turns it into a study guide. Then ask follow-up questions and get answers from the lecture itself — not generic web search.',
       gradient: 'bg-gradient-to-br from-red-500 to-rose-600'
     },
     {
-      icon: Scale,
-      title: 'Legal Case Prep',
-      subtitle: 'Attorneys & Paralegals',
-      description: 'Organize discovery documents, depositions, and case law into structured briefs.',
-      gradient: 'bg-gradient-to-br from-slate-500 to-gray-600'
-    },
-    {
       icon: Newspaper,
-      title: 'Investigative Journalism',
+      title: 'Investigative Reporting',
       subtitle: 'Journalists & Reporters',
-      description: 'Synthesize sources, track leads, organize investigations with full attribution.',
+      description: 'Import court records, leaked documents, and source interviews into a single secure outline. SecondBrainWare cross-references names, dates, and locations across sources to surface a coherent timeline. Every claim in your final story carries a click-through to the exact page that supports it.',
       gradient: 'bg-gradient-to-br from-violet-500 to-purple-600'
-    },
-    {
-      icon: Lightbulb,
-      title: 'Client Deliverables',
-      subtitle: 'Consultants & Analysts',
-      description: 'Combine client emails, calls, and research into comprehensive project briefs.',
-      gradient: 'bg-gradient-to-br from-emerald-500 to-teal-600'
     }
   ];
 
@@ -650,14 +650,10 @@ export default function MarketingPage() {
                   </span>
                 </div>
 
-                {/* Launch Countdown */}
+                {/* Launch Status */}
                 <div className="mb-10">
-                  <p className="text-white/50 text-sm mb-4 uppercase tracking-wider">Full Launch: March 2026</p>
-                  <div className="flex justify-center">
-                    <CountdownTimer targetDate={LAUNCH_DATE} />
-                  </div>
-                  <p className="text-emerald-400 text-sm mt-4 font-medium">
-                    Web version available now for beta testers
+                  <p className="text-emerald-400 text-sm font-medium uppercase tracking-wider">
+                    Now in private beta — full launch coming soon
                   </p>
                 </div>
 
@@ -1627,14 +1623,14 @@ export default function MarketingPage() {
                     <Laptop className="w-10 h-10 text-blue-400" />
                   </div>
                   <div className="text-white font-medium">Windows</div>
-                  <div className="text-white/40 text-xs">March 2026</div>
+                  <div className="text-white/40 text-xs">Coming Soon</div>
                 </div>
                 <div className="text-center group">
                   <div className="w-20 h-20 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-4 group-hover:bg-white/10 transition-all">
                     <Code2 className="w-10 h-10 text-orange-400" />
                   </div>
                   <div className="text-white font-medium">Linux</div>
-                  <div className="text-white/40 text-xs">March 2026</div>
+                  <div className="text-white/40 text-xs">Coming Soon</div>
                 </div>
               </div>
             </div>
@@ -1662,7 +1658,7 @@ export default function MarketingPage() {
                     <Smartphone className="w-10 h-10 text-green-400" />
                   </div>
                   <div className="text-white font-medium">Android</div>
-                  <div className="text-white/40 text-xs">March 2026</div>
+                  <div className="text-white/40 text-xs">Coming Soon</div>
                 </div>
               </div>
             </div>
