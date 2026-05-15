@@ -1,32 +1,52 @@
 #!/bin/sh
 
-# Pre-commit hook: Build and sync iOS before committing
-echo "[Pre-commit] Building for production..."
+# Pre-commit hook: fast, staged-files-only sanity gate.
+#
+# WHY THIS CHANGED
+# ----------------
+# The previous hook ran a full `next build` + `npx cap sync ios` and
+# auto-staged the entire ios/ tree on EVERY commit. This blocked all commits:
+# the working directory lives in iCloud Drive, and whole-tree operations
+# (`next build`, and even a full-project `tsc`) stall indefinitely at 0% CPU
+# waiting on iCloud file materialization/sync. A production build also
+# conflicts with a running dev server's .next directory.
+#
+# A pre-commit hook must be FAST and validate only the *staged* change.
+# Whole-project typecheck/build are CI / pre-push / release concerns (the
+# documented workflow already runs `tsc` before a release and `npx cap sync
+# ios` after `git push`), so they do not belong in pre-commit. This hook now
+# only does cheap, staged-only checks that never traverse the iCloud tree:
+#   1. Reject leftover merge-conflict markers in staged content.
+#   2. Reject accidentally staged node_modules / build output.
 
-# Use Node 22 for Capacitor
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-nvm use 22 > /dev/null 2>&1
+echo "[Pre-commit] Checking staged changes..."
 
-# Clean stale build locks/cache to prevent hangs after killed builds
-rm -rf .next/trace 2>/dev/null
+# Files staged for this commit (added/copied/modified/renamed).
+STAGED=$(git diff --cached --name-only --diff-filter=ACMR)
 
-# Build Next.js (produces the 'out' directory that cap sync copies)
-npm run build
-if [ $? -ne 0 ]; then
-  echo "[Pre-commit] Build failed! Aborting commit."
+if [ -z "$STAGED" ]; then
+  echo "[Pre-commit] Nothing staged. OK."
+  exit 0
+fi
+
+# 1. Block obvious node_modules / build artifacts.
+BAD_PATHS=$(echo "$STAGED" | grep -E '(^|/)node_modules/|(^|/)\.next/|(^|/)out/' || true)
+if [ -n "$BAD_PATHS" ]; then
+  echo "[Pre-commit] Refusing to commit build output / node_modules:"
+  echo "$BAD_PATHS"
+  echo "[Pre-commit] Unstage these paths and commit again."
   exit 1
 fi
 
-# Sync to iOS — clean stale cordova plugins dir first (iCloud can leave resource forks)
-echo "[Pre-commit] Syncing iOS..."
-rm -rf ios/capacitor-cordova-ios-plugins 2>/dev/null
-npx cap sync ios
-
-# Check if sync created changes that need to be staged
-if [ -n "$(git status --porcelain ios/)" ]; then
-  echo "[Pre-commit] iOS changes detected, staging..."
-  git add ios/
+# 2. Block leftover merge-conflict markers in the staged diff only.
+if git diff --cached --check >/dev/null 2>&1; then
+  CONFLICTS=$(git diff --cached -U0 | grep -E '^\+(<<<<<<<|=======|>>>>>>>)' || true)
+else
+  CONFLICTS=$(git diff --cached -U0 | grep -E '^\+(<<<<<<<|=======|>>>>>>>)' || true)
+fi
+if [ -n "$CONFLICTS" ]; then
+  echo "[Pre-commit] Staged changes contain merge-conflict markers. Resolve them first."
+  exit 1
 fi
 
-echo "[Pre-commit] Build + iOS sync complete!"
+echo "[Pre-commit] Staged changes look clean."
