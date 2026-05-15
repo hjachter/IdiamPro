@@ -743,7 +743,7 @@
     "subscriptions": {
       "id": "subscriptions",
       "name": "Subscription Tiers",
-      "content": "<h2>Pricing Plans</h2><p>Choose the plan that fits your needs.</p>",
+      "content": "<h2>Pricing Plans</h2><p>Choose the plan that fits your needs.</p><p><strong>NOTE (2026-05-15):</strong> The Level 3 collaboration / GDSS product is NOT part of these consumer tiers. It is a separate B2B/enterprise offering with its own pricing structure (seat/org/facilitation-based), sold mainly to corporations and groups. Enterprise pricing to be designed separately. See IdiamPro - Group.idm &gt; Strategic Vision.</p>",
       "type": "chapter",
       "parentId": "root",
       "childrenIds": [

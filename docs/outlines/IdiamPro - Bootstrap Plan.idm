@@ -1075,7 +1075,7 @@
     "session-2026-05-15": {
       "id": "session-2026-05-15",
       "name": "Thursday, May 15, 2026",
-      "content": "<p><strong>Proactive outline updates this session:</strong></p><ul><li><p>Closed all 6 LIVE BOOKS design questions with the user; decisions recorded; LIVE BOOKS v1 scoped local-first with no collaboration dependency.</p></li><li><p>2026-05-15: Closed LIVE BOOKS Q7 (node-update behavior): default merge/augment, optional full overwrite — all 7 LIVE BOOKS design decisions now closed.</p></li><li><p>2026-05-15: Decided sharing roadmap: Level 1 (publish→link→personal-fork import) builds now; Level 2 contribute-back; Level 3 = modern GDSS in the GroupSystems lineage built natively on the structured outline (long-term target, design questions TBD).</p></li></ul>",
+      "content": "<p><strong>Proactive outline updates this session:</strong></p><ul><li><p>Closed all 6 LIVE BOOKS design questions with the user; decisions recorded; LIVE BOOKS v1 scoped local-first with no collaboration dependency.</p></li><li><p>2026-05-15: Closed LIVE BOOKS Q7 (node-update behavior): default merge/augment, optional full overwrite — all 7 LIVE BOOKS design decisions now closed.</p></li><li><p>2026-05-15: Decided sharing roadmap: Level 1 (publish→link→personal-fork import) builds now; Level 2 contribute-back; Level 3 = modern GDSS in the GroupSystems lineage built natively on the structured outline (long-term target, design questions TBD).</p></li><li><p>2026-05-15: Decided: Level 3 GDSS collaboration is a separate B2B product with its own pricing (corporations/teams/institutions), distinct from consumer free/pro/premium tiers.</p></li></ul>",
       "type": "text",
       "parentId": "session-actions-log",
       "childrenIds": [],
