@@ -6,6 +6,7 @@ import ErrorBoundary from '@/components/error-boundary';
 import { PWAInstaller } from '@/components/pwa-installer';
 import { ThemeProvider } from 'next-themes';
 import { Analytics } from '@vercel/analytics/react';
+import { AuthProvider } from '@/lib/auth/AuthProvider';
 
 // NOTE: /og-image.png is referenced below but has not been designed yet.
 // A 1200x630 PNG should be added to /public/og-image.png before production launch.
@@ -82,16 +83,21 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased h-full overflow-hidden">
         <PWAInstaller />
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
-          <ErrorBoundary>
-            <div className="h-full">
-              <AIProvider>
-                {children}
-              </AIProvider>
-            </div>
-            <Toaster />
-          </ErrorBoundary>
-        </ThemeProvider>
+        {/* AuthProvider is env-gated: with no NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+            it renders children untouched (exact current behavior, no Clerk
+            loaded, no network) — same philosophy as the Sentry integration. */}
+        <AuthProvider>
+          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+            <ErrorBoundary>
+              <div className="h-full">
+                <AIProvider>
+                  {children}
+                </AIProvider>
+              </div>
+              <Toaster />
+            </ErrorBoundary>
+          </ThemeProvider>
+        </AuthProvider>
         {/* Vercel Analytics — must be enabled in the Vercel project settings (Analytics tab) to start collecting. No-op in dev. */}
         <Analytics />
       </body>
