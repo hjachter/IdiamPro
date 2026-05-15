@@ -2,7 +2,7 @@
   "id": "idiampro-group-2026",
   "name": "IdiamPro - Group",
   "rootNodeId": "grp-root",
-  "lastModified": 1770760238728,
+  "lastModified": 1778885137392,
   "nodes": {
     "grp-root": {
       "id": "grp-root",
@@ -12,6 +12,7 @@
       "parentId": null,
       "childrenIds": [
         "sec-vision",
+        "grp-strategic-vision-gdss-20260515",
         "sec-history",
         "sec-grouptools",
         "sec-competitive",
@@ -262,7 +263,7 @@
     "backend-sync": {
       "id": "backend-sync",
       "name": "Sync Server (Hocuspocus)",
-      "content": "<p><strong>Hocuspocus Server Setup:</strong></p><pre>// server/sync-server.ts\nimport { Hocuspocus } from '@hocuspocus/server';\nimport { Database } from '@hocuspocus/extension-database';\nimport { Redis } from '@hocuspocus/extension-redis';\n\nconst server = new Hocuspocus({\n  port: 1234,\n  \n  // Authentication\n  async onAuthenticate({ token, documentName }) {\n    const user = await verifyToken(token);\n    const outlineId = documentName.replace('outline-', '');\n    const hasAccess = await checkPermission(user.id, outlineId);\n    \n    if (!hasAccess) {\n      throw new Error('Unauthorized');\n    }\n    \n    return { user };\n  },\n  \n  // Persistence\n  extensions: [\n    new Database({\n      fetch: async ({ documentName }) =&gt; {\n        const snapshot = await db.getYjsSnapshot(documentName);\n        return snapshot;\n      },\n      store: async ({ documentName, state }) =&gt; {\n        await db.saveYjsSnapshot(documentName, state);\n      },\n    }),\n    \n    // Redis for scaling across multiple server instances\n    new Redis({\n      host: process.env.REDIS_HOST,\n      port: 6379,\n    }),\n  ],\n});\n\nserver.listen();</pre>",
+      "content": "<p><strong>Hocuspocus Server Setup:</strong></p><pre><code>// server/sync-server.ts\nimport { Hocuspocus } from '@hocuspocus/server';\nimport { Database } from '@hocuspocus/extension-database';\nimport { Redis } from '@hocuspocus/extension-redis';\n\nconst server = new Hocuspocus({\n  port: 1234,\n  \n  // Authentication\n  async onAuthenticate({ token, documentName }) {\n    const user = await verifyToken(token);\n    const outlineId = documentName.replace('outline-', '');\n    const hasAccess = await checkPermission(user.id, outlineId);\n    \n    if (!hasAccess) {\n      throw new Error('Unauthorized');\n    }\n    \n    return { user };\n  },\n  \n  // Persistence\n  extensions: [\n    new Database({\n      fetch: async ({ documentName }) =&gt; {\n        const snapshot = await db.getYjsSnapshot(documentName);\n        return snapshot;\n      },\n      store: async ({ documentName, state }) =&gt; {\n        await db.saveYjsSnapshot(documentName, state);\n      },\n    }),\n    \n    // Redis for scaling across multiple server instances\n    new Redis({\n      host: process.env.REDIS_HOST,\n      port: 6379,\n    }),\n  ],\n});\n\nserver.listen();</code></pre><p></p>",
       "type": "section",
       "parentId": "sec-backend",
       "childrenIds": [],
@@ -271,7 +272,7 @@
     "backend-db": {
       "id": "backend-db",
       "name": "Database Schema",
-      "content": "<p><strong>PostgreSQL Tables:</strong></p><pre>-- Users (integrate with existing auth or new)\nCREATE TABLE users (\n  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n  email VARCHAR(255) UNIQUE NOT NULL,\n  name VARCHAR(255),\n  avatar_url TEXT,\n  created_at TIMESTAMP DEFAULT NOW()\n);\n\n-- Organizations (for enterprise)\nCREATE TABLE organizations (\n  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n  name VARCHAR(255) NOT NULL,\n  plan VARCHAR(50) DEFAULT 'free',  -- free, team, enterprise\n  created_at TIMESTAMP DEFAULT NOW()\n);\n\n-- Collaborative Outlines\nCREATE TABLE collaborative_outlines (\n  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n  name VARCHAR(255) NOT NULL,\n  owner_id UUID REFERENCES users(id),\n  org_id UUID REFERENCES organizations(id),\n  room_id VARCHAR(255) UNIQUE NOT NULL,  -- WebSocket room\n  yjs_state BYTEA,  -- Serialized Yjs document\n  created_at TIMESTAMP DEFAULT NOW(),\n  updated_at TIMESTAMP DEFAULT NOW()\n);\n\n-- Permissions\nCREATE TABLE outline_permissions (\n  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n  outline_id UUID REFERENCES collaborative_outlines(id),\n  user_id UUID REFERENCES users(id),\n  role VARCHAR(50) NOT NULL,  -- owner, editor, commenter, viewer\n  created_at TIMESTAMP DEFAULT NOW(),\n  UNIQUE(outline_id, user_id)\n);\n\n-- Audit Log (for enterprise)\nCREATE TABLE audit_log (\n  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n  outline_id UUID REFERENCES collaborative_outlines(id),\n  user_id UUID REFERENCES users(id),\n  action VARCHAR(100) NOT NULL,  -- 'node.create', 'node.delete', etc.\n  details JSONB,\n  created_at TIMESTAMP DEFAULT NOW()\n);</pre>",
+      "content": "<p><strong>PostgreSQL Tables:</strong></p><pre><code>-- Users (integrate with existing auth or new)\nCREATE TABLE users (\n  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n  email VARCHAR(255) UNIQUE NOT NULL,\n  name VARCHAR(255),\n  avatar_url TEXT,\n  created_at TIMESTAMP DEFAULT NOW()\n);\n\n-- Organizations (for enterprise)\nCREATE TABLE organizations (\n  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n  name VARCHAR(255) NOT NULL,\n  plan VARCHAR(50) DEFAULT 'free',  -- free, team, enterprise\n  created_at TIMESTAMP DEFAULT NOW()\n);\n\n-- Collaborative Outlines\nCREATE TABLE collaborative_outlines (\n  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n  name VARCHAR(255) NOT NULL,\n  owner_id UUID REFERENCES users(id),\n  org_id UUID REFERENCES organizations(id),\n  room_id VARCHAR(255) UNIQUE NOT NULL,  -- WebSocket room\n  yjs_state BYTEA,  -- Serialized Yjs document\n  created_at TIMESTAMP DEFAULT NOW(),\n  updated_at TIMESTAMP DEFAULT NOW()\n);\n\n-- Permissions\nCREATE TABLE outline_permissions (\n  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n  outline_id UUID REFERENCES collaborative_outlines(id),\n  user_id UUID REFERENCES users(id),\n  role VARCHAR(50) NOT NULL,  -- owner, editor, commenter, viewer\n  created_at TIMESTAMP DEFAULT NOW(),\n  UNIQUE(outline_id, user_id)\n);\n\n-- Audit Log (for enterprise)\nCREATE TABLE audit_log (\n  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n  outline_id UUID REFERENCES collaborative_outlines(id),\n  user_id UUID REFERENCES users(id),\n  action VARCHAR(100) NOT NULL,  -- 'node.create', 'node.delete', etc.\n  details JSONB,\n  created_at TIMESTAMP DEFAULT NOW()\n);</code></pre><p></p>",
       "type": "section",
       "parentId": "sec-backend",
       "childrenIds": [],
@@ -494,10 +495,19 @@
       "parentId": "sec-challenges",
       "childrenIds": [],
       "prefix": "11.4"
+    },
+    "grp-strategic-vision-gdss-20260515": {
+      "id": "grp-strategic-vision-gdss-20260515",
+      "name": "Strategic Vision — Modern GDSS (GroupSystems lineage) — recorded 2026-05-15",
+      "content": "<p>Level 3 collaboration is positioned as a modern Group Decision Support System / electronic meeting system in the lineage of GroupSystems / ThinkTank (Nunamaker, University of Arizona) — but built NATIVELY on IdiamPro's structured, AI-aware shared outline rather than bolted onto generic text (the historical GDSS tools' key limitation). Capabilities to design: (1) anonymous parallel idea generation contributing directly into outline nodes; (2) AI-assisted categorization/clustering of contributions; (3) voting / ranking / prioritization on nodes; (4) multi-criteria decision analysis rolled up the outline tree; (5) facilitated session structure with automatic documentation; (6) real-time co-editing + presence substrate underneath. Process-gain rationale (why this matters): anonymity reduces evaluation apprehension and groupthink; parallel input removes production blocking; structure + automatic capture turns a messy meeting into a documented decision. LIVE BOOKS keeps the resulting decisions current over time. This is the differentiator: not a feature bolted on, but a GDSS whose substrate IS the structured outline. Many dynamic-collaboration design questions remain open and must be worked through deliberately (same structured design-questions process used for LIVE BOOKS) before implementation. NOT a near-term build — Level 1 ships first and must be structured toward this.</p>",
+      "type": "node",
+      "parentId": "grp-root",
+      "childrenIds": [],
+      "prefix": ""
     }
   },
   "isGuide": false,
-  "_fileSize": 61151,
+  "_fileSize": 61191,
   "_fileName": "IdiamPro - Group.idm",
   "_isLazyLoaded": false
 }
