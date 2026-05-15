@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { ai } from '@/ai/genkit';
 import type { NodeMap, PodcastConfig, PodcastScriptSegment, OpenAIVoice } from '@/types';
 import { extractSubtreeContent, buildScriptPrompt, parseScriptResponse } from '@/lib/podcast-generator';
+import { getDefaultGeminiModel } from '@/config/gemini-models';
 
 const SSE_HEADERS = {
   'Content-Type': 'text/event-stream',
@@ -143,7 +144,7 @@ export async function POST(request: NextRequest) {
 
           // Use non-streaming generation for the script (we need the full text to parse JSON)
           const { text: scriptText } = await ai.generate({
-            model: 'googleai/gemini-2.0-flash',
+            model: getDefaultGeminiModel('genkit'),
             prompt: `${system}\n\n${user}`,
             config: {
               maxOutputTokens: 8192,

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { ai } from '@/ai/genkit';
 import type { NodeMap, PodcastConfig } from '@/types';
 import { extractSubtreeContent, buildScriptPrompt, parseScriptResponse } from '@/lib/podcast-generator';
+import { getDefaultGeminiModel } from '@/config/gemini-models';
 
 /**
  * Generate only the podcast script (no TTS).
@@ -55,7 +56,7 @@ export async function POST(request: NextRequest) {
 
     // Generate script with AI
     const { text: scriptText } = await ai.generate({
-      model: 'googleai/gemini-2.0-flash',
+      model: getDefaultGeminiModel('genkit'),
       prompt,
       config: {
         maxOutputTokens: 8192,

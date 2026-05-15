@@ -1,6 +1,7 @@
 'use server';
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { getDefaultGeminiModel } from '@/config/gemini-models';
 
 export interface SuggestTagsInput {
   title: string;
@@ -19,7 +20,7 @@ export async function suggestTags(input: SuggestTagsInput): Promise<SuggestTagsO
 
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({
-    model: 'gemini-2.0-flash',
+    model: getDefaultGeminiModel('sdk'),
     generationConfig: {
       temperature: 0.4,
       maxOutputTokens: 128,

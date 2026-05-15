@@ -9,6 +9,7 @@
  */
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { getDefaultGeminiModel } from '@/config/gemini-models';
 
 export interface ExpandNodeContentInput {
   title: string;
@@ -27,7 +28,7 @@ export async function expandNodeContent(input: ExpandNodeContentInput): Promise<
 
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({
-    model: 'gemini-2.0-flash',
+    model: getDefaultGeminiModel('sdk'),
     generationConfig: {
       temperature: 0.7,
       maxOutputTokens: 1024,

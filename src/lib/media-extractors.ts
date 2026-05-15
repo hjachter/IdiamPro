@@ -2,6 +2,7 @@
 
 import { YoutubeTranscript } from 'youtube-transcript-plus';
 import { ai } from '@/ai/genkit';
+import { getDefaultGeminiModel } from '@/config/gemini-models';
 
 // Import pdf-parse lib directly to avoid the debug test code in index.js
 // The main index.js runs a test parse when module.parent is undefined (which happens in webpack)
@@ -226,7 +227,7 @@ export async function extractTextFromWebUrl(url: string): Promise<string> {
 ${html.substring(0, 50000)}`; // Limit HTML size
 
     const { text } = await ai.generate({
-      model: 'googleai/gemini-2.0-flash',
+      model: getDefaultGeminiModel('genkit'),
       prompt,
     });
 
@@ -263,7 +264,7 @@ export async function extractTextFromImage(data: string): Promise<string> {
 
     // Use Gemini vision to extract text
     const { text } = await ai.generate({
-      model: 'googleai/gemini-2.0-flash',
+      model: getDefaultGeminiModel('genkit'),
       prompt: 'Extract all text from this image. Include any visible text, captions, labels, and annotations. If there are diagrams or charts, describe their key information as well.',
       media: {
         url: `data:${mimeType};base64,${base64Data}`,
@@ -311,7 +312,7 @@ export async function extractTextFromDocument(data: string, fileName: string): P
 
     // Use Gemini to extract text from document
     const { text } = await ai.generate({
-      model: 'googleai/gemini-2.0-flash',
+      model: getDefaultGeminiModel('genkit'),
       prompt: 'Extract all text content from this document. Preserve the structure and meaning. Include headings, paragraphs, bullet points, and any important textual information.',
       media: {
         url: `data:${mimeType};base64,${base64Data}`,
@@ -360,7 +361,7 @@ export async function transcribeAudio(data: string, fileName?: string): Promise<
 
     // Use Gemini to transcribe audio
     const { text } = await ai.generate({
-      model: 'googleai/gemini-2.0-flash',
+      model: getDefaultGeminiModel('genkit'),
       prompt: 'Transcribe this audio file completely. Include all spoken words and important sounds or context.',
       media: {
         url: `data:${mimeType};base64,${base64Data}`,
@@ -409,7 +410,7 @@ export async function transcribeVideo(data: string, fileName?: string): Promise<
 
     // Use Gemini to transcribe video
     const { text } = await ai.generate({
-      model: 'googleai/gemini-2.0-flash',
+      model: getDefaultGeminiModel('genkit'),
       prompt: 'Transcribe this video completely. Include all spoken words, describe any important visual information, and provide context about what is happening in the video.',
       media: {
         url: `data:${mimeType};base64,${base64Data}`,

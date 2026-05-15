@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ai } from '@/ai/genkit';
 import { getBestAvailableModel } from '@/lib/ollama-service';
+import { getDefaultGeminiModel } from '@/config/gemini-models';
 import type { AIDepth } from '@/types';
 
 interface Message {
@@ -169,7 +170,7 @@ async function pipeGemini(
   userPrompt: string,
 ) {
   const result = await ai.generateStream({
-    model: 'googleai/gemini-2.0-flash',
+    model: getDefaultGeminiModel('genkit'),
     prompt: `${systemPrompt}\n\n${userPrompt}`,
   });
 

@@ -36,6 +36,7 @@ import { parseMarkdownToNodes } from '@/lib/outline-utils';
 import { v4 as uuidv4 } from 'uuid';
 import { ai } from '@/ai/genkit';
 import { GoogleGenAI } from '@google/genai';
+import { getDefaultGeminiModel } from '@/config/gemini-models';
 import {
   isOllamaAvailable,
   getOllamaModels,
@@ -456,7 +457,7 @@ ${content.substring(0, 3000)}`;
 
     const { text } = await withRateLimitRetry(
       () => ai.generate({
-        model: 'googleai/gemini-2.0-flash',
+        model: getDefaultGeminiModel('genkit'),
         prompt: titlePrompt,
       }),
       1,  // One retry, then fallback to Ollama
@@ -698,7 +699,7 @@ Extract the bullets (respond with ONLY the JSON array):`;
     // Use Gemini with rate limit protection and Ollama fallback
     const { text: geminiText } = await withRateLimitRetry(
       () => ai.generate({
-        model: 'googleai/gemini-2.0-flash',
+        model: getDefaultGeminiModel('genkit'),
         prompt: extractionPrompt,
       }),
       1,
@@ -902,7 +903,7 @@ Respond with ONLY one letter: A, B, or C`;
 
     const { text: response } = await withRateLimitRetry(
       () => ai.generate({
-        model: 'googleai/gemini-2.0-flash',
+        model: getDefaultGeminiModel('genkit'),
         prompt: detectionPrompt,
       }),
       1,
@@ -1031,7 +1032,7 @@ Return ONLY a JSON array of sub-theme names:
     } else {
       const { text: geminiText } = await withRateLimitRetry(
         () => ai.generate({
-          model: 'googleai/gemini-2.0-flash',
+          model: getDefaultGeminiModel('genkit'),
           prompt: subThemePrompt,
         }),
         1,
@@ -1190,7 +1191,7 @@ Return ONLY a JSON array of theme names, nothing else:
     } else {
       const { text: geminiText } = await withRateLimitRetry(
         () => ai.generate({
-          model: 'googleai/gemini-2.0-flash',
+          model: getDefaultGeminiModel('genkit'),
           prompt: themePrompt,
         }),
         1,
@@ -1769,7 +1770,7 @@ ${childContent.substring(0, 5000)}`;
 
           const { text: rootSummary } = await withRateLimitRetry(
             () => ai.generate({
-              model: 'googleai/gemini-2.0-flash',
+              model: getDefaultGeminiModel('genkit'),
               prompt: summaryPrompt,
             }),
             1,
@@ -2028,7 +2029,7 @@ ${childContent.substring(0, 5000)}`;
 
           const { text: rootSummary } = await withRateLimitRetry(
             () => ai.generate({
-              model: 'googleai/gemini-2.0-flash',
+              model: getDefaultGeminiModel('genkit'),
               prompt: summaryPrompt,
             }),
             1,  // One retry, then fallback to Ollama
@@ -2191,7 +2192,7 @@ export async function generateImageDescriptionAction(
   try {
     const { text } = await withRateLimitRetry(
       () => ai.generate({
-        model: 'googleai/gemini-2.0-flash',
+        model: getDefaultGeminiModel('genkit'),
         prompt: `You are writing a descriptive caption for an illustration. The image was generated from this prompt: "${imagePrompt}" for a section titled "${nodeName}".
 
 Write a description that fully explains what the image depicts and why it matters. Your description should:
@@ -2288,7 +2289,7 @@ export async function describeImageAction(
   try {
     const genai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
     const result = await genai.models.generateContent({
-      model: 'gemini-2.0-flash',
+      model: getDefaultGeminiModel('sdk'),
       contents: [{
         role: 'user',
         parts: [

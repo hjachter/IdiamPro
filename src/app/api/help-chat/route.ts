@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ai } from '@/ai/genkit';
 import { enforceRateLimit } from '@/lib/rate-limit';
+import { getDefaultGeminiModel } from '@/config/gemini-models';
 
 // App context for AI to understand what IdiamPro does
 const APP_CONTEXT = `You are a helpful assistant for IdiamPro, a professional outlining application with AI-powered features.
@@ -162,7 +163,7 @@ export async function POST(request: NextRequest) {
 
     // Generate response using Gemini
     const { text } = await ai.generate({
-      model: 'googleai/gemini-2.0-flash',
+      model: getDefaultGeminiModel('genkit'),
       prompt: `${APP_CONTEXT}
 
 Conversation history:
