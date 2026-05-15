@@ -900,7 +900,8 @@
         "session-2026-03-23b",
         "session-2026-03-27",
         "session-2026-04-02",
-        "session-2026-05-08"
+        "session-2026-05-08",
+        "session-2026-05-15"
       ],
       "isCollapsed": false,
       "prefix": "1.1"
@@ -1030,7 +1031,7 @@
       "parentId": "unrealized-todo-20260513",
       "childrenIds": [],
       "type": "document",
-      "content": "<p><strong>Status:</strong> Pricing decided. Implementation not started. Significant design questions still open.</p><p></p><p><strong>Pricing (decided):</strong></p><ul><li><p>BYOK (Bring Your Own Key) required</p></li><li><p>$9.99/month flat fee on top of BYOK</p></li></ul><p></p><p><strong>Open design questions (need answers before build can start):</strong></p><ul data-type=\"taskList\"><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Refresh scope — what triggers a refresh, what portion of the book gets refreshed, how often, manual vs scheduled</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Diff / review step — do refreshes apply automatically or require user approval of a change preview</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Author-vs-reader fork — do readers get the live (auto-updating) copy or a frozen snapshot, and can readers fork their own working copy</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Mandatory citations — every AI-generated update must cite sources; spec the format and storage</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Manual-edit conflict handling — what happens when the user has hand-edited a section and an AI refresh wants to overwrite it</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Anthropic attribution requirement — if Claude is used, surface required model attribution per Anthropic’s acceptable use policy</p></div></li></ul>",
+      "content": "<p><strong>Status:</strong> Pricing decided. All 6 design questions CLOSED &mdash; decided 2026-05-15. Implementation not started (see task #2).</p><p></p><p><strong>Pricing (decided):</strong></p><ul><li><p>BYOK (Bring Your Own Key) required</p></li><li><p>$9.99/month flat fee on top of BYOK</p></li></ul><p></p><p><strong>Design Decisions (closed 2026-05-15):</strong></p><p><strong>Feature concept:</strong> Take any outline and refresh its content against the latest information on the internet so static documents don't go stale. Manual and user-controlled. Local-first — v1 has NO dependency on the unbuilt collaboration feature.</p><ul><li><p><strong>Q1 — Refresh Scope — CLOSED — decided 2026-05-15:</strong> Trigger is MANUAL ONLY, invoked by the author or reader; no scheduled or automatic refresh in v1. A refresh dialog is shown; the default scope is the currently selected node PLUS all of its descendants, so selecting the root node refreshes the entire outline. Frequency is manual invocation only to start — no caps and no automation.</p></li><li><p><strong>Q2 — Diff / Review Step — CLOSED — decided 2026-05-15:</strong> By default, always: preview → user approves → then implemented. If the change is not accepted it is rejected and nothing is altered. Auto-apply is NEVER the default; it is an explicit opt-in the user must deliberately select to relinquish control for that specific refresh, and it covers the selected node plus its descendants.</p></li><li><p><strong>Q3 — Author vs Reader Versions — CLOSED — decided 2026-05-15:</strong> v1 is a personal fork — a reader's refresh creates their own copy and the author's canonical version is never touched by a reader. This is satisfied for free by the existing file export/import model (no sharing infrastructure needed; LIVE BOOKS v1 has no dependency on the unbuilt collaboration feature, task #12). Deferred to the collaboration feature: contribute-back — and its model is already decided: a collaborator's edits are OFFERED to the originator, who approves or rejects them (the same approve pattern as Q2).</p></li><li><p><strong>Q4 — Citations — CLOSED — decided 2026-05-15:</strong> Mandatory citations on every refreshed node; they cannot be turned off. Displayed as compact inline source references (a \"Sources\" affordance, not body-text clutter). Source URLs and metadata are stored on the node so they persist and travel with the outline.</p></li><li><p><strong>Q5 — Manual-Edit Conflict Handling — CLOSED — decided 2026-05-15:</strong> Auto-skip manually-edited nodes by default. The refresh dialog shows which nodes were skipped because the user had edited them, with a per-node explicit opt-in override. Requires tracking a \"user-edited\" flag per node.</p></li><li><p><strong>Q6 — Model Attribution — CLOSED — decided 2026-05-15:</strong> Surface model attribution on every refresh, attributing whichever model did the refresh (Claude, Gemini, or local), shown unobtrusively next to the citations (e.g., \"Refreshed with Claude · 4 sources\"). Pre-launch action item: verify the exact required wording and placement for Claude with Anthropic per their usage policy.</p></li></ul><p><strong>Implementation implications (for the implement-LIVE-BOOKS task):</strong></p><ul><li><p>New per-node data: a user-edited flag, citation/source metadata, and model-used metadata.</p></li><li><p>New refresh dialog UI: a scope selector defaulting to the selected node plus its descendants; a preview/diff with per-node accept/reject; a skipped-edited-nodes list with per-node opt-in; and an optional auto-apply opt-in.</p></li><li><p>Uses the existing AI provider abstraction plus web retrieval.</p></li><li><p>No sharing infrastructure required for v1.</p></li></ul>",
       "prefix": "16.1"
     },
     "unrealized-platform-gaps": {
@@ -1068,10 +1069,20 @@
       "type": "document",
       "content": "<p><strong>Items blocked on external responses or upstream decisions. Already partially tracked elsewhere — consolidated here so the dependency chain is visible in one place.</strong></p><p></p><ul data-type=\"taskList\"><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>4 enterprise API applications — Anthropic, Groq, OpenAI, Google. All submitted by 2026-05-08. Responses pending. (Detail in Section 15.)</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Managed API proxy — gated on the first enterprise agreement closing. (Detail in 15.5.)</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Subscription billing backend — there is a code TODO in <em>src/contexts/ai-context.tsx</em> noting that localStorage plan loading is disabled until subscription billing is live. Re-enable when M3 ships.</p></div></li></ul>",
       "prefix": "16.5"
+    },
+    "session-2026-05-15": {
+      "id": "session-2026-05-15",
+      "name": "Thursday, May 15, 2026",
+      "content": "<p><strong>Proactive outline updates this session:</strong></p><ul><li><p>Closed all 6 LIVE BOOKS design questions with the user; decisions recorded; LIVE BOOKS v1 scoped local-first with no collaboration dependency.</p></li></ul>",
+      "type": "text",
+      "parentId": "session-actions-log",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
     }
   },
   "isGuide": false,
-  "lastModified": 1778300696999,
+  "lastModified": 1779001000000,
   "_fileName": "IdiamPro - Bootstrap Plan.idm",
   "_isLazyLoaded": false,
   "_fileSize": 129827
