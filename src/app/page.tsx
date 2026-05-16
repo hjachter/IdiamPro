@@ -668,10 +668,12 @@ export default function MarketingPage() {
                     </div>
                     <h3 className="text-xl font-bold text-white mb-2">Research across languages</h3>
                     <p className="text-white/60 leading-relaxed">
-                      Point SecondBrainWare at a source in almost any language — a French metaphysical
-                      treatise, a German research paper — and get a clean, well-structured outline in
-                      English or your own language. Translate any existing outline section by section,
-                      with specialized and technical terminology preserved.
+                      You're studying a French metaphysical textbook with no English edition. Point
+                      SecondBrainWare at it and get back a clean, well-structured outline in English —
+                      the argument laid out chapter by chapter, with the specialized philosophical
+                      terminology preserved, not flattened. Works the same for a German paper or a
+                      Spanish article, and you can translate an outline you already have, section by
+                      section.
                     </p>
                   </div>
                 </div>
