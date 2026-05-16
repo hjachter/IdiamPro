@@ -657,6 +657,27 @@ export default function MarketingPage() {
                   </p>
                 </div>
 
+                {/* Flagship: Language Translation (coming soon) */}
+                <div className="mb-10 max-w-2xl mx-auto">
+                  <div className="rounded-2xl border border-violet-500/30 bg-gradient-to-br from-violet-500/10 to-indigo-500/10 p-6 text-left">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center shrink-0">
+                        <Globe className="w-5 h-5 text-white" />
+                      </div>
+                      <span className="px-3 py-1 rounded-full bg-violet-500/20 border border-violet-400/30 text-violet-200 text-xs font-semibold uppercase tracking-wider">
+                        Coming soon
+                      </span>
+                    </div>
+                    <h3 className="text-xl font-bold text-white mb-2">Research across languages</h3>
+                    <p className="text-white/60 leading-relaxed">
+                      Point SecondBrainWare at a source in almost any language — a French metaphysical
+                      treatise, a German research paper — and get a clean, well-structured outline in
+                      English or your own language. Translate any existing outline section by section,
+                      with specialized and technical terminology preserved.
+                    </p>
+                  </div>
+                </div>
+
                 <div className="flex flex-wrap gap-4 justify-center">
                   <Button
                     onClick={launchApp}
