@@ -678,6 +678,24 @@ export default function MarketingPage() {
                   </div>
                 </div>
 
+                {/* Flagship: Multilingual Collaboration Board (coming soon) */}
+                <div className="mb-10 max-w-2xl mx-auto">
+                  <div className="rounded-2xl border border-violet-500/30 bg-gradient-to-br from-violet-500/10 to-indigo-500/10 p-6 text-left">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center shrink-0">
+                        <Users className="w-5 h-5 text-white" />
+                      </div>
+                      <span className="px-3 py-1 rounded-full bg-violet-500/20 border border-violet-400/30 text-violet-200 text-xs font-semibold uppercase tracking-wider">
+                        Coming soon
+                      </span>
+                    </div>
+                    <h3 className="text-xl font-bold text-white mb-2">Multilingual collaboration board</h3>
+                    <p className="text-white/60 leading-relaxed">
+                      One shared board where multilingual teams think together — everyone contributes and reads in their own language, and foreign-language documents are translated and woven directly into the group's outline.
+                    </p>
+                  </div>
+                </div>
+
                 <div className="flex flex-wrap gap-4 justify-center">
                   <Button
                     onClick={launchApp}
