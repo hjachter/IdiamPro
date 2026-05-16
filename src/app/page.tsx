@@ -655,7 +655,7 @@ export default function MarketingPage() {
                   </p>
                 </div>
 
-                {/* Flagship: Language Translation (coming soon) */}
+                {/* Flagship: Built to be multilingual (coming soon) */}
                 <div className="mb-10 max-w-2xl mx-auto">
                   <div className="rounded-2xl border border-violet-500/30 bg-gradient-to-br from-violet-500/10 to-indigo-500/10 p-6 text-left">
                     <div className="flex items-center gap-3 mb-3">
@@ -666,33 +666,26 @@ export default function MarketingPage() {
                         Coming soon
                       </span>
                     </div>
-                    <h3 className="text-xl font-bold text-white mb-2">Research across languages</h3>
-                    <p className="text-white/60 leading-relaxed">
-                      You're studying a French metaphysical textbook with no English edition. Point
-                      SecondBrainWare at it and get back a clean, well-structured outline in English —
-                      the argument laid out chapter by chapter, with the specialized philosophical
-                      terminology preserved, not flattened. Works the same for a German paper or a
-                      Spanish article, and you can translate an outline you already have, section by
-                      section.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Flagship: Multilingual Collaboration Board (coming soon) */}
-                <div className="mb-10 max-w-2xl mx-auto">
-                  <div className="rounded-2xl border border-violet-500/30 bg-gradient-to-br from-violet-500/10 to-indigo-500/10 p-6 text-left">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center shrink-0">
-                        <Users className="w-5 h-5 text-white" />
-                      </div>
-                      <span className="px-3 py-1 rounded-full bg-violet-500/20 border border-violet-400/30 text-violet-200 text-xs font-semibold uppercase tracking-wider">
-                        Coming soon
-                      </span>
-                    </div>
-                    <h3 className="text-xl font-bold text-white mb-2">Multilingual collaboration board</h3>
-                    <p className="text-white/60 leading-relaxed">
-                      One shared board where multilingual teams think together — everyone contributes and reads in their own language, and foreign-language documents are translated and woven directly into the group's outline.
-                    </p>
+                    <h3 className="text-xl font-bold text-white mb-2">Built to be multilingual</h3>
+                    <ul className="space-y-2 text-white/60 leading-relaxed">
+                      <li className="flex gap-2">
+                        <span className="text-violet-400 shrink-0">•</span>
+                        <span>
+                          <span className="text-white/80 font-medium">Solo:</span> Turn a source
+                          in almost any language into a clean, structured outline in yours — a
+                          French treatise becomes a well-organized English outline, with
+                          specialized terms preserved.
+                        </span>
+                      </li>
+                      <li className="flex gap-2">
+                        <span className="text-violet-400 shrink-0">•</span>
+                        <span>
+                          <span className="text-white/80 font-medium">Team:</span> When groups
+                          work together, everyone contributes in their own language while
+                          foreign-language documents are translated into one shared outline.
+                        </span>
+                      </li>
+                    </ul>
                   </div>
                 </div>
 
