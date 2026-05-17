@@ -2,6 +2,7 @@ import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { AIProvider } from '@/contexts/ai-context';
+import { UpgradePromptProvider } from '@/components/upgrade-prompt';
 import ErrorBoundary from '@/components/error-boundary';
 import { PWAInstaller } from '@/components/pwa-installer';
 import { ThemeProvider } from 'next-themes';
@@ -91,7 +92,12 @@ export default function RootLayout({
             <ErrorBoundary>
               <div className="h-full">
                 <AIProvider>
-                  {children}
+                  {/* Phase 3 friendly gate-hit UX. Inert when enforcement
+                      is off — the gates that trigger it are themselves
+                      no-ops with no auth/billing keys. */}
+                  <UpgradePromptProvider>
+                    {children}
+                  </UpgradePromptProvider>
                 </AIProvider>
               </div>
               <Toaster />

@@ -15,6 +15,14 @@ import ContentPane from './content-pane';
 import { useToast } from "@/hooks/use-toast";
 import { generateOutlineAction, expandContentAction, generateContentForNodeAction, ingestExternalSourceAction, bulkResearchIngestAction, bulletBasedResearchAction } from '@/app/actions';
 import { useAI } from '@/contexts/ai-context';
+import {
+  checkAIQuota,
+  recordAIUsage,
+  canUseFeature,
+  getCurrentEntitlements,
+  tierDisplayName,
+} from '@/lib/entitlements';
+import { useUpgradePrompt } from '@/components/upgrade-prompt';
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction } from './ui/alert-dialog';
 import { Button } from './ui/button';
 import { loadStorageData, saveAllOutlines, migrateToFileSystem, deleteOutline, loadSingleOutlineOnDemand, saveUnmergeBackup, loadUnmergeBackup, deleteUnmergeBackup, type MigrationConflict, type ConflictResolution, type LazyOutline } from '@/lib/storage-manager';
@@ -277,6 +285,53 @@ export default function OutlinePro() {
   const hasUserOutlines = useMemo(() => outlines.some(o => !o.isGuide), [outlines]);
 
   const { plan } = useAI();
+  const { promptUpgrade } = useUpgradePrompt();
+
+  /**
+   * Phase 3 gate: enforce the monthly hosted cloud-AI quota + cloud-AI-by-tier
+   * for `kind`. Returns true if the caller may proceed.
+   *
+   * NO-OP SAFETY: when enforcement is inactive (no auth/billing keys — the
+   * state today) checkAIQuota/canUseFeature both allow everything, so this
+   * always returns true and the live app is unchanged. Local Ollama and BYOK
+   * are exempt inside checkAIQuota and never counted.
+   */
+  const ensureAIQuota = useCallback(
+    (kind: 'outlineGeneration' | 'contentExpansion'): boolean => {
+      // Cloud-AI-by-tier (Free = local-only hosted). BYOK/local are exempt
+      // and reported as exempt by checkAIQuota, so skip the cloud gate then.
+      const quota = checkAIQuota(kind);
+      if (!quota.exempt && !canUseFeature('cloudAI')) {
+        promptUpgrade({
+          reason:
+            'Cloud AI is a Pro feature. Free includes unlimited local (Ollama) AI and bring-your-own-key.',
+          requiredTier: 'pro',
+        });
+        return false;
+      }
+      if (!quota.allowed) {
+        const resetDate = new Date(quota.resetsAt).toLocaleDateString(
+          undefined,
+          { month: 'long', day: 'numeric' },
+        );
+        const label =
+          kind === 'outlineGeneration'
+            ? 'outline generations'
+            : 'content expansions';
+        const needed =
+          getCurrentEntitlements().id === 'free' ? 'pro' : 'premium';
+        promptUpgrade({
+          reason: `You've used all ${quota.limit} of your ${tierDisplayName(
+            getCurrentEntitlements().id,
+          )} ${label} this month — resets on ${resetDate}. Local AI and your own API key stay unlimited.`,
+          requiredTier: needed,
+        });
+        return false;
+      }
+      return true;
+    },
+    [promptUpgrade],
+  );
 
   // Compute ancestor path for selected node (names from root to parent)
   const selectedNodeAncestorPath = useMemo(() => {
@@ -1688,6 +1743,8 @@ export default function OutlinePro() {
   const handleGenerateOutline = useCallback(async (topic: string, depth: AIDepth = 'standard', tone: AITone = 'professional', level: AILevel = 'college') => {
     if (!checkAiConsent(() => handleGenerateOutline(topic, depth, tone, level))) return;
     if (!selectedNodeId || !currentOutlineId) return;
+    // Phase 3 quota/cloud gate (no-op when enforcement inactive; local/BYOK exempt)
+    if (!ensureAIQuota('outlineGeneration')) return;
 
     const parentId = selectedNodeId;
     aiCancelledRef.current = false;
@@ -1695,6 +1752,8 @@ export default function OutlinePro() {
     aiLoadingStartTime.current = Date.now();
     try {
       const markdown = await generateOutlineAction(topic, depth, tone, level);
+      // Count this successful hosted call (no-op for local/BYOK & when off)
+      recordAIUsage('outlineGeneration');
       const { rootNodeId: generatedRootId, nodes: generatedNodes } = parseMarkdownToNodes(markdown, topic);
 
       // Remap all generated node IDs to fresh UUIDs
@@ -1753,12 +1812,14 @@ export default function OutlinePro() {
       setIsLoadingAI(false);
       aiLoadingStartTime.current = null;
     }
-  }, [toast, selectedNodeId, currentOutlineId]);
+  }, [toast, selectedNodeId, currentOutlineId, ensureAIQuota]);
 
   // FIXED: handleExpandContent uses functional update pattern (legacy)
   const handleExpandContent = useCallback(async () => {
     if (!selectedNode) return;
     if (!checkAiConsent(() => handleExpandContent())) return;
+    // Phase 3 quota/cloud gate (no-op when enforcement inactive; local/BYOK exempt)
+    if (!ensureAIQuota('contentExpansion')) return;
 
     // Capture the node ID before the async operation
     const nodeIdToUpdate = selectedNode.id;
@@ -1768,6 +1829,8 @@ export default function OutlinePro() {
     aiLoadingStartTime.current = Date.now();
     try {
       const content = await expandContentAction(selectedNode.name);
+      // Count this successful hosted call (no-op for local/BYOK & when off)
+      recordAIUsage('contentExpansion');
 
       // Use functional update to ensure we're updating the latest state
       setOutlines(currentOutlines => {
@@ -1797,7 +1860,7 @@ export default function OutlinePro() {
       setIsLoadingAI(false);
       aiLoadingStartTime.current = null;
     }
-  }, [selectedNode, currentOutlineId, toast, plan]);
+  }, [selectedNode, currentOutlineId, toast, plan, ensureAIQuota]);
 
   // Enhanced content generation with context - returns generated content
   const handleGenerateContentForNode = useCallback(async (context: NodeGenerationContext): Promise<string> => {

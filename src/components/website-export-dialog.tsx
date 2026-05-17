@@ -21,6 +21,7 @@ import type { Outline } from '@/types';
 import { useAI } from '@/contexts/ai-context';
 import { exportOutline } from '@/lib/export/index';
 import { useToast } from '@/hooks/use-toast';
+import { useUpgradePrompt } from '@/components/upgrade-prompt';
 
 // Helper: check if a hex color is dark
 function isHexDark(hex: string): boolean {
@@ -303,6 +304,7 @@ export default function WebsiteExportDialog({
 }: WebsiteExportDialogProps) {
   const { toast } = useToast();
   const { isPremium } = useAI();
+  const { promptUpgrade } = useUpgradePrompt();
 
   // Wizard state
   const [currentStep, setCurrentStep] = useState<WizardStep>('type');
@@ -338,11 +340,13 @@ export default function WebsiteExportDialog({
   }, [open, displayName]);
 
   const handleSelectType = (type: WebsiteType) => {
+    // Phase 3: premium website templates require Pro+. SAFETY: when
+    // enforcement is inactive `isPremium` is true (unchanged), so this
+    // branch never fires and every template stays available as today.
     if (type.isPremium && !isPremium) {
-      toast({
-        title: 'Premium Feature',
-        description: `The ${type.name} template is available on Premium plans.`,
-        variant: 'destructive',
+      promptUpgrade({
+        reason: `The ${type.name} template is a Pro feature.`,
+        requiredTier: 'pro',
       });
       return;
     }
@@ -514,10 +518,10 @@ export default function WebsiteExportDialog({
                         </div>
                         {type.isPremium && (
                           <Badge variant={isPremium ? 'secondary' : 'outline'} className="text-xs">
-                            {isPremium ? 'Premium' : (
+                            {isPremium ? 'Pro' : (
                               <span className="flex items-center gap-1">
                                 <Lock className="h-3 w-3" />
-                                Premium
+                                Pro
                               </span>
                             )}
                           </Badge>

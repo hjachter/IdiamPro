@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import type { SubscriptionPlan, AIFeatureFlags, AIConfig } from '@/types';
 import { AIService, DEFAULT_FREE_FLAGS, DEFAULT_PREMIUM_FLAGS } from '@/lib/ai-service';
+import { canUseFeature, isEnforcementActive } from '@/lib/entitlements';
 
 const AI_PLAN_STORAGE_KEY = 'outline-pro-ai-plan';
 
@@ -71,6 +72,16 @@ export function AIProvider({ children }: AIProviderProps) {
   // Memoize the AIService instance
   const aiService = useMemo(() => new AIService(plan, features), [plan, features]);
 
+  // Phase 3: `isPremium` is now the real tier entitlement (premium AI
+  // features = Pro+) instead of the ad-hoc local plan flag. SAFETY: when
+  // enforcement is inactive (no auth/billing keys — the state today)
+  // canUseFeature() is a no-op returning true, so this stays exactly as it
+  // is now (the beta-forced PREMIUM plan keeps everything unlocked).
+  const isPremium = useMemo(
+    () => (isEnforcementActive() ? canUseFeature('premiumAIFeatures') : plan !== 'FREE'),
+    [plan],
+  );
+
   const value = useMemo<AIContextValue>(() => ({
     plan,
     features,
@@ -78,8 +89,8 @@ export function AIProvider({ children }: AIProviderProps) {
     aiService,
     switchPlan,
     toggleFeature,
-    isPremium: plan !== 'FREE',
-  }), [plan, features, config, aiService, switchPlan, toggleFeature]);
+    isPremium,
+  }), [plan, features, config, aiService, switchPlan, toggleFeature, isPremium]);
 
   return (
     <AIContext.Provider value={value}>

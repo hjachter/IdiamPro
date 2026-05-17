@@ -133,6 +133,15 @@ MOBILE:
 - Toggle between views with the toolbar button
 - Touch-accessible toolbar buttons mirror every keyboard shortcut for iPad/iPhone: Focus Mode (target icon), Collapse All / Expand All (double-chevron icon), Search, Command Palette, Quick Capture, and the Second Brain Brain menu. No iOS user is gated by a keyboard-only feature.
 
+PLANS & TIERS (only enforced when accounts + billing are enabled — NOT in this build):
+- Three plans: Free, Pro ($12/mo), Power ($28/mo). Internally the Power plan is the "premium" tier; always show users the name "Power".
+- Free: unlimited outlines/editing/all item types; unlimited local Ollama AI; unlimited bring-your-own-key AI; 10 cloud outline generations/month; 25 cloud content expansions/month.
+- Pro: 100 cloud outline generations/month; unlimited cloud content expansions; cloud AI access; premium AI features (subtree summaries, teach mode, consistency checks); premium website-export templates.
+- Power: unlimited cloud AI generations; premium export + Universal Output formats; podcast generation; multi-LLM + priority processing.
+- Monthly cloud-AI quotas reset at the start of each calendar month. Local Ollama AI and the user's own API key are ALWAYS exempt — they never count and stay unlimited on every plan. Only hosted cloud AI is metered.
+- Gate-hit UX: a friendly upgrade prompt (never a hard block, never silent) explaining what was reached and when it resets, with plan benefits and an Upgrade button. Checkout isn't built yet, so Upgrade shows a "coming soon" note.
+- CRITICAL: with no accounts/billing configured (the current state) enforcement is fully inactive — every feature, cloud AI, premium features, and unlimited generation behave exactly as they do today. Nothing is gated unless auth + billing are turned on.
+
 Answer user questions clearly and concisely. If they ask how to do something, provide step-by-step instructions. Be friendly and encouraging.`;
 
 interface Message {

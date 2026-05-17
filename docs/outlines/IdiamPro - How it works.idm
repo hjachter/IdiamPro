@@ -423,7 +423,8 @@
         "tech-stack",
         "tech-components",
         "tech-data-flow",
-        "external-mod-detection"
+        "external-mod-detection",
+        "tier-enforcement"
       ],
       "isCollapsed": true,
       "prefix": "10"
@@ -538,6 +539,16 @@
       "content": "LIVE BOOKS is the app's first \"transform engine\" feature. The idea: a static document goes stale, so the user picks a node, and the app rewrites that node plus everything under it against the latest information from the web, but only after the user approves a preview.\n\nHow it is built: there is a generalized, reusable engine (src/lib/transforms/transform-engine.ts) that knows how to walk a node and its descendants, decide which nodes are eligible, run a 'transformer' on each one, and apply approved changes back. The engine does not know what 'refresh' means - it just runs whatever transformer it is given. The actual refresh logic lives in a small transformer (src/lib/transforms/refresh-transform.ts) that calls a server action. This separation is deliberate: a future Translation feature will be a second transformer plugged into the exact same engine, with no engine changes.\n\nThe flow: the user opens the LIVE BOOKS dialog (toolbar AI menu, command palette, or Cmd/Ctrl+Shift+R). They pick Merge (revise in place, keep what's still good) or Overwrite (rewrite from scratch). The engine asks the AI - cloud Gemini with live Google Search grounding by default, local Ollama as a fallback - to propose new content for each node. Nothing is touched yet. The dialog shows a before/after for every node; the user accepts or rejects each one, then applies. Only then does the node map change.\n\nSafety: when a person edits a node by hand, the app quietly marks that node as 'user-edited'. LIVE BOOKS skips those nodes so it never overwrites the user's own words, unless they explicitly opt a node back in. Every refreshed node also records which model produced it and the real source URLs used; that information is stored on the node itself, so it is saved and exported along with everything else, and a small Sources chip on the node reveals it. Local refreshes have no internet, so they honestly report 'no web sources' instead of inventing citations. LIVE BOOKS is personal and local - it only ever changes the user's own copy.",
       "type": "document",
       "parentId": "ai-features",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "tier-enforcement": {
+      "id": "tier-enforcement",
+      "name": "Plans, Tiers & Enforcement",
+      "content": "<p>IdiamPro has a three-tier plan model — <strong>Free</strong>, <strong>Pro</strong>, and <strong>Power</strong> (the Power plan is called 'premium' internally; users always see the name 'Power').</p><p></p><p><strong>The #1 safety rule — a master no-op switch:</strong></p><p>There is no sign-in or checkout in this build. A single switch, <em>isEnforcementActive()</em>, only turns on when BOTH accounts (Clerk) and billing (Stripe/RevenueCat) are configured. With no keys set — today's state — it returns false and every plan check short-circuits to 'allow everything'. The app behaves 100% identically to before tiers existed: cloud AI, premium features, premium templates, podcast generation, and unlimited generation all stay fully available.</p><p></p><p><strong>What gets gated (only once enforcement is on):</strong></p><ul><li><p>Monthly hosted cloud-AI quotas: outline generations and content expansions (Free 10/25, Pro 100/unlimited, Power unlimited), tracked per calendar month with an automatic reset</p></li><li><p>Premium AI features (subtree summaries, teach mode, consistency checks): Pro and up</p></li><li><p>Premium website-export templates: Pro and up</p></li><li><p>Cloud vs local AI by tier: Free is local-only hosted, Pro+ unlock cloud</p></li><li><p>Podcast / universal-output generation: Power only</p></li></ul><p><strong>Always exempt (never counted, unlimited on every plan):</strong> local Ollama AI, and bring-your-own-key AI (when the user has saved their own provider API key in Settings).</p><p></p><p><strong>What stays free for everyone:</strong> core editing, unlimited outline creation, all item types, local AI, your own API key, basic import, and PDF export.</p><p></p><p><strong>Gate-hit experience:</strong> a single friendly upgrade prompt — never a hard block, never a silent failure. It explains what was reached (e.g. 'You've used all 10 of your Free outline generations this month — resets on June 1'), lists the plan's benefits, and offers an Upgrade button. Because checkout isn't built yet, Upgrade shows a 'coming soon' note rather than dead-ending.</p><p></p><p><strong>Centralized design:</strong> all plan logic lives in one entitlements module (the master switch, capability checks, the monthly quota check/record helpers). Every touchpoint in the app calls these helpers — plan checks are never scattered around the code. Deferred for later (intentionally not enforced yet): audio-transcription hour caps, collaborator caps, and any not-yet-shipped 'coming soon' features.</p>",
+      "type": "document",
+      "parentId": "under-the-hood",
       "childrenIds": [],
       "isCollapsed": false,
       "prefix": ""

@@ -26,6 +26,8 @@ import {
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ChevronDown, ChevronRight, Download, X, Pencil, Plus, Trash2, Sparkles } from 'lucide-react';
+import { canUseFeature } from '@/lib/entitlements';
+import { useUpgradePrompt } from '@/components/upgrade-prompt';
 
 interface PodcastDialogProps {
   open: boolean;
@@ -192,6 +194,25 @@ export default function PodcastDialog({
 
   const speakers = getDefaultSpeakers(style);
 
+  const { promptUpgrade } = useUpgradePrompt();
+
+  /**
+   * Phase 3 gate: podcast / universal-output generation is a Power feature.
+   * Returns true if the user may proceed.
+   *
+   * NO-OP SAFETY: canUseFeature('podcastGeneration') returns true whenever
+   * enforcement is inactive (no auth/billing keys — the state today), so
+   * this never blocks and podcast generation works exactly as it does now.
+   */
+  const ensurePodcastAllowed = useCallback((): boolean => {
+    if (canUseFeature('podcastGeneration')) return true;
+    promptUpgrade({
+      reason: 'Podcast generation is a Power feature.',
+      requiredTier: 'premium',
+    });
+    return false;
+  }, [promptUpgrade]);
+
   const handleVoiceChange = useCallback((speaker: string, voice: OpenAIVoice) => {
     setVoices(prev => ({ ...prev, [speaker]: voice }));
   }, []);
@@ -211,6 +232,7 @@ export default function PodcastDialog({
 
   // Generate script only (from edited prompt)
   const handleGenerateScript = useCallback(async () => {
+    if (!ensurePodcastAllowed()) return;
     setPhase('generating-script');
     setProgress({ phase: 'script', message: 'Generating podcast script...', percent: 10 });
 
@@ -251,10 +273,11 @@ export default function PodcastDialog({
     } finally {
       abortControllerRef.current = null;
     }
-  }, [style, length, voices, ttsModel, editablePrompt]);
+  }, [style, length, voices, ttsModel, editablePrompt, ensurePodcastAllowed]);
 
   // Generate script without showing prompt editor first (quick path)
   const handleQuickGenerate = useCallback(async () => {
+    if (!ensurePodcastAllowed()) return;
     setPhase('generating-script');
     setProgress({ phase: 'script', message: 'Generating podcast script...', percent: 10 });
 
@@ -295,7 +318,7 @@ export default function PodcastDialog({
     } finally {
       abortControllerRef.current = null;
     }
-  }, [style, length, voices, ttsModel, nodes, nodeId]);
+  }, [style, length, voices, ttsModel, nodes, nodeId, ensurePodcastAllowed]);
 
   // Synthesize audio from (edited) script segments
   const handleSynthesizeAudio = useCallback(async () => {
