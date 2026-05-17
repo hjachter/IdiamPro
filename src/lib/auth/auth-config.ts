@@ -21,6 +21,7 @@ import {
   type SubscriptionTierEntry,
   type SubscriptionTierId,
 } from '@/config/subscription-tiers';
+import { resolveTierFromBilling } from '@/lib/billing/billing-gate';
 
 /**
  * Clerk publishable key — exposed to the browser bundle. Its presence is
@@ -48,6 +49,13 @@ export function isAuthEnabled(): boolean {
  * Resolve a tier id (e.g. from Clerk user metadata in a later phase) to a
  * full tier entry. When auth is disabled, callers should pass null/undefined
  * and will get the default 'free' tier.
+ *
+ * Phase 2: the billing layer composes here. `resolveTierFromBilling` is the
+ * single provider-agnostic gate — when NO billing keys are set it always
+ * returns the default ('free') tier, so this function's behavior is exactly
+ * the same as before billing existed. When billing IS enabled a later phase
+ * will pass the billed tier id (from the Stripe webhook / RevenueCat sync)
+ * and it flows through unchanged.
  */
 export function resolveCurrentTier(
   tierId?: string | null,
@@ -55,9 +63,9 @@ export function resolveCurrentTier(
   if (!isAuthEnabled()) {
     return getTierById(DEFAULT_TIER_ID);
   }
-  // TODO (later phase): tierId will come from Clerk publicMetadata, kept in
-  // sync by the Stripe/RevenueCat webhook. Until then everyone is default.
-  return getTierById(tierId ?? DEFAULT_TIER_ID);
+  // Compose with the env-gated billing layer. Billing disabled (no keys) =>
+  // returns the default tier => identical to current behavior.
+  return resolveTierFromBilling(tierId ?? DEFAULT_TIER_ID);
 }
 
 export { DEFAULT_TIER_ID };
