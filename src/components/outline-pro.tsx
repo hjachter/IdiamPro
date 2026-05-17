@@ -25,6 +25,7 @@ import SidebarPane from './sidebar-pane';
 import MobileSidebarSheet from './mobile-sidebar-sheet';
 import KeyboardShortcutsDialog, { useKeyboardShortcuts } from './keyboard-shortcuts-dialog';
 import BulkResearchDialog from './bulk-research-dialog';
+import LiveBooksDialog from './live-books-dialog';
 import HelpChatDialog from './help-chat-dialog';
 import KnowledgeChatDialog from './knowledge-chat-dialog';
 import AIConsentDialog from './ai-consent-dialog';
@@ -195,6 +196,9 @@ export default function OutlinePro() {
 
   // Bulk research dialog state
   const [isBulkResearchOpen, setIsBulkResearchOpen] = useState(false);
+
+  // LIVE BOOKS (manual AI refresh) dialog state
+  const [isLiveBooksOpen, setIsLiveBooksOpen] = useState(false);
 
   // Help chat dialog state
   const [isHelpChatOpen, setIsHelpChatOpen] = useState(false);
@@ -804,11 +808,21 @@ export default function OutlinePro() {
         return;
       }
 
+      // Cmd+Shift+R or Ctrl+Shift+R — open LIVE BOOKS (refresh from web).
+      // Not an iOS-reserved gesture, not an F-key; unbound elsewhere in-app.
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && (e.key === 'r' || e.key === 'R')) {
+        if (selectedNodeId && currentOutline && !currentOutline.isGuide) {
+          e.preventDefault();
+          setIsLiveBooksOpen(true);
+        }
+        return;
+      }
+
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isFocusMode, toast]);
+  }, [isFocusMode, toast, selectedNodeId, currentOutline]);
 
   // handleSelectNode - navigate param controls whether to switch to full content view on mobile
   // On mobile with stacked layout: selection updates preview, navigate=true goes to full content
@@ -836,6 +850,25 @@ export default function OutlinePro() {
       });
     });
   }, [currentOutlineId]);
+
+  // LIVE BOOKS — apply an approved refresh back into the current outline.
+  // The dialog already built the new node map (with citations + provenance);
+  // we just swap it in through the normal outline-update path so it persists
+  // and exports like any other change.
+  const handleApplyLiveBooks = useCallback((nextNodes: NodeMap) => {
+    setOutlines(currentOutlines =>
+      currentOutlines.map(o =>
+        o.id === currentOutlineId && !o.isGuide ? { ...o, nodes: nextNodes } : o
+      )
+    );
+  }, [currentOutlineId]);
+
+  // Respect the app-wide AI provider setting: only force local when the user
+  // explicitly chose "local" (cloud/auto keep cloud grounding + citations).
+  const liveBooksUseLocal = useMemo(() => {
+    if (typeof window === 'undefined') return false;
+    return localStorage.getItem('aiProvider') === 'local';
+  }, [isLiveBooksOpen]);
 
   // Handle search term change from OutlinePane (for content highlighting)
   const handleSearchTermChange = useCallback((term: string, matchType?: 'name' | 'content' | 'both', matchIndex?: number) => {
@@ -3583,6 +3616,7 @@ export default function OutlinePro() {
           onToggleFocusMode={() => setIsFocusMode(prev => !prev)}
           onShowShortcuts={() => setIsShortcutsOpen(true)}
           onOpenBulkResearch={() => setIsBulkResearchOpen(true)}
+          onOpenLiveBooks={() => setIsLiveBooksOpen(true)}
           onOpenTemplates={() => setIsTemplatesDialogOpen(true)}
           isGuide={currentOutline?.isGuide ?? false}
           isFocusMode={isFocusMode}
@@ -3601,6 +3635,15 @@ export default function OutlinePro() {
           currentOutlineName={currentOutline?.name}
           canUnmerge={hasUnmergeBackup}
           onUnmerge={handleUnmerge}
+        />
+
+        <LiveBooksDialog
+          open={isLiveBooksOpen}
+          onOpenChange={setIsLiveBooksOpen}
+          outline={currentOutline}
+          selectedNodeId={selectedNodeId}
+          onApply={handleApplyLiveBooks}
+          useLocalAI={liveBooksUseLocal}
         />
 
         <HelpChatDialog
@@ -3840,6 +3883,7 @@ export default function OutlinePro() {
                 onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
                 onOpenHelp={() => setIsHelpChatOpen(true)}
                 onOpenKnowledgeChat={() => setIsKnowledgeChatOpen(true)}
+                onOpenLiveBooks={() => setIsLiveBooksOpen(true)}
                 onCreateChildNode={handleCreateSiblingNode}
                 justCreatedNodeId={justCreatedNodeIdRef.current}
                 editingNodeId={editingNodeId}
@@ -3979,6 +4023,7 @@ export default function OutlinePro() {
         onToggleFocusMode={() => setIsFocusMode(prev => !prev)}
         onShowShortcuts={() => setIsShortcutsOpen(true)}
         onOpenBulkResearch={() => setIsBulkResearchOpen(true)}
+        onOpenLiveBooks={() => setIsLiveBooksOpen(true)}
         onOpenTemplates={() => setIsTemplatesDialogOpen(true)}
         isGuide={currentOutline?.isGuide ?? false}
         isFocusMode={isFocusMode}
@@ -3995,6 +4040,15 @@ export default function OutlinePro() {
         onOpenChange={setIsBulkResearchOpen}
         onSubmit={handleBulkResearch}
         currentOutlineName={currentOutline?.name}
+      />
+
+      <LiveBooksDialog
+        open={isLiveBooksOpen}
+        onOpenChange={setIsLiveBooksOpen}
+        outline={currentOutline}
+        selectedNodeId={selectedNodeId}
+        onApply={handleApplyLiveBooks}
+        useLocalAI={liveBooksUseLocal}
       />
 
       <TemplatesDialog
@@ -4243,6 +4297,7 @@ export default function OutlinePro() {
                 onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
                 onOpenHelp={() => setIsHelpChatOpen(true)}
                 onOpenKnowledgeChat={() => setIsKnowledgeChatOpen(true)}
+                onOpenLiveBooks={() => setIsLiveBooksOpen(true)}
                 onCreateChildNode={handleCreateSiblingNode}
                 justCreatedNodeId={justCreatedNodeIdRef.current}
                 editingNodeId={editingNodeId}

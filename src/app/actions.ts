@@ -3,6 +3,7 @@
 import { generateOutlineFromTopic } from '@/ai/flows/generate-outline-from-topic';
 import { expandNodeContent } from '@/ai/flows/expand-node-content';
 import { suggestTags } from '@/ai/flows/suggest-tags';
+import { refreshNodeContent, type RefreshNodeInput } from '@/ai/flows/refresh-node-content';
 import {
   extractPdfFromUrl,
   extractPdfFromFile,
@@ -265,6 +266,43 @@ export async function suggestTagsAction(
   } catch (error) {
     console.error('Error suggesting tags:', error);
     return [];
+  }
+}
+
+/**
+ * LIVE BOOKS — refresh ONE node's content against the latest information.
+ *
+ * This is the server-side worker for the generalized transform engine's
+ * `refresh` transform. It runs on the existing AI provider abstraction
+ * (cloud Gemini with real Google Search grounding, local Ollama fallback)
+ * and returns a proposed update + real citations. It NEVER applies anything
+ * — the caller builds a preview and only applies after the user approves.
+ */
+export async function refreshNodeContentAction(
+  input: RefreshNodeInput
+): Promise<{
+  content: string;
+  citations: { url: string; title?: string }[];
+  changed: boolean;
+  model: string;
+  modelProvider: 'cloud' | 'local';
+  webGrounded: boolean;
+  error?: string;
+}> {
+  try {
+    return await refreshNodeContent(input);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Refresh failed';
+    console.error('Error refreshing node content:', message);
+    return {
+      content: input.currentContent,
+      citations: [],
+      changed: false,
+      model: input.useLocal ? 'Local' : 'Gemini',
+      modelProvider: input.useLocal ? 'local' : 'cloud',
+      webGrounded: false,
+      error: message,
+    };
   }
 }
 

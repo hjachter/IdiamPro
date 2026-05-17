@@ -5,9 +5,14 @@ import type { OutlineNode, NodeMap } from '@/types';
 import NodeIcon from './node-icon';
 import { TagBadge } from './tag-badge';
 import NodePropertiesDialog from './node-properties-dialog';
-import { ChevronRight, Plus, Trash2, Edit3, ChevronDown, ChevronUp, Copy, Scissors, ClipboardPaste, CopyPlus, Sparkles, CheckSquare2, Square, Sliders, Share } from 'lucide-react';
+import { ChevronRight, Plus, Trash2, Edit3, ChevronDown, ChevronUp, Copy, Scissors, ClipboardPaste, CopyPlus, Sparkles, CheckSquare2, Square, Sliders, Share, Globe, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import {
   ContextMenu,
   ContextMenuContent,
@@ -695,6 +700,60 @@ export default function NodeItem({
                                 </span>
                             )}
                         </div>
+                    )}
+                    {node.metadata?.transform && (
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <button
+                                    type="button"
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="inline-flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground rounded px-1 py-0.5 border border-border/50 shrink-0"
+                                    title="Show how this node was refreshed and its sources"
+                                >
+                                    <Globe className="h-2.5 w-2.5" />
+                                    {node.metadata.transform.citations.length > 0
+                                        ? `${node.metadata.transform.citations.length} source${node.metadata.transform.citations.length === 1 ? '' : 's'}`
+                                        : 'Sources'}
+                                </button>
+                            </PopoverTrigger>
+                            <PopoverContent
+                                className="w-72 text-xs"
+                                align="start"
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                <p className="font-medium mb-1">
+                                    Refreshed with {node.metadata.transform.model}
+                                </p>
+                                <p className="text-muted-foreground mb-2">
+                                    {new Date(node.metadata.transform.refreshedAt).toLocaleString()}
+                                    {' · '}
+                                    {node.metadata.transform.webGrounded
+                                        ? 'live web grounding'
+                                        : 'model knowledge (no live web)'}
+                                </p>
+                                {node.metadata.transform.citations.length > 0 ? (
+                                    <ul className="space-y-1">
+                                        {node.metadata.transform.citations.map((c, i) => (
+                                            <li key={i}>
+                                                <a
+                                                    href={c.url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-blue-600 hover:underline inline-flex items-center gap-0.5 break-all"
+                                                >
+                                                    {c.title || c.url}
+                                                    <ExternalLink className="h-2.5 w-2.5 shrink-0" />
+                                                </a>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                ) : (
+                                    <p className="text-muted-foreground italic">
+                                        No web sources (model-knowledge refresh).
+                                    </p>
+                                )}
+                            </PopoverContent>
+                        </Popover>
                     )}
                 </div>
             )}

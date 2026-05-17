@@ -52,6 +52,7 @@ interface CommandPaletteProps {
   onShowShortcuts?: () => void;
   onOpenBulkResearch?: () => void;
   onOpenTemplates?: () => void;
+  onOpenLiveBooks?: () => void;
   isGuide: boolean;
   isFocusMode?: boolean;
 }
@@ -77,6 +78,7 @@ export default function CommandPalette({
   onShowShortcuts,
   onOpenBulkResearch,
   onOpenTemplates,
+  onOpenLiveBooks,
   isGuide,
   isFocusMode,
 }: CommandPaletteProps) {
@@ -196,6 +198,13 @@ export default function CommandPalette({
             <CommandItem onSelect={() => runCommand(onImportOutline)}>
               <Upload className="mr-2 h-4 w-4" />
               <span>Import Outline</span>
+            </CommandItem>
+          )}
+          {onOpenLiveBooks && selectedNodeId && !isGuide && (
+            <CommandItem onSelect={() => runCommand(onOpenLiveBooks)}>
+              <RefreshCw className="mr-2 h-4 w-4" />
+              <span>LIVE BOOKS: Refresh from the web</span>
+              <CommandShortcut>⌘⇧R</CommandShortcut>
             </CommandItem>
           )}
           {onOpenBulkResearch && (

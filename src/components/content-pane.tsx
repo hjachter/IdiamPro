@@ -576,7 +576,13 @@ export default function ContentPane({
         const html = editor.getHTML();
         // Defer update to avoid flushSync during render
         queueMicrotask(() => {
-          onUpdate(node.id, { content: html });
+          // Mark the node as user-edited so LIVE BOOKS auto-skips it on
+          // refresh (Q5). isLoadingContentRef guards programmatic setContent,
+          // so this only fires on genuine human typing/formatting.
+          onUpdate(node.id, {
+            content: html,
+            metadata: { ...node.metadata, userEdited: true },
+          });
         });
       }
     },

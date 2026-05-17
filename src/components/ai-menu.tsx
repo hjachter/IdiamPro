@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, FileText, Crown, Loader2, Library, Brain } from 'lucide-react';
+import { Sparkles, FileText, Crown, Loader2, Library, Brain, RefreshCw } from 'lucide-react';
 import { useAI, useAIFeature } from '@/contexts/ai-context';
 import AiGenerateDialog from './ai-generate-dialog';
 
@@ -24,6 +24,8 @@ interface AIMenuProps {
   disabled?: boolean;
   onOpenBulkResearch?: () => void;
   onOpenKnowledgeChat?: () => void;
+  onOpenLiveBooks?: () => void;
+  hasSelectedNode?: boolean;
   selectedNodeName?: string;
 }
 
@@ -34,6 +36,8 @@ export default function AIMenu({
   disabled,
   onOpenBulkResearch,
   onOpenKnowledgeChat,
+  onOpenLiveBooks,
+  hasSelectedNode,
   selectedNodeName,
 }: AIMenuProps) {
   const { isPremium } = useAI();
@@ -96,6 +100,13 @@ export default function AIMenu({
               Generate Subtree from Topic
             </DropdownMenuItem>
           </AiGenerateDialog>
+        )}
+
+        {onOpenLiveBooks && hasSelectedNode && (
+          <DropdownMenuItem onSelect={onOpenLiveBooks} className="cursor-pointer">
+            <RefreshCw className="mr-2 h-4 w-4" />
+            LIVE BOOKS: Refresh from the web
+          </DropdownMenuItem>
         )}
 
         {onOpenBulkResearch && (

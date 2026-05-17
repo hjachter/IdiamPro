@@ -125,6 +125,8 @@ interface OutlinePaneProps {
   onOpenHelp?: () => void;
   // Knowledge chat
   onOpenKnowledgeChat?: () => void;
+  // LIVE BOOKS — manual AI refresh of a node subtree
+  onOpenLiveBooks?: () => void;
   // Double-click child node creation
   onCreateChildNode?: (parentId: string) => void;
   // Edit mode control
@@ -203,6 +205,7 @@ export default function OutlinePane({
   onOpenCommandPalette,
   onOpenHelp,
   onOpenKnowledgeChat,
+  onOpenLiveBooks,
   onCreateChildNode,
   justCreatedNodeId,
   editingNodeId,
@@ -1179,6 +1182,8 @@ export default function OutlinePane({
             isLoadingAI={isLoadingAI}
             onOpenBulkResearch={onOpenBulkResearch}
             onOpenKnowledgeChat={onOpenKnowledgeChat}
+            onOpenLiveBooks={onOpenLiveBooks}
+            hasSelectedNode={!!selectedNodeId && !currentOutline?.isGuide}
             selectedNodeName={selectedNodeId && currentOutline?.nodes[selectedNodeId]?.name || ''}
           />
 

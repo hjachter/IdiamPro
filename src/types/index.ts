@@ -49,7 +49,79 @@ export interface OutlineNode {
     dueDate?: number;          // For date/task nodes (timestamp)
     createdAt?: number;        // Creation timestamp
     updatedAt?: number;        // Last modified timestamp
+
+    // LIVE BOOKS / transform-engine metadata (all optional, backward-compatible —
+    // outlines saved before this feature simply omit these fields and load fine)
+    userEdited?: boolean;      // Set when a human manually edits this node's content.
+                               // Refresh auto-skips user-edited nodes unless explicitly overridden.
+    transform?: NodeTransformRecord;  // Provenance of the last AI transform applied to this node
   };
+}
+
+// ============================================
+// TRANSFORM ENGINE (LIVE BOOKS + future Translate)
+// ============================================
+//
+// Generalized "AI transform of a node-subtree, with preview-and-approve".
+// v1 implements only the 'refresh' transform (LIVE BOOKS: update a node's
+// content against the latest information). The same engine is designed to
+// host a future 'translate' transform (#52) without structural changes.
+
+export type TransformKind = 'refresh' | 'translate';
+
+// How a transform revises an existing node's content.
+export type TransformUpdateMode =
+  | 'merge'        // Default — revise in place, preserve still-accurate content, fold in new info
+  | 'overwrite';   // Regenerate the node's content from scratch
+
+// A single web/source citation stored ON the node so it persists and travels
+// with the outline through the existing save / export path.
+export interface TransformCitation {
+  url: string;
+  title?: string;
+}
+
+// Provenance recorded on a node after a transform is applied (Q4 + Q6).
+export interface NodeTransformRecord {
+  kind: TransformKind;
+  model: string;             // Human-readable model that actually ran, e.g. "Gemini 2.5 Flash", "Claude", "Local (gemma4:e4b)"
+  modelProvider: 'cloud' | 'local';
+  refreshedAt: number;       // Timestamp the transform was applied
+  citations: TransformCitation[];  // Web sources backing the refresh (may be empty for local/no-grounding)
+  webGrounded: boolean;      // True if real live-web retrieval backed this refresh
+}
+
+// One proposed change for a single node, shown in the preview/approve dialog (Q2).
+export interface NodeTransformProposal {
+  nodeId: string;
+  nodeName: string;
+  ancestorPath: string[];
+  beforeContent: string;
+  afterContent: string;
+  citations: TransformCitation[];
+  changed: boolean;          // False if the AI determined the node is already up to date
+  skipped: boolean;          // True if auto-skipped because the node was user-edited (Q5)
+  skipReason?: string;
+  error?: string;            // Per-node failure (kept non-fatal; node is just not changed)
+}
+
+// Options the user picks in the refresh dialog before the transform runs.
+export interface TransformOptions {
+  kind: TransformKind;
+  updateMode: TransformUpdateMode;  // merge (default) | overwrite (Q7)
+  includeUserEdited: Set<string>;   // Node IDs the user explicitly opted to refresh anyway (Q5 override)
+  autoApply: boolean;               // Q2 — explicit opt-in only; default MUST be false
+}
+
+// The full preview returned by a transform run, before anything is applied.
+export interface TransformPreview {
+  kind: TransformKind;
+  model: string;
+  modelProvider: 'cloud' | 'local';
+  webGrounded: boolean;
+  webGroundingNote?: string;        // Honest note about live-web capability/limitation
+  proposals: NodeTransformProposal[];
+  totalScanned: number;
 }
 
 export type NodeMap = Record<string, OutlineNode>;
