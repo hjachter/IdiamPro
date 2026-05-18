@@ -288,14 +288,18 @@ function UseCaseCard({
   title,
   subtitle,
   description,
-  gradient
+  gradient,
+  examples
 }: {
   icon: React.ElementType;
   title: string;
   subtitle: string;
   description: string;
   gradient: string;
+  examples?: { text: string; comingSoon?: boolean }[];
 }) {
+  const [showHow, setShowHow] = useState(false);
+
   return (
     <div className="group p-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10
       hover:border-white/20 transition-all duration-300">
@@ -306,6 +310,43 @@ function UseCaseCard({
       <div className="text-xs text-violet-400 font-medium uppercase tracking-wider mb-1">{subtitle}</div>
       <h3 className="text-lg font-semibold text-white mb-2">{title}</h3>
       <p className="text-white/50 text-sm leading-relaxed">{description}</p>
+
+      {examples && examples.length > 0 && (
+        <div className="mt-4 border-t border-white/10 pt-3">
+          <button
+            type="button"
+            onClick={() => setShowHow(!showHow)}
+            aria-expanded={showHow}
+            className="w-full flex items-center justify-between text-left rounded-lg
+              -mx-1 px-1 py-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/60"
+          >
+            <span className="text-sm font-medium text-violet-300">See how it works</span>
+            <ChevronDown className={`w-4 h-4 text-white/40 transition-transform duration-300 flex-shrink-0
+              ${showHow ? 'rotate-180' : ''}`}
+            />
+          </button>
+          <div className={`overflow-hidden transition-all duration-300
+            ${showHow ? 'max-h-[28rem] pt-3' : 'max-h-0'}`}>
+            <ul className="space-y-2">
+              {examples.map((ex, idx) => (
+                <li key={idx} className="flex gap-2 text-white/60 text-sm leading-relaxed">
+                  <span className="text-violet-400 mt-0.5 flex-shrink-0">›</span>
+                  <span>
+                    {ex.text}
+                    {ex.comingSoon && (
+                      <span className="ml-2 inline-block align-middle text-[10px] font-semibold
+                        uppercase tracking-wider text-amber-300 bg-amber-400/10 border border-amber-400/20
+                        rounded px-1.5 py-0.5">
+                        Coming soon
+                      </span>
+                    )}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -444,42 +485,84 @@ export default function MarketingPage() {
       title: 'Trial Prep',
       subtitle: 'Attorneys & Paralegals',
       description: 'Upload 200 pages of medical records, expert reports, and prior testimony. SecondBrainWare builds a chronological timeline, flags contradictions between sources, and produces a one-page list of questions to ask the witness. Three days of paralegal work — done in twenty minutes.',
-      gradient: 'bg-gradient-to-br from-slate-500 to-gray-600'
+      gradient: 'bg-gradient-to-br from-slate-500 to-gray-600',
+      examples: [
+        { text: 'Drop in a 90-minute deposition recording — it transcribes the whole thing and labels who said what, so you can read the exchange instead of scrubbing audio.' },
+        { text: 'Import the PDF discovery dump, opposing expert reports, and the police bodycam video transcript into one outline that builds itself.' },
+        { text: 'Ask the file plain questions — "where does the witness contradict the ER notes?" — and get the answer pulled from your own records, not the open web.' },
+        { text: 'Run LIVE BOOKS to refresh your case-law section against the latest rulings, then preview and approve each change before it lands.' },
+        { text: 'Export the finished argument to a clean Word brief or PDF in one click — no reformatting before it goes to the partner.' }
+      ]
     },
     {
       icon: Microscope,
       title: 'Literature Reviews',
       subtitle: 'Researchers & PhD Students',
       description: 'Drop fifty research papers into one outline. SecondBrainWare groups them by methodology, summarizes each finding in plain English, and shows where the field agrees and where it\'s still fighting. You arrive at the writing stage already knowing the structure of your argument.',
-      gradient: 'bg-gradient-to-br from-blue-500 to-cyan-600'
+      gradient: 'bg-gradient-to-br from-blue-500 to-cyan-600',
+      examples: [
+        { text: 'Import 50 PDFs at once and get each paper summarized in plain English, grouped by method — no more reading abstracts one tab at a time.' },
+        { text: 'Ask the whole corpus a question — "which studies used a control group over 200?" — and it answers from your imported papers, with sources.' },
+        { text: 'Run LIVE BOOKS to catch papers published since you started, with a preview of exactly what would change before you accept it.' },
+        { text: 'Generate a structured review outline from a one-line prompt, then expand each section with AI drafting to beat the blank page.' },
+        { text: 'Pull in key foreign-language sources with built-in translation so non-English work makes it into your review.', comingSoon: true }
+      ]
     },
     {
       icon: BookMarked,
       title: 'Writing Non-Fiction',
       subtitle: 'Authors & Writers',
       description: 'Import interview transcripts, archival research, and your own notes. SecondBrainWare drafts chapter outlines from your source material, suggests where each anecdote fits the narrative, and flags chapters where you\'re thin on evidence — so you know what to research next.',
-      gradient: 'bg-gradient-to-br from-amber-500 to-orange-600'
+      gradient: 'bg-gradient-to-br from-amber-500 to-orange-600',
+      examples: [
+        { text: 'Give it your premise in one sentence and get a full chapter-by-chapter book outline to react to instead of staring at page one.' },
+        { text: 'Record your subject interviews and get a clean transcript with speakers named — quotes ready to drop into the manuscript.' },
+        { text: 'Expand a thin section with AI drafting in your structure, then rewrite it in your own voice — the scaffolding is already there.' },
+        { text: 'Capture stray ideas and clippings to your Second Brain; smart auto-tagging files them so the right note resurfaces at the right chapter.' },
+        { text: 'Export the finished draft to a manuscript-ready Word doc or an EPUB ebook — one of 30+ formats, no copy-paste cleanup.' }
+      ]
     },
     {
       icon: Lightbulb,
       title: 'Client Engagements',
       subtitle: 'Consultants & Analysts',
       description: 'Combine client emails, stakeholder interviews, and competitive research into one outline. SecondBrainWare produces a slide-deck outline organized by client priority, with every claim traceable back to the email, transcript, or report that supports it.',
-      gradient: 'bg-gradient-to-br from-emerald-500 to-teal-600'
+      gradient: 'bg-gradient-to-br from-emerald-500 to-teal-600',
+      examples: [
+        { text: 'Import the client\'s data room — PDFs, spreadsheets, Google Docs and Slides — and have it organized into one working outline by lunch.' },
+        { text: 'Generate the deliverable outline from a prompt — "board readout on market entry" — structured by client priority and ready to fill.' },
+        { text: 'Record the stakeholder kickoff and get a speaker-labeled transcript, so requirements are quotable instead of half-remembered.' },
+        { text: 'Run LIVE BOOKS on your market-sizing section the morning of the meeting so the numbers reflect this week, not last quarter.' },
+        { text: 'Publish a polished client microsite from the outline with a built-in template, or export straight to a branded deck or PDF.' }
+      ]
     },
     {
       icon: Video,
       title: 'Learning from Video',
       subtitle: 'Students & Learners',
       description: 'Paste a link to a 90-minute lecture. SecondBrainWare transcribes it, organizes the content by topic with timestamps, and turns it into a study guide. Then ask follow-up questions and get answers from the lecture itself — not generic web search.',
-      gradient: 'bg-gradient-to-br from-red-500 to-rose-600'
+      gradient: 'bg-gradient-to-br from-red-500 to-rose-600',
+      examples: [
+        { text: 'Paste a YouTube lecture link and get a topic-organized study guide with timestamps — go straight to the five minutes you actually missed.' },
+        { text: 'Drop in the assigned reading PDFs alongside the lecture so everything for the exam lives in one outline.' },
+        { text: 'Quiz yourself by asking the outline questions and grading your answer against what the lecture actually said — not a web guess.' },
+        { text: 'Turn your notes into a generated podcast and revise on the walk to class instead of re-reading.' },
+        { text: 'Record your own study group and get a transcript with each person labeled, so the explanation that finally clicked is searchable.' }
+      ]
     },
     {
       icon: Newspaper,
       title: 'Investigative Reporting',
       subtitle: 'Journalists & Reporters',
       description: 'Import court records, leaked documents, and source interviews into a single secure outline. SecondBrainWare cross-references names, dates, and locations across sources to surface a coherent timeline. Every claim in your final story carries a click-through to the exact page that supports it.',
-      gradient: 'bg-gradient-to-br from-violet-500 to-purple-600'
+      gradient: 'bg-gradient-to-br from-violet-500 to-purple-600',
+      examples: [
+        { text: 'Record a source interview and get it transcribed with each speaker identified — the exact quote, attributed, without a second listen.' },
+        { text: 'Import the FOIA PDFs, the leaked spreadsheet, and the hearing video transcript into one outline that ties names and dates together.' },
+        { text: 'Ask the file "who knew about the contract before the vote?" and get an answer drawn only from your documents, with the source attached.' },
+        { text: 'Run LIVE BOOKS on a developing story so your backgrounder reflects today\'s filings, with every change shown before you approve it.' },
+        { text: 'Export the verified draft to your CMS format from 30+ options, every claim still traceable to the page that proves it.' }
+      ]
     }
   ];
 
