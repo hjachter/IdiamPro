@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Professional outlining with AI-powered assistance",
   "author": "IdiamPro",
+  "license": "UNLICENSED",
   "private": true,
   "main": "electron/main.js",
   "scripts": {
