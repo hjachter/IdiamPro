@@ -23,6 +23,17 @@ const os = require('os');
 let electronApp;
 let page;
 
+// Playwright auto-handles native JS dialogs (confirm/beforeunload). During
+// app teardown the dialog auto-handler can race the page closing, surfacing
+// as an uncaught "Page.handleJavaScriptDialog: No dialog is showing" rejection.
+// That race is benign — swallow it so it can't kill the process before the
+// report is written. Any other unhandled rejection is still re-thrown.
+process.on('unhandledRejection', (err) => {
+  const msg = String((err && err.message) || err);
+  if (/handleJavaScriptDialog|No dialog is showing/.test(msg)) return;
+  throw err;
+});
+
 const SCREENSHOT_DIR = path.resolve(__dirname, '..', 'test-screenshots', 'gemma4-smoke');
 
 function ensureDir(dir) {
