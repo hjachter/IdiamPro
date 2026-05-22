@@ -73,7 +73,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
     available: boolean;
     models: string[];
     recommendedModel: string | null;
-  }>({ checking: false, available: false, models: [], recommendedModel: null });
+  }>({ checking: true, available: false, models: [], recommendedModel: null });
   const [selectedModel, setSelectedModel] = useState<string>('');
 
   // Load current folder and settings on mount
@@ -846,7 +846,12 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
                   {aiProvider === 'cloud' && 'Uses Google Gemini for AI features. Requires internet.'}
                   {aiProvider === 'local' && 'Uses Ollama for all AI features. No rate limits, works offline.'}
                   {aiProvider === 'auto' && 'Uses cloud AI normally, falls back to local when rate limited.'}
-                  {!ollamaStatus.available && aiProvider !== 'cloud' && (
+                  {ollamaStatus.checking && aiProvider !== 'cloud' && (
+                    <span className="block mt-1 text-muted-foreground/70">
+                      Checking for Ollama…
+                    </span>
+                  )}
+                  {!ollamaStatus.checking && !ollamaStatus.available && aiProvider !== 'cloud' && (
                     <span className="block mt-1">
                       Install Ollama from <strong>ollama.com</strong> (v0.20+) and run <code className="bg-muted px-1 rounded">ollama pull gemma4:e4b</code>
                     </span>
