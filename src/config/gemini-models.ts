@@ -2,8 +2,8 @@
  * Gemini Model Registry
  *
  * Single source of truth for which Gemini variants the app supports and
- * which one is the current default. Adding a new model (e.g. Gemini 4 on
- * 2026-05-19) is a one-line entry in this file — no call-site edits needed.
+ * which one is the current default. Adding a new model is a one-line entry
+ * in this file — no call-site edits needed.
  *
  * Mirrors the OLLAMA_MODELS pattern in src/lib/ollama-service.ts.
  *
@@ -37,7 +37,18 @@ export interface GeminiModelEntry {
 }
 
 export const GEMINI_MODELS: Record<string, GeminiModelEntry> = {
-  // === Default for v1 launch — GA, stable, current generation ===
+  // === Default — current generation, launched at Google I/O on 2026-05-19 ===
+  'gemini-3.5-flash': {
+    id: 'gemini-3.5-flash',
+    name: 'Gemini 3.5 Flash',
+    genkit: 'googleai/gemini-3.5-flash',
+    sdk: 'gemini-3.5-flash',
+    tier: 'free',
+    contextTokens: 1_000_000,
+    blurb: 'Google\'s newest Flash model, from I/O 2026. Fast, capable, and free.',
+  },
+
+  // === Previous-generation Flash — kept as a stable one-line rollback ===
   'gemini-2.5-flash': {
     id: 'gemini-2.5-flash',
     name: 'Gemini 2.5 Flash',
@@ -110,21 +121,20 @@ export const GEMINI_MODELS: Record<string, GeminiModelEntry> = {
     blurb: 'Previous generation. Kept as a fallback while we soak the upgrade.',
   },
 
-  // === Future entries (add on 2026-05-19 when Google I/O ships the next gen) ===
-  // 'gemini-4-flash':   { ... tier: 'free' ... },
-  // 'gemini-4-pro':     { ... tier: 'pro' ... },
-  // 'gemini-4-ultra':   { ... tier: 'premium' ... },
+  // === Future entries ===
+  // Google I/O 2026 shipped Gemini 3.5 Flash (added above), not a "Gemini 4".
+  // Gemini 3.5 Pro is expected ~June 2026 — add a 'gemini-3.5-pro' entry then.
 };
 
 /**
  * Default model id — change this single line to swap the app-wide default.
  *
- * Current: gemini-2.5-flash (bumped from 2.0-flash on 2026-05-14).
+ * Current: gemini-3.5-flash (bumped from 2.5-flash on 2026-05-21, post Google I/O).
  * Override at runtime via env: `process.env.GEMINI_DEFAULT_MODEL_ID`.
  */
 export const DEFAULT_GEMINI_MODEL_ID =
   (typeof process !== 'undefined' && process.env?.GEMINI_DEFAULT_MODEL_ID) ||
-  'gemini-2.5-flash';
+  'gemini-3.5-flash';
 
 /**
  * Get the default model identifier in the requested format.
