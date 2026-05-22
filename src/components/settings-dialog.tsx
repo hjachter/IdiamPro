@@ -321,12 +321,17 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
     }
   };
 
-  const aiProviders = [
+  const aiProviders: {
+    id: string; name: string; placeholder: string;
+    free: boolean; recommended: boolean; keyUrl: string;
+    cost: string; note?: string; steps: string[];
+  }[] = [
     {
       id: 'gemini', name: 'Google Gemini', placeholder: 'AIza...',
       free: true, recommended: true,
       keyUrl: 'https://aistudio.google.com/apikey',
       cost: 'Free tier: 60 requests/min. No credit card required.',
+      note: 'On Google\'s free API tier, prompts may be retained for about 55 days and can be used to improve Google\'s models unless you opt out in Google AI Studio. Paid-tier keys are not used for training.',
       steps: [
         'Click "Get Key" to open Google AI Studio',
         'Sign in with your Google account',
@@ -724,6 +729,9 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
                         ))}
                       </ol>
                       <p className="text-[10px] text-muted-foreground/70 italic">{provider.cost}</p>
+                      {provider.note && (
+                        <p className="text-[10px] text-amber-600 dark:text-amber-500">{provider.note}</p>
+                      )}
                     </div>
                   )}
 

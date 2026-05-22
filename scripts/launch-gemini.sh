@@ -14,7 +14,7 @@
 #   2. Shows you the diff so you confirm which one to use.
 #   3. Adds the new model(s) to src/config/gemini-models.ts.
 #   4. Optionally flips DEFAULT_GEMINI_MODEL_ID to the new model.
-#   5. Replaces {{PLACEHOLDER}} tokens in docs/launch/gemini-4.md with the
+#   5. Replaces {{PLACEHOLDER}} tokens in docs/launch/gemini-3.5-flash.md with the
 #      values you provide.
 #   6. Runs typecheck + the Playwright Gemma 4 smoke test (offline-safe).
 #   7. Stages the changes for commit. You inspect, commit, push manually
@@ -141,7 +141,7 @@ case "$VARIANT" in
     ;;
 esac
 echo "  (Marketing copy variant: $VARIANT — '$HEADLINE')"
-echo "  Open docs/launch/gemini-4.md and replace the remaining {{...}} placeholders"
+echo "  Open docs/launch/gemini-3.5-flash.md and replace the remaining {{...}} placeholders"
 echo "  with the values from Google's official announcement post."
 
 # --- 5. Typecheck + smoke test ---
@@ -158,13 +158,13 @@ fi
 if [ "$DRY_RUN" = true ]; then
   echo
   echo "Dry run complete. Diff:"
-  git diff src/config/gemini-models.ts docs/launch/gemini-4.md | head -80
+  git diff src/config/gemini-models.ts docs/launch/gemini-3.5-flash.md | head -80
   exit 0
 fi
 
 echo
 echo "▶ Staging changes..."
-git add src/config/gemini-models.ts docs/launch/gemini-4.md
+git add src/config/gemini-models.ts docs/launch/gemini-3.5-flash.md
 
 if [ "$AUTO_COMMIT" = true ]; then
   git commit -m "Gemini 4 launch — bump default to $DEFAULT_NEW

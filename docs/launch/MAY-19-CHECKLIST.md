@@ -1,5 +1,10 @@
 # May 19, 2026 — Google I/O / Gemini Launch Day
 
+> **OUTCOME (recorded 2026-05-21):** I/O shipped **Gemini 3.5 Flash** (GA same day) — not a "Gemini 4."
+> Decision: **soft** copy variant. The launch script's `gemini-4-*` discovery found nothing, so the
+> registry was pointed at `gemini-3.5-flash` by hand. The ready-to-publish copy lives in
+> `docs/launch/gemini-3.5-flash.md`. The pre-keynote planning below is kept for the record.
+
 **Keynote:** May 19, 10am PT / 1pm ET (Shoreline Amphitheatre).
 **Your job:** Watch the keynote, decide which copy variant to use, run one command.
 
@@ -10,7 +15,7 @@
 - [ ] Coffee.
 - [ ] Pull latest main: `git pull origin main`
 - [ ] Confirm `.env.local` still has a working `GEMINI_API_KEY`
-- [ ] Open the staged copy at `docs/launch/gemini-4.md` in a second window so you can edit placeholders as you watch.
+- [ ] Open the staged copy at `docs/launch/gemini-3.5-flash.md` in a second window so you can edit placeholders as you watch.
 
 ## During the keynote (10am–11:30am PT)
 
@@ -57,12 +62,12 @@ scripts/launch-gemini.sh --variant <variant> --auto-commit
 
 The script handles the registry and triggers your commit, but **these are on you**:
 
-- [ ] Open `docs/launch/gemini-4.md` and fill in the remaining `{{...}}` placeholders with values from Google's official blog post. Particularly:
+- [ ] Open `docs/launch/gemini-3.5-flash.md` and fill in the remaining `{{...}}` placeholders with values from Google's official blog post. Particularly:
   - `{{GEMINI4_CONTEXT}}` — the headline context window number
   - `{{GEMINI4_PRICING_FREE}}` / `{{GEMINI4_PRICING_PRO}}` — per-million-token costs
   - `{{GOOGLE_BLOG_URL}}` — direct link to Google's announcement post
   - `{{GEMINI4_BENCH_HEADLINE}}` — the one benchmark Google highlights
-- [ ] Post the Product Hunt maker-update comment (use copy from `gemini-4.md` section 2)
+- [ ] Post the Product Hunt maker-update comment (use copy from `gemini-3.5-flash.md` section 2)
 - [ ] Schedule the LinkedIn post (use copy from section 5)
 - [ ] Send the Twitter/X tweet (use copy from section 4)
 - [ ] (Optional) Submit Hacker News follow-up post (section 3)
@@ -79,7 +84,7 @@ The script handles the registry and triggers your commit, but **these are on you
 
 - [ ] Run the full Playwright suite ("TEST EVERYTHING" in chat)
 - [ ] Monitor Sentry for any new errors in the first hour
-- [ ] Reply to anyone who tweets/posts about Gemini 4 — use the one-liner from `gemini-4.md` section 7
+- [ ] Reply to anyone who tweets/posts about Gemini 4 — use the one-liner from `gemini-3.5-flash.md` section 7
 - [ ] Add a note to the BYOK setup guide that Gemini 4 is now supported
 
 ## What I'll do on my end (Claude, when you start the session that morning)

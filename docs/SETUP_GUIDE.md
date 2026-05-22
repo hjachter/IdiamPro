@@ -56,6 +56,8 @@ EOF
 ```
 Replace `your-api-key-here` with your actual Gemini API key.
 
+> **Note on Google's free tier:** Prompts sent with a free-tier Gemini API key may be retained by Google for about 55 days and can be used to improve Google's models unless you opt out in Google AI Studio. Paid-tier keys are not used for training.
+
 ---
 
 ## App Installation
