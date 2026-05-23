@@ -130,6 +130,14 @@ function getAvailableMemoryGB(): number {
  * Get the best available model from installed models.
  * Prefers Gemma 4 variants over llama3.2, with hardware-aware selection
  * based on available system memory.
+ *
+ * IMPORTANT — RAM headroom rule (fixed 2026-05-22 after the Howard / 16-GB-Mac
+ * incident): each bracket requires the user's machine to have AT LEAST ~2× the
+ * preferred model's RAM footprint. Picking a 16-GB model on a 16-GB machine
+ * leaves zero room for the OS / browser / IdiamPro itself, which on Apple
+ * Silicon triggers macOS's memory-pressure killer to SIGKILL Ollama, sending
+ * it into a respawn loop that bogs the whole system. Never advance a tier
+ * unless the headroom is real.
  */
 export async function getBestAvailableModel(): Promise<string | null> {
   const models = await getOllamaModels();
@@ -137,19 +145,19 @@ export async function getBestAvailableModel(): Promise<string | null> {
 
   const availableMemoryGB = getAvailableMemoryGB();
 
-  // Build priority list based on available memory.
-  // Larger Gemma 4 variants are preferred when memory permits.
-  // Falls back to llama3.2 and other models for lower-spec systems.
+  // Build priority list based on available memory, with ~2× headroom over
+  // the model's runtime footprint (see RAM headroom rule in the docblock).
   let priority: string[];
 
-  if (availableMemoryGB >= 24) {
-    // High-end: prefer maximum quality
+  if (availableMemoryGB >= 40) {
+    // Workstation-class: 31B Dense (~24 GB) fits with substantial headroom
     priority = ['gemma4:31b', 'gemma4:26b', 'gemma4:e4b', 'gemma4:e2b', 'llama3.2', 'llama3.1', 'llama3', 'mistral', 'phi3', 'phi'];
-  } else if (availableMemoryGB >= 16) {
-    // Power user: prefer 26B MoE (fast despite size)
+  } else if (availableMemoryGB >= 24) {
+    // Power user: 26B MoE (~16 GB) fits with ~8 GB headroom for the OS/apps
     priority = ['gemma4:26b', 'gemma4:e4b', 'gemma4:e2b', 'llama3.2', 'llama3.1', 'llama3', 'mistral', 'phi3', 'phi'];
   } else if (availableMemoryGB >= 8) {
-    // Standard: prefer E4B (multimodal, modest footprint)
+    // Standard (covers the very common 16-GB tier): E4B (~4 GB) is the
+    // largest variant that leaves real headroom on a 16-GB machine.
     priority = ['gemma4:e4b', 'gemma4:e2b', 'llama3.2', 'llama3.1', 'llama3', 'mistral', 'phi3', 'phi'];
   } else {
     // Low memory: prefer lightest models
@@ -177,13 +185,15 @@ export async function hasGemma4(): Promise<boolean> {
 }
 
 /**
- * Get the recommended Gemma 4 variant for this system
+ * Get the recommended Gemma 4 variant for this system.
+ * Brackets follow the same 2× headroom rule as getBestAvailableModel — see
+ * its docblock for why this matters on memory-tight Apple Silicon machines.
  */
 export function getRecommendedGemma4Variant(): string {
   const memoryGB = getAvailableMemoryGB();
-  if (memoryGB >= 24) return 'gemma4:31b';
-  if (memoryGB >= 16) return 'gemma4:26b';
-  if (memoryGB >= 8) return 'gemma4:e4b';
+  if (memoryGB >= 40) return 'gemma4:31b';
+  if (memoryGB >= 24) return 'gemma4:26b';
+  if (memoryGB >= 8)  return 'gemma4:e4b';
   return 'gemma4:e2b';
 }
 
