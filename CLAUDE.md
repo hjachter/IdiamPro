@@ -4,6 +4,8 @@
 
 **This user is vibe programming. NEVER show code, diffs, terminal commands, file paths, build output, or tool narration in responses. ONLY show plain-language conversation: what was done, decisions needed, results, and errors. This rule applies to EVERY response with ZERO exceptions. Violating this rule wastes the user's time and breaks trust.**
 
+**Plain English, not jargon.** Default to everyday language — talk to the user the way you'd explain things to a smart non-engineer. When a technical concept genuinely has to come up (a tool name, an Apple Developer step, a piece of infrastructure), name it briefly and then immediately translate it in plain terms in the same breath ("the 'archive' — a sealed package of the app, ready to send to Apple"). Never assume the user knows acronyms or platform vocabulary. If you catch yourself reaching for jargon, stop and reword first.
+
 ---
 
 ## Platform Support & Rosetta Stone
