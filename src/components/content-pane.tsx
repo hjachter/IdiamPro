@@ -558,7 +558,7 @@ export default function ContentPane({
           hasImage: pendingContentRef.current.includes('<img'),
         });
         isLoadingContentRef.current = true;
-        editor.commands.setContent(pendingContentRef.current, false);
+        editor.commands.setContent(pendingContentRef.current, { emitUpdate: false });
         const afterContent = editor.getHTML();
         console.log('[onCreate] After setContent:', {
           editorHas: afterContent.length,
@@ -862,21 +862,21 @@ export default function ContentPane({
           // Check if editor is still valid (component might have unmounted)
           if (!editor || editor.isDestroyed) return;
 
-          editor.commands.setContent(newContent, false);
+          editor.commands.setContent(newContent, { emitUpdate: false });
           const afterContent = editor.getHTML();
 
           // If setContent failed (editor has less content than expected), retry with longer delay
           if (afterContent.length < newContent.length * 0.9) {
             setTimeout(() => {
               if (!editor || editor.isDestroyed) return;
-              editor.commands.setContent(newContent, false);
+              editor.commands.setContent(newContent, { emitUpdate: false });
               const retryContent = editor.getHTML();
 
               // If still failing, try one more time with even longer delay
               if (retryContent.length < newContent.length * 0.9) {
                 setTimeout(() => {
                   if (!editor || editor.isDestroyed) return;
-                  editor.commands.setContent(newContent, false);
+                  editor.commands.setContent(newContent, { emitUpdate: false });
                 }, 200);
               }
             }, 100);

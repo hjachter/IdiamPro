@@ -35,5 +35,4 @@ export default withSentryConfig(nextConfig, {
   silent: true,
   // Don't fail the build if no Sentry auth token is configured yet —
   // source maps simply won't be uploaded until SENTRY_AUTH_TOKEN is set.
-  dryRun: !process.env.SENTRY_AUTH_TOKEN,
 });
