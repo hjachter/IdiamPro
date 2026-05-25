@@ -3709,6 +3709,16 @@ export default function OutlinePro() {
           onApply={handleApplyLiveBooks}
           useLocalAI={liveBooksUseLocal}
         />
+        <TranslateDialog
+          open={translateDialogOpen}
+          onOpenChange={setTranslateDialogOpen}
+          outline={currentOutline}
+          selectedNodeId={selectedNodeId}
+          onApply={(nextNodes) => {
+            if (!currentOutline) return;
+            updateOutline({ ...currentOutline, nodes: nextNodes });
+          }}
+        />
 
         <HelpChatDialog
           open={isHelpChatOpen}

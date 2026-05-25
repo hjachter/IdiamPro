@@ -3,6 +3,7 @@
 import { generateOutlineFromTopic } from '@/ai/flows/generate-outline-from-topic';
 import { expandNodeContent } from '@/ai/flows/expand-node-content';
 import { suggestTags } from '@/ai/flows/suggest-tags';
+import { translateNodeContent, type TranslateNodeInput } from '@/ai/flows/translate-node-content';
 import { refreshNodeContent, type RefreshNodeInput } from '@/ai/flows/refresh-node-content';
 import {
   extractPdfFromUrl,
@@ -297,6 +298,41 @@ export async function refreshNodeContentAction(
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Refresh failed';
     console.error('Error refreshing node content:', message);
+    return {
+      content: input.currentContent,
+      citations: [],
+      changed: false,
+      model: input.useLocal ? 'Local' : 'Gemini',
+      modelProvider: input.useLocal ? 'local' : 'cloud',
+      webGrounded: false,
+      error: message,
+    };
+  }
+}
+
+
+/**
+ * Translate ONE node's content into a target language (#52 language translation).
+ *
+ * Server-side worker for the generalized transform engine's `translate` transform.
+ * Same shape as refreshNodeContentAction (no web grounding; no citations).
+ */
+export async function translateNodeContentAction(
+  input: TranslateNodeInput
+): Promise<{
+  content: string;
+  citations: { url: string; title?: string }[];
+  changed: boolean;
+  model: string;
+  modelProvider: 'cloud' | 'local';
+  webGrounded: boolean;
+  error?: string;
+}> {
+  try {
+    return await translateNodeContent(input);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Translation failed';
+    console.error('Error translating node content:', message);
     return {
       content: input.currentContent,
       citations: [],
