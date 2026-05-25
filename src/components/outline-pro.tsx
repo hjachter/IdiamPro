@@ -14,6 +14,7 @@ import OutlinePane from './outline-pane';
 import ContentPane from './content-pane';
 import { useToast } from "@/hooks/use-toast";
 import { generateOutlineAction, expandContentAction, generateContentForNodeAction, ingestExternalSourceAction, bulkResearchIngestAction, bulletBasedResearchAction } from '@/app/actions';
+import { getUserApiKey } from '@/lib/byok-keys';
 import { useAI } from '@/contexts/ai-context';
 import {
   checkAIQuota,
@@ -1751,7 +1752,7 @@ export default function OutlinePro() {
     setIsLoadingAI(true);
     aiLoadingStartTime.current = Date.now();
     try {
-      const markdown = await generateOutlineAction(topic, depth, tone, level);
+      const markdown = await generateOutlineAction(topic, depth, tone, level, getUserApiKey('gemini'));
       // Count this successful hosted call (no-op for local/BYOK & when off)
       recordAIUsage('outlineGeneration');
       const { rootNodeId: generatedRootId, nodes: generatedNodes } = parseMarkdownToNodes(markdown, topic);

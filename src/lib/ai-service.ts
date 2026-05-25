@@ -1,3 +1,4 @@
+import { getUserApiKey } from './byok-keys';
 'use client';
 
 import type {
@@ -85,7 +86,7 @@ export class AIService {
     if (!this.features.enableAIContentGeneration) {
       throw new Error('AI content generation is not enabled for your plan.');
     }
-    return generateOutlineAction(topic, this.plan);
+    return generateOutlineAction(topic, this.plan, undefined, undefined, getUserApiKey('gemini'));
   }
 
   /**

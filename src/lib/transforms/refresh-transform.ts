@@ -13,6 +13,7 @@
 import type { TransformUpdateMode } from '@/types';
 import type { NodeTransformer, TransformNodeContext } from './transform-engine';
 import { refreshNodeContentAction } from '@/app/actions';
+import { getUserApiKey } from '@/lib/byok-keys';
 
 export interface RefreshTransformConfig {
   updateMode: TransformUpdateMode;
@@ -24,6 +25,7 @@ export function createRefreshTransformer(config: RefreshTransformConfig): NodeTr
     kind: 'refresh',
     async transformNode(ctx: TransformNodeContext) {
       const result = await refreshNodeContentAction({
+      userApiKey: getUserApiKey('gemini'),
         nodeName: ctx.node.name,
         ancestorPath: ctx.ancestorPath,
         currentContent: ctx.node.content || '',
