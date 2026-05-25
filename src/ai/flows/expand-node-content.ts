@@ -10,9 +10,12 @@
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { getDefaultGeminiModel } from '@/config/gemini-models';
+import { requireApiKey } from '@/lib/byok-keys';
 
 export interface ExpandNodeContentInput {
   title: string;
+  /** Optional user-supplied Gemini key (BYOK). Falls back to GEMINI_API_KEY env var. */
+  userApiKey?: string | null;
 }
 
 export interface ExpandNodeContentOutput {
@@ -20,11 +23,7 @@ export interface ExpandNodeContentOutput {
 }
 
 export async function expandNodeContent(input: ExpandNodeContentInput): Promise<ExpandNodeContentOutput> {
-  const apiKey = process.env.GEMINI_API_KEY;
-
-  if (!apiKey) {
-    throw new Error('GEMINI_API_KEY is not configured');
-  }
+  const apiKey = requireApiKey('gemini', input.userApiKey);
 
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({

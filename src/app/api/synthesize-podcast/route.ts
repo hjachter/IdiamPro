@@ -87,10 +87,12 @@ async function synthesizeWithRetry(
  */
 export async function POST(request: NextRequest) {
   try {
-    const { segments, ttsModel } = await request.json() as {
+    const _body = await request.json() as {
       segments: PodcastScriptSegment[];
       ttsModel: 'tts-1' | 'tts-1-hd';
+      userOpenaiKey?: string;
     };
+    const { segments, ttsModel } = _body;
 
     if (!segments || segments.length === 0) {
       return NextResponse.json(
@@ -99,7 +101,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const openaiKey = process.env.OPENAI_API_KEY;
+    // BYOK: caller may pass userOpenaiKey in the request body; env var is fallback.
+    const userOpenaiKey = typeof _body.userOpenaiKey === 'string' ? _body.userOpenaiKey.trim() : '';
+    const openaiKey = userOpenaiKey || process.env.OPENAI_API_KEY;
     if (!openaiKey) {
       return NextResponse.json(
         { error: 'OPENAI_API_KEY not configured.' },

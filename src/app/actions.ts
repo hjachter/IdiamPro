@@ -228,10 +228,11 @@ export async function generateOutlineAction(
   topic: string,
   depth: AIDepth = 'standard',
   tone: AITone = 'professional',
-  level: AILevel = 'college'
+  level: AILevel = 'college',
+  userApiKey?: string | null,
 ): Promise<string> {
   try {
-    const result = await generateOutlineFromTopic({ topic, depth, tone, level });
+    const result = await generateOutlineFromTopic({ topic, depth, tone, level, userApiKey });
     return result.outline;
   } catch (error) {
     console.error('Error generating outline:', error);
@@ -240,11 +241,12 @@ export async function generateOutlineAction(
 }
 
 export async function expandContentAction(
-  title: string
+  title: string,
+  userApiKey?: string | null,
 ): Promise<string> {
   try {
     // const config = getPlanConfig(plan);
-    const result = await expandNodeContent({ title });
+    const result = await expandNodeContent({ title, userApiKey });
     return result.content;
   } catch (error) {
     console.error('Error expanding content:', error);
@@ -258,10 +260,11 @@ export async function expandContentAction(
  */
 export async function suggestTagsAction(
   title: string,
-  content?: string
+  content?: string,
+  userApiKey?: string | null,
 ): Promise<string[]> {
   try {
-    const result = await suggestTags({ title, content });
+    const result = await suggestTags({ title, content, userApiKey });
     return result.tags;
   } catch (error) {
     console.error('Error suggesting tags:', error);
@@ -2164,7 +2167,8 @@ export async function generateImageAction(
   prompt: string,
   options: {
     aspectRatio?: '1:1' | '16:9' | '9:16' | '4:3' | '3:4';
-  } = {}
+  } = {},
+  userApiKey?: string | null,
 ): Promise<{
   success: boolean;
   imageBase64?: string;
@@ -2172,9 +2176,9 @@ export async function generateImageAction(
   error?: string;
 }> {
   try {
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = (userApiKey && userApiKey.trim()) || process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      throw new Error('GEMINI_API_KEY is not configured');
+      throw new Error('No Gemini API key available. Add one in Settings → AI Service Keys, or set GEMINI_API_KEY on the server.');
     }
 
     const genai = new GoogleGenAI({ apiKey });
@@ -2222,6 +2226,8 @@ export async function generateImageAction(
 export async function generateImageDescriptionAction(
   imagePrompt: string,
   nodeName: string
+,
+  userApiKey?: string | null,
 ): Promise<{
   success: boolean;
   description?: string;
@@ -2274,6 +2280,8 @@ export async function describeImageAction(
   imageBase64: string,
   context: string = '',
   provider: 'cloud' | 'local' | 'auto' = 'auto'
+,
+  userApiKey?: string | null,
 ): Promise<{
   success: boolean;
   description?: string;
@@ -2325,7 +2333,8 @@ export async function describeImageAction(
 
   // Cloud path (Gemini)
   try {
-    const genai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
+    const _describeKey = (userApiKey && userApiKey.trim()) || process.env.GEMINI_API_KEY || '';
+    const genai = new GoogleGenAI({ apiKey: _describeKey });
     const result = await genai.models.generateContent({
       model: getDefaultGeminiModel('sdk'),
       contents: [{

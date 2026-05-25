@@ -18,6 +18,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { getDefaultGeminiModel, getGeminiModelById, DEFAULT_GEMINI_MODEL_ID } from '@/config/gemini-models';
 import { generateWithOllama, isOllamaAvailable, getBestAvailableModel } from '@/lib/ollama-service';
+import { requireApiKey } from '@/lib/byok-keys';
 
 export interface RefreshNodeInput {
   nodeName: string;
@@ -26,6 +27,8 @@ export interface RefreshNodeInput {
   updateMode: 'merge' | 'overwrite';
   /** Force local Ollama (no web grounding, no citations). */
   useLocal?: boolean;
+  /** Optional user-supplied Gemini key (BYOK). Falls back to GEMINI_API_KEY env var. */
+  userApiKey?: string | null;
 }
 
 export interface RefreshNodeResult {
@@ -72,10 +75,7 @@ RULES:
  * Cloud path — Gemini with Google Search grounding for real citations.
  */
 async function refreshWithGemini(input: RefreshNodeInput): Promise<RefreshNodeResult> {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    throw new Error('GEMINI_API_KEY is not configured');
-  }
+  const apiKey = requireApiKey('gemini', input.userApiKey);
 
   const modelEntry = getGeminiModelById(DEFAULT_GEMINI_MODEL_ID);
   const modelName = modelEntry?.name || 'Gemini';

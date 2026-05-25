@@ -94,11 +94,13 @@ async function synthesizeWithRetry(
 
 export async function POST(request: NextRequest) {
   try {
-    const { nodes, rootId, config } = await request.json() as {
+    const _body = await request.json() as {
       nodes: NodeMap;
       rootId: string;
       config: PodcastConfig;
+      userOpenaiKey?: string;
     };
+    const { nodes, rootId, config } = _body;
 
     if (!nodes || !rootId || !config) {
       return NextResponse.json(
@@ -107,7 +109,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const openaiKey = process.env.OPENAI_API_KEY;
+    // BYOK: caller may pass userOpenaiKey in the request body; env var is fallback.
+    const userOpenaiKey = typeof _body.userOpenaiKey === 'string' ? _body.userOpenaiKey.trim() : '';
+    const openaiKey = userOpenaiKey || process.env.OPENAI_API_KEY;
     if (!openaiKey) {
       return NextResponse.json(
         { error: 'OPENAI_API_KEY not configured. Add OPENAI_API_KEY to your .env.local file to enable podcast generation.' },
