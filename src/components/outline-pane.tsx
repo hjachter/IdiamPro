@@ -901,13 +901,13 @@ export default function OutlinePane({
                                 variant="outline"
                                 size="icon"
                                 className="shrink-0 active:scale-95 active:bg-accent/30"
-                                aria-label="More actions"
+                                aria-label="Outline Files"
                             >
                                 <Wrench className="h-4 w-4" />
                             </Button>
                         </DropdownMenuTrigger>
                     </TooltipTrigger>
-                    <TooltipContent side="bottom">More actions</TooltipContent>
+                    <TooltipContent side="bottom">Outline Files</TooltipContent>
                 </Tooltip>
                 <DropdownMenuContent align="end" className="w-56 p-0.5">
                     <DropdownMenuLabel className="py-1 text-xs uppercase tracking-wide text-muted-foreground">Outline</DropdownMenuLabel>
