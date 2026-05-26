@@ -1735,62 +1735,44 @@ export default function MarketingPage() {
               <PricingCard
                 name="Free"
                 price="$0"
-                description="For personal use and exploration"
+                description="For personal use — use your own AI key (BYOK), no limits."
                 features={[
-                  '3 outlines',
-                  'All core features',
-                  '10 AI generations/month',
-                  '3-source research imports',
-                  'Basic export formats'
+                  'Unlimited outlines',
+                  'All core outliner features',
+                  'Bring your own AI key (Gemini, OpenAI, Anthropic, Mistral, Groq, or local Ollama)',
+                  'Unlimited AI generations (your key, your cost)',
+                  'All export formats',
+                  'Multi-platform (Mac, iPhone, web)'
                 ]}
                 cta="Get Started"
               />
               <PricingCard
-                name="Basic"
-                price="$9.99"
-                period="/month"
-                description="For regular knowledge workers"
+                name="Student"
+                price="$4.99"
+                description="For students — 50% off. Requires student verification."
                 features={[
-                  'Unlimited outlines',
-                  '50 AI generations/month',
-                  '20-source research imports',
-                  'All export formats',
+                  'Everything in Free',
+                  'AI included — no API key needed',
+                  '200 AI generations / month',
+                  'Live web refresh (citations)',
+                  '20-language translation',
                   'Email support'
                 ]}
-                cta="Start Free Trial"
+                cta="Get Started"
               />
               <PricingCard
-                name="Premium"
-                price="$29.99"
-                period="/month"
-                description="For power users and professionals"
+                name="Pro"
+                price="$9.99"
+                description="$89/year (save 25%). For knowledge workers and teams getting started."
                 features={[
-                  'Everything in Basic',
-                  '100 AI generations/month',
-                  '50+ source research imports',
-                  'Claude & GPT-4 access',
-                  'AI image generation',
+                  'Everything in Student',
+                  '1,000 AI generations / month',
                   'Podcast generation',
-                  'Priority support'
+                  'Image generation & description',
+                  'Priority support',
+                  'Team collaboration (coming soon)'
                 ]}
-                cta="Start Free Trial"
-                highlighted={true}
-                badge="Most Popular"
-              />
-              <PricingCard
-                name="Academic"
-                price="$49.99"
-                period="/month"
-                description="For researchers and PhD students"
-                features={[
-                  'Everything in Premium',
-                  'Unlimited AI operations',
-                  'Claude Opus access',
-                  'Advanced reasoning',
-                  'Citation management',
-                  'Dedicated support'
-                ]}
-                cta="Start Free Trial"
+                cta="Get Started"
               />
             </div>
 
