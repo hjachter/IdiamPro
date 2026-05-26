@@ -689,133 +689,18 @@ export default function MarketingPage() {
               <div className={`${mounted ? 'animate-fade-in-up' : 'opacity-0'}`}>
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/20 border border-violet-500/30 mb-6">
                   <Brain className="w-4 h-4 text-violet-400" />
-                  <span className="text-sm text-violet-300">Your Intelligence Amplifier</span>
+                  <span className="text-sm text-violet-300">The Premier Idea Developer</span>
                 </div>
-
-                <h1 className="text-5xl lg:text-7xl font-bold leading-tight mb-6">
-                  <span className="bg-gradient-to-r from-white via-white to-white/60 bg-clip-text text-transparent">
-                    Build Your
-                  </span>
-                  <br />
-                  <span className="bg-gradient-to-r from-violet-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent">
-                    Second Brain
-                  </span>
+                <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+                  <span className="block text-white">The Premier</span>
+                  <span className="block bg-gradient-to-r from-violet-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent">Idea Developer.</span>
                 </h1>
-
-                <p className="text-xl text-white/60 max-w-3xl mx-auto leading-relaxed mb-6">
-                  <span className="text-white font-semibold">The app that makes the Second Brain method actually work.</span>{' '}
-                  SecondBrainWare is a cognitive enhancement platform—an intelligence amplifier that captures everything
-                  you encounter, organizes it into structured knowledge, and lets you search it all with AI.
-                  The premium platform for researchers, professionals, and lifelong learners.
+                <p className="text-xl md:text-2xl text-white/70 mb-4 max-w-3xl mx-auto">
+                  Any idea. Any team, anywhere. Any language. AI at every step.
                 </p>
-
-                {/* Professional Audience Badges */}
-                <div className="flex flex-wrap justify-center gap-3 mb-8">
-                  <span className="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-white/70 text-sm flex items-center gap-2">
-                    <GraduationCap className="w-4 h-4 text-violet-400" />
-                    PhD Researchers
-                  </span>
-                  <span className="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-white/70 text-sm flex items-center gap-2">
-                    <Microscope className="w-4 h-4 text-blue-400" />
-                    Scientists
-                  </span>
-                  <span className="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-white/70 text-sm flex items-center gap-2">
-                    <Building2 className="w-4 h-4 text-emerald-400" />
-                    Industry R&D
-                  </span>
-                  <span className="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-white/70 text-sm flex items-center gap-2">
-                    <Scale className="w-4 h-4 text-amber-400" />
-                    Legal Professionals
-                  </span>
-                  <span className="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-white/70 text-sm flex items-center gap-2">
-                    <Lightbulb className="w-4 h-4 text-pink-400" />
-                    Consultants
-                  </span>
-                </div>
-
-                {/* Launch Status */}
-                <div className="mb-10">
-                  <p className="text-emerald-400 text-sm font-medium uppercase tracking-wider">
-                    Now in private beta — full launch coming soon
-                  </p>
-                </div>
-
-                {/* Flagship: Built to be multilingual (coming soon) */}
-                <div className="mb-10 max-w-2xl mx-auto">
-                  <div className="rounded-2xl border border-violet-500/30 bg-gradient-to-br from-violet-500/10 to-indigo-500/10 p-6 text-left">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center shrink-0">
-                        <Globe className="w-5 h-5 text-white" />
-                      </div>
-                      <span className="px-3 py-1 rounded-full bg-violet-500/20 border border-violet-400/30 text-violet-200 text-xs font-semibold uppercase tracking-wider">
-                        Coming soon
-                      </span>
-                    </div>
-                    <h3 className="text-xl font-bold text-white mb-2">Built to be multilingual</h3>
-                    <ul className="space-y-2 text-white/60 leading-relaxed">
-                      <li className="flex gap-2">
-                        <span className="text-violet-400 shrink-0">•</span>
-                        <span>
-                          <span className="text-white/80 font-medium">Solo:</span> Turn a source
-                          in almost any language into a clean, structured outline in yours — a
-                          French treatise becomes a well-organized English outline, with
-                          specialized terms preserved.
-                        </span>
-                      </li>
-                      <li className="flex gap-2">
-                        <span className="text-violet-400 shrink-0">•</span>
-                        <span>
-                          <span className="text-white/80 font-medium">Team:</span> When groups
-                          work together, everyone contributes in their own language while
-                          foreign-language documents are translated into one shared outline.
-                        </span>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap gap-4 justify-center">
-                  <Button
-                    onClick={launchApp}
-                    size="lg"
-                    className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-lg px-8 shadow-xl shadow-violet-500/25 hover:shadow-violet-500/40 transition-all duration-300"
-                  >
-                    Try Beta Now
-                    <ArrowRight className="w-5 h-5 ml-2" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    className="border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 text-lg px-8"
-                    onClick={() => window.location.href = '/beta'}
-                  >
-                    <Rocket className="w-5 h-5 mr-2" />
-                    Join Beta Program
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Demo Video Section */}
-        <section id="demo-video" className="px-6 py-16 lg:px-12">
-          <div className="max-w-5xl mx-auto">
-            <div className="text-center mb-8">
-              <h2 className="text-2xl lg:text-3xl font-bold text-white mb-2">See SecondBrainWare in Action</h2>
-              <p className="text-white/50">Watch how researchers synthesize 50+ sources in minutes</p>
-            </div>
-            <div className="relative aspect-video rounded-2xl overflow-hidden bg-gray-900 border border-white/10 group cursor-pointer hover:border-violet-500/50 transition-all duration-300">
-              {/* Placeholder - replace with actual video embed */}
-              <div className="absolute inset-0 bg-gradient-to-br from-violet-500/20 to-indigo-500/20 flex items-center justify-center">
-                <div className="text-center">
-                  <div className="w-20 h-20 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center mx-auto mb-4 group-hover:bg-violet-500/30 group-hover:scale-110 transition-all duration-300">
-                    <Play className="w-8 h-8 text-white ml-1" />
-                  </div>
-                  <p className="text-white/60 text-sm">Demo video coming soon</p>
-                  <p className="text-white/40 text-xs mt-1">See research synthesis, meeting transcription, and more</p>
-                </div>
-              </div>
+                <p className="text-base md:text-lg text-white/60 mb-8 max-w-3xl mx-auto leading-relaxed">
+                  An outliner for students, researchers, and professionals — developing research papers, project plans, Second Brains, product designs, or whatever you&apos;re building. AI doesn&apos;t just answer questions: it generates outlines from your sources, refreshes them against live web data, translates them into 20 languages, even produces podcasts and illustrations.
+                </p>
               {/* Decorative elements */}
               <div className="absolute top-4 left-4 flex gap-1.5">
                 <div className="w-3 h-3 rounded-full bg-red-500/60" />
@@ -825,6 +710,20 @@ export default function MarketingPage() {
             </div>
           </div>
         </section>
+        {/* Globally distributed teams — concrete-example block */}
+        <section className="px-6 pb-16 lg:px-12">
+          <div className="max-w-4xl mx-auto">
+            <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-violet-500/5 to-indigo-500/5 p-8 md:p-10">
+              <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">
+                Built for globally distributed teams.
+              </h2>
+              <p className="text-base md:text-lg text-white/70 leading-relaxed">
+                A research team in Boston, a partner lab in Shanghai, and a graduate student in São Paulo — all working in the same outline, each contributing in their native language. The structure stays in sync; the translations stay current; the conversation never stops.
+              </p>
+            </div>
+          </div>
+        </section>
+
 
         {/* COGNITIVE ENHANCEMENT - Intelligence Amplifier Section */}
         <section className="px-6 py-20 lg:px-12 relative overflow-hidden">
