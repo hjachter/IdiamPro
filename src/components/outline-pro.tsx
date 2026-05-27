@@ -3661,6 +3661,7 @@ export default function OutlinePro() {
 
         {/* Command Palette */}
         <CommandPalette
+          onAICommand={handleAICommand}
           open={isCommandPaletteOpen}
           onOpenChange={setIsCommandPaletteOpen}
           outlines={outlines}
@@ -3718,6 +3719,12 @@ export default function OutlinePro() {
             if (!currentOutline) return;
             updateOutline({ ...currentOutline, nodes: nextNodes });
           }}
+        />
+        <AICommandConfirmDialog
+          open={pendingAICommand !== null}
+          onOpenChange={(o) => { if (!o) setPendingAICommand(null); }}
+          description={pendingAICommand?.human_description || ''}
+          onConfirm={() => { if (pendingAICommand) executeAICommand(pendingAICommand); }}
         />
 
         <HelpChatDialog
@@ -4040,6 +4047,106 @@ export default function OutlinePro() {
       </div>
     );
   }
+
+  /**
+   * Resolve a fuzzy "node hint" string (e.g. "the climate change one") to an
+   * actual node ID in the current outline. Returns null if no good match.
+   */
+  const resolveNodeHint = useCallback((hint: string | null | undefined): string | null => {
+    if (!hint && selectedNodeId) return selectedNodeId;
+    if (!hint || !currentOutline) return null;
+    const lower = hint.toLowerCase();
+    // exact name match first
+    for (const n of Object.values(currentOutline.nodes)) {
+      if (n.name.toLowerCase() === lower) return n.id;
+    }
+    // substring match
+    for (const n of Object.values(currentOutline.nodes)) {
+      if (n.name.toLowerCase().includes(lower)) return n.id;
+    }
+    return selectedNodeId; // fall back to selected
+  }, [currentOutline, selectedNodeId]);
+
+  /**
+   * Execute an interpreted natural-language command. Called both directly (for
+   * non-destructive actions) and after user confirms (for destructive ones).
+   */
+  const executeAICommand = useCallback(async (cmd: InterpretedCommand) => {
+    setAICommandRunning(true);
+    try {
+      const a = cmd.action;
+      switch (a.kind) {
+        case 'create_outline':
+          handleCreateOutline(a.name);
+          toast({ title: 'Done', description: `Created outline "${a.name}".` });
+          break;
+        case 'collapse_all':
+          handleCollapseAll();
+          toast({ title: 'Done', description: 'Collapsed everything.' });
+          break;
+        case 'expand_all':
+          handleExpandAll();
+          toast({ title: 'Done', description: 'Expanded everything.' });
+          break;
+        case 'open_settings':
+          setSettingsOpen?.(true);
+          break;
+        case 'translate_node':
+        case 'translate_outline':
+          setTranslateDialogOpen(true);
+          toast({ title: 'Translate dialog opened', description: 'Pick your target language and proceed.' });
+          break;
+        case 'refresh_node_with_ai':
+          setLiveBooksDialogOpen(true);
+          toast({ title: 'LIVE BOOKS opened', description: 'Choose merge or overwrite and proceed.' });
+          break;
+        case 'unknown':
+          toast({ title: "I couldn't do that", description: a.reason || 'Please try rephrasing.', variant: 'destructive' });
+          break;
+        default:
+          toast({ title: 'Not yet supported', description: `I understood "${cmd.human_description}" but that action isn't wired up yet.`, variant: 'destructive' });
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Action failed';
+      toast({ title: 'Action failed', description: msg, variant: 'destructive' });
+    } finally {
+      setAICommandRunning(false);
+      setPendingAICommand(null);
+    }
+  }, [handleCreateOutline, handleCollapseAll, handleExpandAll, toast]);
+
+  /**
+   * Entry point — user typed something into Cmd+K and chose "Ask AI".
+   * Interprets the text, then either runs it directly (additive) or shows
+   * the confirm dialog (destructive, when setting is enabled).
+   */
+  const handleAICommand = useCallback(async (text: string) => {
+    setAICommandRunning(true);
+    try {
+      const cmd = await interpretCommandAction({
+        text,
+        current_outline_name: currentOutline?.name,
+        selected_node_name: selectedNodeId ? currentOutline?.nodes[selectedNodeId]?.name : undefined,
+        userApiKey: typeof window !== 'undefined' ? localStorage.getItem('apiKey_gemini') : null,
+      });
+      const requireConfirm = typeof window !== 'undefined'
+        ? (localStorage.getItem('requireDestructiveConfirmation') === null
+            ? true
+            : localStorage.getItem('requireDestructiveConfirmation') === 'true')
+        : true;
+      if (cmd.destructive && requireConfirm) {
+        setPendingAICommand(cmd);
+        setAICommandRunning(false);
+        return;
+      }
+      await executeAICommand(cmd);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Interpretation failed';
+      toast({ title: "Couldn't interpret that", description: msg, variant: 'destructive' });
+      setAICommandRunning(false);
+    }
+  }, [currentOutline, selectedNodeId, executeAICommand, toast]);
+
 
   return (
     <div className="flex h-screen w-full">
