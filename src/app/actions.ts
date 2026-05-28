@@ -50,7 +50,6 @@ import {
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
-import { safeJsonParse } from '@/lib/safe-json';
 
 /**
  * Extract retry delay from rate limit error messages
@@ -633,7 +632,7 @@ async function extractContentFromSource(source: ExternalSourceInput): Promise<{ 
       if (source.content) {
         try {
           // Parse the outline file and extract all text content
-          const outline = safeJsonParse(source.content);
+          const outline = JSON.parse(source.content);
           const textParts: string[] = [];
 
           // Extract node names and content from the outline

@@ -47,7 +47,6 @@ const ExportDialog = dynamic(() => import('./export-dialog'), { ssr: false, load
 const PodcastDialog = dynamic(() => import('./podcast-dialog'), { ssr: false, loading: () => null });
 import { isElectron, electronCheckPendingImports, electronDeletePendingImport, electronClearAllPendingImports, electronSaveOutlineToFile, electronGetOutlineMtime, onElectronWindowFocus, type PendingImportResult } from '@/lib/electron-storage';
 import type { BulkResearchSources } from '@/types';
-import { safeJsonParse } from '@/lib/safe-json';
 
 type MobileView = 'stacked' | 'content'; // stacked = outline + preview, content = full screen content
 
@@ -2258,7 +2257,7 @@ export default function OutlinePro() {
 
       // Snapshot for undo (in-memory + persisted to disk)
       if (input.includeExistingContent && currentOutline) {
-        const snapshot = safeJsonParse(JSON.stringify(currentOutline));
+        const snapshot = JSON.parse(JSON.stringify(currentOutline));
         preMergeSnapshotRef.current = snapshot;
         setHasUnmergeBackup(true);
         saveUnmergeBackup(snapshot).catch(err =>

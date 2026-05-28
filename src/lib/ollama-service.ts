@@ -363,7 +363,7 @@ export async function* pullModel(modelName: string): AsyncGenerator<{ status: st
 
     for (const line of lines) {
       try {
-        const data = safeJsonParse(line);
+        const data = JSON.parse(line);
         yield {
           status: data.status,
           completed: data.completed,

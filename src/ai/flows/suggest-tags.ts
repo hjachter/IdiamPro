@@ -3,7 +3,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { getDefaultGeminiModel } from '@/config/gemini-models';
 import { requireApiKey } from '@/lib/byok-keys';
-import { safeJsonParse } from '@/lib/safe-json';
 
 export interface SuggestTagsInput {
   title: string;
@@ -45,7 +44,7 @@ Content: ${cleanContent || '(no body content)'}`;
   const text = result.response.text();
 
   try {
-    const parsed = safeJsonParse(text);
+    const parsed = JSON.parse(text);
     const tags = Array.isArray(parsed.tags) ? parsed.tags : [];
     const cleaned = tags
       .filter((t: unknown): t is string => typeof t === 'string')

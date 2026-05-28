@@ -1,5 +1,4 @@
 import type { Outline } from '@/types';
-import { safeJsonParse } from '@/lib/safe-json';
 
 // IndexedDB database for storing directory handle
 const DB_NAME = 'idiampro-storage';
@@ -125,7 +124,7 @@ export async function loadExistingOutline(
     const fileHandle = await dirHandle.getFileHandle(fileName);
     const file = await fileHandle.getFile();
     const text = await file.text();
-    return safeJsonParse(text) as Outline;
+    return JSON.parse(text) as Outline;
   } catch {
     return null;
   }

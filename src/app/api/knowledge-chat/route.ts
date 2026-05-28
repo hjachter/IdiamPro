@@ -3,7 +3,6 @@ import { ai } from '@/ai/genkit';
 import { getBestAvailableModel } from '@/lib/ollama-service';
 import { getDefaultGeminiModel } from '@/config/gemini-models';
 import type { AIDepth } from '@/types';
-import { safeJsonParse } from '@/lib/safe-json';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -129,7 +128,7 @@ async function pipeOllama(
     for (const line of lines) {
       if (!line.trim()) continue;
       try {
-        const parsed = safeJsonParse(line);
+        const parsed = JSON.parse(line);
         const token = parsed.message?.content;
         if (token) {
           controller.enqueue(encoder.encode(sseEvent({ token })));
