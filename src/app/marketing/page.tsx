@@ -709,6 +709,7 @@ export default function MarketingPage() {
               </div>
             </div>
           </div>
+        </div>
         </section>
         {/* Globally distributed teams — concrete-example block */}
         <section className="px-6 pb-16 lg:px-12">
