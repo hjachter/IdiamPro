@@ -94,10 +94,30 @@ export default function OutlinePro() {
   // This prevents overwriting externally-modified .idm files
   const dirtyOutlineIdsRef = useRef<Set<string>>(new Set());
 
-  // Wrapper around setState that auto-detects which outlines changed via reference equality
+  // ── Undo / redo history ──────────────────────────────────────────────────
+  // History stacks hold past/future snapshots of the whole `outlines` array.
+  // Because outline state is updated immutably (every change produces new
+  // references), storing the previous array reference is a valid snapshot — it
+  // is never mutated by later updates. Every mutation flows through
+  // setOutlines below, so recording history there covers ALL actions
+  // (including AI-driven ones: LIVE BOOKS apply, Translate apply, NL command
+  // bar, etc.) without touching any individual call site.
+  const undoStackRef = useRef<Outline[][]>([]);
+  const redoStackRef = useRef<Outline[][]>([]);
+  const MAX_UNDO_DEPTH = 50;
+
+  // Wrapper around setState that auto-detects which outlines changed via
+  // reference equality (for dirty-tracking) AND records history for undo.
   const setOutlines = useCallback((updater: React.SetStateAction<Outline[]>) => {
     rawSetOutlines(prev => {
       const next = typeof updater === 'function' ? updater(prev) : updater;
+      // Record the pre-change snapshot for undo. A no-op update (next === prev)
+      // is not recorded. Any genuine user/AI action clears the redo future.
+      if (next !== prev) {
+        undoStackRef.current.push(prev);
+        if (undoStackRef.current.length > MAX_UNDO_DEPTH) undoStackRef.current.shift();
+        redoStackRef.current = [];
+      }
       for (const outline of next) {
         const prevOutline = prev.find(o => o.id === outline.id);
         if (!prevOutline || prevOutline !== outline) {
@@ -109,7 +129,8 @@ export default function OutlinePro() {
     });
   }, []);
 
-  // For loading outlines from disk — does NOT mark dirty
+  // For loading outlines from disk — does NOT mark dirty and does NOT record
+  // undo history (external syncs are not user actions).
   const setOutlinesFromDisk = useCallback((updater: React.SetStateAction<Outline[]>) => {
     rawSetOutlines(updater);
   }, []);
@@ -176,6 +197,38 @@ export default function OutlinePro() {
 
   // Toast must be declared before any useEffect that uses it
   const { toast } = useToast();
+
+  // ── Undo / redo (history stacks declared above with setOutlines) ──────────
+  // Both bypass setOutlines and call rawSetOutlines directly so the restore is
+  // not itself recorded as a new history entry. Restored outlines are marked
+  // dirty so the undone/redone state persists to disk.
+  const undo = useCallback(() => {
+    if (undoStackRef.current.length === 0) {
+      toast({ title: 'Nothing to undo', duration: 1200 });
+      return;
+    }
+    rawSetOutlines(current => {
+      const previous = undoStackRef.current.pop()!;
+      redoStackRef.current.push(current);
+      for (const o of previous) dirtyOutlineIdsRef.current.add(o.id);
+      return previous;
+    });
+    toast({ title: 'Undone', duration: 1200 });
+  }, [toast]);
+
+  const redo = useCallback(() => {
+    if (redoStackRef.current.length === 0) {
+      toast({ title: 'Nothing to redo', duration: 1200 });
+      return;
+    }
+    rawSetOutlines(current => {
+      const nextState = redoStackRef.current.pop()!;
+      undoStackRef.current.push(current);
+      for (const o of nextState) dirtyOutlineIdsRef.current.add(o.id);
+      return nextState;
+    });
+    toast({ title: 'Redone', duration: 1200 });
+  }, [toast]);
 
   // Reset stale AI loading state when returning from sleep/background
   // If loading has been going for more than 5 minutes, it's likely stale
@@ -835,6 +888,23 @@ export default function OutlinePro() {
         return;
       }
 
+      // Cmd+Z / Ctrl+Z to undo, +Shift to redo. Skip when the user is editing
+      // text in an input / textarea / contenteditable — there the browser's
+      // own character-level text undo should win, not the outline-level undo.
+      if ((e.metaKey || e.ctrlKey) && (e.key === 'z' || e.key === 'Z')) {
+        const el = document.activeElement as HTMLElement | null;
+        const isEditingText = !!el && (
+          el.tagName === 'INPUT' ||
+          el.tagName === 'TEXTAREA' ||
+          el.isContentEditable
+        );
+        if (isEditingText) return;
+        e.preventDefault();
+        if (e.shiftKey) redo();
+        else undo();
+        return;
+      }
+
       // Escape to exit focus mode
       if (e.key === 'Escape' && isFocusMode) {
         e.preventDefault();
@@ -878,7 +948,7 @@ export default function OutlinePro() {
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isFocusMode, toast, selectedNodeId, currentOutline]);
+  }, [isFocusMode, toast, selectedNodeId, currentOutline, undo, redo]);
 
   // handleSelectNode - navigate param controls whether to switch to full content view on mobile
   // On mobile with stacked layout: selection updates preview, navigate=true goes to full content
