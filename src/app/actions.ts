@@ -4,6 +4,7 @@ import { generateOutlineFromTopic } from '@/ai/flows/generate-outline-from-topic
 import { expandNodeContent } from '@/ai/flows/expand-node-content';
 import { suggestTags } from '@/ai/flows/suggest-tags';
 import { translateNodeContent, type TranslateNodeInput } from '@/ai/flows/translate-node-content';
+import { interpretCommand, type InterpretCommandInput, type InterpretedCommand } from '@/ai/flows/interpret-command';
 import { refreshNodeContent, type RefreshNodeInput } from '@/ai/flows/refresh-node-content';
 import {
   extractPdfFromUrl,
@@ -2389,5 +2390,16 @@ export async function describeImageAction(
       success: false,
       error: error instanceof Error ? error.message : 'Image description failed',
     };
+  }
+}
+
+
+export async function interpretCommandAction(input: InterpretCommandInput): Promise<InterpretedCommand> {
+  try {
+    return await interpretCommand(input);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Interpretation failed';
+    console.error('Error interpreting command:', message);
+    return { action: { kind: 'unknown', reason: message }, destructive: false, confidence: 'low', human_description: 'No action.' };
   }
 }

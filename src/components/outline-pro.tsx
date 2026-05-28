@@ -13,7 +13,9 @@ import { addNode, addNodeAfter, removeNode, updateNode, moveNode, parseMarkdownT
 import OutlinePane from './outline-pane';
 import ContentPane from './content-pane';
 import { useToast } from "@/hooks/use-toast";
-import { generateOutlineAction, expandContentAction, generateContentForNodeAction, ingestExternalSourceAction, bulkResearchIngestAction, bulletBasedResearchAction } from '@/app/actions';
+import { generateOutlineAction, expandContentAction, generateContentForNodeAction, ingestExternalSourceAction, bulkResearchIngestAction, bulletBasedResearchAction, interpretCommandAction } from '@/app/actions';
+import type { InterpretedCommand } from '@/ai/flows/interpret-command';
+import AICommandConfirmDialog from '@/components/ai-command-confirm-dialog';
 import { getUserApiKey } from '@/lib/byok-keys';
 import { useAI } from '@/contexts/ai-context';
 import {
@@ -229,6 +231,8 @@ export default function OutlinePro() {
     });
     toast({ title: 'Redone', duration: 1200 });
   }, [toast]);
+
+  const [pendingAICommand, setPendingAICommand] = useState<InterpretedCommand | null>(null);
 
   // Reset stale AI loading state when returning from sleep/background
   // If loading has been going for more than 5 minutes, it's likely stale
@@ -1292,17 +1296,18 @@ export default function OutlinePro() {
   }, [currentOutlineId]);
 
   // FIXED: handleCreateOutline uses functional update pattern
-  const handleCreateOutline = useCallback(() => {
+  const handleCreateOutline = useCallback((name?: string) => {
+    const outlineName = (typeof name === 'string' && name.trim()) ? name.trim() : "Untitled Outline";
     const newRootId = uuidv4();
     const newOutlineId = uuidv4();
     const newOutline: Outline = {
       id: newOutlineId,
-      name: "Untitled Outline",
+      name: outlineName,
       rootNodeId: newRootId,
       nodes: {
         [newRootId]: {
           id: newRootId,
-          name: "Untitled Outline",
+          name: outlineName,
           content: '',
           type: 'root',
           parentId: null,
@@ -1329,6 +1334,74 @@ export default function OutlinePro() {
       description: `"${templateOutline.name}" has been created from template.`,
     });
   }, [toast]);
+
+  // ── Natural-language command dispatcher (Cmd+K → Ask AI) ──────────────────
+  const resolveNodeHint = useCallback((hint: string | null | undefined): string | null => {
+    if ((!hint || !hint.trim())) return selectedNodeId;
+    if (!currentOutline) return selectedNodeId;
+    const lower = hint.toLowerCase().trim();
+    for (const n of Object.values(currentOutline.nodes)) {
+      if (n.name.toLowerCase() === lower) return n.id;
+    }
+    for (const n of Object.values(currentOutline.nodes)) {
+      if (n.name.toLowerCase().includes(lower)) return n.id;
+    }
+    return selectedNodeId;
+  }, [currentOutline, selectedNodeId]);
+
+  const executeAICommand = useCallback((cmd: InterpretedCommand) => {
+    const a = cmd.action;
+    try {
+      switch (a.kind) {
+        case 'create_outline':
+          handleCreateOutline(a.name);
+          toast({ title: 'Done', description: `Created outline "${a.name}".` });
+          break;
+        case 'collapse_all': handleCollapseAll(); toast({ title: 'Collapsed all', duration: 1200 }); break;
+        case 'expand_all': handleExpandAll(); toast({ title: 'Expanded all', duration: 1200 }); break;
+        case 'open_live_books': setIsLiveBooksOpen(true); break;
+        case 'open_templates': setIsTemplatesDialogOpen(true); break;
+        case 'open_search': setIsSearchOpen(true); break;
+        case 'open_help_chat': setIsHelpChatOpen(true); break;
+        case 'open_knowledge_chat': setIsKnowledgeChatOpen(true); break;
+        case 'delete_node': {
+          const id = resolveNodeHint(a.node_hint);
+          if (!id) { toast({ title: "Couldn't find that node", variant: 'destructive' }); break; }
+          handleDeleteNode(id);
+          toast({ title: 'Deleted' });
+          break;
+        }
+        case 'unknown':
+          toast({ title: "I can't do that yet", description: a.reason, variant: 'destructive' });
+          break;
+      }
+    } catch (err) {
+      toast({ title: 'Action failed', description: err instanceof Error ? err.message : 'Unknown error', variant: 'destructive' });
+    } finally {
+      setPendingAICommand(null);
+    }
+  }, [handleCreateOutline, handleCollapseAll, handleExpandAll, handleDeleteNode, resolveNodeHint, toast]);
+
+  const handleAICommand = useCallback(async (text: string) => {
+    try {
+      const cmd = await interpretCommandAction({
+        text,
+        current_outline_name: currentOutline?.name,
+        selected_node_name: selectedNodeId && currentOutline ? currentOutline.nodes[selectedNodeId]?.name : undefined,
+        userApiKey: typeof window !== 'undefined' ? localStorage.getItem('apiKey_gemini') : null,
+      });
+      const reqRaw = typeof window !== 'undefined' ? localStorage.getItem('requireDestructiveConfirmation') : null;
+      const requireConfirm = reqRaw === null ? true : reqRaw === 'true';
+      if (cmd.destructive && requireConfirm) {
+        setPendingAICommand(cmd);
+        return;
+      }
+      executeAICommand(cmd);
+    } catch (err) {
+      toast({ title: "Couldn't interpret that", description: err instanceof Error ? err.message : 'Error', variant: 'destructive' });
+    }
+  }, [currentOutline, selectedNodeId, executeAICommand, toast]);
+
 
   // Open the User Guide
   const handleOpenGuide = useCallback(() => {
@@ -3731,6 +3804,7 @@ export default function OutlinePro() {
 
         {/* Command Palette */}
         <CommandPalette
+          onAICommand={handleAICommand}
           open={isCommandPaletteOpen}
           onOpenChange={setIsCommandPaletteOpen}
           outlines={outlines}
@@ -3754,6 +3828,12 @@ export default function OutlinePro() {
           onOpenTemplates={() => setIsTemplatesDialogOpen(true)}
           isGuide={currentOutline?.isGuide ?? false}
           isFocusMode={isFocusMode}
+        />
+        <AICommandConfirmDialog
+          open={pendingAICommand !== null}
+          onOpenChange={(o) => { if (!o) setPendingAICommand(null); }}
+          description={pendingAICommand?.human_description || ''}
+          onConfirm={() => { if (pendingAICommand) executeAICommand(pendingAICommand); }}
         />
 
         {/* Keyboard Shortcuts Dialog */}
@@ -4105,6 +4185,7 @@ export default function OutlinePro() {
       </div>
     );
   }
+
 
   return (
     <div className="flex h-screen w-full">
