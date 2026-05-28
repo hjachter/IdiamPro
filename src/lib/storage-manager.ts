@@ -30,6 +30,7 @@ import {
   type UnmergeBackupData,
 } from './electron-storage';
 import { fixDuplicateChildren } from './fix-duplicates';
+import { safeJsonParse } from '@/lib/safe-json';
 
 const LOCAL_STORAGE_KEY = 'outline-pro-data';
 
@@ -264,7 +265,7 @@ export async function loadStorageData(): Promise<StorageData> {
   // Repair any corrupt outlines
   localOutlines = await repairCorruptOutlines(localOutlines);
   const savedData = localStorage.getItem(LOCAL_STORAGE_KEY);
-  const currentOutlineId = savedCurrentOutlineId || (savedData ? JSON.parse(savedData).currentOutlineId || localOutlines[0]?.id || '' : '');
+  const currentOutlineId = savedCurrentOutlineId || (savedData ? safeJsonParse(savedData).currentOutlineId || localOutlines[0]?.id || '' : '');
   console.log('Using localStorage');
   return {
     outlines: localOutlines,

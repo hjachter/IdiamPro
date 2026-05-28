@@ -28,6 +28,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { ChevronDown, ChevronRight, Download, X, Pencil, Plus, Trash2, Sparkles } from 'lucide-react';
 import { canUseFeature } from '@/lib/entitlements';
 import { useUpgradePrompt } from '@/components/upgrade-prompt';
+import { safeJsonParse } from '@/lib/safe-json';
 
 interface PodcastDialogProps {
   open: boolean;
@@ -87,7 +88,7 @@ function loadVoicesForStyle(style: PodcastStyle): Record<string, OpenAIVoice> {
   if (!stored) return getDefaultVoices(style);
 
   try {
-    const allVoices = JSON.parse(stored);
+    const allVoices = safeJsonParse(stored);
 
     // 1. Exact match for this style
     if (allVoices[style]) return allVoices[style];

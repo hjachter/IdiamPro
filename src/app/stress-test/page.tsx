@@ -3,6 +3,7 @@
 import React, { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import {
+import { safeJsonParse } from '@/lib/safe-json';
   Play,
   Loader2,
   CheckCircle2,
@@ -220,7 +221,7 @@ export default function StressTestPage() {
 
       // Deserialize (simulate load)
       const deserStart = performance.now();
-      JSON.parse(json);
+      safeJsonParse(json);
       const deserEnd = performance.now();
       const deserializeTime = deserEnd - deserStart;
 

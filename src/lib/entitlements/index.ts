@@ -30,6 +30,7 @@
 import { isAuthEnabled, resolveCurrentTier } from '@/lib/auth/auth-config';
 import { isBillingEnabled } from '@/lib/billing/billing-gate';
 import {
+import { safeJsonParse } from '@/lib/safe-json';
   type SubscriptionTierEntry,
   type SubscriptionTierId,
 } from '@/config/subscription-tiers';
@@ -181,7 +182,7 @@ function readUsage(): UsageRecord {
   try {
     const raw = window.localStorage.getItem(USAGE_STORAGE_KEY);
     if (!raw) return empty;
-    const parsed = JSON.parse(raw) as Partial<UsageRecord>;
+    const parsed = safeJsonParse(raw) as Partial<UsageRecord>;
     if (!parsed || parsed.period !== period || typeof parsed.counts !== 'object') {
       return empty; // new month or unrecognized → reset
     }

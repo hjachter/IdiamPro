@@ -1,6 +1,7 @@
 import type { Outline } from '@/types';
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
+import { safeJsonParse } from '@/lib/safe-json';
 
 const BACKUP_STORAGE_KEY = 'idiampro-backup';
 
@@ -53,7 +54,7 @@ export function restoreFromLocalStorage(): { outlines: Outline[]; timestamp: str
   try {
     const data = localStorage.getItem(BACKUP_STORAGE_KEY);
     if (!data) return null;
-    const backup = JSON.parse(data);
+    const backup = safeJsonParse(data);
     return {
       outlines: backup.outlines || [],
       timestamp: backup.timestamp || 'Unknown',

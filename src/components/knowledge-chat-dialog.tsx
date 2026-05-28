@@ -11,6 +11,7 @@ import type { Outline, AIDepth } from '@/types';
 import { AI_DEPTH_CONFIG } from '@/types';
 import { serializeOutline, serializeOutlines } from '@/lib/outline-serializer';
 import { isElectron, electronReadKnowledgeBase } from '@/lib/electron-storage';
+import { safeJsonParse } from '@/lib/safe-json';
 
 interface Message {
   id: string;
@@ -237,7 +238,7 @@ export default function KnowledgeChatDialog({
           if (!line.startsWith('data: ')) continue;
 
           try {
-            const data = JSON.parse(line.slice(6));
+            const data = safeJsonParse(line.slice(6));
 
             if (data.error) {
               setMessages(prev => prev.map(m =>

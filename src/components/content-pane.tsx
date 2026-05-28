@@ -207,6 +207,7 @@ import { TaskItem } from '@tiptap/extension-list/task-item';
 import { Extension } from '@tiptap/core';
 import { Decoration, DecorationSet } from '@tiptap/pm/view';
 import { Plugin, PluginKey } from '@tiptap/pm/state';
+import { safeJsonParse } from '@/lib/safe-json';
 
 // Search highlight extension
 const SearchHighlight = Extension.create({
@@ -2740,7 +2741,7 @@ export default function ContentPane({
                     // Try to extract JSON from HTML
                     const jsonMatch = node.content.match(/\{[\s\S]*"sheets"[\s\S]*\}/);
                     if (jsonMatch) {
-                      const recovered = JSON.parse(jsonMatch[0]);
+                      const recovered = safeJsonParse(jsonMatch[0]);
                       // Auto-fix the corrupted content
                       queueMicrotask(() => {
                         onUpdate(node.id, { content: JSON.stringify(recovered), type: 'spreadsheet' });

@@ -27,6 +27,7 @@ import {
 import { importFile, findImporterForFile, hasImporter, getSupportedImportExtensions } from '@/lib/import';
 import type { ImportResult } from '@/lib/import/types';
 import { useToast } from '@/hooks/use-toast';
+import { safeJsonParse } from '@/lib/safe-json';
 
 interface FileImportDialogProps {
   open: boolean;
@@ -174,7 +175,7 @@ export default function FileImportDialog({
       if (ext === 'idm' || ext === 'json') {
         // Handle native format
         const content = await selectedFile.text();
-        const outline = JSON.parse(content) as Outline;
+        const outline = safeJsonParse(content) as Outline;
 
         // Override name if provided
         if (outlineName.trim()) {
