@@ -55,8 +55,6 @@ interface CommandPaletteProps {
   onOpenLiveBooks?: () => void;
   isGuide: boolean;
   isFocusMode?: boolean;
-  /** Called when the user submits a free-form natural-language command via the AI fall-through. */
-  onAICommand?: (text: string) => void;
 }
 
 export default function CommandPalette({
@@ -83,7 +81,6 @@ export default function CommandPalette({
   onOpenLiveBooks,
   isGuide,
   isFocusMode,
-onAICommand,
 }: CommandPaletteProps) {
   const [searchValue, setSearchValue] = useState('');
 
@@ -120,19 +117,6 @@ onAICommand,
       />
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
-          {onAICommand && query.trim().length > 0 && (
-            <CommandGroup heading="AI">
-              <CommandItem
-                onSelect={() => { onAICommand(query.trim()); onOpenChange(false); }}
-                className="cursor-pointer"
-                value={`__ai_${query}`}
-              >
-                <Sparkles className="h-4 w-4 mr-2 text-violet-400" />
-                <span>Ask AI: &ldquo;{query.trim()}&rdquo;</span>
-              </CommandItem>
-            </CommandGroup>
-          )}
-
 
         {/* Quick Actions */}
         <CommandGroup heading="Actions">

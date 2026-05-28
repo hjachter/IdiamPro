@@ -46,8 +46,6 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
   const [dataFolder, setDataFolder] = useState<string>('Browser Storage (Default)');
   const [confirmDelete, setConfirmDelete] = useState<boolean>(true);
   const [aiDataConsent, setAiDataConsent] = useState<boolean>(false);
-  const [requireDestructiveConfirmation, setRequireDestructiveConfirmation] = useState<boolean>(true);
-  const [confirmDisableConfirmations, setConfirmDisableConfirmations] = useState<boolean>(false);
   const { toast } = useToast();
   const { isPremium, plan } = useAI();
   const { theme, setTheme } = useTheme();
@@ -111,10 +109,6 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
     if (savedConfirmDelete !== null) {
       setConfirmDelete(savedConfirmDelete === 'true');
     }
-
-    // Load AI command-bar destructive-confirmation setting (default true)
-    const savedReqConfirm = localStorage.getItem('requireDestructiveConfirmation');
-    setRequireDestructiveConfirmation(savedReqConfirm === null ? true : savedReqConfirm === 'true');
 
     // Load AI consent setting
     const savedConsent = localStorage.getItem('aiDataConsent');
@@ -186,22 +180,6 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
   const handleModelChange = (value: string) => {
     setSelectedModel(value);
     localStorage.setItem('ollamaModel', value);
-  };
-
-  const handleRequireConfirmationChange = (checked: boolean) => {
-    if (!checked && requireDestructiveConfirmation) {
-      // User wants to TURN OFF confirmations — show warning first
-      setConfirmDisableConfirmations(true);
-      return;
-    }
-    setRequireDestructiveConfirmation(checked);
-    localStorage.setItem('requireDestructiveConfirmation', String(checked));
-  };
-
-  const handleConfirmDisableConfirmations = () => {
-    setRequireDestructiveConfirmation(false);
-    localStorage.setItem('requireDestructiveConfirmation', 'false');
-    setConfirmDisableConfirmations(false);
   };
 
   const handleConfirmDeleteChange = (checked: boolean) => {
