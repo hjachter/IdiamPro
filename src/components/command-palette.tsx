@@ -120,17 +120,7 @@ export default function CommandPalette({
       />
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
-          {onAICommand && searchValue.trim().length > 0 && (
-            <CommandGroup heading="AI">
-              <CommandItem
-                value={`ask-ai ${searchValue}`}
-                onSelect={() => { const t = searchValue.trim(); onOpenChange(false); onAICommand(t); }}
-              >
-                <Sparkles className="mr-2 h-4 w-4 text-violet-400" />
-                <span>Ask AI: &ldquo;{searchValue.trim()}&rdquo;</span>
-              </CommandItem>
-            </CommandGroup>
-          )}
+
 
         {/* Quick Actions */}
         <CommandGroup heading="Actions">
