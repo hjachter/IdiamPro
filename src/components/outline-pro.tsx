@@ -4224,6 +4224,7 @@ export default function OutlinePro() {
 
       {/* Command Palette */}
       <CommandPalette
+        onAICommand={handleAICommand}
         open={isCommandPaletteOpen}
         onOpenChange={setIsCommandPaletteOpen}
         outlines={outlines}

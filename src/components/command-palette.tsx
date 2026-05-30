@@ -112,7 +112,20 @@ export default function CommandPalette({
   // }, [outlines, currentOutlineId]);
 
   return (
-    <CommandDialog open={open} onOpenChange={onOpenChange}>
+    <CommandDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      footer={onAICommand && searchValue.trim().length > 0 ? (
+        <button
+          type="button"
+          onClick={() => { const t = searchValue.trim(); onOpenChange(false); onAICommand(t); }}
+          className="flex w-full items-center gap-2 border-t border-border px-3 py-2.5 text-sm text-left hover:bg-accent transition-colors"
+        >
+          <Sparkles className="h-4 w-4 text-violet-400 shrink-0" />
+          <span>Ask AI: &ldquo;{searchValue.trim()}&rdquo;</span>
+        </button>
+      ) : undefined}
+    >
       <CommandInput
         placeholder="Type a command or search..."
         value={searchValue}
