@@ -9,7 +9,7 @@ import { MultiSelectToolbar } from './multi-select-toolbar';
 import FileImportDialog from './file-import-dialog';
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Plus, Trash2, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, Settings, Search, Command, PanelLeft, PanelLeftClose, Brain, StopCircle, Inbox, LayoutDashboard, Focus, Wrench } from 'lucide-react';
+import { Plus, Trash2, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, Settings, Search, Command, PanelLeft, PanelLeftClose, Brain, StopCircle, Inbox, LayoutDashboard, Focus, Wrench, Sparkles } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter } from "@/components/ui/alert-dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import SettingsDialog from './settings-dialog';
@@ -890,6 +890,26 @@ export default function OutlinePane({
                 {currentOutline?.name}
             </span>
         </div>
+
+        {/* Natural-language command bar entry point — prominent so users
+            discover it. Click opens the same Cmd+K palette where the
+            "Ask AI" row appears at the bottom. */}
+        <TooltipProvider>
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <Button
+                        variant="default"
+                        className="shrink-0 bg-red-500 hover:bg-red-600 text-white px-3 gap-1.5 active:scale-95"
+                        onClick={() => onOpenCommandPalette?.()}
+                        aria-label="Tell me what you want to do (Cmd+K)"
+                    >
+                        <Sparkles className="h-4 w-4" />
+                        <span className="text-sm font-medium hidden sm:inline">Ask AI</span>
+                    </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">Tell me what you want to do (⌘K)</TooltipContent>
+            </Tooltip>
+        </TooltipProvider>
 
         {/* Admin menu — outline-level actions that don't live in the sidebar */}
         <TooltipProvider>
