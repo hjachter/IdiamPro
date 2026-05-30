@@ -9,7 +9,7 @@ import { MultiSelectToolbar } from './multi-select-toolbar';
 import FileImportDialog from './file-import-dialog';
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Plus, Trash2, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, Settings, Search, Command, PanelLeft, PanelLeftClose, Brain, StopCircle, Inbox, LayoutDashboard, Focus, Wrench, Sparkles } from 'lucide-react';
+import { Plus, Trash2, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, Settings, Search, Command, PanelLeft, PanelLeftClose, Brain, StopCircle, Inbox, LayoutDashboard, Focus, Wrench, Sparkles, Mic } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter } from "@/components/ui/alert-dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import SettingsDialog from './settings-dialog';
@@ -901,13 +901,13 @@ export default function OutlinePane({
                         variant="default"
                         className="shrink-0 bg-red-500 hover:bg-red-600 text-white px-3 gap-1.5 active:scale-95"
                         onClick={() => onOpenCommandPalette?.()}
-                        aria-label="Tell me what you want to do (Cmd+K)"
+                        aria-label="Tell me what you want to do — type or speak (Cmd+K)"
                     >
-                        <Sparkles className="h-4 w-4" />
+                        <Mic className="h-4 w-4" />
                         <span className="text-sm font-medium hidden sm:inline">Ask AI</span>
                     </Button>
                 </TooltipTrigger>
-                <TooltipContent side="bottom">Tell me what you want to do (⌘K)</TooltipContent>
+                <TooltipContent side="bottom">Tell me what you want to do — type or speak (⌘K)</TooltipContent>
             </Tooltip>
         </TooltipProvider>
 
@@ -1203,6 +1203,7 @@ export default function OutlinePane({
             onOpenBulkResearch={onOpenBulkResearch}
             onOpenKnowledgeChat={onOpenKnowledgeChat}
             onOpenLiveBooks={onOpenLiveBooks}
+            onAskAI={onOpenCommandPalette}
             hasSelectedNode={!!selectedNodeId && !currentOutline?.isGuide}
             selectedNodeName={selectedNodeId && currentOutline?.nodes[selectedNodeId]?.name || ''}
           />

@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, FileText, Crown, Loader2, Library, Brain, RefreshCw } from 'lucide-react';
+import { Sparkles, FileText, Crown, Loader2, Library, Brain, RefreshCw , Mic} from 'lucide-react';
 import { useAI, useAIFeature } from '@/contexts/ai-context';
 import AiGenerateDialog from './ai-generate-dialog';
 
@@ -25,6 +25,7 @@ interface AIMenuProps {
   onOpenBulkResearch?: () => void;
   onOpenKnowledgeChat?: () => void;
   onOpenLiveBooks?: () => void;
+  onAskAI?: () => void;
   hasSelectedNode?: boolean;
   selectedNodeName?: string;
 }
@@ -37,6 +38,7 @@ export default function AIMenu({
   onOpenBulkResearch,
   onOpenKnowledgeChat,
   onOpenLiveBooks,
+  onAskAI,
   hasSelectedNode,
   selectedNodeName,
 }: AIMenuProps) {
@@ -92,6 +94,19 @@ export default function AIMenu({
           </Badge>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+
+        {onAskAI && (
+          <DropdownMenuItem
+            onSelect={() => onAskAI()}
+            className="cursor-pointer"
+          >
+            <Mic className="mr-2 h-4 w-4 text-red-500" />
+            <div className="flex flex-col">
+              <span className="font-medium">Ask AI&hellip;</span>
+              <span className="text-xs text-muted-foreground">Tell me what you want to do (⌘K)</span>
+            </div>
+          </DropdownMenuItem>
+        )}
 
         {contentGenEnabled && (
           <AiGenerateDialog onGenerate={handleGenerate} isLoading={isLoadingAI} initialTopic={selectedNodeName}>
