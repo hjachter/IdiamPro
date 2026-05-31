@@ -5,6 +5,7 @@ import { expandNodeContent } from '@/ai/flows/expand-node-content';
 import { suggestTags } from '@/ai/flows/suggest-tags';
 import { translateNodeContent, type TranslateNodeInput } from '@/ai/flows/translate-node-content';
 import { interpretCommand, type InterpretCommandInput, type InterpretedCommand } from '@/ai/flows/interpret-command';
+import { transcribeAudio as transcribeAudioWithGemini, type TranscribeAudioInput, type TranscribeAudioResult } from '@/ai/flows/transcribe-audio';
 import { refreshNodeContent, type RefreshNodeInput } from '@/ai/flows/refresh-node-content';
 import {
   extractPdfFromUrl,
@@ -2401,5 +2402,15 @@ export async function interpretCommandAction(input: InterpretCommandInput): Prom
     const message = error instanceof Error ? error.message : 'Interpretation failed';
     console.error('Error interpreting command:', message);
     return { action: { kind: 'unknown', reason: message }, destructive: false, confidence: 'low', human_description: 'No action.' };
+  }
+}
+
+export async function transcribeAudioAction(input: TranscribeAudioInput): Promise<TranscribeAudioResult> {
+  try {
+    return await transcribeAudioWithGemini(input);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Transcription failed';
+    console.error('Error transcribing audio:', message);
+    return { transcript: '', error: message };
   }
 }

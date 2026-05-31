@@ -201,7 +201,11 @@
       "hardenedRuntime": true,
       "gatekeeperAssess": false,
       "entitlements": "electron/entitlements.mac.plist",
-      "entitlementsInherit": "electron/entitlements.mac.plist"
+      "entitlementsInherit": "electron/entitlements.mac.plist",
+      "extendInfo": {
+        "NSMicrophoneUsageDescription": "IdiamPro uses the microphone for voice input in the AI command bar and Help chat.",
+        "NSSpeechRecognitionUsageDescription": "IdiamPro uses speech recognition to transcribe your voice into text in the AI command bar and Help chat."
+      }
     },
     "win": {
       "target": [

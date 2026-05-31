@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu, dialog, ipcMain, shell } = require('electron');
+const { app, BrowserWindow, Menu, dialog, ipcMain, shell, session, systemPreferences } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const { spawn } = require('child_process');
@@ -352,9 +352,54 @@ async function createWindow() {
       sandbox: true,
       preload: path.join(__dirname, 'preload.js'),
       webviewTag: true, // Enable webview tag for in-app YouTube/Google browsing
+      // Allow getUserMedia / Web Speech API in the renderer (voice input feature).
+      // Without these, Chromium's hardening blocks microphone access.
+      enableBlinkFeatures: 'AudioCapture,MediaStreamAPI',
     },
     show: false,
   });
+
+  // ========== Microphone / media permission handlers ==========
+  // Chromium-in-Electron defaults to DENY for media/microphone permission
+  // requests, which silently breaks the Web Speech API used by voice input
+  // (Cmd+K AI command bar and Help chat). Grant the renderer access here.
+  const sess = mainWindow.webContents.session;
+  const allowedMediaPermissions = new Set([
+    'media',
+    'mediaKeySystem',
+    'microphone',
+    'audioCapture',
+    'videoCapture',
+    'display-capture',
+  ]);
+  sess.setPermissionRequestHandler((webContents, permission, callback, details) => {
+    if (allowedMediaPermissions.has(permission)) {
+      callback(true);
+      return;
+    }
+    // Default-allow other safe permissions used by the app.
+    callback(true);
+  });
+  sess.setPermissionCheckHandler((webContents, permission, requestingOrigin, details) => {
+    if (allowedMediaPermissions.has(permission)) return true;
+    return true;
+  });
+
+  // On macOS, request the system-level microphone authorization once on startup.
+  // Without TCC approval, getUserMedia() returns "permission denied" even with
+  // the Electron handlers above. No-op when already granted or denied.
+  if (process.platform === 'darwin' && systemPreferences && systemPreferences.askForMediaAccess) {
+    try {
+      const status = systemPreferences.getMediaAccessStatus
+        ? systemPreferences.getMediaAccessStatus('microphone')
+        : 'not-determined';
+      if (status !== 'granted' && status !== 'denied') {
+        systemPreferences.askForMediaAccess('microphone').catch(() => {});
+      }
+    } catch (err) {
+      console.warn('[Mic] askForMediaAccess failed:', err && err.message);
+    }
+  }
 
   // Load from localhost in development, deployed web app in production
   const startUrl = process.env.NODE_ENV === 'development'

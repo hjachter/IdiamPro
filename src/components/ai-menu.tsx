@@ -101,10 +101,8 @@ export default function AIMenu({
             className="cursor-pointer"
           >
             <Mic className="mr-2 h-4 w-4 text-red-500" />
-            <div className="flex flex-col">
-              <span className="font-medium">Ask AI&hellip;</span>
-              <span className="text-xs text-muted-foreground">Tell me what you want to do (⌘K)</span>
-            </div>
+            <span className="font-medium">Tell AI&hellip;</span>
+            <span className="ml-auto text-xs tracking-widest text-muted-foreground">⌘K</span>
           </DropdownMenuItem>
         )}
 

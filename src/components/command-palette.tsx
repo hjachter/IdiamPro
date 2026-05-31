@@ -1,6 +1,8 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useSpeechToText } from '@/hooks/use-speech-to-text';
+import { toast } from '@/hooks/use-toast';
 import {
   CommandDialog,
   CommandEmpty,
@@ -11,6 +13,7 @@ import {
   CommandSeparator,
   CommandShortcut,
 } from '@/components/ui/command';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import {
   Plus,
   FileText,
@@ -30,6 +33,7 @@ import {
   LayoutTemplate,
   Sparkles,
 } from 'lucide-react';
+import { useInputModePreference } from '@/lib/use-input-mode-preference';
 import type { Outline } from '@/types';
 
 interface CommandPaletteProps {
@@ -94,6 +98,78 @@ export default function CommandPalette({
     }
   }, [open]);
 
+  // Voice input — Gemini transcribes the recording into the search field.
+  // No interim results: text appears all at once when the user clicks stop.
+  const voiceBaseRef = useRef('');
+  // When the user takes over by typing, we want the "Listening" indicator to
+  // disappear immediately even though the underlying recorder is still
+  // round-tripping audio to Gemini. This flag hides the indicator in that
+  // window without affecting the in-flight transcription.
+  const [userTookOver, setUserTookOver] = useState(false);
+  const speech = useSpeechToText({
+    onFinal: (text) => {
+      voiceBaseRef.current = (voiceBaseRef.current + ' ' + text).trim();
+      setSearchValue(voiceBaseRef.current);
+    },
+    onError: (msg) => {
+      toast({ title: 'Voice input', description: msg, variant: 'destructive' });
+    },
+  });
+  // Auto-start the mic when the palette opens, if Input mode is set to voice
+  // (either "Voice" or "Voice + auto-start") and the browser supports it.
+  // Stop listening cleanly when the palette closes.
+  const [inputMode] = useInputModePreference();
+  const wantsVoice = inputMode === 'voice' || inputMode === 'voice-auto-start';
+  useEffect(() => {
+    if (!open) {
+      if (speech.listening) speech.stop();
+      setUserTookOver(false);
+      return;
+    }
+    if (!wantsVoice) return;
+    if (!speech.supported) return;
+    const t = setTimeout(() => {
+      voiceBaseRef.current = '';
+      setUserTookOver(false);
+      speech.start();
+    }, 50);
+    return () => clearTimeout(t);
+    // We intentionally don't depend on `speech` (a fresh object each render)
+    // to avoid re-firing the timer on every keystroke.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, wantsVoice]);
+
+  const submitAI = useCallback(() => {
+    const t = searchValue.trim();
+    if (!t || !onAICommand) return;
+    if (speech.listening) speech.stop();
+    onOpenChange(false);
+    onAICommand(t);
+  }, [searchValue, onAICommand, onOpenChange, speech]);
+
+  // Physical-keyboard accelerator: Enter submits when no palette item is highlighted.
+  // Also: typing any printable character or editing key stops listening, so the
+  // user can seamlessly take over from voice without an explicit stop action.
+  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (speech.listening) {
+      const isTextEdit =
+        e.key.length === 1 || e.key === 'Backspace' || e.key === 'Delete';
+      if (isTextEdit) {
+        speech.stop();
+        // Hide the "Listening" indicator immediately — don't wait for the
+        // Gemini transcription round-trip to flip speech.listening to false.
+        setUserTookOver(true);
+      }
+    }
+    if (e.key !== 'Enter') return;
+    if (!onAICommand || !searchValue.trim()) return;
+    const selected = document.querySelector('[cmdk-root] [cmdk-item][data-selected="true"]');
+    if (selected) return; // let cmdk handle Enter to activate that item
+    e.preventDefault();
+    e.stopPropagation();
+    submitAI();
+  };
+
   // Execute a command and close the palette
   const runCommand = useCallback((callback: () => void) => {
     onOpenChange(false);
@@ -112,24 +188,27 @@ export default function CommandPalette({
   // }, [outlines, currentOutlineId]);
 
   return (
-    <CommandDialog
-      open={open}
-      onOpenChange={onOpenChange}
-      footer={onAICommand && searchValue.trim().length > 0 ? (
-        <button
-          type="button"
-          onClick={() => { const t = searchValue.trim(); onOpenChange(false); onAICommand(t); }}
-          className="flex w-full items-center gap-2 border-t border-border px-3 py-2.5 text-sm text-left hover:bg-accent transition-colors"
-        >
-          <Sparkles className="h-4 w-4 text-violet-400 shrink-0" />
-          <span>Ask AI: &ldquo;{searchValue.trim()}&rdquo;</span>
-        </button>
-      ) : undefined}
-    >
+    <CommandDialog open={open} onOpenChange={onOpenChange}>
       <CommandInput
-        placeholder="Type a command or search..."
+        placeholder="Type or speak a command..."
         value={searchValue}
         onValueChange={setSearchValue}
+        onKeyDown={handleInputKeyDown}
+        action={
+          speech.listening && !userTookOver ? (
+            <div
+              className="ml-2 mr-10 flex items-center gap-2 shrink-0 pointer-events-none"
+              aria-live="polite"
+            >
+              <span
+                data-testid="listening-indicator"
+                aria-hidden="true"
+                className="h-2.5 w-2.5 rounded-full bg-red-500 shrink-0"
+              />
+              <span className="text-xs text-muted-foreground">Listening</span>
+            </div>
+          ) : null
+        }
       />
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>

@@ -6,8 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Input } from '@/components/ui/input';
-import { Folder, Info, Smartphone, Cpu, Cloud, Loader2, CheckCircle, XCircle, Crown, Shield, Moon, Sun, Download, Trash2, AlertTriangle } from 'lucide-react';
+import { Folder, Info, Smartphone, Cpu, Cloud, Loader2, CheckCircle, XCircle, Crown, Shield, Moon, Sun, Download, Trash2, AlertTriangle, Keyboard, Mic } from 'lucide-react';
+import { useInputModePreference, type InputMode } from '@/lib/use-input-mode-preference';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -49,6 +51,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
   const { toast } = useToast();
   const { isPremium, plan } = useAI();
   const { theme, setTheme } = useTheme();
+  const [inputMode, setInputMode] = useInputModePreference();
 
   // Format plan name for display
   const planDisplayName = {
@@ -594,6 +597,50 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
             <p className="text-xs text-muted-foreground">
               Show confirmation dialog when deleting nodes or subtrees
             </p>
+
+            {/* Input mode — how the user enters text in Ask AI / Help */}
+            <div className="space-y-2 pt-2">
+              <Label className="text-sm">Input mode</Label>
+              <RadioGroup
+                value={inputMode}
+                onValueChange={(v) => setInputMode(v as InputMode)}
+                className="gap-2"
+              >
+                <div className="flex items-start gap-2">
+                  <RadioGroupItem id="input-mode-type" value="type" className="mt-1" />
+                  <Label htmlFor="input-mode-type" className="font-normal cursor-pointer">
+                    <div className="flex items-center gap-1.5 text-sm">
+                      <Keyboard className="h-3.5 w-3.5 text-muted-foreground" />
+                      <span>Type</span>
+                      <span className="text-xs text-muted-foreground">— keyboard only (default)</span>
+                    </div>
+                  </Label>
+                </div>
+                <div className="flex items-start gap-2">
+                  <RadioGroupItem id="input-mode-voice" value="voice" className="mt-1" />
+                  <Label htmlFor="input-mode-voice" className="font-normal cursor-pointer">
+                    <div className="flex items-center gap-1.5 text-sm">
+                      <Mic className="h-3.5 w-3.5 text-muted-foreground" />
+                      <span>Voice</span>
+                      <span className="text-xs text-muted-foreground">— dictate by tapping the mic</span>
+                    </div>
+                  </Label>
+                </div>
+                <div className="flex items-start gap-2">
+                  <RadioGroupItem id="input-mode-voice-auto" value="voice-auto-start" className="mt-1" />
+                  <Label htmlFor="input-mode-voice-auto" className="font-normal cursor-pointer">
+                    <div className="flex items-center gap-1.5 text-sm">
+                      <Mic className="h-3.5 w-3.5 text-red-500" />
+                      <span>Voice + auto-start</span>
+                      <span className="text-xs text-muted-foreground">— mic begins listening on open</span>
+                    </div>
+                  </Label>
+                </div>
+              </RadioGroup>
+              <p className="text-xs text-muted-foreground">
+                Voice + auto-start opens the mic the moment you open Ask AI or Help — useful for hands-free use.
+              </p>
+            </div>
           </div>
 
           {/* Appearance Section */}

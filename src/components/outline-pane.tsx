@@ -899,12 +899,12 @@ export default function OutlinePane({
                 <TooltipTrigger asChild>
                     <Button
                         variant="default"
-                        className="shrink-0 bg-red-500 hover:bg-red-600 text-white px-3 gap-1.5 active:scale-95"
+                        size="icon"
+                        className="shrink-0 bg-red-500 hover:bg-red-600 text-white active:scale-95"
                         onClick={() => onOpenCommandPalette?.()}
                         aria-label="Tell me what you want to do — type or speak (Cmd+K)"
                     >
                         <Mic className="h-4 w-4" />
-                        <span className="text-sm font-medium hidden sm:inline">Ask AI</span>
                     </Button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom">Tell me what you want to do — type or speak (⌘K)</TooltipContent>

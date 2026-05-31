@@ -5,8 +5,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { ScrollArea } from './ui/scroll-area';
-import { CircleHelp, Send, Sparkles, User, Loader2 } from 'lucide-react';
+import { CircleHelp, Send, Sparkles, User, Loader2, Mic } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useSpeechToText } from '@/hooks/use-speech-to-text';
+import { useInputModePreference } from '@/lib/use-input-mode-preference';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { toast } from '@/hooks/use-toast';
 
 interface Message {
   id: string;
@@ -42,6 +46,7 @@ KEY FEATURES:
 - File storage: iCloud Drive, Dropbox, Google Drive, local folders
 - Google Docs/Sheets/Slides/Maps embedding via Insert menu
 - Speech-to-text recording in the content pane via Web Speech API
+- Input mode preference (Settings > Preferences > Input mode): three options — "Type" (default, keyboard only; mic button still available for ad-hoc dictation), "Voice" (free dictation, no auto-start), and "Voice + auto-start" (the mic begins listening automatically the moment you open the Cmd+K command palette / Ask AI or the Help chat — ideal for hands-free use; falls back silently if the browser doesn't support Web Speech recognition).
 - Export/Share: Select a node and click the Share button (toolbar) to export. Formats include PDF, Markdown, Plain Text, HTML (collapsible webpage), Interactive Outline (read-only IdiamPro-style viewer with sidebar navigation, search, dark/light mode), Website (8 professional templates: Marketing, Informational, Documentation, Portfolio, Event, Educational, Blog, Personal), Podcast (AI-generated audio), OPML, Obsidian (wiki-links), CSV, JSON Tree.
 - Outline management: The sidebar (panel-toggle button at top-left of toolbar) is the sole path for switching, creating, renaming, deleting, and searching outlines. The toolbar shows the current outline name as a read-only title plus a wrench icon (admin menu) for Import Outline, Export Current Outline, Backup All Outlines, Restore All Outlines, and Refresh User Guide.
 - Import: Multi-format import via the toolbar wrench (admin) menu > "Import Outline". Supports Markdown (.md - heading hierarchy), Plain Text (.txt - indentation), OPML (.opml - standard outline XML), JSON/IDM (native format). Drag-and-drop or browse to select. Auto-detects format.
@@ -143,6 +148,20 @@ export default function HelpChatDialog({ open, onOpenChange }: HelpChatDialogPro
     },
   ]);
   const [input, setInput] = useState('');
+  const voiceBaseRef = useRef('');
+  const speech = useSpeechToText({
+    onFinal: (text) => {
+      voiceBaseRef.current = (voiceBaseRef.current + ' ' + text).trim();
+      setInput(voiceBaseRef.current);
+    },
+    onError: (msg) => {
+      toast({ title: 'Voice input', description: msg, variant: 'destructive' });
+    },
+  });
+  const handleMicClick = () => {
+    if (!speech.listening) voiceBaseRef.current = input;
+    speech.toggle();
+  };
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -160,6 +179,27 @@ export default function HelpChatDialog({ open, onOpenChange }: HelpChatDialogPro
       setTimeout(() => inputRef.current?.focus(), 100);
     }
   }, [open]);
+
+  // Auto-start the mic when the dialog opens, if the user has chosen
+  // "Voice + auto-start" in Settings and the browser supports it.
+  // Stop listening cleanly when the dialog closes.
+  const [inputMode] = useInputModePreference();
+  useEffect(() => {
+    if (!open) {
+      if (speech.listening) speech.stop();
+      return;
+    }
+    if (inputMode !== 'voice-auto-start') return;
+    if (!speech.supported) return;
+    const t = setTimeout(() => {
+      voiceBaseRef.current = input;
+      speech.start();
+    }, 50);
+    return () => clearTimeout(t);
+    // We intentionally don't depend on `speech` or `input` to avoid
+    // re-firing the timer on every keystroke / re-render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, inputMode]);
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
@@ -298,18 +338,53 @@ export default function HelpChatDialog({ open, onOpenChange }: HelpChatDialogPro
               disabled={isLoading}
               className="flex-1"
             />
-            <Button
-              onClick={handleSend}
-              disabled={!input.trim() || isLoading}
-              size="icon"
-              aria-label="Send message"
-            >
-              {isLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Send className="h-4 w-4" />
-              )}
-            </Button>
+            {speech.supported && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      type="button"
+                      onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleMicClick(); }}
+                      variant="outline"
+                      size="icon"
+                      aria-label={speech.listening ? 'Stop listening' : 'Voice input'}
+                    >
+                      <Mic className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">
+                    {speech.listening ? 'Listening — click to stop' : 'Voice input'}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+            {speech.listening && (
+              <span
+                data-testid="listening-indicator"
+                className="self-center h-2.5 w-2.5 rounded-full bg-red-500 shrink-0"
+                aria-hidden="true"
+              />
+            )}
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    onClick={() => { if (speech.listening) speech.stop(); handleSend(); }}
+                    disabled={!input.trim() || isLoading}
+                    size="icon"
+                    aria-label="Send message"
+                  >
+                    {isLoading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Send className="h-4 w-4" />
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="top">Send (Enter)</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
           <p className="text-xs text-muted-foreground mt-2">
             Press Enter to send, Shift+Enter for new line

@@ -44,6 +44,7 @@ IdiamPro/SecondBrainWare targets 6 platforms. macOS, iOS, and Web are actively s
 | Search current outline | Cmd+F | Ctrl+F | Search field | Cmd/Ctrl+F |
 | Focus mode | Cmd+Shift+F | Ctrl+Shift+F | Focus toolbar button | Cmd/Ctrl+Shift+F or button |
 | Collapse / expand all | Cmd+E | Ctrl+E | Chevron toolbar button | Cmd/Ctrl+E or button |
+| Submit / Send (input fields) | Return / Enter | Enter | Return (soft keyboard) | Enter |
 
 ---
 
@@ -71,6 +72,27 @@ Before saving/writing to any `.idm` file in the active outlines directory (`~/Do
 3. **Wait for the user to switch away** from that outline before saving.
 
 This prevents the app from overwriting your changes with its in-memory version. Never skip this check.
+
+---
+
+## UI & Naming Conventions
+
+**Graphics first, tooltips for explanations.** Default to an icon for any button or menu trigger. Visible text labels should be **two words or fewer**. Anything longer (full sentence, context, keyboard hint) belongs in a `Tooltip` shown on hover/focus and in `aria-label` for accessibility. This keeps the UI uncluttered and consistent across mobile and desktop.
+
+**Don't use the phrase "Ask AI"** as a button or menu label — it's vague and doesn't tell the user what the surface does. Prefer action-oriented labels like **"Tell AI…"** for the natural-language command bar, or just an icon (red Mic) with the explanation in the tooltip.
+
+**Help vs. AI command bar are distinct surfaces — do not merge them.** The Help chat *explains* the app ("how do I make a child node?"). The AI command bar *does things* to the user's data ("create an outline called Joe"). Conflating them risks the user getting an explanation when they wanted an action, or vice versa.
+
+## Voice Input — Standard Pattern
+
+Voice input is enabled in **both** the AI command bar (Cmd+K) and the Help chat. Use the same pattern in both places:
+
+1. A small **Mic toggle button** sits inside the input row.
+2. **Click mic → dictate → press Enter (Return on iOS) to send.** Words stream into the text field as the user speaks. The user reads the text, edits if needed, then presses Enter/Return to submit. Enter works on every platform (see Rosetta Stone) — no extra Submit button needed.
+3. **Never auto-submit on silence.** Voice is dictation, not a smart-speaker trigger — a misheard word must never execute a command or send a question without the user's explicit confirmation.
+4. Click the mic again to stop listening.
+
+Implement via the Web Speech API on Electron/web. iOS needs `@capacitor-community/speech-recognition` (deferred — ship Electron/web first).
 
 ---
 
@@ -156,6 +178,19 @@ At the start of every new session, **automatically enable voice mode** by runnin
 ## Automated Testing
 
 IdiamPro has a Playwright-based test suite for automated UI testing of the Electron app. **Always prefer Playwright over asking the user to click things manually.** You can drive the UI, type into fields, take screenshots, and read responses — there is no reason to make the user perform UI actions one step at a time.
+
+### MANDATORY: Verify every feature in Playwright before reporting "done"
+
+**A clean `npm run build` proves the code compiles. It does not prove the feature works.** Before reporting any user-facing change as complete, you MUST drive it through Playwright and confirm the expected behavior. Build-passing has repeatedly produced features that were silently broken (mic icon that didn't update, speech recognition that never fired, etc.) and forced the user into manual debugging.
+
+For every UI change:
+1. Write or extend a Playwright test that launches Electron, navigates to the feature, drives it (click, type, etc.), and asserts the expected post-state.
+2. If the feature uses a browser API (Web Speech, getUserMedia, clipboard, etc.), verify the Electron permission handler grants the required permission — Chromium-in-Electron defaults to DENY for microphone, breaking speech features silently.
+3. If a shared component has multiple consumers (e.g. one hook used by two dialogs), the Playwright test must hit BOTH consumers.
+4. Save the test in `tests/` so it runs under "TEST EVERYTHING."
+5. Only report "done" after the Playwright run passes. If it fails, fix and re-run until it passes.
+
+This rule is non-negotiable.
 
 ### "TEST EVERYTHING" — Trigger Phrase
 
@@ -290,6 +325,36 @@ At the end of EVERY session — automatically, without being asked — regenerat
 - Multiple sessions per day become sub-nodes: "Session N — HH:MM"
 - Each session starts with a **Changes Made** bulleted list of git commits, followed by the conversation
 - Root node shows total stats (sessions, messages, commits, days)
+
+---
+
+## Delegation Policy — Use Subagents for Code Work
+
+This user is vibe programming and does not read code, diffs, paths, build logs, or test output. To prevent these from leaking into his view, **default to spawning a subagent (Agent tool) for any code work beyond trivial edits.** The subagent's tool calls run privately; only my plain-English summary surfaces to him.
+
+**Use a subagent for:**
+- Multi-file or multi-step code surgery (edit, build, test, fix, re-test).
+- Running `npm run build` or Playwright tests (chatty output).
+- Restarting dev servers, killing/launching Electron, anything that prints lots of bash output.
+- Any change I'm not 100% confident about — let the agent iterate against the build.
+
+**Skip the subagent for:**
+- Single-line edits I'm confident about.
+- Read-only investigation (Read, Grep, quick state checks).
+- Bash commands whose output isn't code or diffs (`curl`, `pgrep`, `ls`).
+- Saving memory or CLAUDE.md updates.
+
+**When briefing a subagent:** tell it the user does NOT read code, cap its reply length (e.g. "under 100 words, plain English only"), point it at this file + relevant memory, state the current in-flight code state so it doesn't undo work, include quality gates (full `npm run build` + Playwright + screenshot inspection), and end with refocus + status reporting.
+
+---
+
+## End-of-Turn Signal — MANDATORY
+
+When I finish a turn and am ready for Howard's input, my final response MUST end with the literal phrase **`TALK TO ME`** (uppercase, on its own line). This is the unambiguous "I am done, your turn" signal Howard scans for when he glances at the terminal — without it he cannot tell whether I am still working or genuinely finished.
+
+The phrase is reserved for "I am completely done with this turn." Do not use it as filler, mid-thought, or part of a sentence. It is always the last line of the response, with no trailing text.
+
+This pairs with the verify-and-refocus loop in the Automated Testing section: after a Playwright check passes and I refocus Howard's terminal via `osascript`, the `TALK TO ME` line is what tells him to look.
 
 ---
 
