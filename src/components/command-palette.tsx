@@ -34,6 +34,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { useInputModePreference } from '@/lib/use-input-mode-preference';
+import { getMicPermissionHelp } from '@/lib/platform-help';
 import type { Outline } from '@/types';
 
 interface CommandPaletteProps {
@@ -90,11 +91,24 @@ export default function CommandPalette({
   onAICommand,
 }: CommandPaletteProps) {
   const [searchValue, setSearchValue] = useState('');
+  // Tracks the source of the *most recent* fill of `searchValue` so we know
+  // whether to auto-submit. Voice fills should auto-submit after a tiny
+  // debounce; typed fills should NOT. Reset to 'idle' when the field clears
+  // or when the dialog closes.
+  const lastInputSourceRef = useRef<'idle' | 'voice' | 'typed'>('idle');
+  // Holds a pending auto-submit timer so we can cancel it if the user starts
+  // typing during the debounce window.
+  const autoSubmitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Reset search when dialog closes
   useEffect(() => {
     if (!open) {
       setSearchValue('');
+      lastInputSourceRef.current = 'idle';
+      if (autoSubmitTimerRef.current) {
+        clearTimeout(autoSubmitTimerRef.current);
+        autoSubmitTimerRef.current = null;
+      }
     }
   }, [open]);
 
@@ -110,6 +124,12 @@ export default function CommandPalette({
     onFinal: (text) => {
       voiceBaseRef.current = (voiceBaseRef.current + ' ' + text).trim();
       setSearchValue(voiceBaseRef.current);
+      // Mark this fill as voice-originated so the auto-submit effect picks it
+      // up. We don't fire submit directly here because:
+      //   1. `onAICommand` and `submitAI` aren't stable refs at this scope, and
+      //   2. setting state then submitting on next render gives React time to
+      //      apply the new value and the user a chance to take over.
+      lastInputSourceRef.current = 'voice';
     },
     onError: (msg) => {
       toast({ title: 'Voice input', description: msg, variant: 'destructive' });
@@ -120,10 +140,17 @@ export default function CommandPalette({
   // Stop listening cleanly when the palette closes.
   const [inputMode] = useInputModePreference();
   const wantsVoice = inputMode === 'voice' || inputMode === 'voice-auto-start';
+  // Track when listening started so we can surface a "we can't hear you" hint
+  // if no real audio shows up within a few seconds. Drives the silence
+  // fallback message under the input.
+  const [listenStartedAt, setListenStartedAt] = useState<number | null>(null);
+  const [silenceElapsed, setSilenceElapsed] = useState(false);
   useEffect(() => {
     if (!open) {
       if (speech.listening) speech.stop();
       setUserTookOver(false);
+      setListenStartedAt(null);
+      setSilenceElapsed(false);
       return;
     }
     if (!wantsVoice) return;
@@ -131,6 +158,8 @@ export default function CommandPalette({
     const t = setTimeout(() => {
       voiceBaseRef.current = '';
       setUserTookOver(false);
+      setListenStartedAt(Date.now());
+      setSilenceElapsed(false);
       speech.start();
     }, 50);
     return () => clearTimeout(t);
@@ -139,22 +168,80 @@ export default function CommandPalette({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, wantsVoice]);
 
+  // After 3 seconds with no audio detected, surface the silence hint. The
+  // hint clears immediately the moment real audio arrives.
+  useEffect(() => {
+    if (!speech.listening || listenStartedAt == null) {
+      setSilenceElapsed(false);
+      return;
+    }
+    if (speech.audioDetected) {
+      setSilenceElapsed(false);
+      return;
+    }
+    const remaining = Math.max(0, 3000 - (Date.now() - listenStartedAt));
+    const t = setTimeout(() => setSilenceElapsed(true), remaining);
+    return () => clearTimeout(t);
+  }, [speech.listening, speech.audioDetected, listenStartedAt]);
+
+  const showSilenceHint =
+    speech.listening && !userTookOver && silenceElapsed && !speech.audioDetected;
+
   const submitAI = useCallback(() => {
     const t = searchValue.trim();
     if (!t || !onAICommand) return;
+    if (autoSubmitTimerRef.current) {
+      clearTimeout(autoSubmitTimerRef.current);
+      autoSubmitTimerRef.current = null;
+    }
     if (speech.listening) speech.stop();
     onOpenChange(false);
     onAICommand(t);
   }, [searchValue, onAICommand, onOpenChange, speech]);
 
+  // Auto-submit after voice transcription. When `searchValue` was last filled
+  // by voice (and the user hasn't taken over typing), schedule a tiny debounce
+  // and then fire `submitAI()`. The debounce lets any in-flight transcript
+  // chunk land and gives the user a brief window to cancel by typing.
+  useEffect(() => {
+    if (!open) return;
+    if (lastInputSourceRef.current !== 'voice') return;
+    if (userTookOver) return;
+    if (!onAICommand) return;
+    const trimmed = searchValue.trim();
+    if (!trimmed) return;
+    if (autoSubmitTimerRef.current) clearTimeout(autoSubmitTimerRef.current);
+    autoSubmitTimerRef.current = setTimeout(() => {
+      autoSubmitTimerRef.current = null;
+      // Re-check the conditions at fire time — the user may have started
+      // typing during the debounce window, in which case we should NOT submit.
+      if (lastInputSourceRef.current === 'voice' && !userTookOver) {
+        submitAI();
+      }
+    }, 400);
+    return () => {
+      if (autoSubmitTimerRef.current) {
+        clearTimeout(autoSubmitTimerRef.current);
+        autoSubmitTimerRef.current = null;
+      }
+    };
+  }, [searchValue, userTookOver, open, onAICommand, submitAI]);
+
   // Physical-keyboard accelerator: Enter submits when no palette item is highlighted.
   // Also: typing any printable character or editing key stops listening, so the
   // user can seamlessly take over from voice without an explicit stop action.
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (speech.listening) {
-      const isTextEdit =
-        e.key.length === 1 || e.key === 'Backspace' || e.key === 'Delete';
-      if (isTextEdit) {
+    const isTextEdit =
+      e.key.length === 1 || e.key === 'Backspace' || e.key === 'Delete';
+    if (isTextEdit) {
+      // The user is typing — mark this as a typed fill so any pending
+      // voice-auto-submit gets cancelled by the effect's guard.
+      lastInputSourceRef.current = 'typed';
+      if (autoSubmitTimerRef.current) {
+        clearTimeout(autoSubmitTimerRef.current);
+        autoSubmitTimerRef.current = null;
+      }
+      if (speech.listening) {
         speech.stop();
         // Hide the "Listening" indicator immediately — don't wait for the
         // Gemini transcription round-trip to flip speech.listening to false.
@@ -187,31 +274,105 @@ export default function CommandPalette({
   //   return outlines.find(o => o.id === currentOutlineId);
   // }, [outlines, currentOutlineId]);
 
+  // 5-bar live audio-level meter. Each bar lights up progressively as the
+  // smoothed RMS rises. Bar i lights when level > (i+1)/N * scale.
+  const BAR_COUNT = 5;
+  // Scale level into 0..1 of "visible loudness". Anything above ~0.4 RMS is
+  // basically yelling, so we map 0..0.4 to 0..1 for the meter.
+  const meterScale = Math.min(1, speech.level / 0.4);
+
   return (
     <CommandDialog open={open} onOpenChange={onOpenChange}>
       <CommandInput
-        placeholder="Type or speak a command..."
+        placeholder="Type a command or question…"
         value={searchValue}
-        onValueChange={setSearchValue}
+        onValueChange={(v) => {
+          // If this change came from voice's onFinal, we've already marked the
+          // source as 'voice' before calling setSearchValue (state batching is
+          // fine — the ref is set first). For any *other* change (real typing,
+          // backspace via IME, paste), treat it as typed and cancel any pending
+          // auto-submit. We detect "voice fill" by reference equality with the
+          // most recent voice-accumulated string; anything else is user input.
+          if (v !== voiceBaseRef.current) {
+            lastInputSourceRef.current = 'typed';
+            if (autoSubmitTimerRef.current) {
+              clearTimeout(autoSubmitTimerRef.current);
+              autoSubmitTimerRef.current = null;
+            }
+          }
+          setSearchValue(v);
+        }}
         onKeyDown={handleInputKeyDown}
         action={
           speech.listening && !userTookOver ? (
             <div
+              data-testid="listening-indicator"
               className="ml-2 mr-10 flex items-center gap-2 shrink-0 pointer-events-none"
               aria-live="polite"
+              aria-label="Listening"
             >
               <span
-                data-testid="listening-indicator"
+                className="flex items-end gap-[2px] h-3 shrink-0"
                 aria-hidden="true"
-                className="h-2.5 w-2.5 rounded-full bg-red-500 shrink-0"
-              />
+              >
+                {Array.from({ length: BAR_COUNT }).map((_, i) => {
+                  // Each bar's individual height scales with its share of the
+                  // total level — bar 0 is most sensitive, bar N-1 needs loud
+                  // audio to fully light. Min 20% so the meter is always
+                  // visible as a placeholder shape, not invisible at silence.
+                  const share = Math.max(0, Math.min(1, meterScale * (BAR_COUNT / (i + 1))));
+                  const heightPct = 20 + share * 80;
+                  return (
+                    <span
+                      key={i}
+                      className="w-[2px] rounded-sm bg-red-500 transition-[height] duration-75"
+                      style={{ height: `${heightPct}%` }}
+                    />
+                  );
+                })}
+              </span>
               <span className="text-xs text-muted-foreground">Listening</span>
             </div>
           ) : null
         }
       />
+      {showSilenceHint && (
+        <div
+          data-testid="silence-hint"
+          className="px-3 py-1.5 text-xs text-muted-foreground border-t"
+          aria-live="polite"
+        >
+          Listening but not hearing anything — {getMicPermissionHelp()}
+        </div>
+      )}
       <CommandList>
-        <CommandEmpty>No results found.</CommandEmpty>
+        <CommandEmpty>
+          {onAICommand && searchValue.trim() ? (
+            // Natural-language affordance: when the typed/spoken text doesn't
+            // match any built-in command, surface a clear "Ask AI" action
+            // instead of the dead-end "No results found" message. This is the
+            // primary call-to-action for our natural-language interface.
+            <button
+              type="button"
+              onClick={submitAI}
+              data-testid="ask-ai-affordance"
+              className="w-full flex items-center gap-2 px-3 py-3 text-left text-sm rounded-sm hover:bg-accent hover:text-accent-foreground focus:outline-none focus:bg-accent focus:text-accent-foreground"
+            >
+              <Sparkles className="h-4 w-4 shrink-0 text-primary" />
+              <span className="flex-1 min-w-0">
+                <span className="text-muted-foreground">Ask AI: </span>
+                <span className="font-medium truncate">
+                  &ldquo;{searchValue.trim()}&rdquo;
+                </span>
+              </span>
+              <CommandShortcut>Enter</CommandShortcut>
+            </button>
+          ) : (
+            <div className="py-6 text-center text-sm text-muted-foreground">
+              Type a command or question.
+            </div>
+          )}
+        </CommandEmpty>
 
 
         {/* Quick Actions */}

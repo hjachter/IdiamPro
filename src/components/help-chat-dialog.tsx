@@ -9,6 +9,7 @@ import { CircleHelp, Send, Sparkles, User, Loader2, Mic } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useSpeechToText } from '@/hooks/use-speech-to-text';
 import { useInputModePreference } from '@/lib/use-input-mode-preference';
+import { getMicPermissionHelp } from '@/lib/platform-help';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { toast } from '@/hooks/use-toast';
 
@@ -158,8 +159,16 @@ export default function HelpChatDialog({ open, onOpenChange }: HelpChatDialogPro
       toast({ title: 'Voice input', description: msg, variant: 'destructive' });
     },
   });
+  // Track when listening started so we can surface a "we can't hear you" hint
+  // if no real audio shows up within a few seconds.
+  const [listenStartedAt, setListenStartedAt] = useState<number | null>(null);
+  const [silenceElapsed, setSilenceElapsed] = useState(false);
   const handleMicClick = () => {
-    if (!speech.listening) voiceBaseRef.current = input;
+    if (!speech.listening) {
+      voiceBaseRef.current = input;
+      setListenStartedAt(Date.now());
+      setSilenceElapsed(false);
+    }
     speech.toggle();
   };
   const [isLoading, setIsLoading] = useState(false);
@@ -187,12 +196,16 @@ export default function HelpChatDialog({ open, onOpenChange }: HelpChatDialogPro
   useEffect(() => {
     if (!open) {
       if (speech.listening) speech.stop();
+      setListenStartedAt(null);
+      setSilenceElapsed(false);
       return;
     }
     if (inputMode !== 'voice-auto-start') return;
     if (!speech.supported) return;
     const t = setTimeout(() => {
       voiceBaseRef.current = input;
+      setListenStartedAt(Date.now());
+      setSilenceElapsed(false);
       speech.start();
     }, 50);
     return () => clearTimeout(t);
@@ -200,6 +213,29 @@ export default function HelpChatDialog({ open, onOpenChange }: HelpChatDialogPro
     // re-firing the timer on every keystroke / re-render.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, inputMode]);
+
+  // After 3 seconds with no audio detected, surface the silence hint. The
+  // hint clears immediately the moment real audio arrives.
+  useEffect(() => {
+    if (!speech.listening || listenStartedAt == null) {
+      setSilenceElapsed(false);
+      return;
+    }
+    if (speech.audioDetected) {
+      setSilenceElapsed(false);
+      return;
+    }
+    const remaining = Math.max(0, 3000 - (Date.now() - listenStartedAt));
+    const t = setTimeout(() => setSilenceElapsed(true), remaining);
+    return () => clearTimeout(t);
+  }, [speech.listening, speech.audioDetected, listenStartedAt]);
+
+  const showSilenceHint =
+    speech.listening && silenceElapsed && !speech.audioDetected;
+
+  // 5-bar live audio-level meter — same as command-palette.
+  const BAR_COUNT = 5;
+  const meterScale = Math.min(1, speech.level / 0.4);
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
@@ -362,9 +398,22 @@ export default function HelpChatDialog({ open, onOpenChange }: HelpChatDialogPro
             {speech.listening && (
               <span
                 data-testid="listening-indicator"
-                className="self-center h-2.5 w-2.5 rounded-full bg-red-500 shrink-0"
-                aria-hidden="true"
-              />
+                className="self-center flex items-end gap-[2px] h-3 shrink-0"
+                aria-label="Listening"
+              >
+                {Array.from({ length: BAR_COUNT }).map((_, i) => {
+                  const share = Math.max(0, Math.min(1, meterScale * (BAR_COUNT / (i + 1))));
+                  const heightPct = 20 + share * 80;
+                  return (
+                    <span
+                      key={i}
+                      aria-hidden="true"
+                      className="w-[2px] rounded-sm bg-red-500 transition-[height] duration-75"
+                      style={{ height: `${heightPct}%` }}
+                    />
+                  );
+                })}
+              </span>
             )}
             <TooltipProvider>
               <Tooltip>
@@ -386,9 +435,19 @@ export default function HelpChatDialog({ open, onOpenChange }: HelpChatDialogPro
               </Tooltip>
             </TooltipProvider>
           </div>
-          <p className="text-xs text-muted-foreground mt-2">
-            Press Enter to send, Shift+Enter for new line
-          </p>
+          {showSilenceHint ? (
+            <p
+              data-testid="silence-hint"
+              className="text-xs text-muted-foreground mt-2"
+              aria-live="polite"
+            >
+              Listening but not hearing anything — {getMicPermissionHelp()}
+            </p>
+          ) : (
+            <p className="text-xs text-muted-foreground mt-2">
+              Press Enter to send, Shift+Enter for new line
+            </p>
+          )}
         </div>
       </DialogContent>
     </Dialog>

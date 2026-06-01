@@ -41,6 +41,14 @@ export async function transcribeAudio(input: TranscribeAudioInput): Promise<Tran
   if (!input.audioBase64 || input.audioBase64.length === 0) {
     return { transcript: '', error: 'No audio captured.' };
   }
+  // Diagnostic logging so server logs show exactly what arrived if Gemini fails.
+  try {
+    console.log(
+      `[transcribeAudio] inbound: mimeType=${String(input.mimeType)} base64Length=${input.audioBase64.length}`
+    );
+  } catch {
+    /* logging must never throw */
+  }
   try {
     const apiKey = requireApiKey('gemini', input.userApiKey);
     const genAI = new GoogleGenerativeAI(apiKey);
@@ -52,10 +60,19 @@ export async function transcribeAudio(input: TranscribeAudioInput): Promise<Tran
       { text: PROMPT },
       { inlineData: { mimeType: input.mimeType, data: input.audioBase64 } },
     ]);
-    const text = (result.response.text() || '').trim();
+    const text = String(result.response.text() || '').trim();
     return { transcript: text };
   } catch (err: any) {
-    const msg = err?.message || 'Transcription failed.';
+    // Coerce every possible shape of error into a plain string so the
+    // returned object is always JSON-serializable for the RSC boundary.
+    let msg: string;
+    try {
+      msg = typeof err?.message === 'string' && err.message
+        ? err.message
+        : String(err);
+    } catch {
+      msg = 'Transcription failed.';
+    }
     return { transcript: '', error: msg };
   }
 }

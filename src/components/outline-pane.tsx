@@ -891,23 +891,25 @@ export default function OutlinePane({
             </span>
         </div>
 
-        {/* Natural-language command bar entry point — prominent so users
-            discover it. Click opens the same Cmd+K palette where the
-            "Ask AI" row appears at the bottom. */}
+        {/* Natural-language command bar entry point — kept unobtrusive
+            (same weight as the wrench beside it) so it doesn't overpromise
+            voice. Click opens the Cmd+K palette where the "Ask AI" row
+            appears at the bottom. Voice infrastructure is preserved but
+            opt-in via Settings → Input mode. */}
         <TooltipProvider>
             <Tooltip>
                 <TooltipTrigger asChild>
                     <Button
-                        variant="default"
+                        variant="outline"
                         size="icon"
-                        className="shrink-0 bg-red-500 hover:bg-red-600 text-white active:scale-95"
+                        className="shrink-0 active:scale-95 active:bg-accent/30"
                         onClick={() => onOpenCommandPalette?.()}
-                        aria-label="Tell me what you want to do — type or speak (Cmd+K)"
+                        aria-label="Ask AI — natural-language command (Cmd+K)"
                     >
-                        <Mic className="h-4 w-4" />
+                        <Sparkles className="h-4 w-4" />
                     </Button>
                 </TooltipTrigger>
-                <TooltipContent side="bottom">Tell me what you want to do — type or speak (⌘K)</TooltipContent>
+                <TooltipContent side="bottom">Ask AI (⌘K)</TooltipContent>
             </Tooltip>
         </TooltipProvider>
 

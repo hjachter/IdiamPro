@@ -577,7 +577,7 @@ export default function OutlinePro() {
         // Timeout: if storage takes too long, the guide is already showing
         const storagePromise = loadStorageData();
         const timeoutPromise = new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error('Storage load timed out')), 8000)
+          setTimeout(() => reject(new Error('Storage load timed out')), 30000)
         );
         const { outlines: userOutlines, currentOutlineId: loadedCurrentOutlineId, fixedDuplicateCount, fixedDuplicateNames } = await Promise.race([storagePromise, timeoutPromise]);
         const validOutlines = userOutlines.filter(o => o && isValidOutline(o));
@@ -1351,32 +1351,66 @@ export default function OutlinePro() {
 
   const executeAICommand = useCallback((cmd: InterpretedCommand) => {
     const a = cmd.action;
+    // AI responses stay visible until the user dismisses them via the X button —
+    // they're conversational replies, not transient confirmations.
+    const AI_PERSIST = 1000 * 60 * 60 * 24; // ~24h, effectively "until dismissed"
     try {
       switch (a.kind) {
         case 'create_outline':
           handleCreateOutline(a.name);
-          toast({ title: 'Done', description: `Created outline "${a.name}".` });
+          toast({ title: 'AI command', description: `I created a new outline called "${a.name}".`, duration: AI_PERSIST });
           break;
-        case 'collapse_all': handleCollapseAll(); toast({ title: 'Collapsed all', duration: 1200 }); break;
-        case 'expand_all': handleExpandAll(); toast({ title: 'Expanded all', duration: 1200 }); break;
-        case 'open_live_books': setIsLiveBooksOpen(true); break;
-        case 'open_templates': setIsTemplatesDialogOpen(true); break;
-        case 'open_search': setIsSearchOpen(true); break;
-        case 'open_help_chat': setIsHelpChatOpen(true); break;
-        case 'open_knowledge_chat': setIsKnowledgeChatOpen(true); break;
+        case 'collapse_all':
+          handleCollapseAll();
+          toast({ title: 'AI command', description: 'I collapsed the whole tree for you.', duration: AI_PERSIST });
+          break;
+        case 'expand_all':
+          handleExpandAll();
+          toast({ title: 'AI command', description: 'I expanded the whole tree for you.', duration: AI_PERSIST });
+          break;
+        case 'open_live_books':
+          setIsLiveBooksOpen(true);
+          toast({ title: 'AI command', description: 'Opening LIVE BOOKS now.', duration: AI_PERSIST });
+          break;
+        case 'open_templates':
+          setIsTemplatesDialogOpen(true);
+          toast({ title: 'AI command', description: 'Opening the template picker.', duration: AI_PERSIST });
+          break;
+        case 'open_search':
+          setIsSearchOpen(true);
+          toast({ title: 'AI command', description: 'Opening search.', duration: AI_PERSIST });
+          break;
+        case 'open_help_chat':
+          setIsHelpChatOpen(true);
+          toast({ title: 'AI command', description: 'Opening the help chat.', duration: AI_PERSIST });
+          break;
+        case 'open_knowledge_chat':
+          setIsKnowledgeChatOpen(true);
+          toast({ title: 'AI command', description: 'Opening the knowledge chat.', duration: AI_PERSIST });
+          break;
         case 'delete_node': {
           const id = resolveNodeHint(a.node_hint);
-          if (!id) { toast({ title: "Couldn't find that node", variant: 'destructive' }); break; }
+          if (!id) {
+            toast({ title: "I'm not sure", description: `I couldn't find a node matching "${a.node_hint}". Want to try the exact name, or use the outline to point at it?`, duration: AI_PERSIST });
+            break;
+          }
           handleDeleteNode(id);
-          toast({ title: 'Deleted' });
+          toast({ title: 'AI command', description: 'I deleted that node for you.', duration: AI_PERSIST });
           break;
         }
         case 'unknown':
-          toast({ title: "I can't do that yet", description: a.reason, variant: 'destructive' });
+          toast({ title: "I'm not sure", description: a.reason, duration: AI_PERSIST });
           break;
       }
     } catch (err) {
-      toast({ title: 'Action failed', description: err instanceof Error ? err.message : 'Unknown error', variant: 'destructive' });
+      const detail = err instanceof Error ? err.message : '';
+      toast({
+        title: 'AI command',
+        description: detail
+          ? `I tried to do that, but something went wrong on my end (${detail}). Mind trying again?`
+          : 'I tried to do that, but something went wrong on my end. Mind trying again?',
+        duration: AI_PERSIST,
+      });
     } finally {
       setPendingAICommand(null);
     }
@@ -1398,7 +1432,14 @@ export default function OutlinePro() {
       }
       executeAICommand(cmd);
     } catch (err) {
-      toast({ title: "Couldn't interpret that", description: err instanceof Error ? err.message : 'Error', variant: 'destructive' });
+      const detail = err instanceof Error ? err.message : '';
+      toast({
+        title: 'AI command',
+        description: detail
+          ? `Something went wrong on my end (${detail}). Mind trying again?`
+          : 'Something went wrong on my end. Mind trying again?',
+        duration: 1000 * 60 * 60 * 24, // persist until dismissed
+      });
     }
   }, [currentOutline, selectedNodeId, executeAICommand, toast]);
 

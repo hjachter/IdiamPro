@@ -95,6 +95,40 @@ async function startDevServer() {
   console.log('Dev server is ready!');
 }
 
+// Forward selected Chromium flags from argv so Playwright can drive audio
+// in tests. Electron does NOT auto-forward Chromium switches when they
+// arrive via the second slot of process.argv — they must be re-applied with
+// app.commandLine.appendSwitch() before app.whenReady() fires. We only
+// honor a tiny allowlist to avoid surprises in production.
+//
+//   --use-fake-device-for-media-stream
+//       Replaces every real input device with a synthetic one and skips
+//       the OS mic permission prompt entirely. Required for headless audio.
+//   --use-file-for-fake-audio-capture=<path>[%loop]
+//       Streams the contents of a WAV file as the synthetic mic input.
+//       %loop makes Chromium replay the file forever, which the Playwright
+//       mic-icon test needs because it keeps listening for several seconds.
+//
+// Without this forwarding, Playwright's launch flags silently no-op and the
+// renderer's AudioContext receives only silence — exactly the gap that bit
+// us before (test passed, real microphone unreachable).
+try {
+  const argv = process.argv || [];
+  for (const arg of argv) {
+    if (typeof arg !== 'string') continue;
+    if (arg === '--use-fake-device-for-media-stream') {
+      app.commandLine.appendSwitch('use-fake-device-for-media-stream');
+    } else if (arg === '--use-fake-ui-for-media-stream') {
+      app.commandLine.appendSwitch('use-fake-ui-for-media-stream');
+    } else if (arg.startsWith('--use-file-for-fake-audio-capture=')) {
+      const value = arg.slice('--use-file-for-fake-audio-capture='.length);
+      app.commandLine.appendSwitch('use-file-for-fake-audio-capture', value);
+    }
+  }
+} catch (e) {
+  console.warn('[fake-audio] failed to forward chromium flags:', e && e.message);
+}
+
 // Set app name based on environment
 if (process.env.NODE_ENV === 'development') {
   app.setName('IdiamPro Dev');

@@ -2401,15 +2401,44 @@ export async function interpretCommandAction(input: InterpretCommandInput): Prom
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Interpretation failed';
     console.error('Error interpreting command:', message);
-    return { action: { kind: 'unknown', reason: message }, destructive: false, confidence: 'low', human_description: 'No action.' };
+    return {
+      action: {
+        kind: 'unknown',
+        reason: "Something went wrong on my end while I was thinking that through. Mind trying again in a moment?",
+      },
+      destructive: false,
+      confidence: 'low',
+      human_description: "I didn't act on that.",
+    };
   }
 }
 
 export async function transcribeAudioAction(input: TranscribeAudioInput): Promise<TranscribeAudioResult> {
+  // Defensive boundary: this Server Action MUST always resolve with a plain,
+  // JSON-serializable {transcript, error} object. If anything in the chain
+  // throws a non-Error value, Next.js wraps it as the opaque
+  // "An unexpected response was received from the server" message. Coerce
+  // every possible shape of error to a plain string before returning.
   try {
-    return await transcribeAudioWithGemini(input);
+    const result = await transcribeAudioWithGemini(input);
+    // Re-shape into a plain object in case Gemini's SDK leaks an exotic field.
+    return {
+      transcript: typeof result?.transcript === 'string' ? result.transcript : '',
+      ...(result?.error ? { error: String(result.error) } : {}),
+    };
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Transcription failed';
+    let message: string;
+    try {
+      if (error instanceof Error && error.message) {
+        message = error.message;
+      } else if (error && typeof (error as any).message === 'string') {
+        message = String((error as any).message);
+      } else {
+        message = String(error);
+      }
+    } catch {
+      message = 'Transcription failed';
+    }
     console.error('Error transcribing audio:', message);
     return { transcript: '', error: message };
   }

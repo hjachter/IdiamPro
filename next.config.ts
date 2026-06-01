@@ -3,6 +3,14 @@ import {withSentryConfig} from '@sentry/nextjs';
 
 const nextConfig: NextConfig = {
   /* config options here */
+  experimental: {
+    serverActions: {
+      // Voice transcription posts base64-encoded audio via a Server Action.
+      // Default is 1MB which can clip longer recordings — raise to 10MB so
+      // a normal voice command (a few seconds of webm/opus) always fits.
+      bodySizeLimit: '10mb',
+    },
+  },
   typescript: {
     ignoreBuildErrors: true,
   },
