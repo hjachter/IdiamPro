@@ -1,73 +1,40 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback } from 'react';
 
 /**
  * Input mode preference — controls how the user expects to enter text
  * in the command palette (Ask AI) and the Help chat.
  *
- *  - 'type'              — keyboard only (default). The mic button is still
- *                          visible for ad-hoc voice, but never auto-starts.
- *  - 'voice'             — user dictates freely. No auto-start; they tap mic.
- *  - 'voice-auto-start'  — when the command palette or Help chat opens,
- *                          the mic starts listening immediately (if the
- *                          browser supports Web Speech recognition).
+ *  - 'type'              — keyboard only (default).
+ *  - 'voice'             — (deprecated, see note below).
+ *  - 'voice-auto-start'  — (deprecated, see note below).
  *
- * Stored in localStorage under the key 'inputMode'. Defaults to 'type'
- * when nothing is stored.
+ * Historically stored in localStorage under the key 'inputMode'.
  */
 export type InputMode = 'type' | 'voice' | 'voice-auto-start';
 
 export const INPUT_MODE_STORAGE_KEY = 'inputMode';
-const VALID_MODES: InputMode[] = ['type', 'voice', 'voice-auto-start'];
 
-function readStoredMode(): InputMode {
-  if (typeof window === 'undefined') return 'type';
-  try {
-    const raw = window.localStorage.getItem(INPUT_MODE_STORAGE_KEY);
-    if (raw && (VALID_MODES as string[]).includes(raw)) {
-      return raw as InputMode;
-    }
-  } catch {
-    /* localStorage unavailable — fall through to default */
-  }
-  return 'type';
-}
+// NOTE — 2026-06-01 hard pullback:
+// Voice-as-command-interface has been removed from the UI entirely.
+// This hook is intentionally hard-wired to always return 'type', regardless
+// of what may be stored in localStorage from earlier builds. The underlying
+// infrastructure (Web Speech, transcription flow, etc.) is preserved on disk
+// for a possible future dictation / accessibility feature, but no surface in
+// the app opts a user into voice mode anymore.
 
 /**
- * Hook that returns the current input mode plus a setter that persists
- * it to localStorage and notifies other components in the same tab via
- * a custom event (the native 'storage' event only fires across tabs).
+ * Hook that returns the current input mode plus a setter.
+ *
+ * As of the 2026-06-01 pullback, this ALWAYS returns 'type'. The setter is a
+ * no-op. Any pre-existing 'voice' / 'voice-auto-start' values in localStorage
+ * are silently ignored.
  */
 export function useInputModePreference(): [InputMode, (mode: InputMode) => void] {
-  const [mode, setMode] = useState<InputMode>('type');
-
-  // Hydrate from localStorage on mount, and keep in sync if another
-  // component changes the preference.
-  useEffect(() => {
-    setMode(readStoredMode());
-    const onChange = () => setMode(readStoredMode());
-    if (typeof window !== 'undefined') {
-      window.addEventListener('inputmode:changed', onChange);
-      window.addEventListener('storage', onChange);
-      return () => {
-        window.removeEventListener('inputmode:changed', onChange);
-        window.removeEventListener('storage', onChange);
-      };
-    }
-    return undefined;
+  const update = useCallback((_next: InputMode) => {
+    // Intentionally no-op. See note above.
   }, []);
 
-  const update = useCallback((next: InputMode) => {
-    setMode(next);
-    if (typeof window === 'undefined') return;
-    try {
-      window.localStorage.setItem(INPUT_MODE_STORAGE_KEY, next);
-      window.dispatchEvent(new CustomEvent('inputmode:changed'));
-    } catch {
-      /* ignore quota / privacy-mode errors */
-    }
-  }, []);
-
-  return [mode, update];
+  return ['type', update];
 }
