@@ -42,6 +42,7 @@ import {
   collectSubtree,
 } from '@/lib/transforms/transform-engine';
 import { createTranslateTransformer } from '@/lib/transforms/translate-transform';
+import { useAIUsageGate } from '@/lib/use-ai-usage-gate';
 
 interface TranslateDialogProps {
   open: boolean;
@@ -68,6 +69,7 @@ export default function TranslateDialog({
   selectedNodeId,
   onApply,
 }: TranslateDialogProps) {
+  const { gate } = useAIUsageGate();
   const [phase, setPhase] = useState<Phase>('configure');
   const [targetLanguage, setTargetLanguage] = useState<string>('Spanish');
   const [useLocal, setUseLocal] = useState<boolean>(false);
@@ -93,6 +95,11 @@ export default function TranslateDialog({
 
   const handleRun = async () => {
     if (!outline || !selectedNodeId) return;
+
+    // Tier-enforcement gate (#33): translating any number of nodes = ONE
+    // generation (1 user-initiated AI action).
+    if (!gate({ feature: 'translate' })) return;
+
     setPhase('running');
     setErrorMsg(null);
     try {

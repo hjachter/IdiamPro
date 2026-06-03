@@ -26,6 +26,7 @@ import {
   tierDisplayName,
 } from '@/lib/entitlements';
 import { useUpgradePrompt } from '@/components/upgrade-prompt';
+import { useAIUsageGate } from '@/lib/use-ai-usage-gate';
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction } from './ui/alert-dialog';
 import { Button } from './ui/button';
 import { loadStorageData, saveAllOutlines, migrateToFileSystem, deleteOutline, loadSingleOutlineOnDemand, saveUnmergeBackup, loadUnmergeBackup, deleteUnmergeBackup, type MigrationConflict, type ConflictResolution, type LazyOutline } from '@/lib/storage-manager';
@@ -422,6 +423,7 @@ export default function OutlinePro() {
 
   const { plan } = useAI();
   const { promptUpgrade } = useUpgradePrompt();
+  const { gate: aiUsageGate } = useAIUsageGate();
 
   /**
    * Phase 3 gate: enforce the monthly hosted cloud-AI quota + cloud-AI-by-tier
@@ -1503,6 +1505,10 @@ export default function OutlinePro() {
   }, [handleCreateOutline, handleCollapseAll, handleExpandAll, handleDeleteNode, resolveNodeHint, toast]);
 
   const handleAICommand = useCallback(async (text: string) => {
+    // Tier-enforcement gate (#33): one Tell-AI / NL-command submission =
+    // one generation. If the gate hard-blocks (or Pro-only), bail before
+    // we even send the prompt off to the interpreter.
+    if (!aiUsageGate({ feature: 'tellAI' })) return;
     try {
       const cmd = await interpretCommandAction({
         text,
@@ -1527,7 +1533,7 @@ export default function OutlinePro() {
         duration: 1000 * 60 * 60 * 24, // persist until dismissed
       });
     }
-  }, [currentOutline, selectedNodeId, executeAICommand, toast]);
+  }, [currentOutline, selectedNodeId, executeAICommand, toast, aiUsageGate]);
 
 
   // Open the User Guide
@@ -2014,6 +2020,8 @@ export default function OutlinePro() {
   const handleGenerateOutline = useCallback(async (topic: string, depth: AIDepth = 'standard', tone: AITone = 'professional', level: AILevel = 'college') => {
     if (!checkAiConsent(() => handleGenerateOutline(topic, depth, tone, level))) return;
     if (!selectedNodeId || !currentOutlineId) return;
+    // Tier-enforcement gate (#33): one generate-outline submission = one gen.
+    if (!aiUsageGate({ feature: 'generateOutline' })) return;
     // Phase 3 quota/cloud gate (no-op when enforcement inactive; local/BYOK exempt)
     if (!ensureAIQuota('outlineGeneration')) return;
 
@@ -2083,12 +2091,14 @@ export default function OutlinePro() {
       setIsLoadingAI(false);
       aiLoadingStartTime.current = null;
     }
-  }, [toast, selectedNodeId, currentOutlineId, ensureAIQuota]);
+  }, [toast, selectedNodeId, currentOutlineId, ensureAIQuota, aiUsageGate]);
 
   // FIXED: handleExpandContent uses functional update pattern (legacy)
   const handleExpandContent = useCallback(async () => {
     if (!selectedNode) return;
     if (!checkAiConsent(() => handleExpandContent())) return;
+    // Tier-enforcement gate (#33): one content expansion = one generation.
+    if (!aiUsageGate({ feature: 'expandContent' })) return;
     // Phase 3 quota/cloud gate (no-op when enforcement inactive; local/BYOK exempt)
     if (!ensureAIQuota('contentExpansion')) return;
 
@@ -2131,7 +2141,7 @@ export default function OutlinePro() {
       setIsLoadingAI(false);
       aiLoadingStartTime.current = null;
     }
-  }, [selectedNode, currentOutlineId, toast, plan, ensureAIQuota]);
+  }, [selectedNode, currentOutlineId, toast, plan, ensureAIQuota, aiUsageGate]);
 
   // Enhanced content generation with context - returns generated content
   const handleGenerateContentForNode = useCallback(async (context: NodeGenerationContext): Promise<string> => {
@@ -2168,6 +2178,10 @@ export default function OutlinePro() {
   const handleGenerateContentForChildren = useCallback(async (parentNodeId: string) => {
     if (!currentOutline) return;
     if (!checkAiConsent(() => handleGenerateContentForChildren(parentNodeId))) return;
+
+    // Tier-enforcement gate (#33): one "Create Content for Descendants"
+    // action = one generation, regardless of how many descendants get filled.
+    if (!aiUsageGate({ feature: 'createContentForDescendants' })) return;
 
     const nodes = currentOutline.nodes;
     const parentNode = nodes[parentNodeId];
@@ -2361,7 +2375,7 @@ export default function OutlinePro() {
         description: `Generated ${successCount} of ${totalDescendants} descendants. ${errorCount} failed.`,
       });
     }
-  }, [currentOutline, currentOutlineId, getAncestorPath, plan, toast]);
+  }, [currentOutline, currentOutlineId, getAncestorPath, plan, toast, aiUsageGate]);
 
   // Apply ingest preview - creates nodes from preview
   const handleApplyIngestPreview = useCallback(async (preview: IngestPreview): Promise<void> => {

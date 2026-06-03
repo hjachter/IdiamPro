@@ -53,6 +53,7 @@ import {
 } from '@/lib/transforms/transform-engine';
 import { createRefreshTransformer } from '@/lib/transforms/refresh-transform';
 import { useToast } from '@/hooks/use-toast';
+import { useAIUsageGate } from '@/lib/use-ai-usage-gate';
 
 interface LiveBooksDialogProps {
   open: boolean;
@@ -91,6 +92,7 @@ export default function LiveBooksDialog({
   useLocalAI = false,
 }: LiveBooksDialogProps) {
   const { toast } = useToast();
+  const { gate } = useAIUsageGate();
 
   const [phase, setPhase] = useState<Phase>('configure');
   const [updateMode, setUpdateMode] = useState<TransformUpdateMode>('merge');
@@ -120,6 +122,11 @@ export default function LiveBooksDialog({
 
   const runRefresh = async () => {
     if (!outline || !selectedNodeId) return;
+
+    // Tier-enforcement gate (#33): a LIVE BOOKS refresh of any number of
+    // descendants = ONE generation (1 user-initiated AI action).
+    if (!gate({ feature: 'liveBooks' })) return;
+
     setPhase('running');
 
     const transformer = createRefreshTransformer({

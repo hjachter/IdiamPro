@@ -11,6 +11,7 @@ import type { Outline, AIDepth } from '@/types';
 import { AI_DEPTH_CONFIG } from '@/types';
 import { serializeOutline, serializeOutlines } from '@/lib/outline-serializer';
 import { isElectron, electronReadKnowledgeBase } from '@/lib/electron-storage';
+import { useAIUsageGate } from '@/lib/use-ai-usage-gate';
 
 interface Message {
   id: string;
@@ -45,6 +46,7 @@ export default function KnowledgeChatDialog({
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const { gate } = useAIUsageGate();
   const [mode, setMode] = useState<ChatMode>('current');
   const [depth, setDepth] = useState<AIDepth>('standard');
   const [context, setContext] = useState<string>('');
@@ -171,6 +173,10 @@ export default function KnowledgeChatDialog({
 
   const handleSend = async () => {
     if (!input.trim() || isLoading || !context) return;
+
+    // Tier-enforcement gate (#33): one knowledge-chat round-trip = one
+    // generation. Works for both Current Outline and All Outlines modes.
+    if (!gate({ feature: 'knowledgeChat' })) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),

@@ -12,6 +12,7 @@ import type { ExternalSourceInput, BulkResearchSources, DiarizedTranscript, Extr
 import { useAudioRecorder } from '@/lib/use-audio-recorder';
 import { transcribeRecordingAction, getYoutubeTitleAction, checkOllamaStatusAction } from '@/app/actions';
 import { openExternalUrl, isElectron, checkOllamaInstallation, startOllama } from '@/lib/electron-storage';
+import { useAIUsageGate } from '@/lib/use-ai-usage-gate';
 
 // Type for stored recording data
 interface RecordingData {
@@ -105,6 +106,7 @@ export default function BulkResearchDialog({
   canUnmerge,
   onUnmerge,
 }: BulkResearchDialogProps) {
+  const { gate } = useAIUsageGate();
   const [sources, setSources] = useState<SourceEntry[]>([]);
   const [includeExisting, setIncludeExisting] = useState(true);
   const [outlineName, setOutlineName] = useState('');
@@ -519,6 +521,10 @@ export default function BulkResearchDialog({
       alert('Please add at least one source with content.');
       return;
     }
+
+    // Tier-enforcement gate (#33): one Research & Import submission =
+    // one generation, regardless of how many sources are merged.
+    if (!gate({ feature: 'bulkResearch' })) return;
 
     setIsSubmitting(true);
     try {

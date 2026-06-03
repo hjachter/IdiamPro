@@ -27,6 +27,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ChevronDown, ChevronRight, Download, X, Pencil, Plus, Trash2, Sparkles } from 'lucide-react';
 import { canUseFeature } from '@/lib/entitlements';
+import { useAIUsageGate } from '@/lib/use-ai-usage-gate';
 import { useUpgradePrompt } from '@/components/upgrade-prompt';
 
 interface PodcastDialogProps {
@@ -195,6 +196,7 @@ export default function PodcastDialog({
   const speakers = getDefaultSpeakers(style);
 
   const { promptUpgrade } = useUpgradePrompt();
+  const { gate: aiUsageGate } = useAIUsageGate();
 
   /**
    * Phase 3 gate: podcast / universal-output generation is a Power feature.
@@ -205,13 +207,18 @@ export default function PodcastDialog({
    * this never blocks and podcast generation works exactly as it does now.
    */
   const ensurePodcastAllowed = useCallback((): boolean => {
+    // Launch tier model (#33): podcast generation is a Pro-only feature.
+    // gate() shows the Pro upgrade dialog automatically for non-pro users
+    // and counts the generation on success. Falls through to the older
+    // canUseFeature gate when the launch counter is exempt (BYOK / local).
+    if (!aiUsageGate({ feature: 'podcastGeneration' })) return false;
     if (canUseFeature('podcastGeneration')) return true;
     promptUpgrade({
       reason: 'Podcast generation is a Power feature.',
       requiredTier: 'premium',
     });
     return false;
-  }, [promptUpgrade]);
+  }, [promptUpgrade, aiUsageGate]);
 
   const handleVoiceChange = useCallback((speaker: string, voice: OpenAIVoice) => {
     setVoices(prev => ({ ...prev, [speaker]: voice }));

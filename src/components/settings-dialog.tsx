@@ -7,7 +7,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { Folder, Info, Smartphone, Cpu, Cloud, Loader2, CheckCircle, XCircle, Crown, Shield, Moon, Sun, Download, Trash2, AlertTriangle, Play } from 'lucide-react';
+import { Folder, Info, Smartphone, Cpu, Cloud, Loader2, CheckCircle, XCircle, Crown, Shield, Moon, Sun, Download, Trash2, AlertTriangle, Play, Sparkles } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,6 +29,18 @@ import { isElectron, electronSelectDirectory, electronGetStoredDirectoryPath, ch
 import { checkOllamaStatusAction } from '@/app/actions';
 import type { AIProvider, AIDepth } from '@/types';
 import { AI_DEPTH_CONFIG } from '@/types';
+import {
+  getCurrentTier,
+  getTierCap,
+  getTierDisplayName,
+  hasAnyByokKey,
+} from '@/lib/tier-detection';
+import {
+  getUsage,
+  getNextResetLabel,
+  getDaysUntilReset,
+  resetUsage,
+} from '@/lib/ai-usage-counter';
 
 // Check if running in Capacitor native app (but NOT Electron)
 function isCapacitor(): boolean {
@@ -60,6 +72,34 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
 
   // AI depth setting
   const [aiDepth, setAiDepth] = useState<AIDepth>('standard');
+
+  // Launch tier usage state (recomputed each time the dialog opens).
+  // Re-reading on every open keeps it fresh even if the user just hit the cap
+  // in another part of the app; we don't need a global state store for this.
+  const [usageState, setUsageState] = useState(() => {
+    const tier = getCurrentTier();
+    return {
+      tier,
+      tierName: getTierDisplayName(tier),
+      cap: getTierCap(tier),
+      used: 0,
+      isByok: false,
+      resetLabel: getNextResetLabel(),
+      daysUntilReset: getDaysUntilReset(),
+    };
+  });
+  const refreshUsageState = React.useCallback(() => {
+    const tier = getCurrentTier();
+    setUsageState({
+      tier,
+      tierName: getTierDisplayName(tier),
+      cap: getTierCap(tier),
+      used: getUsage().count,
+      isByok: hasAnyByokKey(),
+      resetLabel: getNextResetLabel(),
+      daysUntilReset: getDaysUntilReset(),
+    });
+  }, []);
 
   // Local AI (Ollama) state
   // API Key management
@@ -144,6 +184,11 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
 
     loadCurrentFolder();
   }, []);
+
+  // Refresh AI usage stats whenever the dialog opens.
+  useEffect(() => {
+    if (open) refreshUsageState();
+  }, [open, refreshUsageState]);
 
   // Check Ollama status when dialog opens
   useEffect(() => {
@@ -695,6 +740,89 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
             >
               View Privacy Policy
             </a>
+          </div>
+
+          {/* AI Usage — launch tier counter (#33) */}
+          <div className="space-y-3" data-testid="ai-usage-section">
+            <h3 className="text-sm font-medium flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-emerald-500" />
+              AI Usage
+            </h3>
+            {usageState.isByok ? (
+              <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-3 space-y-1">
+                <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400" data-testid="ai-usage-line">
+                  Unlimited — using your own API key
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  BYOK active. Generations use your own provider key and are not counted against any monthly cap.
+                </p>
+              </div>
+            ) : (
+              <div className="rounded-lg border border-border/50 p-3 space-y-1.5">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-sm font-medium" data-testid="ai-usage-tier">
+                    {usageState.tierName}
+                  </span>
+                  {usageState.tier === 'pro' && (
+                    <Crown className="h-3.5 w-3.5 text-amber-500" />
+                  )}
+                </div>
+                {Number.isFinite(usageState.cap) ? (
+                  <>
+                    <p className="text-sm" data-testid="ai-usage-line">
+                      <span className="font-medium">{usageState.used}</span>
+                      <span className="text-muted-foreground"> of </span>
+                      <span className="font-medium">{usageState.cap}</span>
+                      <span className="text-muted-foreground">
+                        {usageState.tier === 'free-trial'
+                          ? ' trial generations used'
+                          : ' generations used this month'}
+                      </span>
+                    </p>
+                    {/* Progress bar */}
+                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                      <div
+                        data-testid="ai-usage-progress"
+                        className={
+                          usageState.used / usageState.cap >= 1
+                            ? 'h-full bg-red-500'
+                            : usageState.used / usageState.cap >= 0.8
+                              ? 'h-full bg-amber-500'
+                              : 'h-full bg-emerald-500'
+                        }
+                        style={{
+                          width: `${Math.min(100, Math.round((usageState.used / Math.max(1, usageState.cap)) * 100))}%`,
+                        }}
+                      />
+                    </div>
+                    {usageState.tier === 'free-trial' ? (
+                      <p className="text-xs text-muted-foreground">
+                        One-time trial. When you run out, add a free API key below (Gemini takes about a minute) or upgrade your plan.
+                      </p>
+                    ) : (
+                      <p className="text-xs text-muted-foreground">
+                        Resets {usageState.resetLabel} ({usageState.daysUntilReset} {usageState.daysUntilReset === 1 ? 'day' : 'days'} away).
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  <p className="text-sm" data-testid="ai-usage-line">
+                    Unlimited generations on this tier.
+                  </p>
+                )}
+                {process.env.NODE_ENV !== 'production' && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 text-xs"
+                    onClick={() => { resetUsage(); refreshUsageState(); }}
+                    data-testid="ai-usage-reset"
+                  >
+                    Reset usage (debug)
+                  </Button>
+                )}
+              </div>
+            )}
           </div>
 
           {/* AI Service API Keys */}
