@@ -107,6 +107,16 @@ export default function OutlinePro() {
   const undoStackRef = useRef<Outline[][]>([]);
   const redoStackRef = useRef<Outline[][]>([]);
   const MAX_UNDO_DEPTH = 50;
+  // Keeps a synchronously-readable view of the latest outlines array. Used by
+  // undo/redo to compare snapshots against current state without going through
+  // a React updater (which is fragile in strict mode and would re-run our pop
+  // logic on every invocation).
+  const outlinesRef = useRef<Outline[]>([]);
+  // True for a short window right after an undo/redo runs. While set, downstream
+  // auto-save / dirty-tracking effects that flow through setOutlines must NOT
+  // clear the redo stack — otherwise a Cmd+Z immediately followed by Cmd+Shift+Z
+  // loses the redo target because the input-blur effect (or similar) wipes it.
+  const suppressRedoClearRef = useRef(false);
 
   // Wrapper around setState that auto-detects which outlines changed via
   // reference equality (for dirty-tracking) AND records history for undo.
@@ -115,10 +125,16 @@ export default function OutlinePro() {
       const next = typeof updater === 'function' ? updater(prev) : updater;
       // Record the pre-change snapshot for undo. A no-op update (next === prev)
       // is not recorded. Any genuine user/AI action clears the redo future.
+      // Snapshots that don't visibly change the *current* outline are filtered
+      // out at undo time (see the undo callback below) — that's a more reliable
+      // place to catch dirty-tracking churn, React strict-mode double-invokes,
+      // and startup effects than trying to gate them at push time.
       if (next !== prev) {
         undoStackRef.current.push(prev);
         if (undoStackRef.current.length > MAX_UNDO_DEPTH) undoStackRef.current.shift();
-        redoStackRef.current = [];
+        if (!suppressRedoClearRef.current) {
+          redoStackRef.current = [];
+        }
       }
       for (const outline of next) {
         const prevOutline = prev.find(o => o.id === outline.id);
@@ -204,35 +220,97 @@ export default function OutlinePro() {
   // Both bypass setOutlines and call rawSetOutlines directly so the restore is
   // not itself recorded as a new history entry. Restored outlines are marked
   // dirty so the undone/redone state persists to disk.
+  // Signature of the current outline only — what the user actually sees. Used
+  // to detect "noise" snapshots that left the visible outline unchanged
+  // (dirty-tracking churn, lazy-load updates of other outlines, etc.) so
+  // Cmd+Z always produces a visible change instead of seeming to do nothing.
+  //
+  // Volatile fields stripped from the signature:
+  //  - lastModified / createdAt / updatedAt timestamps tick on every save.
+  //  - Tiptap initializes empty node content to `<p></p>` (and a few similar
+  //    "blank document" wrappers) as soon as the editor mounts, which counts
+  //    as a state change but is invisible to the user.
+  const normalizeContent = (content: unknown): unknown => {
+    if (typeof content !== 'string') return content;
+    return content.replace(/<p>\s*(<br\s*\/?>\s*)?<\/p>/g, '').trim();
+  };
+  const visibleSignature = (arr: Outline[], outlineId: string): string => {
+    const o = arr.find(o => o.id === outlineId);
+    if (!o) return '__none__';
+    try {
+      return JSON.stringify(o, (key, value) => {
+        if (key === 'lastModified' || key === 'createdAt' || key === 'updatedAt') return undefined;
+        if (key === 'content') return normalizeContent(value);
+        return value;
+      });
+    } catch { return String(arr.length); }
+  };
+
   const undo = useCallback(() => {
     if (undoStackRef.current.length === 0) {
       toast({ title: 'Nothing to undo', duration: 1200 });
       return;
     }
-    rawSetOutlines(current => {
-      const previous = undoStackRef.current.pop()!;
-      redoStackRef.current.push(current);
-      for (const o of previous) dirtyOutlineIdsRef.current.add(o.id);
-      return previous;
-    });
+    const current = outlinesRef.current;
+    const currentSig = visibleSignature(current, currentOutlineId);
+    let target: Outline[] | null = null;
+    while (undoStackRef.current.length > 0) {
+      const candidate = undoStackRef.current.pop()!;
+      if (visibleSignature(candidate, currentOutlineId) !== currentSig) {
+        target = candidate;
+        break;
+      }
+      // Noise snapshot (no visible change). Discard rather than adding to the
+      // redo stack — a later Cmd+Shift+Z would otherwise "redo" something the
+      // user never saw happen in the first place.
+    }
+    if (!target) {
+      toast({ title: 'Nothing to undo', duration: 1200 });
+      return;
+    }
+    redoStackRef.current.push(current);
+    for (const o of target) dirtyOutlineIdsRef.current.add(o.id);
+    // Protect the freshly-pushed redo entry from being wiped by the cascade
+    // of auto-save / blur / dirty-tracking effects that the undone state
+    // change will trigger.
+    suppressRedoClearRef.current = true;
+    rawSetOutlines(target);
+    setTimeout(() => { suppressRedoClearRef.current = false; }, 500);
     toast({ title: 'Undone', duration: 1200 });
-  }, [toast]);
+  }, [toast, currentOutlineId]);
 
   const redo = useCallback(() => {
     if (redoStackRef.current.length === 0) {
       toast({ title: 'Nothing to redo', duration: 1200 });
       return;
     }
-    rawSetOutlines(current => {
-      const nextState = redoStackRef.current.pop()!;
-      undoStackRef.current.push(current);
-      for (const o of nextState) dirtyOutlineIdsRef.current.add(o.id);
-      return nextState;
-    });
+    const current = outlinesRef.current;
+    const currentSig = visibleSignature(current, currentOutlineId);
+    let target: Outline[] | null = null;
+    while (redoStackRef.current.length > 0) {
+      const candidate = redoStackRef.current.pop()!;
+      if (visibleSignature(candidate, currentOutlineId) !== currentSig) {
+        target = candidate;
+        break;
+      }
+    }
+    if (!target) {
+      toast({ title: 'Nothing to redo', duration: 1200 });
+      return;
+    }
+    undoStackRef.current.push(current);
+    for (const o of target) dirtyOutlineIdsRef.current.add(o.id);
+    suppressRedoClearRef.current = true;
+    rawSetOutlines(target);
+    setTimeout(() => { suppressRedoClearRef.current = false; }, 500);
     toast({ title: 'Redone', duration: 1200 });
-  }, [toast]);
+  }, [toast, currentOutlineId]);
 
   const [pendingAICommand, setPendingAICommand] = useState<InterpretedCommand | null>(null);
+
+  // Keep outlinesRef in sync with React state so undo/redo can read it
+  // synchronously without going through a state updater.
+  useEffect(() => { outlinesRef.current = outlines; }, [outlines]);
 
   // Reset stale AI loading state when returning from sleep/background
   // If loading has been going for more than 5 minutes, it's likely stale
@@ -895,6 +973,11 @@ export default function OutlinePro() {
       // Cmd+Z / Ctrl+Z to undo, +Shift to redo. Skip when the user is editing
       // text in an input / textarea / contenteditable — there the browser's
       // own character-level text undo should win, not the outline-level undo.
+      // Exception: if that editable area is EMPTY, the browser has nothing
+      // useful to undo, so fall through to outline-level undo. This covers
+      // the common "I just created a node and immediately want to take it
+      // back" case — Enter creates a new child node and focuses it, so the
+      // cursor is sitting in an empty editable when Cmd+Z is pressed.
       if ((e.metaKey || e.ctrlKey) && (e.key === 'z' || e.key === 'Z')) {
         const el = document.activeElement as HTMLElement | null;
         const isEditingText = !!el && (
@@ -902,7 +985,10 @@ export default function OutlinePro() {
           el.tagName === 'TEXTAREA' ||
           el.isContentEditable
         );
-        if (isEditingText) return;
+        if (isEditingText) {
+          const text = (el?.textContent ?? '').trim();
+          if (text.length > 0) return;
+        }
         e.preventDefault();
         if (e.shiftKey) redo();
         else undo();
