@@ -44,6 +44,54 @@ interface ElectronAPI {
   saveUnmergeBackup?: (backupData: UnmergeBackupData) => Promise<{ success: boolean; error?: string }>;
   loadUnmergeBackup?: () => Promise<{ success: boolean; backup?: UnmergeBackupData | null; error?: string }>;
   deleteUnmergeBackup?: () => Promise<{ success: boolean; error?: string }>;
+  // Ollama installation detection and launch (macOS only for now)
+  checkOllamaInstallation?: () => Promise<{ installed: boolean; platform: string }>;
+  startOllama?: () => Promise<{ ok: boolean; error?: string }>;
+}
+
+/**
+ * Platform / install-state for Ollama as reported by the Electron main process.
+ * `platform` is the Node `process.platform` value when in Electron, or `'web'`
+ * when not running in Electron at all.
+ */
+export interface OllamaInstallationInfo {
+  installed: boolean;
+  platform: 'darwin' | 'win32' | 'linux' | 'web' | string;
+}
+
+/**
+ * Returns whether Ollama.app is installed on disk (macOS).
+ * In non-Electron contexts, returns `{ installed: false, platform: 'web' }`.
+ * This is a pure filesystem check — it does NOT tell you whether the Ollama
+ * service is currently running. Combine with `checkOllamaStatusAction()` for
+ * the full picture.
+ */
+export async function checkOllamaInstallation(): Promise<OllamaInstallationInfo> {
+  if (isElectron() && window.electronAPI?.checkOllamaInstallation) {
+    try {
+      const result = await window.electronAPI.checkOllamaInstallation();
+      return { installed: !!result?.installed, platform: result?.platform || 'unknown' };
+    } catch {
+      return { installed: false, platform: 'unknown' };
+    }
+  }
+  return { installed: false, platform: 'web' };
+}
+
+/**
+ * Launches the installed Ollama.app on macOS, which starts the background
+ * ollama service. Resolves to `{ ok: true }` on success, or `{ ok: false,
+ * error }` if the launch failed or the platform doesn't support this yet.
+ */
+export async function startOllama(): Promise<{ ok: boolean; error?: string }> {
+  if (isElectron() && window.electronAPI?.startOllama) {
+    try {
+      return await window.electronAPI.startOllama();
+    } catch (err) {
+      return { ok: false, error: (err as Error)?.message || 'Failed to start Ollama' };
+    }
+  }
+  return { ok: false, error: 'Not available outside the desktop app' };
 }
 
 declare global {

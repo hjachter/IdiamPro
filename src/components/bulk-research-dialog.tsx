@@ -11,7 +11,7 @@ import { X, Plus, FileText, Youtube, Type, Globe, Image as ImageIcon, FileArchiv
 import type { ExternalSourceInput, BulkResearchSources, DiarizedTranscript, ExtractionDetailLevel } from '@/types';
 import { useAudioRecorder } from '@/lib/use-audio-recorder';
 import { transcribeRecordingAction, getYoutubeTitleAction, checkOllamaStatusAction } from '@/app/actions';
-import { openExternalUrl, isElectron } from '@/lib/electron-storage';
+import { openExternalUrl, isElectron, checkOllamaInstallation, startOllama } from '@/lib/electron-storage';
 
 // Type for stored recording data
 interface RecordingData {
@@ -111,6 +111,10 @@ export default function BulkResearchDialog({
   const [detailLevel, setDetailLevel] = useState<ExtractionDetailLevel>('standard');
   const [useLocalAI, setUseLocalAI] = useState(false);
   const [ollamaStatus, setOllamaStatus] = useState<'checking' | 'available' | 'unavailable' | null>(null);
+  // Differentiates "Ollama.app installed but service not running" from
+  // "Ollama is not installed at all" so the UI can show the right CTA.
+  const [ollamaInstalled, setOllamaInstalled] = useState<boolean | null>(null);
+  const [isStartingOllama, setIsStartingOllama] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Recording state
@@ -144,6 +148,11 @@ export default function BulkResearchDialog({
   useEffect(() => {
     if (open && isElectron() && ollamaStatus === null) {
       setOllamaStatus('checking');
+      // Also probe whether Ollama.app is installed on disk so we can
+      // distinguish "installed but not running" from "not installed".
+      checkOllamaInstallation()
+        .then(info => setOllamaInstalled(info.installed))
+        .catch(() => setOllamaInstalled(false));
       checkOllamaStatusAction()
         .then((status) => {
           setOllamaStatus(status.available ? 'available' : 'unavailable');
@@ -155,9 +164,45 @@ export default function BulkResearchDialog({
     // Reset status when dialog closes
     if (!open) {
       setOllamaStatus(null);
+      setOllamaInstalled(null);
+      setIsStartingOllama(false);
       setUseLocalAI(false);
     }
   }, [open, ollamaStatus]);
+
+  // Re-probe Ollama status (used after launching Ollama.app).
+  // Polls a few times because the service takes a moment to come up.
+  const recheckOllamaStatus = useCallback(async () => {
+    setOllamaStatus('checking');
+    for (let attempt = 0; attempt < 8; attempt++) {
+      try {
+        const status = await checkOllamaStatusAction();
+        if (status.available) {
+          setOllamaStatus('available');
+          return;
+        }
+      } catch {
+        // ignore and retry
+      }
+      await new Promise(r => setTimeout(r, 1500));
+    }
+    setOllamaStatus('unavailable');
+  }, []);
+
+  const handleStartOllama = useCallback(async () => {
+    setIsStartingOllama(true);
+    try {
+      const result = await startOllama();
+      if (!result.ok) {
+        // Failed to launch — surface as unavailable; user can try Install link.
+        setOllamaStatus('unavailable');
+        return;
+      }
+      await recheckOllamaStatus();
+    } finally {
+      setIsStartingOllama(false);
+    }
+  }, [recheckOllamaStatus]);
 
   // Cleanup audio URLs on unmount
   useEffect(() => {
@@ -693,28 +738,58 @@ export default function BulkResearchDialog({
                           Use Local AI (Ollama)
                         </Label>
                         <p className="text-xs text-amber-600 dark:text-amber-400">
-                          Ollama not detected on your Mac
+                          {ollamaInstalled
+                            ? 'Ollama is installed but not running'
+                            : 'Ollama not detected on your Mac'}
                         </p>
                       </div>
                     </div>
-                    <div className="ml-7 p-3 bg-muted/50 rounded-md space-y-2">
-                      <p className="text-xs text-muted-foreground">
-                        Install Ollama for faster processing with no rate limits. Your data stays on your Mac.
-                      </p>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="h-7 text-xs"
-                        onClick={() => openExternalUrl('https://ollama.com/download')}
-                      >
-                        <ExternalLink className="h-3 w-3 mr-1.5" />
-                        Install Ollama
-                      </Button>
-                      <p className="text-xs text-muted-foreground">
-                        After installing (v0.20+), run: <code className="bg-muted px-1 rounded">ollama pull gemma4:e4b</code>
-                      </p>
-                    </div>
+                    {ollamaInstalled ? (
+                      <div className="ml-7 p-3 bg-muted/50 rounded-md space-y-2">
+                        <p className="text-xs text-muted-foreground">
+                          Start Ollama to enable local AI. Your data stays on your Mac.
+                        </p>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="h-7 text-xs"
+                          onClick={handleStartOllama}
+                          disabled={isStartingOllama}
+                        >
+                          {isStartingOllama ? (
+                            <>
+                              <Loader2 className="h-3 w-3 mr-1.5 animate-spin" />
+                              Starting…
+                            </>
+                          ) : (
+                            <>
+                              <Play className="h-3 w-3 mr-1.5" />
+                              Start Ollama
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="ml-7 p-3 bg-muted/50 rounded-md space-y-2">
+                        <p className="text-xs text-muted-foreground">
+                          Install Ollama for faster processing with no rate limits. Your data stays on your Mac.
+                        </p>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="h-7 text-xs"
+                          onClick={() => openExternalUrl('https://ollama.com/download')}
+                        >
+                          <ExternalLink className="h-3 w-3 mr-1.5" />
+                          Install Ollama
+                        </Button>
+                        <p className="text-xs text-muted-foreground">
+                          After installing (v0.20+), run: <code className="bg-muted px-1 rounded">ollama pull gemma4:e4b</code>
+                        </p>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

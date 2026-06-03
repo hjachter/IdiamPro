@@ -7,7 +7,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { Folder, Info, Smartphone, Cpu, Cloud, Loader2, CheckCircle, XCircle, Crown, Shield, Moon, Sun, Download, Trash2, AlertTriangle } from 'lucide-react';
+import { Folder, Info, Smartphone, Cpu, Cloud, Loader2, CheckCircle, XCircle, Crown, Shield, Moon, Sun, Download, Trash2, AlertTriangle, Play } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,7 +25,7 @@ import { useAI } from '@/contexts/ai-context';
 import AIPlanDialog from './ai-plan-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { storeDirectoryHandle, getDirectoryHandle, verifyDirectoryPermission } from '@/lib/file-storage';
-import { isElectron, electronSelectDirectory, electronGetStoredDirectoryPath } from '@/lib/electron-storage';
+import { isElectron, electronSelectDirectory, electronGetStoredDirectoryPath, checkOllamaInstallation, startOllama } from '@/lib/electron-storage';
 import { checkOllamaStatusAction } from '@/app/actions';
 import type { AIProvider, AIDepth } from '@/types';
 import { AI_DEPTH_CONFIG } from '@/types';
@@ -75,6 +75,10 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
     recommendedModel: string | null;
   }>({ checking: true, available: false, models: [], recommendedModel: null });
   const [selectedModel, setSelectedModel] = useState<string>('');
+  // Differentiates "Ollama.app installed but service not running" from
+  // "Ollama is not installed at all" so the UI can show the right CTA.
+  const [ollamaInstalled, setOllamaInstalled] = useState<boolean | null>(null);
+  const [isStartingOllama, setIsStartingOllama] = useState<boolean>(false);
 
   // Load current folder and settings on mount
   useEffect(() => {
@@ -145,6 +149,11 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
   useEffect(() => {
     if (open) {
       checkOllamaStatus();
+      // Also probe whether Ollama.app is installed on disk so we can
+      // distinguish "installed but not running" from "not installed".
+      checkOllamaInstallation()
+        .then(info => setOllamaInstalled(info.installed))
+        .catch(() => setOllamaInstalled(false));
     }
   }, [open]);
 
@@ -164,6 +173,47 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
       }
     } catch (error) {
       setOllamaStatus({ checking: false, available: false, models: [], recommendedModel: null });
+    }
+  };
+
+  // Re-probe Ollama status (used after launching Ollama.app).
+  // Polls a few times because the service takes a moment to come up.
+  const recheckOllamaStatus = async () => {
+    setOllamaStatus(prev => ({ ...prev, checking: true }));
+    for (let attempt = 0; attempt < 8; attempt++) {
+      try {
+        const status = await checkOllamaStatusAction();
+        if (status.available) {
+          setOllamaStatus({
+            checking: false,
+            available: true,
+            models: status.models.map(m => m.name),
+            recommendedModel: status.recommendedModel,
+          });
+          if (status.recommendedModel && !selectedModel) {
+            setSelectedModel(status.recommendedModel);
+          }
+          return;
+        }
+      } catch {
+        // ignore and retry
+      }
+      await new Promise(r => setTimeout(r, 1500));
+    }
+    setOllamaStatus({ checking: false, available: false, models: [], recommendedModel: null });
+  };
+
+  const handleStartOllama = async () => {
+    setIsStartingOllama(true);
+    try {
+      const result = await startOllama();
+      if (result.ok) {
+        await recheckOllamaStatus();
+      } else {
+        setOllamaStatus(prev => ({ ...prev, checking: false }));
+      }
+    } finally {
+      setIsStartingOllama(false);
     }
   };
 
@@ -781,6 +831,11 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
                     <CheckCircle className="h-3 w-3" />
                     Ollama running
                   </span>
+                ) : ollamaInstalled ? (
+                  <span className="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1">
+                    <XCircle className="h-3 w-3" />
+                    Ollama installed, not running
+                  </span>
                 ) : (
                   <span className="text-xs text-muted-foreground flex items-center gap-1">
                     <XCircle className="h-3 w-3" />
@@ -851,13 +906,48 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
                       Checking for Ollama…
                     </span>
                   )}
-                  {!ollamaStatus.checking && !ollamaStatus.available && aiProvider !== 'cloud' && (
-                    <span className="block mt-1">
-                      Install Ollama from <strong>ollama.com</strong> (v0.20+) and run <code className="bg-muted px-1 rounded">ollama pull gemma4:e4b</code>
-                    </span>
+                  {!ollamaStatus.checking && !ollamaStatus.available && (
+                    ollamaInstalled ? (
+                      <span className="block mt-1">
+                        Ollama is installed but the background service isn&apos;t running.
+                      </span>
+                    ) : aiProvider !== 'cloud' ? (
+                      <span className="block mt-1">
+                        Install Ollama from <strong>ollama.com</strong> (v0.20+) and run <code className="bg-muted px-1 rounded">ollama pull gemma4:e4b</code>
+                      </span>
+                    ) : null
                   )}
                 </span>
               </p>
+
+              {/* Start Ollama button — shown when Ollama.app is installed but
+                  the background service isn't responding. Launching the app
+                  starts the service automatically. Available regardless of
+                  current provider so the user can start the service even from
+                  cloud mode (e.g. to switch to local, or so 'auto' has a real
+                  local fallback). */}
+              {!ollamaStatus.checking && !ollamaStatus.available && ollamaInstalled && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="h-7 text-xs"
+                  onClick={handleStartOllama}
+                  disabled={isStartingOllama}
+                >
+                  {isStartingOllama ? (
+                    <>
+                      <Loader2 className="h-3 w-3 mr-1.5 animate-spin" />
+                      Starting…
+                    </>
+                  ) : (
+                    <>
+                      <Play className="h-3 w-3 mr-1.5" />
+                      Start Ollama
+                    </>
+                  )}
+                </Button>
+              )}
             </div>
           )}
 

@@ -1256,6 +1256,46 @@ end tell`;
   });
 });
 
+// ========== Ollama installation check / launch ==========
+// Distinguishes "Ollama.app is installed but the background service isn't
+// running" from "Ollama is not installed at all" so the UI can show the
+// right call to action ("Start Ollama" vs "Install Ollama").
+
+ipcMain.handle('check-ollama-installation', async () => {
+  try {
+    const platform = process.platform; // 'darwin' | 'win32' | 'linux' | ...
+    if (platform === 'darwin') {
+      const installed = fs.existsSync('/Applications/Ollama.app');
+      return { installed, platform };
+    }
+    // Windows / Linux detection is not implemented yet — treat as not-installed
+    // so the existing "Install Ollama" UX is shown.
+    return { installed: false, platform };
+  } catch (error) {
+    console.error('[Ollama] check-ollama-installation failed:', error);
+    return { installed: false, platform: process.platform };
+  }
+});
+
+ipcMain.handle('start-ollama', async () => {
+  try {
+    if (process.platform !== 'darwin') {
+      return { ok: false, error: 'start-ollama is only supported on macOS right now' };
+    }
+    // shell.openPath returns '' on success and an error string on failure.
+    // Opening Ollama.app starts the background ollama service.
+    const result = await shell.openPath('/Applications/Ollama.app');
+    if (result) {
+      console.error('[Ollama] start-ollama failed:', result);
+      return { ok: false, error: result };
+    }
+    return { ok: true };
+  } catch (error) {
+    console.error('[Ollama] start-ollama threw:', error);
+    return { ok: false, error: (error && error.message) || String(error) };
+  }
+});
+
 // ========== App Lifecycle ==========
 
 // This method will be called when Electron has finished

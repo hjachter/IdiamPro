@@ -61,4 +61,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Apple Mail email content fetch
   fetchAppleMailContent: (messageId) => ipcRenderer.invoke('fetch-apple-mail-content', messageId),
 
+  // Ollama installation detection and launch (macOS only for now)
+  checkOllamaInstallation: () => ipcRenderer.invoke('check-ollama-installation'),
+  startOllama: () => ipcRenderer.invoke('start-ollama'),
+
 });

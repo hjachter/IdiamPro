@@ -1,0 +1,321 @@
+/**
+ * Ollama Installed-But-Not-Running UX Test
+ *
+ * Verifies that when /Applications/Ollama.app exists on disk but the
+ * background Ollama service is NOT running, both the Settings dialog AND
+ * the Research & Import dialog show "installed but not running" copy +
+ * a "Start Ollama" button — NOT the misleading "Install Ollama" download
+ * pitch.
+ *
+ * Assumptions on the test machine:
+ *   • /Applications/Ollama.app is installed.
+ *   • This script kills the Ollama service before launching Electron so
+ *     the renderer sees `available=false`. If the user re-launches Ollama
+ *     mid-test, the assertion for "not running" may fail.
+ *
+ * Screenshots → test-screenshots/ollama-installed-not-running/
+ * Report      → test-screenshots/ollama-installed-not-running/report.{json,md}
+ */
+
+const { _electron: electron } = require('playwright');
+const path = require('path');
+const fs = require('fs');
+const os = require('os');
+const { execSync } = require('child_process');
+
+let electronApp;
+let page;
+
+process.on('unhandledRejection', (err) => {
+  const msg = String((err && err.message) || err);
+  if (/handleJavaScriptDialog|No dialog is showing/.test(msg)) return;
+  throw err;
+});
+
+const SCREENSHOT_DIR = path.resolve(__dirname, '..', 'test-screenshots', 'ollama-installed-not-running');
+const OLLAMA_APP_PATH = '/Applications/Ollama.app';
+
+function ensureDir(dir) {
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+}
+
+function fmt(ms) {
+  return ms < 1000 ? `${ms}ms` : `${(ms / 1000).toFixed(2)}s`;
+}
+
+function stopOllamaService() {
+  try {
+    execSync('pkill -f "ollama" 2>/dev/null || true', { stdio: 'ignore' });
+  } catch {
+    // pkill returns non-zero if nothing matched — that's fine.
+  }
+}
+
+async function findMainWindow(app, maxWait = 30000) {
+  const start = Date.now();
+  while (Date.now() - start < maxWait) {
+    for (const win of app.windows()) {
+      try {
+        const url = win.url();
+        if (url.startsWith('devtools://')) continue;
+        if (url.includes('localhost:9002')) return win;
+      } catch {}
+    }
+    await new Promise(r => setTimeout(r, 500));
+  }
+  throw new Error('Could not find main app window');
+}
+
+async function launchApp() {
+  const projectRoot = path.resolve(__dirname, '..');
+  console.log('Launching Electron from:', projectRoot);
+  electronApp = await electron.launch({
+    args: [projectRoot],
+    env: { ...process.env, NODE_ENV: 'development' },
+  });
+  page = await findMainWindow(electronApp);
+  await page.waitForLoadState('domcontentloaded');
+  await page.waitForTimeout(2000);
+
+  if (!page.url().includes('/app')) {
+    await page.evaluate(() => { window.location.href = '/app'; });
+    await page.waitForLoadState('domcontentloaded');
+    try {
+      await page.locator('button:has-text("New Outline")').waitFor({ state: 'visible', timeout: 30000 });
+    } catch {
+      await page.waitForTimeout(5000);
+    }
+  }
+  console.log('App ready at:', page.url());
+}
+
+async function shot(name) {
+  const file = path.join(SCREENSHOT_DIR, `${name}.png`);
+  try {
+    await page.screenshot({ path: file, fullPage: false });
+    return file;
+  } catch (e) {
+    console.log(`  Screenshot failed: ${e.message}`);
+    return null;
+  }
+}
+
+async function closeAllDialogs() {
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const dialogCount = await page.locator('[role="dialog"]').count().catch(() => 0);
+    if (dialogCount === 0) break;
+    await page.keyboard.press('Escape').catch(() => {});
+    await page.waitForTimeout(400);
+  }
+  await page.waitForTimeout(200);
+}
+
+/* ─────────────────────────── Test 1: Settings ─────────────────────────── */
+async function testSettingsDialog(ollamaInstalled) {
+  const d = { steps: [] };
+  try {
+    const settingsBtn = page.locator('button:has(.lucide-settings), [aria-label*="Settings"]').first();
+    await settingsBtn.click();
+    await page.waitForTimeout(1500); // let ollama probe finish
+    d.steps.push('Opened Settings dialog');
+    await shot('01-settings-open');
+
+    const dialogText = (await page.locator('[role="dialog"]').last().textContent().catch(() => '')) || '';
+    d.dialogTextLength = dialogText.length;
+
+    const hasInstalledNotRunning = /installed but not running|installed,\s*not running/i.test(dialogText);
+    const hasStartOllamaButton = await page.locator('[role="dialog"] button:has-text("Start Ollama")').first().isVisible({ timeout: 1500 }).catch(() => false);
+    const hasOldInstallPitch = /Install Ollama from/i.test(dialogText);
+
+    if (ollamaInstalled) {
+      // We expect the NEW copy and the Start button
+      if (!hasInstalledNotRunning) {
+        d.error = 'Expected "installed but not running" copy in Settings, but did not find it';
+        await shot('01-settings-failed');
+        return { passed: false, details: d };
+      }
+      d.steps.push('Settings shows "installed but not running" copy');
+      if (!hasStartOllamaButton) {
+        d.error = 'Expected "Start Ollama" button in Settings, but it was not visible';
+        await shot('01-settings-no-start-btn');
+        return { passed: false, details: d };
+      }
+      d.steps.push('Settings shows "Start Ollama" button');
+      if (hasOldInstallPitch) {
+        d.error = 'Settings still shows the misleading "Install Ollama from ollama.com" copy';
+        return { passed: false, details: d };
+      }
+      d.steps.push('Settings no longer shows misleading "Install Ollama from ollama.com" pitch');
+    } else {
+      // Ollama not installed — should still show install pitch
+      if (!hasOldInstallPitch) {
+        d.error = 'Expected "Install Ollama from ollama.com" copy in Settings (Ollama not installed)';
+        return { passed: false, details: d };
+      }
+      d.steps.push('Settings correctly shows install pitch when Ollama is not installed');
+    }
+
+    await closeAllDialogs();
+    return { passed: true, details: d };
+  } catch (e) {
+    d.error = e.message;
+    try { await closeAllDialogs(); } catch {}
+    return { passed: false, details: d };
+  }
+}
+
+/* ─────────────────────────── Test 2: Research & Import ─────────────────────────── */
+async function testBulkResearchDialog(ollamaInstalled) {
+  const d = { steps: [] };
+  try {
+    const aiBtn = page.locator('button[title="AI Features"]').first();
+    await aiBtn.click();
+    await page.waitForTimeout(500);
+    const researchItem = page.locator('text="Research & Import"').first();
+    if (!(await researchItem.isVisible({ timeout: 2000 }).catch(() => false))) {
+      d.error = 'Research & Import menu item not found';
+      await shot('02-research-no-item');
+      return { passed: false, details: d };
+    }
+    await researchItem.click();
+    await page.waitForTimeout(1800); // let ollama probe finish
+    d.steps.push('Opened Research & Import dialog');
+    await shot('02-research-open');
+
+    const dialogText = (await page.locator('[role="dialog"]').last().textContent().catch(() => '')) || '';
+    d.dialogTextLength = dialogText.length;
+
+    const hasInstalledNotRunning = /Ollama is installed but not running/i.test(dialogText);
+    const hasStartOllamaButton = await page.locator('[role="dialog"] button:has-text("Start Ollama")').first().isVisible({ timeout: 1500 }).catch(() => false);
+    const hasOldNotDetected = /Ollama not detected on your Mac/i.test(dialogText);
+
+    if (ollamaInstalled) {
+      if (!hasInstalledNotRunning) {
+        d.error = 'Expected "Ollama is installed but not running" copy in Research dialog';
+        await shot('02-research-failed');
+        return { passed: false, details: d };
+      }
+      d.steps.push('Research dialog shows "Ollama is installed but not running" copy');
+      if (!hasStartOllamaButton) {
+        d.error = 'Expected "Start Ollama" button in Research dialog';
+        return { passed: false, details: d };
+      }
+      d.steps.push('Research dialog shows "Start Ollama" button');
+      if (hasOldNotDetected) {
+        d.error = 'Research dialog still shows misleading "Ollama not detected on your Mac" copy';
+        return { passed: false, details: d };
+      }
+      d.steps.push('Research dialog no longer shows misleading "Ollama not detected" copy');
+    } else {
+      if (!hasOldNotDetected) {
+        d.error = 'Expected "Ollama not detected on your Mac" copy in Research dialog (Ollama not installed)';
+        return { passed: false, details: d };
+      }
+      d.steps.push('Research dialog correctly shows "not detected" copy when Ollama is not installed');
+    }
+
+    await closeAllDialogs();
+    return { passed: true, details: d };
+  } catch (e) {
+    d.error = e.message;
+    try { await closeAllDialogs(); } catch {}
+    return { passed: false, details: d };
+  }
+}
+
+/* ─────────────────────────── Runner ─────────────────────────── */
+async function runAll() {
+  ensureDir(SCREENSHOT_DIR);
+  const report = {
+    timestamp: new Date().toISOString(),
+    platform: {
+      platform: os.platform(),
+      arch: os.arch(),
+    },
+    tests: [],
+    summary: { total: 0, passed: 0, failed: 0 },
+  };
+
+  const ollamaInstalled = fs.existsSync(OLLAMA_APP_PATH);
+  report.ollamaInstalled = ollamaInstalled;
+  console.log(`\n${OLLAMA_APP_PATH} present? ${ollamaInstalled ? 'YES' : 'NO'}`);
+
+  // Stop any running Ollama service so the dialog sees "unavailable".
+  console.log('Stopping any running Ollama service...');
+  stopOllamaService();
+  await new Promise(r => setTimeout(r, 500));
+
+  const overall = Date.now();
+  console.log('\n═══ Ollama Installed-But-Not-Running UX Test ═══\n');
+
+  try {
+    await launchApp();
+    await shot('00-app-launched');
+
+    const cases = [
+      { name: 'Settings dialog — installed-not-running copy', fn: () => testSettingsDialog(ollamaInstalled) },
+      { name: 'Research & Import dialog — installed-not-running copy', fn: () => testBulkResearchDialog(ollamaInstalled) },
+    ];
+
+    for (const c of cases) {
+      console.log(`\n─── ${c.name} ───`);
+      const t0 = Date.now();
+      const r = await c.fn();
+      const dur = Date.now() - t0;
+      const status = r.passed ? '✓ PASS' : '✗ FAIL';
+      console.log(`${status} (${fmt(dur)})`);
+      if (r.details.steps) r.details.steps.forEach(s => console.log(`  • ${s}`));
+      if (r.details.error) console.log(`  error: ${r.details.error}`);
+      report.tests.push({ name: c.name, passed: r.passed, duration: dur, ...r.details });
+    }
+  } catch (e) {
+    console.error('Test run aborted:', e.message);
+    report.error = e.message;
+  } finally {
+    if (electronApp) await electronApp.close().catch(() => {});
+  }
+
+  report.summary.total = report.tests.length;
+  report.summary.passed = report.tests.filter(t => t.passed).length;
+  report.summary.failed = report.tests.filter(t => !t.passed).length;
+  report.summary.duration = Date.now() - overall;
+
+  console.log('\n═══ RESULTS ═══');
+  for (const t of report.tests) {
+    const s = t.passed ? '✓ PASS' : '✗ FAIL';
+    console.log(`  ${s}  ${t.name}  (${fmt(t.duration)})`);
+  }
+  console.log(`\nTotal: ${report.summary.passed}/${report.summary.total} passed in ${fmt(report.summary.duration)}\n`);
+
+  fs.writeFileSync(path.join(SCREENSHOT_DIR, 'report.json'), JSON.stringify(report, null, 2));
+
+  // Markdown report
+  const md = [
+    `# Ollama Installed-But-Not-Running UX Test`,
+    ``,
+    `**Run:** ${report.timestamp}`,
+    `**Platform:** ${report.platform.platform} ${report.platform.arch}`,
+    `**Ollama.app installed:** ${report.ollamaInstalled ? 'yes' : 'no'}`,
+    ``,
+    `## Summary`,
+    ``,
+    `- Total: ${report.summary.total}`,
+    `- Passed: ${report.summary.passed}`,
+    `- Failed: ${report.summary.failed}`,
+    `- Duration: ${fmt(report.summary.duration)}`,
+    ``,
+    `## Tests`,
+    ...report.tests.flatMap(t => [
+      ``,
+      `### ${t.passed ? '✓' : '✗'} ${t.name}`,
+      ``,
+      ...(t.steps || []).map(s => `- ${s}`),
+      ...(t.error ? [``, `**Error:** ${t.error}`] : []),
+    ]),
+  ].join('\n');
+  fs.writeFileSync(path.join(SCREENSHOT_DIR, 'report.md'), md);
+
+  process.exit(report.summary.failed === 0 ? 0 : 1);
+}
+
+runAll().catch(e => { console.error(e); process.exit(1); });
