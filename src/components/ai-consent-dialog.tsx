@@ -58,7 +58,7 @@ export default function AIConsentDialog({ open, onConsent, onDecline }: AIConsen
                 <li>Podcast creation</li>
                 <li>Source extraction and research import</li>
                 <li>Audio transcription</li>
-                <li>Knowledge Chat and Help Chat</li>
+                <li>Ask Your Outlines and Help Chat</li>
               </ul>
               <p className="text-sm">
                 All other features — outlining, editing, exporting, and manual content creation — will continue to work normally.

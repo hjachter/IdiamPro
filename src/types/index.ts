@@ -5,6 +5,7 @@ export type NodeType =
   | 'note'
   | 'task'
   | 'link'
+  | 'outline-link'
   | 'code'
   | 'quote'
   | 'date'
@@ -38,6 +39,13 @@ export interface OutlineNode {
   childrenIds: string[];
   isCollapsed?: boolean;
   prefix: string;
+
+  // Cross-outline link target (Phase 1). Only set on nodes whose `type` is
+  // 'outline-link'. Points at another outline by ID; clicking the node
+  // navigates to that outline. Phase 2 will add `linkedNodeId` to optionally
+  // target a specific node inside the linked outline — left undefined here so
+  // older app versions reading new files can simply ignore the field.
+  linkedOutlineId?: string;
 
   // Metadata for enhanced features
   metadata?: {

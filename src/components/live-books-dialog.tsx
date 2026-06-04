@@ -182,7 +182,7 @@ export default function LiveBooksDialog({
         );
         onApply(nodes);
         toast({
-          title: 'LIVE BOOKS — auto-applied',
+          title: 'Refresh from Web — auto-applied',
           description: `${appliedCount} node${appliedCount === 1 ? '' : 's'} refreshed and applied automatically.`,
         });
         onOpenChange(false);
@@ -193,7 +193,7 @@ export default function LiveBooksDialog({
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Refresh failed';
       toast({
-        title: 'LIVE BOOKS failed',
+        title: 'Refresh from Web failed',
         description: message,
         variant: 'destructive',
       });
@@ -234,7 +234,7 @@ export default function LiveBooksDialog({
     }
     onApply(nodes);
     toast({
-      title: 'LIVE BOOKS applied',
+      title: 'Refresh from Web applied',
       description: `${appliedCount} node${appliedCount === 1 ? '' : 's'} refreshed.`,
     });
     onOpenChange(false);
@@ -251,7 +251,7 @@ export default function LiveBooksDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <RefreshCw className="h-5 w-5 text-emerald-500" />
-            LIVE BOOKS — Refresh from the web
+            Refresh from Web
           </DialogTitle>
           <DialogDescription>
             {isRootSelected

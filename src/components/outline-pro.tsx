@@ -39,6 +39,7 @@ import KeyboardShortcutsDialog, { useKeyboardShortcuts } from './keyboard-shortc
 import BulkResearchDialog from './bulk-research-dialog';
 import LiveBooksDialog from './live-books-dialog';
 import TranslateDialog from './translate-dialog';
+import OutlineLinkPickerDialog from './outline-link-picker-dialog';
 import HelpChatDialog from './help-chat-dialog';
 import KnowledgeChatDialog from './knowledge-chat-dialog';
 import AIConsentDialog from './ai-consent-dialog';
@@ -349,6 +350,11 @@ export default function OutlinePro() {
   // Translate (language translation) dialog state — same transform engine
   // as LIVE BOOKS, different transformer (#52). Re-wired 2026-06-04.
   const [isTranslateOpen, setIsTranslateOpen] = useState(false);
+
+  // Cross-outline link picker (Phase 1, 2026-06-04). Picks a target outline
+  // and inserts an 'outline-link' node into the current outline as a child of
+  // the selected node (or the root if nothing is selected).
+  const [isOutlineLinkPickerOpen, setIsOutlineLinkPickerOpen] = useState(false);
 
   // Help chat dialog state
   const [isHelpChatOpen, setIsHelpChatOpen] = useState(false);
@@ -683,7 +689,7 @@ export default function OutlinePro() {
                 parentId: null as unknown as string,
                 childrenIds: [],
                 type: 'root' as const,
-                content: '<p>Your personal knowledge base. Save anything here — notes, research, ideas, articles, images — and search it all with Knowledge Chat.</p><p><em>The app that makes the Second Brain method actually work.</em></p>',
+                content: '<p>Your personal knowledge base. Save anything here — notes, research, ideas, articles, images — and search it all with Ask Your Outlines.</p><p><em>The app that makes the Second Brain method actually work.</em></p>',
               },
             },
           };
@@ -1047,15 +1053,51 @@ export default function OutlinePro() {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isFocusMode, toast, selectedNodeId, currentOutline, undo, redo]);
 
+  // handleSelectOutline is declared further down in the component body. We
+  // route outline-link navigation through this ref so handleSelectNode (above)
+  // can call it without a forward-reference TDZ error.
+  const handleSelectOutlineRef = useRef<((id: string) => Promise<void> | void) | null>(null);
+
   // handleSelectNode - navigate param controls whether to switch to full content view on mobile
   // On mobile with stacked layout: selection updates preview, navigate=true goes to full content
+  // Cross-outline link nodes (type 'outline-link'): clicking navigates to the
+  // linked outline. If the target outline has been deleted, we show a toast
+  // and do not navigate.
   const handleSelectNode = useCallback((nodeId: string, navigate = false) => {
+    const current = outlines.find(o => o.id === currentOutlineId);
+    const node = current?.nodes?.[nodeId];
+
+    // Outline-link navigation: a tap on an outline-link node jumps to the
+    // linked outline. The first tap navigates — this matches user expectation
+    // for link-style nodes (the existing 'link' node type opens the URL on
+    // click too).
+    if (node?.type === 'outline-link' && node.linkedOutlineId) {
+      const target = outlines.find(o => o.id === node.linkedOutlineId);
+      if (!target) {
+        toast({
+          title: 'Outline not found',
+          description: 'The outline you linked to has been deleted.',
+          variant: 'destructive',
+        });
+        setSelectedNodeId(nodeId);
+        return;
+      }
+      const go = handleSelectOutlineRef.current;
+      if (go) {
+        go(target.id);
+        return;
+      }
+      // Fallback if the ref hasn't wired up yet — just select the node.
+      setSelectedNodeId(nodeId);
+      return;
+    }
+
     setSelectedNodeId(nodeId);
     // Only navigate to full content if explicitly requested (e.g., tap on already-selected node)
     if (isMobile && navigate) {
       setMobileView('content');
     }
-  }, [isMobile]);
+  }, [isMobile, outlines, currentOutlineId, toast]);
 
   // handleUpdateNode - also updates outline name when root node name changes
   const handleUpdateNode = useCallback((nodeId: string, updates: Partial<OutlineNode>) => {
@@ -1474,7 +1516,7 @@ export default function OutlinePro() {
           break;
         case 'open_live_books':
           setIsLiveBooksOpen(true);
-          toast({ title: 'AI command', description: 'Opening LIVE BOOKS now.', duration: AI_PERSIST });
+          toast({ title: 'AI command', description: 'Opening Refresh from Web now.', duration: AI_PERSIST });
           break;
         case 'open_templates':
           setIsTemplatesDialogOpen(true);
@@ -1930,6 +1972,45 @@ export default function OutlinePro() {
       setSelectedNodeId(outlineToSelect.rootNodeId);
     }
   }, [outlines, toast, setOutlinesFromDisk]);
+
+  // Wire handleSelectOutline into the forward-reference ref that
+  // handleSelectNode uses for outline-link navigation.
+  useEffect(() => {
+    handleSelectOutlineRef.current = handleSelectOutline;
+  }, [handleSelectOutline]);
+
+  // Insert a cross-outline link node (Phase 1, 2026-06-04). The new node is
+  // inserted as a child of the currently-selected node (or, if no node is
+  // selected, as a top-level child of the current outline's root). Its name
+  // defaults to the linked outline's name; the user can rename freely.
+  const handleInsertOutlineLink = useCallback((targetOutlineId: string, targetOutlineName: string) => {
+    if (!currentOutlineId) return;
+    setOutlines(currentOutlines => {
+      const outline = currentOutlines.find(o => o.id === currentOutlineId);
+      if (!outline || outline.isGuide) return currentOutlines;
+      const parentId = (selectedNodeId && outline.nodes[selectedNodeId])
+        ? selectedNodeId
+        : outline.rootNodeId;
+      const { newNodes, newNodeId } = addNode(
+        outline.nodes,
+        parentId,
+        'outline-link',
+        targetOutlineName,
+        '',
+      );
+      if (!newNodeId) return currentOutlines;
+      // Attach the link target on the freshly-created node.
+      const linkedNode = newNodes[newNodeId];
+      if (linkedNode) {
+        newNodes[newNodeId] = { ...linkedNode, linkedOutlineId: targetOutlineId };
+      }
+      // Select the new node so it's visible right away.
+      setTimeout(() => setSelectedNodeId(newNodeId), 0);
+      return currentOutlines.map(o =>
+        o.id === currentOutlineId ? { ...o, nodes: newNodes } : o
+      );
+    });
+  }, [currentOutlineId, selectedNodeId]);
 
   // Copy the current outline (useful for copying the User Guide)
   const handleCopyOutline = useCallback(() => {
@@ -4036,6 +4117,14 @@ export default function OutlinePro() {
           onApply={handleApplyTranslate}
         />
 
+        <OutlineLinkPickerDialog
+          open={isOutlineLinkPickerOpen}
+          onOpenChange={setIsOutlineLinkPickerOpen}
+          outlines={outlines}
+          currentOutlineId={currentOutlineId}
+          onPick={handleInsertOutlineLink}
+        />
+
         <HelpChatDialog
           open={isHelpChatOpen}
           onOpenChange={setIsHelpChatOpen}
@@ -4300,6 +4389,7 @@ export default function OutlinePro() {
                 onUnmerge={handleUnmerge}
                 isFocusMode={isFocusMode}
                 onToggleFocusMode={() => setIsFocusMode(prev => !prev)}
+                onOpenLinkToOutline={() => setIsOutlineLinkPickerOpen(true)}
               />
             </div>
             {/* Content Preview - takes ~30%, tap to expand */}
@@ -4450,6 +4540,14 @@ export default function OutlinePro() {
         outline={currentOutline}
         selectedNodeId={selectedNodeId}
         onApply={handleApplyTranslate}
+      />
+
+      <OutlineLinkPickerDialog
+        open={isOutlineLinkPickerOpen}
+        onOpenChange={setIsOutlineLinkPickerOpen}
+        outlines={outlines}
+        currentOutlineId={currentOutlineId}
+        onPick={handleInsertOutlineLink}
       />
 
       <TemplatesDialog
@@ -4726,6 +4824,7 @@ export default function OutlinePro() {
                 onUnmerge={handleUnmerge}
                 isFocusMode={isFocusMode}
                 onToggleFocusMode={() => setIsFocusMode(prev => !prev)}
+                onOpenLinkToOutline={() => setIsOutlineLinkPickerOpen(true)}
               />
             </div>
           </ResizablePanel>

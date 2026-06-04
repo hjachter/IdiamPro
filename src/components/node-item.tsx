@@ -65,6 +65,8 @@ interface NodeItemProps {
   onSaveToSecondBrain?: (nodeId: string) => void;
   // Progressive rendering - max depth to render (for large outlines)
   maxRenderDepth?: number;
+  // Cross-outline link picker (Phase 1, 2026-06-04) — context menu entry
+  onInsertOutlineLink?: () => void;
 }
 
 // Helper to highlight search matches in text
@@ -166,6 +168,7 @@ export default function NodeItem({
   onExportSubtree,
   onSaveToSecondBrain,
   maxRenderDepth,
+  onInsertOutlineLink,
 }: NodeItemProps) {
   const node = nodes[nodeId];
   const [isEditing, setIsEditing] = React.useState(false);
@@ -769,6 +772,13 @@ export default function NodeItem({
               </ContextMenuItem>
             )}
 
+            {onInsertOutlineLink && (
+              <ContextMenuItem onClick={(e) => { e.stopPropagation(); onInsertOutlineLink(); }}>
+                <ExternalLink className="mr-2 h-4 w-4" />
+                Insert Link to Outline…
+              </ContextMenuItem>
+            )}
+
             <ContextMenuItem onClick={(e) => { e.stopPropagation(); setIsEditing(true); }}>
               <Edit3 className="mr-2 h-4 w-4" />
               Rename Node
@@ -914,6 +924,7 @@ export default function NodeItem({
                         onExportSubtree={onExportSubtree}
                         onSaveToSecondBrain={onSaveToSecondBrain}
                         maxRenderDepth={maxRenderDepth}
+                        onInsertOutlineLink={onInsertOutlineLink}
                     />
                 ))}
                 </ul>

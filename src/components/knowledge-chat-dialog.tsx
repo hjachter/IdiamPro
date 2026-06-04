@@ -349,7 +349,7 @@ export default function KnowledgeChatDialog({
               <Brain className="h-6 w-6 text-emerald-500 dark:text-emerald-400" />
             </div>
             <div className="flex-1">
-              <DialogTitle>Knowledge Chat</DialogTitle>
+              <DialogTitle>Ask Your Outlines</DialogTitle>
               <DialogDescription>
                 Ask questions about your outlines
               </DialogDescription>

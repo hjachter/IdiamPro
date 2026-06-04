@@ -83,7 +83,7 @@ function createWelcomeNodes(): { rootNodeId: string, nodes: NodeMap } {
   createNode(nodes, step5Id, rootId, "Step 5: Supercharge with AI", `<p>IdiamPro's AI features help you work smarter:</p>
 <ul>
   <li><strong>AI Generate</strong> — Create content, expand ideas, summarize</li>
-  <li><strong>Knowledge Chat</strong> — Ask questions about your outline</li>
+  <li><strong>Ask Your Outlines</strong> — Ask questions about your outline</li>
   <li><strong>AI Synthesis</strong> — Combine multiple sources into unified notes</li>
 </ul>
 

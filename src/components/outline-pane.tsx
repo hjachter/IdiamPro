@@ -9,7 +9,7 @@ import { MultiSelectToolbar } from './multi-select-toolbar';
 import FileImportDialog from './file-import-dialog';
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Plus, Trash2, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, Settings, Search, Command, PanelLeft, PanelLeftClose, Brain, StopCircle, Inbox, LayoutDashboard, Focus, Wrench, Sparkles, Mic, MessageSquare } from 'lucide-react';
+import { Plus, Trash2, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, Settings, Search, Command, PanelLeft, PanelLeftClose, Brain, StopCircle, Inbox, LayoutDashboard, Focus, Wrench, Sparkles, Mic, MessageSquare, BookDown, BookUp, Share2, ExternalLink } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter } from "@/components/ui/alert-dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import SettingsDialog from './settings-dialog';
@@ -167,6 +167,8 @@ interface OutlinePaneProps {
   // Focus Mode
   isFocusMode?: boolean;
   onToggleFocusMode?: () => void;
+  // Cross-outline link picker (Phase 1, 2026-06-04)
+  onOpenLinkToOutline?: () => void;
 }
 
 export default function OutlinePane({
@@ -236,6 +238,7 @@ export default function OutlinePane({
   onUnmerge,
   isFocusMode,
   onToggleFocusMode,
+  onOpenLinkToOutline,
 }: OutlinePaneProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [importDialogOpen, setImportDialogOpen] = useState(false);
@@ -916,7 +919,7 @@ export default function OutlinePane({
             </Tooltip>
         </TooltipProvider>
 
-        {/* Admin menu — outline-level actions that don't live in the sidebar */}
+        {/* Import dropdown — bringing data INTO the outline */}
         <TooltipProvider>
             <DropdownMenu>
                 <Tooltip>
@@ -926,30 +929,98 @@ export default function OutlinePane({
                                 variant="outline"
                                 size="icon"
                                 className="shrink-0 active:scale-95 active:bg-accent/30"
-                                aria-label="Outline Files"
+                                aria-label="Import — bring data into your outline"
+                            >
+                                <BookDown className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom">Import</TooltipContent>
+                </Tooltip>
+                <DropdownMenuContent align="end" className="w-56 p-0.5">
+                    <DropdownMenuLabel className="py-1 text-xs uppercase tracking-wide text-muted-foreground">Import</DropdownMenuLabel>
+                    {onOpenBulkResearch && (
+                        <DropdownMenuItem onSelect={onOpenBulkResearch} className="cursor-pointer py-1">
+                            <Library className="mr-2 h-4 w-4" /> Research & Import
+                        </DropdownMenuItem>
+                    )}
+                    <DropdownMenuItem onSelect={handleImportClick} className="cursor-pointer py-1">
+                        <FileUp className="mr-2 h-4 w-4" /> Import Outline
+                    </DropdownMenuItem>
+                    {onOpenLinkToOutline && (
+                        <DropdownMenuItem
+                            onSelect={onOpenLinkToOutline}
+                            disabled={!currentOutline || currentOutline.isGuide}
+                            className="cursor-pointer py-1"
+                        >
+                            <ExternalLink className="mr-2 h-4 w-4" /> Link to Outline…
+                        </DropdownMenuItem>
+                    )}
+                    <DropdownMenuItem onSelect={handleRestoreAllClick} className="cursor-pointer py-1">
+                        <FileUp className="mr-2 h-4 w-4" /> Restore All Outlines
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+        </TooltipProvider>
+
+        {/* Export dropdown — sending data OUT of the outline */}
+        <TooltipProvider>
+            <DropdownMenu>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <DropdownMenuTrigger asChild>
+                            <Button
+                                variant="outline"
+                                size="icon"
+                                className="shrink-0 active:scale-95 active:bg-accent/30"
+                                aria-label="Export — send your outline data out"
+                            >
+                                <BookUp className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom">Export</TooltipContent>
+                </Tooltip>
+                <DropdownMenuContent align="end" className="w-56 p-0.5">
+                    <DropdownMenuLabel className="py-1 text-xs uppercase tracking-wide text-muted-foreground">Export</DropdownMenuLabel>
+                    <DropdownMenuItem
+                        onSelect={() => { if (selectedNodeId) onExportSubtree?.(selectedNodeId); }}
+                        disabled={!selectedNodeId}
+                        className="cursor-pointer py-1"
+                        title={selectedNodeId ? undefined : 'Select a node first'}
+                    >
+                        <Share2 className="mr-2 h-4 w-4" /> Share Subtree as&hellip;
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onSelect={onExportOutline} disabled={!currentOutline} className="cursor-pointer py-1">
+                        <FileDown className="mr-2 h-4 w-4" /> Export Current Outline
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onSelect={handleBackupAll} className="cursor-pointer py-1">
+                        <FileDown className="mr-2 h-4 w-4" /> Backup All Outlines
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+        </TooltipProvider>
+
+        {/* Wrench — residual admin actions (just Refresh User Guide after the Import/Export migration) */}
+        <TooltipProvider>
+            <DropdownMenu>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <DropdownMenuTrigger asChild>
+                            <Button
+                                variant="outline"
+                                size="icon"
+                                className="shrink-0 active:scale-95 active:bg-accent/30"
+                                aria-label="Outline admin"
                             >
                                 <Wrench className="h-4 w-4" />
                             </Button>
                         </DropdownMenuTrigger>
                     </TooltipTrigger>
-                    <TooltipContent side="bottom">Outline Files</TooltipContent>
+                    <TooltipContent side="bottom">Admin</TooltipContent>
                 </Tooltip>
                 <DropdownMenuContent align="end" className="w-56 p-0.5">
-                    <DropdownMenuLabel className="py-1 text-xs uppercase tracking-wide text-muted-foreground">Outline</DropdownMenuLabel>
-                    <DropdownMenuItem onSelect={handleImportClick} className="cursor-pointer py-1">
-                        <FileUp className="mr-2 h-4 w-4" /> Import Outline
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onSelect={onExportOutline} disabled={!currentOutline} className="cursor-pointer py-1">
-                        <FileDown className="mr-2 h-4 w-4" /> Export Current Outline
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator className="my-0.5" />
-                    <DropdownMenuLabel className="py-1 text-xs uppercase tracking-wide text-muted-foreground">Backup & Restore</DropdownMenuLabel>
-                    <DropdownMenuItem onSelect={handleBackupAll} className="cursor-pointer py-1">
-                        <FileDown className="mr-2 h-4 w-4" /> Backup All Outlines
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onSelect={handleRestoreAllClick} className="cursor-pointer py-1">
-                        <FileUp className="mr-2 h-4 w-4" /> Restore All Outlines
-                    </DropdownMenuItem>
+                    <DropdownMenuLabel className="py-1 text-xs uppercase tracking-wide text-muted-foreground">Admin</DropdownMenuLabel>
                     <DropdownMenuItem onSelect={onRefreshGuide} className="cursor-pointer py-1">
                         <RotateCcw className="mr-2 h-4 w-4" /> Refresh User Guide
                     </DropdownMenuItem>
@@ -1342,6 +1413,7 @@ export default function OutlinePane({
               onExportSubtree={onExportSubtree}
               onSaveToSecondBrain={onSaveToSecondBrain}
               maxRenderDepth={maxRenderDepth}
+              onInsertOutlineLink={currentOutline.isGuide ? undefined : onOpenLinkToOutline}
             />
           </ul>
         )}

@@ -36,7 +36,7 @@ Actions (use these exact "kind" values):
   "create_outline": { "name": <string> }   — make a new outline with this name
   "collapse_all": {}                        — collapse the whole tree
   "expand_all": {}                          — expand the whole tree
-  "open_live_books": {}                     — open LIVE BOOKS (refresh from web)
+  "open_live_books": {}                     — open Refresh from Web (the web-refresh feature, formerly called LIVE BOOKS)
   "open_templates": {}                      — open the template picker
   "open_search": {}                         — open search
   "open_help_chat": {}                      — open the help chat
@@ -66,7 +66,7 @@ For "unknown" actions, the "reason" MUST:
 Good "reason" examples:
   - "I'm not sure I caught that — did you want me to create an outline called 'sandwich,' or are you looking for sandwich notes you already have? I can do either one if you tell me which."
   - "That sounded more like a question than a thing to do. Want me to open the help chat so you can ask it there?"
-  - "I heard you ask to email Joe, but I can't send email yet. What I can do: create outlines, delete nodes, collapse or expand the tree, open search, open the help or knowledge chat, or open LIVE BOOKS. Want one of those?"
+  - "I heard you ask to email Joe, but I can't send email yet. What I can do: create outlines, delete nodes, collapse or expand the tree, open search, open the help chat, ask your outlines, or refresh from the web. Want one of those?"
 
 Bad "reason" examples (DO NOT write these):
   - "Unrecognized command."

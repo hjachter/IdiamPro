@@ -463,7 +463,7 @@ export default function CommandPalette({
           {onOpenLiveBooks && selectedNodeId && !isGuide && (
             <CommandItem onSelect={() => runCommand(onOpenLiveBooks)}>
               <RefreshCw className="mr-2 h-4 w-4" />
-              <span>LIVE BOOKS: Refresh from the web</span>
+              <span>Refresh from Web</span>
               <CommandShortcut>⌘⇧R</CommandShortcut>
             </CommandItem>
           )}

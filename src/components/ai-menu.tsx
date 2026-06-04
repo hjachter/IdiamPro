@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, FileText, Crown, Loader2, Library, Brain, RefreshCw, Mic, Languages } from 'lucide-react';
+import { Sparkles, FileText, Crown, Loader2, Brain, RefreshCw, Mic, Languages } from 'lucide-react';
 import { useAI, useAIFeature } from '@/contexts/ai-context';
 import AiGenerateDialog from './ai-generate-dialog';
 
@@ -36,7 +36,6 @@ export default function AIMenu({
   outlineSummary,
   isLoadingAI,
   disabled,
-  onOpenBulkResearch,
   onOpenKnowledgeChat,
   onOpenLiveBooks,
   onOpenTranslate,
@@ -68,8 +67,8 @@ export default function AIMenu({
           size="icon"
           disabled={disabled || isLoadingAI}
           className="text-primary hover:bg-primary/20 active:scale-95 active:bg-accent/30"
-          title="AI Features"
-          aria-label="AI features menu"
+          title="Smart Tools"
+          aria-label="Smart Tools menu"
         >
           {isLoadingAI ? (
             <Loader2 className="h-4 w-4 animate-spin" />
@@ -82,7 +81,7 @@ export default function AIMenu({
         <DropdownMenuLabel className="flex items-center justify-between">
           <span className="flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-emerald-500 dark:text-emerald-400" />
-            AI Features
+            Smart Tools
           </span>
           <Badge variant={isPremium ? "default" : "secondary"} className="text-xs">
             {isPremium ? (
@@ -103,7 +102,7 @@ export default function AIMenu({
             className="cursor-pointer"
           >
             <Mic className="mr-2 h-4 w-4 text-red-500" />
-            <span className="font-medium">Tell AI&hellip;</span>
+            <span className="font-medium">Quick Command</span>
             <span className="ml-auto text-xs tracking-widest text-muted-foreground">⌘K</span>
           </DropdownMenuItem>
         )}
@@ -120,7 +119,7 @@ export default function AIMenu({
         {onOpenLiveBooks && hasSelectedNode && (
           <DropdownMenuItem onSelect={onOpenLiveBooks} className="cursor-pointer">
             <RefreshCw className="mr-2 h-4 w-4" />
-            LIVE BOOKS: Refresh from the web
+            Refresh from Web
           </DropdownMenuItem>
         )}
 
@@ -131,17 +130,10 @@ export default function AIMenu({
           </DropdownMenuItem>
         )}
 
-        {onOpenBulkResearch && (
-          <DropdownMenuItem onSelect={onOpenBulkResearch} className="cursor-pointer">
-            <Library className="mr-2 h-4 w-4" />
-            Research & Import
-          </DropdownMenuItem>
-        )}
-
         {onOpenKnowledgeChat && (
           <DropdownMenuItem onSelect={onOpenKnowledgeChat} className="cursor-pointer">
             <Brain className="mr-2 h-4 w-4" />
-            Knowledge Chat
+            Ask Your Outlines
           </DropdownMenuItem>
         )}
       </DropdownMenuContent>

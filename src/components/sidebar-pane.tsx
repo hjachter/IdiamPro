@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -17,6 +17,8 @@ import {
   Search,
   X,
   Rocket,
+  ExternalLink,
+  RotateCw,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import {
@@ -43,6 +45,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { templates, type Template } from '@/lib/templates';
 import type { Outline } from '@/types';
 import type { LazyOutline } from '@/lib/storage-manager';
@@ -59,6 +67,47 @@ interface SidebarPaneProps {
   onRenameOutline: (id: string, newName: string) => void;
   onOpenGuide: () => void;
   onShowWelcome: () => void;
+}
+
+// Cross-link Phase 2 — sidebar nesting.
+//
+// Pixel-level indentation per nesting depth. 16px matches the visual rhythm
+// of the in-outline tree (NodeItem) and feels nested without crowding the row.
+const NESTING_INDENT_PX = 16;
+
+// localStorage key prefix for persisting expand/collapse of a parent row.
+// Keyed per outline ID so each row remembers its own state across reloads.
+const EXPAND_STATE_KEY_PREFIX = 'sidebarExpanded:';
+
+// Hook that reads/writes a single expand/collapse boolean for a sidebar row.
+// Defaults to collapsed (false) so a freshly-opened library is not noisy.
+function usePersistedExpansion(outlineId: string): [boolean, () => void] {
+  const storageKey = `${EXPAND_STATE_KEY_PREFIX}${outlineId}`;
+  const [expanded, setExpanded] = useState<boolean>(false);
+
+  // Hydrate from localStorage after mount (avoids SSR mismatch).
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(storageKey);
+      if (raw === 'true') setExpanded(true);
+    } catch {
+      /* ignore — private mode / disabled storage */
+    }
+  }, [storageKey]);
+
+  const toggle = useCallback(() => {
+    setExpanded(prev => {
+      const next = !prev;
+      try {
+        window.localStorage.setItem(storageKey, String(next));
+      } catch {
+        /* ignore */
+      }
+      return next;
+    });
+  }, [storageKey]);
+
+  return [expanded, toggle];
 }
 
 export default function SidebarPane({
@@ -103,6 +152,43 @@ export default function SidebarPane({
     outlineSearch === '' || o.name.toLowerCase().includes(searchLower)
   );
   const showGuide = !outlineSearch || (guide?.name.toLowerCase().includes(searchLower) ?? false);
+
+  // ── Cross-link Phase 2 — parent → linked-children map ─────────────────────
+  //
+  // For every outline that contains one or more `outline-link` nodes, compute
+  // the ordered, de-duplicated list of target outline IDs it links to.
+  // Memoised so we only walk the outlines array when it actually changes —
+  // typical library is ~50 outlines so the O(N×M) walk is negligible.
+  const parentToChildrenIds = useMemo(() => {
+    const map = new Map<string, string[]>();
+    for (const outline of outlines) {
+      const nodes = outline.nodes;
+      if (!nodes) continue;
+      const seen = new Set<string>();
+      const ordered: string[] = [];
+      for (const node of Object.values(nodes)) {
+        if (node.type === 'outline-link' && node.linkedOutlineId) {
+          // Multi-link dedupe: if the same parent has two link nodes both
+          // pointing at the same target, only render the target once under
+          // this parent.
+          if (seen.has(node.linkedOutlineId)) continue;
+          seen.add(node.linkedOutlineId);
+          ordered.push(node.linkedOutlineId);
+        }
+      }
+      if (ordered.length > 0) {
+        map.set(outline.id, ordered);
+      }
+    }
+    return map;
+  }, [outlines]);
+
+  // Quick lookup: outline ID → outline object.
+  const outlinesById = useMemo(() => {
+    const m = new Map<string, Outline>();
+    for (const o of outlines) m.set(o.id, o);
+    return m;
+  }, [outlines]);
 
   const handleSelectTemplate = (template: Template) => {
     onCreateFromTemplate(template.create());
@@ -196,6 +282,27 @@ export default function SidebarPane({
       setRenameValue('');
     }
   };
+
+  // Test whether an outline (by ID) matches the current sidebar search query.
+  // A nested-row branch is visible if its target outline OR any of its own
+  // (transitive) linked children matches.
+  const matchesSearch = useCallback(
+    (outlineId: string, visited: Set<string> = new Set()): boolean => {
+      if (!outlineSearch) return true;
+      if (visited.has(outlineId)) return false;
+      visited.add(outlineId);
+      const o = outlinesById.get(outlineId);
+      if (!o) return false;
+      if (o.name.toLowerCase().includes(searchLower)) return true;
+      const childIds = parentToChildrenIds.get(outlineId);
+      if (!childIds) return false;
+      for (const cid of childIds) {
+        if (matchesSearch(cid, visited)) return true;
+      }
+      return false;
+    },
+    [outlineSearch, searchLower, outlinesById, parentToChildrenIds]
+  );
 
   return (
     <div className="h-full w-full flex flex-col bg-background/80 sidebar-shadow">
@@ -343,102 +450,31 @@ export default function SidebarPane({
             </div>
           )}
 
-          {/* User Outlines */}
+          {/* User Outlines — top-level rows, each may expand to show linked
+              children nested beneath them (Phase 2 of cross-link). */}
           {filteredOutlines.map(outline => (
-            <ContextMenu key={outline.id}>
-              <ContextMenuTrigger asChild>
-                <div
-                  className={cn(
-                    "group flex items-center gap-2 px-2 py-1 rounded-md cursor-pointer text-sm transition-all duration-150",
-                    selectedOutlineIds.has(outline.id)
-                      ? "bg-primary/20 text-primary font-medium ring-1 ring-primary/30"
-                      : currentOutlineId === outline.id
-                      ? "bg-primary/10 text-primary font-medium border-l-2 border-primary -ml-0.5 pl-[calc(0.5rem+2px)]"
-                      : "hover:bg-muted/60 hover:translate-x-0.5"
-                  )}
-                  onClick={(e) => handleOutlineClick(outline, e)}
-                >
-                  <FileText className="h-4 w-4 shrink-0" />
-                  {renamingOutlineId === outline.id ? (
-                    <Input
-                      value={renameValue}
-                      onChange={(e) => setRenameValue(e.target.value)}
-                      onBlur={handleFinishRename}
-                      onKeyDown={handleRenameKeyDown}
-                      onClick={(e) => e.stopPropagation()}
-                      className="h-6 text-sm flex-1"
-                      autoFocus
-                    />
-                  ) : (
-                    <>
-                      <span className="truncate flex-1">{outline.name}</span>
-                      {/* Show indicator for lazy-loaded (large) outlines */}
-                      {(outline as LazyOutline)._isLazyLoaded && (
-                        <span
-                          className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full shrink-0"
-                          title={`Large outline (~${((outline as LazyOutline)._estimatedNodeCount || 0).toLocaleString()} nodes)`}
-                        >
-                          {((outline as LazyOutline)._fileSize || 0) > 100_000_000
-                            ? `${Math.round(((outline as LazyOutline)._fileSize || 0) / 1_000_000)}MB`
-                            : ((outline as LazyOutline)._fileSize || 0) > 1_000_000
-                            ? `${(((outline as LazyOutline)._fileSize || 0) / 1_000_000).toFixed(1)}MB`
-                            : `${Math.round(((outline as LazyOutline)._fileSize || 0) / 1000)}KB`}
-                        </span>
-                      )}
-                    </>
-                  )}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className={cn(
-                          "h-6 w-6 shrink-0 transition-opacity duration-150",
-                          isMobile
-                            ? "opacity-100"
-                            : "opacity-0 group-hover:opacity-100"
-                        )}
-                        onClick={(e) => e.stopPropagation()}
-                        aria-label={`Actions for ${outline.name}`}
-                      >
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="elevation-2">
-                      <DropdownMenuItem
-                        className="cursor-pointer"
-                        onSelect={() => handleStartRename(outline)}
-                      >
-                        <Pencil className="h-4 w-4 mr-2" />
-                        Rename
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        className="text-destructive cursor-pointer"
-                        onSelect={() => handleDeleteClick(outline)}
-                      >
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </ContextMenuTrigger>
-              <ContextMenuContent>
-                <ContextMenuItem onClick={() => handleStartRename(outline)}>
-                  <Pencil className="h-4 w-4 mr-2" />
-                  Rename
-                </ContextMenuItem>
-                <ContextMenuSeparator />
-                <ContextMenuItem
-                  className="text-destructive"
-                  onClick={() => handleDeleteClick(outline)}
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Delete
-                </ContextMenuItem>
-              </ContextMenuContent>
-            </ContextMenu>
+            <OutlineRow
+              key={outline.id}
+              outline={outline}
+              depth={0}
+              ancestorIds={[]}
+              isNested={false}
+              parentToChildrenIds={parentToChildrenIds}
+              outlinesById={outlinesById}
+              currentOutlineId={currentOutlineId}
+              selectedOutlineIds={selectedOutlineIds}
+              isMobile={isMobile}
+              renamingOutlineId={renamingOutlineId}
+              renameValue={renameValue}
+              setRenameValue={setRenameValue}
+              handleFinishRename={handleFinishRename}
+              handleRenameKeyDown={handleRenameKeyDown}
+              handleStartRename={handleStartRename}
+              handleDeleteClick={handleDeleteClick}
+              handleOutlineClick={handleOutlineClick}
+              outlineSearch={outlineSearch}
+              matchesSearch={matchesSearch}
+            />
           ))}
 
           {outlineSearch && filteredOutlines.length === 0 && !showGuide && (
@@ -480,5 +516,314 @@ export default function SidebarPane({
         </AlertDialogContent>
       </AlertDialog>
     </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// OutlineRow — one row in the sidebar list. Renders both top-level outlines
+// and nested linked-outline children. Recurses through linked children when
+// expanded. Tracks ancestor IDs along the render path to safely break loops.
+// ─────────────────────────────────────────────────────────────────────────────
+
+interface OutlineRowProps {
+  outline: Outline;
+  depth: number;
+  ancestorIds: string[];
+  isNested: boolean;
+  parentToChildrenIds: Map<string, string[]>;
+  outlinesById: Map<string, Outline>;
+  currentOutlineId: string;
+  selectedOutlineIds: Set<string>;
+  isMobile: boolean;
+  renamingOutlineId: string | null;
+  renameValue: string;
+  setRenameValue: (v: string) => void;
+  handleFinishRename: () => void;
+  handleRenameKeyDown: (e: React.KeyboardEvent) => void;
+  handleStartRename: (o: Outline) => void;
+  handleDeleteClick: (o: Outline) => void;
+  handleOutlineClick: (o: Outline, e: React.MouseEvent) => void;
+  outlineSearch: string;
+  matchesSearch: (id: string, visited?: Set<string>) => boolean;
+}
+
+function OutlineRow(props: OutlineRowProps) {
+  const {
+    outline,
+    depth,
+    ancestorIds,
+    isNested,
+    parentToChildrenIds,
+    outlinesById,
+    currentOutlineId,
+    selectedOutlineIds,
+    isMobile,
+    renamingOutlineId,
+    renameValue,
+    setRenameValue,
+    handleFinishRename,
+    handleRenameKeyDown,
+    handleStartRename,
+    handleDeleteClick,
+    handleOutlineClick,
+    outlineSearch,
+    matchesSearch,
+  } = props;
+
+  const [expanded, toggleExpanded] = usePersistedExpansion(outline.id);
+
+  // Raw set of children this outline links to. May contain IDs of deleted
+  // outlines (filtered out here) or IDs that would form a cycle (rendered
+  // as a non-expandable leaf with a ↻ indicator).
+  const rawChildrenIds = parentToChildrenIds.get(outline.id) || [];
+
+  // Split children into normal + cycle-breaking. A cycle is any child whose
+  // ID appears in the current render path's ancestor list, OR the current
+  // outline itself (self-link).
+  const ancestorSet = useMemo(() => new Set([...ancestorIds, outline.id]), [ancestorIds, outline.id]);
+
+  const childItems = useMemo(() => {
+    return rawChildrenIds
+      .map(childId => {
+        const childOutline = outlinesById.get(childId);
+        if (!childOutline) return null; // Linked outline was deleted; the
+                                        // link node inside the parent still
+                                        // shows the "deleted outline" muted
+                                        // state from Phase 1 — sidebar just
+                                        // omits it.
+        const isCycle = ancestorSet.has(childId);
+        return { outline: childOutline, isCycle };
+      })
+      .filter((x): x is { outline: Outline; isCycle: boolean } => x !== null);
+  }, [rawChildrenIds, outlinesById, ancestorSet]);
+
+  // Decide whether to show the chevron. Show only if at least one child is
+  // currently visible under the search filter; otherwise nothing to expand.
+  const hasVisibleChildren = useMemo(() => {
+    if (childItems.length === 0) return false;
+    if (!outlineSearch) return true;
+    return childItems.some(c => matchesSearch(c.outline.id));
+  }, [childItems, outlineSearch, matchesSearch]);
+
+  // While searching, force-expand so matches are visible without the user
+  // having to click every chevron in the chain.
+  const effectiveExpanded = outlineSearch ? hasVisibleChildren : expanded;
+
+  // Indentation in px, scales with nesting depth.
+  const paddingLeft = depth * NESTING_INDENT_PX;
+
+  // Click on the OUTLINE NAME loads the outline; click on the chevron
+  // toggles expand. Chevron click is intercepted with stopPropagation so the
+  // row's own click handler doesn't also fire.
+  const onChevronClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    toggleExpanded();
+  };
+
+  const row = (
+    <div
+      className={cn(
+        'group flex items-center gap-1 px-2 py-1 rounded-md cursor-pointer text-sm transition-all duration-150',
+        selectedOutlineIds.has(outline.id)
+          ? 'bg-primary/20 text-primary font-medium ring-1 ring-primary/30'
+          : currentOutlineId === outline.id
+          ? 'bg-primary/10 text-primary font-medium border-l-2 border-primary -ml-0.5 pl-[calc(0.5rem+2px)]'
+          : 'hover:bg-muted/60 hover:translate-x-0.5'
+      )}
+      style={{ paddingLeft: paddingLeft + 8 }}
+      onClick={(e) => handleOutlineClick(outline, e)}
+      data-outline-id={outline.id}
+      data-nested={isNested ? 'true' : 'false'}
+      data-depth={depth}
+    >
+      {/* Chevron (only when this row has visible linked children).
+          Slot is preserved (width-stable) when no chevron to keep names
+          aligned at the same depth. */}
+      {hasVisibleChildren ? (
+        <button
+          type="button"
+          onClick={onChevronClick}
+          className="h-4 w-4 shrink-0 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+          aria-label={effectiveExpanded ? 'Collapse linked outlines' : 'Expand linked outlines'}
+          aria-expanded={effectiveExpanded}
+        >
+          {effectiveExpanded ? (
+            <ChevronDown className="h-3.5 w-3.5" />
+          ) : (
+            <ChevronRight className="h-3.5 w-3.5" />
+          )}
+        </button>
+      ) : (
+        <span className="h-4 w-4 shrink-0" aria-hidden="true" />
+      )}
+
+      {/* Outline-type icon. Nested rows use the same link icon used by the
+          'outline-link' node in the in-outline tree (ExternalLink) so the
+          visual story stays consistent. */}
+      {isNested ? (
+        <ExternalLink className="h-4 w-4 shrink-0 text-blue-600 dark:text-blue-400" />
+      ) : (
+        <FileText className="h-4 w-4 shrink-0" />
+      )}
+
+      {renamingOutlineId === outline.id ? (
+        <Input
+          value={renameValue}
+          onChange={(e) => setRenameValue(e.target.value)}
+          onBlur={handleFinishRename}
+          onKeyDown={handleRenameKeyDown}
+          onClick={(e) => e.stopPropagation()}
+          className="h-6 text-sm flex-1"
+          autoFocus
+        />
+      ) : (
+        <>
+          <span className="truncate flex-1">{outline.name}</span>
+          {(outline as LazyOutline)._isLazyLoaded && (
+            <span
+              className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full shrink-0"
+              title={`Large outline (~${((outline as LazyOutline)._estimatedNodeCount || 0).toLocaleString()} nodes)`}
+            >
+              {((outline as LazyOutline)._fileSize || 0) > 100_000_000
+                ? `${Math.round(((outline as LazyOutline)._fileSize || 0) / 1_000_000)}MB`
+                : ((outline as LazyOutline)._fileSize || 0) > 1_000_000
+                ? `${(((outline as LazyOutline)._fileSize || 0) / 1_000_000).toFixed(1)}MB`
+                : `${Math.round(((outline as LazyOutline)._fileSize || 0) / 1000)}KB`}
+            </span>
+          )}
+        </>
+      )}
+
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className={cn(
+              'h-6 w-6 shrink-0 transition-opacity duration-150',
+              isMobile ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+            )}
+            onClick={(e) => e.stopPropagation()}
+            aria-label={`Actions for ${outline.name}`}
+          >
+            <MoreHorizontal className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="elevation-2">
+          <DropdownMenuItem
+            className="cursor-pointer"
+            onSelect={() => handleStartRename(outline)}
+          >
+            <Pencil className="h-4 w-4 mr-2" />
+            Rename
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            className="text-destructive cursor-pointer"
+            onSelect={() => handleDeleteClick(outline)}
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            Delete
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  );
+
+  return (
+    <>
+      <ContextMenu>
+        <ContextMenuTrigger asChild>{row}</ContextMenuTrigger>
+        <ContextMenuContent>
+          <ContextMenuItem onClick={() => handleStartRename(outline)}>
+            <Pencil className="h-4 w-4 mr-2" />
+            Rename
+          </ContextMenuItem>
+          <ContextMenuSeparator />
+          <ContextMenuItem
+            className="text-destructive"
+            onClick={() => handleDeleteClick(outline)}
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            Delete
+          </ContextMenuItem>
+        </ContextMenuContent>
+      </ContextMenu>
+
+      {/* Nested linked-children, rendered recursively when expanded. */}
+      {effectiveExpanded && childItems.map(({ outline: child, isCycle }) => {
+        // Skip children that don't match the search filter when active.
+        if (outlineSearch && !matchesSearch(child.id)) return null;
+
+        if (isCycle) {
+          // Cycle leaf: non-clickable, with ↻ indicator + explanatory tooltip.
+          // Distinct from a normal nested row (no chevron, no dropdown, muted
+          // colour) so the user can tell at a glance this isn't a real branch.
+          return (
+            <CycleLeafRow
+              key={`cycle:${outline.id}->${child.id}`}
+              outline={child}
+              depth={depth + 1}
+            />
+          );
+        }
+
+        return (
+          <OutlineRow
+            key={`${outline.id}->${child.id}`}
+            outline={child}
+            depth={depth + 1}
+            ancestorIds={[...ancestorIds, outline.id]}
+            isNested={true}
+            parentToChildrenIds={parentToChildrenIds}
+            outlinesById={outlinesById}
+            currentOutlineId={currentOutlineId}
+            selectedOutlineIds={selectedOutlineIds}
+            isMobile={isMobile}
+            renamingOutlineId={renamingOutlineId}
+            renameValue={renameValue}
+            setRenameValue={setRenameValue}
+            handleFinishRename={handleFinishRename}
+            handleRenameKeyDown={handleRenameKeyDown}
+            handleStartRename={handleStartRename}
+            handleDeleteClick={handleDeleteClick}
+            handleOutlineClick={handleOutlineClick}
+            outlineSearch={outlineSearch}
+            matchesSearch={matchesSearch}
+          />
+        );
+      })}
+    </>
+  );
+}
+
+// Cycle leaf row — second occurrence of an outline that already appears as
+// an ancestor in the current render path. Non-clickable, no chevron, muted
+// colour, ↻ indicator + tooltip explaining "Already shown above" so the user
+// understands it's a circular reference, not an error.
+function CycleLeafRow({ outline, depth }: { outline: Outline; depth: number }) {
+  const paddingLeft = depth * NESTING_INDENT_PX + 8;
+  return (
+    <TooltipProvider delayDuration={200}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div
+            className="flex items-center gap-1 px-2 py-1 rounded-md text-sm text-muted-foreground/70 italic cursor-default select-none"
+            style={{ paddingLeft }}
+            data-cycle-leaf="true"
+            data-outline-id={outline.id}
+            data-depth={depth}
+          >
+            <span className="h-4 w-4 shrink-0" aria-hidden="true" />
+            <ExternalLink className="h-4 w-4 shrink-0 text-muted-foreground/60" />
+            <span className="truncate flex-1">{outline.name}</span>
+            <RotateCw className="h-3.5 w-3.5 shrink-0 text-muted-foreground/60" aria-label="Circular reference" />
+          </div>
+        </TooltipTrigger>
+        <TooltipContent side="right">
+          Already shown above — this outline links back into the chain.
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 }
