@@ -118,6 +118,10 @@ export default function BulkResearchDialog({
   const [ollamaInstalled, setOllamaInstalled] = useState<boolean | null>(null);
   const [isStartingOllama, setIsStartingOllama] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // Inline error surfaced when synthesis fails — iOS Safari can clip
+  // top-anchored toasts behind the URL bar, so we ALWAYS show errors
+  // inside the dialog itself in addition to the parent's toast (#youtube-bug).
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   // Recording state
   const [activeRecordingId, setActiveRecordingId] = useState<string | null>(null);
@@ -143,6 +147,10 @@ export default function BulkResearchDialog({
   useEffect(() => {
     if (open && sources.length === 0) {
       setSources([{ id: crypto.randomUUID(), type: undefined as any }]);
+    }
+    // Clear any stale error when the dialog (re)opens.
+    if (open) {
+      setSubmitError(null);
     }
   }, [open, sources.length]);
 
@@ -514,13 +522,49 @@ export default function BulkResearchDialog({
     }
   };
 
+  // Translate any raw error message into conversational, first-person copy
+  // so the user sees friendly language instead of CLI-speak. Keep the dialog
+  // open so they can retry without losing their input.
+  const friendlyErrorMessage = (raw: string): string => {
+    const msg = raw.toLowerCase();
+    if (raw === 'AI_CONSENT_REQUIRED' || msg.includes('ai_consent_required')) {
+      // The parent handler raises this when AI data consent hasn't been
+      // granted yet. The consent dialog opens at the same time; this
+      // message keeps the user oriented so they know what to do next.
+      return "One-time AI consent needed before I can process this. A consent dialog should have just appeared — tap 'Allow' there, then click Synthesize again. (If you don't see it, close this dialog, the consent prompt is waiting underneath.)";
+    }
+    if (msg.includes('transcript') || msg.includes('captions')) {
+      return "I couldn't get a transcript from that YouTube video — sometimes Google blocks our requests, or the video doesn't have captions. Want to try a different video?";
+    }
+    if (msg.includes('429') || msg.includes('quota') || msg.includes('rate')) {
+      return "The AI service is overloaded right now. Give it a couple of minutes and try again.";
+    }
+    if (msg.includes('timeout') || msg.includes('etimedout') || msg.includes('econnreset')) {
+      return "That took too long and timed out. For very long sources, try importing one piece at a time.";
+    }
+    if (msg.includes('network') || msg.includes('failed to fetch')) {
+      return "I lost the connection partway through. Check your network and try again.";
+    }
+    if (msg.includes('no content')) {
+      return "I couldn't pull any content from that source. Double-check the link is reachable and has real text on it.";
+    }
+    if (msg.includes('json') || msg.includes('parse')) {
+      return "I had trouble processing the AI's response. This sometimes happens with very long sources — try a smaller piece.";
+    }
+    // Fall back to the raw message but keep it short and human.
+    return raw.length > 200 ? raw.slice(0, 200) + '…' : raw;
+  };
+
   // Submit
   const handleSubmit = async () => {
     const validSources = sources.filter(isSourceValid);
     if (validSources.length === 0) {
-      alert('Please add at least one source with content.');
+      setSubmitError('Add at least one source with content before you synthesize.');
       return;
     }
+
+    // Clear any previous error so we don't show a stale message.
+    setSubmitError(null);
 
     // Tier-enforcement gate (#33): one Research & Import submission =
     // one generation, regardless of how many sources are merged.
@@ -545,10 +589,17 @@ export default function BulkResearchDialog({
       setUseLocalAI(false);
       setRecordingInputMode({});
       setSourceInputMethod({});
+      setSubmitError(null);
       onOpenChange(false);
     } catch (error) {
-      // Error is handled by parent component's toast
-      console.warn('[Bulk Import] Failed:', error);
+      // Surface the failure inside the dialog so iOS Safari users don't
+      // miss a toast that's clipped behind the URL bar. Keep the dialog
+      // OPEN and preserve the user's input so they can retry.
+      const raw = typeof error === 'string'
+        ? error
+        : ((error as any)?.message || String(error || '') || 'Something went wrong.');
+      console.warn('[Bulk Import] Failed:', raw);
+      setSubmitError(friendlyErrorMessage(raw));
     } finally {
       setIsSubmitting(false);
     }
@@ -1331,6 +1382,33 @@ export default function BulkResearchDialog({
             })}
           </div>
         </div>
+
+        {/* Inline error — guaranteed visible on iOS Safari even when toasts
+            are clipped behind the URL bar. Stays in the dialog so the user
+            can read it and retry without losing their input. */}
+        {submitError && !isSubmitting && (
+          <div
+            role="alert"
+            aria-live="polite"
+            className="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-950/30 rounded-lg border border-red-200 dark:border-red-800"
+            data-testid="bulk-research-error"
+          >
+            <div className="flex-1 text-sm">
+              <p className="font-medium text-red-800 dark:text-red-200">I couldn’t finish that synthesis</p>
+              <p className="text-red-700 dark:text-red-300 mt-1">{submitError}</p>
+            </div>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900/40"
+              onClick={() => setSubmitError(null)}
+              aria-label="Dismiss error"
+            >
+              <X className="w-4 h-4" />
+            </Button>
+          </div>
+        )}
 
         {/* Processing status indicator */}
         {isSubmitting && (

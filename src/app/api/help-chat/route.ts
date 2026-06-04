@@ -134,6 +134,9 @@ MOBILE:
 - Toggle between views with the toolbar button
 - Touch-accessible toolbar buttons mirror every keyboard shortcut for iPad/iPhone: Focus Mode (target icon), Collapse All / Expand All (double-chevron icon), Search, Command Palette, Quick Capture, and the Second Brain Brain menu. No iOS user is gated by a keyboard-only feature.
 
+ADMIN DASHBOARD:
+- Launch Metrics page (internal): /admin/metrics is an internal-only dashboard showing launch-week vitals on a single screen — signups this week, activation rate, day-1 and day-7 retention, free-to-paid conversion, AI runs in the last 24 hours, and monthly recurring revenue. Gated by a localStorage flag (isAdmin=true) for v1; real Clerk-backed admin roles come post-launch. Refresh is manual (button at top with "Last updated N min ago"). All numbers are currently labelled "Demo" — the data layer (src/lib/launch-metrics.ts) exposes a typed contract so each metric can be re-wired to Clerk / RevenueCat / Sentry / the events backend independently once those are connected.
+
 LAUNCH PLANS & TIERS (counter is LIVE; auth + checkout still pending):
 - The launch model uses a single unit: 1 generation = 1 user-initiated AI action (one Help chat round-trip, one LIVE BOOKS refresh of any number of nodes, one Translate of any subtree, one Tell-AI command). The fan-out of model calls underneath does NOT count.
 - Four tiers visible to users:

@@ -11,7 +11,9 @@ import {
   Cpu,
   HardDrive,
   Clock,
-  Layers
+  Layers,
+  ArrowLeft,
+  Home
 } from 'lucide-react';
 
 interface TestResult {
@@ -292,6 +294,25 @@ export default function StressTestPage() {
 
   return (
     <div className="min-h-screen h-full bg-gray-950 text-white p-8 overflow-y-auto">
+      {/* Sticky escape hatch — keeps a way out visible at all times so the user
+          is never trapped on this page (matters most on iPhone where the
+          summary card after a completed run can dominate the viewport). */}
+      <div className="sticky top-0 z-10 -mx-8 px-8 py-3 mb-6 bg-gray-950/90 backdrop-blur border-b border-white/10 flex items-center justify-between">
+        <a
+          href="/"
+          className="inline-flex items-center gap-1.5 text-sm text-white/70 hover:text-white transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to IdiamPro
+        </a>
+        <a
+          href="/"
+          className="inline-flex items-center gap-1.5 text-sm text-white/70 hover:text-white transition-colors"
+          aria-label="Home"
+        >
+          <Home className="w-4 h-4" />
+        </a>
+      </div>
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold mb-2">IdiamPro Stress Test</h1>
         <p className="text-white/60 mb-8">

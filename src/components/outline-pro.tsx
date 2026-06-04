@@ -2481,7 +2481,14 @@ export default function OutlinePro() {
 
   // Bulk Research Import (PREMIUM) - Synthesizes multiple sources
   const handleBulkResearch = useCallback(async (input: BulkResearchSources): Promise<void> => {
-    if (!checkAiConsent(() => handleBulkResearch(input))) return;
+    if (!checkAiConsent(() => handleBulkResearch(input))) {
+      // Surface this to the calling dialog so it stays open with a visible
+      // error, instead of silently closing as if the synthesis succeeded.
+      // The original silent-return left iOS Safari users in particular
+      // confused — the consent dialog opens behind the closed Research
+      // dialog and looks like the synthesis just disappeared.
+      throw new Error('AI_CONSENT_REQUIRED');
+    }
     aiCancelledRef.current = false;
     setIsLoadingAI(true);
     aiLoadingStartTime.current = Date.now();
@@ -2860,7 +2867,11 @@ export default function OutlinePro() {
         description: `${displayMsg}\n(Error copied to clipboard)`,
         duration: 15000, // 15 seconds for errors (much longer than default)
       });
-      // Don't re-throw - we've handled the error with the toast
+      // Re-throw so the calling dialog can keep itself OPEN and show an
+      // inline error. iOS Safari frequently clips top-anchored toasts
+      // behind the URL bar; without this re-throw the user sees the
+      // bulk-research dialog close with no visible feedback (#youtube-bug).
+      throw new Error(displayMsg);
     } finally {
       setIsLoadingAI(false);
       aiLoadingStartTime.current = null;
