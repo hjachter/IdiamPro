@@ -38,6 +38,7 @@ import MobileSidebarSheet from './mobile-sidebar-sheet';
 import KeyboardShortcutsDialog, { useKeyboardShortcuts } from './keyboard-shortcuts-dialog';
 import BulkResearchDialog from './bulk-research-dialog';
 import LiveBooksDialog from './live-books-dialog';
+import TranslateDialog from './translate-dialog';
 import HelpChatDialog from './help-chat-dialog';
 import KnowledgeChatDialog from './knowledge-chat-dialog';
 import AIConsentDialog from './ai-consent-dialog';
@@ -344,6 +345,10 @@ export default function OutlinePro() {
 
   // LIVE BOOKS (manual AI refresh) dialog state
   const [isLiveBooksOpen, setIsLiveBooksOpen] = useState(false);
+
+  // Translate (language translation) dialog state — same transform engine
+  // as LIVE BOOKS, different transformer (#52). Re-wired 2026-06-04.
+  const [isTranslateOpen, setIsTranslateOpen] = useState(false);
 
   // Help chat dialog state
   const [isHelpChatOpen, setIsHelpChatOpen] = useState(false);
@@ -1074,6 +1079,17 @@ export default function OutlinePro() {
   // we just swap it in through the normal outline-update path so it persists
   // and exports like any other change.
   const handleApplyLiveBooks = useCallback((nextNodes: NodeMap) => {
+    setOutlines(currentOutlines =>
+      currentOutlines.map(o =>
+        o.id === currentOutlineId && !o.isGuide ? { ...o, nodes: nextNodes } : o
+      )
+    );
+  }, [currentOutlineId]);
+
+  // Translate — apply an approved translation back into the current outline.
+  // Same shape as handleApplyLiveBooks; we don't write to the Guide outline
+  // (Guide is read-only and gets re-seeded from initial-guide.ts on demand).
+  const handleApplyTranslate = useCallback((nextNodes: NodeMap) => {
     setOutlines(currentOutlines =>
       currentOutlines.map(o =>
         o.id === currentOutlineId && !o.isGuide ? { ...o, nodes: nextNodes } : o
@@ -3977,6 +3993,7 @@ export default function OutlinePro() {
           onShowShortcuts={() => setIsShortcutsOpen(true)}
           onOpenBulkResearch={() => setIsBulkResearchOpen(true)}
           onOpenLiveBooks={() => setIsLiveBooksOpen(true)}
+          onOpenTranslate={() => setIsTranslateOpen(true)}
           onOpenTemplates={() => setIsTemplatesDialogOpen(true)}
           isGuide={currentOutline?.isGuide ?? false}
           isFocusMode={isFocusMode}
@@ -4011,11 +4028,13 @@ export default function OutlinePro() {
           onApply={handleApplyLiveBooks}
           useLocalAI={liveBooksUseLocal}
         />
-        {/* TranslateDialog mount removed 2026-05-28 during stabilization — the
-            original wiring referenced undeclared state (translateDialogOpen) and
-            a non-existent updateOutline(). The translate-dialog.tsx component is
-            intact; it will be re-mounted with correct state + a real onApply that
-            calls setOutlines, alongside the NL-command-bar rebuild. */}
+        <TranslateDialog
+          open={isTranslateOpen}
+          onOpenChange={setIsTranslateOpen}
+          outline={currentOutline}
+          selectedNodeId={selectedNodeId}
+          onApply={handleApplyTranslate}
+        />
 
         <HelpChatDialog
           open={isHelpChatOpen}
@@ -4255,6 +4274,7 @@ export default function OutlinePro() {
                 onOpenHelp={() => setIsHelpChatOpen(true)}
                 onOpenKnowledgeChat={() => setIsKnowledgeChatOpen(true)}
                 onOpenLiveBooks={() => setIsLiveBooksOpen(true)}
+                onOpenTranslate={() => setIsTranslateOpen(true)}
                 onCreateChildNode={handleCreateSiblingNode}
                 justCreatedNodeId={justCreatedNodeIdRef.current}
                 editingNodeId={editingNodeId}
@@ -4422,6 +4442,14 @@ export default function OutlinePro() {
         selectedNodeId={selectedNodeId}
         onApply={handleApplyLiveBooks}
         useLocalAI={liveBooksUseLocal}
+      />
+
+      <TranslateDialog
+        open={isTranslateOpen}
+        onOpenChange={setIsTranslateOpen}
+        outline={currentOutline}
+        selectedNodeId={selectedNodeId}
+        onApply={handleApplyTranslate}
       />
 
       <TemplatesDialog
@@ -4671,6 +4699,7 @@ export default function OutlinePro() {
                 onOpenHelp={() => setIsHelpChatOpen(true)}
                 onOpenKnowledgeChat={() => setIsKnowledgeChatOpen(true)}
                 onOpenLiveBooks={() => setIsLiveBooksOpen(true)}
+                onOpenTranslate={() => setIsTranslateOpen(true)}
                 onCreateChildNode={handleCreateSiblingNode}
                 justCreatedNodeId={justCreatedNodeIdRef.current}
                 editingNodeId={editingNodeId}

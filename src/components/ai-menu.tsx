@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, FileText, Crown, Loader2, Library, Brain, RefreshCw , Mic} from 'lucide-react';
+import { Sparkles, FileText, Crown, Loader2, Library, Brain, RefreshCw, Mic, Languages } from 'lucide-react';
 import { useAI, useAIFeature } from '@/contexts/ai-context';
 import AiGenerateDialog from './ai-generate-dialog';
 
@@ -25,6 +25,7 @@ interface AIMenuProps {
   onOpenBulkResearch?: () => void;
   onOpenKnowledgeChat?: () => void;
   onOpenLiveBooks?: () => void;
+  onOpenTranslate?: () => void;
   onAskAI?: () => void;
   hasSelectedNode?: boolean;
   selectedNodeName?: string;
@@ -38,6 +39,7 @@ export default function AIMenu({
   onOpenBulkResearch,
   onOpenKnowledgeChat,
   onOpenLiveBooks,
+  onOpenTranslate,
   onAskAI,
   hasSelectedNode,
   selectedNodeName,
@@ -119,6 +121,13 @@ export default function AIMenu({
           <DropdownMenuItem onSelect={onOpenLiveBooks} className="cursor-pointer">
             <RefreshCw className="mr-2 h-4 w-4" />
             LIVE BOOKS: Refresh from the web
+          </DropdownMenuItem>
+        )}
+
+        {onOpenTranslate && hasSelectedNode && (
+          <DropdownMenuItem onSelect={onOpenTranslate} className="cursor-pointer">
+            <Languages className="mr-2 h-4 w-4" />
+            Translate this section
           </DropdownMenuItem>
         )}
 

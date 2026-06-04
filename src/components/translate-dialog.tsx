@@ -53,11 +53,19 @@ interface TranslateDialogProps {
   onApply: (nextNodes: Outline['nodes']) => void;
 }
 
+// Language list ordering — promotes the languages of globally-distributed
+// teams IdiamPro is positioned for (Howard's marketing line: "Built for
+// teams from Boston to Shanghai to São Paulo"). The top group covers the
+// largest cross-border collaboration languages; the rest follows in a
+// roughly population-weighted order. English is included for back-translation.
 const LANGUAGES = [
-  'Spanish', 'French', 'German', 'Italian', 'Portuguese', 'Dutch',
-  'Russian', 'Polish', 'Mandarin Chinese', 'Traditional Chinese',
-  'Japanese', 'Korean', 'Hindi', 'Arabic', 'Hebrew', 'Turkish',
-  'Indonesian', 'Vietnamese', 'Thai', 'English',
+  // Top group — global-team priorities
+  'Chinese (Simplified)', 'Portuguese (Brazilian)', 'Spanish', 'French',
+  'Japanese', 'Korean', 'German', 'Italian', 'Hindi',
+  // Wider catalog
+  'Chinese (Traditional)', 'Portuguese (European)', 'Dutch', 'Russian',
+  'Polish', 'Arabic', 'Hebrew', 'Turkish', 'Indonesian', 'Vietnamese',
+  'Thai', 'English',
 ];
 
 type Phase = 'configure' | 'running' | 'preview' | 'applying';
@@ -71,7 +79,9 @@ export default function TranslateDialog({
 }: TranslateDialogProps) {
   const { gate } = useAIUsageGate();
   const [phase, setPhase] = useState<Phase>('configure');
-  const [targetLanguage, setTargetLanguage] = useState<string>('Spanish');
+  // Empty string = "no language picked yet" — forces the user to choose
+  // rather than accidentally accepting a silent default.
+  const [targetLanguage, setTargetLanguage] = useState<string>('');
   const [useLocal, setUseLocal] = useState<boolean>(false);
   const [preview, setPreview] = useState<TransformPreview | null>(null);
   const [rejected, setRejected] = useState<Set<string>>(new Set());
@@ -90,6 +100,7 @@ export default function TranslateDialog({
     setRejected(new Set());
     setIncludeUserEdited(new Set());
     setErrorMsg(null);
+    setTargetLanguage('');
     onOpenChange(false);
   };
 
@@ -121,7 +132,13 @@ export default function TranslateDialog({
       setPreview(result);
       setPhase('preview');
     } catch (e) {
-      setErrorMsg(e instanceof Error ? e.message : String(e));
+      // Conversational error tone (per project-natural-language-error-tone):
+      // wrap raw errors in plain language so the user sees an explanation,
+      // not a stack trace or CLI-style message.
+      const raw = e instanceof Error ? e.message : String(e);
+      setErrorMsg(
+        `The translation didn't go through. ${raw ? `Reason: ${raw}. ` : ''}You can try again, switch to local AI, or check your API key in Settings.`
+      );
       setPhase('configure');
     }
   };
@@ -165,7 +182,7 @@ export default function TranslateDialog({
 
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o) handleClose(); else onOpenChange(o); }}>
-      <DialogContent className="max-w-3xl max-h-[85vh] flex flex-col">
+      <DialogContent className="w-[95vw] max-w-3xl max-h-[85vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Languages className="h-5 w-5" />
@@ -174,8 +191,8 @@ export default function TranslateDialog({
           <DialogDescription>
             {scopeNode ? (
               scopeSize > 1
-                ? `Translates "${scopeNode.name}" and its ${scopeSize - 1} descendant${scopeSize - 1 === 1 ? '' : 's'} into ${targetLanguage}. You'll review each translated node before anything changes.`
-                : `Translates "${scopeNode.name}" into ${targetLanguage}. You'll review the result before anything changes.`
+                ? `Translates "${scopeNode.name}" and its ${scopeSize - 1} descendant${scopeSize - 1 === 1 ? '' : 's'}${targetLanguage ? ` into ${targetLanguage}` : ''}. You'll review each translated node before anything changes.`
+                : `Translates "${scopeNode.name}"${targetLanguage ? ` into ${targetLanguage}` : ''}. You'll review the result before anything changes.`
             ) : 'No node selected.'}
           </DialogDescription>
         </DialogHeader>
@@ -188,7 +205,9 @@ export default function TranslateDialog({
                 value={targetLanguage}
                 onChange={(e) => setTargetLanguage(e.target.value)}
                 className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                aria-label="Target language"
               >
+                <option value="" disabled>Pick a language…</option>
                 {LANGUAGES.map(l => <option key={l} value={l}>{l}</option>)}
               </select>
               <p className="text-xs text-muted-foreground">
@@ -266,7 +285,7 @@ export default function TranslateDialog({
                         <span className="ml-1 text-xs">{isRejected ? 'Restore' : 'Reject'}</span>
                       </Button>
                     </div>
-                    <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                       <div className="rounded border border-border/50 p-2 bg-background/50">
                         <div className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1">Before</div>
                         <div
@@ -335,7 +354,7 @@ export default function TranslateDialog({
           {phase === 'configure' && (
             <>
               <Button variant="ghost" onClick={handleClose}>Cancel</Button>
-              <Button onClick={handleRun} disabled={!scopeNode}>
+              <Button onClick={handleRun} disabled={!scopeNode || !targetLanguage}>
                 <Languages className="h-4 w-4 mr-1" />
                 Translate & preview
               </Button>
