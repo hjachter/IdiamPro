@@ -63,15 +63,21 @@ When the user proposes features, WARN them if any of these iOS-reserved gestures
 
 ---
 
-## Outline File Safety - CRITICAL
+## Outline File Safety — use the dirty-flag protection, don't reflexively block
 
-Before saving/writing to any `.idm` file in the active outlines directory (`~/Documents/IDM Outlines/`):
+The app uses a **dirty-flag persistence model**: it only auto-saves outlines that have been **modified in-app since they were loaded**. Outlines that are loaded but un-edited never write back to disk, so external edits (mine, or any other process) are safe to make and won't be clobbered by the app's autosave.
 
-1. **Check if that outline is currently loaded** in a running IdiamPro instance.
-2. **If it is loaded, STOP and say:** "I can't save because that outline is already loaded."
-3. **Wait for the user to switch away** from that outline before saving.
+This means: **do not reflexively refuse to write to a `.idm` file just because Electron is running**. The previous "STOP if loaded" rule was overcautious — it cost real time in 2026-06-04 making me skip outline updates that were actually safe.
 
-This prevents the app from overwriting your changes with its in-memory version. Never skip this check.
+**The decision tree for writing to a `.idm` file in `~/Documents/IDM Outlines/`:**
+
+1. **Has Howard explicitly authorized the write right now?** (e.g. "you're good to go", "I haven't touched anything", "I'm not editing X"). If yes → **write freely.** Howard will tell me; he knows whether he's been editing.
+2. **Has the user been actively editing this specific outline in-app since the last commit/save?** If yes → the dirty flag is set, the app WILL autosave, and my changes will be lost. In that case: **ask Howard to save and switch away first**, or write to `docs/outlines/` only and ask him to manually copy across when he's done.
+3. **If unsure** → ask. One-sentence question: "Have you been editing the X outline recently? I want to write to it." Don't assume the worst; don't assume the best.
+
+**After writing, sync the dual-location pair** (`~/Documents/IDM Outlines/` AND `docs/outlines/`) so they stay byte-for-byte identical. The user-folder copy is what the app reads; the project-folder copy is what gets committed to git.
+
+The conversation-log regeneration script is a worked example of "safe to write while app is running" — see the Conversation Log section below.
 
 ---
 
