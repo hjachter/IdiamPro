@@ -139,6 +139,18 @@ MOBILE:
 ADMIN DASHBOARD:
 - Launch Metrics page (internal): /admin/metrics is an internal-only dashboard showing launch-week vitals on a single screen — signups this week, activation rate, day-1 and day-7 retention, free-to-paid conversion, AI runs in the last 24 hours, and monthly recurring revenue. Gated by a localStorage flag (isAdmin=true) for v1; real Clerk-backed admin roles come post-launch. Refresh is manual (button at top with "Last updated N min ago"). All numbers are currently labelled "Demo" — the data layer (src/lib/launch-metrics.ts) exposes a typed contract so each metric can be re-wired to Clerk / RevenueCat / Sentry / the events backend independently once those are connected.
 
+ONBOARDING EMAILS:
+- When a user signs up (Clerk's user.created webhook fires) IdiamPro sends a four-email onboarding series, all branded from "IdiamPro [welcome@2ndbrainware.com]" via Resend.
+- Welcome email — sent immediately. Three quick-start actions: create your first outline, try Smart Tools, watch the 2-minute intro video.
+- Day 3 — "Stop maintaining documents by hand": one-feature highlight on Refresh from Web.
+- Day 7 — "Three power-user tips": Quick Capture (Cmd+Shift+I), Research & Import (combine many sources), Ask Your Outlines.
+- Day 14 — "Two weeks in — a quick note on Pro": soft upgrade pitch ($9.99/mo, podcast generation, image generation, priority support, plus the always-free BYOK alternative).
+- Every email has a one-click Unsubscribe link in the footer that takes effect immediately. Unsubscribing only stops the onboarding series — the app itself keeps working the same as before. CAN-SPAM compliant.
+- Unsubscribe URL shape: /unsubscribe?u=[userId]&t=[hmacToken]. The token is an HMAC of the userId so unsubscribe links can't be guessed.
+- The whole layer is env-gated: with RESEND_API_KEY unset every send is a no-op log line and the app behaves exactly as before (no email goes out). With CLERK_WEBHOOK_SECRET unset the webhook still works in dev/stub mode without signature verification (logs a warning).
+- Drips are scheduled by Vercel Cron post-launch (config lives in src/app/api/cron/drip/route.ts comments); welcome email is the only one that's live on launch day.
+- The Free trial (25 generations, no sign-in) does NOT trigger any emails since there's no email address. Only signed-in Student / Pro users get the series.
+
 LAUNCH PLANS & TIERS (counter is LIVE; auth + checkout still pending):
 - The launch model uses a single unit: 1 generation = 1 user-initiated AI action (one Help chat round-trip, one Refresh from Web of any number of nodes, one Translate of any subtree, one Quick Command). The fan-out of model calls underneath does NOT count.
 - Four tiers visible to users:
@@ -151,6 +163,31 @@ LAUNCH PLANS & TIERS (counter is LIVE; auth + checkout still pending):
 - UX: soft-warn toast at 80%, friendly hard-block upgrade dialog at 100%. Pro-only features (podcast / image gen) show a Pro badge on lower tiers and open the upgrade dialog when clicked instead of hiding.
 - Where to see usage: Settings → AI Usage shows tier, X of Y used, reset date, and progress bar (emerald / amber at 80% / red at cap). BYOK users see "Unlimited — using your own API key."
 - Auth + checkout aren't wired yet, so today everyone is treated as "Free trial" by default, BYOK works fully, and the "Upgrade" button is a polite "coming soon" placeholder.
+
+BILLING & SUBSCRIPTIONS:
+- Architecture: RevenueCat is the single source of truth for "which tier does this user have?", regardless of how they paid. Stripe handles web/desktop payments; Apple In-App Purchase handles iOS payments (App Store guideline 3.1.1 — iOS apps must use Apple IAP). RevenueCat keeps entitlements in sync so a subscription bought on web also unlocks iOS, and vice versa.
+- Upgrade page: /upgrade shows three plans side-by-side — Free (BYOK), Student ($4.99/mo), and Pro ($9.99/mo or $89/year — save 25%). Each paid plan has a button that POSTs to /api/billing/checkout and redirects to Stripe Checkout (a secure hosted page with cards, Apple Pay, Google Pay).
+- Success / Cancel pages: After Stripe Checkout, the user lands on /upgrade/success (which calls refreshTier so the new tier is live immediately) or /upgrade/cancel (gentle "no charge made" message with a soft re-pitch).
+- Manage Subscription: Settings → Account → "Manage Subscription" opens Stripe's hosted Customer Portal for paid users (cancel, change plan, update card). Free / trial users see "See plans" which goes to /upgrade.
+- iOS path: on iPhone/iPad the upgrade buttons skip Stripe entirely and open Apple's In-App Purchase sheet via the RevenueCat Capacitor plugin. Manage Subscription on iOS routes to Apple's Subscriptions settings.
+- Stub mode: when STRIPE_SECRET_KEY or REVENUECAT_API_KEY env vars are unset, every billing endpoint logs a clear "not configured — stubbing response" message and returns a mock success. The whole upgrade UX is still navigable end-to-end in dev/test before real keys are wired.
+- Tier sync: src/lib/tier-detection.ts exposes refreshTier() which re-fetches the entitlement (with a 5-minute cache) — call it after returning from Checkout. For v1 it reads from a localStorage shim keyed by [userId]; once the RevenueCat REST endpoint is wired client-side, the call sites stay unchanged.
+
+AUTHENTICATION & ACCOUNTS:
+- The outliner itself is gated behind a sign-in. Marketing pages stay public: homepage [/], /marketing, /privacy, /upgrade and its success/cancel pages, /stress-test, /unsubscribe, plus /signin and /signup.
+- Protected (sign-in required): /app and everything under it, /admin and everything under it, and AI endpoints that touch user content (help chat, knowledge chat, synthesize-podcast, generate-podcast, extract-pdf, billing checkout, billing portal).
+- Public webhooks: /api/webhooks/[provider] and /api/billing/webhook stay public — they're machine-to-machine calls from Clerk and Stripe, verified by signing secrets rather than user auth.
+- Sign-up flow: click "Sign up to try IdiamPro free" on the homepage hero. No credit card required. New users land in /app on the Free trial tier (25 generations one-time).
+- Sign-in flow: click "I already have an account" on the homepage, or visit /signin. After signing in the user lands on /app, or on whatever route they were trying to reach when the wall stopped them (the original URL rides along in a redirect_url query param).
+- Sign-out: click the avatar in the top-right of the app toolbar and pick Sign out. Lands on the homepage [/].
+- Stub-safe pattern: when CLERK_SECRET_KEY and NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY are not set, the middleware logs a single dev warning and lets everyone through. The Account avatar in the toolbar simply doesn't render. As soon as those env vars are set in Vercel the wall goes live in production with no code change.
+
+INVITE-ONLY ACCESS (beta gating):
+- IdiamPro is in invite-only beta. Even users who can reach /signup must have an email on Howard's curated allowlist before they can create an account.
+- Two enforcement points. (1) Pre-signup UX: the /signup page asks for an email first and POSTs it to /api/invite-check; if the email isn't on the list, the page shows a conversational gate message ("IdiamPro is in invite-only beta right now. Your email isn't on the invite list yet — drop us a note at hello@2ndbrainware.com and we'll get you in.") and never hands off to Clerk. (2) Defense in depth: the Clerk user.created webhook re-runs the same check and immediately calls Clerk's REST API to delete the account if the email isn't on the list. Welcome email only fires after the allowlist check passes.
+- Storage v1: comma-separated emails in the INVITE_ALLOWLIST env var. Matching is exact + case-insensitive (no wildcards, no domain-level matching). To approve a new tester Howard edits the env var in Vercel and redeploys.
+- Extension point v1.1: /admin/invites is a stub page today; a self-service dashboard for adding/removing emails (database-backed) lands without changing any call site — every consumer talks to isEmailAllowed() / getAllowedEmails() in src/lib/access/allowlist.ts.
+- Stub-safe: with INVITE_ALLOWLIST unset OR empty, the allowlist check is bypassed (everyone is allowed) — same env-gated philosophy as Clerk / Stripe / Sentry / Resend. The signup flow behaves like a normal Clerk sign-up until the env var is set.
 
 Answer user questions clearly and concisely. If they ask how to do something, provide step-by-step instructions. Be friendly and encouraging.`;
 

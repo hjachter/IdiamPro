@@ -29,6 +29,7 @@ const LazyClerkProvider = dynamic(
     import('@clerk/nextjs').then((mod) => ({
       default: mod.ClerkProvider as unknown as React.ComponentType<{
         publishableKey: string;
+        afterSignOutUrl?: string;
         children: React.ReactNode;
       }>,
     })),
@@ -57,7 +58,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || '';
 
   return (
-    <LazyClerkProvider publishableKey={publishableKey}>
+    <LazyClerkProvider publishableKey={publishableKey} afterSignOutUrl="/">
       <LazyClerkUserBridge>{children}</LazyClerkUserBridge>
     </LazyClerkProvider>
   );

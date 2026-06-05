@@ -149,3 +149,113 @@ export function _seedPaidTierForTest(tier: 'student' | 'pro' | null): void {
     /* best-effort */
   }
 }
+
+// ---- Tier refresh (Stripe → RevenueCat → app) ---------------------------
+
+const TIER_CACHE_KEY = 'idiampro-tier-cache';
+const TIER_CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+interface TierCacheEntry {
+  tier: 'student' | 'pro' | null;
+  fetchedAt: number;
+}
+
+function readTierCache(): TierCacheEntry | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = window.localStorage.getItem(TIER_CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as TierCacheEntry;
+    if (typeof parsed?.fetchedAt !== 'number') return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function writeTierCache(tier: 'student' | 'pro' | null): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const entry: TierCacheEntry = { tier, fetchedAt: Date.now() };
+    window.localStorage.setItem(TIER_CACHE_KEY, JSON.stringify(entry));
+  } catch {
+    /* best-effort */
+  }
+}
+
+/**
+ * Force a re-fetch of the user's paid tier. Call this after returning from
+ * Stripe Checkout (the /upgrade/success page wires this up) so the new
+ * entitlement shows up immediately rather than waiting for the next render.
+ *
+ * For v1 this is a localStorage-backed shim. Once Clerk + the RevenueCat
+ * REST endpoint are wired client-side, replace the inner block with the
+ * real fetch — call sites and the 5-minute cache window stay the same.
+ */
+export async function refreshTier(opts?: {
+  appUserId?: string | null;
+  force?: boolean;
+}): Promise<LaunchTierId> {
+  if (typeof window === 'undefined') return 'free-trial';
+  const force = opts?.force === true;
+
+  if (!force) {
+    const cached = readTierCache();
+    if (cached && Date.now() - cached.fetchedAt < TIER_CACHE_TTL_MS) {
+      return getCurrentTier();
+    }
+  }
+
+  // ---- v1 stub: read from localStorage (already done by readPaidTierId).
+  // TODO: when REVENUECAT_API_KEY + Clerk are wired client-side, replace
+  // this block with a fetch to /api/billing/entitlements?userId=... that
+  // returns the active entitlement ids, then write 'student'/'pro' (or
+  // clear) accordingly. The cache + call site stay unchanged.
+  const paid = readPaidTierId();
+  writeTierCache(paid);
+  return getCurrentTier();
+}
+
+/** Clear the tier cache (e.g. after sign-out or manual reset). */
+export function clearTierCache(): void {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.removeItem(TIER_CACHE_KEY);
+  } catch {
+    /* best-effort */
+  }
+}
+
+// ---- Auth-aware helpers (Clerk integration) ----------------------------
+//
+// These helpers are SAFE to call without Clerk configured: when no
+// publishable / secret key is set, `isAuthEnabled()` returns false and
+// every helper falls back to the existing localStorage / anon behavior.
+// That keeps local dev identical until real Clerk keys land.
+
+const HAS_CLERK_SECRET_KEY =
+  typeof process !== 'undefined' && Boolean(process.env?.CLERK_SECRET_KEY);
+const HAS_CLERK_PUBLISHABLE_KEY = Boolean(
+  process.env?.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
+);
+
+// NOTE: getServerUserId() was intentionally removed from this module after
+// it broke the build — `@clerk/nextjs/server` is marked `server-only` and
+// poisoned this file's client-side consumers (use-ai-usage-gate.tsx,
+// outline-pro.tsx). Server-side user-id resolution should live in a
+// dedicated server-only module (e.g. src/lib/tier-detection.server.ts) and
+// be imported directly from server actions / route handlers, never from
+// this client-safe file.
+
+/**
+ * CLIENT-SIDE: the existing `getCurrentTier()` already covers signed-in /
+ * BYOK / paid-tier resolution from localStorage. When Clerk's `useUser()`
+ * is wired into the AuthProvider bridge, the bridge writes the user id
+ * into the existing tier resolution path — call sites stay unchanged.
+ *
+ * This helper exists so future code can ask "is this client even auth-
+ * aware right now?" without importing Clerk directly. False in stub mode.
+ */
+export function isAuthAware(): boolean {
+  return HAS_CLERK_PUBLISHABLE_KEY;
+}

@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
+import { SignedIn, SignedOut } from '@/lib/auth/signed-gates';
 import {
   Sparkles,
   Brain,
@@ -699,6 +700,38 @@ export default function MarketingPage() {
                 <p className="text-base md:text-lg text-white/60 mb-8 max-w-3xl mx-auto leading-relaxed">
                   An outliner for students, researchers, and professionals — developing research papers, project plans, Second Brains, product designs, or whatever you&apos;re building. AI doesn&apos;t just answer questions: it generates outlines from your sources, refreshes them against live web data, translates them into 20 languages, even produces podcasts and illustrations.
                 </p>
+
+                {/* Hero CTA — signed-out shows sign-up; signed-in opens the app. */}
+                <div className="mb-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+                  <SignedOut>
+                    <Button
+                      onClick={() => { window.location.href = '/signup'; }}
+                      size="lg"
+                      className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white px-8 py-6 text-base shadow-lg shadow-violet-500/30"
+                    >
+                      Sign up to try IdiamPro free
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                    <button
+                      type="button"
+                      onClick={() => { window.location.href = '/signin'; }}
+                      className="text-sm text-white/70 hover:text-white underline-offset-4 hover:underline"
+                    >
+                      I already have an account
+                    </button>
+                  </SignedOut>
+                  <SignedIn>
+                    <Button
+                      onClick={launchApp}
+                      size="lg"
+                      className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white px-8 py-6 text-base shadow-lg shadow-violet-500/30"
+                    >
+                      Open IdiamPro
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  </SignedIn>
+                </div>
+
               {/* Decorative elements */}
               <div className="absolute top-4 left-4 flex gap-1.5">
                 <div className="w-3 h-3 rounded-full bg-red-500/60" />

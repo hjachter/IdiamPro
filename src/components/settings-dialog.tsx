@@ -641,10 +641,50 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
                 {planDisplayName}
               </Badge>
             </div>
-            <AIPlanDialog>
-              <Button variant="outline" size="sm" className="w-full">
+            {/* Paid users (student / pro) see "Manage Subscription" which
+                opens Stripe's hosted Customer Portal (cancel, change plan,
+                update card). Free / trial users see "See plans" which goes
+                to /upgrade. Both buttons gracefully degrade in stub mode. */}
+            {(usageState.tier === 'student' || usageState.tier === 'pro') ? (
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full"
+                data-testid="manage-subscription-btn"
+                onClick={async () => {
+                  try {
+                    const res = await fetch('/api/billing/portal', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({}),
+                    });
+                    const data = await res.json() as { url?: string; stub?: boolean };
+                    if (data?.url) {
+                      if (data.stub) window.location.href = data.url;
+                      else window.location.href = data.url;
+                    }
+                  } catch {
+                    window.location.href = '/upgrade';
+                  }
+                }}
+              >
                 <Crown className="mr-2 h-4 w-4" />
-                Manage Subscription...
+                Manage Subscription
+              </Button>
+            ) : (
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full"
+                onClick={() => { window.location.href = '/upgrade'; }}
+              >
+                <Crown className="mr-2 h-4 w-4" />
+                See plans
+              </Button>
+            )}
+            <AIPlanDialog>
+              <Button variant="ghost" size="sm" className="w-full">
+                Legacy plan info
               </Button>
             </AIPlanDialog>
           </div>

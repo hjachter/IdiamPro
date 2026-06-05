@@ -53,6 +53,12 @@ export interface BillingTierEntry {
  * Tier → billing identifiers. Driven entirely by env vars so no secrets or
  * account-specific ids live in the repo. Unset env => empty string => that
  * tier is simply not purchasable yet (and billing stays disabled overall).
+ *
+ * NOTE on price ids: the legacy STRIPE_PRICE_PRO / _PREMIUM env vars are
+ * preserved for backward compatibility, but the launch model uses a richer
+ * set of plan-level prices (Pro monthly, Pro annual, Student monthly). See
+ * LAUNCH_STRIPE_PRICES below and getLaunchStripePrice() — those are what
+ * the new /upgrade page + checkout route consume.
  */
 export const BILLING_TIERS: Record<SubscriptionTierId, BillingTierEntry> = {
   free: {
@@ -63,7 +69,10 @@ export const BILLING_TIERS: Record<SubscriptionTierId, BillingTierEntry> = {
   },
   pro: {
     tier: 'pro',
-    stripePriceId: process.env.STRIPE_PRICE_PRO || '',
+    stripePriceId:
+      process.env.STRIPE_PRICE_ID_PRO_MONTHLY ||
+      process.env.STRIPE_PRICE_PRO ||
+      '',
     revenueCatEntitlementId: process.env.REVENUECAT_ENTITLEMENT_PRO || '',
   },
   premium: {
@@ -72,6 +81,105 @@ export const BILLING_TIERS: Record<SubscriptionTierId, BillingTierEntry> = {
     revenueCatEntitlementId: process.env.REVENUECAT_ENTITLEMENT_PREMIUM || '',
   },
 };
+
+/**
+ * Launch-model plan id. These are the user-visible billing plans on the web
+ * (the `/upgrade` page). They are independent of the older
+ * `SubscriptionTierId` ('free'/'pro'/'premium') used by the entitlement
+ * layer — multiple launch plans can map to the same entitlement tier
+ * (e.g. 'pro-monthly' and 'pro-annual' both grant the 'pro' entitlement).
+ */
+export type LaunchPlanId = 'pro-monthly' | 'pro-annual' | 'student-monthly';
+
+/** Which RevenueCat-style entitlement a launch plan grants. */
+export type LaunchEntitlement = 'pro' | 'student';
+
+export interface LaunchPlanEntry {
+  id: LaunchPlanId;
+  entitlement: LaunchEntitlement;
+  stripePriceId: string;
+  displayName: string;
+  /** Dollar amount as displayed on the upgrade page. */
+  priceLabel: string;
+  /** Billing interval label e.g. 'month' or 'year'. */
+  intervalLabel: 'month' | 'year';
+}
+
+/**
+ * Launch plan → Stripe price id. All driven by env vars; unset => empty
+ * string => the stub-mode checkout path takes over (see
+ * src/app/api/billing/checkout/route.ts) so the rest of the launch flow
+ * still works end-to-end before the real Stripe account exists.
+ */
+export const LAUNCH_STRIPE_PRICES: Record<LaunchPlanId, LaunchPlanEntry> = {
+  'pro-monthly': {
+    id: 'pro-monthly',
+    entitlement: 'pro',
+    stripePriceId: process.env.STRIPE_PRICE_ID_PRO_MONTHLY || '',
+    displayName: 'Pro (Monthly)',
+    priceLabel: '$9.99',
+    intervalLabel: 'month',
+  },
+  'pro-annual': {
+    id: 'pro-annual',
+    entitlement: 'pro',
+    stripePriceId: process.env.STRIPE_PRICE_ID_PRO_ANNUAL || '',
+    displayName: 'Pro (Annual)',
+    priceLabel: '$89',
+    intervalLabel: 'year',
+  },
+  'student-monthly': {
+    id: 'student-monthly',
+    entitlement: 'student',
+    stripePriceId: process.env.STRIPE_PRICE_ID_STUDENT_MONTHLY || '',
+    displayName: 'Student (Monthly)',
+    priceLabel: '$4.99',
+    intervalLabel: 'month',
+  },
+};
+
+/** Look up a launch plan by id. Returns null for unknown ids. */
+export function getLaunchPlan(id: string | null | undefined): LaunchPlanEntry | null {
+  if (!id) return null;
+  return LAUNCH_STRIPE_PRICES[id as LaunchPlanId] || null;
+}
+
+/**
+ * Reverse lookup: given a Stripe price id (from a webhook event), figure out
+ * which entitlement (pro / student) it should grant. Returns null if the
+ * price id is empty or doesn't match any configured plan.
+ */
+export function getLaunchEntitlementForStripePrice(
+  priceId: string | null | undefined,
+): LaunchEntitlement | null {
+  if (!priceId || priceId.trim().length === 0) return null;
+  for (const entry of Object.values(LAUNCH_STRIPE_PRICES)) {
+    if (entry.stripePriceId && entry.stripePriceId === priceId) {
+      return entry.entitlement;
+    }
+  }
+  return null;
+}
+
+/**
+ * RevenueCat-side entitlement identifiers for the launch model. These are
+ * the strings RevenueCat keys an active subscription under (configured in
+ * the RevenueCat dashboard). Used by the webhook to provision the right
+ * entitlement after a successful Stripe charge.
+ */
+export const REVENUECAT_ENTITLEMENT_PRO_ID =
+  process.env.REVENUECAT_ENTITLEMENT_PRO || 'pro';
+export const REVENUECAT_ENTITLEMENT_STUDENT_ID =
+  process.env.REVENUECAT_ENTITLEMENT_STUDENT || 'student';
+
+/** Server-side RevenueCat REST API key (different from the public SDK key). */
+export const REVENUECAT_API_KEY =
+  (typeof process !== 'undefined' && process.env?.REVENUECAT_API_KEY) || '';
+
+/** True when the server can call the RevenueCat REST API. */
+export function isRevenueCatRestEnabled(): boolean {
+  return REVENUECAT_API_KEY.trim().length > 0;
+}
 
 /**
  * Stripe publishable key — exposed to the browser bundle (checkout redirect).

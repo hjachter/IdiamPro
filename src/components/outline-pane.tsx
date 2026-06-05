@@ -19,6 +19,7 @@ import { loadStorageData, saveAllOutlines } from '@/lib/storage-manager';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { AppUserButton } from '@/lib/auth/user-button';
 
 // Check if running in Capacitor native app (not just mobile browser)
 function isCapacitor(): boolean {
@@ -1027,6 +1028,13 @@ export default function OutlinePane({
                 </DropdownMenuContent>
             </DropdownMenu>
         </TooltipProvider>
+
+        {/* Account avatar / sign-out menu. Renders nothing when Clerk is not
+            configured (stub mode for local dev), so the toolbar is unchanged
+            until real keys land in Vercel. */}
+        <div className="ml-1 flex shrink-0 items-center">
+            <AppUserButton />
+        </div>
 
         {/* File input for backup restore (JSON arrays) - kept for backward compatibility */}
         <input

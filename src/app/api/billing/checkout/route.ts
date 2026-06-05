@@ -1,64 +1,92 @@
 /**
- * Stripe Checkout Session creator — env-gated.
+ * Stripe Checkout Session creator — env-gated with stub fallback.
  *
- * POST { tier: 'pro' | 'premium' } -> { url } (Stripe-hosted checkout).
+ * POST { planId: LaunchPlanId, userId?: string } -> { url, stub?: boolean }
  *
- * GATING: when isStripeEnabled() is false (no STRIPE_SECRET_KEY) this
- * early-returns a clean 503 "billing not configured" and the Stripe SDK is
- * NEVER imported — there is zero runtime change from today. The `stripe`
- * package is dynamically imported INSIDE the handler only on the enabled
- * path, so a missing key can never throw at module load.
+ * The client receives a Stripe-hosted Checkout URL it should redirect to.
+ * Payment + subscription provisioning happens on Stripe's side; our webhook
+ * (src/app/api/billing/webhook/route.ts) then provisions the entitlement
+ * inside RevenueCat (single source of truth for tier).
  *
- * Phase 2: no UI calls this yet (pricing/checkout UI is task #22). This
- * route exists so the billing wiring is in place and verifiable.
+ * GATING / STUB MODE:
+ *   - When STRIPE_SECRET_KEY is unset OR the plan's Stripe price id is unset,
+ *     the route logs a clear "Stripe not configured — stubbing response"
+ *     message and returns a mocked success URL (`/upgrade/success?stub=1`).
+ *     This lets the rest of the launch infrastructure (the /upgrade page,
+ *     the success/cancel pages, the Settings "Manage Subscription" button)
+ *     work end-to-end before Howard wires the real Stripe keys.
+ *   - When configured, the `stripe` package is dynamically imported INSIDE
+ *     the handler so a missing key can never throw at module load.
+ *
+ * iOS REMINDER (App Store guideline 3.1.1): the iOS app must NOT call this
+ * route. iOS purchases go through RevenueCat → Apple IAP. This route is for
+ * web + Electron (desktop) only.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { isStripeEnabled, STRIPE_SECRET_KEY } from '@/lib/billing/billing-gate';
 import {
-  getStripePriceForTier,
+  getLaunchPlan,
   STRIPE_PUBLISHABLE_KEY,
 } from '@/config/billing-config';
-import type { SubscriptionTierId } from '@/config/subscription-tiers';
 
 export const runtime = 'nodejs';
 
-function billingDisabledResponse() {
-  return NextResponse.json(
-    { error: 'billing_not_configured', message: 'Billing is not configured.' },
-    { status: 503 },
+interface CheckoutBody {
+  planId?: string;
+  userId?: string;
+  /** Optional success/cancel overrides (used by tests). */
+  successUrl?: string;
+  cancelUrl?: string;
+}
+
+function stubResponse(planId: string, origin: string, reason: string) {
+  // eslint-disable-next-line no-console
+  console.warn(
+    `[billing/checkout] Stripe not configured (${reason}) — stubbing response for plan "${planId}".`,
   );
+  return NextResponse.json({
+    url: `${origin}/upgrade/success?stub=1&plan=${encodeURIComponent(planId)}`,
+    stub: true,
+    reason,
+  });
 }
 
 export async function POST(req: NextRequest) {
-  if (!isStripeEnabled()) {
-    return billingDisabledResponse();
-  }
-
-  let body: { tier?: string } = {};
+  let body: CheckoutBody = {};
   try {
-    body = await req.json();
+    body = (await req.json()) as CheckoutBody;
   } catch {
     body = {};
   }
 
-  const tier = (body.tier || '') as SubscriptionTierId;
-  if (tier !== 'pro' && tier !== 'premium') {
+  const planId = (body.planId || '').toString();
+  const plan = getLaunchPlan(planId);
+  if (!plan) {
     return NextResponse.json(
-      { error: 'invalid_tier', message: 'tier must be "pro" or "premium".' },
+      {
+        error: 'invalid_plan',
+        message:
+          'planId must be one of: pro-monthly, pro-annual, student-monthly.',
+      },
       { status: 400 },
     );
   }
 
-  const priceId = getStripePriceForTier(tier);
-  if (!priceId) {
-    // Stripe is enabled but this tier's price id env var is unset.
-    return NextResponse.json(
-      {
-        error: 'price_not_configured',
-        message: `No Stripe price configured for tier "${tier}".`,
-      },
-      { status: 503 },
+  const origin =
+    req.headers.get('origin') ||
+    req.nextUrl.origin ||
+    'http://localhost:9002';
+
+  // Stub paths — keep the rest of the launch UX working before real keys.
+  if (!isStripeEnabled()) {
+    return stubResponse(plan.id, origin, 'STRIPE_SECRET_KEY unset');
+  }
+  if (!plan.stripePriceId) {
+    return stubResponse(
+      plan.id,
+      origin,
+      `price id env var unset for ${plan.id}`,
     );
   }
 
@@ -66,20 +94,32 @@ export async function POST(req: NextRequest) {
   const { default: Stripe } = await import('stripe');
   const stripe = new Stripe(STRIPE_SECRET_KEY);
 
-  const origin =
-    req.headers.get('origin') ||
-    req.nextUrl.origin ||
-    'http://localhost:9002';
-
   try {
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
-      line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${origin}/?billing=success`,
-      cancel_url: `${origin}/?billing=cancelled`,
-      // TODO (later phase): set client_reference_id / customer to the
-      // signed-in Clerk user id so the webhook can map the payment back to
-      // the user and update their tier metadata.
+      line_items: [{ price: plan.stripePriceId, quantity: 1 }],
+      success_url:
+        body.successUrl ||
+        `${origin}/upgrade/success?session_id={CHECKOUT_SESSION_ID}&plan=${encodeURIComponent(plan.id)}`,
+      cancel_url: body.cancelUrl || `${origin}/upgrade/cancel`,
+      // client_reference_id is what the webhook uses to map the payment back
+      // to the app user when it provisions the RevenueCat entitlement.
+      client_reference_id: body.userId || undefined,
+      metadata: {
+        planId: plan.id,
+        entitlement: plan.entitlement,
+        appUserId: body.userId || '',
+      },
+      subscription_data: {
+        metadata: {
+          planId: plan.id,
+          entitlement: plan.entitlement,
+          appUserId: body.userId || '',
+        },
+      },
+      // Apple Pay + Google Pay surface automatically when Stripe is
+      // configured for them — no extra wiring needed.
+      allow_promotion_codes: true,
     });
     return NextResponse.json({
       url: session.url,
@@ -88,6 +128,8 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     const message =
       err instanceof Error ? err.message : 'Stripe checkout failed.';
+    // eslint-disable-next-line no-console
+    console.error('[billing/checkout] Stripe error:', message);
     return NextResponse.json(
       { error: 'stripe_error', message },
       { status: 502 },

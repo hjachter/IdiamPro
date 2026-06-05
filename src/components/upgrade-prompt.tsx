@@ -133,9 +133,7 @@ export function UpgradePromptProvider({
               ))}
             </ul>
             <p className="rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">
-              Checkout is coming soon — paid plans aren&apos;t purchasable in
-              this build yet. We&apos;ll let you know the moment upgrading is
-              available.
+              Secure checkout via Stripe. Cancel anytime from Settings.
             </p>
           </div>
 
@@ -143,11 +141,19 @@ export function UpgradePromptProvider({
             <Button variant="ghost" onClick={() => setOpen(false)}>
               Maybe later
             </Button>
-            {/* Placeholder CTA — task #22 (billing UI) will wire real checkout
-                here. Until then it acknowledges intent without dead-ending. */}
-            <Button onClick={() => setOpen(false)}>
+            {/* Real CTA — routes to /upgrade where the user picks a plan
+                (Student vs Pro monthly vs Pro annual) and goes through
+                Stripe Checkout (web/Electron) or Apple IAP (iOS). */}
+            <Button
+              onClick={() => {
+                setOpen(false);
+                if (typeof window !== 'undefined') {
+                  window.location.href = '/upgrade';
+                }
+              }}
+            >
               <Crown className="mr-2 h-4 w-4" />
-              Upgrade ({tierLabel})
+              See plans
             </Button>
           </DialogFooter>
         </DialogContent>
