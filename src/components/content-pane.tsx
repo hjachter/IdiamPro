@@ -816,31 +816,51 @@ export default function ContentPane({
         // that's a wasted moment of polish. Reported by Howard 2026-06-05.
         //
         // Solution: run plain-text pastes through a real CommonMark / GFM
-        // parser (marked, already a transitive dep). Plain prose without
-        // any markdown markers comes out as clean paragraphs with single
-        // newlines collapsed into line breaks (breaks: true), so the
-        // earlier double-spacing bug is also fixed by this path.
+        // parser (marked, already in the dep tree).
         //
-        // Only fires when the clipboard has ONLY plain text — when there's
-        // an HTML alternative (rich web/email paste), the existing
-        // rich-paste path above wins. Tiptap's schema filters dangerous
-        // HTML on insert, so script tags etc. are not a concern.
+        // CLIPBOARD HTML CAVEAT (also reported 2026-06-05): macOS
+        // Terminal.app, iTerm2, Warp, and similar terminals put BOTH
+        // plain text AND styled HTML on the clipboard. The HTML is
+        // cosmetic (colored <span>s), not structural markdown. The
+        // earlier "skip if HTML present" check sent these pastes down
+        // the rich-paste path, defeating the markdown fix entirely.
+        //
+        // New rule: if the plain text contains ANY markdown markers,
+        // prefer markdown parsing — regardless of whether a cosmetic
+        // HTML alternative is on the clipboard. Real structural HTML
+        // pastes (from web pages, emails) typically don't lead with
+        // markdown markers, so this is a safe heuristic.
         const htmlClip = event.clipboardData?.getData('text/html');
-        if (text && !htmlClip && !isTabularData(text) && editorRef.current) {
-          try {
-            const html = marked.parse(text, {
-              gfm: true,      // GitHub-flavored: tables, strikethrough, autolinks
-              breaks: true,   // Single \n becomes <br> within a paragraph
-              async: false,
-            }) as string;
-            if (html && html.trim()) {
-              event.preventDefault();
-              editorRef.current.commands.insertContent(html);
-              return true;
+        const looksLikeMarkdown = (s: string): boolean => {
+          return (
+            // block-level markers at start of any line
+            /(?:^|\n)\s*(?:#{1,6}\s|[-*+]\s|\d+\.\s|>\s|```|---\s*$|\|.*\|)/.test(s) ||
+            // inline markers anywhere
+            /\*\*[^*\n]+\*\*|__[^_\n]+__/.test(s) ||  // bold
+            /(?<!`)`[^`\n]+`(?!`)/.test(s) ||         // inline code
+            /\[[^\]\n]+\]\([^)\n]+\)/.test(s)         // links
+          );
+        };
+        if (text && !isTabularData(text) && editorRef.current) {
+          const isMarkdownLike = looksLikeMarkdown(text);
+          // Run markdown parser when: (a) no HTML on clipboard, or (b) the
+          // plain text has visible markdown markers (cosmetic HTML loses).
+          if (isMarkdownLike || !htmlClip) {
+            try {
+              const html = marked.parse(text, {
+                gfm: true,      // GFM: tables, strikethrough, autolinks
+                breaks: true,   // single \n → <br> within a paragraph
+                async: false,
+              }) as string;
+              if (html && html.trim()) {
+                event.preventDefault();
+                editorRef.current.commands.insertContent(html);
+                return true;
+              }
+            } catch {
+              // Marked failed (malformed input) — fall through to Tiptap's
+              // default rather than blocking the paste.
             }
-          } catch {
-            // Marked failed (malformed input, very unusual) — fall through
-            // to Tiptap's default plain-text handling rather than blocking.
           }
         }
 
