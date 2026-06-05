@@ -11,9 +11,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, FileText, Crown, Loader2, Brain, RefreshCw, Mic, Languages } from 'lucide-react';
+import { Sparkles, FileText, Crown, Loader2, Brain, RefreshCw, Mic, Languages, WandSparkles } from 'lucide-react';
 import { useAI, useAIFeature } from '@/contexts/ai-context';
 import AiGenerateDialog from './ai-generate-dialog';
+import { fireDiscovery } from '@/hooks/use-discovery';
 
 import type { AIDepth, AITone, AILevel } from '@/types';
 
@@ -26,6 +27,7 @@ interface AIMenuProps {
   onOpenKnowledgeChat?: () => void;
   onOpenLiveBooks?: () => void;
   onOpenTranslate?: () => void;
+  onOpenReformat?: () => void;
   onAskAI?: () => void;
   hasSelectedNode?: boolean;
   selectedNodeName?: string;
@@ -39,6 +41,7 @@ export default function AIMenu({
   onOpenKnowledgeChat,
   onOpenLiveBooks,
   onOpenTranslate,
+  onOpenReformat,
   onAskAI,
   hasSelectedNode,
   selectedNodeName,
@@ -60,7 +63,13 @@ export default function AIMenu({
   };
 
   return (
-    <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
+    <DropdownMenu
+      open={menuOpen}
+      onOpenChange={(next) => {
+        setMenuOpen(next);
+        if (next) fireDiscovery('smart-tools-menu-opened');
+      }}
+    >
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
@@ -104,6 +113,13 @@ export default function AIMenu({
             <Mic className="mr-2 h-4 w-4 text-red-500" />
             <span className="font-medium">Quick Command</span>
             <span className="ml-auto text-xs tracking-widest text-muted-foreground">⌘K</span>
+          </DropdownMenuItem>
+        )}
+
+        {onOpenReformat && hasSelectedNode && (
+          <DropdownMenuItem onSelect={onOpenReformat} className="cursor-pointer">
+            <WandSparkles className="mr-2 h-4 w-4 text-violet-500 dark:text-violet-400" />
+            Reformat with AI…
           </DropdownMenuItem>
         )}
 

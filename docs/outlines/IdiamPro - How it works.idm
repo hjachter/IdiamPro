@@ -264,7 +264,7 @@
     "ai-features": {
       "id": "ai-features",
       "name": "AI-Powered Features",
-      "content": "<p>IdiamPro includes artificial intelligence features that can help you create, research, and organize content.</p>",
+      "content": "<p>IdiamPro includes artificial intelligence features that can help you create, research, and organize content.</p><p><strong>Reformat with AI (added 2026-06-05):</strong> a single-shot transform that takes one node's content (or just the selected text inside the editor) plus a plain-language instruction (\"turn into a bulleted list\", \"make each line a heading\", \"convert to clean prose\") and returns reformatted HTML. Different shape from Refresh from Web and Translate: it does NOT use the subtree transform engine — it's one HTML fragment in, one HTML fragment out via a server action (reformatContentAction → reformatContent flow). The Reformat dialog runs through three phases (input → running → preview) and only commits via the parent's onApply callback. Reachable from Smart Tools menu, Cmd+K command palette, editor right-click, and the violet wand button in the floating formatting toolbar (bubble menu) when text is selected. Tier-gated through useAIUsageGate with feature key 'reformat'; not Pro-only.</p>",
       "type": "chapter",
       "parentId": "root",
       "childrenIds": [
@@ -274,7 +274,8 @@
         "ai-podcast",
         "ai-livebooks",
         "ai-providers",
-        "ai-consent-system"
+        "ai-consent-system",
+        "discovery-hints-2026-06-05"
       ],
       "isCollapsed": true,
       "prefix": "7"
@@ -595,6 +596,16 @@
       "parentId": "root",
       "childrenIds": [],
       "isCollapsed": true,
+      "prefix": ""
+    },
+    "discovery-hints-2026-06-05": {
+      "id": "discovery-hints-2026-06-05",
+      "name": "Discovery Hints (\"Did You Know?\" tips)",
+      "content": "<p><strong>How SecondBrainWare teaches you the app without a tutorial.</strong></p><p>The app surfaces small <em>discovery cards</em> in the lower-right corner the first time you reach a feature worth knowing about. Each card has a violet sparkle, the eyebrow <strong>\"Did You Know?\"</strong>, a short title, a one-sentence explanation, and a <strong>Got it</strong> button. There is no auto-dismiss — the card waits patiently until you read it and click Got it.</p><p><strong>v1 ships five tips:</strong></p><ul><li><strong>First text selection in the editor</strong> → \"Reformat with AI is here\" (points at the violet wand at the left end of the bubble menu)</li><li><strong>Six seconds later</strong> → \"Smart Tools = your AI toolkit\" (points at the sparkle icon in the toolbar)</li><li><strong>First outline created</strong> → \"Link one outline to another\" (the cross-outline link node)</li><li><strong>Ten seconds later</strong> → \"Import and Export live in the toolbar\" (where Research &amp; Import, Backup All, Share Subtree, etc. live)</li><li><strong>First time you open a BYOK key entry</strong> → \"Bring your own API key for unlimited use\"</li></ul><p><strong>Each tip is shown at most once.</strong> Dismissals persist (in browser storage today; per-user database row once Clerk userIds are wired). Power users can suppress all current and future hints from <strong>Settings → Tips → Professional mode</strong>.</p><p><strong>Architecturally,</strong> the registry lives in <em>src/lib/discovery/hints.ts</em> and the React provider + global <em>fireDiscovery()</em> event bus in <em>src/hooks/use-discovery.tsx</em>. Adding a new tip is two lines of code; wiring a new trigger is a one-line call at the right place in the UI. The sticky toast renderer is a separate component (<em>src/components/discovery-toast.tsx</em>) mounted once at app shell level — the existing transient toast system is unchanged.</p>",
+      "type": "node",
+      "parentId": "ai-features",
+      "childrenIds": [],
+      "isCollapsed": false,
       "prefix": ""
     }
   },

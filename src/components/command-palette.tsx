@@ -33,6 +33,7 @@ import {
   LayoutTemplate,
   Sparkles,
   Languages,
+  WandSparkles,
 } from 'lucide-react';
 import { useInputModePreference } from '@/lib/use-input-mode-preference';
 import { getMicPermissionHelp } from '@/lib/platform-help';
@@ -61,6 +62,7 @@ interface CommandPaletteProps {
   onOpenTemplates?: () => void;
   onOpenLiveBooks?: () => void;
   onOpenTranslate?: () => void;
+  onOpenReformat?: () => void;
   isGuide: boolean;
   isFocusMode?: boolean;
   onAICommand?: (text: string) => void;
@@ -89,6 +91,7 @@ export default function CommandPalette({
   onOpenTemplates,
   onOpenLiveBooks,
   onOpenTranslate,
+  onOpenReformat,
   isGuide,
   isFocusMode,
   onAICommand,
@@ -471,6 +474,12 @@ export default function CommandPalette({
             <CommandItem onSelect={() => runCommand(onOpenTranslate)}>
               <Languages className="mr-2 h-4 w-4" />
               <span>Translate this section</span>
+            </CommandItem>
+          )}
+          {onOpenReformat && selectedNodeId && !isGuide && (
+            <CommandItem onSelect={() => runCommand(onOpenReformat)}>
+              <WandSparkles className="mr-2 h-4 w-4" />
+              <span>Reformat with AI…</span>
             </CommandItem>
           )}
           {onOpenBulkResearch && (

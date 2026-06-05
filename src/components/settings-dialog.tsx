@@ -24,6 +24,7 @@ import { Badge } from '@/components/ui/badge';
 import { useAI } from '@/contexts/ai-context';
 import AIPlanDialog from './ai-plan-dialog';
 import { useToast } from '@/hooks/use-toast';
+import { useDiscovery, fireDiscovery } from '@/hooks/use-discovery';
 import { storeDirectoryHandle, getDirectoryHandle, verifyDirectoryPermission } from '@/lib/file-storage';
 import { isElectron, electronSelectDirectory, electronGetStoredDirectoryPath, checkOllamaInstallation, startOllama } from '@/lib/electron-storage';
 import { checkOllamaStatusAction } from '@/app/actions';
@@ -61,6 +62,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
   const { toast } = useToast();
   const { isPremium, plan } = useAI();
   const { theme, setTheme } = useTheme();
+  const { isProfessional, setProfessional } = useDiscovery();
 
   // Format plan name for display
   const planDisplayName = {
@@ -731,6 +733,25 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
             </p>
           </div>
 
+          {/* Tips & Discovery Section */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-medium">Tips</h3>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="professional-mode" className="text-sm">
+                Professional mode
+              </Label>
+              <Switch
+                id="professional-mode"
+                checked={isProfessional}
+                onCheckedChange={setProfessional}
+                data-testid="professional-mode-toggle"
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Suppress &ldquo;Did You Know?&rdquo; tips. Recommended once you know your way around.
+            </p>
+          </div>
+
           {/* Appearance Section */}
           <div className="space-y-3">
             <h3 className="text-sm font-medium">Appearance</h3>
@@ -885,7 +906,10 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
                   variant="outline"
                   size="sm"
                   className="text-emerald-600 dark:text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/10"
-                  onClick={() => setExpandedGuide('gemini')}
+                  onClick={() => {
+                    setExpandedGuide('gemini');
+                    fireDiscovery('first-byok-prompt-encountered');
+                  }}
                 >
                   Set Up Gemini (Free)
                 </Button>
@@ -921,7 +945,11 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
                         variant="ghost"
                         size="sm"
                         className="h-6 text-xs text-primary"
-                        onClick={() => setExpandedGuide(expandedGuide === provider.id ? null : provider.id)}
+                        onClick={() => {
+                          const next = expandedGuide === provider.id ? null : provider.id;
+                          setExpandedGuide(next);
+                          if (next) fireDiscovery('first-byok-prompt-encountered');
+                        }}
                       >
                         {expandedGuide === provider.id ? 'Hide Guide' : 'Get Key'}
                       </Button>

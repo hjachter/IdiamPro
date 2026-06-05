@@ -130,6 +130,8 @@ interface OutlinePaneProps {
   onOpenLiveBooks?: () => void;
   // Translate — language translation of a node subtree (#52)
   onOpenTranslate?: () => void;
+  // Reformat with AI — single-node content reformat per natural-language instruction
+  onOpenReformat?: () => void;
   // Double-click child node creation
   onCreateChildNode?: (parentId: string) => void;
   // Edit mode control
@@ -212,6 +214,7 @@ export default function OutlinePane({
   onOpenKnowledgeChat,
   onOpenLiveBooks,
   onOpenTranslate,
+  onOpenReformat,
   onCreateChildNode,
   justCreatedNodeId,
   editingNodeId,
@@ -1288,6 +1291,7 @@ export default function OutlinePane({
             onOpenKnowledgeChat={onOpenKnowledgeChat}
             onOpenLiveBooks={onOpenLiveBooks}
             onOpenTranslate={onOpenTranslate}
+            onOpenReformat={onOpenReformat}
             onAskAI={onOpenCommandPalette}
             hasSelectedNode={!!selectedNodeId && !currentOutline?.isGuide}
             selectedNodeName={selectedNodeId && currentOutline?.nodes[selectedNodeId]?.name || ''}

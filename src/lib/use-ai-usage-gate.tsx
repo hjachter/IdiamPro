@@ -52,6 +52,7 @@ export type AIFeatureKey =
   | 'knowledgeChat'
   | 'liveBooks'
   | 'translate'
+  | 'reformat'
   | 'tellAI'
   | 'bulkResearch'
   | 'aiMenu'

@@ -8,6 +8,8 @@ import { PWAInstaller } from '@/components/pwa-installer';
 import { ThemeProvider } from 'next-themes';
 import { Analytics } from '@vercel/analytics/react';
 import { AuthProvider } from '@/lib/auth/AuthProvider';
+import { DiscoveryProvider } from '@/hooks/use-discovery';
+import { DiscoveryToastStack } from '@/components/discovery-toast';
 
 // NOTE: /og-image.png is referenced below but has not been designed yet.
 // A 1200x630 PNG should be added to /public/og-image.png before production launch.
@@ -96,7 +98,14 @@ export default function RootLayout({
                       is off — the gates that trigger it are themselves
                       no-ops with no auth/billing keys. */}
                   <UpgradePromptProvider>
-                    {children}
+                    {/* Discovery hints — "Did You Know?" sticky toasts.
+                        Provider holds the dismissed-state and queue;
+                        DiscoveryToastStack renders the cards. Toggling
+                        Professional mode in Settings suppresses them. */}
+                    <DiscoveryProvider>
+                      {children}
+                      <DiscoveryToastStack />
+                    </DiscoveryProvider>
                   </UpgradePromptProvider>
                 </AIProvider>
               </div>

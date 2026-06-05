@@ -26,6 +26,7 @@ import {
   tierDisplayName,
 } from '@/lib/entitlements';
 import { useUpgradePrompt } from '@/components/upgrade-prompt';
+import { fireDiscovery } from '@/hooks/use-discovery';
 import { useAIUsageGate } from '@/lib/use-ai-usage-gate';
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction } from './ui/alert-dialog';
 import { Button } from './ui/button';
@@ -39,6 +40,7 @@ import KeyboardShortcutsDialog, { useKeyboardShortcuts } from './keyboard-shortc
 import BulkResearchDialog from './bulk-research-dialog';
 import LiveBooksDialog from './live-books-dialog';
 import TranslateDialog from './translate-dialog';
+import ReformatDialog from './reformat-dialog';
 import OutlineLinkPickerDialog from './outline-link-picker-dialog';
 import HelpChatDialog from './help-chat-dialog';
 import KnowledgeChatDialog from './knowledge-chat-dialog';
@@ -350,6 +352,18 @@ export default function OutlinePro() {
   // Translate (language translation) dialog state — same transform engine
   // as LIVE BOOKS, different transformer (#52). Re-wired 2026-06-04.
   const [isTranslateOpen, setIsTranslateOpen] = useState(false);
+
+  // Reformat with AI dialog state — single-shot per-node content reformat
+  // driven by a plain-language instruction. Different from Translate/LIVE
+  // BOOKS: no subtree fan-out, no transform engine — just one piece of
+  // HTML in, one piece of HTML out.
+  const [isReformatOpen, setIsReformatOpen] = useState(false);
+  // When the dialog opens from a selection inside the editor, we hand it
+  // the selected HTML instead of the whole node. The content-pane sets
+  // these via an exposed ref. From the Smart Tools / context menu the
+  // selection refs are null and we use the whole node's content.
+  const [reformatSelectionHtml, setReformatSelectionHtml] = useState<string | null>(null);
+  const [reformatApplySelectionFn, setReformatApplySelectionFn] = useState<((newHtml: string) => void) | null>(null);
 
   // Cross-outline link picker (Phase 1, 2026-06-04). Picks a target outline
   // and inserts an 'outline-link' node into the current outline as a child of
@@ -1139,6 +1153,42 @@ export default function OutlinePro() {
     );
   }, [currentOutlineId]);
 
+  // Resolved content the Reformat dialog operates on — either the
+  // selection handed in from the bubble menu, or the whole node's content.
+  const reformatContentForDialog = useMemo(() => {
+    if (reformatSelectionHtml !== null) return reformatSelectionHtml;
+    if (!selectedNodeId) return '';
+    const outline = outlines.find(o => o.id === currentOutlineId);
+    return outline?.nodes[selectedNodeId]?.content || '';
+  }, [reformatSelectionHtml, selectedNodeId, outlines, currentOutlineId]);
+
+  const reformatScopeLabel = useMemo(() => {
+    if (reformatSelectionHtml !== null) return 'your selection';
+    return 'this node';
+  }, [reformatSelectionHtml]);
+
+  // Reformat — apply the AI-reformatted HTML back to the selected node.
+  // If the dialog was scoped to a selection, the content-pane's replacer
+  // is called instead (it does the in-editor selection swap).
+  const handleApplyReformat = useCallback((newHtml: string) => {
+    if (reformatApplySelectionFn) {
+      reformatApplySelectionFn(newHtml);
+      return;
+    }
+    if (!selectedNodeId) return;
+    setOutlines(currentOutlines =>
+      currentOutlines.map(o => {
+        if (o.id !== currentOutlineId || o.isGuide) return o;
+        const node = o.nodes[selectedNodeId];
+        if (!node) return o;
+        return {
+          ...o,
+          nodes: { ...o.nodes, [selectedNodeId]: { ...node, content: newHtml } },
+        };
+      })
+    );
+  }, [currentOutlineId, selectedNodeId, reformatApplySelectionFn]);
+
   // Respect the app-wide AI provider setting: only force local when the user
   // explicitly chose "local" (cloud/auto keep cloud grounding + citations).
   const liveBooksUseLocal = useMemo(() => {
@@ -1468,6 +1518,9 @@ export default function OutlinePro() {
     // These are independent state updates, safe to call after setOutlines
     setCurrentOutlineId(newOutlineId);
     setSelectedNodeId(newRootId);
+    // Discovery: surface cross-link + import-export tips the first time
+    // a user creates an outline. Dedupe is in the hook.
+    fireDiscovery('first-outline-created');
   }, []);
 
   // Create outline from template
@@ -4075,6 +4128,11 @@ export default function OutlinePro() {
           onOpenBulkResearch={() => setIsBulkResearchOpen(true)}
           onOpenLiveBooks={() => setIsLiveBooksOpen(true)}
           onOpenTranslate={() => setIsTranslateOpen(true)}
+          onOpenReformat={() => {
+            setReformatSelectionHtml(null);
+            setReformatApplySelectionFn(null);
+            setIsReformatOpen(true);
+          }}
           onOpenTemplates={() => setIsTemplatesDialogOpen(true)}
           isGuide={currentOutline?.isGuide ?? false}
           isFocusMode={isFocusMode}
@@ -4115,6 +4173,20 @@ export default function OutlinePro() {
           outline={currentOutline}
           selectedNodeId={selectedNodeId}
           onApply={handleApplyTranslate}
+        />
+
+        <ReformatDialog
+          open={isReformatOpen}
+          onOpenChange={(o) => {
+            setIsReformatOpen(o);
+            if (!o) {
+              setReformatSelectionHtml(null);
+              setReformatApplySelectionFn(null);
+            }
+          }}
+          contentHtml={reformatContentForDialog}
+          scopeLabel={reformatScopeLabel}
+          onApply={handleApplyReformat}
         />
 
         <OutlineLinkPickerDialog
@@ -4364,6 +4436,11 @@ export default function OutlinePro() {
                 onOpenKnowledgeChat={() => setIsKnowledgeChatOpen(true)}
                 onOpenLiveBooks={() => setIsLiveBooksOpen(true)}
                 onOpenTranslate={() => setIsTranslateOpen(true)}
+                onOpenReformat={() => {
+                  setReformatSelectionHtml(null);
+                  setReformatApplySelectionFn(null);
+                  setIsReformatOpen(true);
+                }}
                 onCreateChildNode={handleCreateSiblingNode}
                 justCreatedNodeId={justCreatedNodeIdRef.current}
                 editingNodeId={editingNodeId}
@@ -4442,6 +4519,16 @@ export default function OutlinePro() {
             currentMatchType={currentMatchType}
             isGuide={currentOutline?.isGuide ?? false}
             onCopyOutline={handleCopyOutline}
+            onOpenReformat={(args) => {
+              if (args) {
+                setReformatSelectionHtml(args.selectionHtml);
+                setReformatApplySelectionFn(() => args.applySelection);
+              } else {
+                setReformatSelectionHtml(null);
+                setReformatApplySelectionFn(null);
+              }
+              setIsReformatOpen(true);
+            }}
           />
         )}
       </div>
@@ -4540,6 +4627,20 @@ export default function OutlinePro() {
         outline={currentOutline}
         selectedNodeId={selectedNodeId}
         onApply={handleApplyTranslate}
+      />
+
+      <ReformatDialog
+        open={isReformatOpen}
+        onOpenChange={(o) => {
+          setIsReformatOpen(o);
+          if (!o) {
+            setReformatSelectionHtml(null);
+            setReformatApplySelectionFn(null);
+          }
+        }}
+        contentHtml={reformatContentForDialog}
+        scopeLabel={reformatScopeLabel}
+        onApply={handleApplyReformat}
       />
 
       <OutlineLinkPickerDialog
@@ -4752,6 +4853,16 @@ export default function OutlinePro() {
             currentMatchType={currentMatchType}
             isGuide={currentOutline?.isGuide ?? false}
             onCopyOutline={handleCopyOutline}
+            onOpenReformat={(args) => {
+              if (args) {
+                setReformatSelectionHtml(args.selectionHtml);
+                setReformatApplySelectionFn(() => args.applySelection);
+              } else {
+                setReformatSelectionHtml(null);
+                setReformatApplySelectionFn(null);
+              }
+              setIsReformatOpen(true);
+            }}
           />
         </div>
       ) : (
@@ -4798,6 +4909,11 @@ export default function OutlinePro() {
                 onOpenKnowledgeChat={() => setIsKnowledgeChatOpen(true)}
                 onOpenLiveBooks={() => setIsLiveBooksOpen(true)}
                 onOpenTranslate={() => setIsTranslateOpen(true)}
+                onOpenReformat={() => {
+                  setReformatSelectionHtml(null);
+                  setReformatApplySelectionFn(null);
+                  setIsReformatOpen(true);
+                }}
                 onCreateChildNode={handleCreateSiblingNode}
                 justCreatedNodeId={justCreatedNodeIdRef.current}
                 editingNodeId={editingNodeId}
@@ -4845,6 +4961,16 @@ export default function OutlinePro() {
                 currentMatchType={currentMatchType}
                 isGuide={currentOutline?.isGuide ?? false}
                 onCopyOutline={handleCopyOutline}
+                onOpenReformat={(args) => {
+                  if (args) {
+                    setReformatSelectionHtml(args.selectionHtml);
+                    setReformatApplySelectionFn(() => args.applySelection);
+                  } else {
+                    setReformatSelectionHtml(null);
+                    setReformatApplySelectionFn(null);
+                  }
+                  setIsReformatOpen(true);
+                }}
               />
             </div>
           </ResizablePanel>

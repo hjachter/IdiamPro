@@ -56,6 +56,7 @@ import type { Outline } from '@/types';
 import type { LazyOutline } from '@/lib/storage-manager';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { fireDiscovery } from '@/hooks/use-discovery';
 
 interface SidebarPaneProps {
   outlines: Outline[];
@@ -131,6 +132,12 @@ export default function SidebarPane({
   const [contextMenuOutline, setContextMenuOutline] = useState<Outline | null>(null);
   const [contextMenuPosition, setContextMenuPosition] = useState<{ x: number; y: number } | null>(null);
   const [outlineSearch, setOutlineSearch] = useState('');
+
+  // Discovery: fire once on the first sidebar mount so the registry can
+  // surface library-organisation tips. Dedupe is handled inside the hook.
+  useEffect(() => {
+    fireDiscovery('sidebar-first-load');
+  }, []);
 
   // Separate guide from user outlines
   const guide = outlines.find(o => o.isGuide);

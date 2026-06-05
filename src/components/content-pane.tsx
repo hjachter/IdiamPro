@@ -124,7 +124,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Image from 'next/image';
-import { ArrowLeft, Sparkles, Loader2, Eraser, Scissors, Copy, Clipboard, Type, Undo, Redo, List, ListOrdered, ListX, Minus, FileText, Sheet, Presentation, Video, Map, AppWindow, Plus, Bold, Italic, Strikethrough, Code, Heading1, Heading2, Heading3, ChevronRight, Home, Pencil, ALargeSmall, Check, Calendar, Brush, Network, GitBranch, MessageSquare, ImagePlus, Table, Layers, Image as ImageIcon, Film, CheckSquare, Paperclip, LayoutGrid } from 'lucide-react';
+import { ArrowLeft, Sparkles, Loader2, Eraser, Scissors, Copy, Clipboard, Type, Undo, Redo, List, ListOrdered, ListX, Minus, FileText, Sheet, Presentation, Video, Map, AppWindow, Plus, Bold, Italic, Strikethrough, Code, Heading1, Heading2, Heading3, ChevronRight, Home, Pencil, ALargeSmall, Check, Calendar, Brush, Network, GitBranch, MessageSquare, ImagePlus, Table, Layers, Image as ImageIcon, Film, CheckSquare, Paperclip, LayoutGrid, WandSparkles } from 'lucide-react';
 import { generateImageAction, generateImageDescriptionAction, generateContentForNodeAction } from '@/app/actions';
 import { getUserApiKey } from '@/lib/byok-keys';
 import dynamic from 'next/dynamic';
@@ -168,6 +168,7 @@ import GoogleSlidesPickerDialog from './google-slides-picker-dialog';
 import GoogleMapsPickerDialog from './google-maps-picker-dialog';
 import { isElectron } from '@/lib/electron-storage';
 import { useAIFeature } from '@/contexts/ai-context';
+import { fireDiscovery } from '@/hooks/use-discovery';
 import {
   ContextMenu,
   ContextMenuContent,
@@ -348,6 +349,13 @@ interface ContentPaneProps {
   currentMatchType?: 'name' | 'content' | 'both' | null;  // Type of current match
   isGuide?: boolean;  // Whether viewing the User Guide (read-only)
   onCopyOutline?: () => void;  // Callback to copy the current outline
+  /**
+   * Open the Reformat with AI dialog. If `selectionHtml` and
+   * `applySelection` are provided, the dialog operates on just the
+   * selected text inside the editor; otherwise it operates on the whole
+   * node. Wired from outline-pro.
+   */
+  onOpenReformat?: (args?: { selectionHtml: string; applySelection: (newHtml: string) => void }) => void;
 }
 
 const YouTubeEmbed = ({ url }: { url: string }) => {
@@ -396,6 +404,7 @@ export default function ContentPane({
   currentMatchType = null,
   isGuide = false,
   onCopyOutline,
+  onOpenReformat,
 }: ContentPaneProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [conflictDialogOpen, setConflictDialogOpen] = useState(false);
@@ -588,6 +597,19 @@ export default function ContentPane({
         });
       }
     },
+    onSelectionUpdate: ({ editor }) => {
+      // Surface the "Did You Know?" discovery hints the first time the
+      // user selects non-empty text. Deduplication is handled by the
+      // discovery hook (already-dismissed hints don't re-fire).
+      try {
+        const { from, to } = editor.state.selection;
+        if (to > from) {
+          fireDiscovery('editor-first-text-selection');
+        }
+      } catch {
+        // never block the editor over a discovery side-effect
+      }
+    },
     editorProps: {
       attributes: {
         class: `tiptap focus:outline-none min-h-[400px] p-0 font-size-${fontSize}`,
@@ -648,6 +670,9 @@ export default function ContentPane({
         },
       },
       handlePaste: (_view, event) => {
+        // Discovery hint: first paste into the editor surfaces tips
+        // (rich-text awareness, clipboard handling, etc.) once.
+        fireDiscovery('editor-first-paste');
         // Check for file data in clipboard (images, videos, etc.)
         const items = event.clipboardData?.items;
         if (items) {
@@ -715,6 +740,54 @@ export default function ContentPane({
               return true;
             }
           }
+        }
+
+        // TEXT-FIDELITY GATE (2026-06-05, replaces earlier markdown-on-paste)
+        // Howard reversed direction: he wants pasted plain text to look on
+        // screen exactly like the source — every newline preserved, blank
+        // lines preserved, no double-spacing, and NO interpretation of
+        // markdown markers (#, **, -, [link](url) stay as literal text).
+        //
+        // This runs BEFORE the rich-HTML branch so Terminal / chat / IDE
+        // pastes (which include cosmetic "Cocoa HTML Writer" HTML) are
+        // caught here and don't fall through to the email-preservation
+        // path. Genuinely structural HTML (tables, real headings, real
+        // lists, embedded <style>) is allowed through to the rich path.
+        const earlyText = event.clipboardData?.getData('text/plain');
+        const earlyHtml = event.clipboardData?.getData('text/html');
+        const isCosmeticOrAbsentHtml = (h: string | undefined, t: string): boolean => {
+          if (!h) return true;
+          // Hard-structural markers that mean "real rich document": keep
+          // for the email/web preservation path below.
+          if (/<table[\s>]/i.test(h)) return false;
+          if (/<h[1-6][\s>]/i.test(h)) return false;
+          if (/<ul[\s>]|<ol[\s>]/i.test(h)) return false;
+          if (/<style[\s>]/i.test(h)) return false;
+          // Known cosmetic source: macOS Terminal.app / iTerm2 / Warp.
+          if (h.includes('Cocoa HTML Writer')) return true;
+          // Thin styled-span wrapper heuristic: if stripping tags leaves
+          // ≥80% of the HTML byte length, it's mostly text — cosmetic.
+          const stripped = h.replace(/<[^>]+>/g, '');
+          if (t && stripped.length >= t.length * 0.8) return true;
+          return false;
+        };
+        if (
+          earlyText &&
+          !isTabularData(earlyText) &&
+          isCosmeticOrAbsentHtml(earlyHtml, earlyText) &&
+          editorRef.current
+        ) {
+          const escape = (s: string): string =>
+            s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+          const lines = earlyText.split('\n');
+          // Join lines with <br>; blank source lines become an extra <br>.
+          const inner = lines
+            .map((ln) => (ln.length === 0 ? '<br>' : escape(ln)))
+            .join('<br>');
+          const fidelityHtml = `<p>${inner}</p>`;
+          event.preventDefault();
+          editorRef.current.commands.insertContent(fidelityHtml);
+          return true;
         }
 
         // Check pasted HTML content
@@ -807,64 +880,12 @@ export default function ContentPane({
           return false;
         }
 
-        // MARKDOWN-ON-PASTE
-        // Tiptap's default treats every newline as a paragraph boundary,
-        // which renders pasted prose with double vertical spacing — and
-        // does nothing with markdown markers like `- ` bullets, `# `
-        // headings, `**bold**`, `[links](url)`, ``` code blocks ```, etc.
-        // For a tool a professional outliner user pastes into all day,
-        // that's a wasted moment of polish. Reported by Howard 2026-06-05.
-        //
-        // Solution: run plain-text pastes through a real CommonMark / GFM
-        // parser (marked, already in the dep tree).
-        //
-        // CLIPBOARD HTML CAVEAT (also reported 2026-06-05): macOS
-        // Terminal.app, iTerm2, Warp, and similar terminals put BOTH
-        // plain text AND styled HTML on the clipboard. The HTML is
-        // cosmetic (colored <span>s), not structural markdown. The
-        // earlier "skip if HTML present" check sent these pastes down
-        // the rich-paste path, defeating the markdown fix entirely.
-        //
-        // New rule: if the plain text contains ANY markdown markers,
-        // prefer markdown parsing — regardless of whether a cosmetic
-        // HTML alternative is on the clipboard. Real structural HTML
-        // pastes (from web pages, emails) typically don't lead with
-        // markdown markers, so this is a safe heuristic.
-        const htmlClip = event.clipboardData?.getData('text/html');
-        const looksLikeMarkdown = (s: string): boolean => {
-          return (
-            // block-level markers at start of any line
-            /(?:^|\n)\s*(?:#{1,6}\s|[-*+]\s|\d+\.\s|>\s|```|---\s*$|\|.*\|)/.test(s) ||
-            // inline markers anywhere
-            /\*\*[^*\n]+\*\*|__[^_\n]+__/.test(s) ||  // bold
-            /(?<!`)`[^`\n]+`(?!`)/.test(s) ||         // inline code
-            /\[[^\]\n]+\]\([^)\n]+\)/.test(s)         // links
-          );
-        };
-        if (text && !isTabularData(text) && editorRef.current) {
-          const isMarkdownLike = looksLikeMarkdown(text);
-          // Run markdown parser when: (a) no HTML on clipboard, or (b) the
-          // plain text has visible markdown markers (cosmetic HTML loses).
-          if (isMarkdownLike || !htmlClip) {
-            try {
-              const html = marked.parse(text, {
-                gfm: true,      // GFM: tables, strikethrough, autolinks
-                breaks: true,   // single \n → <br> within a paragraph
-                async: false,
-              }) as string;
-              if (html && html.trim()) {
-                event.preventDefault();
-                editorRef.current.commands.insertContent(html);
-                return true;
-              }
-            } catch {
-              // Marked failed (malformed input) — fall through to Tiptap's
-              // default rather than blocking the paste.
-            }
-          }
-        }
-
-        // Let Tiptap handle paste normally
+        // NOTE: the text-fidelity gate near the top of this handler now
+        // catches plain-text and cosmetic-HTML pastes BEFORE this point.
+        // Anything reaching here is either tabular text (handled above)
+        // or a paste we deliberately want Tiptap to handle its default
+        // way (e.g. genuinely complex HTML that wasn't caught by the
+        // rich-email branch).
         return false;
       },
     },
@@ -1561,6 +1582,50 @@ export default function ContentPane({
     if (!editor) return;
     // Lift list items out of lists
     editor.chain().focus().liftListItem('listItem').run();
+  };
+
+  /**
+   * Open the Reformat with AI dialog.
+   *  - With an active selection in the editor → dialog operates on the
+   *    selected HTML; Apply replaces just that selection.
+   *  - With no selection → dialog operates on the whole node (parent
+   *    handles the apply path).
+   */
+  const handleOpenReformat = () => {
+    if (!onOpenReformat) return;
+    if (!editor) {
+      onOpenReformat();
+      return;
+    }
+    const { from, to } = editor.state.selection;
+    if (from === to) {
+      // No selection: whole-node mode.
+      onOpenReformat();
+      return;
+    }
+    // Build the HTML of the selected range.
+    const slice = editor.state.doc.slice(from, to);
+    const tempDiv = document.createElement('div');
+    // Use the schema's serialiser via ProseMirror's DOMSerializer.
+    let selectionHtml = '';
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { DOMSerializer } = require('@tiptap/pm/model');
+      const serializer = DOMSerializer.fromSchema(editor.schema);
+      const fragment = serializer.serializeFragment(slice.content);
+      tempDiv.appendChild(fragment);
+      selectionHtml = tempDiv.innerHTML;
+    } catch {
+      // Fallback: use plain text wrapped in a paragraph.
+      selectionHtml = `<p>${editor.state.doc.textBetween(from, to, '\n')}</p>`;
+    }
+    onOpenReformat({
+      selectionHtml,
+      applySelection: (newHtml: string) => {
+        // Replace the selected range with the new HTML.
+        editor.chain().focus().deleteRange({ from, to }).insertContentAt(from, newHtml).run();
+      },
+    });
   };
 
   // Text formatting handlers
@@ -3035,6 +3100,37 @@ export default function ContentPane({
                   options={{ placement: 'top' }}
                   className="flex items-center gap-0.5 rounded-md border bg-popover p-1 shadow-md"
                 >
+                  {/* Reformat with AI lives at the FIRST position and gets
+                      the violet accent + "Most Powerful" badge so it's the
+                      eye-magnet in the bubble menu. Howard 2026-06-05. */}
+                  {onOpenReformat && (
+                    <>
+                      <div
+                        className="flex items-center gap-1 pl-0.5 pr-1"
+                        data-testid="bubble-reformat-cluster"
+                      >
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          aria-label="Reformat with AI"
+                          title="Reformat with AI…"
+                          onClick={handleOpenReformat}
+                          data-testid="bubble-reformat-button"
+                          className="h-9 w-9 rounded-md bg-violet-500/10 ring-1 ring-violet-500/30 text-violet-600 hover:bg-violet-500/20 hover:text-violet-700 dark:text-violet-300 dark:hover:text-violet-200 active:scale-95"
+                        >
+                          <WandSparkles className="h-4 w-4" />
+                        </Button>
+                        <span
+                          className="hidden sm:inline-flex items-center rounded-full bg-violet-500/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-violet-600 dark:text-violet-300 ring-1 ring-violet-500/20"
+                          aria-hidden="true"
+                        >
+                          Most Powerful
+                        </span>
+                      </div>
+                      <div className="w-px h-5 bg-border/50 mx-0.5" />
+                    </>
+                  )}
                   <Button
                     type="button"
                     variant="ghost"
@@ -3350,6 +3446,13 @@ export default function ContentPane({
                   Generate AI Content
                 </ContextMenuItem>
               </>
+            )}
+
+            {onOpenReformat && !isRoot && (
+              <ContextMenuItem onClick={handleOpenReformat}>
+                <WandSparkles className="mr-2 h-4 w-4 text-violet-500 dark:text-violet-400" />
+                Reformat with AI…
+              </ContextMenuItem>
             )}
 
             <ContextMenuSeparator />

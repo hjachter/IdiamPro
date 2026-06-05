@@ -4,6 +4,7 @@ import { generateOutlineFromTopic } from '@/ai/flows/generate-outline-from-topic
 import { expandNodeContent } from '@/ai/flows/expand-node-content';
 import { suggestTags } from '@/ai/flows/suggest-tags';
 import { translateNodeContent, type TranslateNodeInput } from '@/ai/flows/translate-node-content';
+import { reformatContent, type ReformatContentInput, type ReformatContentResult } from '@/ai/flows/reformat-content';
 import { interpretCommand, type InterpretCommandInput, type InterpretedCommand } from '@/ai/flows/interpret-command';
 import { transcribeAudio as transcribeAudioWithGemini, type TranscribeAudioInput, type TranscribeAudioResult } from '@/ai/flows/transcribe-audio';
 import { refreshNodeContent, type RefreshNodeInput } from '@/ai/flows/refresh-node-content';
@@ -342,6 +343,33 @@ export async function translateNodeContentAction(
       model: input.useLocal ? 'Local' : 'Gemini',
       modelProvider: input.useLocal ? 'local' : 'cloud',
       webGrounded: false,
+      error: message,
+    };
+  }
+}
+
+/**
+ * Reformat a single piece of HTML content per a plain-language instruction
+ * (#XX Reformat with AI). Used by the Reformat dialog from the Smart Tools
+ * menu, the bubble menu, and the editor context menu.
+ *
+ * Single-shot: takes one HTML fragment, returns one reformatted fragment.
+ * No web grounding, no citations, no subtree fan-out — that's why it skips
+ * the transform engine that LIVE BOOKS and Translate share.
+ */
+export async function reformatContentAction(
+  input: ReformatContentInput
+): Promise<ReformatContentResult> {
+  try {
+    return await reformatContent(input);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Reformat failed';
+    console.error('Error reformatting content:', message);
+    return {
+      content: input.contentHtml,
+      changed: false,
+      model: input.useLocal ? 'Local' : 'Gemini',
+      modelProvider: input.useLocal ? 'local' : 'cloud',
       error: message,
     };
   }
