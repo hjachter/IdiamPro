@@ -193,6 +193,7 @@ import {
 import { ChevronDown } from 'lucide-react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import { BubbleMenu } from '@tiptap/react/menus';
+import { marked } from 'marked';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { ListChecks } from 'lucide-react';
 import StarterKit from '@tiptap/starter-kit';
@@ -802,6 +803,45 @@ export default function ContentPane({
           queueMicrotask(() => {
             setPendingTabularPaste(text);
           });
+          // Fall through to Tiptap's default for tabular text
+          return false;
+        }
+
+        // MARKDOWN-ON-PASTE
+        // Tiptap's default treats every newline as a paragraph boundary,
+        // which renders pasted prose with double vertical spacing — and
+        // does nothing with markdown markers like `- ` bullets, `# `
+        // headings, `**bold**`, `[links](url)`, ``` code blocks ```, etc.
+        // For a tool a professional outliner user pastes into all day,
+        // that's a wasted moment of polish. Reported by Howard 2026-06-05.
+        //
+        // Solution: run plain-text pastes through a real CommonMark / GFM
+        // parser (marked, already a transitive dep). Plain prose without
+        // any markdown markers comes out as clean paragraphs with single
+        // newlines collapsed into line breaks (breaks: true), so the
+        // earlier double-spacing bug is also fixed by this path.
+        //
+        // Only fires when the clipboard has ONLY plain text — when there's
+        // an HTML alternative (rich web/email paste), the existing
+        // rich-paste path above wins. Tiptap's schema filters dangerous
+        // HTML on insert, so script tags etc. are not a concern.
+        const htmlClip = event.clipboardData?.getData('text/html');
+        if (text && !htmlClip && !isTabularData(text) && editorRef.current) {
+          try {
+            const html = marked.parse(text, {
+              gfm: true,      // GitHub-flavored: tables, strikethrough, autolinks
+              breaks: true,   // Single \n becomes <br> within a paragraph
+              async: false,
+            }) as string;
+            if (html && html.trim()) {
+              event.preventDefault();
+              editorRef.current.commands.insertContent(html);
+              return true;
+            }
+          } catch {
+            // Marked failed (malformed input, very unusual) — fall through
+            // to Tiptap's default plain-text handling rather than blocking.
+          }
         }
 
         // Let Tiptap handle paste normally
