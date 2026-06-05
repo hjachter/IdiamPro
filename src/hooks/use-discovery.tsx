@@ -31,36 +31,89 @@ import {
   type DiscoveryTrigger,
   getHintsForTrigger,
 } from '@/lib/discovery/hints';
+import { toast } from '@/hooks/use-toast';
 
 // ── storage backend (localStorage today; swap to DB later) ──────────────
 
-const DISMISSED_KEY = 'discovery:dismissedHints';
+/**
+ * Storage keys.
+ *
+ * Two-tier dismissal model (2026-06-05):
+ *   - `discovery:hardDismissedHints` — hints the user explicitly chose to
+ *     never see again ("Don't show me this again" checkbox + Got it).
+ *     These persist across sessions AND survive Pro-mode toggle off.
+ *   - There is intentionally no "soft-dismissed" persisted set. Soft
+ *     dismissal just means "currently not in the active queue" — the next
+ *     time the trigger fires, the hint is eligible again.
+ *
+ * Legacy migration: the old `discovery:dismissedHints` single bucket gets
+ * promoted to hard-dismissed on first load, then deleted. Safest
+ * interpretation — the user had dismissed those hints, so honor it.
+ */
+const LEGACY_DISMISSED_KEY = 'discovery:dismissedHints';
+const HARD_DISMISSED_KEY = 'discovery:hardDismissedHints';
 const PROFESSIONAL_KEY = 'discovery:professionalMode';
 
 interface DiscoveryStorage {
-  loadDismissed(): Set<string>;
-  saveDismissed(ids: Set<string>): void;
+  loadHardDismissed(): Set<string>;
+  saveHardDismissed(ids: Set<string>): void;
   loadProfessional(): boolean;
   saveProfessional(value: boolean): void;
 }
 
 const localStorageBackend: DiscoveryStorage = {
-  loadDismissed() {
+  loadHardDismissed() {
     if (typeof window === 'undefined') return new Set();
     try {
-      const raw = window.localStorage.getItem(DISMISSED_KEY);
-      if (!raw) return new Set();
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) return new Set(parsed.filter((x) => typeof x === 'string'));
-      return new Set();
+      // Migration: if the legacy single-bucket key exists, promote its
+      // contents to hardDismissed and delete the old key.
+      const legacy = window.localStorage.getItem(LEGACY_DISMISSED_KEY);
+      const current = window.localStorage.getItem(HARD_DISMISSED_KEY);
+      let merged: Set<string> = new Set();
+      if (current) {
+        try {
+          const parsed = JSON.parse(current);
+          if (Array.isArray(parsed)) {
+            merged = new Set(parsed.filter((x) => typeof x === 'string'));
+          }
+        } catch {
+          // ignore malformed
+        }
+      }
+      if (legacy) {
+        try {
+          const parsedLegacy = JSON.parse(legacy);
+          if (Array.isArray(parsedLegacy)) {
+            for (const v of parsedLegacy) {
+              if (typeof v === 'string') merged.add(v);
+            }
+          }
+        } catch {
+          // ignore
+        }
+        // Persist the merged set and drop the legacy key so we only migrate once.
+        try {
+          window.localStorage.setItem(
+            HARD_DISMISSED_KEY,
+            JSON.stringify(Array.from(merged)),
+          );
+          window.localStorage.removeItem(LEGACY_DISMISSED_KEY);
+        } catch {
+          // ignore
+        }
+      }
+      return merged;
     } catch {
       return new Set();
     }
   },
-  saveDismissed(ids) {
+  saveHardDismissed(ids) {
     if (typeof window === 'undefined') return;
     try {
-      window.localStorage.setItem(DISMISSED_KEY, JSON.stringify(Array.from(ids)));
+      window.localStorage.setItem(
+        HARD_DISMISSED_KEY,
+        JSON.stringify(Array.from(ids)),
+      );
     } catch {
       // private mode / disabled storage — ignore silently
     }
@@ -107,6 +160,16 @@ export function fireDiscovery(trigger: DiscoveryTrigger): void {
 
 // ── context shape ───────────────────────────────────────────────────────
 
+interface DismissOptions {
+  /**
+   * When true, add the hint to the persistent "hard-dismissed" list so it
+   * never fires again for this user. When false/undefined, only the current
+   * toast goes away — the hint is eligible to re-fire next time the trigger
+   * matches.
+   */
+  permanent?: boolean;
+}
+
 interface DiscoveryContextValue {
   /** Hints currently visible as toasts. */
   activeHints: DiscoveryHint[];
@@ -114,8 +177,14 @@ interface DiscoveryContextValue {
   isProfessional: boolean;
   /** Toggle Professional mode. Turning ON also clears active hints. */
   setProfessional: (value: boolean) => void;
-  /** Mark a hint as dismissed and remove it from the active queue. */
-  dismissHint: (id: string) => void;
+  /**
+   * Remove a hint from the active queue.
+   *   - permanent=false (default): soft dismiss — the hint is eligible to
+   *     fire again the next time its trigger occurs.
+   *   - permanent=true: hard dismiss — the hint is added to the
+   *     hard-dismissed list and never fires again, regardless of Pro mode.
+   */
+  dismissHint: (id: string, options?: DismissOptions) => void;
   /** Imperative trigger fire — same as the global `fireDiscovery`. */
   fireDiscovery: (trigger: DiscoveryTrigger) => void;
 }
@@ -126,13 +195,15 @@ const DiscoveryContext = createContext<DiscoveryContextValue | null>(null);
 
 export function DiscoveryProvider({ children }: { children: ReactNode }) {
   // Hydrate from storage after mount to avoid SSR mismatch.
-  const [dismissed, setDismissed] = useState<Set<string>>(() => new Set());
+  const [hardDismissed, setHardDismissed] = useState<Set<string>>(
+    () => new Set(),
+  );
   const [isProfessional, setIsProfessional] = useState<boolean>(false);
   const [activeIds, setActiveIds] = useState<string[]>([]);
   const [hydrated, setHydrated] = useState<boolean>(false);
 
   useEffect(() => {
-    setDismissed(storage.loadDismissed());
+    setHardDismissed(storage.loadHardDismissed());
     setIsProfessional(storage.loadProfessional());
     setHydrated(true);
   }, []);
@@ -157,16 +228,17 @@ export function DiscoveryProvider({ children }: { children: ReactNode }) {
       if (isProfessional) return;
       const hints = getHintsForTrigger(detail.trigger);
       for (const hint of hints) {
-        if (dismissed.has(hint.id)) continue;
+        // Hard-dismissed hints never fire again.
+        if (hardDismissed.has(hint.id)) continue;
         const delay = hint.minDelayMs ?? 0;
         if (delay > 0) {
           setTimeout(() => {
-            // Re-check dismissed state at fire time (user may have toggled
-            // Professional mode or dismissed similar hints in the gap).
-            const latestDismissed = storage.loadDismissed();
+            // Re-check state at fire time (user may have toggled Pro mode
+            // or hard-dismissed a similar hint during the delay).
+            const latestHard = storage.loadHardDismissed();
             const latestProfessional = storage.loadProfessional();
             if (latestProfessional) return;
-            if (latestDismissed.has(hint.id)) return;
+            if (latestHard.has(hint.id)) return;
             showHint(hint);
           }, delay);
         } else {
@@ -176,7 +248,7 @@ export function DiscoveryProvider({ children }: { children: ReactNode }) {
     };
     eventBus.addEventListener(FIRE_EVENT, handler);
     return () => eventBus.removeEventListener(FIRE_EVENT, handler);
-  }, [dismissed, isProfessional, hydrated, showHint]);
+  }, [hardDismissed, isProfessional, hydrated, showHint]);
 
   // Expose a debug helper on window in dev builds.
   useEffect(() => {
@@ -187,15 +259,21 @@ export function DiscoveryProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const dismissHint = useCallback(
-    (id: string) => {
+    (id: string, options?: DismissOptions) => {
+      // Always remove from the currently-visible queue.
       setActiveIds((prev) => prev.filter((x) => x !== id));
-      setDismissed((prev) => {
-        if (prev.has(id)) return prev;
-        const next = new Set(prev);
-        next.add(id);
-        storage.saveDismissed(next);
-        return next;
-      });
+      // Permanent? Add to the hard-dismissed set and persist.
+      if (options?.permanent) {
+        setHardDismissed((prev) => {
+          if (prev.has(id)) return prev;
+          const next = new Set(prev);
+          next.add(id);
+          storage.saveHardDismissed(next);
+          return next;
+        });
+      }
+      // Otherwise it's a soft dismiss — nothing else to do. The hint stays
+      // eligible to fire again next time its trigger occurs.
     },
     [],
   );
@@ -204,8 +282,20 @@ export function DiscoveryProvider({ children }: { children: ReactNode }) {
     setIsProfessional(value);
     storage.saveProfessional(value);
     if (value) {
-      // Turning Professional mode ON clears everything currently visible.
+      // Turning Professional mode ON clears everything currently visible
+      // and suppresses future fires (the listener above bails on
+      // `isProfessional`).
       setActiveIds([]);
+    } else {
+      // Turning Professional mode OFF restores normal behavior: hints can
+      // fire again on their triggers. We DO NOT clear the hard-dismissed
+      // list — anything the user explicitly told us "don't show again"
+      // stays hidden forever. A transient toast confirms the change.
+      toast({
+        title: 'Welcome tips re-enabled',
+        description:
+          "You'll see them on next-trigger — except the ones you marked “Don't show again.”",
+      });
     }
   }, []);
 
