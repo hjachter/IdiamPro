@@ -1240,23 +1240,6 @@ export default function OutlinePane({
             <TooltipContent>Command palette{!isMobile && ' (⌘K)'}</TooltipContent>
           </Tooltip>
 
-          {/* Quick Capture - one-tap shortcut */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => onOpenQuickCapture?.()}
-                className="text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20"
-                title="Quick Capture"
-                aria-label="Quick Capture"
-              >
-                <Inbox className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Quick Capture{!isMobile && ' (⌘⇧I)'}</TooltipContent>
-          </Tooltip>
-
           {/* Second Brain Menu */}
           <DropdownMenu>
             <Tooltip>
@@ -1281,14 +1264,14 @@ export default function OutlinePane({
                 Second Brain
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
+              <DropdownMenuItem onSelect={() => onOpenSecondBrain?.()} className="cursor-pointer">
+                <Brain className="mr-2 h-4 w-4" />
+                Open Second Brain
+              </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => onOpenQuickCapture?.()} className="cursor-pointer">
                 <Inbox className="mr-2 h-4 w-4" />
                 Quick Capture
                 {!isMobile && <span className="ml-auto text-xs text-muted-foreground">⌘⇧I</span>}
-              </DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => onOpenSecondBrain?.()} className="cursor-pointer">
-                <Brain className="mr-2 h-4 w-4" />
-                Open Second Brain
               </DropdownMenuItem>
               <DropdownMenuItem
                 onSelect={() => selectedNodeId && onSaveToSecondBrain?.(selectedNodeId)}

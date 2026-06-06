@@ -33,7 +33,7 @@ IdiamPro/SecondBrainWare targets 6 platforms. macOS, iOS, and Web are actively s
 | Toggle sidebar | Cmd+B | Ctrl+B | Sidebar button | Cmd/Ctrl+B |
 | Open Second Brain | Brain menu / toolbar button | Brain menu / toolbar button | Brain menu | Brain menu / toolbar button |
 | Save to Second Brain | Cmd+Shift+B | Ctrl+Shift+B | Brain menu | Both |
-| Quick Capture | Cmd+Shift+I or toolbar | Ctrl+Shift+I or toolbar | Toolbar button | Both |
+| Quick Capture | Cmd+Shift+I or Brain menu | Ctrl+Shift+I or Brain menu | Brain menu | Cmd/Ctrl+Shift+I or Brain menu |
 | Search Second Brain | Cmd+Shift+S | Ctrl+Shift+S | Brain menu | Both |
 | Indent / Outdent | Tab / Shift+Tab | Tab / Shift+Tab | Swipe right / left | Tab / Shift+Tab |
 | Drag-reorder nodes | Drag | Drag | Long-press + drag | Drag |
