@@ -8,8 +8,8 @@ import OutlineSearch, { type SearchMatch } from './outline-search';
 import { MultiSelectToolbar } from './multi-select-toolbar';
 import FileImportDialog from './file-import-dialog';
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Plus, Trash2, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, Settings, Search, Command, PanelLeft, PanelLeftClose, Brain, StopCircle, Inbox, LayoutDashboard, Focus, Wrench, Sparkles, Mic, MessageSquare, BookDown, BookUp, Share2, ExternalLink, RefreshCw } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Plus, Trash2, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, ChevronsDownUp, Settings, Search, Command, PanelLeft, PanelLeftClose, Brain, StopCircle, Inbox, LayoutDashboard, Focus, Wrench, Sparkles, Mic, MessageSquare, BookDown, BookUp, Share2, ExternalLink, RefreshCw } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter } from "@/components/ui/alert-dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import SettingsDialog from './settings-dialog';
@@ -1161,47 +1161,51 @@ export default function OutlinePane({
             </Tooltip>
           )}
 
-          {/* Expand All — recursive open of every descendant under the selection
-              (or the whole outline if nothing is selected). */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                disabled={!currentOutline}
-                onClick={() => {
+          {/* Show or hide all nodes — single dropdown merging Expand All + Collapse All.
+              Bidirectional chevrons icon hints both directions; menu items keep the
+              original single-direction icons and the existing keyboard shortcuts. */}
+          <DropdownMenu>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    disabled={!currentOutline}
+                    className="hover:bg-accent/20 shrink-0 active:scale-95 active:bg-accent/30"
+                    aria-label="Show or hide all nodes"
+                  >
+                    <ChevronsDownUp className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+              </TooltipTrigger>
+              <TooltipContent>Show or hide all nodes</TooltipContent>
+            </Tooltip>
+            <DropdownMenuContent align="end" className="w-56 p-0.5">
+              <DropdownMenuItem
+                onSelect={() => {
                   onExpandAll();
                   setIsAllCollapsed(false);
                 }}
-                className="hover:bg-accent/20"
-                aria-label="Expand all"
-              >
-                <ChevronsDown className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Expand all{!isMobile && ' (⌘E)'}</TooltipContent>
-          </Tooltip>
-
-          {/* Collapse All — recursive close of every descendant under the selection
-              (or the whole outline if nothing is selected). */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
                 disabled={!currentOutline}
-                onClick={() => {
+                className="cursor-pointer py-1"
+              >
+                <ChevronsDown className="mr-2 h-4 w-4" /> Expand all
+                {!isMobile && <DropdownMenuShortcut>⌘E</DropdownMenuShortcut>}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onSelect={() => {
                   onCollapseAll();
                   setIsAllCollapsed(true);
                 }}
-                className="hover:bg-accent/20"
-                aria-label="Collapse all"
+                disabled={!currentOutline}
+                className="cursor-pointer py-1"
               >
-                <ChevronsUp className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Collapse all{!isMobile && ' (⌘⇧E)'}</TooltipContent>
-          </Tooltip>
+                <ChevronsUp className="mr-2 h-4 w-4" /> Collapse all
+                {!isMobile && <DropdownMenuShortcut>⌘⇧E</DropdownMenuShortcut>}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           <Tooltip>
             <TooltipTrigger asChild>

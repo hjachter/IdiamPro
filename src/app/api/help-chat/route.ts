@@ -47,8 +47,8 @@ KEYBOARD SHORTCUTS (macOS/Desktop):
 - Tab: Indent node
 - Shift+Tab: Outdent node
 - Cmd+K: Command palette (also: Expand All, Collapse All)
-- Cmd+E: Expand All — recursive open of the selected subtree (or the whole outline if nothing is selected). Also a toolbar button (down-chevron icon).
-- Cmd+Shift+E: Collapse All — recursive close of the selected subtree (or the whole outline if nothing is selected). Also a toolbar button (up-chevron icon).
+- Cmd+E: Expand All — recursive open of the selected subtree (or the whole outline if nothing is selected). Also available from the toolbar's bidirectional double-chevron button (tooltip: "Show or hide all nodes") which opens a dropdown with [Expand all] and [Collapse all] items.
+- Cmd+Shift+E: Collapse All — recursive close of the selected subtree (or the whole outline if nothing is selected). Same toolbar dropdown as above.
 - Single-chevron click on a node: toggles ONLY that node and preserves each descendant's previous open/closed state. Use this when you want a node to remember how it was last left.
 - Right-click a node: 'Expand All' and 'Collapse All' menu items operate on that node's subtree.
 - Cmd+B: Toggle sidebar (platform convention; Second Brain is accessed via toolbar Brain button)
@@ -139,7 +139,7 @@ MOBILE:
 - Stacked View: outline + content side by side
 - Content View: full-screen editor mode
 - Toggle between views with the toolbar button
-- Touch-accessible toolbar buttons mirror every keyboard shortcut for iPad/iPhone: Focus Mode (target icon), Collapse All / Expand All (double-chevron icon), Search, Command Palette, and the Second Brain Brain menu (which contains Quick Capture, Open Second Brain, Search Second Brain, and more). No iOS user is gated by a keyboard-only feature.
+- Touch-accessible toolbar buttons mirror every keyboard shortcut for iPad/iPhone: Focus Mode (target icon), Expand/Collapse All (bidirectional double-chevron icon — opens a dropdown), Search, Command Palette, and the Second Brain Brain menu (which contains Quick Capture, Open Second Brain, Search Second Brain, and more). No iOS user is gated by a keyboard-only feature.
 
 ADMIN DASHBOARD:
 - Launch Metrics page (internal): /admin/metrics is an internal-only dashboard showing launch-week vitals on a single screen — signups this week, activation rate, day-1 and day-7 retention, free-to-paid conversion, AI runs in the last 24 hours, and monthly recurring revenue. Gated by a localStorage flag (isAdmin=true) for v1; real Clerk-backed admin roles come post-launch. Refresh is manual (button at top with "Last updated N min ago"). All numbers are currently labelled "Demo" — the data layer (src/lib/launch-metrics.ts) exposes a typed contract so each metric can be re-wired to Clerk / RevenueCat / Sentry / the events backend independently once those are connected.
