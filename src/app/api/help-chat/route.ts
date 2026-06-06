@@ -47,7 +47,10 @@ KEYBOARD SHORTCUTS (macOS/Desktop):
 - Tab: Indent node
 - Shift+Tab: Outdent node
 - Cmd+K: Command palette (also: Expand All, Collapse All)
-- Cmd+E: Toggle collapse/expand all (also available as a toolbar button)
+- Cmd+E: Expand All — recursive open of the selected subtree (or the whole outline if nothing is selected). Also a toolbar button (down-chevron icon).
+- Cmd+Shift+E: Collapse All — recursive close of the selected subtree (or the whole outline if nothing is selected). Also a toolbar button (up-chevron icon).
+- Single-chevron click on a node: toggles ONLY that node and preserves each descendant's previous open/closed state. Use this when you want a node to remember how it was last left.
+- Right-click a node: 'Expand All' and 'Collapse All' menu items operate on that node's subtree.
 - Cmd+B: Toggle sidebar (platform convention; Second Brain is accessed via toolbar Brain button)
 - Cmd+D: Duplicate node
 - Delete/Backspace: Delete selected node (with confirmation if enabled)

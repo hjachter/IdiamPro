@@ -93,8 +93,8 @@ interface OutlinePaneProps {
   onSelectNode: (id: string, navigate?: boolean) => void;
   onMoveNode: (draggedId: string, targetId: string, position: 'before' | 'after' | 'inside') => void;
   onToggleCollapse: (id: string) => void;
-  onCollapseAll: () => void;
-  onExpandAll: () => void;
+  onCollapseAll: (nodeId?: string) => void;
+  onExpandAll: (nodeId?: string) => void;
   onCreateNode: (type?: NodeType, content?: string) => void;
   onDeleteNode: (nodeId: string) => void;
   onGenerateOutline: (topic: string, depth: AIDepth, tone: AITone, level: AILevel) => Promise<void>;
@@ -1148,6 +1148,8 @@ export default function OutlinePane({
             </Tooltip>
           )}
 
+          {/* Expand All — recursive open of every descendant under the selection
+              (or the whole outline if nothing is selected). */}
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
@@ -1155,21 +1157,37 @@ export default function OutlinePane({
                 size="icon"
                 disabled={!currentOutline}
                 onClick={() => {
-                  if (isAllCollapsed) {
-                    onExpandAll();
-                    setIsAllCollapsed(false);
-                  } else {
-                    onCollapseAll();
-                    setIsAllCollapsed(true);
-                  }
+                  onExpandAll();
+                  setIsAllCollapsed(false);
                 }}
                 className="hover:bg-accent/20"
-                aria-label={isAllCollapsed ? 'Expand all' : 'Collapse all'}
+                aria-label="Expand all"
               >
-                {isAllCollapsed ? <ChevronsDown className="h-4 w-4" /> : <ChevronsUp className="h-4 w-4" />}
+                <ChevronsDown className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>{isAllCollapsed ? 'Expand all' : 'Collapse all'}{!isMobile && ' (⌘E)'}</TooltipContent>
+            <TooltipContent>Expand all{!isMobile && ' (⌘E)'}</TooltipContent>
+          </Tooltip>
+
+          {/* Collapse All — recursive close of every descendant under the selection
+              (or the whole outline if nothing is selected). */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                disabled={!currentOutline}
+                onClick={() => {
+                  onCollapseAll();
+                  setIsAllCollapsed(true);
+                }}
+                className="hover:bg-accent/20"
+                aria-label="Collapse all"
+              >
+                <ChevronsUp className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Collapse all{!isMobile && ' (⌘⇧E)'}</TooltipContent>
           </Tooltip>
 
           <Tooltip>
@@ -1402,6 +1420,8 @@ export default function OutlinePane({
               onSelectNode={onSelectNode}
               onMoveNode={currentOutline.isGuide ? () => {} : onMoveNode}
               onToggleCollapse={onToggleCollapse}
+              onExpandAll={currentOutline.isGuide ? undefined : onExpandAll}
+              onCollapseAll={currentOutline.isGuide ? undefined : onCollapseAll}
               onUpdateNode={currentOutline.isGuide ? () => {} : onUpdateNode}
               onCreateNode={currentOutline.isGuide ? () => {} : onCreateNode}
               onDeleteNode={currentOutline.isGuide ? () => {} : onDeleteNode}

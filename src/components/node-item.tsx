@@ -5,7 +5,7 @@ import type { OutlineNode, NodeMap } from '@/types';
 import NodeIcon from './node-icon';
 import { TagBadge } from './tag-badge';
 import NodePropertiesDialog from './node-properties-dialog';
-import { ChevronRight, Plus, Trash2, Edit3, ChevronDown, ChevronUp, Copy, Scissors, ClipboardPaste, CopyPlus, Sparkles, CheckSquare2, Square, Sliders, Share, Globe, ExternalLink } from 'lucide-react';
+import { ChevronRight, Plus, Trash2, Edit3, ChevronDown, ChevronUp, ChevronsDown, ChevronsUp, Copy, Scissors, ClipboardPaste, CopyPlus, Sparkles, CheckSquare2, Square, Sliders, Share, Globe, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import {
@@ -34,6 +34,9 @@ interface NodeItemProps {
   onSelectNode: (id: string, navigate?: boolean) => void;
   onMoveNode: (draggedId: string, targetId: string, position: 'before' | 'after' | 'inside') => void;
   onToggleCollapse: (id: string) => void;
+  // Recursive expand/collapse for this node's subtree (context menu).
+  onExpandAll?: (id: string) => void;
+  onCollapseAll?: (id: string) => void;
   onUpdateNode: (nodeId: string, updates: Partial<OutlineNode>) => void;
   onCreateNode?: () => void;
   onDeleteNode?: (nodeId: string) => void;
@@ -145,6 +148,8 @@ export default function NodeItem({
   onSelectNode,
   onMoveNode,
   onToggleCollapse,
+  onExpandAll,
+  onCollapseAll,
   onUpdateNode,
   onCreateNode,
   onDeleteNode,
@@ -801,6 +806,20 @@ export default function NodeItem({
               </ContextMenuItem>
             )}
 
+            {isChapter && onExpandAll && (
+              <ContextMenuItem onClick={(e) => { e.stopPropagation(); onExpandAll(node.id); }}>
+                <ChevronsDown className="mr-2 h-4 w-4" />
+                Expand All
+              </ContextMenuItem>
+            )}
+
+            {isChapter && onCollapseAll && (
+              <ContextMenuItem onClick={(e) => { e.stopPropagation(); onCollapseAll(node.id); }}>
+                <ChevronsUp className="mr-2 h-4 w-4" />
+                Collapse All
+              </ContextMenuItem>
+            )}
+
             {isChapter && onGenerateContentForChildren && (
               <ContextMenuItem onClick={(e) => { e.stopPropagation(); onGenerateContentForChildren(node.id); }}>
                 <Sparkles className="mr-2 h-4 w-4" />
@@ -902,6 +921,8 @@ export default function NodeItem({
                         onSelectNode={onSelectNode}
                         onMoveNode={onMoveNode}
                         onToggleCollapse={onToggleCollapse}
+                        onExpandAll={onExpandAll}
+                        onCollapseAll={onCollapseAll}
                         onUpdateNode={onUpdateNode}
                         onCreateNode={onCreateNode}
                         onDeleteNode={onDeleteNode}

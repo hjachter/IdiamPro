@@ -50,8 +50,8 @@ interface CommandPaletteProps {
   onCreateNode: () => void;
   onDuplicateNode?: (nodeId: string) => void;
   onDeleteNode?: (nodeId: string) => void;
-  onCollapseAll: () => void;
-  onExpandAll: () => void;
+  onCollapseAll: (nodeId?: string) => void;
+  onExpandAll: (nodeId?: string) => void;
   onOpenSearch: () => void;
   onExportOutline?: () => void;
   onImportOutline?: () => void;

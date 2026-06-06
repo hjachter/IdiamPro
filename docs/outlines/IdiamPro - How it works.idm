@@ -158,7 +158,9 @@
       "content": "<p>Next to the sidebar is the <strong>Outline Pane</strong> — a tree view showing all the nodes in your current outline.</p><p><strong>What you see:</strong></p><ul><li>Nodes arranged in a hierarchy (parents above, children indented below)</li><li>Little triangle icons to expand/collapse sections</li><li>Icons showing what type each node is (document, chapter, image, etc.)</li><li>Numbers like \"1.2.3\" showing each node's position</li></ul><p><strong>The toolbar at the top</strong> has buttons for:</p><ul><li>Creating new nodes</li><li><strong>Import</strong> (down-arrow book) — menu with Research & Import, Import Outline, Restore All Outlines</li><li><strong>Export</strong> (up-arrow book) — menu with Share Subtree as…, Export Current Outline, Backup All Outlines</li><li>AI features (the sparkle icon)</li><li>Search (magnifying glass)</li></ul>",
       "type": "document",
       "parentId": "main-screen",
-      "childrenIds": [],
+      "childrenIds": [
+        "outline-tree-expand-collapse-2026-06-06"
+      ],
       "isCollapsed": true,
       "prefix": "4.2"
     },
@@ -607,6 +609,16 @@
       "childrenIds": [],
       "isCollapsed": false,
       "prefix": ""
+    },
+    "outline-tree-expand-collapse-2026-06-06": {
+      "id": "outline-tree-expand-collapse-2026-06-06",
+      "name": "Expand All / Collapse All (recursive)",
+      "parentId": "screen-outline",
+      "childrenIds": [],
+      "type": "topic",
+      "isCollapsed": false,
+      "prefix": "",
+      "content": "<p>The outline pane has two distinct double-chevron buttons in the toolbar — one points down (Expand All) and one points up (Collapse All). They both reach all the way to the leaves of the tree.</p><p><strong>How they behave:</strong></p><ul><li><p>If a node is selected, the action applies just to its subtree.</p></li><li><p>If nothing is selected, the action applies to the whole outline.</p></li><li><p>Right-clicking a node also offers Expand All and Collapse All, scoped to that node.</p></li><li><p>Keyboard: ⌘E expands all, ⌘⇧E collapses all.</p></li></ul><p><strong>Why two behaviors exist:</strong> the chevron right next to each single node still works the casual way — clicking it toggles just that node and remembers each descendant’s previous state, so reopening the branch later shows it the way you left it. Expand All and Collapse All are the deliberate, big-hammer commands: they don’t remember the previous state, they reset every descendant to fully open or fully closed. After a Collapse All on a branch, reopening that branch shows only its immediate children (all collapsed) — because the recursive walk just collapsed everything beneath it.</p>"
     }
   },
   "lastModified": 1780614726240,

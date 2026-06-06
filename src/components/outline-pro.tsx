@@ -1421,17 +1421,23 @@ export default function OutlinePro() {
     return ids;
   }, []);
 
-  // Collapse all descendants of the selected node
-  const handleCollapseAll = useCallback(() => {
-    const targetId = selectedNodeId;
-    if (!targetId) return;
-
+  // Recursive Collapse All:
+  // - If nodeId provided -> scope is that subtree (from context menu / programmatic).
+  // - Else if a node is selected -> scope is the selected subtree.
+  // - Else -> scope is the entire current outline (from root).
+  // Every chapter descendant within the scope is set to isCollapsed:true.
+  // The scope's root node itself is NOT collapsed (otherwise its subtree disappears
+  // immediately and the user can't see the result). Only descendants change state.
+  const handleCollapseAll = useCallback((nodeId?: string) => {
     setOutlines(currentOutlines => {
       return currentOutlines.map(o => {
         if (o.id === currentOutlineId) {
+          const targetId = nodeId ?? selectedNodeId ?? o.rootNodeId;
+          if (!targetId || !o.nodes[targetId]) return o;
           const descendantIds = collectDescendantIds(o.nodes, targetId);
           const newNodes = { ...o.nodes };
           for (const id of descendantIds) {
+            if (id === targetId) continue; // don't collapse the scope's root itself
             const node = newNodes[id];
             if (node && node.childrenIds.length > 0 && !node.isCollapsed) {
               newNodes[id] = { ...node, isCollapsed: true };
@@ -1444,14 +1450,16 @@ export default function OutlinePro() {
     });
   }, [currentOutlineId, selectedNodeId, collectDescendantIds]);
 
-  // Expand all descendants of the selected node
-  const handleExpandAll = useCallback(() => {
-    const targetId = selectedNodeId;
-    if (!targetId) return;
-
+  // Recursive Expand All:
+  // - Scope rules mirror handleCollapseAll above.
+  // - Every descendant within the scope is set to isCollapsed:false (all the way
+  //   down to leaves). This is the fix for the "only one level deep" bug.
+  const handleExpandAll = useCallback((nodeId?: string) => {
     setOutlines(currentOutlines => {
       return currentOutlines.map(o => {
         if (o.id === currentOutlineId) {
+          const targetId = nodeId ?? selectedNodeId ?? o.rootNodeId;
+          if (!targetId || !o.nodes[targetId]) return o;
           const descendantIds = collectDescendantIds(o.nodes, targetId);
           const newNodes = { ...o.nodes };
           for (const id of descendantIds) {
@@ -3898,20 +3906,19 @@ export default function OutlinePro() {
       const isTyping = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.contentEditable === 'true';
       if (isTyping) return;
 
-      // Cmd+E — Toggle collapse/expand all
-      if ((e.metaKey || e.ctrlKey) && e.key === 'e') {
+      // Cmd+Shift+E — Collapse All (recursive). Tested first because
+      // Cmd+E without shift would otherwise match the shift-modified form too.
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && (e.key === 'E' || e.key === 'e')) {
         e.preventDefault();
-        const outline = outlines.find(o => o.id === currentOutlineId);
-        if (outline) {
-          const root = outline.nodes[outline.rootNodeId];
-          const childNodes = (root?.childrenIds || []).map(id => outline.nodes[id]).filter(Boolean);
-          const mostlyCollapsed = childNodes.length > 0 && childNodes.filter(n => n.isCollapsed).length > childNodes.length / 2;
-          if (mostlyCollapsed) {
-            handleExpandAll();
-          } else {
-            handleCollapseAll();
-          }
-        }
+        handleCollapseAll();
+        return;
+      }
+
+      // Cmd+E — Expand All (recursive). Operates on current selection if any,
+      // otherwise the whole outline.
+      if ((e.metaKey || e.ctrlKey) && !e.shiftKey && e.key === 'e') {
+        e.preventDefault();
+        handleExpandAll();
         return;
       }
 

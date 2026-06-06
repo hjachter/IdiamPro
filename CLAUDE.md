@@ -43,7 +43,8 @@ IdiamPro/SecondBrainWare targets 6 platforms. macOS, iOS, and Web are actively s
 | Command Palette | Cmd+K or toolbar | Ctrl+K or toolbar | Toolbar button | Both |
 | Search current outline | Cmd+F | Ctrl+F | Search field | Cmd/Ctrl+F |
 | Focus mode | Cmd+Shift+F | Ctrl+Shift+F | Focus toolbar button | Cmd/Ctrl+Shift+F or button |
-| Collapse / expand all | Cmd+E | Ctrl+E | Chevron toolbar button | Cmd/Ctrl+E or button |
+| Expand All (recursive) | Cmd+E | Ctrl+E | Down-chevron toolbar button | Cmd/Ctrl+E or button |
+| Collapse All (recursive) | Cmd+Shift+E | Ctrl+Shift+E | Up-chevron toolbar button | Cmd/Ctrl+Shift+E or button |
 | Submit / Send (input fields) | Return / Enter | Enter | Return (soft keyboard) | Enter |
 
 ---
