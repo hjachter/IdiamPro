@@ -47,6 +47,15 @@ interface ElectronAPI {
   // Ollama installation detection and launch (macOS only for now)
   checkOllamaInstallation?: () => Promise<{ installed: boolean; platform: string }>;
   startOllama?: () => Promise<{ ok: boolean; error?: string }>;
+  // Auto-updater bridge (Electron desktop only; web/iOS have their own update paths).
+  // See electron/main.js and electron/preload.js for the source of truth.
+  onUpdateDownloaded?: (callback: (info: { version: string | null; releaseNotes: unknown }) => void) => () => void;
+  onUpdateNotAvailable?: (callback: (info: { currentVersion: string }) => void) => () => void;
+  onUpdateCheckFailed?: (callback: (info: { message: string }) => void) => () => void;
+  onUpdateCheckStarted?: (callback: (info: Record<string, never>) => void) => () => void;
+  restartToUpdate?: () => Promise<{ ok: boolean; error?: string }>;
+  checkForUpdates?: () => Promise<{ ok: boolean; error?: string }>;
+  getAppVersion?: () => Promise<{ version: string }>;
 }
 
 /**

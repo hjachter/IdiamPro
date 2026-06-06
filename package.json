@@ -90,6 +90,7 @@
     "date-fns": "^3.6.0",
     "dompurify": "^3.3.1",
     "dotenv": "^16.5.0",
+    "electron-updater": "^6.8.9",
     "embla-carousel-react": "^8.6.0",
     "firebase": "^11.9.1",
     "genkit": "^1.14.1",
@@ -180,6 +181,13 @@
     "files": [
       "electron/**/*",
       "package.json"
+    ],
+    "publish": [
+      {
+        "provider": "generic",
+        "url": "https://www.secondbrainware.com/updates/mac",
+        "channel": "latest"
+      }
     ],
     "mac": {
       "category": "public.app-category.productivity",

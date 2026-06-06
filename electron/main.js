@@ -4,6 +4,21 @@ const fs = require('fs');
 const { spawn } = require('child_process');
 const net = require('net');
 
+// ========== electron-updater ==========
+// Auto-updater for the packaged macOS desktop build. The dependency
+// `electron-updater` was added to package.json on 2026-06-06; if Howard hasn't
+// run `npm install` yet, this require() will throw — we catch and degrade
+// gracefully so the app still launches without auto-updates. The feed URL is
+// configured via the `publish` section in package.json (electron-builder writes
+// it into app-update.yml at package time). See Decisions Log 2026-06-06
+// (Auto-updater shipped at launch).
+let autoUpdater = null;
+try {
+  autoUpdater = require('electron-updater').autoUpdater;
+} catch (err) {
+  console.warn('[AutoUpdate] electron-updater not installed yet — auto-updates disabled:', err && err.message);
+}
+
 // ========== Sentry crash reporting (main + renderer) ==========
 // Initialized as early as possible so startup crashes are captured.
 // No-op when SENTRY_DSN is not set or NODE_ENV === 'development'.
@@ -454,6 +469,9 @@ async function createWindow() {
   // Show window when ready to prevent flashing
   mainWindow.once('ready-to-show', () => {
     mainWindow.show();
+    // Register the auto-updater once the window is showing. Skipped in dev
+    // mode and when electron-updater isn't installed (see registerAutoUpdater).
+    registerAutoUpdater();
   });
 
   // Force layout repaints after the page finishes loading.
@@ -617,6 +635,32 @@ function createMenu() {
             await shell.openExternal('https://idiam-pro.vercel.app');
           },
         },
+        { type: 'separator' },
+        {
+          label: 'Check for Updates…',
+          click: async () => {
+            // Tell the renderer a manual check is starting so it can show a
+            // brief "Checking…" toast. The IPC handler does the real work.
+            sendToRenderer('update-check-started', {});
+            if (!autoUpdater || !app.isPackaged) {
+              sendToRenderer('update-check-failed', {
+                message: app.isPackaged
+                  ? "Auto-updater isn't available in this build."
+                  : "Updates only run in the packaged desktop build.",
+              });
+              return;
+            }
+            try {
+              manualCheckInProgress = true;
+              await autoUpdater.checkForUpdates();
+            } catch (err) {
+              manualCheckInProgress = false;
+              sendToRenderer('update-check-failed', {
+                message: (err && err.message) || 'Check failed.',
+              });
+            }
+          },
+        },
       ],
     },
   ];
@@ -624,6 +668,148 @@ function createMenu() {
   const menu = Menu.buildFromTemplate(template);
   Menu.setApplicationMenu(menu);
 }
+
+// ========== Auto-updater wiring ==========
+// Silent check on launch (8s delay), silent download, NON-INTRUSIVE banner in
+// the renderer when the download finishes (see src/components/update-banner.tsx).
+// Periodic re-check every 4 hours while the app stays open. Skipped entirely in
+// dev mode (the updater cannot update a dev build, and trying logs confusing
+// errors). Manual "Check for Updates…" in the Help menu fires checkForUpdates()
+// on demand.
+
+const UPDATE_CHECK_INTERVAL_MS = 4 * 60 * 60 * 1000; // 4 hours
+const UPDATE_INITIAL_DELAY_MS = 8000; // 8s after window-ready
+let updateCheckTimer = null;
+let updateAvailableInfo = null; // populated on 'update-available'
+let updateDownloadedInfo = null; // populated on 'update-downloaded'
+// Tracks whether the most recent check was initiated by the user from the
+// Help menu — used to surface a friendly "you're on the latest version" toast
+// when no update is available.
+let manualCheckInProgress = false;
+
+function sendToRenderer(channel, payload) {
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send(channel, payload);
+  }
+}
+
+function registerAutoUpdater() {
+  if (!autoUpdater) {
+    console.log('[AutoUpdate] Skipped — electron-updater not loaded.');
+    return;
+  }
+  if (!app.isPackaged) {
+    console.log('[AutoUpdate] Skipped — dev mode (not packaged). Updates only run in packaged builds.');
+    return;
+  }
+
+  autoUpdater.autoDownload = true;
+  autoUpdater.autoInstallOnAppQuit = true;
+  autoUpdater.logger = {
+    info: (...args) => console.log('[AutoUpdate]', ...args),
+    warn: (...args) => console.warn('[AutoUpdate]', ...args),
+    error: (...args) => console.error('[AutoUpdate]', ...args),
+    debug: () => {},
+  };
+
+  autoUpdater.on('checking-for-update', () => {
+    console.log('[AutoUpdate] Checking for update…');
+  });
+  autoUpdater.on('update-available', (info) => {
+    updateAvailableInfo = info || null;
+    console.log('[AutoUpdate] Update available:', info && info.version);
+    // Download starts automatically; nothing further to do.
+  });
+  autoUpdater.on('update-not-available', (info) => {
+    console.log('[AutoUpdate] No update available. Current version is latest.');
+    if (manualCheckInProgress) {
+      manualCheckInProgress = false;
+      sendToRenderer('update-not-available', { currentVersion: app.getVersion() });
+    }
+  });
+  autoUpdater.on('error', (err) => {
+    console.warn('[AutoUpdate] Error (non-fatal):', err && err.message);
+    if (manualCheckInProgress) {
+      manualCheckInProgress = false;
+      sendToRenderer('update-check-failed', { message: (err && err.message) || 'Update check failed' });
+    }
+  });
+  autoUpdater.on('download-progress', (progress) => {
+    // Optional future use — currently silent so we don't distract the user.
+    if (progress && typeof progress.percent === 'number') {
+      console.log('[AutoUpdate] Download progress:', Math.round(progress.percent) + '%');
+    }
+  });
+  autoUpdater.on('update-downloaded', (info) => {
+    updateDownloadedInfo = info || null;
+    console.log('[AutoUpdate] Update downloaded:', info && info.version);
+    manualCheckInProgress = false;
+    sendToRenderer('update-downloaded', {
+      version: (info && info.version) || null,
+      releaseNotes: (info && info.releaseNotes) || null,
+    });
+  });
+
+  // First check after a delay so we don't compete with startup work.
+  setTimeout(() => {
+    autoUpdater.checkForUpdates().catch((err) => {
+      console.warn('[AutoUpdate] Initial check failed:', err && err.message);
+    });
+  }, UPDATE_INITIAL_DELAY_MS);
+
+  // Recurring check every 4 hours.
+  if (updateCheckTimer) clearInterval(updateCheckTimer);
+  updateCheckTimer = setInterval(() => {
+    autoUpdater.checkForUpdates().catch((err) => {
+      console.warn('[AutoUpdate] Periodic check failed:', err && err.message);
+    });
+  }, UPDATE_CHECK_INTERVAL_MS);
+}
+
+// IPC: renderer asks the main process to install the downloaded update and
+// relaunch. Called when the user clicks "Restart now" in the update banner.
+ipcMain.handle('restart-to-update', async () => {
+  if (!autoUpdater) {
+    return { ok: false, error: 'Auto-updater is not available in this build.' };
+  }
+  if (!updateDownloadedInfo) {
+    return { ok: false, error: 'No update has been downloaded yet.' };
+  }
+  try {
+    // isSilent=true (no installer UI), isForceRunAfter=true (relaunch after install)
+    autoUpdater.quitAndInstall(true, true);
+    return { ok: true };
+  } catch (err) {
+    console.error('[AutoUpdate] quitAndInstall failed:', err);
+    return { ok: false, error: (err && err.message) || 'Failed to relaunch.' };
+  }
+});
+
+// IPC: renderer requests a manual check. Called from the Help menu item or
+// from a future Settings → "Check for Updates" button if Howard ever adds one.
+ipcMain.handle('check-for-updates', async () => {
+  if (!autoUpdater) {
+    return { ok: false, error: 'Auto-updater is not available in this build.' };
+  }
+  if (!app.isPackaged) {
+    return { ok: false, error: 'Updates only run in the packaged desktop build.' };
+  }
+  try {
+    manualCheckInProgress = true;
+    await autoUpdater.checkForUpdates();
+    return { ok: true };
+  } catch (err) {
+    manualCheckInProgress = false;
+    console.warn('[AutoUpdate] Manual check failed:', err && err.message);
+    return { ok: false, error: (err && err.message) || 'Check failed.' };
+  }
+});
+
+// IPC: renderer asks for the current app version (for display in the banner
+// or About surface). Always available regardless of updater state.
+ipcMain.handle('get-app-version', async () => {
+  return { version: app.getVersion() };
+});
 
 // ========== IPC Handlers for File System Operations ==========
 

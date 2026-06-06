@@ -65,4 +65,33 @@ contextBridge.exposeInMainWorld('electronAPI', {
   checkOllamaInstallation: () => ipcRenderer.invoke('check-ollama-installation'),
   startOllama: () => ipcRenderer.invoke('start-ollama'),
 
+  // ========== Auto-updater bridge ==========
+  // The renderer subscribes to update-downloaded (banner appears), and to
+  // update-not-available / update-check-failed / update-check-started (toast
+  // feedback for the Help menu's "Check for Updates…" item). The renderer
+  // calls restartToUpdate() when the user clicks "Restart now" in the banner.
+  onUpdateDownloaded: (callback) => {
+    const wrapped = (_event, info) => callback(info);
+    ipcRenderer.on('update-downloaded', wrapped);
+    return () => ipcRenderer.removeListener('update-downloaded', wrapped);
+  },
+  onUpdateNotAvailable: (callback) => {
+    const wrapped = (_event, info) => callback(info);
+    ipcRenderer.on('update-not-available', wrapped);
+    return () => ipcRenderer.removeListener('update-not-available', wrapped);
+  },
+  onUpdateCheckFailed: (callback) => {
+    const wrapped = (_event, info) => callback(info);
+    ipcRenderer.on('update-check-failed', wrapped);
+    return () => ipcRenderer.removeListener('update-check-failed', wrapped);
+  },
+  onUpdateCheckStarted: (callback) => {
+    const wrapped = (_event, info) => callback(info);
+    ipcRenderer.on('update-check-started', wrapped);
+    return () => ipcRenderer.removeListener('update-check-started', wrapped);
+  },
+  restartToUpdate: () => ipcRenderer.invoke('restart-to-update'),
+  checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
+  getAppVersion: () => ipcRenderer.invoke('get-app-version'),
+
 });
