@@ -3171,99 +3171,6 @@ export default function OutlinePro() {
     reader.readAsText(file);
   }, [toast, handleAddImportedOutline]);
 
-  // Import an outline as a chapter within the current outline
-  const handleImportAsChapter = useCallback((file: File) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const text = e.target?.result;
-        if (typeof text !== 'string') {
-          throw new Error("File could not be read.");
-        }
-        const importedData = JSON.parse(text);
-
-        // Handle both single outline and array of outlines
-        const outlineToImport = Array.isArray(importedData) ? importedData[0] : importedData;
-
-        if (!isValidOutline(outlineToImport)) {
-          throw new Error("Invalid outline file format.");
-        }
-
-        setOutlines(currentOutlines => {
-          const outline = currentOutlines.find(o => o.id === currentOutlineId);
-          if (!outline) {
-            throw new Error("No current outline selected.");
-          }
-
-          // Create a mapping of old IDs to new IDs
-          const idMapping: Record<string, string> = {};
-          Object.keys(outlineToImport.nodes).forEach(oldId => {
-            idMapping[oldId] = uuidv4();
-          });
-
-          // Create new nodes with remapped IDs
-          const newNodes: NodeMap = {};
-          const importedRoot = outlineToImport.nodes[outlineToImport.rootNodeId];
-
-          Object.entries(outlineToImport.nodes).forEach(([oldId, node]) => {
-            const typedNode = node as OutlineNode;
-            const newId = idMapping[oldId];
-            const isImportedRoot = oldId === outlineToImport.rootNodeId;
-
-            newNodes[newId] = {
-              ...typedNode,
-              id: newId,
-              // Convert imported root to chapter, keep others as-is
-              type: isImportedRoot ? 'chapter' : typedNode.type,
-              // Remap parent ID (imported root's parent becomes current outline's root)
-              parentId: isImportedRoot
-                ? outline.rootNodeId
-                : (typedNode.parentId ? idMapping[typedNode.parentId] : null),
-              // Remap children IDs
-              childrenIds: typedNode.childrenIds.map(childId => idMapping[childId]),
-            };
-          });
-
-          // Get the new chapter ID (was the imported root)
-          const newChapterId = idMapping[outlineToImport.rootNodeId];
-
-          // Update the current outline
-          const updatedOutline: Outline = {
-            ...outline,
-            nodes: {
-              ...outline.nodes,
-              ...newNodes,
-              // Update the root node to include the new chapter as a child
-              [outline.rootNodeId]: {
-                ...outline.nodes[outline.rootNodeId],
-                childrenIds: [...outline.nodes[outline.rootNodeId].childrenIds, newChapterId],
-              },
-            },
-          };
-
-          // Schedule selection of the new chapter
-          setTimeout(() => {
-            setSelectedNodeId(newChapterId);
-            toast({
-              title: "Import Successful",
-              description: `"${importedRoot.name}" has been added as a chapter.`,
-            });
-          }, 0);
-
-          return currentOutlines.map(o => o.id === outline.id ? updatedOutline : o);
-        });
-
-      } catch (error) {
-        toast({
-          variant: "destructive",
-          title: "Import Failed",
-          description: (error as Error).message || "An unknown error occurred during import.",
-        });
-      }
-    };
-    reader.readAsText(file);
-  }, [currentOutlineId, toast]);
-
   // Helper function to collect all nodes in a subtree
   const collectSubtree = useCallback((nodes: NodeMap, rootId: string): NodeMap => {
     const result: NodeMap = {};
@@ -4490,7 +4397,6 @@ export default function OutlinePro() {
                 onImportOutline={handleImportOutline}
                 onAddImportedOutline={handleAddImportedOutline}
                 onExportOutline={handleExportOutline}
-                onImportAsChapter={handleImportAsChapter}
                 onCopySubtree={handleCopySubtree}
                 onCutSubtree={handleCutSubtree}
                 onPasteSubtree={handlePasteSubtree}
@@ -4964,7 +4870,6 @@ export default function OutlinePro() {
                 onImportOutline={handleImportOutline}
                 onAddImportedOutline={handleAddImportedOutline}
                 onExportOutline={handleExportOutline}
-                onImportAsChapter={handleImportAsChapter}
                 onCopySubtree={handleCopySubtree}
                 onCutSubtree={handleCutSubtree}
                 onPasteSubtree={handlePasteSubtree}

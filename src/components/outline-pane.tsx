@@ -9,7 +9,7 @@ import { MultiSelectToolbar } from './multi-select-toolbar';
 import FileImportDialog from './file-import-dialog';
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Plus, Trash2, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, ChevronsDownUp, Settings, Search, Command, PanelLeft, PanelLeftClose, Brain, StopCircle, Inbox, LayoutDashboard, Focus, Wrench, Sparkles, Mic, MessageSquare, BookDown, BookUp, Share2, ExternalLink, RefreshCw } from 'lucide-react';
+import { Plus, Trash2, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, ChevronsDownUp, Settings, Search, Command, PanelLeft, PanelLeftClose, Brain, StopCircle, Inbox, LayoutDashboard, Focus, Wrench, Sparkles, Mic, MessageSquare, BookDown, BookUp, Share2, ExternalLink, RefreshCw, MoreHorizontal, HelpCircle } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter } from "@/components/ui/alert-dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import SettingsDialog from './settings-dialog';
@@ -103,7 +103,6 @@ interface OutlinePaneProps {
   onImportOutline: (file: File) => void;
   onAddImportedOutline: (outline: Outline, showToast?: boolean) => void;
   onExportOutline: () => void;
-  onImportAsChapter: (file: File) => void;
   onCopySubtree: (nodeId: string) => void;
   onCutSubtree: (nodeId: string) => void;
   onPasteSubtree: (targetNodeId: string) => void;
@@ -197,7 +196,6 @@ export default function OutlinePane({
   onImportOutline,
   onAddImportedOutline,
   onExportOutline,
-  onImportAsChapter,
   onCopySubtree,
   onCutSubtree,
   onPasteSubtree,
@@ -828,19 +826,6 @@ export default function OutlinePane({
     }
   };
 
-  // const handleImportAsChapterClick = () => {
-  //   const input = document.createElement('input');
-  //   input.type = 'file';
-  //   input.accept = '.json';
-  //   input.onchange = (e) => {
-  //     const file = (e.target as HTMLInputElement).files?.[0];
-  //     if (file) {
-  //       onImportAsChapter(file);
-  //     }
-  //   };
-  //   input.click();
-  // };
-
   const rootNode = currentOutline?.nodes[currentOutline.rootNodeId];
   const selectedNode = selectedNodeId ? currentOutline?.nodes[selectedNodeId] : undefined;
   const isSelectedNodeRoot = selectedNode?.type === 'root';
@@ -926,7 +911,7 @@ export default function OutlinePane({
             </Tooltip>
         </TooltipProvider>
 
-        {/* Import dropdown — bringing data INTO the outline */}
+        {/* Import dropdown — bringing data INTO the outline (Tier 2: tablet+) */}
         <TooltipProvider>
             <DropdownMenu>
                 <Tooltip>
@@ -935,7 +920,7 @@ export default function OutlinePane({
                             <Button
                                 variant="outline"
                                 size="icon"
-                                className="shrink-0 active:scale-95 active:bg-accent/30"
+                                className="shrink-0 active:scale-95 active:bg-accent/30 hidden sm:inline-flex"
                                 aria-label="Import — bring data into your outline"
                             >
                                 <BookDown className="h-4 w-4" />
@@ -980,7 +965,7 @@ export default function OutlinePane({
             </DropdownMenu>
         </TooltipProvider>
 
-        {/* Export dropdown — sending data OUT of the outline */}
+        {/* Export dropdown — sending data OUT of the outline (Tier 2: tablet+) */}
         <TooltipProvider>
             <DropdownMenu>
                 <Tooltip>
@@ -989,7 +974,7 @@ export default function OutlinePane({
                             <Button
                                 variant="outline"
                                 size="icon"
-                                className="shrink-0 active:scale-95 active:bg-accent/30"
+                                className="shrink-0 active:scale-95 active:bg-accent/30 hidden sm:inline-flex"
                                 aria-label="Export — send your outline data out"
                             >
                                 <BookUp className="h-4 w-4" />
@@ -1018,7 +1003,7 @@ export default function OutlinePane({
             </DropdownMenu>
         </TooltipProvider>
 
-        {/* Wrench — residual admin actions (just Refresh User Guide after the Import/Export migration) */}
+        {/* Wrench — residual admin actions (Tier 3: desktop only) */}
         <TooltipProvider>
             <DropdownMenu>
                 <Tooltip>
@@ -1027,7 +1012,7 @@ export default function OutlinePane({
                             <Button
                                 variant="outline"
                                 size="icon"
-                                className="shrink-0 active:scale-95 active:bg-accent/30"
+                                className="shrink-0 active:scale-95 active:bg-accent/30 hidden lg:inline-flex"
                                 aria-label="Outline admin"
                             >
                                 <Wrench className="h-4 w-4" />
@@ -1040,6 +1025,126 @@ export default function OutlinePane({
                     <DropdownMenuLabel className="py-1 text-xs uppercase tracking-wide text-muted-foreground">Admin</DropdownMenuLabel>
                     <DropdownMenuItem onSelect={onRefreshGuide} className="cursor-pointer py-1">
                         <RotateCcw className="mr-2 h-4 w-4" /> Refresh User Guide
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+        </TooltipProvider>
+
+        {/* Overflow menu — gathers tier-2 and tier-3 toolbar actions on
+            narrow viewports. Visible on phone + tablet, hidden on desktop
+            where every action fits inline. Anchored just left of the avatar
+            so it lives at a consistent on-screen location. */}
+        <TooltipProvider>
+            <DropdownMenu>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <DropdownMenuTrigger asChild>
+                            <Button
+                                variant="outline"
+                                size="icon"
+                                className="shrink-0 active:scale-95 active:bg-accent/30 inline-flex lg:hidden"
+                                aria-label="More tools"
+                            >
+                                <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom">More tools</TooltipContent>
+                </Tooltip>
+                <DropdownMenuContent align="end" className="w-60 p-0.5">
+                    <DropdownMenuLabel className="py-1 text-xs uppercase tracking-wide text-muted-foreground">More tools</DropdownMenuLabel>
+
+                    {/* Tier 2 — surfaced on phone (hidden inline below sm) */}
+                    <div className="sm:hidden">
+                        {onOpenBulkResearch && (
+                            <DropdownMenuItem onSelect={onOpenBulkResearch} className="cursor-pointer py-1">
+                                <Library className="mr-2 h-4 w-4" /> Research & Import
+                            </DropdownMenuItem>
+                        )}
+                        <DropdownMenuItem onSelect={handleImportClick} className="cursor-pointer py-1">
+                            <BookDown className="mr-2 h-4 w-4" /> Import outline
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                            onSelect={onExportOutline}
+                            disabled={!currentOutline}
+                            className="cursor-pointer py-1"
+                        >
+                            <BookUp className="mr-2 h-4 w-4" /> Export outline
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                            onSelect={() => onToggleFocusMode?.()}
+                            disabled={!selectedNodeId || !onToggleFocusMode}
+                            className="cursor-pointer py-1"
+                        >
+                            <Focus className="mr-2 h-4 w-4" /> Focus Mode
+                            {!isMobile && <DropdownMenuShortcut>⌘⇧F</DropdownMenuShortcut>}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                            onSelect={() => { onExpandAll(); setIsAllCollapsed(false); }}
+                            disabled={!currentOutline}
+                            className="cursor-pointer py-1"
+                        >
+                            <ChevronsDown className="mr-2 h-4 w-4" /> Expand all
+                            {!isMobile && <DropdownMenuShortcut>⌘E</DropdownMenuShortcut>}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                            onSelect={() => { onCollapseAll(); setIsAllCollapsed(true); }}
+                            disabled={!currentOutline}
+                            className="cursor-pointer py-1"
+                        >
+                            <ChevronsUp className="mr-2 h-4 w-4" /> Collapse all
+                            {!isMobile && <DropdownMenuShortcut>⌘⇧E</DropdownMenuShortcut>}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                            onSelect={() => selectedNodeId && onExportSubtree?.(selectedNodeId)}
+                            disabled={!selectedNodeId}
+                            className="cursor-pointer py-1"
+                        >
+                            <Share2 className="mr-2 h-4 w-4" /> Share subtree…
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => onOpenCommandPalette?.()} className="cursor-pointer py-1">
+                            <Command className="mr-2 h-4 w-4" /> Command palette
+                            {!isMobile && <DropdownMenuShortcut>⌘K</DropdownMenuShortcut>}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => onOpenSecondBrain?.()} className="cursor-pointer py-1">
+                            <Brain className="mr-2 h-4 w-4" /> Open Second Brain
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => onOpenQuickCapture?.()} className="cursor-pointer py-1">
+                            <Inbox className="mr-2 h-4 w-4" /> Quick Capture
+                            {!isMobile && <DropdownMenuShortcut>⌘⇧I</DropdownMenuShortcut>}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => onSearchSecondBrain?.()} className="cursor-pointer py-1">
+                            <Search className="mr-2 h-4 w-4" /> Search Second Brain
+                        </DropdownMenuItem>
+                        {onOpenKnowledgeChat && (
+                            <DropdownMenuItem onSelect={onOpenKnowledgeChat} className="cursor-pointer py-1">
+                                <Sparkles className="mr-2 h-4 w-4" /> Smart Tools…
+                            </DropdownMenuItem>
+                        )}
+                        <DropdownMenuSeparator />
+                    </div>
+
+                    {/* Tier 3 — always surfaced in overflow (Settings + Help + Admin) */}
+                    <DropdownMenuItem onSelect={onRefreshGuide} className="cursor-pointer py-1">
+                        <RotateCcw className="mr-2 h-4 w-4" /> Refresh User Guide
+                    </DropdownMenuItem>
+                    {onOpenHelp && (
+                        <DropdownMenuItem onSelect={onOpenHelp} className="cursor-pointer py-1">
+                            <HelpCircle className="mr-2 h-4 w-4" /> Help & support
+                        </DropdownMenuItem>
+                    )}
+                    <DropdownMenuItem
+                        onSelect={(e) => {
+                            // Open Settings dialog by clicking the hidden trigger.
+                            // SettingsDialog wraps a child Button; surface it as a
+                            // menu item by deferring to the real trigger element.
+                            e.preventDefault();
+                            const trigger = document.querySelector<HTMLButtonElement>('[data-settings-trigger]');
+                            trigger?.click();
+                        }}
+                        className="cursor-pointer py-1"
+                    >
+                        <Settings className="mr-2 h-4 w-4" /> Settings
                     </DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
@@ -1134,7 +1239,7 @@ export default function OutlinePane({
             <TooltipContent>Search outline{!isMobile && ' (⌘F)'}</TooltipContent>
           </Tooltip>
 
-          {/* Focus Mode toggle (FIX 2) */}
+          {/* Focus Mode toggle (FIX 2) — Tier 2: tablet+ */}
           {onToggleFocusMode && (
             <Tooltip>
               <TooltipTrigger asChild>
@@ -1144,7 +1249,7 @@ export default function OutlinePane({
                   onClick={onToggleFocusMode}
                   disabled={!selectedNodeId}
                   className={cn(
-                    "hover:bg-accent/20 active:scale-95 active:bg-accent/30",
+                    "hover:bg-accent/20 active:scale-95 active:bg-accent/30 hidden sm:inline-flex",
                     isFocusMode && "bg-primary/15 ring-1 ring-primary/40 text-primary"
                   )}
                   aria-pressed={isFocusMode}
@@ -1172,7 +1277,7 @@ export default function OutlinePane({
                     variant="outline"
                     size="icon"
                     disabled={!currentOutline}
-                    className="hover:bg-accent/20 shrink-0 active:scale-95 active:bg-accent/30"
+                    className="hover:bg-accent/20 shrink-0 active:scale-95 active:bg-accent/30 hidden sm:inline-flex"
                     aria-label="Show or hide all nodes"
                   >
                     <ChevronsDownUp className="h-4 w-4" />
@@ -1214,7 +1319,7 @@ export default function OutlinePane({
                 size="icon"
                 disabled={!selectedNodeId}
                 onClick={() => selectedNodeId && onExportSubtree?.(selectedNodeId)}
-                className="hover:bg-accent/20"
+                className="hover:bg-accent/20 hidden sm:inline-flex"
                 aria-label="Share subtree"
               >
                 <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -1227,14 +1332,14 @@ export default function OutlinePane({
             <TooltipContent>{selectedNodeId ? 'Share subtree as...' : 'Select a node to share'}</TooltipContent>
           </Tooltip>
 
-          {/* Command Palette - touch-accessible entry point */}
+          {/* Command Palette - touch-accessible entry point (Tier 2: tablet+) */}
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
                 variant="outline"
                 size="icon"
                 onClick={() => onOpenCommandPalette?.()}
-                className="hover:bg-accent/20 active:scale-95 active:bg-accent/30"
+                className="hover:bg-accent/20 active:scale-95 active:bg-accent/30 hidden sm:inline-flex"
                 title="Command palette"
                 aria-label="Command palette"
               >
@@ -1252,7 +1357,7 @@ export default function OutlinePane({
                   <Button
                     variant="outline"
                     size="icon"
-                    className="text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 active:scale-95 active:bg-accent/30"
+                    className="text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 active:scale-95 active:bg-accent/30 hidden sm:inline-flex"
                     title="Second Brain"
                     aria-label="Second Brain menu"
                   >
@@ -1301,18 +1406,21 @@ export default function OutlinePane({
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <AIMenu
-            onGenerateOutline={onGenerateOutline}
-            outlineSummary={currentOutline?.name}
-            isLoadingAI={isLoadingAI}
-            onOpenBulkResearch={onOpenBulkResearch}
-            onOpenKnowledgeChat={onOpenKnowledgeChat}
-            onOpenTranslate={onOpenTranslate}
-            onOpenReformat={onOpenReformat}
-            onAskAI={onOpenCommandPalette}
-            hasSelectedNode={!!selectedNodeId && !currentOutline?.isGuide}
-            selectedNodeName={selectedNodeId && currentOutline?.nodes[selectedNodeId]?.name || ''}
-          />
+          {/* AIMenu (Smart Tools) — Tier 2: tablet+ */}
+          <span className="hidden sm:inline-flex">
+            <AIMenu
+              onGenerateOutline={onGenerateOutline}
+              outlineSummary={currentOutline?.name}
+              isLoadingAI={isLoadingAI}
+              onOpenBulkResearch={onOpenBulkResearch}
+              onOpenKnowledgeChat={onOpenKnowledgeChat}
+              onOpenTranslate={onOpenTranslate}
+              onOpenReformat={onOpenReformat}
+              onAskAI={onOpenCommandPalette}
+              hasSelectedNode={!!selectedNodeId && !currentOutline?.isGuide}
+              selectedNodeName={selectedNodeId && currentOutline?.nodes[selectedNodeId]?.name || ''}
+            />
+          </span>
 
           {isLoadingAI && onCancelAI && (
             <Tooltip>
@@ -1348,11 +1456,18 @@ export default function OutlinePane({
             </Tooltip>
           )}
 
-          {/* Visual spacer */}
-          <div className="w-px h-6 bg-border/50 mx-0.5"></div>
+          {/* Visual spacer (only visible when adjacent tier-3 items are shown) */}
+          <div className="w-px h-6 bg-border/50 mx-0.5 hidden lg:block"></div>
 
           <SettingsDialog onFolderSelected={onFolderSelected}>
-            <Button variant="outline" size="icon" title="Settings" aria-label="Settings" className="hover:bg-accent/20">
+            <Button
+              variant="outline"
+              size="icon"
+              title="Settings"
+              aria-label="Settings"
+              className="hover:bg-accent/20 hidden lg:inline-flex"
+              data-settings-trigger
+            >
               <Settings className="h-4 w-4" />
             </Button>
           </SettingsDialog>
@@ -1363,7 +1478,7 @@ export default function OutlinePane({
                 variant="outline"
                 size="icon"
                 onClick={onOpenHelp}
-                className="hover:bg-red-500/20 border-red-500/30"
+                className="hover:bg-red-500/20 border-red-500/30 hidden lg:inline-flex"
                 aria-label="Help and support"
               >
                 <span aria-hidden="true" className="text-red-500 dark:text-red-400 font-bold text-lg leading-none">?</span>
