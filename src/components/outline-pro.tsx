@@ -1476,6 +1476,70 @@ export default function OutlinePro() {
 
   }, [currentOutlineId, selectedNodeId, collectDescendantIds]);
 
+  // Reshape the current outline so that ONLY matches and their ancestors stay
+  // expanded; every non-match node with no descendant match is collapsed.
+  //
+  // This is the "search-as-view-shaper" behaviour: the search result is the
+  // outline state itself, not a transient overlay. It persists after the
+  // search input closes and survives until the next user op changes the tree.
+  //
+  // - The match itself keeps its existing isCollapsed state (so the user's
+  //   manual expand/collapse of a matched subtree isn't clobbered).
+  // - Ancestors of matches are forced expanded.
+  // - All other nodes are collapsed.
+  // - If matchedNodeIds is empty, the tree is left alone (nothing to reshape).
+  const handleApplySearchView = useCallback((matchedNodeIds: string[]) => {
+    if (matchedNodeIds.length === 0) return;
+    setOutlines(currentOutlines => {
+      return currentOutlines.map(o => {
+        if (o.id !== currentOutlineId) return o;
+
+        const matchedSet = new Set(matchedNodeIds);
+
+        // Pass 1: compute the set of ancestor IDs for every match.
+        const ancestorSet = new Set<string>();
+        for (const matchId of matchedNodeIds) {
+          let cur = o.nodes[matchId];
+          while (cur && cur.parentId) {
+            const parentId = cur.parentId;
+            if (ancestorSet.has(parentId)) break; // already walked up from here
+            ancestorSet.add(parentId);
+            cur = o.nodes[parentId];
+          }
+        }
+
+        // Pass 2: build new node map. Ancestors -> expanded.
+        // Matches -> unchanged. Everything else -> collapsed (if it has children).
+        const newNodes = { ...o.nodes };
+        let mutated = false;
+        for (const id of Object.keys(newNodes)) {
+          const node = newNodes[id];
+          if (!node) continue;
+          if (matchedSet.has(id)) {
+            // Match itself - keep current state per spec
+            continue;
+          }
+          if (ancestorSet.has(id)) {
+            // Ancestor of a match - must be expanded
+            if (node.isCollapsed) {
+              newNodes[id] = { ...node, isCollapsed: false };
+              mutated = true;
+            }
+            continue;
+          }
+          // Non-match, non-ancestor: collapse if it has children
+          if (node.childrenIds && node.childrenIds.length > 0 && !node.isCollapsed) {
+            newNodes[id] = { ...node, isCollapsed: true };
+            mutated = true;
+          }
+        }
+
+        if (!mutated) return o;
+        return { ...o, nodes: newNodes };
+      });
+    });
+  }, [currentOutlineId]);
+
   // Expand specific ancestor nodes (for search results)
   const handleExpandAncestors = useCallback((nodeIds: string[]) => {
     setOutlines(currentOutlines => {
@@ -4417,6 +4481,7 @@ export default function OutlinePro() {
                 onCollapseAll={handleCollapseAll}
                 onExpandAll={handleExpandAll}
                 onExpandAncestors={handleExpandAncestors}
+                onApplySearchView={handleApplySearchView}
                 onCreateNode={handleCreateNode}
                 onDeleteNode={handleDeleteNode}
                 onGenerateOutline={handleGenerateOutline}
@@ -4890,6 +4955,7 @@ export default function OutlinePro() {
                 onCollapseAll={handleCollapseAll}
                 onExpandAll={handleExpandAll}
                 onExpandAncestors={handleExpandAncestors}
+                onApplySearchView={handleApplySearchView}
                 onCreateNode={handleCreateNode}
                 onDeleteNode={handleDeleteNode}
                 onGenerateOutline={handleGenerateOutline}

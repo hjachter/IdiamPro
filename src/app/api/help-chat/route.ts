@@ -55,7 +55,7 @@ KEYBOARD SHORTCUTS (macOS/Desktop):
 - Cmd+D: Duplicate node
 - Delete/Backspace: Delete selected node (with confirmation if enabled)
 - Cmd+Shift+F: Focus Mode (isolate subtree, Esc to exit). Also available as a Focus button in the outline toolbar — highlights when active, disabled when no node is selected.
-- Ctrl+F: Search (current outline or all outlines). Collapsed nodes containing matches auto-expand to reveal results. Filter toggles let you search node names only, content only, or both.
+- Ctrl+F (Cmd+F on Mac): Search the outline as a view-shaper. Search reshapes the tree so only matches plus the chain of ancestors leading to them stay expanded; every other branch is automatically collapsed. The reshaped state persists after the search input closes (Escape leaves the tree as the last search left it) and only changes again on the next search, a chevron click, Expand/Collapse All, or an edit. The funnel icon toggles "Search only open nodes" — when on, the next search walks only currently visible nodes, letting you chain queries as a logical AND ("alpha" then "beta" -> nodes containing both). Filter toggles let you search node names only, content only, or both. Scope toggle picks current outline or all outlines.
 - Up/Down arrows: Navigate between nodes
 - Left/Right arrows: Collapse/expand nodes
 - Double-click node: Edit node name

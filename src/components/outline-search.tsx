@@ -3,8 +3,8 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, X, ChevronUp, ChevronDown, Globe, FileText, Type, AlignLeft, Eraser } from 'lucide-react';
-import type { Outline } from '@/types';
+import { Search, X, ChevronUp, ChevronDown, Globe, FileText, Type, AlignLeft, Eraser, Filter } from 'lucide-react';
+import type { Outline, NodeMap } from '@/types';
 import {
   Tooltip,
   TooltipContent,
@@ -31,6 +31,28 @@ interface OutlineSearchProps {
   totalMatches: number;
   onNextMatch: () => void;
   onPrevMatch: () => void;
+  // Optional - if provided, the search will reshape the outline tree so that only
+  // matches and their ancestors are expanded; everything else is collapsed.
+  onApplySearchView?: (
+    matchedNodeIds: string[],
+    options: { restrictToOpen: boolean }
+  ) => void;
+  // Optional - called when the search input is cleared (Eraser button or
+  // searchTerm becomes empty). Allows the caller to fully exit the search view.
+  onNavigateToMatch?: (match: SearchMatch) => void;
+}
+
+// Check if a node is currently visible: every ancestor (excluding itself)
+// must NOT be collapsed.
+function isNodeVisible(nodes: NodeMap, nodeId: string): boolean {
+  let current = nodes[nodeId];
+  while (current && current.parentId) {
+    const parent = nodes[current.parentId];
+    if (!parent) return false;
+    if (parent.isCollapsed) return false;
+    current = parent;
+  }
+  return true;
 }
 
 // Strip HTML tags for content search
@@ -50,7 +72,8 @@ function searchOutline(
   outline: Outline,
   searchTerm: string,
   searchNames: boolean = true,
-  searchContent: boolean = true
+  searchContent: boolean = true,
+  restrictToOpen: boolean = false
 ): SearchMatch[] {
   if (!searchNames && !searchContent) return [];
 
@@ -61,10 +84,16 @@ function searchOutline(
   const LARGE_OUTLINE_THRESHOLD = 5000;
   const isLargeOutline = nodeCount > LARGE_OUTLINE_THRESHOLD;
 
-  // For large outlines, only search leaf nodes (no children) for speed
-  const nodesToSearch = isLargeOutline
+  // Base candidate set
+  let nodesToSearch = isLargeOutline
     ? nodes.filter(node => !node.childrenIds || node.childrenIds.length === 0)
     : nodes;
+
+  // Restrict-to-open: only consider nodes whose ancestor chain is fully expanded.
+  // This enables AND-chaining successive searches.
+  if (restrictToOpen) {
+    nodesToSearch = nodesToSearch.filter(node => isNodeVisible(outline.nodes, node.id));
+  }
 
   if (isLargeOutline) {
     console.log(`[Search] Large outline: searching ${nodesToSearch.length} leaf nodes (of ${nodeCount} total)`);
@@ -102,11 +131,16 @@ export default function OutlineSearch({
   totalMatches,
   onNextMatch,
   onPrevMatch,
+  onApplySearchView,
 }: OutlineSearchProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchScope, setSearchScope] = useState<'current' | 'all'>('current');
   const [searchNames, setSearchNames] = useState(true);
   const [searchContent, setSearchContent] = useState(true);
+  // When true, the search walks only nodes whose ancestor chain is fully
+  // expanded. This is what enables AND-chaining: search "alpha", then enable
+  // "Only open" and search "beta" — only nodes containing both survive.
+  const [restrictToOpen, setRestrictToOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -119,7 +153,13 @@ export default function OutlineSearch({
   }, [isOpen]);
 
   // Debounced search
-  const performSearch = useCallback((term: string, scope: 'current' | 'all', names: boolean, content: boolean) => {
+  const performSearch = useCallback((
+    term: string,
+    scope: 'current' | 'all',
+    names: boolean,
+    content: boolean,
+    onlyOpen: boolean
+  ) => {
     if (term.length < 2) {
       onSearchResults([], term);
       return;
@@ -128,17 +168,29 @@ export default function OutlineSearch({
     let matches: SearchMatch[] = [];
 
     if (scope === 'current' && currentOutline) {
-      matches = searchOutline(currentOutline, term, names, content);
+      matches = searchOutline(currentOutline, term, names, content, onlyOpen);
     } else if (scope === 'all') {
       outlines.forEach((outline) => {
         if (!outline.isGuide) {
-          matches.push(...searchOutline(outline, term, names, content));
+          // Restrict-to-open only applies meaningfully to the currently visible
+          // outline; for cross-outline search we walk every outline fully.
+          const restrict = outline.id === currentOutline?.id ? onlyOpen : false;
+          matches.push(...searchOutline(outline, term, names, content, restrict));
         }
       });
     }
 
     onSearchResults(matches, term);
-  }, [currentOutline, outlines, onSearchResults]);
+
+    // Reshape the outline tree so matches + ancestors stay expanded and
+    // non-matches collapse. This becomes the new persistent outline state.
+    if (onApplySearchView && currentOutline) {
+      const matchedIdsInCurrent = matches
+        .filter(m => m.outlineId === currentOutline.id)
+        .map(m => m.nodeId);
+      onApplySearchView(matchedIdsInCurrent, { restrictToOpen: onlyOpen });
+    }
+  }, [currentOutline, outlines, onSearchResults, onApplySearchView]);
 
   // Handle search term change with debounce
   useEffect(() => {
@@ -147,7 +199,7 @@ export default function OutlineSearch({
     }
 
     debounceRef.current = setTimeout(() => {
-      performSearch(searchTerm, searchScope, searchNames, searchContent);
+      performSearch(searchTerm, searchScope, searchNames, searchContent, restrictToOpen);
     }, 150); // 150ms debounce for real-time feel
 
     return () => {
@@ -155,7 +207,7 @@ export default function OutlineSearch({
         clearTimeout(debounceRef.current);
       }
     };
-  }, [searchTerm, searchScope, searchNames, searchContent, performSearch]);
+  }, [searchTerm, searchScope, searchNames, searchContent, restrictToOpen, performSearch]);
 
   // Handle keyboard shortcuts
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -203,6 +255,7 @@ export default function OutlineSearch({
             onChange={(e) => setSearchTerm(e.target.value)}
             onKeyDown={handleKeyDown}
             className="pl-8 pr-8 h-8"
+            data-testid="search-input"
           />
           {searchTerm && (
             <Button
@@ -281,6 +334,28 @@ export default function OutlineSearch({
               </Button>
             </TooltipTrigger>
             <TooltipContent>{searchContent ? 'Searching content' : 'Not searching content'}</TooltipContent>
+          </Tooltip>
+
+          {/* Restrict-to-open toggle - enables AND-chaining successive searches */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant={restrictToOpen ? 'default' : 'outline'}
+                size="icon"
+                className={`h-8 w-8 ${!restrictToOpen ? 'hover:bg-background opacity-50 hover:opacity-70' : ''}`}
+                onClick={() => setRestrictToOpen(prev => !prev)}
+                aria-label="Search only open nodes"
+                aria-pressed={restrictToOpen}
+                data-testid="search-restrict-to-open"
+              >
+                <Filter className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              {restrictToOpen
+                ? 'Searching only currently open nodes — chain searches to narrow results'
+                : 'Search all nodes (toggle on to chain searches)'}
+            </TooltipContent>
           </Tooltip>
 
           {/* Navigation buttons */}

@@ -115,6 +115,8 @@ interface OutlinePaneProps {
   onCancelAI?: () => void;
   // Search-related props for expanding ancestors
   onExpandAncestors?: (nodeIds: string[]) => void;
+  // Search-as-view-shaper: reshape outline so only matches + ancestors stay open
+  onApplySearchView?: (matchedNodeIds: string[], options: { restrictToOpen: boolean }) => void;
   // External control for search (for command palette)
   externalSearchOpen?: boolean;
   onSearchOpenChange?: (open: boolean) => void;
@@ -206,6 +208,7 @@ export default function OutlinePane({
   isLoadingAI,
   onCancelAI,
   onExpandAncestors,
+  onApplySearchView,
   externalSearchOpen,
   onSearchOpenChange,
   onGenerateContentForChildren,
@@ -1384,6 +1387,7 @@ export default function OutlinePane({
         currentOutline={currentOutline}
         onSearchResults={handleSearchResults}
         onNavigateToMatch={handleNavigateToMatch}
+        onApplySearchView={onApplySearchView}
         currentMatchIndex={currentMatchIndex}
         totalMatches={searchMatches.length}
         onNextMatch={handleNextMatch}
