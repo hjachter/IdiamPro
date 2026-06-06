@@ -9,7 +9,7 @@ import { MultiSelectToolbar } from './multi-select-toolbar';
 import FileImportDialog from './file-import-dialog';
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Plus, Trash2, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, Settings, Search, Command, PanelLeft, PanelLeftClose, Brain, StopCircle, Inbox, LayoutDashboard, Focus, Wrench, Sparkles, Mic, MessageSquare, BookDown, BookUp, Share2, ExternalLink } from 'lucide-react';
+import { Plus, Trash2, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, Settings, Search, Command, PanelLeft, PanelLeftClose, Brain, StopCircle, Inbox, LayoutDashboard, Focus, Wrench, Sparkles, Mic, MessageSquare, BookDown, BookUp, Share2, ExternalLink, RefreshCw } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter } from "@/components/ui/alert-dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import SettingsDialog from './settings-dialog';
@@ -966,6 +966,16 @@ export default function OutlinePane({
                     <DropdownMenuItem onSelect={handleRestoreAllClick} className="cursor-pointer py-1">
                         <FileUp className="mr-2 h-4 w-4" /> Restore All Outlines
                     </DropdownMenuItem>
+                    {onOpenLiveBooks && (
+                        <DropdownMenuItem
+                            onSelect={onOpenLiveBooks}
+                            disabled={!selectedNodeId}
+                            className="cursor-pointer py-1"
+                            title={selectedNodeId ? 'Refresh selected node and its children against the latest web information' : 'Select a node first'}
+                        >
+                            <RefreshCw className="mr-2 h-4 w-4" /> Refresh from Web
+                        </DropdownMenuItem>
+                    )}
                 </DropdownMenuContent>
             </DropdownMenu>
         </TooltipProvider>
@@ -1310,7 +1320,6 @@ export default function OutlinePane({
             isLoadingAI={isLoadingAI}
             onOpenBulkResearch={onOpenBulkResearch}
             onOpenKnowledgeChat={onOpenKnowledgeChat}
-            onOpenLiveBooks={onOpenLiveBooks}
             onOpenTranslate={onOpenTranslate}
             onOpenReformat={onOpenReformat}
             onAskAI={onOpenCommandPalette}
