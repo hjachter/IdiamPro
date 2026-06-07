@@ -41,6 +41,8 @@ import BulkResearchDialog from './bulk-research-dialog';
 import LiveBooksDialog from './live-books-dialog';
 import TranslateDialog from './translate-dialog';
 import ReformatDialog from './reformat-dialog';
+import TransformOutlineDialog from './transform-outline-dialog';
+import { mergeTransformedSubtreeIntoOutline } from '@/ai/flows/transform-outline';
 import OutlineLinkPickerDialog from './outline-link-picker-dialog';
 import HelpChatDialog from './help-chat-dialog';
 import KnowledgeChatDialog from './knowledge-chat-dialog';
@@ -352,6 +354,12 @@ export default function OutlinePro() {
   // Translate (language translation) dialog state — same transform engine
   // as LIVE BOOKS, different transformer (#52). Re-wired 2026-06-04.
   const [isTranslateOpen, setIsTranslateOpen] = useState(false);
+
+  // Transform outline with AI dialog state — whole-subtree structural
+  // transformation driven by a plain-language instruction. Scope rule:
+  // if a node is selected, operate on that subtree; otherwise, operate on
+  // the whole current outline (root down).
+  const [isTransformOutlineOpen, setIsTransformOutlineOpen] = useState(false);
 
   // Reformat with AI dialog state — single-shot per-node content reformat
   // driven by a plain-language instruction. Different from Translate/LIVE
@@ -1188,6 +1196,48 @@ export default function OutlinePro() {
       })
     );
   }, [currentOutlineId, selectedNodeId, reformatApplySelectionFn]);
+
+  // Transform outline with AI — scope is the selected node (if any) plus its
+  // descendants, OR the whole current outline's root + descendants when
+  // nothing is selected. Decision logged in IdiamPro - Development.idm.
+  const transformScopeRootId = useMemo(() => {
+    if (!currentOutlineId) return null;
+    const outline = outlines.find(o => o.id === currentOutlineId);
+    if (!outline || outline.isGuide) return null;
+    if (selectedNodeId && outline.nodes[selectedNodeId]) return selectedNodeId;
+    return outline.rootNodeId;
+  }, [outlines, currentOutlineId, selectedNodeId]);
+
+  const transformScopeLabel = useMemo(() => {
+    if (!transformScopeRootId) return 'the current outline';
+    const outline = outlines.find(o => o.id === currentOutlineId);
+    if (!outline) return 'the current outline';
+    if (transformScopeRootId === outline.rootNodeId) return 'the current outline';
+    const node = outline.nodes[transformScopeRootId];
+    if (!node) return 'the current outline';
+    return `"${node.name}" and everything beneath it`;
+  }, [outlines, currentOutlineId, transformScopeRootId]);
+
+  // Apply an approved structural transform back into the outline. The dialog
+  // hands back the new SerializedNode subtree; we merge it in via the helper
+  // (which preserves the original parentId on the subtree root anchor).
+  const handleApplyTransformOutline = useCallback((args: {
+    transformedNodes: Record<string, { id: string; name: string; content: string; type: string; parentId: string | null; childrenIds: string[] }>;
+    rootNodeId: string;
+  }) => {
+    setOutlines(currentOutlines =>
+      currentOutlines.map(o => {
+        if (o.id !== currentOutlineId || o.isGuide) return o;
+        const nextNodes = mergeTransformedSubtreeIntoOutline(
+          o.nodes,
+          // The dialog's SerializedNode type matches what the helper expects.
+          args.transformedNodes as Parameters<typeof mergeTransformedSubtreeIntoOutline>[1],
+          args.rootNodeId,
+        );
+        return { ...o, nodes: nextNodes };
+      }),
+    );
+  }, [currentOutlineId, setOutlines]);
 
   // Respect the app-wide AI provider setting: only force local when the user
   // explicitly chose "local" (cloud/auto keep cloud grounding + citations).
@@ -4111,6 +4161,7 @@ export default function OutlinePro() {
             setReformatApplySelectionFn(null);
             setIsReformatOpen(true);
           }}
+          onOpenTransformOutline={() => setIsTransformOutlineOpen(true)}
           onOpenTemplates={() => setIsTemplatesDialogOpen(true)}
           isGuide={currentOutline?.isGuide ?? false}
           isFocusMode={isFocusMode}
@@ -4165,6 +4216,16 @@ export default function OutlinePro() {
           contentHtml={reformatContentForDialog}
           scopeLabel={reformatScopeLabel}
           onApply={handleApplyReformat}
+        />
+
+        <TransformOutlineDialog
+          open={isTransformOutlineOpen}
+          onOpenChange={setIsTransformOutlineOpen}
+          nodes={currentOutline?.nodes ?? null}
+          rootNodeId={transformScopeRootId}
+          scopeLabel={transformScopeLabel}
+          outlineName={currentOutline?.name}
+          onApply={handleApplyTransformOutline}
         />
 
         <OutlineLinkPickerDialog
@@ -4419,6 +4480,7 @@ export default function OutlinePro() {
                   setReformatApplySelectionFn(null);
                   setIsReformatOpen(true);
                 }}
+                onOpenTransformOutline={() => setIsTransformOutlineOpen(true)}
                 onCreateChildNode={handleCreateSiblingNode}
                 justCreatedNodeId={justCreatedNodeIdRef.current}
                 editingNodeId={editingNodeId}
@@ -4619,6 +4681,16 @@ export default function OutlinePro() {
         contentHtml={reformatContentForDialog}
         scopeLabel={reformatScopeLabel}
         onApply={handleApplyReformat}
+      />
+
+      <TransformOutlineDialog
+        open={isTransformOutlineOpen}
+        onOpenChange={setIsTransformOutlineOpen}
+        nodes={currentOutline?.nodes ?? null}
+        rootNodeId={transformScopeRootId}
+        scopeLabel={transformScopeLabel}
+        outlineName={currentOutline?.name}
+        onApply={handleApplyTransformOutline}
       />
 
       <OutlineLinkPickerDialog
@@ -4892,6 +4964,7 @@ export default function OutlinePro() {
                   setReformatApplySelectionFn(null);
                   setIsReformatOpen(true);
                 }}
+                onOpenTransformOutline={() => setIsTransformOutlineOpen(true)}
                 onCreateChildNode={handleCreateSiblingNode}
                 justCreatedNodeId={justCreatedNodeIdRef.current}
                 editingNodeId={editingNodeId}

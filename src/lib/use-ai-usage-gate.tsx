@@ -53,6 +53,7 @@ export type AIFeatureKey =
   | 'liveBooks'
   | 'translate'
   | 'reformat'
+  | 'transformOutline'
   | 'tellAI'
   | 'bulkResearch'
   | 'aiMenu'

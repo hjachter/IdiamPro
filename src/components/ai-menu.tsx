@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, FileText, Crown, Loader2, Brain, Mic, Languages, WandSparkles } from 'lucide-react';
+import { Sparkles, FileText, Crown, Loader2, Brain, Mic, Languages, WandSparkles, Wand2 } from 'lucide-react';
 import { useAI, useAIFeature } from '@/contexts/ai-context';
 import AiGenerateDialog from './ai-generate-dialog';
 import { fireDiscovery } from '@/hooks/use-discovery';
@@ -27,6 +27,7 @@ interface AIMenuProps {
   onOpenKnowledgeChat?: () => void;
   onOpenTranslate?: () => void;
   onOpenReformat?: () => void;
+  onOpenTransformOutline?: () => void;
   onAskAI?: () => void;
   hasSelectedNode?: boolean;
   selectedNodeName?: string;
@@ -40,6 +41,7 @@ export default function AIMenu({
   onOpenKnowledgeChat,
   onOpenTranslate,
   onOpenReformat,
+  onOpenTransformOutline,
   onAskAI,
   hasSelectedNode,
   selectedNodeName,
@@ -118,6 +120,13 @@ export default function AIMenu({
           <DropdownMenuItem onSelect={onOpenReformat} className="cursor-pointer">
             <WandSparkles className="mr-2 h-4 w-4 text-violet-500 dark:text-violet-400" />
             Reformat with AI…
+          </DropdownMenuItem>
+        )}
+
+        {onOpenTransformOutline && (
+          <DropdownMenuItem onSelect={onOpenTransformOutline} className="cursor-pointer">
+            <Wand2 className="mr-2 h-4 w-4 text-fuchsia-500 dark:text-fuchsia-400" />
+            Transform outline with AI…
           </DropdownMenuItem>
         )}
 

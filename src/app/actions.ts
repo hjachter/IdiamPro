@@ -5,6 +5,7 @@ import { expandNodeContent } from '@/ai/flows/expand-node-content';
 import { suggestTags } from '@/ai/flows/suggest-tags';
 import { translateNodeContent, type TranslateNodeInput } from '@/ai/flows/translate-node-content';
 import { reformatContent, type ReformatContentInput, type ReformatContentResult } from '@/ai/flows/reformat-content';
+import { transformOutline, type TransformOutlineInput, type TransformOutlineResult } from '@/ai/flows/transform-outline';
 import { interpretCommand, type InterpretCommandInput, type InterpretedCommand } from '@/ai/flows/interpret-command';
 import { transcribeAudio as transcribeAudioWithGemini, type TranscribeAudioInput, type TranscribeAudioResult } from '@/ai/flows/transcribe-audio';
 import { refreshNodeContent, type RefreshNodeInput } from '@/ai/flows/refresh-node-content';
@@ -370,6 +371,37 @@ export async function reformatContentAction(
       changed: false,
       model: input.useLocal ? 'Local' : 'Gemini',
       modelProvider: input.useLocal ? 'local' : 'cloud',
+      error: message,
+    };
+  }
+}
+
+/**
+ * Transform an outline subtree's STRUCTURE per a plain-language instruction
+ * (Transform outline with AI). Distinct from reformatContentAction, which
+ * touches a single node's HTML body — this walks the subtree and can add,
+ * remove, rename, merge, or move nodes.
+ *
+ * The AI returns a serialized subtree; the client merges it back into the
+ * outline (preserving the subtree's anchor parentId on the root). Counts as
+ * 1 generation regardless of subtree size.
+ */
+export async function transformOutlineAction(
+  input: TransformOutlineInput
+): Promise<TransformOutlineResult> {
+  try {
+    return await transformOutline(input);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Transform failed';
+    console.error('Error transforming outline:', message);
+    return {
+      transformedNodes: input.subtreeNodes,
+      transformedRootId: input.rootNodeId,
+      summary: '',
+      stats: { added: 0, removed: 0, renamed: 0, moved: 0, unchanged: Object.keys(input.subtreeNodes).length },
+      model: input.useLocal ? 'Local' : 'Gemini',
+      modelProvider: input.useLocal ? 'local' : 'cloud',
+      changed: false,
       error: message,
     };
   }
