@@ -97,5 +97,3 @@ export function mergeTransformedSubtreeIntoOutline(
 
   return next;
 }
-</content>
-</invoke>
