@@ -40,11 +40,8 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Sparkles, Loader2, AlertTriangle, Cpu, ArrowLeft, Wand2 } from 'lucide-react';
 import { transformOutlineAction } from '@/app/actions';
-import {
-  serializeSubtree,
-  type SerializedNode,
-  type TransformOutlineResult,
-} from '@/ai/flows/transform-outline';
+import { serializeSubtree } from '@/lib/transform-outline-helpers';
+import type { SerializedNode, TransformOutlineResult } from '@/ai/flows/transform-outline';
 import { getUserApiKey } from '@/lib/byok-keys';
 import { useAIUsageGate } from '@/lib/use-ai-usage-gate';
 import type { NodeMap } from '@/types';

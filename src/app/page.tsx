@@ -1099,6 +1099,33 @@ export default function MarketingPage() {
                   </p>
                 </div>
               </div>
+
+              {/* Coming Soon — YouTube Video Export (v1.1) */}
+              <div className="mt-8">
+                <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-red-500/10 via-rose-500/5 to-amber-500/10 border border-red-500/20 p-8 hover:border-red-500/40 transition-all duration-500">
+                  <div className="flex items-start gap-6">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center shadow-lg shadow-red-500/30 flex-shrink-0">
+                      <Youtube className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2 flex-wrap">
+                        <h3 className="text-xl font-bold text-white">
+                          From outline to YouTube video
+                        </h3>
+                        <span className="text-[10px] font-semibold uppercase tracking-wider text-amber-300 bg-amber-400/10 border border-amber-400/20 rounded px-2 py-0.5">
+                          Coming soon · v1.1
+                        </span>
+                      </div>
+                      <p className="text-white/60 text-sm mb-3">
+                        Generate a fully-narrated, publishable video straight from any outline. Pick a target length, hit Generate, get a YouTube-ready MP4 with AI voiceover and slides. Shipping in v1.1.
+                      </p>
+                      <p className="text-white/40 text-xs">
+                        Beta testers get early access. Everyone else gets it the moment it ships.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>

@@ -16,7 +16,8 @@
         "sec-workflows",
         "sec-roles",
         "sec-names",
-        "sp-cross-platform-parity-2026-06-06"
+        "sp-cross-platform-parity-2026-06-06",
+        "sp-roadmap-coming-soon-2026-06-06"
       ],
       "prefix": ""
     },
@@ -125,6 +126,16 @@
       "parentId": "sp-root",
       "childrenIds": [],
       "prefix": "0"
+    },
+    "sp-roadmap-coming-soon-2026-06-06": {
+      "id": "sp-roadmap-coming-soon-2026-06-06",
+      "name": "Coming soon — Roadmap highlights (2026-06-06)",
+      "content": "<p><strong>From outline to YouTube video — coming in v1.1.</strong></p><p>This is the next monetizable surface and a marquee differentiator. Other outliners stop at \"export to PDF.\" IdiamPro turns the same outline into a finished, narrated, publishable video — without ever leaving the app.</p><p><strong>What ships in v1.1:</strong></p><ul><li>Generate a fully-narrated, publishable video straight from any outline.</li><li>Outline becomes the script. AI narrates it in a voice the creator picks. Slides render automatically from the outline structure (titles, bullets, embedded images).</li><li>Pick a target length (e.g. 3, 5, 10, 20 minutes). Hit Generate. Get back a YouTube-ready MP4.</li><li>Beta testers get early access to shape the workflow before general release.</li></ul><p><strong>Why this matters for selling IdiamPro:</strong></p><ul><li><strong>Creators are a fast-growing wedge.</strong> Course creators, educators, YouTubers, and corporate trainers all already write outlines before they record video. IdiamPro collapses two tools (outliner + video editor) into one.</li><li><strong>Justifies a Pro upgrade.</strong> Video generation is expensive — TTS, slide rendering, and MP4 encoding all carry real costs. It's the first feature where the Pro tier (or a future Studio tier) is obviously worth the money rather than a soft up-sell.</li><li><strong>Anticipation is a launch asset.</strong> Telling early users \"and YouTube export is coming\" gives our v1 launch a forward-looking story instead of a 'this is all there is' framing. Beta testers stay engaged for v1.1.</li></ul><p><strong>What we're <em>not</em> promising yet:</strong> auto-publish to YouTube (would need OAuth + channel access), live podcast-style co-host workflows, or speaker avatars. Those are deferred past v1.1. The plan documented in the Bootstrap Plan outline (chapter 17) is the single source of truth.</p><p><strong>Where this messaging lives today (2026-06-06):</strong></p><ul><li>Marketing homepage and marketing landing page — visible \"Coming soon · v1.1\" callout under the Export section.</li><li>User Guide — Export Formats section calls out the upcoming video format.</li><li>Help chat — answers questions about video/YouTube/MP4 export with the v1.1 timeline.</li></ul>",
+      "type": "standard",
+      "parentId": "sp-root",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": null
     },
     "sp-cross-platform-parity-2026-06-06": {
       "id": "sp-cross-platform-parity-2026-06-06",

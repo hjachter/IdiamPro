@@ -42,7 +42,7 @@ import LiveBooksDialog from './live-books-dialog';
 import TranslateDialog from './translate-dialog';
 import ReformatDialog from './reformat-dialog';
 import TransformOutlineDialog from './transform-outline-dialog';
-import { mergeTransformedSubtreeIntoOutline } from '@/ai/flows/transform-outline';
+import { mergeTransformedSubtreeIntoOutline } from '@/lib/transform-outline-helpers';
 import OutlineLinkPickerDialog from './outline-link-picker-dialog';
 import HelpChatDialog from './help-chat-dialog';
 import KnowledgeChatDialog from './knowledge-chat-dialog';
