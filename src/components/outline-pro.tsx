@@ -693,7 +693,12 @@ export default function OutlinePro() {
           setTimeout(() => reject(new Error('Storage load timed out')), 30000)
         );
         const { outlines: userOutlines, currentOutlineId: loadedCurrentOutlineId, fixedDuplicateCount, fixedDuplicateNames } = await Promise.race([storagePromise, timeoutPromise]);
-        const validOutlines = userOutlines.filter(o => o && isValidOutline(o));
+        // Strip any stale isGuide entries from disk — the User Guide is always
+        // sourced from the bundled getInitialGuide() so users get the latest
+        // version on every app launch. (Read-only enforcement makes a stale
+        // disk copy unlikely, but defend against older app versions that may
+        // have persisted one.)
+        const validOutlines = userOutlines.filter(o => o && isValidOutline(o) && !o.isGuide);
         const loadedOutlines = [guide, ...validOutlines];
 
         // Auto-create the Second Brain outline if none exists
@@ -3150,21 +3155,6 @@ export default function OutlinePro() {
     }
   }, [currentOutline, toast]);
 
-  // Refresh the User Guide to get latest version
-  const handleRefreshGuide = useCallback(() => {
-    const freshGuide = getInitialGuide();
-    setOutlines(currentOutlines => {
-      return currentOutlines.map(o => o.isGuide ? freshGuide : o);
-    });
-    // Switch to the guide and select its root
-    setCurrentOutlineId(freshGuide.id);
-    setSelectedNodeId(freshGuide.rootNodeId);
-    toast({
-      title: "Guide Refreshed",
-      description: "The User Guide has been updated to the latest version.",
-    });
-  }, [toast]);
-
   // Add an already-parsed outline to the app (used by FileImportDialog and handleImportOutline)
   const handleAddImportedOutline = useCallback((importedData: Outline, showToast: boolean = true) => {
     setOutlines(currentOutlines => {
@@ -3574,6 +3564,10 @@ export default function OutlinePro() {
 
   const handleBulkDelete = useCallback(() => {
     if (selectedNodeIds.size === 0) return;
+    if (currentOutline?.isGuide) {
+      toast({ title: "User Guide is read-only", description: "Make personal notes in your own outline instead." });
+      return;
+    }
 
     const nodeCount = selectedNodeIds.size;
     const confirm = window.confirm(`Delete ${nodeCount} selected node${nodeCount > 1 ? 's' : ''}? This will also delete all their children.`);
@@ -3601,10 +3595,14 @@ export default function OutlinePro() {
       title: "Nodes Deleted",
       description: `Deleted ${nodeCount} node${nodeCount > 1 ? 's' : ''}.`,
     });
-  }, [selectedNodeIds, currentOutlineId, toast]);
+  }, [selectedNodeIds, currentOutlineId, currentOutline, toast]);
 
   const handleBulkChangeColor = useCallback((color: string | undefined) => {
     if (selectedNodeIds.size === 0) return;
+    if (currentOutline?.isGuide) {
+      toast({ title: "User Guide is read-only", description: "Make personal notes in your own outline instead." });
+      return;
+    }
 
     setOutlines(currentOutlines => {
       return currentOutlines.map(o => {
@@ -3631,10 +3629,14 @@ export default function OutlinePro() {
       title: "Color Updated",
       description: `Updated color for ${selectedNodeIds.size} node${selectedNodeIds.size > 1 ? 's' : ''}.`,
     });
-  }, [selectedNodeIds, currentOutlineId, toast]);
+  }, [selectedNodeIds, currentOutlineId, currentOutline, toast]);
 
   const handleBulkAddTag = useCallback((tag: string) => {
     if (selectedNodeIds.size === 0) return;
+    if (currentOutline?.isGuide) {
+      toast({ title: "User Guide is read-only", description: "Make personal notes in your own outline instead." });
+      return;
+    }
 
     setOutlines(currentOutlines => {
       return currentOutlines.map(o => {
@@ -3664,7 +3666,7 @@ export default function OutlinePro() {
       title: "Tag Added",
       description: `Added "${tag}" to ${selectedNodeIds.size} node${selectedNodeIds.size > 1 ? 's' : ''}.`,
     });
-  }, [selectedNodeIds, currentOutlineId, toast]);
+  }, [selectedNodeIds, currentOutlineId, currentOutline, toast]);
 
   // Export handlers
   const handleSaveToSecondBrain = useCallback((nodeId: string) => {
@@ -4150,7 +4152,6 @@ export default function OutlinePro() {
           onOpenSearch={handleOpenSearch}
           onExportOutline={handleExportOutline}
           onImportOutline={handleImportOutlineTrigger}
-          onRefreshGuide={handleRefreshGuide}
           onToggleFocusMode={() => setIsFocusMode(prev => !prev)}
           onShowShortcuts={() => setIsShortcutsOpen(true)}
           onOpenBulkResearch={() => setIsBulkResearchOpen(true)}
@@ -4463,7 +4464,6 @@ export default function OutlinePro() {
                 onPasteSubtree={handlePasteSubtree}
                 onDuplicateNode={handleDuplicateNode}
                 hasClipboard={subtreeClipboard !== null}
-                onRefreshGuide={handleRefreshGuide}
                 onFolderSelected={handleFolderSelected}
                 isLoadingAI={isLoadingAI}
                 onCancelAI={handleCancelAI}
@@ -4629,7 +4629,6 @@ export default function OutlinePro() {
         onOpenSearch={handleOpenSearch}
         onExportOutline={handleExportOutline}
         onImportOutline={handleImportOutlineTrigger}
-        onRefreshGuide={handleRefreshGuide}
         onToggleFocusMode={() => setIsFocusMode(prev => !prev)}
         onShowShortcuts={() => setIsShortcutsOpen(true)}
         onOpenBulkResearch={() => setIsBulkResearchOpen(true)}
@@ -4947,7 +4946,6 @@ export default function OutlinePro() {
                 onPasteSubtree={handlePasteSubtree}
                 onDuplicateNode={handleDuplicateNode}
                 hasClipboard={subtreeClipboard !== null}
-                onRefreshGuide={handleRefreshGuide}
                 onFolderSelected={handleFolderSelected}
                 isLoadingAI={isLoadingAI}
                 onCancelAI={handleCancelAI}

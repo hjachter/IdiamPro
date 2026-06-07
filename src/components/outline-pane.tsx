@@ -9,7 +9,7 @@ import { MultiSelectToolbar } from './multi-select-toolbar';
 import FileImportDialog from './file-import-dialog';
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Plus, Trash2, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, ChevronsDownUp, Settings, Search, Command, PanelLeft, PanelLeftClose, Brain, StopCircle, Inbox, LayoutDashboard, Focus, Wrench, Sparkles, Mic, MessageSquare, BookDown, BookUp, Share2, ExternalLink, RefreshCw, MoreHorizontal, HelpCircle } from 'lucide-react';
+import { Plus, Trash2, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, ChevronsDownUp, Settings, Search, Command, PanelLeft, PanelLeftClose, Brain, StopCircle, Inbox, LayoutDashboard, Focus, Sparkles, Mic, MessageSquare, BookDown, BookUp, Share2, ExternalLink, RefreshCw, MoreHorizontal, HelpCircle } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter } from "@/components/ui/alert-dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import SettingsDialog from './settings-dialog';
@@ -108,7 +108,6 @@ interface OutlinePaneProps {
   onPasteSubtree: (targetNodeId: string) => void;
   onDuplicateNode: (nodeId: string) => void;
   hasClipboard: boolean;
-  onRefreshGuide: () => void;
   onFolderSelected?: () => void;
   isLoadingAI: boolean;
   onCancelAI?: () => void;
@@ -203,7 +202,6 @@ export default function OutlinePane({
   onPasteSubtree,
   onDuplicateNode,
   hasClipboard,
-  onRefreshGuide,
   onFolderSelected,
   isLoadingAI,
   onCancelAI,
@@ -957,9 +955,9 @@ export default function OutlinePane({
                     {onOpenLiveBooks && (
                         <DropdownMenuItem
                             onSelect={onOpenLiveBooks}
-                            disabled={!selectedNodeId}
+                            disabled={!selectedNodeId || currentOutline?.isGuide}
                             className="cursor-pointer py-1"
-                            title={selectedNodeId ? 'Refresh selected node and its children against the latest web information' : 'Select a node first'}
+                            title={currentOutline?.isGuide ? 'User Guide is read-only' : (selectedNodeId ? 'Refresh selected node and its children against the latest web information' : 'Select a node first')}
                         >
                             <RefreshCw className="mr-2 h-4 w-4" /> Refresh from Web
                         </DropdownMenuItem>
@@ -1001,33 +999,6 @@ export default function OutlinePane({
                     </DropdownMenuItem>
                     <DropdownMenuItem onSelect={handleBackupAll} className="cursor-pointer py-1">
                         <FileDown className="mr-2 h-4 w-4" /> Backup All Outlines
-                    </DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
-        </TooltipProvider>
-
-        {/* Wrench — residual admin actions (Tier 3: desktop only) */}
-        <TooltipProvider>
-            <DropdownMenu>
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <DropdownMenuTrigger asChild>
-                            <Button
-                                variant="outline"
-                                size="icon"
-                                className="shrink-0 active:scale-95 active:bg-accent/30 hidden lg:inline-flex"
-                                aria-label="Outline admin"
-                            >
-                                <Wrench className="h-4 w-4" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom">Admin</TooltipContent>
-                </Tooltip>
-                <DropdownMenuContent align="end" className="w-56 p-0.5">
-                    <DropdownMenuLabel className="py-1 text-xs uppercase tracking-wide text-muted-foreground">Admin</DropdownMenuLabel>
-                    <DropdownMenuItem onSelect={onRefreshGuide} className="cursor-pointer py-1">
-                        <RotateCcw className="mr-2 h-4 w-4" /> Refresh User Guide
                     </DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
@@ -1127,10 +1098,7 @@ export default function OutlinePane({
                         <DropdownMenuSeparator />
                     </div>
 
-                    {/* Tier 3 — always surfaced in overflow (Settings + Help + Admin) */}
-                    <DropdownMenuItem onSelect={onRefreshGuide} className="cursor-pointer py-1">
-                        <RotateCcw className="mr-2 h-4 w-4" /> Refresh User Guide
-                    </DropdownMenuItem>
+                    {/* Tier 3 — always surfaced in overflow (Settings + Help) */}
                     {onOpenHelp && (
                         <DropdownMenuItem onSelect={onOpenHelp} className="cursor-pointer py-1">
                             <HelpCircle className="mr-2 h-4 w-4" /> Help & support
@@ -1417,9 +1385,9 @@ export default function OutlinePane({
               isLoadingAI={isLoadingAI}
               onOpenBulkResearch={onOpenBulkResearch}
               onOpenKnowledgeChat={onOpenKnowledgeChat}
-              onOpenTranslate={onOpenTranslate}
-              onOpenReformat={onOpenReformat}
-              onOpenTransformOutline={onOpenTransformOutline}
+              onOpenTranslate={currentOutline?.isGuide ? undefined : onOpenTranslate}
+              onOpenReformat={currentOutline?.isGuide ? undefined : onOpenReformat}
+              onOpenTransformOutline={currentOutline?.isGuide ? undefined : onOpenTransformOutline}
               onAskAI={onOpenCommandPalette}
               hasSelectedNode={!!selectedNodeId && !currentOutline?.isGuide}
               selectedNodeName={selectedNodeId && currentOutline?.nodes[selectedNodeId]?.name || ''}
@@ -1542,12 +1510,12 @@ export default function OutlinePane({
               onExpandAll={currentOutline.isGuide ? undefined : onExpandAll}
               onCollapseAll={currentOutline.isGuide ? undefined : onCollapseAll}
               onUpdateNode={currentOutline.isGuide ? () => {} : onUpdateNode}
-              onCreateNode={currentOutline.isGuide ? () => {} : onCreateNode}
-              onDeleteNode={currentOutline.isGuide ? () => {} : onDeleteNode}
+              onCreateNode={currentOutline.isGuide ? undefined : onCreateNode}
+              onDeleteNode={currentOutline.isGuide ? undefined : onDeleteNode}
               onCopySubtree={onCopySubtree}
-              onCutSubtree={currentOutline.isGuide ? () => {} : onCutSubtree}
-              onPasteSubtree={currentOutline.isGuide ? () => {} : onPasteSubtree}
-              onDuplicateNode={currentOutline.isGuide ? () => {} : onDuplicateNode}
+              onCutSubtree={currentOutline.isGuide ? undefined : onCutSubtree}
+              onPasteSubtree={currentOutline.isGuide ? undefined : onPasteSubtree}
+              onDuplicateNode={currentOutline.isGuide ? undefined : onDuplicateNode}
               hasClipboard={hasClipboard}
               isRoot={true}
               onIndent={handleIndent}
@@ -1555,7 +1523,7 @@ export default function OutlinePane({
               searchTerm={searchTerm}
               highlightedNodeIds={currentOutlineHighlights}
               onGenerateContentForChildren={currentOutline.isGuide ? undefined : onGenerateContentForChildren}
-              onCreateChildNode={currentOutline.isGuide ? () => {} : onCreateChildNode}
+              onCreateChildNode={currentOutline.isGuide ? undefined : onCreateChildNode}
               editingNodeId={currentOutline.isGuide ? null : editingNodeId}
               onEditingComplete={onEditingComplete}
               selectedNodeIds={selectedNodeIds}
@@ -1565,6 +1533,7 @@ export default function OutlinePane({
               onSaveToSecondBrain={onSaveToSecondBrain}
               maxRenderDepth={maxRenderDepth}
               onInsertOutlineLink={currentOutline.isGuide ? undefined : onOpenLinkToOutline}
+              isReadOnly={!!currentOutline.isGuide}
             />
           </ul>
         )}

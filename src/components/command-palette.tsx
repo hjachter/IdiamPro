@@ -56,7 +56,6 @@ interface CommandPaletteProps {
   onOpenSearch: () => void;
   onExportOutline?: () => void;
   onImportOutline?: () => void;
-  onRefreshGuide?: () => void;
   onToggleFocusMode?: () => void;
   onShowShortcuts?: () => void;
   onOpenBulkResearch?: () => void;
@@ -86,7 +85,6 @@ export default function CommandPalette({
   onOpenSearch,
   onExportOutline,
   onImportOutline,
-  onRefreshGuide,
   onToggleFocusMode,
   onShowShortcuts,
   onOpenBulkResearch,
@@ -495,12 +493,6 @@ export default function CommandPalette({
             <CommandItem onSelect={() => runCommand(onOpenBulkResearch)}>
               <Library className="mr-2 h-4 w-4" />
               <span>Bulk Research Import (PREMIUM)</span>
-            </CommandItem>
-          )}
-          {onRefreshGuide && (
-            <CommandItem onSelect={() => runCommand(onRefreshGuide)}>
-              <RefreshCw className="mr-2 h-4 w-4" />
-              <span>Refresh User Guide</span>
             </CommandItem>
           )}
         </CommandGroup>

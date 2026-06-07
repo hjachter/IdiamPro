@@ -70,6 +70,12 @@ interface NodeItemProps {
   maxRenderDepth?: number;
   // Cross-outline link picker (Phase 1, 2026-06-04) — context menu entry
   onInsertOutlineLink?: () => void;
+  // Read-only mode (e.g. User Guide outline) — suppresses rename + always-shown
+  // mutator items in the context menu, and blocks F2/double-click rename. The
+  // optional mutator callbacks should already be undefined when isReadOnly is
+  // true, but this flag makes the intent explicit and gates the unconditional
+  // affordances. Added 2026-06-07.
+  isReadOnly?: boolean;
 }
 
 // Helper to highlight search matches in text
@@ -174,6 +180,7 @@ export default function NodeItem({
   onSaveToSecondBrain,
   maxRenderDepth,
   onInsertOutlineLink,
+  isReadOnly = false,
 }: NodeItemProps) {
   const node = nodes[nodeId];
   const [isEditing, setIsEditing] = React.useState(false);
@@ -540,8 +547,9 @@ export default function NodeItem({
 
     // Touch (iOS): tapping the already-selected node enters edit mode.
     // This is the iOS equivalent of double-click on desktop, per the gesture
-    // model in CLAUDE.md (Tap selected node → edit name).
-    if (isSelected && lastPointerTypeRef.current !== 'mouse' && !isRoot) {
+    // model in CLAUDE.md (Tap selected node → edit name). Skipped when the
+    // outline is read-only (e.g. User Guide).
+    if (isSelected && lastPointerTypeRef.current !== 'mouse' && !isRoot && !isReadOnly) {
       setIsEditing(true);
       return;
     }
@@ -609,7 +617,7 @@ export default function NodeItem({
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
             onTouchCancel={handleTouchCancel}
-            onDoubleClick={() => { if (!isEditing) setIsEditing(true); }}
+            onDoubleClick={() => { if (!isEditing && !isReadOnly) setIsEditing(true); }}
             draggable={!isRoot}
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
@@ -784,11 +792,13 @@ export default function NodeItem({
               </ContextMenuItem>
             )}
 
-            <ContextMenuItem onClick={(e) => { e.stopPropagation(); setIsEditing(true); }}>
-              <Edit3 className="mr-2 h-4 w-4" />
-              Rename Node
-              <ContextMenuShortcut>↵</ContextMenuShortcut>
-            </ContextMenuItem>
+            {!isReadOnly && (
+              <ContextMenuItem onClick={(e) => { e.stopPropagation(); setIsEditing(true); }}>
+                <Edit3 className="mr-2 h-4 w-4" />
+                Rename Node
+                <ContextMenuShortcut>↵</ContextMenuShortcut>
+              </ContextMenuItem>
+            )}
 
             {isChapter && (
               <ContextMenuItem onClick={(e) => { e.stopPropagation(); onToggleCollapse(node.id); }}>
@@ -946,6 +956,7 @@ export default function NodeItem({
                         onSaveToSecondBrain={onSaveToSecondBrain}
                         maxRenderDepth={maxRenderDepth}
                         onInsertOutlineLink={onInsertOutlineLink}
+                        isReadOnly={isReadOnly}
                     />
                 ))}
                 </ul>
