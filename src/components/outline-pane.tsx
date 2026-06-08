@@ -1150,36 +1150,40 @@ export default function OutlinePane({
         <div className="flex-shrink-0 flex items-center justify-center gap-1.5 px-2 py-1.5 bg-[hsl(var(--toolbar-bg))] rounded-xl border border-border/30">
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="outline" size="icon" onClick={() => onCreateNode()} disabled={!selectedNodeId || currentOutline?.isGuide} className="hover:bg-accent/20" aria-label="Add sibling node">
-                <Plus className="h-4 w-4" />
-              </Button>
+              <span tabIndex={-1} className="inline-flex">
+                <Button variant="outline" size="icon" onClick={() => onCreateNode()} disabled={!selectedNodeId || currentOutline?.isGuide} className="hover:bg-accent/20" aria-label="Add sibling node">
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </span>
             </TooltipTrigger>
-            <TooltipContent>{currentOutline?.isGuide ? 'Cannot modify User Guide' : 'Add sibling node'}</TooltipContent>
+            <TooltipContent>{currentOutline?.isGuide ? 'Cannot modify User Guide' : (!selectedNodeId ? 'Add sibling node — select a node first' : 'Add sibling node')}</TooltipContent>
           </Tooltip>
 
           <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  disabled={!selectedNodeId || isSelectedNodeRoot || currentOutline?.isGuide}
-                  className="text-destructive hover:bg-destructive/20"
-                  aria-label="Delete node"
-                  onClick={() => {
-                    if (currentOutline?.isGuide) return;
-                    const confirmDelete = localStorage.getItem('confirmDelete') !== 'false';
-                    if (confirmDelete) {
-                      setShowDeleteDialog(true);
-                    } else {
-                      selectedNodeId && onDeleteNode(selectedNodeId);
-                    }
-                  }}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+                <span tabIndex={-1} className="inline-flex">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    disabled={!selectedNodeId || isSelectedNodeRoot || currentOutline?.isGuide}
+                    className="text-destructive hover:bg-destructive/20"
+                    aria-label="Delete node"
+                    onClick={() => {
+                      if (currentOutline?.isGuide) return;
+                      const confirmDelete = localStorage.getItem('confirmDelete') !== 'false';
+                      if (confirmDelete) {
+                        setShowDeleteDialog(true);
+                      } else {
+                        selectedNodeId && onDeleteNode(selectedNodeId);
+                      }
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </span>
               </TooltipTrigger>
-              <TooltipContent>{currentOutline?.isGuide ? 'Cannot modify User Guide' : 'Delete node'}</TooltipContent>
+              <TooltipContent>{currentOutline?.isGuide ? 'Cannot modify User Guide' : (!selectedNodeId ? 'Delete node — select a node first' : (isSelectedNodeRoot ? 'Delete node — cannot delete the root node' : 'Delete node'))}</TooltipContent>
             </Tooltip>
             <AlertDialogContent>
               <AlertDialogHeader>
@@ -1203,36 +1207,40 @@ export default function OutlinePane({
 
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="outline" size="icon" onClick={() => setIsSearchOpen(true)} disabled={!currentOutline} className="hover:bg-accent/20" aria-label="Search outline">
-                <Search className="h-4 w-4" />
-              </Button>
+              <span tabIndex={-1} className="inline-flex">
+                <Button variant="outline" size="icon" onClick={() => setIsSearchOpen(true)} disabled={!currentOutline} className="hover:bg-accent/20" aria-label="Search outline">
+                  <Search className="h-4 w-4" />
+                </Button>
+              </span>
             </TooltipTrigger>
-            <TooltipContent>Search outline{!isMobile && ' (⌘F)'}</TooltipContent>
+            <TooltipContent>{!currentOutline ? 'Search outline — open an outline first' : `Search outline${!isMobile ? ' (⌘F)' : ''}`}</TooltipContent>
           </Tooltip>
 
           {/* Focus Mode toggle (FIX 2) — Tier 2: tablet+ */}
           {onToggleFocusMode && (
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={onToggleFocusMode}
-                  disabled={!selectedNodeId}
-                  className={cn(
-                    "hover:bg-accent/20 active:scale-95 active:bg-accent/30 hidden sm:inline-flex",
-                    isFocusMode && "bg-primary/15 ring-1 ring-primary/40 text-primary"
-                  )}
-                  aria-pressed={isFocusMode}
-                  aria-label="Focus Mode"
-                >
-                  <Focus className="h-4 w-4" />
-                </Button>
+                <span tabIndex={-1} className="hidden sm:inline-flex">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={onToggleFocusMode}
+                    disabled={!selectedNodeId}
+                    className={cn(
+                      "hover:bg-accent/20 active:scale-95 active:bg-accent/30",
+                      isFocusMode && "bg-primary/15 ring-1 ring-primary/40 text-primary"
+                    )}
+                    aria-pressed={isFocusMode}
+                    aria-label="Focus Mode"
+                  >
+                    <Focus className="h-4 w-4" />
+                  </Button>
+                </span>
               </TooltipTrigger>
               <TooltipContent>
                 {selectedNodeId
                   ? `Focus Mode${!isMobile ? ' (⌘⇧F)' : ''}`
-                  : 'Select a node to enter Focus Mode'}
+                  : 'Focus Mode — select a node first'}
               </TooltipContent>
             </Tooltip>
           )}
@@ -1243,19 +1251,21 @@ export default function OutlinePane({
           <DropdownMenu>
             <Tooltip>
               <TooltipTrigger asChild>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    disabled={!currentOutline}
-                    className="hover:bg-accent/20 shrink-0 active:scale-95 active:bg-accent/30 hidden sm:inline-flex"
-                    aria-label="Show or hide all nodes"
-                  >
-                    <ChevronsDownUp className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
+                <span tabIndex={-1} className="hidden sm:inline-flex">
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      disabled={!currentOutline}
+                      className="hover:bg-accent/20 shrink-0 active:scale-95 active:bg-accent/30"
+                      aria-label="Show or hide all nodes"
+                    >
+                      <ChevronsDownUp className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                </span>
               </TooltipTrigger>
-              <TooltipContent>Show or hide all nodes</TooltipContent>
+              <TooltipContent>{!currentOutline ? 'Show or hide all nodes — open an outline first' : 'Show or hide all nodes'}</TooltipContent>
             </Tooltip>
             <DropdownMenuContent align="end" className="w-56 p-0.5">
               <DropdownMenuItem
@@ -1285,39 +1295,29 @@ export default function OutlinePane({
 
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                disabled={!selectedNodeId}
-                onClick={() => selectedNodeId && onExportSubtree?.(selectedNodeId)}
-                className="hover:bg-accent/20 hidden sm:inline-flex"
-                aria-label="Share subtree"
-              >
-                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M12 3v12" />
-                  <path d="m8 7 4-4 4 4" />
-                  <rect x="4" y="11" width="16" height="11" rx="2" ry="2" fill="none" />
-                </svg>
-              </Button>
+              <span tabIndex={-1} className="hidden sm:inline-flex">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  disabled={!selectedNodeId}
+                  onClick={() => selectedNodeId && onExportSubtree?.(selectedNodeId)}
+                  className="hover:bg-accent/20"
+                  aria-label="Share subtree"
+                >
+                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M12 3v12" />
+                    <path d="m8 7 4-4 4 4" />
+                    <rect x="4" y="11" width="16" height="11" rx="2" ry="2" fill="none" />
+                  </svg>
+                </Button>
+              </span>
             </TooltipTrigger>
-            <TooltipContent>{selectedNodeId ? 'Share subtree as...' : 'Select a node to share'}</TooltipContent>
+            <TooltipContent>{selectedNodeId ? 'Share subtree as...' : 'Share subtree — select a node first'}</TooltipContent>
           </Tooltip>
 
-          {/* Command Palette - touch-accessible entry point (Tier 2: tablet+) */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => onOpenCommandPalette?.()}
-                className="hover:bg-accent/20 active:scale-95 active:bg-accent/30 hidden sm:inline-flex"
-                aria-label="Command palette"
-              >
-                <Command className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Command palette{!isMobile && ' (⌘K)'}</TooltipContent>
-          </Tooltip>
+          {/* Command palette tree-toolbar entry removed 2026-06-08 — the title-row
+              MessageSquare button is the single primary entry point for Cmd+K.
+              The mobile-overflow menu still surfaces "Command palette" as a backup. */}
 
           {/* Second Brain Menu */}
           <DropdownMenu>
