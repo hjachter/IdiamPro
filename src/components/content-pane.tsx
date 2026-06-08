@@ -3098,6 +3098,27 @@ export default function ContentPane({
                 <BubbleMenu
                   editor={editor}
                   options={{ placement: 'top' }}
+                  // Suppress the BubbleMenu while the outline search input is
+                  // focused — otherwise the floating format toolbar covers the
+                  // text the user is typing into the search box. Howard
+                  // 2026-06-08.
+                  shouldShow={({ editor: e, view, state, from, to }) => {
+                    const active = typeof document !== 'undefined' ? document.activeElement : null;
+                    if (active && active instanceof HTMLElement && active.getAttribute('data-testid') === 'search-input') {
+                      return false;
+                    }
+                    // Fall back to Tiptap's default visibility rule: show when
+                    // the editor is editable + focused + has a non-empty,
+                    // non-NodeSelection text selection.
+                    const { doc, selection } = state;
+                    const { empty } = selection;
+                    const isEmptyTextBlock = !doc.textBetween(from, to).length && (selection as { $from?: { parent?: { isTextblock?: boolean } } }).$from?.parent?.isTextblock === true;
+                    const hasEditorFocus = view.hasFocus();
+                    if (!hasEditorFocus || empty || isEmptyTextBlock || !e.isEditable) {
+                      return false;
+                    }
+                    return true;
+                  }}
                   className="flex items-center gap-0.5 rounded-md border bg-popover p-1 shadow-md"
                 >
                   {/* Reformat with AI lives at the FIRST position and gets

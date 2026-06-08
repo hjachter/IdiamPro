@@ -139,6 +139,19 @@ export default function OutlineSearch({
   const [restrictToOpen, setRestrictToOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
+  // Latest-value refs so the debounce effect's dependency list can stay
+  // narrow — driven purely by the user's typed/toggled search inputs, NOT by
+  // outline mutations. This is the 1988 spec: search applies a shape ONCE per
+  // explicit user input change, then the user is free to chevron-explore
+  // without the search re-firing as a side effect. Howard 2026-06-08.
+  const currentOutlineRef = useRef(currentOutline);
+  const outlinesRef = useRef(outlines);
+  const onSearchResultsRef = useRef(onSearchResults);
+  const onApplySearchViewRef = useRef(onApplySearchView);
+  useEffect(() => { currentOutlineRef.current = currentOutline; }, [currentOutline]);
+  useEffect(() => { outlinesRef.current = outlines; }, [outlines]);
+  useEffect(() => { onSearchResultsRef.current = onSearchResults; }, [onSearchResults]);
+  useEffect(() => { onApplySearchViewRef.current = onApplySearchView; }, [onApplySearchView]);
 
   // Focus input when search opens
   useEffect(() => {
@@ -148,7 +161,8 @@ export default function OutlineSearch({
     }
   }, [isOpen]);
 
-  // Debounced search
+  // Stable performSearch: reads everything from refs, so its identity never
+  // changes. Outline mutations no longer trigger a re-shape.
   const performSearch = useCallback((
     term: string,
     scope: 'current' | 'all',
@@ -156,39 +170,47 @@ export default function OutlineSearch({
     content: boolean,
     onlyOpen: boolean
   ) => {
+    const currentOutlineNow = currentOutlineRef.current;
+    const outlinesNow = outlinesRef.current;
+    const onSearchResultsNow = onSearchResultsRef.current;
+    const onApplySearchViewNow = onApplySearchViewRef.current;
+
     if (term.length < 2) {
-      onSearchResults([], term);
+      onSearchResultsNow([], term);
       return;
     }
 
     let matches: SearchMatch[] = [];
 
-    if (scope === 'current' && currentOutline) {
-      matches = searchOutline(currentOutline, term, names, content, onlyOpen);
+    if (scope === 'current' && currentOutlineNow) {
+      matches = searchOutline(currentOutlineNow, term, names, content, onlyOpen);
     } else if (scope === 'all') {
-      outlines.forEach((outline) => {
+      outlinesNow.forEach((outline) => {
         if (!outline.isGuide) {
           // Restrict-to-open only applies meaningfully to the currently visible
           // outline; for cross-outline search we walk every outline fully.
-          const restrict = outline.id === currentOutline?.id ? onlyOpen : false;
+          const restrict = outline.id === currentOutlineNow?.id ? onlyOpen : false;
           matches.push(...searchOutline(outline, term, names, content, restrict));
         }
       });
     }
 
-    onSearchResults(matches, term);
+    onSearchResultsNow(matches, term);
 
     // Reshape the outline tree so matches + ancestors stay expanded; every
     // other branch is collapsed (but every node still renders as a row).
-    if (onApplySearchView && currentOutline) {
+    if (onApplySearchViewNow && currentOutlineNow) {
       const matchedIdsInCurrent = matches
-        .filter(m => m.outlineId === currentOutline.id)
+        .filter(m => m.outlineId === currentOutlineNow.id)
         .map(m => m.nodeId);
-      onApplySearchView(matchedIdsInCurrent);
+      onApplySearchViewNow(matchedIdsInCurrent);
     }
-  }, [currentOutline, outlines, onSearchResults, onApplySearchView]);
+  }, []);
 
-  // Handle search term change with debounce
+  // Handle search term/toggle change with debounce. Deps are ONLY the user
+  // inputs — outline state changes do NOT re-fire the search. This preserves
+  // the 1988 spec: search shapes the tree once per explicit user input; after
+  // that the user can chevron-explore freely without snap-back.
   useEffect(() => {
     if (debounceRef.current) {
       clearTimeout(debounceRef.current);
