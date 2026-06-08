@@ -892,10 +892,9 @@ export default function OutlinePane({
         </div>
 
         {/* Natural-language command bar entry point — kept unobtrusive
-            (same weight as the wrench beside it) so it doesn't overpromise
-            voice. Click opens the Cmd+K palette where the "Ask AI" row
-            appears at the bottom. Voice infrastructure is preserved but
-            opt-in via Settings → Input mode. */}
+            (same weight as the wrench beside it). Click opens the Cmd+K
+            palette where the Quick Command row appears at the bottom.
+            Voice infrastructure is preserved but opt-in via Settings → Input mode. */}
         <TooltipProvider>
             <Tooltip>
                 <TooltipTrigger asChild>
@@ -904,12 +903,12 @@ export default function OutlinePane({
                         size="icon"
                         className="shrink-0 active:scale-95 active:bg-accent/30"
                         onClick={() => onOpenCommandPalette?.()}
-                        aria-label="Ask AI — natural-language command (Cmd+K)"
+                        aria-label="Quick Command — type what you want done (Cmd+K)"
                     >
                         <MessageSquare className="h-4 w-4" />
                     </Button>
                 </TooltipTrigger>
-                <TooltipContent side="bottom">Ask AI (⌘K)</TooltipContent>
+                <TooltipContent side="bottom">Quick Command (⌘K)</TooltipContent>
             </Tooltip>
         </TooltipProvider>
 
@@ -1312,7 +1311,6 @@ export default function OutlinePane({
                 size="icon"
                 onClick={() => onOpenCommandPalette?.()}
                 className="hover:bg-accent/20 active:scale-95 active:bg-accent/30 hidden sm:inline-flex"
-                title="Command palette"
                 aria-label="Command palette"
               >
                 <Command className="h-4 w-4" />
@@ -1330,7 +1328,6 @@ export default function OutlinePane({
                     variant="outline"
                     size="icon"
                     className="text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 active:scale-95 active:bg-accent/30 hidden sm:inline-flex"
-                    title="Second Brain"
                     aria-label="Second Brain menu"
                   >
                     <Brain className="h-4 w-4" />

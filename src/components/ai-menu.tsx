@@ -11,7 +11,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, FileText, Crown, Loader2, Brain, Mic, Languages, WandSparkles, Wand2 } from 'lucide-react';
+import { Sparkles, FileText, Crown, Loader2, Brain, MessageSquare, Languages, WandSparkles, Wand2 } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useAI, useAIFeature } from '@/contexts/ai-context';
 import AiGenerateDialog from './ai-generate-dialog';
 import { fireDiscovery } from '@/hooks/use-discovery';
@@ -70,22 +71,28 @@ export default function AIMenu({
         if (next) fireDiscovery('smart-tools-menu-opened');
       }}
     >
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="outline"
-          size="icon"
-          disabled={disabled || isLoadingAI}
-          className="text-primary hover:bg-primary/20 active:scale-95 active:bg-accent/30"
-          title="Smart Tools"
-          aria-label="Smart Tools menu"
-        >
-          {isLoadingAI ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <Sparkles className="h-4 w-4" />
-          )}
-        </Button>
-      </DropdownMenuTrigger>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                disabled={disabled || isLoadingAI}
+                className="text-primary hover:bg-primary/20 active:scale-95 active:bg-accent/30"
+                aria-label="Smart Tools menu"
+              >
+                {isLoadingAI ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Sparkles className="h-4 w-4" />
+                )}
+              </Button>
+            </DropdownMenuTrigger>
+          </TooltipTrigger>
+          <TooltipContent>Smart Tools</TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel className="flex items-center justify-between">
           <span className="flex items-center gap-2">
@@ -110,7 +117,7 @@ export default function AIMenu({
             onSelect={() => onAskAI()}
             className="cursor-pointer"
           >
-            <Mic className="mr-2 h-4 w-4 text-red-500" />
+            <MessageSquare className="mr-2 h-4 w-4 text-primary" />
             <span className="font-medium">Quick Command</span>
             <span className="ml-auto text-xs tracking-widest text-muted-foreground">⌘K</span>
           </DropdownMenuItem>
