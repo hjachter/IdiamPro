@@ -3097,7 +3097,22 @@ export default function ContentPane({
               <>
                 <BubbleMenu
                   editor={editor}
-                  options={{ placement: 'top' }}
+                  // Responsive placement so the floating format toolbar never
+                  // covers the search bar / search results above the editor on
+                  // narrow viewports. At >=768px the menu anchors above the
+                  // selection (classic behavior). Under 768px it anchors
+                  // BELOW the selection, which keeps it out of the search
+                  // row's horizontal band. `flip: false` prevents Floating UI
+                  // from undoing this by flipping back to 'top' when the
+                  // selection is near the bottom — instead `shift` slides the
+                  // menu horizontally to keep it in viewport. Howard
+                  // 2026-06-08 ("moves to line under the search term").
+                  options={{
+                    placement: isMobile ? 'bottom' : 'top',
+                    flip: false,
+                    shift: { padding: 8 },
+                    offset: 8,
+                  }}
                   // Suppress the BubbleMenu while the outline search input is
                   // focused — otherwise the floating format toolbar covers the
                   // text the user is typing into the search box. Howard
