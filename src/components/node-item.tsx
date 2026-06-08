@@ -357,7 +357,7 @@ export default function NodeItem({
 
   if (!node) return null;
 
-  const isChapter = node.type === 'chapter' || node.type === 'root' || (Array.isArray(node.childrenIds) && node.childrenIds.length > 0);
+  const isChapter = node.type === 'root' || (Array.isArray(node.childrenIds) && node.childrenIds.length > 0);
   const isSelected = selectedNodeId === node.id;
   const isHighlighted = highlightedNodeIds?.has(node.id) ?? false;
   const numbering = node.prefix;
