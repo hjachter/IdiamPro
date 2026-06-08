@@ -1036,14 +1036,14 @@ export default function OutlinePane({
                             </DropdownMenuItem>
                         )}
                         <DropdownMenuItem onSelect={handleImportClick} className="cursor-pointer py-1">
-                            <BookDown className="mr-2 h-4 w-4" /> Import outline
+                            <BookDown className="mr-2 h-4 w-4" /> Import Outline
                         </DropdownMenuItem>
                         <DropdownMenuItem
                             onSelect={onExportOutline}
                             disabled={!currentOutline}
                             className="cursor-pointer py-1"
                         >
-                            <BookUp className="mr-2 h-4 w-4" /> Export outline
+                            <BookUp className="mr-2 h-4 w-4" /> Export Outline
                         </DropdownMenuItem>
                         <DropdownMenuItem
                             onSelect={() => onToggleFocusMode?.()}
@@ -1058,7 +1058,7 @@ export default function OutlinePane({
                             disabled={!currentOutline}
                             className="cursor-pointer py-1"
                         >
-                            <ChevronsDown className="mr-2 h-4 w-4" /> Expand all
+                            <ChevronsDown className="mr-2 h-4 w-4" /> Expand All
                             {!isMobile && <DropdownMenuShortcut>⌘E</DropdownMenuShortcut>}
                         </DropdownMenuItem>
                         <DropdownMenuItem
@@ -1066,7 +1066,7 @@ export default function OutlinePane({
                             disabled={!currentOutline}
                             className="cursor-pointer py-1"
                         >
-                            <ChevronsUp className="mr-2 h-4 w-4" /> Collapse all
+                            <ChevronsUp className="mr-2 h-4 w-4" /> Collapse All
                             {!isMobile && <DropdownMenuShortcut>⌘⇧E</DropdownMenuShortcut>}
                         </DropdownMenuItem>
                         <DropdownMenuItem
@@ -1074,10 +1074,10 @@ export default function OutlinePane({
                             disabled={!selectedNodeId}
                             className="cursor-pointer py-1"
                         >
-                            <Share2 className="mr-2 h-4 w-4" /> Share subtree…
+                            <Share2 className="mr-2 h-4 w-4" /> Share Subtree…
                         </DropdownMenuItem>
                         <DropdownMenuItem onSelect={() => onOpenCommandPalette?.()} className="cursor-pointer py-1">
-                            <Command className="mr-2 h-4 w-4" /> Command palette
+                            <Command className="mr-2 h-4 w-4" /> Command Palette
                             {!isMobile && <DropdownMenuShortcut>⌘K</DropdownMenuShortcut>}
                         </DropdownMenuItem>
                         <DropdownMenuItem onSelect={() => onOpenSecondBrain?.()} className="cursor-pointer py-1">
@@ -1092,7 +1092,7 @@ export default function OutlinePane({
                         </DropdownMenuItem>
                         {onOpenKnowledgeChat && (
                             <DropdownMenuItem onSelect={onOpenKnowledgeChat} className="cursor-pointer py-1">
-                                <Sparkles className="mr-2 h-4 w-4" /> Smart Tools…
+                                <Sparkles className="mr-2 h-4 w-4" /> Ask Your Outlines
                             </DropdownMenuItem>
                         )}
                         <DropdownMenuSeparator />
@@ -1101,7 +1101,7 @@ export default function OutlinePane({
                     {/* Tier 3 — always surfaced in overflow (Settings + Help) */}
                     {onOpenHelp && (
                         <DropdownMenuItem onSelect={onOpenHelp} className="cursor-pointer py-1">
-                            <HelpCircle className="mr-2 h-4 w-4" /> Help & support
+                            <HelpCircle className="mr-2 h-4 w-4" /> Help & Support
                         </DropdownMenuItem>
                     )}
                     <DropdownMenuItem
@@ -1276,7 +1276,7 @@ export default function OutlinePane({
                 disabled={!currentOutline}
                 className="cursor-pointer py-1"
               >
-                <ChevronsDown className="mr-2 h-4 w-4" /> Expand all
+                <ChevronsDown className="mr-2 h-4 w-4" /> Expand All
                 {!isMobile && <DropdownMenuShortcut>⌘E</DropdownMenuShortcut>}
               </DropdownMenuItem>
               <DropdownMenuItem
@@ -1287,7 +1287,7 @@ export default function OutlinePane({
                 disabled={!currentOutline}
                 className="cursor-pointer py-1"
               >
-                <ChevronsUp className="mr-2 h-4 w-4" /> Collapse all
+                <ChevronsUp className="mr-2 h-4 w-4" /> Collapse All
                 {!isMobile && <DropdownMenuShortcut>⌘⇧E</DropdownMenuShortcut>}
               </DropdownMenuItem>
             </DropdownMenuContent>

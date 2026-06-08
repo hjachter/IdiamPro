@@ -3173,6 +3173,12 @@ export default function ContentPane({
                   }}
                   className="flex flex-wrap items-center gap-0.5 rounded-md border bg-popover p-1 shadow-md"
                 >
+                  {/* Every BubbleMenu button is wrapped in a Tooltip so users
+                      learn what each icon does on hover. The BubbleMenu renders
+                      via Floating UI outside the editor toolbar's TooltipProvider,
+                      so it needs its own TooltipProvider wrapper here.
+                      Howard 2026-06-08 (toolbar audit pt 2). */}
+                  <TooltipProvider delayDuration={300}>
                   {/* Reformat with AI lives at the FIRST position and gets
                       the violet accent + "Most Powerful" badge so it's the
                       eye-magnet in the bubble menu. Howard 2026-06-05. */}
@@ -3182,18 +3188,22 @@ export default function ContentPane({
                         className="flex items-center gap-1 pl-0.5 pr-1"
                         data-testid="bubble-reformat-cluster"
                       >
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          aria-label="Reformat with AI"
-                          title="Reformat with AI…"
-                          onClick={handleOpenReformat}
-                          data-testid="bubble-reformat-button"
-                          className="h-9 w-9 rounded-md bg-violet-500/10 ring-1 ring-violet-500/30 text-violet-600 hover:bg-violet-500/20 hover:text-violet-700 dark:text-violet-300 dark:hover:text-violet-200 active:scale-95"
-                        >
-                          <WandSparkles className="h-4 w-4" />
-                        </Button>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              aria-label="Reformat with AI"
+                              onClick={handleOpenReformat}
+                              data-testid="bubble-reformat-button"
+                              className="h-9 w-9 rounded-md bg-violet-500/10 ring-1 ring-violet-500/30 text-violet-600 hover:bg-violet-500/20 hover:text-violet-700 dark:text-violet-300 dark:hover:text-violet-200 active:scale-95"
+                            >
+                              <WandSparkles className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Reformat with AI</TooltipContent>
+                        </Tooltip>
                         <span
                           className="hidden sm:inline-flex items-center rounded-full bg-violet-500/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-violet-600 dark:text-violet-300 ring-1 ring-violet-500/20"
                           aria-hidden="true"
@@ -3204,77 +3214,113 @@ export default function ContentPane({
                       <div className="w-px h-5 bg-border/50 mx-0.5" />
                     </>
                   )}
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    aria-label="Bold"
-                    onClick={() => editor.chain().focus().toggleBold().run()}
-                    className={`h-8 w-8 active:scale-95 active:bg-accent/30 ${editor.isActive('bold') ? 'bg-accent' : ''}`}
-                  >
-                    <Bold className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    aria-label="Italic"
-                    onClick={() => editor.chain().focus().toggleItalic().run()}
-                    className={`h-8 w-8 active:scale-95 active:bg-accent/30 ${editor.isActive('italic') ? 'bg-accent' : ''}`}
-                  >
-                    <Italic className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    aria-label="Strikethrough"
-                    onClick={() => editor.chain().focus().toggleStrike().run()}
-                    className={`h-8 w-8 active:scale-95 active:bg-accent/30 ${editor.isActive('strike') ? 'bg-accent' : ''}`}
-                  >
-                    <Strikethrough className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    aria-label="Inline code"
-                    onClick={() => editor.chain().focus().toggleCode().run()}
-                    className={`h-8 w-8 active:scale-95 active:bg-accent/30 ${editor.isActive('code') ? 'bg-accent' : ''}`}
-                  >
-                    <Code className="h-4 w-4" />
-                  </Button>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        aria-label="Bold"
+                        onClick={() => editor.chain().focus().toggleBold().run()}
+                        className={`h-8 w-8 active:scale-95 active:bg-accent/30 ${editor.isActive('bold') ? 'bg-accent' : ''}`}
+                      >
+                        <Bold className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Bold (⌘B)</TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        aria-label="Italic"
+                        onClick={() => editor.chain().focus().toggleItalic().run()}
+                        className={`h-8 w-8 active:scale-95 active:bg-accent/30 ${editor.isActive('italic') ? 'bg-accent' : ''}`}
+                      >
+                        <Italic className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Italic (⌘I)</TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        aria-label="Strikethrough"
+                        onClick={() => editor.chain().focus().toggleStrike().run()}
+                        className={`h-8 w-8 active:scale-95 active:bg-accent/30 ${editor.isActive('strike') ? 'bg-accent' : ''}`}
+                      >
+                        <Strikethrough className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Strikethrough</TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        aria-label="Inline code"
+                        onClick={() => editor.chain().focus().toggleCode().run()}
+                        className={`h-8 w-8 active:scale-95 active:bg-accent/30 ${editor.isActive('code') ? 'bg-accent' : ''}`}
+                      >
+                        <Code className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Inline code</TooltipContent>
+                  </Tooltip>
                   <div className="w-px h-5 bg-border/50 mx-0.5" />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    aria-label="Heading 1"
-                    onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-                    className={`h-8 w-8 active:scale-95 active:bg-accent/30 ${editor.isActive('heading', { level: 1 }) ? 'bg-accent' : ''}`}
-                  >
-                    <Heading1 className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    aria-label="Heading 2"
-                    onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-                    className={`h-8 w-8 active:scale-95 active:bg-accent/30 ${editor.isActive('heading', { level: 2 }) ? 'bg-accent' : ''}`}
-                  >
-                    <Heading2 className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    aria-label="Heading 3"
-                    onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-                    className={`h-8 w-8 active:scale-95 active:bg-accent/30 ${editor.isActive('heading', { level: 3 }) ? 'bg-accent' : ''}`}
-                  >
-                    <Heading3 className="h-4 w-4" />
-                  </Button>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        aria-label="Heading 1"
+                        onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+                        className={`h-8 w-8 active:scale-95 active:bg-accent/30 ${editor.isActive('heading', { level: 1 }) ? 'bg-accent' : ''}`}
+                      >
+                        <Heading1 className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Heading 1</TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        aria-label="Heading 2"
+                        onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+                        className={`h-8 w-8 active:scale-95 active:bg-accent/30 ${editor.isActive('heading', { level: 2 }) ? 'bg-accent' : ''}`}
+                      >
+                        <Heading2 className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Heading 2</TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        aria-label="Heading 3"
+                        onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+                        className={`h-8 w-8 active:scale-95 active:bg-accent/30 ${editor.isActive('heading', { level: 3 }) ? 'bg-accent' : ''}`}
+                      >
+                        <Heading3 className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Heading 3</TooltipContent>
+                  </Tooltip>
+                  </TooltipProvider>
                 </BubbleMenu>
                 <EditorContent editor={editor} />
               </>
