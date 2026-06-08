@@ -262,8 +262,8 @@ export default function OutlineSearch({
 
   return (
     <div className="flex-shrink-0 px-2 py-2 bg-background border-b">
-      <div className="flex items-center gap-1">
-        <div className="relative flex-1">
+      <div className="flex flex-wrap items-center gap-1">
+        <div className="relative flex-1 min-w-[140px]">
           <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             ref={inputRef}
@@ -376,35 +376,44 @@ export default function OutlineSearch({
             </TooltipContent>
           </Tooltip>
 
-          {/* Navigation buttons */}
+          {/* Navigation buttons.
+              NOTE: disabled native buttons swallow pointer events, which
+              prevents Radix Tooltip from ever showing. We wrap each disabled-
+              capable trigger in a focusable span so hover/focus is captured
+              by the span and the tooltip renders even when the button itself
+              is disabled (i.e. no matches yet). */}
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-8 w-8"
-                onClick={onPrevMatch}
-                disabled={totalMatches === 0}
-                aria-label="Previous match"
-              >
-                <ChevronUp className="h-4 w-4" />
-              </Button>
+              <span tabIndex={0} className="inline-flex">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={onPrevMatch}
+                  disabled={totalMatches === 0}
+                  aria-label="Previous match"
+                >
+                  <ChevronUp className="h-4 w-4" />
+                </Button>
+              </span>
             </TooltipTrigger>
             <TooltipContent>Previous match (Shift+Enter)</TooltipContent>
           </Tooltip>
 
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-8 w-8"
-                onClick={onNextMatch}
-                disabled={totalMatches === 0}
-                aria-label="Next match"
-              >
-                <ChevronDown className="h-4 w-4" />
-              </Button>
+              <span tabIndex={0} className="inline-flex">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={onNextMatch}
+                  disabled={totalMatches === 0}
+                  aria-label="Next match"
+                >
+                  <ChevronDown className="h-4 w-4" />
+                </Button>
+              </span>
             </TooltipTrigger>
             <TooltipContent>Next match (Enter)</TooltipContent>
           </Tooltip>
@@ -412,19 +421,21 @@ export default function OutlineSearch({
           {/* Clear highlights button */}
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8"
-                onClick={() => {
-                  onClear();
-                  onClose();
-                }}
-                disabled={totalMatches === 0}
-                aria-label="Clear highlights and close search"
-              >
-                <Eraser className="h-4 w-4" />
-              </Button>
+              <span tabIndex={0} className="inline-flex">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => {
+                    onClear();
+                    onClose();
+                  }}
+                  disabled={totalMatches === 0}
+                  aria-label="Clear highlights and close search"
+                >
+                  <Eraser className="h-4 w-4" />
+                </Button>
+              </span>
             </TooltipTrigger>
             <TooltipContent>Clear highlights and close search</TooltipContent>
           </Tooltip>
