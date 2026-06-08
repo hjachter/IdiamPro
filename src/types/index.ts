@@ -142,19 +142,6 @@ export interface Outline {
   isGuide?: boolean;
   isSecondBrain?: boolean; // Reserved single outline — the user's personal knowledge base
   lastModified?: number; // Unix timestamp
-
-  // Search-as-view-shaper filter (2026-06-07):
-  // When a search runs, every node that is NOT a match and NOT an ancestor of a
-  // match is added here. The tree renderer skips these nodes (and their entire
-  // subtrees) so only matches + their ancestor chains stay visible. Cleared by:
-  // a new search, Expand All, Collapse All, or the user clicking Clear on the
-  // status chip. Preserved by: chevron toggles on visible nodes, edits, renames,
-  // drag-reorders, copy/paste. Optional + backward-compatible — outlines saved
-  // before this feature simply omit the field and load fine.
-  searchHiddenNodeIds?: string[];
-  // The search term that produced the current filter, shown in the status chip.
-  // Set alongside searchHiddenNodeIds; cleared when the filter clears.
-  searchFilterTerm?: string;
 }
 
 export interface OutlineTemplate {

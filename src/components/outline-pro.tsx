@@ -1498,10 +1498,7 @@ export default function OutlinePro() {
               newNodes[id] = { ...node, isCollapsed: true };
             }
           }
-          // Collapse All clears the search filter (per spec).
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { searchHiddenNodeIds, searchFilterTerm, ...rest } = o;
-          return { ...rest, nodes: newNodes };
+          return { ...o, nodes: newNodes };
         }
         return o;
       });
@@ -1526,10 +1523,7 @@ export default function OutlinePro() {
               newNodes[id] = { ...node, isCollapsed: false };
             }
           }
-          // Expand All clears the search filter (per spec).
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { searchHiddenNodeIds, searchFilterTerm, ...rest } = o;
-          return { ...rest, nodes: newNodes };
+          return { ...o, nodes: newNodes };
         }
         return o;
       });
@@ -1537,43 +1531,20 @@ export default function OutlinePro() {
 
   }, [currentOutlineId, selectedNodeId, collectDescendantIds]);
 
-  // Reshape the current outline so that ONLY matches and their ancestors stay
-  // expanded AND visible; every non-match, non-ancestor node is added to the
-  // `searchHiddenNodeIds` set and the tree renderer skips it entirely.
+  // Reshape the current outline by COLLAPSING non-matching branches.
+  // Search is "compress, don't hide": every node remains a visible row in the
+  // tree, but everything that isn't a match or an ancestor of a match has its
+  // children folded away. The user can chevron-open any branch at any time to
+  // explore — search never removes a row, it just reshapes what's expanded.
   //
-  // This is the "search-as-view-shaper" behaviour: the search result is the
-  // outline state itself, not a transient overlay. It persists after the
-  // search input closes and survives until the next user op changes the tree.
-  //
-  // - The match itself keeps its existing isCollapsed state (so the user's
-  //   manual expand/collapse of a matched subtree isn't clobbered).
-  // - Ancestors of matches are forced expanded.
-  // - All other nodes are added to searchHiddenNodeIds so they're not rendered
-  //   as rows at all (this is the difference from yesterday's shaper, which
-  //   only collapsed them — siblings of matches still appeared as rows).
-  // - If matchedNodeIds is empty AND a searchTerm is provided, the filter is
-  //   cleared (e.g. the user cleared the input or got zero matches).
-  // - If matchedNodeIds is empty and no searchTerm, the tree is left alone.
+  // - Matches + ancestors of matches: isCollapsed=false (so their subtrees
+  //   render through).
+  // - Every other node: isCollapsed=true (its children hide, but it itself
+  //   still renders as a row, controlled by its parent's expanded state).
+  // - If matchedNodeIds is empty, the tree is left alone (no reshape).
   const handleApplySearchView = useCallback((
     matchedNodeIds: string[],
-    options?: { searchTerm?: string }
   ) => {
-    const term = options?.searchTerm ?? '';
-
-    // Empty-term clear: explicitly drop any existing filter.
-    if (matchedNodeIds.length === 0 && term === '') {
-      setOutlines(currentOutlines => {
-        return currentOutlines.map(o => {
-          if (o.id !== currentOutlineId) return o;
-          if (!o.searchHiddenNodeIds && !o.searchFilterTerm) return o;
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { searchHiddenNodeIds, searchFilterTerm, ...rest } = o;
-          return { ...rest };
-        });
-      });
-      return;
-    }
-
     if (matchedNodeIds.length === 0) return;
 
     setOutlines(currentOutlines => {
@@ -1594,63 +1565,30 @@ export default function OutlinePro() {
           }
         }
 
-        // Pass 2: build new node map AND compute the hidden set.
-        // - Matches: keep current isCollapsed state (per spec).
-        // - Ancestors: force-expanded.
-        // - Everything else: add to hiddenIds (renderer will skip it).
+        // Pass 2: matches + ancestors get expanded, everything else collapsed.
+        // The root is always treated as expanded so its children can render.
         const newNodes = { ...o.nodes };
-        const hiddenIds: string[] = [];
         let mutated = false;
         for (const id of Object.keys(newNodes)) {
           const node = newNodes[id];
           if (!node) continue;
-          if (matchedSet.has(id)) {
-            continue;
-          }
-          if (ancestorSet.has(id)) {
+          const shouldExpand =
+            matchedSet.has(id) || ancestorSet.has(id) || id === o.rootNodeId;
+          if (shouldExpand) {
             if (node.isCollapsed) {
               newNodes[id] = { ...node, isCollapsed: false };
               mutated = true;
             }
-            continue;
+          } else {
+            if (!node.isCollapsed && node.childrenIds.length > 0) {
+              newNodes[id] = { ...node, isCollapsed: true };
+              mutated = true;
+            }
           }
-          // Always the root stays visible (it's never hidden). The root is
-          // typically also an ancestor of all matches, so this is belt-and-
-          // suspenders.
-          if (id === o.rootNodeId) continue;
-          hiddenIds.push(id);
         }
 
-        const prevHidden = o.searchHiddenNodeIds ?? [];
-        const hiddenChanged =
-          prevHidden.length !== hiddenIds.length ||
-          hiddenIds.some((id, i) => prevHidden[i] !== id);
-        const termChanged = (o.searchFilterTerm ?? '') !== term;
-
-        if (!mutated && !hiddenChanged && !termChanged) return o;
-
-        return {
-          ...o,
-          nodes: mutated ? newNodes : o.nodes,
-          searchHiddenNodeIds: hiddenIds,
-          searchFilterTerm: term,
-        };
-      });
-    });
-  }, [currentOutlineId]);
-
-  // Clear the search filter (called by the status chip's Clear button and by
-  // Expand All / Collapse All). Removes searchHiddenNodeIds and searchFilterTerm
-  // from the current outline; leaves the actual node tree (and isCollapsed
-  // states) untouched.
-  const handleClearSearchFilter = useCallback(() => {
-    setOutlines(currentOutlines => {
-      return currentOutlines.map(o => {
-        if (o.id !== currentOutlineId) return o;
-        if (!o.searchHiddenNodeIds && !o.searchFilterTerm) return o;
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { searchHiddenNodeIds, searchFilterTerm, ...rest } = o;
-        return { ...rest };
+        if (!mutated) return o;
+        return { ...o, nodes: newNodes };
       });
     });
   }, [currentOutlineId]);
@@ -4511,7 +4449,6 @@ export default function OutlinePro() {
                 onExpandAll={handleExpandAll}
                 onExpandAncestors={handleExpandAncestors}
                 onApplySearchView={handleApplySearchView}
-                onClearSearchFilter={handleClearSearchFilter}
                 onCreateNode={handleCreateNode}
                 onDeleteNode={handleDeleteNode}
                 onGenerateOutline={handleGenerateOutline}
@@ -4994,7 +4931,6 @@ export default function OutlinePro() {
                 onExpandAll={handleExpandAll}
                 onExpandAncestors={handleExpandAncestors}
                 onApplySearchView={handleApplySearchView}
-                onClearSearchFilter={handleClearSearchFilter}
                 onCreateNode={handleCreateNode}
                 onDeleteNode={handleDeleteNode}
                 onGenerateOutline={handleGenerateOutline}
