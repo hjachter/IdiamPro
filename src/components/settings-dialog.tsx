@@ -22,7 +22,6 @@ import { exportAllUserData, deleteAllUserData, inspectUserDataScope } from '@/li
 import { useTheme } from 'next-themes';
 import { Badge } from '@/components/ui/badge';
 import { useAI } from '@/contexts/ai-context';
-import AIPlanDialog from './ai-plan-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useDiscovery, fireDiscovery } from '@/hooks/use-discovery';
 import { storeDirectoryHandle, getDirectoryHandle, verifyDirectoryPermission } from '@/lib/file-storage';
@@ -684,18 +683,13 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
                 See plans
               </Button>
             )}
-            <AIPlanDialog>
-              <Button variant="ghost" size="sm" className="w-full">
-                Legacy plan info
-              </Button>
-            </AIPlanDialog>
           </div>
 
-          {/* AI Depth Section */}
+          {/* Answer quality Section */}
           <div className="space-y-3">
-            <h3 className="text-sm font-medium">AI Reasoning Depth</h3>
+            <h3 className="text-sm font-medium">Answer quality</h3>
             <p className="text-xs text-muted-foreground">
-              Controls how thoroughly AI analyzes and responds. Can be overridden per-request.
+              Choose how thorough AI responses should be. Can be overridden per-request.
             </p>
             <Select value={aiDepth} onValueChange={handleAiDepthChange}>
               <SelectTrigger>
@@ -720,7 +714,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
             <h3 className="text-sm font-medium">Preferences</h3>
             <div className="flex items-center justify-between">
               <Label htmlFor="confirm-delete" className="text-sm">
-                Confirm before deleting nodes
+                Confirm before deleting items
               </Label>
               <Switch
                 id="confirm-delete"
@@ -729,7 +723,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
               />
             </div>
             <p className="text-xs text-muted-foreground">
-              Show confirmation dialog when deleting nodes or branches
+              Show confirmation dialog when deleting items or branches
             </p>
           </div>
 

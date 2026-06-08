@@ -183,7 +183,7 @@ export default function LiveBooksDialog({
         onApply(nodes);
         toast({
           title: 'Refresh from Web — auto-applied',
-          description: `${appliedCount} node${appliedCount === 1 ? '' : 's'} refreshed and applied automatically.`,
+          description: `${appliedCount} item${appliedCount === 1 ? '' : 's'} refreshed and applied automatically.`,
         });
         onOpenChange(false);
         return;
@@ -214,7 +214,7 @@ export default function LiveBooksDialog({
     setIncludeUserEdited(prev => new Set(prev).add(nodeId));
     toast({
       title: 'Will include on next run',
-      description: 'Re-run the refresh to update this user-edited node.',
+      description: 'Re-run the refresh to update this user-edited item.',
     });
   };
 
@@ -228,14 +228,14 @@ export default function LiveBooksDialog({
     if (appliedCount === 0) {
       toast({
         title: 'Nothing applied',
-        description: 'No nodes were approved.',
+        description: 'No items were approved.',
       });
       return;
     }
     onApply(nodes);
     toast({
       title: 'Refresh from Web applied',
-      description: `${appliedCount} node${appliedCount === 1 ? '' : 's'} refreshed.`,
+      description: `${appliedCount} item${appliedCount === 1 ? '' : 's'} refreshed.`,
     });
     onOpenChange(false);
   };

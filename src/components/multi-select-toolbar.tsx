@@ -49,7 +49,7 @@ export function MultiSelectToolbar({
     <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50">
       <div className="bg-card border rounded-lg shadow-lg px-4 py-3 flex items-center gap-3">
         <span className="text-sm font-medium">
-          {selectedCount} node{selectedCount > 1 ? 's' : ''} selected
+          {selectedCount} item{selectedCount > 1 ? 's' : ''} selected
         </span>
 
         <div className="h-6 w-px bg-border" />

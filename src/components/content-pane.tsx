@@ -1348,7 +1348,7 @@ export default function ContentPane({
     setCustomPrompt('');
     setPromptDialogOpen(false);
     toast({
-      title: "Saved to Node",
+      title: "Saved to Item",
       description: "AI response added to content.",
     });
   };
@@ -1784,7 +1784,7 @@ export default function ContentPane({
     onUpdate(node.id, { type: 'canvas', content: '' });
     toast({
       title: "Switched to Canvas",
-      description: "This node is now a freeform canvas. Draw, add text, and arrange content freely!",
+      description: "This item is now a freeform canvas. Draw, add text, and arrange content freely!",
       duration: 3000,
     });
   };
@@ -1795,7 +1795,7 @@ export default function ContentPane({
     onUpdate(node.id, { type: 'document', content: '' });
     toast({
       title: "Switched to Text",
-      description: "This node is now a text document.",
+      description: "This item is now a text document.",
       duration: 2000,
     });
   };
@@ -1806,7 +1806,7 @@ export default function ContentPane({
     onUpdate(node.id, { type: 'spreadsheet', content: '' });
     toast({
       title: "Switched to Spreadsheet",
-      description: "This node is now an inline spreadsheet. Add data, formulas, and more!",
+      description: "This item is now an inline spreadsheet. Add data, formulas, and more!",
       duration: 3000,
     });
   };
@@ -2088,7 +2088,7 @@ export default function ContentPane({
     return (
       <div className="flex h-full flex-col items-center justify-center p-4 text-center bg-background">
         <NodeIcon type="document" className="w-16 h-16 mb-4 text-muted-foreground" />
-        <h2 className="text-xl font-semibold text-muted-foreground">Select a node</h2>
+        <h2 className="text-xl font-semibold text-muted-foreground">Select an item</h2>
         <p className="text-muted-foreground">Choose an item from the left panel to view or edit its content.</p>
       </div>
     );

@@ -966,7 +966,7 @@ export default function OutlinePro() {
 
       toast({
         title: "Import Recovered!",
-        description: `"${recoveredOutline.name}" (${Object.keys(recoveredOutline.nodes).length - 1} nodes) has been recovered and saved.`,
+        description: `"${recoveredOutline.name}" (${Object.keys(recoveredOutline.nodes).length - 1} items) has been recovered and saved.`,
         duration: 8000,
       });
 
@@ -1715,11 +1715,11 @@ export default function OutlinePro() {
         case 'delete_node': {
           const id = resolveNodeHint(a.node_hint);
           if (!id) {
-            toast({ title: "I'm not sure", description: `I couldn't find a node matching "${a.node_hint}". Want to try the exact name, or use the outline to point at it?`, duration: AI_PERSIST });
+            toast({ title: "I'm not sure", description: `I couldn't find an item matching "${a.node_hint}". Want to try the exact name, or use the outline to point at it?`, duration: AI_PERSIST });
             break;
           }
           handleDeleteNode(id);
-          toast({ title: 'AI command', description: 'I deleted that node for you.', duration: AI_PERSIST });
+          toast({ title: 'AI command', description: 'I deleted that item for you.', duration: AI_PERSIST });
           break;
         }
         case 'unknown':
@@ -2354,7 +2354,7 @@ export default function OutlinePro() {
 
       toast({
         title: "Branch Generated",
-        description: `AI-generated branch for "${topic}" added under the selected node.`,
+        description: `AI-generated branch for "${topic}" added under the selected item.`,
       });
     } catch (e) {
       toast({
@@ -2463,7 +2463,7 @@ export default function OutlinePro() {
     if (!parentNode || !parentNode.childrenIds || parentNode.childrenIds.length === 0) {
       toast({
         title: "No Descendants",
-        description: "This node has no descendants to generate content for.",
+        description: "This item has no descendants to generate content for.",
       });
       return;
     }
@@ -2488,7 +2488,7 @@ export default function OutlinePro() {
     if (totalDescendants === 0) {
       toast({
         title: "No Descendants",
-        description: "This node has no descendants to generate content for.",
+        description: "This item has no descendants to generate content for.",
       });
       return;
     }
@@ -2657,7 +2657,7 @@ export default function OutlinePro() {
     if (preview.nodesToAdd.length === 0) {
       toast({
         title: "No Changes",
-        description: "No new nodes to add.",
+        description: "No new items to add.",
       });
       return;
     }
@@ -2702,7 +2702,7 @@ export default function OutlinePro() {
 
     toast({
       title: "Content Added",
-      description: `Added ${preview.nodesToAdd.length} new nodes to your outline.`,
+      description: `Added ${preview.nodesToAdd.length} new items to your outline.`,
     });
   }, [currentOutlineId, toast]);
 
@@ -3284,7 +3284,7 @@ export default function OutlinePro() {
         setTimeout(() => {
           setSelectedNodeId(newRootId);
           toast({
-            title: "Node Duplicated",
+            title: "Item Duplicated",
             description: `"${duplicatedRoot.name}" has been duplicated.`,
           });
         }, 0);
@@ -3354,7 +3354,7 @@ export default function OutlinePro() {
 
     toast({
       title: "Branch Cut",
-      description: `"${outline.nodes[nodeId].name}" ready to move. Select a target node and paste.`,
+      description: `"${outline.nodes[nodeId].name}" ready to move. Select a target item and paste.`,
     });
   }, [currentOutlineId, outlines, collectSubtree, toast]);
 
@@ -3568,7 +3568,7 @@ export default function OutlinePro() {
     }
 
     const nodeCount = selectedNodeIds.size;
-    const confirm = window.confirm(`Delete ${nodeCount} selected node${nodeCount > 1 ? 's' : ''}? This will also delete all their children.`);
+    const confirm = window.confirm(`Delete ${nodeCount} selected item${nodeCount > 1 ? 's' : ''}? This will also delete all their children.`);
     if (!confirm) return;
 
     setOutlines(currentOutlines => {
@@ -3590,8 +3590,8 @@ export default function OutlinePro() {
     setSelectedNodeIds(new Set());
     setLastSelectedNodeId(null);
     toast({
-      title: "Nodes Deleted",
-      description: `Deleted ${nodeCount} node${nodeCount > 1 ? 's' : ''}.`,
+      title: "Items Deleted",
+      description: `Deleted ${nodeCount} item${nodeCount > 1 ? 's' : ''}.`,
     });
   }, [selectedNodeIds, currentOutlineId, currentOutline, toast]);
 
@@ -3625,7 +3625,7 @@ export default function OutlinePro() {
 
     toast({
       title: "Color Updated",
-      description: `Updated color for ${selectedNodeIds.size} node${selectedNodeIds.size > 1 ? 's' : ''}.`,
+      description: `Updated color for ${selectedNodeIds.size} item${selectedNodeIds.size > 1 ? 's' : ''}.`,
     });
   }, [selectedNodeIds, currentOutlineId, currentOutline, toast]);
 
@@ -3662,7 +3662,7 @@ export default function OutlinePro() {
 
     toast({
       title: "Tag Added",
-      description: `Added "${tag}" to ${selectedNodeIds.size} node${selectedNodeIds.size > 1 ? 's' : ''}.`,
+      description: `Added "${tag}" to ${selectedNodeIds.size} item${selectedNodeIds.size > 1 ? 's' : ''}.`,
     });
   }, [selectedNodeIds, currentOutlineId, currentOutline, toast]);
 
@@ -3679,7 +3679,7 @@ export default function OutlinePro() {
 
     // Don't save from Second Brain into itself
     if (sourceOutline.isSecondBrain) {
-      toast({ title: "Already in Second Brain", description: "This node is already in your Second Brain." });
+      toast({ title: "Already in Second Brain", description: "This item is already in your Second Brain." });
       return;
     }
 
@@ -3735,7 +3735,7 @@ export default function OutlinePro() {
     const childCount = Object.keys(subtreeNodes).length - 1;
     toast({
       title: "Saved to Second Brain",
-      description: `"${nodeName}"${childCount > 0 ? ` and ${childCount} child node${childCount === 1 ? '' : 's'}` : ''} added to your Second Brain.`,
+      description: `"${nodeName}"${childCount > 0 ? ` and ${childCount} child item${childCount === 1 ? '' : 's'}` : ''} added to your Second Brain.`,
     });
 
     // Fire-and-forget auto-tagging on the subtree-root node copy
@@ -4037,7 +4037,7 @@ export default function OutlinePro() {
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '6px' }}>
                 <span style={{ color: '#666' }}>Level {loadingOutlineInfo.currentLevel || 0} / {loadingOutlineInfo.totalLevels || 0}</span>
-                <span style={{ fontWeight: 500, color: '#111' }}>{(loadingOutlineInfo.nodesLoaded || 0).toLocaleString()} / {loadingOutlineInfo.totalNodes.toLocaleString()} nodes</span>
+                <span style={{ fontWeight: 500, color: '#111' }}>{(loadingOutlineInfo.nodesLoaded || 0).toLocaleString()} / {loadingOutlineInfo.totalNodes.toLocaleString()} items</span>
               </div>
               <div style={{ height: '10px', backgroundColor: '#e5e7eb', borderRadius: '5px', overflow: 'hidden' }}>
                 <div style={{
@@ -4303,9 +4303,9 @@ export default function OutlinePro() {
         <AlertDialog open={prefixDialogState.open} onOpenChange={(open) => setPrefixDialogState(s => ({ ...s, open }))}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Node Prefix</AlertDialogTitle>
+              <AlertDialogTitle>Item Prefix</AlertDialogTitle>
               <AlertDialogDescription>
-                The numeric prefix for the node "<strong>{prefixDialogState.nodeName}</strong>" is: <strong>{prefixDialogState.prefix}</strong>
+                The numeric prefix for the item "<strong>{prefixDialogState.nodeName}</strong>" is: <strong>{prefixDialogState.prefix}</strong>
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
@@ -4758,9 +4758,9 @@ export default function OutlinePro() {
       <AlertDialog open={prefixDialogState.open} onOpenChange={(open) => setPrefixDialogState(s => ({ ...s, open }))}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Node Prefix</AlertDialogTitle>
+            <AlertDialogTitle>Item Prefix</AlertDialogTitle>
             <AlertDialogDescription>
-              The numeric prefix for the node "<strong>{prefixDialogState.nodeName}</strong>" is: <strong>{prefixDialogState.prefix}</strong>
+              The numeric prefix for the item "<strong>{prefixDialogState.nodeName}</strong>" is: <strong>{prefixDialogState.prefix}</strong>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

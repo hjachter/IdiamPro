@@ -324,13 +324,13 @@ export default function OutlineSearch({
                   if (searchNames && !searchContent) return;
                   setSearchNames(prev => !prev);
                 }}
-                aria-label="Search node names"
+                aria-label="Search item names"
                 aria-pressed={searchNames}
               >
                 <AlignLeft className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>{searchNames ? 'Searching node names' : 'Not searching node names'}</TooltipContent>
+            <TooltipContent>{searchNames ? 'Searching item names' : 'Not searching item names'}</TooltipContent>
           </Tooltip>
 
           {/* Search content toggle */}
@@ -345,7 +345,7 @@ export default function OutlineSearch({
                   if (searchContent && !searchNames) return;
                   setSearchContent(prev => !prev);
                 }}
-                aria-label="Search node content"
+                aria-label="Search item content"
                 aria-pressed={searchContent}
               >
                 <Type className="h-4 w-4" />
@@ -362,7 +362,7 @@ export default function OutlineSearch({
                 size="icon"
                 className={`h-8 w-8 ${!restrictToOpen ? 'hover:bg-background opacity-50 hover:opacity-70' : ''}`}
                 onClick={() => setRestrictToOpen(prev => !prev)}
-                aria-label="Search only open nodes"
+                aria-label="Search only open items"
                 aria-pressed={restrictToOpen}
                 data-testid="search-restrict-to-open"
               >

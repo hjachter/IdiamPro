@@ -724,7 +724,7 @@ export default function NodeItem({
                                     type="button"
                                     onClick={(e) => e.stopPropagation()}
                                     className="inline-flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground rounded px-1 py-0.5 border border-border/50 shrink-0"
-                                    title="Show how this node was refreshed and its sources"
+                                    title="Show how this item was refreshed and its sources"
                                 >
                                     <Globe className="h-2.5 w-2.5" />
                                     {node.metadata.transform.citations.length > 0
@@ -780,7 +780,7 @@ export default function NodeItem({
             {!isRoot && onCreateNode && (
               <ContextMenuItem onClick={(e) => { e.stopPropagation(); onCreateNode(); }}>
                 <Plus className="mr-2 h-4 w-4" />
-                Add Sibling Node
+                Add Sibling Item
                 <ContextMenuShortcut>Enter</ContextMenuShortcut>
               </ContextMenuItem>
             )}
@@ -795,7 +795,7 @@ export default function NodeItem({
             {!isReadOnly && (
               <ContextMenuItem onClick={(e) => { e.stopPropagation(); setIsEditing(true); }}>
                 <Edit3 className="mr-2 h-4 w-4" />
-                Rename Node
+                Rename Item
                 <ContextMenuShortcut>↵</ContextMenuShortcut>
               </ContextMenuItem>
             )}
@@ -891,7 +891,7 @@ export default function NodeItem({
                   className="text-destructive focus:text-destructive"
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
-                  Delete Node
+                  Delete Item
                   <ContextMenuShortcut>Del</ContextMenuShortcut>
                 </ContextMenuItem>
               </>

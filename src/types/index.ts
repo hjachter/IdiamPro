@@ -235,17 +235,17 @@ export const AI_LEVEL_CONFIG: Record<AILevel, { label: string; description: stri
 export const AI_DEPTH_CONFIG: Record<AIDepth, { label: string; description: string; icon: string }> = {
   quick: {
     label: 'Quick',
-    description: 'Fast, surface-level response',
+    description: 'Fast and concise',
     icon: '⚡',
   },
   standard: {
     label: 'Standard',
-    description: 'Balanced depth and speed',
+    description: 'Balanced quality and speed',
     icon: '⚖️',
   },
   deep: {
-    label: 'Deep',
-    description: 'Thorough analysis with extended reasoning',
+    label: 'Thorough',
+    description: 'Slower but more complete',
     icon: '🧠',
   },
 };

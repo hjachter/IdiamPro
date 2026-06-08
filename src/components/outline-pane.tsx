@@ -957,7 +957,7 @@ export default function OutlinePane({
                             onSelect={onOpenLiveBooks}
                             disabled={!selectedNodeId || currentOutline?.isGuide}
                             className="cursor-pointer py-1"
-                            title={currentOutline?.isGuide ? 'User Guide is read-only' : (selectedNodeId ? 'Refresh selected node and its children against the latest web information' : 'Select a node first')}
+                            title={currentOutline?.isGuide ? 'User Guide is read-only' : (selectedNodeId ? 'Refresh selected item and its children against the latest web information' : 'Select an item first')}
                         >
                             <RefreshCw className="mr-2 h-4 w-4" /> Refresh from Web
                         </DropdownMenuItem>
@@ -990,7 +990,7 @@ export default function OutlinePane({
                         onSelect={() => { if (selectedNodeId) onExportSubtree?.(selectedNodeId); }}
                         disabled={!selectedNodeId}
                         className="cursor-pointer py-1"
-                        title={selectedNodeId ? undefined : 'Select a node first'}
+                        title={selectedNodeId ? undefined : 'Select an item first'}
                     >
                         <Share2 className="mr-2 h-4 w-4" /> Share Branch as&hellip;
                     </DropdownMenuItem>
@@ -1151,12 +1151,12 @@ export default function OutlinePane({
           <Tooltip>
             <TooltipTrigger asChild>
               <span tabIndex={-1} className="inline-flex">
-                <Button variant="outline" size="icon" onClick={() => onCreateNode()} disabled={!selectedNodeId || currentOutline?.isGuide} className="hover:bg-accent/20" aria-label="Add sibling node">
+                <Button variant="outline" size="icon" onClick={() => onCreateNode()} disabled={!selectedNodeId || currentOutline?.isGuide} className="hover:bg-accent/20" aria-label="Add sibling item">
                   <Plus className="h-4 w-4" />
                 </Button>
               </span>
             </TooltipTrigger>
-            <TooltipContent>{currentOutline?.isGuide ? 'Cannot modify User Guide' : (!selectedNodeId ? 'Add sibling node — select a node first' : 'Add sibling node')}</TooltipContent>
+            <TooltipContent>{currentOutline?.isGuide ? 'Cannot modify User Guide' : (!selectedNodeId ? 'Add sibling item — select an item first' : 'Add sibling item')}</TooltipContent>
           </Tooltip>
 
           <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
@@ -1168,7 +1168,7 @@ export default function OutlinePane({
                     size="icon"
                     disabled={!selectedNodeId || isSelectedNodeRoot || currentOutline?.isGuide}
                     className="text-destructive hover:bg-destructive/20"
-                    aria-label="Delete node"
+                    aria-label="Delete item"
                     onClick={() => {
                       if (currentOutline?.isGuide) return;
                       const confirmDelete = localStorage.getItem('confirmDelete') !== 'false';
@@ -1183,11 +1183,11 @@ export default function OutlinePane({
                   </Button>
                 </span>
               </TooltipTrigger>
-              <TooltipContent>{currentOutline?.isGuide ? 'Cannot modify User Guide' : (!selectedNodeId ? 'Delete node — select a node first' : (isSelectedNodeRoot ? 'Delete node — cannot delete the root node' : 'Delete node'))}</TooltipContent>
+              <TooltipContent>{currentOutline?.isGuide ? 'Cannot modify User Guide' : (!selectedNodeId ? 'Delete item — select an item first' : (isSelectedNodeRoot ? 'Delete item — cannot delete the root item' : 'Delete item'))}</TooltipContent>
             </Tooltip>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Delete Node?</AlertDialogTitle>
+                <AlertDialogTitle>Delete Item?</AlertDialogTitle>
                 <AlertDialogDescription>
                   This will permanently delete "{selectedNode ? (selectedNode as OutlineNode).name : ''}" and all its children.
                 </AlertDialogDescription>
@@ -1258,14 +1258,14 @@ export default function OutlinePane({
                       size="icon"
                       disabled={!currentOutline}
                       className="hover:bg-accent/20 shrink-0 active:scale-95 active:bg-accent/30"
-                      aria-label="Show or hide all nodes"
+                      aria-label="Show or hide all items"
                     >
                       <ChevronsDownUp className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
                 </span>
               </TooltipTrigger>
-              <TooltipContent>{!currentOutline ? 'Show or hide all nodes — open an outline first' : 'Show or hide all nodes'}</TooltipContent>
+              <TooltipContent>{!currentOutline ? 'Show or hide all items — open an outline first' : 'Show or hide all items'}</TooltipContent>
             </Tooltip>
             <DropdownMenuContent align="end" className="w-56 p-0.5">
               <DropdownMenuItem
@@ -1312,7 +1312,7 @@ export default function OutlinePane({
                 </Button>
               </span>
             </TooltipTrigger>
-            <TooltipContent>{selectedNodeId ? 'Share branch as...' : 'Share branch — select a node first'}</TooltipContent>
+            <TooltipContent>{selectedNodeId ? 'Share branch as...' : 'Share branch — select an item first'}</TooltipContent>
           </Tooltip>
 
           {/* Command palette tree-toolbar entry removed 2026-06-08 — the title-row
