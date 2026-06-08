@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
       const content = extractSubtreeContent(nodes, rootId);
       if (!content.trim()) {
         return NextResponse.json(
-          { error: 'No content found in the selected subtree' },
+          { error: 'No content found in the selected branch' },
           { status: 400 }
         );
       }

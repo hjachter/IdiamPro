@@ -2353,14 +2353,14 @@ export default function OutlinePro() {
       });
 
       toast({
-        title: "Subtree Generated",
-        description: `AI-generated subtree for "${topic}" added under the selected node.`,
+        title: "Branch Generated",
+        description: `AI-generated branch for "${topic}" added under the selected node.`,
       });
     } catch (e) {
       toast({
         variant: "destructive",
         title: "AI Error",
-        description: (e as Error).message || "Could not generate subtree.",
+        description: (e as Error).message || "Could not generate branch.",
       });
     } finally {
       setIsLoadingAI(false);
@@ -2633,7 +2633,7 @@ export default function OutlinePro() {
       if (isPremium) {
         toast({
           title: "Content Generated",
-          description: `Successfully created content for ${successCount} descendant${successCount > 1 ? 's' : ''}, with subtree diagram.`,
+          description: `Successfully created content for ${successCount} descendant${successCount > 1 ? 's' : ''}, with branch diagram.`,
         });
       } else {
         // Show premium upsell for free users
@@ -3334,7 +3334,7 @@ export default function OutlinePro() {
     });
 
     toast({
-      title: "Subtree Copied",
+      title: "Branch Copied",
       description: `"${outline.nodes[nodeId].name}" and its children copied to clipboard.`,
     });
   }, [currentOutlineId, outlines, collectSubtree, toast]);
@@ -3353,7 +3353,7 @@ export default function OutlinePro() {
     });
 
     toast({
-      title: "Subtree Cut",
+      title: "Branch Cut",
       description: `"${outline.nodes[nodeId].name}" ready to move. Select a target node and paste.`,
     });
   }, [currentOutlineId, outlines, collectSubtree, toast]);
@@ -3491,7 +3491,7 @@ export default function OutlinePro() {
       setTimeout(() => {
         setSelectedNodeId(newRootId);
         toast({
-          title: subtreeClipboard.isCut ? "Subtree Moved" : "Subtree Pasted",
+          title: subtreeClipboard.isCut ? "Branch Moved" : "Branch Pasted",
           description: `"${clipboardRoot.name}" has been ${subtreeClipboard.isCut ? 'moved' : 'pasted'}.`,
         });
         if (subtreeClipboard.isCut) {

@@ -32,7 +32,7 @@ export default function UpgradeCancelPage() {
               for daily research without thinking about it.
             </li>
             <li>
-              <strong>Podcast generation</strong> turns any subtree into a
+              <strong>Podcast generation</strong> turns any branch into a
               listenable audio brief.
             </li>
             <li>

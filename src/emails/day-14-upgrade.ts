@@ -27,7 +27,7 @@ export function renderDay14UpgradeEmail(props: Day14EmailProps): RenderedEmail {
 <p style="margin:0 0 16px;"><strong>Pro is $9.99/month.</strong> Here's what it gets you:</p>
 <ul style="margin:0 0 16px;padding-left:20px;">
   <li style="margin-bottom:6px;"><strong>1,000 AI generations a month</strong> (vs. the free 25-total trial).</li>
-  <li style="margin-bottom:6px;"><strong>Podcast generation</strong> &mdash; turn any subtree into a hosted-style audio episode.</li>
+  <li style="margin-bottom:6px;"><strong>Podcast generation</strong> &mdash; turn any branch into a hosted-style audio episode.</li>
   <li style="margin-bottom:6px;"><strong>Image generation</strong> (rolling out post-launch).</li>
   <li style="margin-bottom:6px;"><strong>Priority support</strong> &mdash; questions answered first.</li>
 </ul>
@@ -42,7 +42,7 @@ export function renderDay14UpgradeEmail(props: Day14EmailProps): RenderedEmail {
 
 Pro is $9.99/month. Here's what it gets you:
 - 1,000 AI generations a month (vs. the free 25-total trial).
-- Podcast generation — turn any subtree into a hosted-style audio episode.
+- Podcast generation — turn any branch into a hosted-style audio episode.
 - Image generation (rolling out post-launch).
 - Priority support — questions answered first.
 

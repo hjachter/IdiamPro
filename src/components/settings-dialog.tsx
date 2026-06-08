@@ -729,7 +729,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
               />
             </div>
             <p className="text-xs text-muted-foreground">
-              Show confirmation dialog when deleting nodes or subtrees
+              Show confirmation dialog when deleting nodes or branches
             </p>
           </div>
 

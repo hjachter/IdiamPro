@@ -441,20 +441,28 @@ export default function SidebarPane({
       {/* Scrollable outline list at bottom */}
       <ScrollArea className="flex-1">
         <div className="p-1">
-          {/* User Guide */}
+          {/* User Guide — built-in row. Tooltip explains why right-click /
+              rename / delete are silently ignored. */}
           {guide && showGuide && (
-            <div
-              className={cn(
-                "group flex items-center gap-2 px-2 py-1 rounded-md cursor-pointer text-sm transition-all duration-150",
-                currentOutlineId === guide.id
-                  ? "bg-primary/10 text-primary border-l-2 border-primary -ml-0.5 pl-[calc(0.5rem+2px)]"
-                  : "hover:bg-muted/60 hover:translate-x-0.5"
-              )}
-              onClick={() => onSelectOutline(guide.id)}
-            >
-              <BookOpen className="h-4 w-4 shrink-0" />
-              <span className="truncate italic font-medium">{guide.name}</span>
-            </div>
+            <TooltipProvider delayDuration={500}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div
+                    className={cn(
+                      "group flex items-center gap-2 px-2 py-1 rounded-md cursor-pointer text-sm transition-all duration-150",
+                      currentOutlineId === guide.id
+                        ? "bg-primary/10 text-primary border-l-2 border-primary -ml-0.5 pl-[calc(0.5rem+2px)]"
+                        : "hover:bg-muted/60 hover:translate-x-0.5"
+                    )}
+                    onClick={() => onSelectOutline(guide.id)}
+                  >
+                    <BookOpen className="h-4 w-4 shrink-0" />
+                    <span className="truncate italic font-medium">{guide.name}</span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="right">Built-in. Cannot be renamed or deleted.</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           )}
 
           {/* User Outlines — top-level rows, each may expand to show linked

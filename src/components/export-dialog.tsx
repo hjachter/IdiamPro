@@ -186,10 +186,10 @@ export default function ExportDialog({
     <Dialog open={open && !showWebsiteDialog && !showPodcastDialog} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle>Share Subtree As...</DialogTitle>
+          <DialogTitle>Share Branch As...</DialogTitle>
           <DialogDescription>
             Exporting: &ldquo;{displayName}&rdquo;
-            {rootNodeId && rootNodeId !== outline.rootNodeId && ' (subtree)'}
+            {rootNodeId && rootNodeId !== outline.rootNodeId && ' (branch)'}
           </DialogDescription>
         </DialogHeader>
 

@@ -437,7 +437,7 @@ export default function SplashPage() {
                     <GitBranch className="w-7 h-7 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold text-white mb-2">Visual Diagrams from Any Subtree</h3>
+                    <h3 className="text-xl font-semibold text-white mb-2">Visual Diagrams from Any Branch</h3>
                     <p className="text-white/50 text-sm leading-relaxed">
                       One-click Mind Map or Flowchart generation for any branch of your outline.
                       Auto-generated when creating content from children.
@@ -556,7 +556,7 @@ export default function SplashPage() {
               <FeatureCard
                 icon={Network}
                 title="Auto-Generated Diagrams"
-                description="Transform any subtree into beautiful mind maps or flowcharts with one click."
+                description="Transform any branch into beautiful mind maps or flowcharts with one click."
                 gradient="bg-gradient-to-br from-indigo-500 to-violet-600"
                 delay={600}
               />

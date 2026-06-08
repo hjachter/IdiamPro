@@ -28,7 +28,7 @@ export function renderWelcomeEmail(props: WelcomeEmailProps): RenderedEmail {
 <p style="margin:0 0 16px;">Here's a quick three-step way to get going:</p>
 <ol style="margin:0 0 24px;padding-left:20px;">
   <li style="margin-bottom:8px;"><strong>Create your first outline.</strong> Open the sidebar, click the plus, and give it a name. Press Enter to add children, Tab to indent.</li>
-  <li style="margin-bottom:8px;"><strong>Try Smart Tools.</strong> Click the sparkles icon in the toolbar. Generate a subtree from a topic, refresh a section against the latest web sources, or ask your own outlines a question.</li>
+  <li style="margin-bottom:8px;"><strong>Try Smart Tools.</strong> Click the sparkles icon in the toolbar. Generate a branch from a topic, refresh a section against the latest web sources, or ask your own outlines a question.</li>
   <li style="margin-bottom:8px;"><strong>Watch the two-minute intro.</strong> A guided tour of the features people use most.</li>
 </ol>
 <p style="margin:0 0 24px;text-align:center;">
@@ -46,7 +46,7 @@ Three quick ways to get going:
 
 1. Create your first outline. Open the sidebar, click the plus, give it a name. Enter adds children, Tab indents.
 
-2. Try Smart Tools. Click the sparkles icon in the toolbar. Generate a subtree from a topic, refresh a section against the latest web sources, or ask your own outlines a question.
+2. Try Smart Tools. Click the sparkles icon in the toolbar. Generate a branch from a topic, refresh a section against the latest web sources, or ask your own outlines a question.
 
 3. Watch the two-minute intro: ${introVideoUrl}
 

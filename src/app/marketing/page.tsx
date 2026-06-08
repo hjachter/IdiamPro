@@ -471,11 +471,11 @@ export default function MarketingPage() {
     { icon: ImageIcon, title: 'AI Image Creation', description: 'Create custom illustrations with Google Imagen 3' },
     { icon: Table, title: 'Inline Spreadsheets', description: 'Full Excel-like spreadsheets embedded in your outline' },
     { icon: Mic, title: 'Voice Dictation', description: 'Speak your thoughts with speech-to-text' },
-    { icon: Network, title: 'Auto Diagrams', description: 'Generate mind maps and flowcharts from any subtree' },
+    { icon: Network, title: 'Auto Diagrams', description: 'Generate mind maps and flowcharts from any branch' },
     { icon: Youtube, title: 'Video Embedding', description: 'Embed YouTube, Vimeo, and other video players' },
     { icon: Tags, title: 'Tags & Colors', description: '8 colors and unlimited tags for organization' },
     { icon: Pin, title: 'Pin Important Nodes', description: 'Star-marked pinning for quick access' },
-    { icon: Focus, title: 'Focus Mode', description: 'Isolate a subtree for distraction-free work' },
+    { icon: Focus, title: 'Focus Mode', description: 'Isolate a branch for distraction-free work' },
     { icon: ListOrdered, title: 'Auto Numbering', description: 'Hierarchical prefixes (1.2.3 style)' },
     { icon: Search, title: 'Full-Text Search', description: 'Search across all outlines and content' },
     { icon: Download, title: 'Multi-Format Export', description: 'PDF, Markdown, HTML, OPML, Obsidian, and more' }
@@ -921,7 +921,7 @@ export default function MarketingPage() {
                       Turn Any Outline Into a Podcast
                     </h3>
                     <p className="text-white/60 mb-4">
-                      Select any subtree and generate a professional podcast. Choose voices, style, and length.
+                      Select any branch and generate a professional podcast. Choose voices, style, and length.
                     </p>
                     <div className="text-emerald-400 text-sm font-medium">
                       Multiple voices & styles →
@@ -994,7 +994,7 @@ export default function MarketingPage() {
                         Auto-Generate Mind Maps & Flowcharts
                       </h3>
                       <p className="text-white/60 text-sm mb-4">
-                        Select any subtree and instantly create beautiful visual diagrams. Export or embed directly in your outline.
+                        Select any branch and instantly create beautiful visual diagrams. Export or embed directly in your outline.
                       </p>
                       <div className="flex gap-3">
                         <span className="px-3 py-1 rounded-lg bg-white/10 text-white/60 text-xs">Mind Maps</span>

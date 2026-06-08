@@ -228,7 +228,7 @@ export default function PodcastDialog({
   const handleShowPrompt = useCallback(() => {
     const content = extractSubtreeContent(nodes, nodeId);
     if (!content.trim()) {
-      alert('No content found in the selected subtree');
+      alert('No content found in the selected branch');
       return;
     }
     const speakerNames = Object.keys(voices);

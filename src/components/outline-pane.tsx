@@ -992,7 +992,7 @@ export default function OutlinePane({
                         className="cursor-pointer py-1"
                         title={selectedNodeId ? undefined : 'Select a node first'}
                     >
-                        <Share2 className="mr-2 h-4 w-4" /> Share Subtree as&hellip;
+                        <Share2 className="mr-2 h-4 w-4" /> Share Branch as&hellip;
                     </DropdownMenuItem>
                     <DropdownMenuItem onSelect={onExportOutline} disabled={!currentOutline} className="cursor-pointer py-1">
                         <FileDown className="mr-2 h-4 w-4" /> Export Current Outline
@@ -1074,7 +1074,7 @@ export default function OutlinePane({
                             disabled={!selectedNodeId}
                             className="cursor-pointer py-1"
                         >
-                            <Share2 className="mr-2 h-4 w-4" /> Share Subtree…
+                            <Share2 className="mr-2 h-4 w-4" /> Share Branch…
                         </DropdownMenuItem>
                         <DropdownMenuItem onSelect={() => onOpenCommandPalette?.()} className="cursor-pointer py-1">
                             <Command className="mr-2 h-4 w-4" /> Command Palette
@@ -1302,7 +1302,7 @@ export default function OutlinePane({
                   disabled={!selectedNodeId}
                   onClick={() => selectedNodeId && onExportSubtree?.(selectedNodeId)}
                   className="hover:bg-accent/20"
-                  aria-label="Share subtree"
+                  aria-label="Share branch"
                 >
                   <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     <path d="M12 3v12" />
@@ -1312,7 +1312,7 @@ export default function OutlinePane({
                 </Button>
               </span>
             </TooltipTrigger>
-            <TooltipContent>{selectedNodeId ? 'Share subtree as...' : 'Share subtree — select a node first'}</TooltipContent>
+            <TooltipContent>{selectedNodeId ? 'Share branch as...' : 'Share branch — select a node first'}</TooltipContent>
           </Tooltip>
 
           {/* Command palette tree-toolbar entry removed 2026-06-08 — the title-row

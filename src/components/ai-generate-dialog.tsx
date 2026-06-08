@@ -53,9 +53,9 @@ export default function AiGenerateDialog({ children, onGenerate, isLoading, init
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2"><Bot /> Generate Subtree from Topic</DialogTitle>
+          <DialogTitle className="flex items-center gap-2"><Bot /> Generate Branch from Topic</DialogTitle>
           <DialogDescription>
-            Enter a topic and AI will generate a structured subtree under the selected node. Edit the topic if you want to refine it.
+            Enter a topic and AI will generate a structured branch under the selected node. Edit the topic if you want to refine it.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">

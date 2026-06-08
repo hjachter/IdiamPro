@@ -141,7 +141,7 @@ export default function AIMenu({
           <AiGenerateDialog onGenerate={handleGenerate} isLoading={isLoadingAI} initialTopic={selectedNodeName}>
             <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="cursor-pointer">
               <FileText className="mr-2 h-4 w-4" />
-              Generate Subtree from Topic
+              Generate Branch from Topic
             </DropdownMenuItem>
           </AiGenerateDialog>
         )}

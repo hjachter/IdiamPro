@@ -111,7 +111,7 @@ export const DISCOVERY_HINTS: readonly DiscoveryHint[] = [
     id: 'import-export-toolbar',
     title: 'Import and Export live in the toolbar',
     body:
-      'The book-down (Import) and book-up (Export) icons hold Research & Import, Backup All, Share Subtree, and other bulk actions.',
+      'The book-down (Import) and book-up (Export) icons hold Research & Import, Backup All, Share Branch, and other bulk actions.',
     trigger: 'first-outline-created',
     minDelayMs: 10000,
   },

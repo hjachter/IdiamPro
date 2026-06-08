@@ -49,9 +49,9 @@ const shortcutGroups: ShortcutGroup[] = [
   {
     title: 'Clipboard',
     shortcuts: [
-      { keys: ['⌘', 'C'], description: 'Copy subtree' },
-      { keys: ['⌘', 'X'], description: 'Cut subtree' },
-      { keys: ['⌘', 'V'], description: 'Paste subtree' },
+      { keys: ['⌘', 'C'], description: 'Copy branch' },
+      { keys: ['⌘', 'X'], description: 'Cut branch' },
+      { keys: ['⌘', 'V'], description: 'Paste branch' },
     ],
   },
   {

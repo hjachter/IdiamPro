@@ -134,7 +134,7 @@ export async function POST(request: NextRequest) {
 
           const content = extractSubtreeContent(nodes, rootId);
           if (!content.trim()) {
-            throw new Error('No content found in the selected subtree');
+            throw new Error('No content found in the selected branch');
           }
 
           const speakers = Object.keys(config.voices);
