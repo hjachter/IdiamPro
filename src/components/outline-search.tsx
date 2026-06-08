@@ -31,11 +31,17 @@ interface OutlineSearchProps {
   totalMatches: number;
   onNextMatch: () => void;
   onPrevMatch: () => void;
+  // Bumped externally when the search filter is cleared from outside (e.g.
+  // the status-chip Clear button or Expand/Collapse All). Each bump resets the
+  // internal searchTerm to empty so the debounced effect doesn't re-apply the
+  // old term.
+  externalClearSignal?: number;
   // Optional - if provided, the search will reshape the outline tree so that only
-  // matches and their ancestors are expanded; everything else is collapsed.
+  // matches and their ancestors are visible; everything else is hidden from the
+  // tree (added to the outline's searchHiddenNodeIds set).
   onApplySearchView?: (
     matchedNodeIds: string[],
-    options: { restrictToOpen: boolean }
+    options: { restrictToOpen: boolean; searchTerm: string }
   ) => void;
   // Optional - called when the search input is cleared (Eraser button or
   // searchTerm becomes empty). Allows the caller to fully exit the search view.
@@ -132,6 +138,7 @@ export default function OutlineSearch({
   onNextMatch,
   onPrevMatch,
   onApplySearchView,
+  externalClearSignal,
 }: OutlineSearchProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchScope, setSearchScope] = useState<'current' | 'all'>('current');
@@ -152,6 +159,14 @@ export default function OutlineSearch({
     }
   }, [isOpen]);
 
+  // Reset internal search term when an external clear is signaled (chip Clear
+  // button, Expand/Collapse All). Without this the debounced search effect
+  // would keep re-applying the old term immediately after the parent clears it.
+  useEffect(() => {
+    if (externalClearSignal === undefined) return;
+    setSearchTerm('');
+  }, [externalClearSignal]);
+
   // Debounced search
   const performSearch = useCallback((
     term: string,
@@ -162,6 +177,11 @@ export default function OutlineSearch({
   ) => {
     if (term.length < 2) {
       onSearchResults([], term);
+      // Clear any active filter so the tree expands back to normal once the
+      // user clears or shortens the search term.
+      if (onApplySearchView && currentOutline) {
+        onApplySearchView([], { restrictToOpen: onlyOpen, searchTerm: '' });
+      }
       return;
     }
 
@@ -182,13 +202,13 @@ export default function OutlineSearch({
 
     onSearchResults(matches, term);
 
-    // Reshape the outline tree so matches + ancestors stay expanded and
-    // non-matches collapse. This becomes the new persistent outline state.
+    // Reshape the outline tree so matches + ancestors stay visible and
+    // non-matches are hidden. This becomes the new persistent outline state.
     if (onApplySearchView && currentOutline) {
       const matchedIdsInCurrent = matches
         .filter(m => m.outlineId === currentOutline.id)
         .map(m => m.nodeId);
-      onApplySearchView(matchedIdsInCurrent, { restrictToOpen: onlyOpen });
+      onApplySearchView(matchedIdsInCurrent, { restrictToOpen: onlyOpen, searchTerm: term });
     }
   }, [currentOutline, outlines, onSearchResults, onApplySearchView]);
 

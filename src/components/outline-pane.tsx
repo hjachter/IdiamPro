@@ -113,8 +113,10 @@ interface OutlinePaneProps {
   onCancelAI?: () => void;
   // Search-related props for expanding ancestors
   onExpandAncestors?: (nodeIds: string[]) => void;
-  // Search-as-view-shaper: reshape outline so only matches + ancestors stay open
-  onApplySearchView?: (matchedNodeIds: string[], options: { restrictToOpen: boolean }) => void;
+  // Search-as-view-shaper: reshape outline so only matches + ancestors stay visible
+  onApplySearchView?: (matchedNodeIds: string[], options: { restrictToOpen: boolean; searchTerm: string }) => void;
+  // Clear the search filter (search-hidden node set + filter term).
+  onClearSearchFilter?: () => void;
   // External control for search (for command palette)
   externalSearchOpen?: boolean;
   onSearchOpenChange?: (open: boolean) => void;
@@ -207,6 +209,7 @@ export default function OutlinePane({
   onCancelAI,
   onExpandAncestors,
   onApplySearchView,
+  onClearSearchFilter,
   externalSearchOpen,
   onSearchOpenChange,
   onGenerateContentForChildren,
@@ -261,6 +264,22 @@ export default function OutlinePane({
   const [searchMatches, setSearchMatches] = useState<SearchMatch[]>([]);
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
+  // Bumped to tell OutlineSearch to reset its internal searchTerm when the
+  // filter is cleared from outside (chip Clear, Expand/Collapse All).
+  const [externalClearSignal, setExternalClearSignal] = useState(0);
+
+  // Watch for the outline's search filter being cleared externally (e.g.
+  // Expand All / Collapse All from outline-pro). Bumping the clear signal
+  // resets OutlineSearch's local search term so its debounced effect doesn't
+  // re-apply the old term.
+  const prevHadFilterRef = useRef(false);
+  useEffect(() => {
+    const hasFilter = !!(currentOutline?.searchHiddenNodeIds && currentOutline.searchHiddenNodeIds.length > 0);
+    if (prevHadFilterRef.current && !hasFilter) {
+      setExternalClearSignal(n => n + 1);
+    }
+    prevHadFilterRef.current = hasFilter;
+  }, [currentOutline?.searchHiddenNodeIds]);
   const prevSearchTermRef = useRef('');
   const currentOutlineRef = useRef(currentOutline);
   currentOutlineRef.current = currentOutline;
@@ -362,6 +381,15 @@ export default function OutlinePane({
         .map(m => m.nodeId)
     );
   }, [searchMatches, currentOutline, searchTerm]);
+
+  // Compute the search-hidden node ID set for fast lookup in the tree renderer.
+  // Nodes in this set (and their entire subtrees) are not rendered as rows.
+  const searchHiddenSet = useMemo(() => {
+    if (!currentOutline?.searchHiddenNodeIds || currentOutline.searchHiddenNodeIds.length === 0) {
+      return undefined;
+    }
+    return new Set(currentOutline.searchHiddenNodeIds);
+  }, [currentOutline?.searchHiddenNodeIds]);
 
   // Get visible nodes in display order (respects collapsed state)
   const getVisibleNodeIds = useCallback((): string[] => {
@@ -1475,7 +1503,43 @@ export default function OutlinePane({
         totalMatches={searchMatches.length}
         onNextMatch={handleNextMatch}
         onPrevMatch={handlePrevMatch}
+        externalClearSignal={externalClearSignal}
       />
+
+      {/* Search-filter status chip — shown when only matches + ancestors are
+          visible. Clicking Clear restores all rows but leaves the user's
+          chevron / collapse state otherwise untouched. */}
+      {currentOutline?.searchHiddenNodeIds && currentOutline.searchHiddenNodeIds.length > 0 && (
+        <div
+          className="flex-shrink-0 mx-2 mt-1 mb-1 px-2 py-1 rounded-md bg-accent/40 border border-accent text-xs text-foreground flex items-center justify-between gap-2"
+          data-testid="search-filter-chip"
+          role="status"
+          title="Search filter active — only matches and their ancestors are visible. Click Clear to show all."
+        >
+          <span className="truncate">
+            Filtered: &ldquo;{currentOutline.searchFilterTerm || ''}&rdquo; &middot;{' '}
+            {currentOutline.searchHiddenNodeIds.length} hidden
+          </span>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-6 px-2 text-xs"
+            onClick={(e) => {
+              e.stopPropagation();
+              // Bump the signal so OutlineSearch resets its internal searchTerm
+              // — otherwise its debounced effect would re-apply the old term
+              // before the user can do anything else.
+              setExternalClearSignal(n => n + 1);
+              handleClearSearch();
+              onClearSearchFilter?.();
+            }}
+            data-testid="search-filter-chip-clear"
+            aria-label="Clear search filter"
+          >
+            Clear
+          </Button>
+        </div>
+      )}
 
       <div
         className="flex-grow overflow-y-auto pr-2"
@@ -1522,6 +1586,7 @@ export default function OutlinePane({
               onOutdent={handleOutdent}
               searchTerm={searchTerm}
               highlightedNodeIds={currentOutlineHighlights}
+              searchHiddenNodeIds={searchHiddenSet}
               onGenerateContentForChildren={currentOutline.isGuide ? undefined : onGenerateContentForChildren}
               onCreateChildNode={currentOutline.isGuide ? undefined : onCreateChildNode}
               editingNodeId={currentOutline.isGuide ? null : editingNodeId}

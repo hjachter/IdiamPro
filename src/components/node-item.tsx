@@ -51,6 +51,9 @@ interface NodeItemProps {
   // Search highlighting
   searchTerm?: string;
   highlightedNodeIds?: Set<string>;
+  // Search filter: nodes in this set (and their entire subtrees) are not rendered.
+  // Populated by the search view-shaper so only matches + their ancestors stay visible.
+  searchHiddenNodeIds?: Set<string>;
   // AI content generation
   onGenerateContentForChildren?: (nodeId: string) => void;
   // Create child node
@@ -169,6 +172,7 @@ export default function NodeItem({
   onOutdent,
   searchTerm,
   highlightedNodeIds,
+  searchHiddenNodeIds,
   onGenerateContentForChildren,
   onCreateChildNode,
   editingNodeId,
@@ -356,6 +360,11 @@ export default function NodeItem({
   }, []);
 
   if (!node) return null;
+
+  // Search-filter view-shaper: if this node is in the hidden set (meaning it's
+  // not a match and not an ancestor of a match), skip rendering it and its
+  // entire subtree. The status chip above the tree gives the user a way back.
+  if (searchHiddenNodeIds?.has(nodeId)) return null;
 
   const isChapter = node.type === 'chapter' || node.type === 'root' || (Array.isArray(node.childrenIds) && node.childrenIds.length > 0);
   const isSelected = selectedNodeId === node.id;
@@ -945,6 +954,7 @@ export default function NodeItem({
                         onOutdent={onOutdent}
                         searchTerm={searchTerm}
                         highlightedNodeIds={highlightedNodeIds}
+                        searchHiddenNodeIds={searchHiddenNodeIds}
                         onGenerateContentForChildren={onGenerateContentForChildren}
                         onCreateChildNode={onCreateChildNode}
                         editingNodeId={editingNodeId}
