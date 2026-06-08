@@ -492,7 +492,7 @@ export default function CommandPalette({
           {onOpenBulkResearch && (
             <CommandItem onSelect={() => runCommand(onOpenBulkResearch)}>
               <Library className="mr-2 h-4 w-4" />
-              <span>Bulk Research Import (PREMIUM)</span>
+              <span>Research & Import</span>
             </CommandItem>
           )}
         </CommandGroup>
