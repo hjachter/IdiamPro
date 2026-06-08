@@ -833,7 +833,7 @@ export default function OutlinePane({
   const isSelectedNodeRoot = selectedNode?.type === 'root';
 
   return (
-    <div className="flex flex-col h-full bg-card p-3 space-y-3" style={{ paddingTop: 'max(0.75rem, env(safe-area-inset-top))' }}>
+    <div data-testid="outline-pane" className="flex flex-col h-full bg-card p-3 space-y-3" style={{ paddingTop: 'max(0.75rem, env(safe-area-inset-top))' }}>
       <div className="flex-shrink-0 flex items-center space-x-2 px-2">
         {/* Sidebar toggle button (desktop) */}
         {onToggleSidebar && (

@@ -462,6 +462,11 @@ export default function ContentPane({
 
   // File input ref for generic file import
   const fileInputRef = useRef<HTMLInputElement>(null);
+  // Outer content-pane wrapper ref. Used as the boundary for the Tiptap
+  // BubbleMenu (the floating format toolbar) so it can never extend outside
+  // this pane horizontally or vertically — i.e. never covers the outline
+  // pane / search input on narrow viewports. Howard 2026-06-08.
+  const contentPaneRef = useRef<HTMLDivElement>(null);
 
   // Track previous node to save content before switching
   const prevNodeIdRef = useRef<string | null>(null);
@@ -2091,7 +2096,7 @@ export default function ContentPane({
 
   const isRoot = node.type === 'root';
   return (
-    <div className="flex h-full flex-col bg-background">
+    <div ref={contentPaneRef} data-testid="content-pane" className="flex h-full flex-col bg-background">
       <ContentConflictDialog
         open={conflictDialogOpen}
         onAction={handleConflictAction}
@@ -3097,21 +3102,53 @@ export default function ContentPane({
               <>
                 <BubbleMenu
                   editor={editor}
-                  // Responsive placement so the floating format toolbar never
-                  // covers the search bar / search results above the editor on
-                  // narrow viewports. At >=768px the menu anchors above the
-                  // selection (classic behavior). Under 768px it anchors
-                  // BELOW the selection, which keeps it out of the search
-                  // row's horizontal band. `flip: false` prevents Floating UI
-                  // from undoing this by flipping back to 'top' when the
-                  // selection is near the bottom — instead `shift` slides the
-                  // menu horizontally to keep it in viewport. Howard
-                  // 2026-06-08 ("moves to line under the search term").
+                  // The floating format toolbar must NEVER extend outside the
+                  // content pane wrapper — at narrow viewports the editor pane
+                  // is so narrow that a default-positioned menu would visually
+                  // cross into the outline pane on its left, covering the
+                  // search input and the outline toolbar. We clip via the
+                  // Floating UI `flip` + `shift` + `hide` middlewares,
+                  // passing the content-pane element as the boundary for
+                  // overflow detection. At <768px the default placement is
+                  // `'bottom'` because narrow-width selections frequently
+                  // sit near the top of the editor — anchoring below by
+                  // default keeps the menu inside the editor pane without
+                  // needing to flip. `flip` is re-enabled (with the same
+                  // boundary) so a selection near the bottom of the editor
+                  // can flip up cleanly, all still inside the pane.
+                  // Howard 2026-06-08.
                   options={{
                     placement: isMobile ? 'bottom' : 'top',
-                    flip: false,
-                    shift: { padding: 8 },
                     offset: 8,
+                    flip: {
+                      boundary: contentPaneRef.current ?? undefined,
+                      padding: 8,
+                    },
+                    shift: {
+                      boundary: contentPaneRef.current ?? undefined,
+                      padding: 8,
+                    },
+                    // `size` caps the menu's max-width to whatever fits inside
+                    // the content pane. Without this, when the bubble menu is
+                    // intrinsically wider than the pane (narrow widths +
+                    // many buttons + badge), `shift` cannot help because the
+                    // floating element simply does not fit — and the menu
+                    // overflows the pane horizontally into the outline
+                    // pane's territory. The menu's flex layout will wrap or
+                    // truncate gracefully when constrained.
+                    size: {
+                      boundary: contentPaneRef.current ?? undefined,
+                      padding: 8,
+                      apply({ availableWidth, elements }) {
+                        Object.assign(elements.floating.style, {
+                          maxWidth: `${Math.max(0, availableWidth)}px`,
+                        });
+                      },
+                    },
+                    hide: {
+                      boundary: contentPaneRef.current ?? undefined,
+                      padding: 8,
+                    },
                   }}
                   // Suppress the BubbleMenu while the outline search input is
                   // focused — otherwise the floating format toolbar covers the
@@ -3134,7 +3171,7 @@ export default function ContentPane({
                     }
                     return true;
                   }}
-                  className="flex items-center gap-0.5 rounded-md border bg-popover p-1 shadow-md"
+                  className="flex flex-wrap items-center gap-0.5 rounded-md border bg-popover p-1 shadow-md"
                 >
                   {/* Reformat with AI lives at the FIRST position and gets
                       the violet accent + "Most Powerful" badge so it's the
