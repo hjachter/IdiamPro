@@ -489,13 +489,14 @@ export default function OutlinePro() {
           kind === 'outlineGeneration'
             ? 'outline generations'
             : 'content expansions';
-        const needed =
-          getCurrentEntitlements().id === 'free' ? 'pro' : 'premium';
+        // Live pricing only ships Free / Student / Pro — anyone over quota
+        // gets routed to the Pro upsell. Local AI and BYOK remain unlimited
+        // regardless of tier.
         promptUpgrade({
           reason: `You've used all ${quota.limit} of your ${tierDisplayName(
             getCurrentEntitlements().id,
           )} ${label} this month — resets on ${resetDate}. Local AI and your own API key stay unlimited.`,
-          requiredTier: needed,
+          requiredTier: 'pro',
         });
         return false;
       }

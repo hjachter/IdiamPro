@@ -61,27 +61,35 @@ const UpgradePromptContext = createContext<UpgradePromptContextValue | null>(
   null,
 );
 
-// Benefits shown per tier — mirrors the advertised pricing page
-// (docs/outlines/IdiamPro-Marketing.idm). 'premium' is shown as "Power".
+// Benefits shown per tier — mirrors the live /upgrade page (Free / Student /
+// Pro). The legacy 'premium' tier id remains in the type union for back-compat
+// with older gate callers, but its benefits intentionally fall back to Pro so
+// the modal never surfaces a dead "Power" tier.
 const TIER_BENEFITS: Record<SubscriptionTierId, string[]> = {
   free: [
-    'Unlimited outlines & editing',
-    'Local AI (Ollama) — unlimited',
-    'Bring your own API key — unlimited',
+    'Unlimited outlines and editing',
+    'Bring your own AI key (Gemini, OpenAI, Anthropic, Mistral, Groq)',
+    'Local Ollama AI — on-device, free',
+    'All core outliner features and export formats',
   ],
   pro: [
-    '100 outline generations / month',
-    'Unlimited content expansions',
-    'Cloud AI + premium AI features',
-    'Premium website-export templates',
+    '1,000 AI generations / month',
+    'AI included — no API key needed',
+    'Podcast generation (Pro-only)',
+    'Image generation and description (Pro-only)',
+    'Priority AI processing and email support',
   ],
+  // Kept only to satisfy the type union; gate callers should pass 'pro'.
+  // If a legacy caller still passes 'premium' the user sees the Pro benefits.
   premium: [
-    'Unlimited AI generations',
-    'Premium export & Universal Output formats',
-    'Podcast generation',
-    'Multi-LLM + priority processing',
+    '1,000 AI generations / month',
+    'AI included — no API key needed',
+    'Podcast generation (Pro-only)',
+    'Image generation and description (Pro-only)',
+    'Priority AI processing and email support',
   ],
 };
+
 
 export function UpgradePromptProvider({
   children,

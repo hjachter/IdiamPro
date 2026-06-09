@@ -214,8 +214,8 @@ export default function PodcastDialog({
     if (!aiUsageGate({ feature: 'podcastGeneration' })) return false;
     if (canUseFeature('podcastGeneration')) return true;
     promptUpgrade({
-      reason: 'Podcast generation is a Power feature.',
-      requiredTier: 'premium',
+      reason: 'Podcast generation is a Pro feature.',
+      requiredTier: 'pro',
     });
     return false;
   }, [promptUpgrade, aiUsageGate]);

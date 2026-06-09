@@ -346,7 +346,7 @@ export default function SidebarPane({
             onClick={onShowWelcome}
           >
             <Rocket className="h-4 w-4" />
-            Welcome Tour
+            Welcome Outline
           </Button>
         </div>
 

@@ -66,7 +66,7 @@ export default function SignInPage() {
             <Layers className="h-6 w-6 text-white" />
           </div>
           <span className="bg-gradient-to-r from-white to-white/70 bg-clip-text text-2xl font-bold text-transparent">
-            SecondBrainWare
+            IdiamPro
           </span>
         </div>
         <h1 className="mb-2 text-2xl font-semibold text-white">Welcome back</h1>
