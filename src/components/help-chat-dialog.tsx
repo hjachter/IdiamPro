@@ -346,7 +346,7 @@ export default function HelpChatDialog({ open, onOpenChange }: HelpChatDialogPro
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: 'Sorry, I encountered an error. Please try again or contact support.',
+        content: "Something went wrong on my end while I was thinking that through. Want to try again? If it keeps happening, you can email support@2ndbrainware.com.",
         timestamp: Date.now(),
       };
       setMessages(prev => [...prev, errorMessage]);
