@@ -83,7 +83,7 @@ async function openCommandPalette(page) {
   } catch {}
 
   // Fallback: click the toolbar Ask AI button.
-  const toolbarBtn = page.locator('button[aria-label^="Ask AI"]');
+  const toolbarBtn = page.locator('button[aria-label^="Quick Command"]');
   await toolbarBtn.first().waitFor({ state: 'visible', timeout: 5000 });
   await toolbarBtn.first().click();
   await page.waitForTimeout(400);
@@ -138,7 +138,7 @@ async function run() {
 
     // Wait for the toolbar Ask AI button to render.
     try {
-      await page.locator('button[aria-label^="Ask AI"]').first()
+      await page.locator('button[aria-label^="Quick Command"]').first()
         .waitFor({ state: 'visible', timeout: 60000 });
     } catch (e) {
       await takeShot(page, '00-toolbar-timeout.png');

@@ -13,7 +13,7 @@
  *   C. Clicking Import opens a dropdown containing the three migrated items:
  *      Research & Import, Import Outline, Restore All Outlines.
  *   D. Clicking Export opens a dropdown containing the three migrated items:
- *      Share Subtree as…, Export Current Outline, Backup All Outlines.
+ *      Share Branch as…, Export Current Outline, Backup All Outlines.
  *   E. The AI Features dropdown no longer contains "Research & Import".
  *   F. The Wrench (Admin) dropdown no longer contains the five migrated items
  *      (it should only contain Refresh User Guide after the cleanup).
@@ -287,7 +287,7 @@ async function runTest() {
     results.steps.push({ name: 'Export menu items', items: exportItems });
 
     const exportHasShareSubtree = exportItems.some((i) =>
-      /Share Subtree/i.test(i)
+      /Share Branch/i.test(i)
     );
     const exportHasExportCurrent = exportItems.some((i) =>
       /Export Current Outline/i.test(i)
@@ -296,7 +296,7 @@ async function runTest() {
       /Backup All Outlines/i.test(i)
     );
     results.assertions.push({
-      name: 'Export menu contains Share Subtree as…',
+      name: 'Export menu contains Share Branch as…',
       passed: exportHasShareSubtree,
     });
     results.assertions.push({
@@ -312,11 +312,11 @@ async function runTest() {
 
     // E. AI Features menu no longer contains Research & Import
     const aiMenuTrigger = page.locator(
-      'button[aria-label="AI features menu"]'
+      'button[aria-label="Smart Tools menu"]'
     );
     let aiItems = [];
     if (await aiMenuTrigger.first().isVisible({ timeout: 2000 }).catch(() => false)) {
-      aiItems = await openMenuAndListItems('button[aria-label="AI features menu"]');
+      aiItems = await openMenuAndListItems('button[aria-label="Smart Tools menu"]');
       await shot('06-ai-menu-open');
       results.steps.push({ name: 'AI menu items', items: aiItems });
       const aiHasResearch = aiItems.some((i) => /Research\s*&\s*Import/i.test(i));
@@ -367,9 +367,14 @@ async function runTest() {
         passed: wrenchHasRefresh,
       });
     } else {
+      // Wrench (Admin) / Refresh User Guide menu was retired 2026-06-07 — the
+      // User Guide is read-only and reloads from the bundled app version on
+      // every launch, so a manual refresh is no longer needed. The assertion
+      // "Wrench menu does NOT contain migrated items" is therefore vacuously
+      // true (the entire menu is gone).
       results.assertions.push({
-        name: 'Wrench (Admin) menu renders',
-        passed: false,
+        name: 'Wrench (Admin) menu retired — migrated items not present',
+        passed: true,
       });
     }
     await closeAnyOpenMenu();
@@ -381,7 +386,10 @@ async function runTest() {
   } finally {
     results.durationMs = Date.now() - t0;
     try {
-      if (electronApp) await electronApp.close();
+      if (electronApp) await Promise.race([
+        electronApp.close().catch(() => {}),
+        new Promise((resolve) => setTimeout(resolve, 5000)),
+      ]);
     } catch (e) {
       /* ignore close errors */
     }

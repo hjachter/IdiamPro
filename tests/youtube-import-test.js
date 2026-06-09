@@ -75,25 +75,43 @@ async function launchApp() {
     // the synthesis failure path, not the tier hard-block path (separately
     // covered by tier-enforcement-test.js).
     localStorage.setItem('apiKey_gemini', 'AIzaTestKey1234567890fakefakefake');
+    // Suppress discovery toasts that can intercept clicks on dialog buttons.
+    localStorage.setItem('discovery:professionalMode', 'true');
   });
 }
 
 async function closeApp() {
-  if (electronApp) await electronApp.close();
+  if (electronApp) await Promise.race([
+    electronApp.close().catch(() => {}),
+    new Promise((resolve) => setTimeout(resolve, 5000)),
+  ]);
 }
 
 async function openBulkResearchDialog() {
-  // Command palette is the most stable trigger across layouts/screen sizes.
-  await page.keyboard.press(process.platform === 'darwin' ? 'Meta+K' : 'Control+K');
-  await page.waitForTimeout(400);
-  // Type to filter to the Research & Import item.
-  await page.keyboard.type('Research');
-  await page.waitForTimeout(300);
+  // Click the toolbar Quick Command button rather than relying on Cmd+K —
+  // the keyboard shortcut needs the document to have focus, which isn't
+  // reliable right after launch. The toolbar button always works.
+  const quickCommandBtn = page.locator('button[aria-label^="Quick Command"]').first();
+  if (await quickCommandBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+    await quickCommandBtn.click();
+  } else {
+    // Fallback to keyboard shortcut.
+    await page.locator('body').click({ position: { x: 100, y: 100 } }).catch(() => {});
+    await page.waitForTimeout(200);
+    await page.keyboard.press(process.platform === 'darwin' ? 'Meta+K' : 'Control+K');
+  }
+  await page.waitForTimeout(700);
+
+  const paletteInput = page.locator('[cmdk-input], input[placeholder*="command" i], input[placeholder*="Type" i]').first();
+  await paletteInput.waitFor({ state: 'visible', timeout: 5000 });
+  await paletteInput.click();
+  await paletteInput.fill('Research');
+  await page.waitForTimeout(700);
   // Click the matching command item.
   const item = page.locator('[role="option"], [cmdk-item]').filter({
     hasText: /Research/i,
   }).first();
-  await item.click({ timeout: 5000 });
+  await item.click({ timeout: 8000 });
   // Dialog should appear with the Research & Import title.
   await page
     .locator('text=Research & Import')

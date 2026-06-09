@@ -238,11 +238,12 @@ async function testHelpChat() {
 
 /* ─────────────────────────── Test 3 ─────────────────────────── */
 async function openKnowledgeChat() {
-  // Open via AI Features menu (Sparkles icon, title="AI Features")
-  const aiBtn = page.locator('button[title="AI Features"]').first();
+  // Open via Smart Tools menu (Sparkles icon). Knowledge Chat is now labeled
+  // "Ask Your Outlines" (value-based naming rename).
+  const aiBtn = page.locator('button[aria-label="Smart Tools menu"]').first();
   await aiBtn.click();
   await page.waitForTimeout(500);
-  const kcItem = page.getByRole('menuitem', { name: /Knowledge Chat/i }).first();
+  const kcItem = page.getByRole('menuitem', { name: /Ask Your Outlines|Knowledge Chat/i }).first();
   await kcItem.click();
   await page.waitForTimeout(1000);
 }
@@ -398,13 +399,25 @@ async function testKnowledgeChatAllOutlines() {
 async function testBulkResearchDialog() {
   const d = { steps: [] };
   try {
-    // Open AI Features menu → Research & Import
-    const aiBtn = page.locator('button[title="AI Features"]').first();
-    await aiBtn.click();
-    await page.waitForTimeout(500);
-    const researchItem = page.locator('text="Research & Import"').first();
-    if (!(await researchItem.isVisible({ timeout: 2000 }).catch(() => false))) {
-      d.error = 'Research & Import menu item not found';
+    // Research & Import moved to the Import menu (BookDown) 2026-06-06. Try
+    // Import first, then overflow on narrow widths.
+    let researchItem = null;
+    const importBtn = page.locator('button[aria-label^="Import"]').first();
+    if (await importBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await importBtn.click();
+      await page.waitForTimeout(500);
+      researchItem = page.locator('[role="menuitem"]:has-text("Research & Import")').first();
+    }
+    if (!researchItem || !(await researchItem.isVisible({ timeout: 1500 }).catch(() => false))) {
+      const overflow = page.locator('button[aria-label="More tools"]').first();
+      if (await overflow.isVisible({ timeout: 1500 }).catch(() => false)) {
+        await overflow.click();
+        await page.waitForTimeout(500);
+        researchItem = page.locator('[role="menuitem"]:has-text("Research & Import")').first();
+      }
+    }
+    if (!researchItem || !(await researchItem.isVisible({ timeout: 1500 }).catch(() => false))) {
+      d.error = 'Research & Import menu item not found in Import or overflow menu';
       await shot('05-research-no-item');
       return { passed: false, details: d };
     }
@@ -521,7 +534,10 @@ async function runAll() {
     console.error('Test run aborted:', e.message);
     report.error = e.message;
   } finally {
-    if (electronApp) await electronApp.close().catch(() => {});
+    if (electronApp) await Promise.race([
+      electronApp.close().catch(() => {}),
+      new Promise((resolve) => setTimeout(resolve, 5000)),
+    ]);
   }
 
   report.summary.total = report.tests.length;

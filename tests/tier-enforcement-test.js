@@ -73,7 +73,10 @@ async function reopenSettings() {
 }
 
 async function closeApp() {
-  if (electronApp) await electronApp.close();
+  if (electronApp) await Promise.race([
+    electronApp.close().catch(() => {}),
+    new Promise((resolve) => setTimeout(resolve, 5000)),
+  ]);
 }
 
 async function clearLaunchTierState() {
@@ -108,10 +111,13 @@ async function openSettings() {
   // The Settings dialog has data-testid='ai-usage-section' once open.
   // The trigger is the gear icon in the toolbar / sidebar; selector is
   // shared with electron-test.js's testSettingsDialog().
+  // Settings trigger may live inside the overflow menu on narrow widths
+  // (hidden lg:inline-flex). The data-settings-trigger attribute exists on
+  // the always-rendered DialogTrigger child even when visually hidden.
   const trigger = page.locator(
-    'button:has(svg[class*="settings"]), button:has(.lucide-settings), [aria-label*="Settings"]',
+    '[data-settings-trigger], button:has(svg[class*="settings"]), button:has(.lucide-settings), [aria-label*="Settings"]',
   );
-  await trigger.first().click();
+  await trigger.first().click({ force: true });
   await page.locator('[data-testid="ai-usage-section"]').waitFor({
     state: 'visible',
     timeout: 5000,

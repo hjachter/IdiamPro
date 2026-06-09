@@ -51,8 +51,12 @@ async function findMainWindow(app, timeoutMs = 60000) {
 async function waitPastSplash(page) {
   // The app shows a "Loading IdiamPro..." splash; wait for the real toolbar.
   await page.waitForLoadState('domcontentloaded').catch(() => {});
-  const settings = page.locator('button:has(.lucide-settings), [aria-label*="Settings"], [aria-label*="Outline Files"]').first();
-  await settings.waitFor({ state: 'visible', timeout: 120000 });
+  // The Settings DialogTrigger button is always in the DOM but is
+  // visually hidden (lg:inline-flex) at sub-1024px viewports — so wait for
+  // `attached` rather than `visible`. The presence of the trigger means the
+  // toolbar has mounted; the splash is gone.
+  const settings = page.locator('[data-settings-trigger]').first();
+  await settings.waitFor({ state: 'attached', timeout: 120000 });
 }
 
 (async () => {
@@ -134,7 +138,7 @@ async function waitPastSplash(page) {
         await editable.fill(huge).catch(() => {});
         await page.waitForTimeout(500);
         // App is responsive if we can still click the settings button quickly.
-        const settings = page.locator('button:has(.lucide-settings), [aria-label*="Outline Files"]').first();
+        const settings = page.locator('[data-settings-trigger], button:has(.lucide-settings), [aria-label*="Outline Files"]').first();
         responsive = await settings.isVisible({ timeout: 8000 }).catch(() => false);
         record('Oversized input (120k chars)', responsive,
           [`fill+probe took ${Date.now() - t0}ms`, `UI still responsive: ${responsive}`]);
@@ -154,7 +158,7 @@ async function waitPastSplash(page) {
       }
       await page.waitForTimeout(800);
       // App didn't crash if the window still has the toolbar.
-      const alive = await page.locator('button:has(.lucide-settings), [aria-label*="Outline Files"]').first().isVisible({ timeout: 8000 }).catch(() => false);
+      const alive = await page.locator('[data-settings-trigger], button:has(.lucide-settings), [aria-label*="Outline Files"]').first().isVisible({ timeout: 8000 }).catch(() => false);
       record('Rapid-fire actions (15x)', alive, [`UI alive after rapid input: ${alive}`]);
       await page.screenshot({ path: path.join(SHOTS, '3-rapid.png') }).catch(() => {});
     } catch (e) {
@@ -171,7 +175,7 @@ async function waitPastSplash(page) {
         await editable.fill(weird).catch(() => { ok = false; });
         await page.waitForTimeout(500);
       }
-      const alive = await page.locator('button:has(.lucide-settings), [aria-label*="Outline Files"]').first().isVisible({ timeout: 8000 }).catch(() => false);
+      const alive = await page.locator('[data-settings-trigger], button:has(.lucide-settings), [aria-label*="Outline Files"]').first().isVisible({ timeout: 8000 }).catch(() => false);
       record('Special characters (emoji/RTL/HTML)', ok && alive, [`UI alive after weird input: ${alive}`]);
       await page.screenshot({ path: path.join(SHOTS, '4-special-chars.png') }).catch(() => {});
     } catch (e) {

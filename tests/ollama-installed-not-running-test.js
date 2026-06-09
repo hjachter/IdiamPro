@@ -114,8 +114,10 @@ async function closeAllDialogs() {
 async function testSettingsDialog(ollamaInstalled) {
   const d = { steps: [] };
   try {
-    const settingsBtn = page.locator('button:has(.lucide-settings), [aria-label*="Settings"]').first();
-    await settingsBtn.click();
+    // Settings button is hidden on narrow widths (lg:inline-flex); use the
+    // canonical data-attribute so we hit the always-present trigger.
+    const settingsBtn = page.locator('[data-settings-trigger], button:has(.lucide-settings), [aria-label*="Settings"]').first();
+    await settingsBtn.click({ force: true });
     await page.waitForTimeout(1500); // let ollama probe finish
     d.steps.push('Opened Settings dialog');
     await shot('01-settings-open');
@@ -168,10 +170,27 @@ async function testSettingsDialog(ollamaInstalled) {
 async function testBulkResearchDialog(ollamaInstalled) {
   const d = { steps: [] };
   try {
-    const aiBtn = page.locator('button[title="AI Features"]').first();
-    await aiBtn.click();
-    await page.waitForTimeout(500);
-    const researchItem = page.locator('text="Research & Import"').first();
+    // Research & Import moved to the Import menu (BookDown). On narrow widths
+    // it's in the overflow "More tools" menu instead.
+    let researchItem = null;
+    const importBtn = page.locator('button[aria-label^="Import"]').first();
+    if (await importBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await importBtn.click();
+      await page.waitForTimeout(500);
+      researchItem = page.locator('[role="menuitem"]:has-text("Research & Import")').first();
+    }
+    if (!researchItem || !(await researchItem.isVisible({ timeout: 1500 }).catch(() => false))) {
+      // Fallback: overflow menu (narrow widths).
+      const overflow = page.locator('button[aria-label="More tools"]').first();
+      if (await overflow.isVisible({ timeout: 1500 }).catch(() => false)) {
+        await overflow.click();
+        await page.waitForTimeout(500);
+        researchItem = page.locator('[role="menuitem"]:has-text("Research & Import")').first();
+      }
+    }
+    if (!researchItem) {
+      researchItem = page.locator('text="Research & Import"').first();
+    }
     if (!(await researchItem.isVisible({ timeout: 2000 }).catch(() => false))) {
       d.error = 'Research & Import menu item not found';
       await shot('02-research-no-item');
@@ -272,7 +291,10 @@ async function runAll() {
     console.error('Test run aborted:', e.message);
     report.error = e.message;
   } finally {
-    if (electronApp) await electronApp.close().catch(() => {});
+    if (electronApp) await Promise.race([
+      electronApp.close().catch(() => {}),
+      new Promise((resolve) => setTimeout(resolve, 5000)),
+    ]);
   }
 
   report.summary.total = report.tests.length;

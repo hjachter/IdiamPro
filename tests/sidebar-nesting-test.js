@@ -30,6 +30,13 @@ const path = require('path');
 const fs = require('fs');
 const os = require('os');
 
+// Swallow the benign Electron-teardown dialog race.
+process.on('unhandledRejection', (err) => {
+  const msg = String((err && err.message) || err);
+  if (/handleJavaScriptDialog|No dialog is showing/.test(msg)) return;
+  throw err;
+});
+
 let electronApp;
 let page;
 
@@ -86,6 +93,12 @@ async function launchApp() {
   await page.waitForLoadState('domcontentloaded');
   await page.waitForTimeout(3000);
 
+  // Disable discovery toasts so the cross-outline-link hint can't intercept
+  // clicks on the Link-to-Outline dialog's Insert button.
+  await page.evaluate(() => {
+    localStorage.setItem('discovery:professionalMode', 'true');
+  });
+
   const currentUrl = page.url();
   if (!currentUrl.includes('/app')) {
     await page.evaluate(() => { window.location.href = '/app'; });
@@ -97,6 +110,11 @@ async function launchApp() {
       await page.waitForTimeout(5000);
     }
   }
+  // Re-apply after the /app navigation in case the localStorage write
+  // happened on a different origin/path.
+  await page.evaluate(() => {
+    localStorage.setItem('discovery:professionalMode', 'true');
+  });
 
   // Splash text gate
   const splashGone = await page.locator('text=/Loading IdiamPro/i')
@@ -231,6 +249,7 @@ async function clickChevronOnRow(outlineName) {
 /* ───────── Main ───────── */
 
 async function main() {
+  console.log('═══ sidebar-nesting test starting ═══');
   ensureDir(SCREENSHOT_DIR);
   const startedAt = Date.now();
   const report = {
@@ -249,7 +268,9 @@ async function main() {
   }
 
   try {
+    console.log('launching app...');
     await launchApp();
+    console.log('app launched, building outlines');
     report.steps.push('App launched');
     await shot('00-launched');
 

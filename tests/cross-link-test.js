@@ -28,6 +28,13 @@ const path = require('path');
 const fs = require('fs');
 const os = require('os');
 
+// Swallow the benign Electron-teardown dialog race (matches gemma4/electron-test).
+process.on('unhandledRejection', (err) => {
+  const msg = String((err && err.message) || err);
+  if (/handleJavaScriptDialog|No dialog is showing/.test(msg)) return;
+  throw err;
+});
+
 let electronApp;
 let page;
 
@@ -84,6 +91,12 @@ async function launchApp() {
   await page.waitForLoadState('domcontentloaded');
   await page.waitForTimeout(3000);
 
+  // Disable discovery toasts so the cross-outline-link hint can't intercept
+  // clicks on the Link-to-Outline dialog's Insert button.
+  await page.evaluate(() => {
+    localStorage.setItem('discovery:professionalMode', 'true');
+  });
+
   const currentUrl = page.url();
   if (!currentUrl.includes('/app')) {
     await page.evaluate(() => { window.location.href = '/app'; });
@@ -95,6 +108,10 @@ async function launchApp() {
       await page.waitForTimeout(5000);
     }
   }
+  // Re-apply after the /app navigation.
+  await page.evaluate(() => {
+    localStorage.setItem('discovery:professionalMode', 'true');
+  });
 
   // Splash text gate
   const splashGone = await page.locator('text=/Loading IdiamPro/i')
@@ -188,15 +205,23 @@ async function clickNodeByName(name) {
 }
 
 async function switchToOutlineByName(name) {
-  // The sidebar lists outlines as clickable buttons. Some renderings use a
-  // role="button"; others a div. Try multiple selectors.
+  // The sidebar lists outlines as rows with data-outline-id. Try the
+  // canonical selector first, then fall back to button/role variants.
   const candidates = [
+    page.locator(`[data-outline-id]:has-text("${name}")`).first(),
     page.locator(`button:has-text("${name}")`).first(),
     page.locator(`[role="button"]:has-text("${name}")`).first(),
   ];
   for (const c of candidates) {
     if (await c.isVisible({ timeout: 1500 }).catch(() => false)) {
-      await c.click();
+      // The row itself may not be a button — click the inner span so the
+      // outline-row onClick handler fires reliably.
+      const inner = c.locator(`span:has-text("${name}")`).first();
+      if (await inner.isVisible({ timeout: 800 }).catch(() => false)) {
+        await inner.click();
+      } else {
+        await c.click();
+      }
       await page.waitForTimeout(800);
       return true;
     }

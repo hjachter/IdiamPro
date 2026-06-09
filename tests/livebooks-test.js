@@ -268,7 +268,7 @@ async function openLiveBooksDialog() {
   const d = { steps: [], entryPointTried: [] };
 
   const dialogTitle = () =>
-    page.locator('text=/LIVE BOOKS .* Refresh from the web/i').first();
+    page.locator('text=/Refresh from Web/i').first();
 
   async function dialogVisible() {
     return dialogTitle().isVisible({ timeout: 2500 }).catch(() => false);
@@ -298,33 +298,35 @@ async function openLiveBooksDialog() {
     d.steps.push(`Shortcut attempt error: ${e.message}`);
   }
 
-  // Entry point 2: toolbar AI Features menu → "LIVE BOOKS: Refresh from the web".
+  // Entry point 2: toolbar Import menu (BookDown icon) → "Refresh from Web".
+  // (Moved from Smart Tools to Import menu 2026-06-06 — it pulls external
+  // content INTO existing nodes, so it fits the Import metaphor.)
   try {
-    d.entryPointTried.push('AI Features menu');
-    const aiBtn = page.locator('button[title="AI Features"]').first();
-    if (await aiBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
-      await aiBtn.click();
+    d.entryPointTried.push('Import menu');
+    const importBtn = page.locator('button[aria-label^="Import"]').first();
+    if (await importBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await importBtn.click();
       await page.waitForTimeout(700);
-      await shot('03-ai-menu-open');
-      const item = page.locator('text=/LIVE BOOKS: *Refresh from the web/i').first();
+      await shot('03-import-menu-open');
+      const item = page.locator('[role="menuitem"]:has-text("Refresh from Web")').first();
       if (await item.isVisible({ timeout: 2000 }).catch(() => false)) {
         await item.click();
         await page.waitForTimeout(1200);
         if (await dialogVisible()) {
-          d.steps.push('Opened via AI Features menu');
-          d.openedVia = 'AI Features menu';
+          d.steps.push('Opened via Import menu');
+          d.openedVia = 'Import menu';
           await shot('03-dialog-via-menu');
           return { passed: true, details: d };
         }
       } else {
-        d.steps.push('LIVE BOOKS item not found in AI Features menu');
+        d.steps.push('Refresh from Web item not found in Import menu');
         await page.keyboard.press('Escape');
       }
     } else {
-      d.steps.push('AI Features toolbar button not visible');
+      d.steps.push('Import toolbar button not visible');
     }
   } catch (e) {
-    d.steps.push(`AI menu attempt error: ${e.message}`);
+    d.steps.push(`Import menu attempt error: ${e.message}`);
   }
 
   // Entry point 3: Command Palette (Cmd+K) → "LIVE BOOKS: Refresh from the web".
@@ -339,10 +341,10 @@ async function openLiveBooksDialog() {
       palette = page.locator('[role="dialog"] input, [cmdk-input]').first();
     }
     if (await palette.isVisible({ timeout: 2000 }).catch(() => false)) {
-      await palette.fill('LIVE BOOKS');
+      await palette.fill('Refresh from Web');
       await page.waitForTimeout(700);
       await shot('03-command-palette');
-      const cmdItem = page.locator('text=/LIVE BOOKS: *Refresh from the web/i').first();
+      const cmdItem = page.locator('text=/Refresh from Web/i').first();
       if (await cmdItem.isVisible({ timeout: 2000 }).catch(() => false)) {
         await cmdItem.click();
         await page.waitForTimeout(1200);
@@ -378,7 +380,7 @@ async function assertDialogContent() {
     d.dialogTextLength = text.length;
 
     // Check 1: dialog title renders.
-    const titleOk = /LIVE BOOKS\s*—?\s*Refresh from the web/i.test(text);
+    const titleOk = /Refresh from Web/i.test(text);
     d.checks.dialogRenders = titleOk;
     d.steps.push(titleOk ? 'Dialog title renders' : 'Dialog title MISSING');
 
@@ -567,7 +569,10 @@ async function runAll() {
     console.error('Test run aborted:', e.message);
     report.error = e.message;
   } finally {
-    if (electronApp) await electronApp.close().catch(() => {});
+    if (electronApp) await Promise.race([
+      electronApp.close().catch(() => {}),
+      new Promise((resolve) => setTimeout(resolve, 5000)),
+    ]);
   }
 
   report.summary.total = report.tests.length;

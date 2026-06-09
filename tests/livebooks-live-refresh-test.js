@@ -142,6 +142,9 @@ async function launchApp() {
     localStorage.removeItem('aiProvider');
     // Reset the usage counter so nothing else interferes.
     localStorage.removeItem('idiampro-ai-usage-counter-v1');
+    // Disable discovery toasts — the cross-outline-link toast is
+    // pointer-events-auto and can intercept clicks on the Refresh button.
+    localStorage.setItem('discovery:professionalMode', 'true');
   });
 
   const currentUrl = page.url();
@@ -287,7 +290,7 @@ async function buildOutlineAndSelectNode() {
 async function openLiveBooksDialog() {
   const d = { steps: [], entryPointTried: [] };
   const dialogTitle = () =>
-    page.locator('text=/LIVE BOOKS .* Refresh from the web/i').first();
+    page.locator('text=/Refresh from Web/i').first();
   const dialogVisible = async () =>
     dialogTitle().isVisible({ timeout: 2500 }).catch(() => false);
 
@@ -314,20 +317,20 @@ async function openLiveBooksDialog() {
     d.steps.push(`Shortcut error: ${e.message}`);
   }
 
-  // AI Features menu.
+  // Import menu (BookDown) — Refresh from Web lives here as of 2026-06-06.
   try {
-    d.entryPointTried.push('AI Features menu');
-    const aiBtn = page.locator('button[title="AI Features"]').first();
-    if (await aiBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
-      await aiBtn.click();
+    d.entryPointTried.push('Import menu');
+    const importBtn = page.locator('button[aria-label^="Import"]').first();
+    if (await importBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await importBtn.click();
       await page.waitForTimeout(700);
-      const item = page.locator('text=/LIVE BOOKS: *Refresh from the web/i').first();
+      const item = page.locator('[role="menuitem"]:has-text("Refresh from Web")').first();
       if (await item.isVisible({ timeout: 2000 }).catch(() => false)) {
         await item.click();
         await page.waitForTimeout(1200);
         if (await dialogVisible()) {
-          d.openedVia = 'AI Features menu';
-          d.steps.push('Opened via AI Features menu');
+          d.openedVia = 'Import menu';
+          d.steps.push('Opened via Import menu');
           await shot('03-dialog-opened');
           return { passed: true, details: d };
         }
@@ -336,7 +339,7 @@ async function openLiveBooksDialog() {
       }
     }
   } catch (e) {
-    d.steps.push(`AI menu error: ${e.message}`);
+    d.steps.push(`Import menu error: ${e.message}`);
   }
 
   d.error = `LIVE BOOKS dialog did not open (tried: ${d.entryPointTried.join(', ')})`;
@@ -735,7 +738,10 @@ async function runAll() {
     console.error('Test run aborted:', e.message);
     report.error = e.message;
   } finally {
-    if (electronApp) await electronApp.close().catch(() => {});
+    if (electronApp) await Promise.race([
+      electronApp.close().catch(() => {}),
+      new Promise((resolve) => setTimeout(resolve, 5000)),
+    ]);
   }
 
   report.summary.total = report.tests.length;

@@ -106,6 +106,11 @@ async function launchApp() {
     );
     localStorage.removeItem('aiProvider');
     localStorage.removeItem('idiampro-ai-usage-counter-v1');
+    // Disable discovery toasts so they cannot intercept clicks on our test
+    // targets (the cross-outline-link toast is pointer-events-auto and
+    // appears at the bottom-right of the viewport, sometimes overlapping
+    // the action buttons we need to click).
+    localStorage.setItem('discovery:professionalMode', 'true');
   });
 
   const currentUrl = page.url();
@@ -250,8 +255,8 @@ async function openTranslateDialog() {
     dialogTitle().isVisible({ timeout: 2500 }).catch(() => false);
 
   try {
-    d.entryPointTried.push('AI Features menu');
-    const aiBtn = page.locator('button[title="AI Features"]').first();
+    d.entryPointTried.push('Smart Tools menu');
+    const aiBtn = page.locator('button[aria-label="Smart Tools menu"]').first();
     if (await aiBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
       await aiBtn.click();
       await page.waitForTimeout(700);
@@ -260,8 +265,8 @@ async function openTranslateDialog() {
         await item.click();
         await page.waitForTimeout(1200);
         if (await dialogVisible()) {
-          d.openedVia = 'AI Features menu';
-          d.steps.push('Opened via AI Features menu');
+          d.openedVia = 'Smart Tools menu';
+          d.steps.push('Opened via Smart Tools menu');
           await shot('03-dialog-opened');
           return { passed: true, details: d };
         }
@@ -696,7 +701,10 @@ async function runAll() {
     console.error('Test run aborted:', e.message);
     report.error = e.message;
   } finally {
-    if (electronApp) await electronApp.close().catch(() => {});
+    if (electronApp) await Promise.race([
+      electronApp.close().catch(() => {}),
+      new Promise((resolve) => setTimeout(resolve, 5000)),
+    ]);
   }
 
   report.summary.total = report.tests.length;

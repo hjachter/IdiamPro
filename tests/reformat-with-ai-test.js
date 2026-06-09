@@ -92,6 +92,9 @@ async function launchApp() {
     localStorage.setItem('apiKey_gemini', 'AIzaTestKey1234567890fakefakefakefakeFAKE');
     localStorage.removeItem('aiProvider');
     localStorage.removeItem('idiampro-ai-usage-counter-v1');
+    // Disable discovery toasts so they cannot intercept clicks on the
+    // Reformat / Preview action buttons.
+    localStorage.setItem('discovery:professionalMode', 'true');
   });
 
   const currentUrl = page.url();
@@ -271,8 +274,11 @@ async function tryChipAndRun() {
   // Either we land in preview (success path) OR back in input with an
   // error message (forgery rejected). Both prove the wiring works.
   const previewHeader = await page.locator('text=/Before/').first().isVisible({ timeout: 2000 }).catch(() => false);
-  const errorVisible = await page.locator('text=/I couldn\\u2019t reformat|reformat didn\\u2019t go through|already in that format/i')
-    .first().isVisible({ timeout: 1000 }).catch(() => false);
+  // Match both straight (') and curly (’) apostrophes since the actual
+  // copy uses different forms in different places.
+  const errorVisible = await page.locator(
+    "text=/(?:I couldn[’']t reformat|reformat didn[’']t go through|already in that format)/i"
+  ).first().isVisible({ timeout: 1000 }).catch(() => false);
 
   d.landedInPreview = previewHeader;
   d.landedInInputWithError = errorVisible;
@@ -299,6 +305,7 @@ async function tryChipAndRun() {
 }
 
 async function main() {
+  console.log('═══ reformat-with-ai test starting ═══');
   ensureDir(SCREENSHOT_DIR);
   const report = {
     suite: 'reformat-with-ai',
@@ -311,15 +318,21 @@ async function main() {
   const t0 = Date.now();
   try {
     await launchApp();
+    console.log('— building outline…');
     const built = await buildOutlineAndSelect();
+    console.log('— build done', built.passed);
     report.steps.push({ stage: 'build', ...built });
     if (!built.passed) throw new Error(built.details.error || 'build failed');
 
+    console.log('— opening reformat dialog…');
     const opened = await openReformatDialog();
     report.steps.push({ stage: 'open', ...opened });
+    console.log('— open done', opened.passed);
     if (!opened.passed) throw new Error(opened.details.error || 'open failed');
 
+    console.log('— running chip…');
     const ran = await tryChipAndRun();
+    console.log('— run done', ran.passed);
     report.steps.push({ stage: 'run', ...ran });
     if (!ran.passed) throw new Error(ran.details.error || 'run failed');
 
@@ -341,7 +354,10 @@ async function main() {
       ...report.steps.map(s => `- **${s.stage}**: ${s.passed ? 'passed' : 'failed'} — ${(s.details && s.details.steps || []).join('; ') || s.details?.error || ''}`),
     ].join('\n');
     fs.writeFileSync(path.join(SCREENSHOT_DIR, 'report.md'), md);
-    if (electronApp) await electronApp.close().catch(() => {});
+    if (electronApp) await Promise.race([
+      electronApp.close().catch(() => {}),
+      new Promise((resolve) => setTimeout(resolve, 5000)),
+    ]);
     process.exit(report.passed ? 0 : 1);
   }
 }

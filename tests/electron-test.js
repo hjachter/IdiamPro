@@ -3,6 +3,17 @@ const path = require('path');
 const fs = require('fs');
 const os = require('os');
 
+// Playwright auto-handles native JS dialogs (confirm/beforeunload). During
+// app teardown the dialog auto-handler can race the page closing, surfacing
+// as an uncaught "Page.handleJavaScriptDialog: No dialog is showing" rejection.
+// That race is benign — swallow it so it can't kill the process before the
+// report is written. Any other unhandled rejection is still re-thrown.
+process.on('unhandledRejection', (err) => {
+  const msg = String((err && err.message) || err);
+  if (/handleJavaScriptDialog|No dialog is showing/.test(msg)) return;
+  throw err;
+});
+
 let electronApp;
 let page;
 
@@ -102,24 +113,29 @@ async function launchApp() {
 }
 
 async function closeApp() {
-  if (electronApp) {
-    await electronApp.close();
-  }
+  if (!electronApp) return;
+  // Race the close against a 5s deadline. The Electron teardown sometimes
+  // hangs because of leaked JS-dialog handlers — once we have all results,
+  // exiting cleanly matters more than a graceful shutdown.
+  await Promise.race([
+    electronApp.close().catch(() => {}),
+    new Promise((resolve) => setTimeout(resolve, 5000)),
+  ]);
 }
 
-// Test: Click Welcome Tour button
+// Test: Click Welcome Outline button
 async function testWelcomeTour() {
   const details = { steps: [] };
 
   try {
-    // Look for the Welcome Tour button in sidebar
-    const welcomeButton = page.locator('button:has-text("Welcome Tour"), button:has-text("Welcome")');
+    // Look for the Welcome Outline button in sidebar (renamed from Welcome Tour)
+    const welcomeButton = page.locator('button:has-text("Welcome Outline"), button:has-text("Welcome")');
     const count = await welcomeButton.count();
     details.steps.push(`Found ${count} Welcome button(s)`);
 
     if (count > 0 && await welcomeButton.first().isVisible({ timeout: 5000 })) {
       await welcomeButton.first().click();
-      details.steps.push('Welcome Tour button clicked');
+      details.steps.push('Welcome Outline button clicked');
 
       // Verify welcome outline loaded - use heading to be more specific
       await page.waitForTimeout(2000);
@@ -131,7 +147,7 @@ async function testWelcomeTour() {
         details.error = 'Welcome outline title not found';
       }
     } else {
-      details.error = 'Welcome Tour button not visible';
+      details.error = 'Welcome Outline button not visible';
       const allButtons = await page.locator('button').allTextContents();
       details.availableButtons = allButtons.slice(0, 10);
     }
@@ -146,13 +162,14 @@ async function testSettingsDialog() {
   const details = { steps: [] };
 
   try {
-    // Look for settings button
-    const settingsButton = page.locator('button:has(svg[class*="settings"]), button:has(.lucide-settings), [aria-label*="Settings"]');
+    // Look for settings button (data-settings-trigger is always in the DOM
+    // even when the visible button is hidden lg:inline-flex on narrow widths).
+    const settingsButton = page.locator('[data-settings-trigger], button:has(svg[class*="settings"]), button:has(.lucide-settings), [aria-label*="Settings"]');
     const count = await settingsButton.count();
     details.steps.push(`Found ${count} Settings button(s)`);
 
     if (count > 0) {
-      await settingsButton.first().click();
+      await settingsButton.first().click({ force: true });
       details.steps.push('Settings button clicked');
 
       await page.waitForTimeout(1000);
@@ -182,14 +199,23 @@ async function testSettingsDialog() {
           }
         }
 
-        // Close dialogs
-        const closeButtons = page.locator('button:has-text("Close")');
-        const closeCount = await closeButtons.count();
-        for (let i = 0; i < closeCount; i++) {
-          if (await closeButtons.nth(i).isVisible()) {
-            await closeButtons.nth(i).click();
-            await page.waitForTimeout(300);
-          }
+        // Close every open dialog via Escape until the DOM is clean. The
+        // older Close-button sweep occasionally left a stale Radix overlay
+        // behind when the inner Plan dialog didn't open as expected, which
+        // then intercepted clicks on every subsequent test step.
+        for (let attempt = 0; attempt < 6; attempt++) {
+          const dialogCount = await page.locator('[role="dialog"]').count().catch(() => 0);
+          if (dialogCount === 0) break;
+          await page.keyboard.press('Escape').catch(() => {});
+          await page.waitForTimeout(300);
+        }
+        // Safety net: if any Radix overlay is still in the DOM, surface it
+        // in the report so we can see leaked-overlay issues immediately.
+        const leakedOverlay = await page.locator('div[data-state="open"].fixed.inset-0').count().catch(() => 0);
+        if (leakedOverlay > 0) {
+          details.steps.push(`WARN: ${leakedOverlay} leaked Radix overlay(s) after Escape`);
+          await page.locator('body').click({ position: { x: 5, y: 5 }, force: true }).catch(() => {});
+          await page.waitForTimeout(300);
         }
         return { passed: true, details };
       }
@@ -199,6 +225,15 @@ async function testSettingsDialog() {
   } catch (error) {
     details.error = error.message;
   }
+  // Best-effort cleanup on error path too so the next test isn't blocked.
+  try {
+    for (let attempt = 0; attempt < 4; attempt++) {
+      const dialogCount = await page.locator('[role="dialog"]').count().catch(() => 0);
+      if (dialogCount === 0) break;
+      await page.keyboard.press('Escape').catch(() => {});
+      await page.waitForTimeout(300);
+    }
+  } catch {}
   return { passed: false, details };
 }
 
@@ -423,9 +458,11 @@ async function testDarkMode() {
   const details = { steps: [] };
 
   try {
-    // Open settings
-    const settingsButton = page.locator('button:has(svg[class*="settings"]), button:has(.lucide-settings), [aria-label*="Settings"]');
-    await settingsButton.first().click();
+    // Open settings (use the canonical data-attribute trigger that is in
+    // the DOM at every viewport width; force-click in case the visible
+    // button is hidden on narrow widths).
+    const settingsButton = page.locator('[data-settings-trigger], button:has(svg[class*="settings"]), button:has(.lucide-settings), [aria-label*="Settings"]');
+    await settingsButton.first().click({ force: true });
     await page.waitForTimeout(1000);
     details.steps.push('Opened settings');
 
@@ -446,16 +483,28 @@ async function testDarkMode() {
       details.steps.push('Theme option found in settings');
     }
 
-    // Close settings
-    const closeButton = page.locator('button:has-text("Close")');
-    if (await closeButton.first().isVisible({ timeout: 1000 })) {
-      await closeButton.first().click();
+    // Close settings — Escape is more reliable than the visible Close button
+    // (which may be obscured by tooltips at certain viewport sizes).
+    for (let attempt = 0; attempt < 5; attempt++) {
+      const dialogCount = await page.locator('[role="dialog"]').count().catch(() => 0);
+      if (dialogCount === 0) break;
+      await page.keyboard.press('Escape').catch(() => {});
+      await page.waitForTimeout(300);
     }
 
     return { passed: true, details };
   } catch (error) {
     details.error = error.message;
   }
+  // Best-effort cleanup so leakage doesn't break later tests.
+  try {
+    for (let attempt = 0; attempt < 4; attempt++) {
+      const dialogCount = await page.locator('[role="dialog"]').count().catch(() => 0);
+      if (dialogCount === 0) break;
+      await page.keyboard.press('Escape').catch(() => {});
+      await page.waitForTimeout(300);
+    }
+  } catch {}
   return { passed: false, details };
 }
 
@@ -585,7 +634,7 @@ async function runTests() {
     // Define tests - ordered so safe tests run first, riskier ones last
     const testCases = [
       { name: 'User Guide', fn: testUserGuide, screenshot: '02-after-guide' },
-      { name: 'Welcome Tour', fn: testWelcomeTour, screenshot: '03-after-welcome' },
+      { name: 'Welcome Outline', fn: testWelcomeTour, screenshot: '03-after-welcome' },
       { name: 'Create Outline', fn: testCreateOutline, screenshot: '04-after-create' },
       { name: 'Settings Dialog', fn: testSettingsDialog, screenshot: '05-after-settings' },
       { name: 'Keyboard Navigation', fn: testKeyboardNavigation, screenshot: '06-after-keyboard' },

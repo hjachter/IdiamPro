@@ -56,7 +56,11 @@ async function reopenSettings() {
 }
 
 async function closeApp() {
-  if (electronApp) await electronApp.close();
+  if (!electronApp) return;
+  await Promise.race([
+    electronApp.close().catch(() => {}),
+    new Promise((resolve) => setTimeout(resolve, 5000)),
+  ]);
 }
 
 async function clearAllBYOKKeys() {
@@ -67,13 +71,21 @@ async function clearAllBYOKKeys() {
     localStorage.removeItem('idiampro-ai-usage-counter-v1');
     localStorage.removeItem('idiampro-tier-id');
   });
+  // The Settings dialog only reads localStorage in useEffect on mount, so we
+  // need a full page reload to re-mount with the cleared keys. Otherwise a
+  // key seeded by a previous suite (e.g. livebooks-live-refresh) leaks into
+  // this test and the Quick Start tile (gated on !apiKeys['gemini']) hides.
+  await page.reload({ waitUntil: 'domcontentloaded' }).catch(() => {});
+  await page.waitForTimeout(2500);
 }
 
 async function openSettings() {
+  // data-settings-trigger is always rendered (even when the visible button is
+  // hidden lg:inline-flex on narrow widths).
   const trigger = page.locator(
-    'button:has(svg[class*="settings"]), button:has(.lucide-settings), [aria-label*="Settings"]',
+    '[data-settings-trigger], button:has(svg[class*="settings"]), button:has(.lucide-settings), [aria-label*="Settings"]',
   );
-  await trigger.first().click();
+  await trigger.first().click({ force: true });
   await page
     .locator('[data-testid="ai-usage-section"]')
     .waitFor({ state: 'visible', timeout: 5000 });
