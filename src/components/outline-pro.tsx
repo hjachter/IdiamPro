@@ -3674,7 +3674,7 @@ export default function OutlinePro() {
 
     const secondBrain = outlines.find(o => o.isSecondBrain);
     if (!secondBrain) {
-      toast({ title: "No Second Brain", description: "Second Brain outline not found.", variant: "destructive" });
+      toast({ title: "We couldn't find your Second Brain", description: "Your Second Brain outline seems to be missing. Try reopening the app — it should be re-created automatically.", variant: "destructive" });
       return;
     }
 
@@ -3817,7 +3817,7 @@ export default function OutlinePro() {
 
     const secondBrain = outlines.find(o => o.isSecondBrain);
     if (!secondBrain) {
-      toast({ title: "No Second Brain found", description: "Please create a Second Brain outline first.", variant: "destructive" });
+      toast({ title: "We couldn't find your Second Brain", description: "Your Second Brain outline seems to be missing. Try reopening the app — it should be re-created automatically.", variant: "destructive" });
       return;
     }
 
