@@ -31,7 +31,7 @@ This is a realistic playbook for a one-person operation. The goal is to act fast
 
 - **SEV-1/SEV-2**: status page post within the SLA window, updated at least every 2 hours until resolved.
 - **Email blast threshold**: if more than ~10% of active users are affected for over 2 hours, send a plain-text email update. Use the support inbox, not a marketing tool.
-- **Social media**: post on the SecondBrainWare X/Mastodon/Bluesky accounts mirroring the status page. Template: _"We're aware of [issue] affecting [scope]. Investigating now — updates at status.secondbrainware.com."_
+- **Social media**: post on the SecondBrainWare X/Mastodon/Bluesky accounts mirroring the status page. Template: _"We're aware of [issue] affecting [scope]. Investigating now — updates at status.2ndbrainware.com."_
 
 ## Specific Scenarios
 

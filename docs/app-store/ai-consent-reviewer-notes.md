@@ -56,4 +56,4 @@ Open **Settings > Data & Privacy** and turn the **"Allow AI data processing"** s
 
 ## 7. Privacy Policy
 
-In-app and on the web at **`/privacy`** (e.g. `https://secondbrainware.com/privacy`). The policy itemizes each provider, what data is sent, retention, and explicitly states that user content is not used to train models, sold, or shared.
+In-app and on the web at **`/privacy`** (e.g. `https://2ndbrainware.com/privacy`). The policy itemizes each provider, what data is sent, retention, and explicitly states that user content is not used to train models, sold, or shared.

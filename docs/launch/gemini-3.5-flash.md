@@ -20,7 +20,7 @@ No "Gemini 4." The honest framing is: a solid, free Flash upgrade — worth a me
 
 ---
 
-## 1. Landing-page section (secondbrainware.com)
+## 1. Landing-page section (2ndbrainware.com)
 
 > **Now running on Google's latest Gemini.**
 >
@@ -115,7 +115,7 @@ No "Gemini 4." The honest framing is: a solid, free Flash upgrade — worth a me
 
 For replying to anyone discussing Gemini 3.5 Flash:
 
-> SecondBrainWare moved to Gemini 3.5 Flash the day it shipped. Bring your own Google key and you're already on it. https://secondbrainware.com
+> SecondBrainWare moved to Gemini 3.5 Flash the day it shipped. Bring your own Google key and you're already on it. https://2ndbrainware.com
 
 ---
 

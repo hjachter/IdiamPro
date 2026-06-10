@@ -185,7 +185,7 @@
     "publish": [
       {
         "provider": "generic",
-        "url": "https://www.secondbrainware.com/updates/mac",
+        "url": "https://www.2ndbrainware.com/updates/mac",
         "channel": "latest"
       }
     ],

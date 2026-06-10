@@ -14,7 +14,7 @@ import { DiscoveryToastStack } from '@/components/discovery-toast';
 // NOTE: /og-image.png is referenced below but has not been designed yet.
 // A 1200x630 PNG should be added to /public/og-image.png before production launch.
 export const metadata: Metadata = {
-  metadataBase: new URL('https://secondbrainware.com'),
+  metadataBase: new URL('https://2ndbrainware.com'),
   title: {
     default: 'SecondBrainWare — AI-native outliner for thinkers and researchers',
     template: '%s | SecondBrainWare',
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://secondbrainware.com',
+    url: 'https://2ndbrainware.com',
     siteName: 'SecondBrainWare',
     title: 'SecondBrainWare — AI-native outliner for thinkers and researchers',
     description:
