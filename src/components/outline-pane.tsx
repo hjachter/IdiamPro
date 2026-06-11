@@ -9,7 +9,7 @@ import { MultiSelectToolbar } from './multi-select-toolbar';
 import FileImportDialog from './file-import-dialog';
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Plus, Trash2, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, ChevronsDownUp, Settings, Search, Command, PanelLeft, PanelLeftClose, Brain, StopCircle, Inbox, LayoutDashboard, Focus, Sparkles, Mic, MessageSquare, BookDown, BookUp, Share2, ExternalLink, RefreshCw, MoreHorizontal, HelpCircle, Send } from 'lucide-react';
+import { Plus, Trash2, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, ChevronsDownUp, Settings, Search, Command, PanelLeft, PanelLeftClose, Brain, StopCircle, Inbox, LayoutDashboard, Focus, Sparkles, Mic, MessageSquare, BookDown, BookUp, Share2, ExternalLink, RefreshCw, MoreHorizontal, HelpCircle, Send, ShieldCheck } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter } from "@/components/ui/alert-dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -178,6 +178,11 @@ interface OutlinePaneProps {
   onToggleFocusMode?: () => void;
   // Cross-outline link picker (Phase 1, 2026-06-04)
   onOpenLinkToOutline?: () => void;
+  // Backup / Restore (2026-06-10) — open the snapshots dialog. When the user
+  // clicks the toolbar Backup button we open it on the Backup tab; the
+  // dropdown "Restore from backup…" opens it on the Restore tab.
+  onOpenBackup?: () => void;
+  onOpenRestore?: () => void;
 }
 
 export default function OutlinePane({
@@ -249,6 +254,8 @@ export default function OutlinePane({
   isFocusMode,
   onToggleFocusMode,
   onOpenLinkToOutline,
+  onOpenBackup,
+  onOpenRestore,
 }: OutlinePaneProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   // Don't-ask-again state for the delete-item confirm (2026-06-10). When the
@@ -962,6 +969,16 @@ export default function OutlinePane({
                     <DropdownMenuItem onSelect={handleRestoreAllClick} className="cursor-pointer py-1">
                         <FileUp className="mr-2 h-4 w-4" /> Restore All Outlines
                     </DropdownMenuItem>
+                    {onOpenRestore && (
+                        <DropdownMenuItem
+                            onSelect={onOpenRestore}
+                            disabled={!currentOutline}
+                            className="cursor-pointer py-1"
+                            title={currentOutline ? 'Restore this outline from a previous snapshot' : 'Open an outline first'}
+                        >
+                            <RotateCcw className="mr-2 h-4 w-4" /> Restore from backup&hellip;
+                        </DropdownMenuItem>
+                    )}
                     {onOpenLiveBooks && (
                         <DropdownMenuItem
                             onSelect={onOpenLiveBooks}
@@ -975,6 +992,29 @@ export default function OutlinePane({
                 </DropdownMenuContent>
             </DropdownMenu>
         </TooltipProvider>
+
+        {/* Backup button — quick snapshot of the current outline. The Restore
+            tab lives one click away inside the same dialog. (Tier 2: tablet+) */}
+        {onOpenBackup && (
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={onOpenBackup}
+                            disabled={!currentOutline}
+                            className="shrink-0 active:scale-95 active:bg-accent/30 hidden sm:inline-flex"
+                            aria-label="Backup — save a snapshot of this outline"
+                            data-testid="backup-outline-button"
+                        >
+                            <ShieldCheck className="h-4 w-4" />
+                        </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom">Backup outline</TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
+        )}
 
         {/* Export dropdown — sending data OUT of the outline (Tier 2: tablet+) */}
         <TooltipProvider>
@@ -1055,6 +1095,24 @@ export default function OutlinePane({
                         >
                             <BookUp className="mr-2 h-4 w-4" /> Export Outline
                         </DropdownMenuItem>
+                        {onOpenBackup && (
+                            <DropdownMenuItem
+                                onSelect={onOpenBackup}
+                                disabled={!currentOutline}
+                                className="cursor-pointer py-1"
+                            >
+                                <ShieldCheck className="mr-2 h-4 w-4" /> Backup Outline
+                            </DropdownMenuItem>
+                        )}
+                        {onOpenRestore && (
+                            <DropdownMenuItem
+                                onSelect={onOpenRestore}
+                                disabled={!currentOutline}
+                                className="cursor-pointer py-1"
+                            >
+                                <RotateCcw className="mr-2 h-4 w-4" /> Restore from Backup…
+                            </DropdownMenuItem>
+                        )}
                         <DropdownMenuItem
                             onSelect={() => onToggleFocusMode?.()}
                             disabled={!selectedNodeId || !onToggleFocusMode}

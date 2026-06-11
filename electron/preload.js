@@ -58,6 +58,13 @@ contextBridge.exposeInMainWorld('electronAPI', {
   loadUnmergeBackup: () => ipcRenderer.invoke('load-unmerge-backup'),
   deleteUnmergeBackup: () => ipcRenderer.invoke('delete-unmerge-backup'),
 
+  // Outline snapshots (Backup / Restore feature, 2026-06-10)
+  snapshotCreate: (args) => ipcRenderer.invoke('snapshot-create', args),
+  snapshotList: (args) => ipcRenderer.invoke('snapshot-list', args),
+  snapshotRead: (args) => ipcRenderer.invoke('snapshot-read', args),
+  snapshotDelete: (args) => ipcRenderer.invoke('snapshot-delete', args),
+  snapshotShowFolder: () => ipcRenderer.invoke('snapshot-show-folder'),
+
   // Apple Mail email content fetch
   fetchAppleMailContent: (messageId) => ipcRenderer.invoke('fetch-apple-mail-content', messageId),
 

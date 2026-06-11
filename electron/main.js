@@ -184,10 +184,69 @@ function saveSettings(settings) {
   }
 }
 
-// ========== Automatic Backup System ==========
+// ========== Automatic Backup System (legacy auto-throttle) ==========
+// This is the older save-time "every 5 min" auto-backup. It is being
+// superseded by the explicit snapshot system below (manual Backup button +
+// auto-snapshot before AI transforms) but the throttle backup is kept for
+// belt-and-suspenders protection on every save.
 const BACKUP_THROTTLE_MS = 5 * 60 * 1000; // 5 minutes between backups per outline
 const MAX_BACKUPS_PER_OUTLINE = 10;
 const lastBackupTime = new Map(); // outlineName -> timestamp
+
+// ========== Snapshot System (explicit Backup / Restore feature, 2026-06-10) ==========
+// Per-outline snapshot directory under [outlines]/.backups/[safe-outline-name]/.
+// Each snapshot file is named [YYYY-MM-DD-HHmmss]-[optional-label].idm and
+// contains a full .idm JSON dump of the outline at that moment.
+// Retention cap: 20 snapshots per outline. When the 21st is written, the
+// oldest snapshot file is deleted.
+const SNAPSHOT_DIR_NAME = '.backups';
+const MAX_SNAPSHOTS_PER_OUTLINE = 20;
+
+function getSnapshotDirForOutline(outlinesDir, outlineSafeName) {
+  return path.join(outlinesDir, SNAPSHOT_DIR_NAME, outlineSafeName);
+}
+
+function timestampForSnapshot() {
+  // YYYY-MM-DD-HHmmss in local time (sorts lexicographically per outline)
+  const d = new Date();
+  const pad = (n) => String(n).padStart(2, '0');
+  return (
+    d.getFullYear() +
+    '-' + pad(d.getMonth() + 1) +
+    '-' + pad(d.getDate()) +
+    '-' + pad(d.getHours()) +
+    pad(d.getMinutes()) +
+    pad(d.getSeconds())
+  );
+}
+
+function sanitizeLabelForFileName(label) {
+  if (!label) return '';
+  return String(label)
+    .slice(0, 60)
+    .replace(/[<>:"/\\|?*\x00-\x1F]/g, '_')
+    .replace(/\s+/g, '-');
+}
+
+function pruneSnapshotsForOutline(snapshotDir) {
+  try {
+    if (!fs.existsSync(snapshotDir)) return;
+    const files = fs.readdirSync(snapshotDir)
+      .filter(f => f.endsWith('.idm'))
+      .sort(); // ascending by name → ascending by timestamp
+    while (files.length > MAX_SNAPSHOTS_PER_OUTLINE) {
+      const oldest = files.shift();
+      try {
+        fs.unlinkSync(path.join(snapshotDir, oldest));
+        console.log('[Snapshot] Pruned oldest: ' + oldest);
+      } catch (err) {
+        console.warn('[Snapshot] Could not prune ' + oldest + ':', err.message);
+      }
+    }
+  } catch (err) {
+    console.warn('[Snapshot] pruneSnapshotsForOutline failed:', err.message);
+  }
+}
 
 function createBackupIfNeeded(dirPath, outlineName, content) {
   try {
@@ -1379,6 +1438,203 @@ ipcMain.handle('delete-unmerge-backup', async () => {
     return { success: true };
   } catch (error) {
     console.error('[Unmerge] Failed to delete backup:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+// ========== Outline snapshots (Backup / Restore feature, 2026-06-10) ==========
+// Snapshots live at [outlinesDir]/.backups/[safe-outline-name]/[stamp]-[label].idm
+// The renderer calls these IPC handlers directly via electronAPI in preload.
+
+// Write a snapshot of the given outline. The outline payload should be the
+// full serialized Outline JSON the app holds in memory.
+ipcMain.handle('snapshot-create', async (event, args) => {
+  try {
+    const { outline, label, kind } = args || {};
+    if (!outline || !outline.id || !outline.name) {
+      return { success: false, error: 'Outline payload missing id/name' };
+    }
+    const settings = loadSettings();
+    const outlinesDir = settings.outlinesDirectory;
+    if (!outlinesDir) {
+      return { success: false, error: 'No outlines directory configured' };
+    }
+    const safeName = sanitizeFileName(outline.name);
+    const snapshotDir = getSnapshotDirForOutline(outlinesDir, safeName);
+    fs.mkdirSync(snapshotDir, { recursive: true });
+
+    const stamp = timestampForSnapshot();
+    const safeLabel = sanitizeLabelForFileName(label || '');
+    const fileName = safeLabel
+      ? stamp + '-' + safeLabel + '.idm'
+      : stamp + '.idm';
+    const filePath = path.join(snapshotDir, fileName);
+
+    const content = JSON.stringify(outline, null, 2);
+    // Atomic-ish write: write to .tmp, then rename
+    const tmpPath = filePath + '.tmp';
+    fs.writeFileSync(tmpPath, content, 'utf-8');
+    fs.renameSync(tmpPath, filePath);
+
+    // Side file storing the original (unsanitized) label and kind so the
+    // Restore dialog can display them faithfully.
+    const meta = {
+      label: label || '',
+      kind: kind || 'manual', // 'manual' | 'auto-transform' | 'auto-restore'
+      createdAt: Date.now(),
+      outlineId: outline.id,
+      outlineName: outline.name,
+    };
+    try {
+      fs.writeFileSync(filePath + '.meta.json', JSON.stringify(meta), 'utf-8');
+    } catch (err) {
+      console.warn('[Snapshot] Could not write meta:', err.message);
+    }
+
+    pruneSnapshotsForOutline(snapshotDir);
+
+    const stats = fs.statSync(filePath);
+    console.log('[Snapshot] Created: ' + fileName + ' (' + stats.size + ' bytes)');
+    return {
+      success: true,
+      snapshot: {
+        fileName,
+        filePath,
+        size: stats.size,
+        createdAt: meta.createdAt,
+        label: meta.label,
+        kind: meta.kind,
+      },
+    };
+  } catch (error) {
+    console.error('[Snapshot] create failed:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+// List snapshots for a single outline (by name, since that's how they're keyed)
+ipcMain.handle('snapshot-list', async (event, args) => {
+  try {
+    const { outlineName } = args || {};
+    if (!outlineName) {
+      return { success: false, error: 'outlineName required' };
+    }
+    const settings = loadSettings();
+    const outlinesDir = settings.outlinesDirectory;
+    if (!outlinesDir) {
+      return { success: true, snapshots: [] };
+    }
+    const safeName = sanitizeFileName(outlineName);
+    const snapshotDir = getSnapshotDirForOutline(outlinesDir, safeName);
+    if (!fs.existsSync(snapshotDir)) {
+      return { success: true, snapshots: [] };
+    }
+    const files = fs.readdirSync(snapshotDir).filter(f => f.endsWith('.idm'));
+    const snapshots = [];
+    for (const file of files) {
+      try {
+        const filePath = path.join(snapshotDir, file);
+        const stats = fs.statSync(filePath);
+        let meta = { label: '', kind: 'manual', createdAt: stats.mtimeMs };
+        const metaPath = filePath + '.meta.json';
+        if (fs.existsSync(metaPath)) {
+          try {
+            meta = { ...meta, ...JSON.parse(fs.readFileSync(metaPath, 'utf-8')) };
+          } catch {}
+        }
+        snapshots.push({
+          fileName: file,
+          size: stats.size,
+          createdAt: meta.createdAt || stats.mtimeMs,
+          label: meta.label || '',
+          kind: meta.kind || 'manual',
+        });
+      } catch (err) {
+        console.warn('[Snapshot] Could not stat ' + file + ':', err.message);
+      }
+    }
+    // Newest first
+    snapshots.sort((a, b) => b.createdAt - a.createdAt);
+    return { success: true, snapshots };
+  } catch (error) {
+    console.error('[Snapshot] list failed:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+// Read a single snapshot's full content (for preview or restore)
+ipcMain.handle('snapshot-read', async (event, args) => {
+  try {
+    const { outlineName, fileName } = args || {};
+    if (!outlineName || !fileName) {
+      return { success: false, error: 'outlineName and fileName required' };
+    }
+    const settings = loadSettings();
+    const outlinesDir = settings.outlinesDirectory;
+    if (!outlinesDir) {
+      return { success: false, error: 'No outlines directory configured' };
+    }
+    const safeName = sanitizeFileName(outlineName);
+    const snapshotDir = getSnapshotDirForOutline(outlinesDir, safeName);
+    const filePath = validateFilePath(snapshotDir, fileName);
+    if (!fs.existsSync(filePath)) {
+      return { success: false, error: 'Snapshot not found' };
+    }
+    const content = fs.readFileSync(filePath, 'utf-8');
+    const outline = JSON.parse(content);
+    return { success: true, outline };
+  } catch (error) {
+    console.error('[Snapshot] read failed:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+// Delete a single snapshot
+ipcMain.handle('snapshot-delete', async (event, args) => {
+  try {
+    const { outlineName, fileName } = args || {};
+    if (!outlineName || !fileName) {
+      return { success: false, error: 'outlineName and fileName required' };
+    }
+    const settings = loadSettings();
+    const outlinesDir = settings.outlinesDirectory;
+    if (!outlinesDir) {
+      return { success: false, error: 'No outlines directory configured' };
+    }
+    const safeName = sanitizeFileName(outlineName);
+    const snapshotDir = getSnapshotDirForOutline(outlinesDir, safeName);
+    const filePath = validateFilePath(snapshotDir, fileName);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+    const metaPath = filePath + '.meta.json';
+    if (fs.existsSync(metaPath)) {
+      try { fs.unlinkSync(metaPath); } catch {}
+    }
+    return { success: true };
+  } catch (error) {
+    console.error('[Snapshot] delete failed:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+// Open the backups folder in Finder / file explorer
+ipcMain.handle('snapshot-show-folder', async () => {
+  try {
+    const settings = loadSettings();
+    const outlinesDir = settings.outlinesDirectory;
+    if (!outlinesDir) {
+      return { success: false, error: 'No outlines directory configured' };
+    }
+    const backupsDir = path.join(outlinesDir, SNAPSHOT_DIR_NAME);
+    fs.mkdirSync(backupsDir, { recursive: true });
+    const result = await shell.openPath(backupsDir);
+    if (result) {
+      return { success: false, error: result };
+    }
+    return { success: true, path: backupsDir };
+  } catch (error) {
+    console.error('[Snapshot] show-folder failed:', error);
     return { success: false, error: error.message };
   }
 });

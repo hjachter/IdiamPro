@@ -7,7 +7,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { Folder, Info, Smartphone, Cpu, Cloud, Loader2, CheckCircle, XCircle, Crown, Shield, Moon, Sun, Download, Trash2, AlertTriangle, Play, Sparkles } from 'lucide-react';
+import { Folder, Info, Smartphone, Cpu, Cloud, Loader2, CheckCircle, XCircle, Crown, Shield, Moon, Sun, Download, Trash2, AlertTriangle, Play, Sparkles, ShieldCheck } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,6 +27,13 @@ import { useDiscovery, fireDiscovery } from '@/hooks/use-discovery';
 import { resetAllConfirmSuppressions } from '@/hooks/use-confirm-dialog';
 import { storeDirectoryHandle, getDirectoryHandle, verifyDirectoryPermission } from '@/lib/file-storage';
 import { isElectron, electronSelectDirectory, electronGetStoredDirectoryPath, checkOllamaInstallation, startOllama } from '@/lib/electron-storage';
+import {
+  getAutoSnapshotBeforeTransform,
+  setAutoSnapshotBeforeTransform,
+  getAutoSnapshotBeforeRestore,
+  setAutoSnapshotBeforeRestore,
+  showSnapshotsFolder,
+} from '@/lib/snapshot-storage';
 import { checkOllamaStatusAction } from '@/app/actions';
 import type { AIProvider, AIDepth } from '@/types';
 import { AI_DEPTH_CONFIG } from '@/types';
@@ -74,6 +81,11 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
 
   // AI depth setting
   const [aiDepth, setAiDepth] = useState<AIDepth>('standard');
+
+  // Outline-backup auto-snapshot toggles (2026-06-10). Both default ON.
+  // Persisted to localStorage via snapshot-storage.ts.
+  const [autoSnapshotTransform, setAutoSnapshotTransform] = useState<boolean>(true);
+  const [autoSnapshotRestore, setAutoSnapshotRestore] = useState<boolean>(true);
 
   // Launch tier usage state (recomputed each time the dialog opens).
   // Re-reading on every open keeps it fresh even if the user just hit the cap
@@ -165,6 +177,10 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
     if (savedAiDepth) {
       setAiDepth(savedAiDepth);
     }
+
+    // Load outline-backup auto-snapshot toggles (defaults ON).
+    setAutoSnapshotTransform(getAutoSnapshotBeforeTransform());
+    setAutoSnapshotRestore(getAutoSnapshotBeforeRestore());
 
     // Load API keys
     const savedKeys: Record<string, string> = {};
@@ -753,6 +769,67 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
                 Reset
               </Button>
             </div>
+          </div>
+
+          {/* Outline Backups Section (2026-06-10) — two auto-snapshot toggles
+              and a button to open the backups folder. Both toggles default ON.
+              Snapshots are the second protective layer under undo. */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-medium flex items-center gap-2">
+              <ShieldCheck className="h-4 w-4 text-emerald-500" />
+              Outline backups
+            </h3>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="auto-backup-transform" className="text-sm">
+                Auto-backup before AI transforms
+              </Label>
+              <Switch
+                id="auto-backup-transform"
+                checked={autoSnapshotTransform}
+                onCheckedChange={(v) => {
+                  setAutoSnapshotTransform(v);
+                  setAutoSnapshotBeforeTransform(v);
+                }}
+                data-testid="auto-snapshot-transform-toggle"
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Saves a disk snapshot just before Translate, Reformat, Transform Outline, or Refresh from Web runs. Off only if you really want to skip the safety net.
+            </p>
+            <div className="flex items-center justify-between pt-1">
+              <Label htmlFor="auto-backup-restore" className="text-sm">
+                Auto-backup before Restore
+              </Label>
+              <Switch
+                id="auto-backup-restore"
+                checked={autoSnapshotRestore}
+                onCheckedChange={(v) => {
+                  setAutoSnapshotRestore(v);
+                  setAutoSnapshotBeforeRestore(v);
+                }}
+                data-testid="auto-snapshot-restore-toggle"
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Saves a disk snapshot of the current outline immediately before any Restore action.
+            </p>
+            <p className="text-xs text-muted-foreground pt-1">
+              Backups live in your IDM Outlines folder. The 20 most recent snapshots per outline are kept; older ones are deleted automatically.
+            </p>
+            {isElectron() && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={async () => {
+                  const opened = await showSnapshotsFolder();
+                  if (!opened) {
+                    toast({ title: 'Could not open backups folder', duration: 4000 });
+                  }
+                }}
+              >
+                <Folder className="h-4 w-4 mr-1" /> Show backups folder
+              </Button>
+            )}
           </div>
 
           {/* Tips & Discovery Section */}

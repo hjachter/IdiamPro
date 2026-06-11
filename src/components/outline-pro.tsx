@@ -11,6 +11,9 @@ import { getInitialGuide } from '@/lib/initial-guide';
 import { getWelcomeOutline, hasSeenWelcome, markWelcomeSeen } from '@/lib/welcome-outline';
 import { addNode, addNodeAfter, removeNode, updateNode, moveNode, parseMarkdownToNodes, recalculatePrefixesForBranch, buildOutlineTreeString, generateMindmapFromSubtree, generateFlowchartFromSubtree } from '@/lib/outline-utils';
 import OutlinePane from './outline-pane';
+import BackupRestoreDialog from './backup-restore-dialog';
+import { snapshotBeforeTransform } from '@/lib/snapshot-storage';
+import type { SnapshotMeta } from '@/lib/snapshot-storage';
 import ContentPane from './content-pane';
 import { useToast } from "@/hooks/use-toast";
 import { generateOutlineAction, expandContentAction, generateContentForNodeAction, ingestExternalSourceAction, bulkResearchIngestAction, bulletBasedResearchAction, interpretCommandAction } from '@/app/actions';
@@ -419,6 +422,11 @@ export default function OutlinePro() {
   // and inserts an 'outline-link' node into the current outline as a child of
   // the selected node (or the root if nothing is selected).
   const [isOutlineLinkPickerOpen, setIsOutlineLinkPickerOpen] = useState(false);
+
+  // Backup / Restore dialog state (2026-06-10). One dialog, two tabs — the
+  // initial tab depends on whether the user clicked Backup or Restore.
+  const [isBackupRestoreOpen, setIsBackupRestoreOpen] = useState(false);
+  const [backupRestoreInitialTab, setBackupRestoreInitialTab] = useState<'backup' | 'restore'>('backup');
 
   // Help chat dialog state
   const [isHelpChatOpen, setIsHelpChatOpen] = useState(false);
@@ -1191,25 +1199,32 @@ export default function OutlinePro() {
   // we just swap it in through the normal outline-update path so it persists
   // and exports like any other change.
   const handleApplyLiveBooks = useCallback((nextNodes: NodeMap) => {
+    // Snapshot the pre-transform state to disk. Fire-and-forget — never
+    // blocks the apply. Skipped when the user has opted out in Settings or
+    // when not running in Electron.
+    const target = outlines.find(o => o.id === currentOutlineId && !o.isGuide);
+    if (target) void snapshotBeforeTransform(target, 'Refresh from Web');
     markNextAction('Refresh from Web');
     setOutlines(currentOutlines =>
       currentOutlines.map(o =>
         o.id === currentOutlineId && !o.isGuide ? { ...o, nodes: nextNodes } : o
       )
     );
-  }, [currentOutlineId, markNextAction, setOutlines]);
+  }, [currentOutlineId, markNextAction, setOutlines, outlines]);
 
   // Translate — apply an approved translation back into the current outline.
   // Same shape as handleApplyLiveBooks; we don't write to the Guide outline
   // (Guide is read-only and gets re-seeded from initial-guide.ts on demand).
   const handleApplyTranslate = useCallback((nextNodes: NodeMap) => {
+    const target = outlines.find(o => o.id === currentOutlineId && !o.isGuide);
+    if (target) void snapshotBeforeTransform(target, 'Translate Outline');
     markNextAction('Translate Outline');
     setOutlines(currentOutlines =>
       currentOutlines.map(o =>
         o.id === currentOutlineId && !o.isGuide ? { ...o, nodes: nextNodes } : o
       )
     );
-  }, [currentOutlineId, markNextAction, setOutlines]);
+  }, [currentOutlineId, markNextAction, setOutlines, outlines]);
 
   // Resolved content the Reformat dialog operates on — either the
   // selection handed in from the bubble menu, or the whole node's content.
@@ -1229,6 +1244,11 @@ export default function OutlinePro() {
   // If the dialog was scoped to a selection, the content-pane's replacer
   // is called instead (it does the in-editor selection swap).
   const handleApplyReformat = useCallback((newHtml: string) => {
+    // Snapshot the pre-transform outline before the rewrite. Reformat on a
+    // single node still gets a disk snapshot — Howard's data-protection rule
+    // is "every AI transform writes a snapshot", regardless of scope.
+    const target = outlines.find(o => o.id === currentOutlineId && !o.isGuide);
+    if (target) void snapshotBeforeTransform(target, 'Reformat with AI');
     if (reformatApplySelectionFn) {
       reformatApplySelectionFn(newHtml);
       return;
@@ -1246,7 +1266,7 @@ export default function OutlinePro() {
         };
       })
     );
-  }, [currentOutlineId, selectedNodeId, reformatApplySelectionFn, markNextAction, setOutlines]);
+  }, [currentOutlineId, selectedNodeId, reformatApplySelectionFn, markNextAction, setOutlines, outlines]);
 
   // Transform outline with AI — scope is the selected node (if any) plus its
   // descendants, OR the whole current outline's root + descendants when
@@ -1276,6 +1296,8 @@ export default function OutlinePro() {
     transformedNodes: Record<string, { id: string; name: string; content: string; type: string; parentId: string | null; childrenIds: string[] }>;
     rootNodeId: string;
   }) => {
+    const target = outlines.find(o => o.id === currentOutlineId && !o.isGuide);
+    if (target) void snapshotBeforeTransform(target, 'Transform Outline with AI');
     markNextAction('Transform Outline with AI');
     setOutlines(currentOutlines =>
       currentOutlines.map(o => {
@@ -1289,7 +1311,35 @@ export default function OutlinePro() {
         return { ...o, nodes: nextNodes };
       }),
     );
-  }, [currentOutlineId, setOutlines, markNextAction]);
+  }, [currentOutlineId, setOutlines, markNextAction, outlines]);
+
+  // Backup / Restore — apply a snapshot's content over the current outline.
+  // The dialog has already (a) confirmed with the user and (b) written an
+  // auto-snapshot of the pre-restore state. We just replace the outline's
+  // nodes + rootNodeId here and mark it on the undo stack so Cmd+Z works.
+  const handleRestoreFromSnapshot = useCallback((restoredOutline: Outline, preRestoreMeta: SnapshotMeta | null) => {
+    markNextAction('Restore from Backup');
+    setOutlines(currentOutlines =>
+      currentOutlines.map(o => {
+        if (o.id !== currentOutlineId || o.isGuide) return o;
+        // Preserve the outline's id + name so the file on disk doesn't get
+        // renamed; everything else (nodes, rootNodeId, isSecondBrain flag) is
+        // taken from the snapshot.
+        return {
+          ...restoredOutline,
+          id: o.id,
+          name: o.name,
+        };
+      })
+    );
+    toast({
+      title: 'Restored: ' + (restoredOutline.name || 'snapshot'),
+      description: preRestoreMeta
+        ? 'A backup of your previous state was saved before the restore. Press ⌘Z to undo.'
+        : 'Press ⌘Z to undo.',
+      duration: Infinity,
+    });
+  }, [currentOutlineId, markNextAction, setOutlines, toast]);
 
   // Respect the app-wide AI provider setting: only force local when the user
   // explicitly chose "local" (cloud/auto keep cloud grounding + citations).
@@ -4303,6 +4353,14 @@ export default function OutlinePro() {
           onApply={handleApplyTransformOutline}
         />
 
+        <BackupRestoreDialog
+          open={isBackupRestoreOpen}
+          onOpenChange={setIsBackupRestoreOpen}
+          initialTab={backupRestoreInitialTab}
+          outline={currentOutline}
+          onRestore={handleRestoreFromSnapshot}
+        />
+
         <OutlineLinkPickerDialog
           open={isOutlineLinkPickerOpen}
           onOpenChange={setIsOutlineLinkPickerOpen}
@@ -4581,6 +4639,14 @@ export default function OutlinePro() {
                 isFocusMode={isFocusMode}
                 onToggleFocusMode={() => setIsFocusMode(prev => !prev)}
                 onOpenLinkToOutline={() => setIsOutlineLinkPickerOpen(true)}
+                onOpenBackup={() => {
+                  setBackupRestoreInitialTab('backup');
+                  setIsBackupRestoreOpen(true);
+                }}
+                onOpenRestore={() => {
+                  setBackupRestoreInitialTab('restore');
+                  setIsBackupRestoreOpen(true);
+                }}
               />
             </div>
             {/* Content Preview - takes ~30%, tap to expand */}
@@ -5064,6 +5130,14 @@ export default function OutlinePro() {
                 isFocusMode={isFocusMode}
                 onToggleFocusMode={() => setIsFocusMode(prev => !prev)}
                 onOpenLinkToOutline={() => setIsOutlineLinkPickerOpen(true)}
+                onOpenBackup={() => {
+                  setBackupRestoreInitialTab('backup');
+                  setIsBackupRestoreOpen(true);
+                }}
+                onOpenRestore={() => {
+                  setBackupRestoreInitialTab('restore');
+                  setIsBackupRestoreOpen(true);
+                }}
               />
             </div>
           </ResizablePanel>
