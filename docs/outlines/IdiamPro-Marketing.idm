@@ -2,7 +2,7 @@
   "id": "marketing-outline-v2",
   "name": "IdiamPro Marketing 2",
   "rootNodeId": "root",
-  "lastModified": 1778530300208,
+  "lastModified": 1781164546678,
   "nodes": {
     "root": {
       "id": "root",
@@ -20,6 +20,7 @@
         "subscriptions",
         "video-support",
         "roadmap",
+        "audience-segments-2026-06-11",
         "action-items",
         "real-testimonials-incoming-2026-06-10"
       ],
@@ -828,7 +829,8 @@
       "childrenIds": [
         "video-capabilities",
         "video-tools",
-        "video-user-actions"
+        "video-user-actions",
+        "video-ai-partnerships-2026-06-11"
       ],
       "isCollapsed": false,
       "prefix": "8.2"
@@ -836,7 +838,7 @@
     "video-capabilities": {
       "id": "video-capabilities",
       "name": "What Claude Code Can Do",
-      "content": "<h3>Video Support from Claude Code</h3><p>While Claude Code cannot generate videos directly, it can provide substantial support for video creation:</p><h4>Scriptwriting</h4><ul><li>Complete narration scripts with timing cues</li><li>Scene-by-scene descriptions</li><li>Dialogue and voiceover text</li><li>Call-to-action copy</li></ul><h4>Storyboarding</h4><ul><li>Shot-by-shot breakdowns</li><li>Visual descriptions for each scene</li><li>Camera direction notes</li><li>Transition descriptions</li></ul><h4>Motion Graphics Direction</h4><ul><li>Detailed instructions for animators</li><li>Text overlay content and timing</li><li>Color and style guidelines</li><li>Animation sequence descriptions</li></ul><h4>Multiple Formats</h4><ul><li>Full-length demo videos (5\u201310 min)</li><li>Workflow highlight reels (2\u20133 min)</li><li>Social media clips (30\u201360 sec)</li><li>Feature spotlights (1\u20132 min each)</li></ul>",
+      "content": "<h3>Video Support from Claude Code</h3><p>Claude Code drives the full video production pipeline except for the actual render. The hybrid pipeline:</p><h4>Claude Code produces</h4><ul><li>Narration scripts with timing cues</li><li>Scene-by-scene storyboards</li><li>Shot lists</li><li>AI-tool prompts for B-roll generation (Runway / MagicLight)</li><li>HeyGen avatar scripts</li><li>On-screen captions</li><li>Chapter markers</li><li>YouTube SEO package (titles, descriptions, tags, thumbnail concepts)</li></ul><h4>AI video tools render</h4><ul><li><strong>Runway Gen-4</strong> and <strong>MagicLight</strong> handle B-roll and brand imagery</li><li><strong>Sora</strong> (OpenAI) and <strong>Veo 3</strong> (Google) handle longer scenes</li><li><strong>HeyGen</strong> and <strong>Synthesia</strong> handle talking-head avatars of Howard or team members</li><li><strong>Pika Labs</strong> handles short-form social clips</li></ul><h4>Real screen recording</h4><p>macOS Cmd+Shift+5 or ScreenFlow captures actual in-app demos \u2014 AI video tools don't know IdiamPro's menus, so this segment is hand-recorded with voiceover (Howard's voice or ElevenLabs AI voice).</p><h4>Final editor</h4><p>DaVinci Resolve free tier or Descript stitches AI gen + screen recording + avatar + music + captions into one published video.</p><h4>Timeline</h4><p>60\u201390 sec polished video = ~2\u20134 hours of production once the pipeline is set up. 20-video library = ~6 weeks at 1 video/day, faster with parallelization.</p>",
       "type": "document",
       "parentId": "video-production",
       "childrenIds": [],
@@ -846,7 +848,7 @@
     "video-tools": {
       "id": "video-tools",
       "name": "Recommended Video Tools",
-      "content": "<h3>Tools for Creating Marketing Videos</h3><h4>Screen Recording</h4><ul><li><strong>Loom</strong> \u2014 Quick demos and tutorials (Free to $15/month)</li><li><strong>ScreenFlow</strong> \u2014 Professional Mac screen recordings with editing ($169 one-time)</li></ul><h4>AI-Powered Video</h4><ul><li><strong>Descript</strong> \u2014 Easy video editing with AI-powered transcription ($15\u201330/month)</li><li><strong>Synthesia</strong> \u2014 Create talking-head videos with AI avatars, no camera needed ($30+/month)</li><li><strong>Runway</strong> \u2014 AI-generated creative and abstract visuals ($15\u201395/month)</li></ul><h4>General Video Editing</h4><ul><li><strong>Canva</strong> \u2014 Simple video editing for social media clips (Free to $13/month)</li><li><strong>After Effects</strong> \u2014 Professional motion graphics and animations ($23/month)</li></ul><h4>AI Graphics</h4><ul><li><strong>Google Gemini</strong> \u2014 Generate illustrations and diagrams with AI (Free tier available)</li></ul>",
+      "content": "<h3>Tools for Creating Marketing Videos</h3><h4>Screen Recording</h4><ul><li><strong>Loom</strong> \u2014 Quick demos and tutorials (Free to $15/month)</li><li><strong>ScreenFlow</strong> \u2014 Professional Mac screen recordings with editing ($169 one-time)</li></ul><h4>AI-Powered Video</h4><ul><li><strong>Descript</strong> \u2014 Easy video editing with AI-powered transcription ($15\u201330/month)</li><li><strong>Synthesia</strong> \u2014 Create talking-head videos with AI avatars, no camera needed ($30+/month)</li><li><strong>Runway</strong> \u2014 AI-generated creative and abstract visuals ($15\u201395/month)</li></ul><h4>General Video Editing</h4><ul><li><strong>Canva</strong> \u2014 Simple video editing for social media clips (Free to $13/month)</li><li><strong>After Effects</strong> \u2014 Professional motion graphics and animations ($23/month)</li></ul><h4>AI Graphics</h4><ul><li><strong>Google Gemini</strong> \u2014 Generate illustrations and diagrams with AI (Free tier available)</li></ul><h4>AI Video Generation (2026 stack)</h4><ul><li><strong>MagicLight</strong> \u2014 script-to-video with sound; Howard's tested workflow ($15\u201350/month)</li><li><strong>Runway Gen-4</strong> \u2014 broadest creative AI video; B-roll specialty ($15\u201395/month)</li><li><strong>OpenAI Sora</strong> \u2014 longest-form text-to-video, photorealistic (pricing via API)</li><li><strong>Google Veo 3</strong> \u2014 multi-shot AI video via Gemini API</li><li><strong>HeyGen</strong> \u2014 current consumer favorite for AI avatars; better than Synthesia for indie creators ($30+/month)</li><li><strong>Pika Labs</strong> \u2014 short-form social clips ($10\u201335/month)</li><li><strong>ElevenLabs</strong> \u2014 AI voice synthesis for narration ($5+/month)</li></ul>",
       "type": "document",
       "parentId": "video-production",
       "childrenIds": [],
@@ -856,7 +858,7 @@
     "video-user-actions": {
       "id": "video-user-actions",
       "name": "User Actions Required",
-      "content": "<h3>What We Need to Do for Video Content</h3><h4>For Screen Recording Videos</h4><ol><li>Install screen recording software (Loom, ScreenFlow, or OBS)</li><li>Set up IdiamPro with sample data for demos</li><li>Request scripts from Claude Code for each video</li><li>Record following the provided script</li><li>Edit and add music/transitions</li></ol><h4>For AI-Generated Videos</h4><ol><li>Sign up for Synthesia or a similar AI video tool</li><li>Request narration scripts from Claude Code</li><li>Generate AI avatar videos from the scripts</li><li>Add screen recordings alongside the talking head</li></ol><h4>For Motion Graphics</h4><ol><li>Hire a motion designer or learn After Effects</li><li>Request detailed animation instructions from Claude Code</li><li>Provide the instructions to your designer</li><li>Review and refine the animations</li></ol><h4>For Graphics and Illustrations</h4><ol><li>Use Google Gemini for AI-generated graphics</li><li>Request image descriptions from Claude Code</li><li>Generate and select the best images</li><li>Add them to your videos and marketing materials</li></ol>",
+      "content": "<h3>The 6-Step Hybrid Workflow (per video)</h3><ol><li><strong>Script + storyboard + prompts</strong> \u2014 Claude Code writes the script, storyboard, AI-tool prompts, and voiceover text.</li><li><strong>Generate B-roll</strong> \u2014 Runway / MagicLight using Claude's prompts.</li><li><strong>Talking-head segments</strong> \u2014 HeyGen avatar (or Howard records himself).</li><li><strong>In-app demo</strong> \u2014 record real screen capture (Cmd+Shift+5 or ScreenFlow).</li><li><strong>Voiceover</strong> \u2014 ElevenLabs AI voice (or Howard records).</li><li><strong>Final edit</strong> \u2014 DaVinci Resolve / Descript stitches everything together with music and captions.</li></ol>",
       "type": "document",
       "parentId": "video-production",
       "childrenIds": [],
@@ -985,6 +987,49 @@
       "type": "document",
       "parentId": "root",
       "childrenIds": []
+    },
+    "video-ai-partnerships-2026-06-11": {
+      "id": "video-ai-partnerships-2026-06-11",
+      "name": "AI Video Tool Partnerships",
+      "content": "<h3>Partnership Track for Video AI Tools</h3><p>Same playbook as the API provider partnerships (see <code>project-openai-partnership-outreach</code> memory).</p><h4>Targets in priority order</h4><ol><li>Runway</li><li>MagicLight</li><li>HeyGen</li><li>OpenAI Sora (already in track via OpenAI form)</li><li>Google Veo (already partnering via Gemini)</li><li>Pika</li><li>Synthesia</li></ol><h4>Partnership types</h4><ul><li>Co-marketing</li><li>Partner pricing for IdiamPro users</li><li>Integration partnership (long term: embed their APIs in-app)</li><li>Strategic relationship with quarterly check-ins</li></ul><p>Status tracking lives in the Operations outline (planned).</p><p><em>Captured 2026-06-11 \u2014 see <code>project-ai-video-tool-partnerships</code> memory.</em></p>",
+      "type": "node",
+      "parentId": "video-production",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "8.2.4"
+    },
+    "audience-segments-2026-06-11": {
+      "id": "audience-segments-2026-06-11",
+      "name": "Target Customer Segments",
+      "content": "<h3>Who IdiamPro Is For</h3><p>Primary segments the product positioning, copy, and outreach should center on. Added 2026-06-11.</p>",
+      "type": "node",
+      "parentId": "root",
+      "childrenIds": [
+        "audience-segment-authors-2026-06-11",
+        "positioning-multimedia-2026-06-11"
+      ],
+      "isCollapsed": false,
+      "prefix": "11"
+    },
+    "audience-segment-authors-2026-06-11": {
+      "id": "audience-segment-authors-2026-06-11",
+      "name": "Authors",
+      "content": "<h3>Authors \u2014 primary target segment</h3><p>Screenwriters, novelists, nonfiction authors, technical writers, journalists, content marketers.</p><p>Identified 2026-06-11 by Howard's wife as a segment missing from the marketing positioning. Now a primary target \u2014 must appear on the website and in landing-page copy.</p><h4>Why authors</h4><ul><li>Outlining is already core to their workflow</li><li>Multi-source research synthesis is a huge time saver</li><li>Manuscript-scale documents \u2014 IdiamPro handles 66K+ items</li><li>AI generation that respects voice and existing structure</li><li>Multimedia output (YouTube companion content) is a natural extension for content marketers and authors building platforms</li></ul>",
+      "type": "node",
+      "parentId": "audience-segments-2026-06-11",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "11.1"
+    },
+    "positioning-multimedia-2026-06-11": {
+      "id": "positioning-multimedia-2026-06-11",
+      "name": "Positioning \u2014 Written AND Multimedia",
+      "content": "<h3>Multimedia Positioning</h3><p>The positioning framing should include BOTH <strong>written content</strong> AND <strong>multimedia content</strong>, with YouTube as the showcase example.</p><p>IdiamPro turns an outline into:</p><ul><li>Long-form written work (books, articles, technical docs)</li><li>Spoken-word output (podcast)</li><li>Video output (YouTube script + chapter markers + description + SEO package; production pipeline in section 8)</li><li>Visual diagrams (mind maps, flowcharts)</li></ul><p>Website copy must reflect this dual framing once the multimedia features ship. Captured 2026-06-11.</p>",
+      "type": "node",
+      "parentId": "audience-segments-2026-06-11",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "11.2"
     }
   },
   "isGuide": false,
