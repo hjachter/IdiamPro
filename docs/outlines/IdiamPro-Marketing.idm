@@ -817,9 +817,21 @@
       "content": "<h3>See IdiamPro in Action</h3><p>Watch how IdiamPro works — from getting started to advanced workflows. Every video shows real use cases with real outlines.</p><h4>Getting Started</h4><ul><li><strong>Product Overview (5 min):</strong> A guided tour of IdiamPro — create an outline, generate content with AI, and import your first source</li><li><strong>Your First Outline (2 min):</strong> Create a structured outline from scratch in under 2 minutes</li><li><strong>Importing Your First PDF (2 min):</strong> See how a PDF becomes a structured, navigable outline</li></ul><h4>Feature Spotlights (1–2 min each)</h4><ul><li><strong>AI Content Generation:</strong> Watch AI write content that understands your full outline</li><li><strong>Research Synthesis:</strong> Import multiple sources and see AI merge them into one integrated outline</li><li><strong>Audio Transcription:</strong> Record a conversation and see it transcribed with speaker labels</li><li><strong>Private AI with Ollama:</strong> Run AI entirely on your own computer — nothing leaves your machine</li><li><strong>Google Workspace Embedding:</strong> Embed live Google Docs, Sheets, and Slides in your outline</li><li><strong>PDF Export:</strong> Turn any outline into a polished, professional PDF</li></ul><h4>Workflow Walkthroughs (3–5 min each)</h4><ul><li><strong>Writing a Book:</strong> Structure chapters, import research, generate drafts</li><li><strong>Building a Knowledge Base:</strong> Your second brain in action — capture, organize, synthesize</li><li><strong>AI Conversation Capture:</strong> Unify insights from ChatGPT, Claude, and Gemini into one place</li><li><strong>Literature Review:</strong> Import 50 papers, organize by theme, generate a synthesis</li><li><strong>Business Planning:</strong> From vision to tactical initiatives, all in one outline</li><li><strong>Meeting Notes to Action Items:</strong> Record, transcribe, and organize in real time</li></ul><h4>Social Media Clips (30–60 sec)</h4><ul><li>Quick demos of standout features for sharing on social platforms</li></ul><p><em>Videos are in production — subscribe to our channel to be notified when they're released.</em></p>",
       "type": "document",
       "parentId": "video-support",
-      "childrenIds": [],
+      "childrenIds": [
+        "pilot-script-ai-content-generation-2026-06-11"
+      ],
       "isCollapsed": false,
       "prefix": "8.1"
+    },
+    "pilot-script-ai-content-generation-2026-06-11": {
+      "id": "pilot-script-ai-content-generation-2026-06-11",
+      "name": "Pilot Script: AI Content Generation",
+      "content": "<h3>Pilot Video Script — AI Content Generation Feature Spotlight</h3><p><strong>Status:</strong> Script Complete — ready for production.</p><p><strong>Length:</strong> 75 seconds. <strong>Audience:</strong> Indie creators and content professionals. <strong>Tone:</strong> Confident, calm, professional — show, don't tell.</p><p>This is the proof-of-concept for the hybrid video pipeline described in section 8.2.3. The script demonstrates IdiamPro's Smart Tools running a Reformat with AI transform on a sparse outline, emphasizing whole-outline context, preview-and-approve, and the derivative-outline default that preserves the original.</p><p><strong>Production package location:</strong> <code>docs/video-scripts/01-ai-content-generation.md</code></p><p>The markdown file contains all eight deliverables in one place:</p><ol><li>Voiceover script with timing markers</li><li>Scene-by-scene storyboard (8 scenes)</li><li>Shot list for screen recording</li><li>AI tool prompts for B-roll (Runway / MagicLight / Sora)</li><li>Talking-head segment script + delivery direction (HeyGen avatar recommended)</li><li>Five YouTube title variants with lead recommendation</li><li>YouTube description with chapter markers</li><li>SEO tags + thumbnail concept (1280×720)</li></ol><p>A production checklist at the bottom of the file gives Howard (or a contractor) an eight-step sequence to execute against.</p><p><em>Captured 2026-06-11.</em></p>",
+      "type": "document",
+      "parentId": "video-public",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "8.1.1"
     },
     "video-production": {
       "id": "video-production",
