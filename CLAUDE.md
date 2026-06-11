@@ -154,6 +154,8 @@ cp "~/Documents/IDM Outlines/IdiamPro - Testing.idm" docs/outlines/
 *MCP Server:*
 - `IdiamPro-MCP-Plan.idm` — MCP server: architecture, tools, auth, commercialization, test procedures
 
+**Video production planning** lives in `IdiamPro-Marketing.idm` section 8 ("Video Content"), with strategic cross-references in `IdiamPro-BizDev.idm` (Strategic Partnerships → AI Video Tool Partnerships), `IdiamPro - Bootstrap Plan.idm` (Video Production Roadmap), and `IdiamPro - Killer Features & Selling Points.idm` (Outline → Video Generation feature). Today's brainstorming captured in the "Strategy Brainstorm — 2026-06-11" node in Development outline (docs/ copy). For future video work, start in Marketing section 8 and follow the cross-outline links.
+
 *Live dashboards (auto-maintained by Claude):*
 - `IdiamPro - Launch Progress.idm` — Percentage-complete bar graph + completed / waiting / next-up lists. **This is the single source of truth.** **Update this outline whenever a task status changes**, then sync to `~/Documents/IDM Outlines/`. The user reads it to see where we are relative to launch at a glance.
 - The Launch Progress bar chart now has **two mirrors that must BOTH be kept in sync** every time launch progress changes:
