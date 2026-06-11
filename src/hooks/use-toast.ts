@@ -8,8 +8,20 @@ import type {
   ToastProps,
 } from "@/components/ui/toast"
 
-const TOAST_LIMIT = 1
+// Persist-until-dismissed UX (2026-06-10):
+//   - TOAST_LIMIT: allow stacking. Multiple persistent toasts can be visible
+//     at once; the user dismisses them in any order. Cap at 6 so a runaway
+//     flood doesn't fill the screen — oldest is shoved off when the cap is
+//     hit (still better than silently dropping new toasts).
+//   - TOAST_REMOVE_DELAY: how long a *dismissed* toast lingers in state
+//     before the reducer purges it (kept long enough for the close
+//     animation to play; toasts that haven't been dismissed are unaffected).
+//   - DEFAULT_TOAST_DURATION: passed down to Radix's `Toast.duration` for
+//     every toast that doesn't override it. `Infinity` = no auto-dismiss.
+//     Per-call `duration: N` still works for the rare ephemeral toast.
+const TOAST_LIMIT = 6
 const TOAST_REMOVE_DELAY = 1000000
+export const DEFAULT_TOAST_DURATION = Infinity
 
 type ToasterToast = ToastProps & {
   id: string
@@ -155,6 +167,9 @@ function toast({ ...props }: Toast) {
   dispatch({
     type: "ADD_TOAST",
     toast: {
+      // Default to persistent (Infinity). Per-call `duration` still wins
+      // because `...props` spreads after this line.
+      duration: DEFAULT_TOAST_DURATION,
       ...props,
       id,
       open: true,

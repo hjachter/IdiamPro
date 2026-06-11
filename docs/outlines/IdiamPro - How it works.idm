@@ -10,6 +10,7 @@
       "type": "root",
       "parentId": null,
       "childrenIds": [
+        "f79853c1-2d2b-43f9-aba6-fa9c2ffc718e",
         "overview",
         "platforms",
         "data-storage",
@@ -724,9 +725,20 @@
       "type": "document",
       "parentId": "root",
       "childrenIds": []
+    },
+    "f79853c1-2d2b-43f9-aba6-fa9c2ffc718e": {
+      "id": "f79853c1-2d2b-43f9-aba6-fa9c2ffc718e",
+      "name": "Unified Cmd+Z (undo across content + structure + AI transforms)",
+      "content": "Whenever you do anything that changes the outline (typing, adding or deleting items, moving things around, pasting, applying an AI transform like Reformat or Translate or Refresh from Web, or importing), the app takes a snapshot of the entire outline state and pushes it onto an in-memory undo stack. There's no hard cap on depth \u2014 you can undo dozens or hundreds of steps back as long as the session memory holds.\n\nWhen you press Cmd+Z (or Cmd+Shift+Z to redo), the app pops the top of the stack and restores it. Big actions (AI transforms, imports, multi-item deletes) carry a friendly label like 'Translate Outline' or 'Delete 5 items'. The undo shows a persistent toast 'Undid: [label]' so you can see exactly what reverted. Small things like single-character typing stay quiet so toasts don't pile up while you write.\n\nTiptap (the rich-text editor inside each node) keeps its own character-level undo too \u2014 while you're focused inside a node, Cmd+Z undoes one character at a time inside that node, the way you'd expect. When the editor is empty or you've moved focus elsewhere, Cmd+Z falls through to the outline-level undo and reverts the bigger action.",
+      "type": "document",
+      "parentId": "root",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "createdAt": 1781154318802,
+      "updatedAt": 1781154318802
     }
   },
-  "lastModified": "2026-06-06T22:50:53.198Z",
+  "lastModified": 1781154318802,
   "_fileSize": 35244,
   "_fileName": "IdiamPro - How it works.idm",
   "_isLazyLoaded": false

@@ -27,6 +27,7 @@ import {
 } from '@/lib/entitlements';
 import { useUpgradePrompt } from '@/components/upgrade-prompt';
 import { fireDiscovery } from '@/hooks/use-discovery';
+import { useConfirmDialog } from '@/hooks/use-confirm-dialog';
 import { useAIUsageGate } from '@/lib/use-ai-usage-gate';
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction } from './ui/alert-dialog';
 import { Button } from './ui/button';
@@ -111,9 +112,26 @@ export default function OutlinePro() {
   // setOutlines below, so recording history there covers ALL actions
   // (including AI-driven ones: LIVE BOOKS apply, Translate apply, NL command
   // bar, etc.) without touching any individual call site.
-  const undoStackRef = useRef<Outline[][]>([]);
-  const redoStackRef = useRef<Outline[][]>([]);
-  const MAX_UNDO_DEPTH = 50;
+  // Stack entries now carry an action label so undo toasts can read
+  // "Undid: Translate Outline" instead of a generic "Undone". The label is
+  // optional; when absent we fall back to a quiet generic message.
+  // (Howard 2026-06-10: no hard cap — undo depth is unlimited, bounded only
+  // by memory.)
+  interface HistoryEntry { outlines: Outline[]; label?: string; big?: boolean }
+  const undoStackRef = useRef<HistoryEntry[]>([]);
+  const redoStackRef = useRef<HistoryEntry[]>([]);
+  // Side channel: any call site that knows it just performed a big action
+  // (AI transform applied, paste/import, mass-delete, rename) sets this BEFORE
+  // calling setOutlines; the setOutlines wrapper picks it up and attaches it
+  // to the snapshot. After the snapshot is recorded the side channel is
+  // cleared so unrelated subsequent updates don't inherit a stale label.
+  const pendingActionRef = useRef<{ label: string; big: boolean } | null>(null);
+  // Marks the NEXT setOutlines update as a "big" action that should fire a
+  // persistent toast when undone. Helper for call sites that already build
+  // their setOutlines payload elsewhere.
+  const markNextAction = useCallback((label: string, big = true) => {
+    pendingActionRef.current = { label, big };
+  }, []);
   // Keeps a synchronously-readable view of the latest outlines array. Used by
   // undo/redo to compare snapshots against current state without going through
   // a React updater (which is fragile in strict mode and would re-run our pop
@@ -137,8 +155,15 @@ export default function OutlinePro() {
       // place to catch dirty-tracking churn, React strict-mode double-invokes,
       // and startup effects than trying to gate them at push time.
       if (next !== prev) {
-        undoStackRef.current.push(prev);
-        if (undoStackRef.current.length > MAX_UNDO_DEPTH) undoStackRef.current.shift();
+        const pending = pendingActionRef.current;
+        undoStackRef.current.push({
+          outlines: prev,
+          label: pending?.label,
+          big: pending?.big,
+        });
+        pendingActionRef.current = null;
+        // No hard cap on depth (Howard 2026-06-10: "many levels deep, no
+        // hard cap"). Memory is the only practical bound.
         if (!suppressRedoClearRef.current) {
           redoStackRef.current = [];
         }
@@ -223,6 +248,10 @@ export default function OutlinePro() {
   // Toast must be declared before any useEffect that uses it
   const { toast } = useToast();
 
+  // Unified confirmation dialog (2026-06-10) — supports "Don't ask again"
+  // per-prompt + Professional mode global bypass. Renders <dialog/> below.
+  const { confirm: confirmDialog, dialog: confirmDialogEl } = useConfirmDialog();
+
   // ── Undo / redo (history stacks declared above with setOutlines) ──────────
   // Both bypass setOutlines and call rawSetOutlines directly so the restore is
   // not itself recorded as a new history entry. Restored outlines are marked
@@ -260,10 +289,10 @@ export default function OutlinePro() {
     }
     const current = outlinesRef.current;
     const currentSig = visibleSignature(current, currentOutlineId);
-    let target: Outline[] | null = null;
+    let target: HistoryEntry | null = null;
     while (undoStackRef.current.length > 0) {
       const candidate = undoStackRef.current.pop()!;
-      if (visibleSignature(candidate, currentOutlineId) !== currentSig) {
+      if (visibleSignature(candidate.outlines, currentOutlineId) !== currentSig) {
         target = candidate;
         break;
       }
@@ -275,15 +304,24 @@ export default function OutlinePro() {
       toast({ title: 'Nothing to undo', duration: 1200 });
       return;
     }
-    redoStackRef.current.push(current);
-    for (const o of target) dirtyOutlineIdsRef.current.add(o.id);
+    redoStackRef.current.push({ outlines: current, label: target.label, big: target.big });
+    for (const o of target.outlines) dirtyOutlineIdsRef.current.add(o.id);
     // Protect the freshly-pushed redo entry from being wiped by the cascade
     // of auto-save / blur / dirty-tracking effects that the undone state
     // change will trigger.
     suppressRedoClearRef.current = true;
-    rawSetOutlines(target);
+    rawSetOutlines(target.outlines);
     setTimeout(() => { suppressRedoClearRef.current = false; }, 500);
-    toast({ title: 'Undone', duration: 1200 });
+    // Big actions (AI transforms, mass operations, imports) get a persistent
+    // labeled toast — Howard wants the user to see exactly what they reverted
+    // and have time to decide what to do next. Small actions (typing,
+    // single-node edits) get the existing brief auto-fade toast so they don't
+    // pile up.
+    if (target.big && target.label) {
+      toast({ title: `Undid: ${target.label}` });
+    } else {
+      toast({ title: 'Undone', duration: 1200 });
+    }
   }, [toast, currentOutlineId]);
 
   const redo = useCallback(() => {
@@ -293,10 +331,10 @@ export default function OutlinePro() {
     }
     const current = outlinesRef.current;
     const currentSig = visibleSignature(current, currentOutlineId);
-    let target: Outline[] | null = null;
+    let target: HistoryEntry | null = null;
     while (redoStackRef.current.length > 0) {
       const candidate = redoStackRef.current.pop()!;
-      if (visibleSignature(candidate, currentOutlineId) !== currentSig) {
+      if (visibleSignature(candidate.outlines, currentOutlineId) !== currentSig) {
         target = candidate;
         break;
       }
@@ -305,12 +343,16 @@ export default function OutlinePro() {
       toast({ title: 'Nothing to redo', duration: 1200 });
       return;
     }
-    undoStackRef.current.push(current);
-    for (const o of target) dirtyOutlineIdsRef.current.add(o.id);
+    undoStackRef.current.push({ outlines: current, label: target.label, big: target.big });
+    for (const o of target.outlines) dirtyOutlineIdsRef.current.add(o.id);
     suppressRedoClearRef.current = true;
-    rawSetOutlines(target);
+    rawSetOutlines(target.outlines);
     setTimeout(() => { suppressRedoClearRef.current = false; }, 500);
-    toast({ title: 'Redone', duration: 1200 });
+    if (target.big && target.label) {
+      toast({ title: `Redid: ${target.label}` });
+    } else {
+      toast({ title: 'Redone', duration: 1200 });
+    }
   }, [toast, currentOutlineId]);
 
   const [pendingAICommand, setPendingAICommand] = useState<InterpretedCommand | null>(null);
@@ -1149,23 +1191,25 @@ export default function OutlinePro() {
   // we just swap it in through the normal outline-update path so it persists
   // and exports like any other change.
   const handleApplyLiveBooks = useCallback((nextNodes: NodeMap) => {
+    markNextAction('Refresh from Web');
     setOutlines(currentOutlines =>
       currentOutlines.map(o =>
         o.id === currentOutlineId && !o.isGuide ? { ...o, nodes: nextNodes } : o
       )
     );
-  }, [currentOutlineId]);
+  }, [currentOutlineId, markNextAction, setOutlines]);
 
   // Translate — apply an approved translation back into the current outline.
   // Same shape as handleApplyLiveBooks; we don't write to the Guide outline
   // (Guide is read-only and gets re-seeded from initial-guide.ts on demand).
   const handleApplyTranslate = useCallback((nextNodes: NodeMap) => {
+    markNextAction('Translate Outline');
     setOutlines(currentOutlines =>
       currentOutlines.map(o =>
         o.id === currentOutlineId && !o.isGuide ? { ...o, nodes: nextNodes } : o
       )
     );
-  }, [currentOutlineId]);
+  }, [currentOutlineId, markNextAction, setOutlines]);
 
   // Resolved content the Reformat dialog operates on — either the
   // selection handed in from the bubble menu, or the whole node's content.
@@ -1190,6 +1234,7 @@ export default function OutlinePro() {
       return;
     }
     if (!selectedNodeId) return;
+    markNextAction('Reformat with AI');
     setOutlines(currentOutlines =>
       currentOutlines.map(o => {
         if (o.id !== currentOutlineId || o.isGuide) return o;
@@ -1201,7 +1246,7 @@ export default function OutlinePro() {
         };
       })
     );
-  }, [currentOutlineId, selectedNodeId, reformatApplySelectionFn]);
+  }, [currentOutlineId, selectedNodeId, reformatApplySelectionFn, markNextAction, setOutlines]);
 
   // Transform outline with AI — scope is the selected node (if any) plus its
   // descendants, OR the whole current outline's root + descendants when
@@ -1231,6 +1276,7 @@ export default function OutlinePro() {
     transformedNodes: Record<string, { id: string; name: string; content: string; type: string; parentId: string | null; childrenIds: string[] }>;
     rootNodeId: string;
   }) => {
+    markNextAction('Transform Outline with AI');
     setOutlines(currentOutlines =>
       currentOutlines.map(o => {
         if (o.id !== currentOutlineId || o.isGuide) return o;
@@ -1243,7 +1289,7 @@ export default function OutlinePro() {
         return { ...o, nodes: nextNodes };
       }),
     );
-  }, [currentOutlineId, setOutlines]);
+  }, [currentOutlineId, setOutlines, markNextAction]);
 
   // Respect the app-wide AI provider setting: only force local when the user
   // explicitly chose "local" (cloud/auto keep cloud grounding + citations).
@@ -1405,6 +1451,14 @@ export default function OutlinePro() {
 
       const nodeToDelete = outline.nodes[nodeId];
       if (!nodeToDelete || !nodeToDelete.parentId) return currentOutlines;
+
+      // Tag the snapshot so Cmd+Z says "Undid: Delete [Name]". Counts subtree
+      // size for a more honest label when the delete cascades.
+      const subtreeCount = collectDescendantIds(outline.nodes, nodeId).length;
+      const label = subtreeCount > 1
+        ? `Delete ${nodeToDelete.name || 'item'} and ${subtreeCount - 1} child${subtreeCount - 1 === 1 ? '' : 'ren'}`
+        : `Delete ${nodeToDelete.name || 'item'}`;
+      pendingActionRef.current = { label, big: subtreeCount > 1 };
 
       // Determine next selected node
       let nextSelectedNodeId = selectedNodeId;
@@ -3156,6 +3210,10 @@ export default function OutlinePro() {
 
   // Add an already-parsed outline to the app (used by FileImportDialog and handleImportOutline)
   const handleAddImportedOutline = useCallback((importedData: Outline, showToast: boolean = true) => {
+    pendingActionRef.current = {
+      label: `Import ${importedData.name || 'outline'}`,
+      big: true,
+    };
     setOutlines(currentOutlines => {
       const newId = currentOutlines.some(o => o.id === importedData.id)
         ? uuidv4()
@@ -3363,6 +3421,11 @@ export default function OutlinePro() {
   const handlePasteSubtree = useCallback((targetNodeId: string) => {
     if (!subtreeClipboard) return;
 
+    const pastedCount = Object.keys(subtreeClipboard.nodes).length;
+    pendingActionRef.current = {
+      label: pastedCount > 1 ? `Paste ${pastedCount} items` : 'Paste item',
+      big: true,
+    };
     setOutlines(currentOutlines => {
       const targetOutline = currentOutlines.find(o => o.id === currentOutlineId);
       if (!targetOutline) return currentOutlines;
@@ -3561,7 +3624,7 @@ export default function OutlinePro() {
     setLastSelectedNodeId(null);
   }, []);
 
-  const handleBulkDelete = useCallback(() => {
+  const handleBulkDelete = useCallback(async () => {
     if (selectedNodeIds.size === 0) return;
     if (currentOutline?.isGuide) {
       toast({ title: "User Guide is read-only", description: "Make personal notes in your own outline instead." });
@@ -3569,8 +3632,20 @@ export default function OutlinePro() {
     }
 
     const nodeCount = selectedNodeIds.size;
-    const confirm = window.confirm(`Delete ${nodeCount} selected item${nodeCount > 1 ? 's' : ''}? This will also delete all their children.`);
-    if (!confirm) return;
+    // Unified confirm dialog with Don't-ask-again + Professional bypass.
+    const ok = await confirmDialog({
+      id: 'confirm.bulkDeleteNodes',
+      title: `Delete ${nodeCount} item${nodeCount > 1 ? 's' : ''}?`,
+      description: `This will also delete all their children.`,
+      confirmLabel: 'Delete',
+      destructive: true,
+    });
+    if (!ok) return;
+
+    pendingActionRef.current = {
+      label: `Delete ${nodeCount} item${nodeCount > 1 ? 's' : ''}`,
+      big: true,
+    };
 
     setOutlines(currentOutlines => {
       return currentOutlines.map(o => {
@@ -3594,7 +3669,7 @@ export default function OutlinePro() {
       title: "Items Deleted",
       description: `Deleted ${nodeCount} item${nodeCount > 1 ? 's' : ''}.`,
     });
-  }, [selectedNodeIds, currentOutlineId, currentOutline, toast]);
+  }, [selectedNodeIds, currentOutlineId, currentOutline, toast, confirmDialog, setOutlines]);
 
   const handleBulkChangeColor = useCallback((color: string | undefined) => {
     if (selectedNodeIds.size === 0) return;
@@ -5025,6 +5100,8 @@ export default function OutlinePro() {
         </>
       )}
     </ResizablePanelGroup>
+    {/* Unified confirmation dialog (Don't-ask-again + Pro mode). 2026-06-10. */}
+    {confirmDialogEl}
     </div>
   );
 }

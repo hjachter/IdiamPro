@@ -40,7 +40,7 @@ CONTENT EDITOR:
 - Rich text: Bold (Cmd+B), Italic (Cmd+I), Strikethrough, Headings (H1-H3)
 - Lists: Ordered, unordered, and checklist lists
 - Code blocks
-- Undo (Cmd+Z), Redo (Cmd+Shift+Z)
+- Undo (Cmd+Z), Redo (Cmd+Shift+Z) — unified across everything: text edits, adding/deleting/moving items, AI transforms (Reformat, Translate, Transform Outline, Refresh from Web), pastes, and imports. One shortcut undoes whatever you just did. Depth is unlimited. After big actions (AI transforms, imports, multi-delete) a persistent toast shows the name of what was undone (e.g. "Undid: Translate Outline") and stays visible until you click the X.
 - Touch-accessible toolbar: The content pane toolbar has Undo/Redo buttons and Bullet List, Numbered List, and Checklist buttons at the left end — one-tap access on iPhone, iPad, and desktop without needing the right-click menu.
 - Floating formatting toolbar: Select text in the editor and a small floating menu appears with Bold, Italic, Strikethrough, Inline Code, and Heading 1/2/3 buttons. Active formatting is highlighted. Works on touch and desktop.
 - Google Docs/Sheets/Slides/Maps embedding via Insert menu (paste URL)
@@ -130,6 +130,16 @@ COMMON WORKFLOWS:
 - Research synthesis: Use Research & Import with 20+ YouTube videos and 50+ PDFs
 - Content expansion: Select a node, right-click, choose "Generate Content with AI"
 - Bulk operations: Cmd+Click to select multiple nodes, then use Multi-Select toolbar
+
+CONFIRMATION DIALOGS — TWO-TIER OPT-OUT (2026-06-10):
+- Every confirmation dialog in the app (Delete item, Delete outline, Bulk delete) now offers a "Don't ask again" checkbox at the bottom of the dialog body. Check the box and click Confirm to suppress that specific prompt for all future occurrences (persisted in localStorage under a stable key like confirm.deleteOutline.suppressed).
+- Professional mode (Settings → Tips → Professional mode toggle) suppresses EVERY confirmation dialog globally — useful for power users who want zero friction. It uses the same toggle that suppresses "Did You Know?" tips; one switch = no friction.
+- A "Reset confirmation prompts" button in Settings → Preferences clears every per-prompt suppression so users can roll back their opt-outs without flipping Professional mode. The reset shows a toast like "Cleared 3 suppressed prompts." This mirrors the Discovery Hints two-tier dismissal pattern (2026-06-05).
+
+TOAST NOTIFICATIONS — PERSIST UNTIL DISMISSED (2026-06-10):
+- All toasts (undo confirmations, save confirmations, AI completion notices, error toasts, transform-applied notices, etc.) stay on screen until the user clicks the X to dismiss them. They never auto-fade.
+- Multiple toasts stack — up to six visible at once. Users dismiss them in any order.
+- This gives users (especially older users or anyone reviewing AI changes) time to read what happened and decide what to do next — a toast that disappears after 3 seconds robs them of that chance. A rare few transient toasts still auto-fade (e.g. "Nothing to undo" hint, focus-mode confirmation) because they pile up otherwise — those pass an explicit short duration.
 
 MCP SERVER (API ACCESS):
 - IdiamPro includes an MCP (Model Context Protocol) server for programmatic access to outlines

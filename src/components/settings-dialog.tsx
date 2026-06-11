@@ -24,6 +24,7 @@ import { Badge } from '@/components/ui/badge';
 import { useAI } from '@/contexts/ai-context';
 import { useToast } from '@/hooks/use-toast';
 import { useDiscovery, fireDiscovery } from '@/hooks/use-discovery';
+import { resetAllConfirmSuppressions } from '@/hooks/use-confirm-dialog';
 import { storeDirectoryHandle, getDirectoryHandle, verifyDirectoryPermission } from '@/lib/file-storage';
 import { isElectron, electronSelectDirectory, electronGetStoredDirectoryPath, checkOllamaInstallation, startOllama } from '@/lib/electron-storage';
 import { checkOllamaStatusAction } from '@/app/actions';
@@ -725,6 +726,33 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
             <p className="text-xs text-muted-foreground">
               Show confirmation dialog when deleting items or branches
             </p>
+
+            {/* Reset confirmation prompts (2026-06-10). Clears every per-prompt
+                "Don't ask again" suppression so the user can roll back their
+                opt-outs without flipping Professional mode. */}
+            <div className="flex items-center justify-between pt-2">
+              <div>
+                <Label className="text-sm">Reset confirmation prompts</Label>
+                <p className="text-xs text-muted-foreground">
+                  Brings back all dialogs you previously dismissed with &ldquo;Don&apos;t ask again&rdquo;
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const cleared = resetAllConfirmSuppressions();
+                  toast({
+                    title: cleared > 0 ? 'Confirmations reset' : 'No prompts were suppressed',
+                    description: cleared > 0
+                      ? `Cleared ${cleared} suppressed prompt${cleared === 1 ? '' : 's'}.`
+                      : 'You hadn’t opted out of any confirmations.',
+                  });
+                }}
+              >
+                Reset
+              </Button>
+            </div>
           </div>
 
           {/* Tips & Discovery Section */}
@@ -742,7 +770,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
               />
             </div>
             <p className="text-xs text-muted-foreground">
-              Suppress &ldquo;Did You Know?&rdquo; tips. Recommended once you know your way around.
+              Suppress &ldquo;Did You Know?&rdquo; tips and all confirmation dialogs. Recommended once you know your way around.
             </p>
           </div>
 

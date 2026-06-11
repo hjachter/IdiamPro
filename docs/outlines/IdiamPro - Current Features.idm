@@ -1209,7 +1209,10 @@
       "content": "<p>Cmd+N: New sibling node. Cmd+D: Duplicate node. Delete/Backspace: Delete with confirmation. Cmd+Backspace: Delete without confirmation. Tab: Indent. Shift+Tab: Outdent.</p>",
       "type": "document",
       "parentId": "c263b77a-03b1-47d8-b909-64f2ee69f9ba",
-      "childrenIds": [],
+      "childrenIds": [
+        "6b4e0120-b159-42cc-bd73-a47712ac25b9",
+        "bddb3ca6-d072-4d0e-9159-a2e934e674f8"
+      ],
       "isCollapsed": true,
       "prefix": "13.3.",
       "metadata": {}
@@ -1459,6 +1462,7 @@
       "type": "chapter",
       "parentId": "0855ebbc-563f-40a1-a524-55b6b5c69833",
       "childrenIds": [
+        "265e5984-3cf0-4a3f-93ca-402da0b6c26c",
         "14e3861e-3f99-4373-bf00-f4cbaa5a4cdd",
         "f26a1b36-75cb-459b-9a21-8e0f03c430ea",
         "8cb357d6-374d-44e3-8ea8-0ace4299a8d6",
@@ -1822,9 +1826,42 @@
       "type": "document",
       "parentId": "0855ebbc-563f-40a1-a524-55b6b5c69833",
       "childrenIds": []
+    },
+    "bddb3ca6-d072-4d0e-9159-a2e934e674f8": {
+      "id": "bddb3ca6-d072-4d0e-9159-a2e934e674f8",
+      "name": "Unified Cmd+Z (undo everything)",
+      "content": "Cmd+Z reverts whatever you just did, across every kind of change: text edits inside a node, adding or removing items, moving items around, AI transforms (Reformat, Translate, Transform Outline, Refresh from Web), pastes, and imports.\n\nAfter a 'big' action (AI transform, import, multi-item delete) the app shows a persistent toast like 'Undid: Translate Outline' so you can see exactly what reverted. The toast stays on screen until you click the X to dismiss it.\n\nUndo depth is unlimited (bounded only by memory). Redo with Cmd+Shift+Z works the same way.",
+      "type": "document",
+      "parentId": "25755997-6499-43ec-aa5c-ad6dcc4281fe",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "createdAt": 1781154318804,
+      "updatedAt": 1781154318804
+    },
+    "6b4e0120-b159-42cc-bd73-a47712ac25b9": {
+      "id": "6b4e0120-b159-42cc-bd73-a47712ac25b9",
+      "name": "Persistent toast notifications",
+      "content": "Toasts (the small status messages that pop up in the corner of the screen \u2014 'Outline saved', 'Undid: Reformat with AI', 'Import successful', etc.) now stay on screen until you click the X to dismiss them. They never auto-fade.\n\nUp to six toasts can stack visibly at once. You dismiss them in any order.\n\nWhy: Howard's design call 2026-06-10 \u2014 older users and anyone reviewing AI changes deserve time to read what happened. A toast that disappears after 3 seconds robs them of that chance. A few intentionally-transient toasts (e.g. 'Nothing to undo', focus-mode confirmation) still auto-fade because they pile up otherwise.",
+      "type": "document",
+      "parentId": "25755997-6499-43ec-aa5c-ad6dcc4281fe",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "createdAt": 1781154318806,
+      "updatedAt": 1781154318806
+    },
+    "265e5984-3cf0-4a3f-93ca-402da0b6c26c": {
+      "id": "265e5984-3cf0-4a3f-93ca-402da0b6c26c",
+      "name": "Don't-ask-again on confirmation dialogs",
+      "content": "Every confirmation dialog in the app (Delete item, Delete outline, Bulk delete) has a 'Don't ask again' checkbox at the bottom of the dialog body. Check the box and click Confirm to suppress that specific prompt for all future occurrences.\n\nProfessional mode (Settings \u2192 Tips \u2192 Professional mode toggle) suppresses every confirmation dialog globally \u2014 useful for power users who want zero friction. It uses the same toggle that suppresses 'Did You Know?' tips.\n\nA 'Reset confirmation prompts' button in Settings \u2192 Preferences clears every per-prompt suppression so users can roll back their opt-outs without flipping Professional mode.",
+      "type": "document",
+      "parentId": "fab392c3-fbcc-42a9-b874-2830368b97f9",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "createdAt": 1781154318808,
+      "updatedAt": 1781154318808
     }
   },
-  "lastModified": 1780617097622,
+  "lastModified": 1781154318808,
   "isGuide": false,
   "_fileSize": 67531,
   "_fileName": "IdiamPro - Current Features.idm",

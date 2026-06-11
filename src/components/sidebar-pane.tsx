@@ -56,7 +56,9 @@ import type { Outline } from '@/types';
 import type { LazyOutline } from '@/lib/storage-manager';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { fireDiscovery } from '@/hooks/use-discovery';
+import { fireDiscovery, useDiscovery } from '@/hooks/use-discovery';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 
 interface SidebarPaneProps {
   outlines: Outline[];
@@ -126,6 +128,10 @@ export default function SidebarPane({
   const [templatesOpen, setTemplatesOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [outlineToDelete, setOutlineToDelete] = useState<Outline | null>(null);
+  // Don't-ask-again for delete-outline (2026-06-10). Combined with Pro mode.
+  const [deleteDontAskAgain, setDeleteDontAskAgain] = useState(false);
+  const { isProfessional } = useDiscovery();
+  const DELETE_OUTLINE_SUPPRESS_KEY = 'confirm.deleteOutline.suppressed';
   const [selectedOutlineIds, setSelectedOutlineIds] = useState<Set<string>>(new Set());
   const [renamingOutlineId, setRenamingOutlineId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
@@ -203,17 +209,22 @@ export default function SidebarPane({
   };
 
   const handleDeleteClick = (outline: Outline) => {
-    const confirmDelete = localStorage.getItem('confirmDelete') !== 'false';
-    if (confirmDelete) {
+    const legacyConfirmDelete = localStorage.getItem('confirmDelete') !== 'false';
+    const perPromptSuppressed = localStorage.getItem(DELETE_OUTLINE_SUPPRESS_KEY) === 'true';
+    if (isProfessional || perPromptSuppressed || !legacyConfirmDelete) {
+      onDeleteOutline(outline.id);
+    } else {
       setOutlineToDelete(outline);
+      setDeleteDontAskAgain(false);
       // Small delay to let dropdown close first
       setTimeout(() => setDeleteDialogOpen(true), 100);
-    } else {
-      onDeleteOutline(outline.id);
     }
   };
 
   const handleConfirmDelete = () => {
+    if (deleteDontAskAgain) {
+      try { localStorage.setItem(DELETE_OUTLINE_SUPPRESS_KEY, 'true'); } catch { /* ignore */ }
+    }
     if (outlineToDelete) {
       onDeleteOutline(outlineToDelete.id);
     } else if (selectedOutlineIds.size > 0) {
@@ -256,15 +267,17 @@ export default function SidebarPane({
   };
 
   const handleBulkDeleteClick = () => {
-    const confirmDelete = localStorage.getItem('confirmDelete') !== 'false';
-    if (confirmDelete) {
-      setOutlineToDelete(null); // null indicates bulk delete
-      setDeleteDialogOpen(true);
-    } else {
+    const legacyConfirmDelete = localStorage.getItem('confirmDelete') !== 'false';
+    const perPromptSuppressed = localStorage.getItem(DELETE_OUTLINE_SUPPRESS_KEY) === 'true';
+    if (isProfessional || perPromptSuppressed || !legacyConfirmDelete) {
       // Delete all selected outlines
       const idsToDelete = Array.from(selectedOutlineIds);
       idsToDelete.forEach(id => onDeleteOutline(id));
       setSelectedOutlineIds(new Set());
+    } else {
+      setOutlineToDelete(null); // null indicates bulk delete
+      setDeleteDontAskAgain(false);
+      setDeleteDialogOpen(true);
     }
   };
 
@@ -519,6 +532,16 @@ export default function SidebarPane({
                 : `This will permanently delete ${selectedOutlineIds.size} outlines and all their content.`}
             </AlertDialogDescription>
           </AlertDialogHeader>
+          <div className="flex items-center gap-2 py-2">
+            <Checkbox
+              id="delete-outline-dont-ask"
+              checked={deleteDontAskAgain}
+              onCheckedChange={(v) => setDeleteDontAskAgain(v === true)}
+            />
+            <Label htmlFor="delete-outline-dont-ask" className="text-sm font-normal cursor-pointer select-none">
+              Don&apos;t ask again
+            </Label>
+          </div>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => setOutlineToDelete(null)}>Cancel</AlertDialogCancel>
             <AlertDialogAction

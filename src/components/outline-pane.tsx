@@ -11,7 +11,10 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Plus, Trash2, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, ChevronsDownUp, Settings, Search, Command, PanelLeft, PanelLeftClose, Brain, StopCircle, Inbox, LayoutDashboard, Focus, Sparkles, Mic, MessageSquare, BookDown, BookUp, Share2, ExternalLink, RefreshCw, MoreHorizontal, HelpCircle, Send } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter } from "@/components/ui/alert-dialog";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useDiscovery } from "@/hooks/use-discovery";
 import SettingsDialog from './settings-dialog';
 import type { NodeType } from '@/types';
 import { exportOutlineToJson, exportAllOutlinesToJson, shareBackupFile, shareOutlineFile } from '@/lib/export';
@@ -248,6 +251,13 @@ export default function OutlinePane({
   onOpenLinkToOutline,
 }: OutlinePaneProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  // Don't-ask-again state for the delete-item confirm (2026-06-10). When the
+  // user checks the box + confirms, future deletes skip the dialog. Combined
+  // with Professional mode (useDiscovery.isProfessional) which suppresses ALL
+  // confirmations globally.
+  const [deleteDontAskAgain, setDeleteDontAskAgain] = useState(false);
+  const { isProfessional } = useDiscovery();
+  const SUPPRESS_KEY = 'confirm.deleteNode.suppressed';
   const [importDialogOpen, setImportDialogOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   // const outlinePaneRef = useRef<HTMLDivElement>(null);
@@ -1186,11 +1196,17 @@ export default function OutlinePane({
                     aria-label="Delete item"
                     onClick={() => {
                       if (currentOutline?.isGuide) return;
-                      const confirmDelete = localStorage.getItem('confirmDelete') !== 'false';
-                      if (confirmDelete) {
-                        setShowDeleteDialog(true);
-                      } else {
+                      // Two-tier bypass (2026-06-10):
+                      //   1. Professional mode — global suppress all confirms.
+                      //   2. Per-prompt "Don't ask again" — localStorage key.
+                      //   3. Legacy "Confirm before deleting" Setting toggle.
+                      const legacyConfirmDelete = localStorage.getItem('confirmDelete') !== 'false';
+                      const perPromptSuppressed = localStorage.getItem(SUPPRESS_KEY) === 'true';
+                      if (isProfessional || perPromptSuppressed || !legacyConfirmDelete) {
                         selectedNodeId && onDeleteNode(selectedNodeId);
+                      } else {
+                        setDeleteDontAskAgain(false);
+                        setShowDeleteDialog(true);
                       }
                     }}
                   >
@@ -1204,12 +1220,25 @@ export default function OutlinePane({
               <AlertDialogHeader>
                 <AlertDialogTitle>Delete Item?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This will permanently delete "{selectedNode ? (selectedNode as OutlineNode).name : ''}" and all its children.
+                  This will permanently delete &ldquo;{selectedNode ? (selectedNode as OutlineNode).name : ''}&rdquo; and all its children.
                 </AlertDialogDescription>
               </AlertDialogHeader>
+              <div className="flex items-center gap-2 py-2">
+                <Checkbox
+                  id="delete-node-dont-ask"
+                  checked={deleteDontAskAgain}
+                  onCheckedChange={(v) => setDeleteDontAskAgain(v === true)}
+                />
+                <Label htmlFor="delete-node-dont-ask" className="text-sm font-normal cursor-pointer select-none">
+                  Don&apos;t ask again
+                </Label>
+              </div>
               <AlertDialogFooter className="flex-col-reverse sm:flex-row sm:justify-end gap-2">
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                 <AlertDialogAction onClick={() => {
+                  if (deleteDontAskAgain) {
+                    try { localStorage.setItem(SUPPRESS_KEY, 'true'); } catch { /* ignore */ }
+                  }
                   selectedNodeId && onDeleteNode(selectedNodeId);
                   setShowDeleteDialog(false);
                 }} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
