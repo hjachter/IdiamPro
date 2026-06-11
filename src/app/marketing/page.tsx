@@ -725,6 +725,50 @@ export default function MarketingPage() {
           </div>
         </section>
 
+        {/* Written AND multimedia — dual-output positioning */}
+        <section className="px-6 pb-16 lg:px-12">
+          <div className="max-w-4xl mx-auto">
+            <div className="rounded-2xl border border-rose-500/20 bg-gradient-to-br from-rose-500/5 via-amber-500/5 to-violet-500/5 p-8 md:p-10">
+              <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">
+                Written work and multimedia, from one outline.
+              </h2>
+              <p className="text-base md:text-lg text-white/70 leading-relaxed mb-4">
+                IdiamPro is the idea developer for both written content and multimedia. Snap a whiteboard photo and watch it become a structured outline. Pick a branch and IdiamPro produces a complete YouTube content package — script, chapters, description, SEO, B-roll prompts. Multimedia in, multimedia out.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/70 text-xs">Books &amp; long-form</span>
+                <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/70 text-xs">Articles &amp; reports</span>
+                <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/70 text-xs">YouTube packages</span>
+                <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/70 text-xs">Podcasts</span>
+                <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/70 text-xs">Diagrams &amp; mind maps</span>
+                <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/70 text-xs">Whiteboard capture</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Authors — primary target customer segment */}
+        <section className="px-6 pb-16 lg:px-12">
+          <div className="max-w-4xl mx-auto">
+            <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-amber-500/5 to-rose-500/5 p-8 md:p-10">
+              <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">
+                Built for people who write for a living.
+              </h2>
+              <p className="text-base md:text-lg text-white/70 leading-relaxed mb-5">
+                Outlining is already core to your craft. IdiamPro pulls in your research, drafts inside your structure, and ships the finished work — manuscript, screenplay, article, or YouTube companion package.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <span className="px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/20 text-amber-200 text-xs">Screenwriters</span>
+                <span className="px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/20 text-amber-200 text-xs">Novelists</span>
+                <span className="px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/20 text-amber-200 text-xs">Nonfiction authors</span>
+                <span className="px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/20 text-amber-200 text-xs">Technical writers</span>
+                <span className="px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/20 text-amber-200 text-xs">Journalists</span>
+                <span className="px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/20 text-amber-200 text-xs">Content marketers</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
 
         {/* COGNITIVE ENHANCEMENT - Intelligence Amplifier Section */}
         <section className="px-6 py-20 lg:px-12 relative overflow-hidden">
@@ -1138,30 +1182,48 @@ export default function MarketingPage() {
                 </div>
               </div>
 
-              {/* Coming Soon — YouTube Video Export (v1.1) */}
-              <div className="mt-8">
+              {/* New — Multimedia pair: YouTube package generation + Image-to-outline (shipped 2026-06-11) */}
+              <div className="mt-8 grid lg:grid-cols-2 gap-6">
+                {/* YouTube generation — shipped */}
                 <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-red-500/10 via-rose-500/5 to-amber-500/10 border border-red-500/20 p-8 hover:border-red-500/40 transition-all duration-500">
-                  <div className="flex items-start gap-6">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center shadow-lg shadow-red-500/30 flex-shrink-0">
-                      <Youtube className="w-6 h-6 text-white" />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2 flex-wrap">
-                        <h3 className="text-xl font-bold text-white">
-                          From outline to YouTube video
-                        </h3>
-                        <span className="text-[10px] font-semibold uppercase tracking-wider text-amber-300 bg-amber-400/10 border border-amber-400/20 rounded px-2 py-0.5">
-                          Coming soon · v1.1
-                        </span>
-                      </div>
-                      <p className="text-white/60 text-sm mb-3">
-                        Generate a fully-narrated, publishable video straight from any outline. Pick a target length, hit Generate, get a YouTube-ready MP4 with AI voiceover and slides. Shipping in v1.1.
-                      </p>
-                      <p className="text-white/40 text-xs">
-                        Beta testers get early access. Everyone else gets it the moment it ships.
-                      </p>
-                    </div>
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center shadow-lg shadow-red-500/30 mb-4">
+                    <Youtube className="w-6 h-6 text-white" />
                   </div>
+                  <div className="flex items-center gap-3 mb-2 flex-wrap">
+                    <h3 className="text-xl font-bold text-white">
+                      From outline to YouTube in one click
+                    </h3>
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-300 bg-emerald-400/10 border border-emerald-400/20 rounded px-2 py-0.5">
+                      Shipped
+                    </span>
+                  </div>
+                  <p className="text-white/60 text-sm mb-3">
+                    Pick any outline branch and IdiamPro generates a complete YouTube content package — voiceover script with timing cues, chapter markers for the description, 5 title variants, 15+ SEO tags, a thumbnail concept, B-roll prompts for AI video tools (Runway, MagicLight, Sora), and a shot list for your screen recording.
+                  </p>
+                  <p className="text-white/40 text-xs">
+                    Built for content creators who outline first, produce second.
+                  </p>
+                </div>
+
+                {/* Image-to-outline — shipped */}
+                <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-cyan-500/10 via-sky-500/5 to-violet-500/10 border border-cyan-500/20 p-8 hover:border-cyan-500/40 transition-all duration-500">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-sky-600 flex items-center justify-center shadow-lg shadow-cyan-500/30 mb-4">
+                    <ImageIcon className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="flex items-center gap-3 mb-2 flex-wrap">
+                    <h3 className="text-xl font-bold text-white">
+                      Capture an idea, structure it instantly
+                    </h3>
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-300 bg-emerald-400/10 border border-emerald-400/20 rounded px-2 py-0.5">
+                      Shipped
+                    </span>
+                  </div>
+                  <p className="text-white/60 text-sm mb-3">
+                    Photograph a whiteboard, drop in a screenshot, snap a diagram. IdiamPro extracts the hierarchical structure as outline nodes — preserving relationships, not just text.
+                  </p>
+                  <p className="text-white/40 text-xs">
+                    The source image stays attached so you can always trace back to where an idea came from.
+                  </p>
                 </div>
               </div>
             </div>
