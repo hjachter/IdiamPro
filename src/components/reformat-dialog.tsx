@@ -43,6 +43,8 @@ import { WandSparkles, Loader2, AlertTriangle, Cpu, ArrowLeft } from 'lucide-rea
 import { reformatContentAction } from '@/app/actions';
 import { getUserApiKey } from '@/lib/byok-keys';
 import { useAIUsageGate } from '@/lib/use-ai-usage-gate';
+import DerivationChoice, { type DerivationMode } from './derivation-choice';
+import { suggestDerivationLabel } from '@/lib/derivation/label-from-prompt';
 
 interface ReformatDialogProps {
   open: boolean;
@@ -51,8 +53,18 @@ interface ReformatDialogProps {
   contentHtml: string;
   /** Label shown in the header — "this node" or "your selection". */
   scopeLabel?: string;
-  /** Called when the user clicks Apply with the new HTML. */
-  onApply: (newHtml: string) => void;
+  /** True when the dialog is operating on a SELECTION inside a node (not the
+   *  whole node). When true, the derivative option is suppressed because
+   *  partial-selection derivatives would be ambiguous. The parent passes
+   *  this through; default false. */
+  isSelectionScope?: boolean;
+  /** Name of the current outline (used in the derivation copy). */
+  outlineName?: string;
+  /** Called when the user clicks Apply with the new HTML.
+   *  The derivation field (2026-06-10) tells the parent whether to apply
+   *  in-place or create a new derivative outline. Undefined for selection-
+   *  scope reformat (which is always in-place). */
+  onApply: (newHtml: string, derivation?: { mode: DerivationMode; label: string }) => void;
 }
 
 type Phase = 'input' | 'running' | 'preview';
@@ -84,6 +96,8 @@ export default function ReformatDialog({
   onOpenChange,
   contentHtml,
   scopeLabel,
+  isSelectionScope = false,
+  outlineName,
   onApply,
 }: ReformatDialogProps) {
   const { gate } = useAIUsageGate();
@@ -93,6 +107,11 @@ export default function ReformatDialog({
   const [previewHtml, setPreviewHtml] = useState<string>('');
   const [modelLabel, setModelLabel] = useState<string>('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  // Derivative-by-default (whole-node only — selection scope is always
+  // applied in-place; a derivative would be incoherent for half a node).
+  const [derivationMode, setDerivationMode] = useState<DerivationMode>('derivative');
+  const [derivationLabel, setDerivationLabel] = useState<string>('');
+  const [labelUserEdited, setLabelUserEdited] = useState(false);
 
   // Reset state every time the dialog opens fresh.
   useEffect(() => {
@@ -102,8 +121,21 @@ export default function ReformatDialog({
       setPreviewHtml('');
       setModelLabel('');
       setErrorMsg(null);
+      // Selection-scope is always in-place (a derivative outline based on
+      // half a node's content makes no sense).
+      setDerivationMode(isSelectionScope ? 'inplace' : 'derivative');
+      setDerivationLabel('');
+      setLabelUserEdited(false);
     }
-  }, [open]);
+  }, [open, isSelectionScope]);
+
+  // Auto-suggest the derivation label from the instruction text unless the
+  // user has manually edited it.
+  useEffect(() => {
+    if (!labelUserEdited) {
+      setDerivationLabel(suggestDerivationLabel(instruction));
+    }
+  }, [instruction, labelUserEdited]);
 
   const handleClose = () => {
     onOpenChange(false);
@@ -162,7 +194,16 @@ export default function ReformatDialog({
 
   const handleApply = () => {
     if (!previewHtml) return;
-    onApply(previewHtml);
+    if (isSelectionScope) {
+      // Selection scope is always in-place — the parent's replacer function
+      // operates on the selected HTML range and doesn't model derivatives.
+      onApply(previewHtml);
+    } else {
+      onApply(previewHtml, {
+        mode: derivationMode,
+        label: derivationLabel.trim() || 'Modified',
+      });
+    }
     handleClose();
   };
 
@@ -235,6 +276,18 @@ export default function ReformatDialog({
                 </p>
               </div>
             </div>
+
+            {!isSelectionScope && (
+              <DerivationChoice
+                mode={derivationMode}
+                onModeChange={setDerivationMode}
+                label={derivationLabel}
+                onLabelChange={(v) => { setDerivationLabel(v); setLabelUserEdited(true); }}
+                idPrefix="reformat"
+                transformName="Reformat"
+                currentOutlineName={outlineName}
+              />
+            )}
 
             {errorMsg && (
               <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">

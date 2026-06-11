@@ -43,14 +43,18 @@ import {
 } from '@/lib/transforms/transform-engine';
 import { createTranslateTransformer } from '@/lib/transforms/translate-transform';
 import { useAIUsageGate } from '@/lib/use-ai-usage-gate';
+import DerivationChoice, { type DerivationMode } from './derivation-choice';
+import { suggestTranslateLabel } from '@/lib/derivation/label-from-prompt';
 
 interface TranslateDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   outline: Outline | null;
   selectedNodeId: string | null;
-  /** Called with the new node map after the user approves + applies. */
-  onApply: (nextNodes: Outline['nodes']) => void;
+  /** Called with the new node map after the user approves + applies.
+   *  The derivation field (2026-06-10) tells the parent whether to apply
+   *  in-place (Translate's default) or create a new derivative outline. */
+  onApply: (nextNodes: Outline['nodes'], derivation?: { mode: DerivationMode; label: string }) => void;
 }
 
 // Language list ordering — promotes the languages of globally-distributed
@@ -87,6 +91,11 @@ export default function TranslateDialog({
   const [rejected, setRejected] = useState<Set<string>>(new Set());
   const [includeUserEdited, setIncludeUserEdited] = useState<Set<string>>(new Set());
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  // Translate is the ONE transform whose default is in-place — translating
+  // is content-preserving per language; the user already chose the target
+  // language and expects replacement. Derivative is still offered as opt-in.
+  const [derivationMode, setDerivationMode] = useState<DerivationMode>('inplace');
+  const [derivationLabel, setDerivationLabel] = useState<string>('');
 
   const scopeNode = outline && selectedNodeId ? outline.nodes[selectedNodeId] : null;
   const scopeSize = useMemo(() => {
@@ -101,6 +110,8 @@ export default function TranslateDialog({
     setIncludeUserEdited(new Set());
     setErrorMsg(null);
     setTargetLanguage('');
+    setDerivationMode('inplace');
+    setDerivationLabel('');
     onOpenChange(false);
   };
 
@@ -153,7 +164,10 @@ export default function TranslateDialog({
       approved.add(proposal.nodeId);
     }
     const { nodes: nextNodes } = applyTransformPreview(outline.nodes, preview, approved);
-    onApply(nextNodes);
+    onApply(nextNodes, {
+      mode: derivationMode,
+      label: (derivationLabel.trim() || suggestTranslateLabel(targetLanguage)) || 'Translated',
+    });
     handleClose();
   };
 
@@ -203,7 +217,14 @@ export default function TranslateDialog({
               <Label className="text-sm font-medium">Translate into</Label>
               <select
                 value={targetLanguage}
-                onChange={(e) => setTargetLanguage(e.target.value)}
+                onChange={(e) => {
+                  const lang = e.target.value;
+                  setTargetLanguage(lang);
+                  // Auto-suggest a label only if user hasn't typed one of their own.
+                  if (!derivationLabel.trim()) {
+                    setDerivationLabel(suggestTranslateLabel(lang));
+                  }
+                }}
                 className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 aria-label="Target language"
               >
@@ -214,6 +235,16 @@ export default function TranslateDialog({
                 Formatting is preserved (headings, lists, bold, links). Proper nouns and code stay as-is.
               </p>
             </div>
+
+            <DerivationChoice
+              mode={derivationMode}
+              onModeChange={setDerivationMode}
+              label={derivationLabel}
+              onLabelChange={setDerivationLabel}
+              idPrefix="translate"
+              transformName="Translate"
+              currentOutlineName={outline?.name}
+            />
 
             <div className="flex items-start gap-2 pt-2">
               <Checkbox

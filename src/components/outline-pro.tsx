@@ -47,6 +47,8 @@ import TranslateDialog from './translate-dialog';
 import ReformatDialog from './reformat-dialog';
 import TransformOutlineDialog from './transform-outline-dialog';
 import { mergeTransformedSubtreeIntoOutline } from '@/lib/transform-outline-helpers';
+import { buildDerivativeOutline, cloneNodesWithSingleContent, deepCloneNodes } from '@/lib/derivation/build-derivative';
+import type { DerivationMode } from './derivation-choice';
 import OutlineLinkPickerDialog from './outline-link-picker-dialog';
 import HelpChatDialog from './help-chat-dialog';
 import KnowledgeChatDialog from './knowledge-chat-dialog';
@@ -1194,37 +1196,82 @@ export default function OutlinePro() {
     });
   }, [currentOutlineId]);
 
-  // LIVE BOOKS — apply an approved refresh back into the current outline.
-  // The dialog already built the new node map (with citations + provenance);
-  // we just swap it in through the normal outline-update path so it persists
-  // and exports like any other change.
-  const handleApplyLiveBooks = useCallback((nextNodes: NodeMap) => {
-    // Snapshot the pre-transform state to disk. Fire-and-forget — never
-    // blocks the apply. Skipped when the user has opted out in Settings or
-    // when not running in Electron.
+  // LIVE BOOKS — apply an approved refresh back into the current outline,
+  // OR fork into a new derivative outline (2026-06-10 default for content-
+  // altering transforms). The dialog already built the new node map (with
+  // citations + provenance); for derivative mode we wrap the same map into
+  // a brand-new Outline; for in-place we swap it into the current outline.
+  const handleApplyLiveBooks = useCallback((nextNodes: NodeMap, derivation?: { mode: DerivationMode; label: string }) => {
     const target = outlines.find(o => o.id === currentOutlineId && !o.isGuide);
-    if (target) void snapshotBeforeTransform(target, 'Refresh from Web');
+    if (!target) return;
+
+    if (derivation && derivation.mode === 'derivative') {
+      // Original is untouched — no snapshot needed (the original is the
+      // backup). Create a new outline and switch to it.
+      const newOutline = buildDerivativeOutline({
+        original: target,
+        transformedNodes: nextNodes,
+        transformedRootNodeId: target.rootNodeId,
+        derivationLabel: derivation.label,
+      });
+      markNextAction('Create derivative (Refresh from Web)');
+      setOutlines(curr => [...curr, newOutline]);
+      setCurrentOutlineId(newOutline.id);
+      toast({
+        title: 'Derivative created',
+        description: `"${newOutline.name}". Original "${target.name}" was not modified.`,
+        duration: 8000,
+      });
+      return;
+    }
+
+    // In-place: snapshot the pre-transform state to disk. Fire-and-forget —
+    // never blocks the apply. Skipped when the user has opted out in
+    // Settings or when not running in Electron.
+    void snapshotBeforeTransform(target, 'Refresh from Web');
     markNextAction('Refresh from Web');
     setOutlines(currentOutlines =>
       currentOutlines.map(o =>
         o.id === currentOutlineId && !o.isGuide ? { ...o, nodes: nextNodes } : o
       )
     );
-  }, [currentOutlineId, markNextAction, setOutlines, outlines]);
+  }, [currentOutlineId, markNextAction, setOutlines, outlines, toast]);
 
-  // Translate — apply an approved translation back into the current outline.
-  // Same shape as handleApplyLiveBooks; we don't write to the Guide outline
-  // (Guide is read-only and gets re-seeded from initial-guide.ts on demand).
-  const handleApplyTranslate = useCallback((nextNodes: NodeMap) => {
+  // Translate — apply an approved translation back into the current outline,
+  // or fork into a derivative outline. Default for Translate is in-place
+  // (the user already chose the target language and expects replacement),
+  // but derivative is offered as an opt-in for users who want to preserve
+  // the source. We don't write to the Guide outline (Guide is read-only).
+  const handleApplyTranslate = useCallback((nextNodes: NodeMap, derivation?: { mode: DerivationMode; label: string }) => {
     const target = outlines.find(o => o.id === currentOutlineId && !o.isGuide);
-    if (target) void snapshotBeforeTransform(target, 'Translate Outline');
+    if (!target) return;
+
+    if (derivation && derivation.mode === 'derivative') {
+      const newOutline = buildDerivativeOutline({
+        original: target,
+        transformedNodes: nextNodes,
+        transformedRootNodeId: target.rootNodeId,
+        derivationLabel: derivation.label,
+      });
+      markNextAction('Create derivative (Translate)');
+      setOutlines(curr => [...curr, newOutline]);
+      setCurrentOutlineId(newOutline.id);
+      toast({
+        title: 'Derivative created',
+        description: `"${newOutline.name}". Original "${target.name}" was not modified.`,
+        duration: 8000,
+      });
+      return;
+    }
+
+    void snapshotBeforeTransform(target, 'Translate Outline');
     markNextAction('Translate Outline');
     setOutlines(currentOutlines =>
       currentOutlines.map(o =>
         o.id === currentOutlineId && !o.isGuide ? { ...o, nodes: nextNodes } : o
       )
     );
-  }, [currentOutlineId, markNextAction, setOutlines, outlines]);
+  }, [currentOutlineId, markNextAction, setOutlines, outlines, toast]);
 
   // Resolved content the Reformat dialog operates on — either the
   // selection handed in from the bubble menu, or the whole node's content.
@@ -1240,20 +1287,50 @@ export default function OutlinePro() {
     return 'this node';
   }, [reformatSelectionHtml]);
 
-  // Reformat — apply the AI-reformatted HTML back to the selected node.
-  // If the dialog was scoped to a selection, the content-pane's replacer
-  // is called instead (it does the in-editor selection swap).
-  const handleApplyReformat = useCallback((newHtml: string) => {
-    // Snapshot the pre-transform outline before the rewrite. Reformat on a
-    // single node still gets a disk snapshot — Howard's data-protection rule
-    // is "every AI transform writes a snapshot", regardless of scope.
+  // Reformat — apply the AI-reformatted HTML back to the selected node,
+  // OR fork into a derivative outline (2026-06-10). When the dialog was
+  // scoped to a selection, derivation is undefined and we go straight to
+  // the in-editor selection swap (a partial-selection derivative would be
+  // incoherent).
+  const handleApplyReformat = useCallback((newHtml: string, derivation?: { mode: DerivationMode; label: string }) => {
     const target = outlines.find(o => o.id === currentOutlineId && !o.isGuide);
-    if (target) void snapshotBeforeTransform(target, 'Reformat with AI');
+    if (!target) return;
+
+    // Selection scope path — always in-place, no derivative.
     if (reformatApplySelectionFn) {
+      void snapshotBeforeTransform(target, 'Reformat with AI');
       reformatApplySelectionFn(newHtml);
       return;
     }
     if (!selectedNodeId) return;
+
+    if (derivation && derivation.mode === 'derivative') {
+      // Whole-node reformat into a new derivative. Clone the entire node
+      // map with the selected node's content swapped, then wrap it as a
+      // derivative outline.
+      const newNodes = cloneNodesWithSingleContent(target.nodes, selectedNodeId, newHtml);
+      const newOutline = buildDerivativeOutline({
+        original: target,
+        transformedNodes: newNodes,
+        transformedRootNodeId: target.rootNodeId,
+        derivationLabel: derivation.label,
+      });
+      markNextAction('Create derivative (Reformat)');
+      setOutlines(curr => [...curr, newOutline]);
+      setCurrentOutlineId(newOutline.id);
+      toast({
+        title: 'Derivative created',
+        description: `"${newOutline.name}". Original "${target.name}" was not modified.`,
+        duration: 8000,
+      });
+      return;
+    }
+
+    // In-place: snapshot the pre-transform outline before the rewrite.
+    // Reformat on a single node still gets a disk snapshot — Howard's
+    // data-protection rule is "every AI transform writes a snapshot",
+    // regardless of scope.
+    void snapshotBeforeTransform(target, 'Reformat with AI');
     markNextAction('Reformat with AI');
     setOutlines(currentOutlines =>
       currentOutlines.map(o => {
@@ -1266,7 +1343,7 @@ export default function OutlinePro() {
         };
       })
     );
-  }, [currentOutlineId, selectedNodeId, reformatApplySelectionFn, markNextAction, setOutlines, outlines]);
+  }, [currentOutlineId, selectedNodeId, reformatApplySelectionFn, markNextAction, setOutlines, outlines, toast]);
 
   // Transform outline with AI — scope is the selected node (if any) plus its
   // descendants, OR the whole current outline's root + descendants when
@@ -1289,15 +1366,49 @@ export default function OutlinePro() {
     return `"${node.name}" and everything beneath it`;
   }, [outlines, currentOutlineId, transformScopeRootId]);
 
-  // Apply an approved structural transform back into the outline. The dialog
-  // hands back the new SerializedNode subtree; we merge it in via the helper
-  // (which preserves the original parentId on the subtree root anchor).
+  // Apply an approved structural transform back into the outline, OR fork
+  // into a derivative outline (2026-06-10 default for content-altering
+  // transforms). The dialog hands back the new SerializedNode subtree; for
+  // in-place we merge it in via the helper (which preserves the original
+  // parentId on the subtree root anchor). For derivative, we merge into a
+  // fresh clone of the original's node map so the original stays untouched.
   const handleApplyTransformOutline = useCallback((args: {
     transformedNodes: Record<string, { id: string; name: string; content: string; type: string; parentId: string | null; childrenIds: string[] }>;
     rootNodeId: string;
+    derivation?: { mode: DerivationMode; label: string };
   }) => {
     const target = outlines.find(o => o.id === currentOutlineId && !o.isGuide);
-    if (target) void snapshotBeforeTransform(target, 'Transform Outline with AI');
+    if (!target) return;
+
+    if (args.derivation && args.derivation.mode === 'derivative') {
+      // Build the derivative's node map by merging the transform into a
+      // CLONE of the original's nodes (the helper itself doesn't mutate,
+      // but we deep-clone first to guarantee the original is untouched
+      // even if anything else holds a reference).
+      const baseClone = deepCloneNodes(target.nodes);
+      const mergedNodes = mergeTransformedSubtreeIntoOutline(
+        baseClone,
+        args.transformedNodes as Parameters<typeof mergeTransformedSubtreeIntoOutline>[1],
+        args.rootNodeId,
+      );
+      const newOutline = buildDerivativeOutline({
+        original: target,
+        transformedNodes: mergedNodes,
+        transformedRootNodeId: target.rootNodeId,
+        derivationLabel: args.derivation.label,
+      });
+      markNextAction('Create derivative (Transform Outline)');
+      setOutlines(curr => [...curr, newOutline]);
+      setCurrentOutlineId(newOutline.id);
+      toast({
+        title: 'Derivative created',
+        description: `"${newOutline.name}". Original "${target.name}" was not modified.`,
+        duration: 8000,
+      });
+      return;
+    }
+
+    void snapshotBeforeTransform(target, 'Transform Outline with AI');
     markNextAction('Transform Outline with AI');
     setOutlines(currentOutlines =>
       currentOutlines.map(o => {
@@ -1311,7 +1422,7 @@ export default function OutlinePro() {
         return { ...o, nodes: nextNodes };
       }),
     );
-  }, [currentOutlineId, setOutlines, markNextAction, outlines]);
+  }, [currentOutlineId, setOutlines, markNextAction, outlines, toast]);
 
   // Backup / Restore — apply a snapshot's content over the current outline.
   // The dialog has already (a) confirmed with the user and (b) written an
@@ -4340,6 +4451,8 @@ export default function OutlinePro() {
           }}
           contentHtml={reformatContentForDialog}
           scopeLabel={reformatScopeLabel}
+          isSelectionScope={reformatSelectionHtml !== null}
+          outlineName={currentOutline?.name}
           onApply={handleApplyReformat}
         />
 

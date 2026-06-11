@@ -142,6 +142,14 @@ export interface Outline {
   isGuide?: boolean;
   isSecondBrain?: boolean; // Reserved single outline — the user's personal knowledge base
   lastModified?: number; // Unix timestamp
+
+  // Derivative outline metadata (2026-06-10) — outlines created by an AI
+  // transform (Transform/Reformat/Refresh/Translate) with "Save as new
+  // outline" selected. The original outline is preserved; the derivative
+  // stores a reference back to it and shows nested under it in the sidebar.
+  // Both fields are optional; existing outlines load unchanged.
+  derivedFromOutlineId?: string;   // ID of the parent outline this was derived from
+  derivationLabel?: string;        // Short label hinting at the transform (e.g. "Middle school version")
 }
 
 export interface OutlineTemplate {

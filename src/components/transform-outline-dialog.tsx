@@ -45,6 +45,8 @@ import type { SerializedNode, TransformOutlineResult } from '@/ai/flows/transfor
 import { getUserApiKey } from '@/lib/byok-keys';
 import { useAIUsageGate } from '@/lib/use-ai-usage-gate';
 import type { NodeMap } from '@/types';
+import DerivationChoice, { type DerivationMode } from './derivation-choice';
+import { suggestDerivationLabel } from '@/lib/derivation/label-from-prompt';
 
 interface TransformOutlineDialogProps {
   open: boolean;
@@ -57,10 +59,13 @@ interface TransformOutlineDialogProps {
   scopeLabel: string;
   /** Display name of the current outline (for context in the prompt). */
   outlineName?: string;
-  /** Called with a result the parent can merge back via mergeTransformedSubtreeIntoOutline. */
+  /** Called with a result the parent can merge back via mergeTransformedSubtreeIntoOutline.
+   *  The derivation field (2026-06-10) tells the parent whether to apply
+   *  in-place ("inplace") or create a new derivative outline ("derivative"). */
   onApply: (result: {
     transformedNodes: Record<string, SerializedNode>;
     rootNodeId: string;
+    derivation: { mode: DerivationMode; label: string };
   }) => void;
   /** Optional override threshold for the "large subtree" warning (default 2000). */
   largeScopeThreshold?: number;
@@ -96,6 +101,13 @@ export default function TransformOutlineDialog({
   const [useLocal, setUseLocal] = useState(false);
   const [result, setResult] = useState<TransformOutlineResult | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  // Derivative-by-default: Transform Outline rewrites STRUCTURE — the safer
+  // path is "save as new". User can opt in to "Replace this outline".
+  const [derivationMode, setDerivationMode] = useState<DerivationMode>('derivative');
+  const [derivationLabel, setDerivationLabel] = useState<string>('');
+  // Track whether the user manually edited the label so we don't clobber it
+  // when they tweak the instruction.
+  const [labelUserEdited, setLabelUserEdited] = useState(false);
 
   // Count the nodes in scope (root + descendants) so we can warn for very
   // large subtrees BEFORE the AI is called. Memoized — recomputed only when
@@ -122,8 +134,19 @@ export default function TransformOutlineDialog({
       setInstruction('');
       setResult(null);
       setErrorMsg(null);
+      setDerivationMode('derivative');
+      setDerivationLabel('');
+      setLabelUserEdited(false);
     }
   }, [open]);
+
+  // Auto-suggest a label as the user types the instruction, UNLESS they have
+  // already edited the label by hand.
+  useEffect(() => {
+    if (!labelUserEdited) {
+      setDerivationLabel(suggestDerivationLabel(instruction));
+    }
+  }, [instruction, labelUserEdited]);
 
   const handleClose = () => {
     onOpenChange(false);
@@ -191,6 +214,10 @@ export default function TransformOutlineDialog({
     onApply({
       transformedNodes: result.transformedNodes,
       rootNodeId,
+      derivation: {
+        mode: derivationMode,
+        label: derivationLabel.trim() || 'Modified',
+      },
     });
     handleClose();
   };
@@ -281,6 +308,16 @@ export default function TransformOutlineDialog({
                 </p>
               </div>
             </div>
+
+            <DerivationChoice
+              mode={derivationMode}
+              onModeChange={setDerivationMode}
+              label={derivationLabel}
+              onLabelChange={(v) => { setDerivationLabel(v); setLabelUserEdited(true); }}
+              idPrefix="transform"
+              transformName="Transform Outline"
+              currentOutlineName={outlineName}
+            />
 
             {errorMsg && (
               <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">

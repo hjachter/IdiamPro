@@ -54,14 +54,18 @@ import {
 import { createRefreshTransformer } from '@/lib/transforms/refresh-transform';
 import { useToast } from '@/hooks/use-toast';
 import { useAIUsageGate } from '@/lib/use-ai-usage-gate';
+import DerivationChoice, { type DerivationMode } from './derivation-choice';
+import { suggestRefreshLabel } from '@/lib/derivation/label-from-prompt';
 
 interface LiveBooksDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   outline: Outline | undefined;
   selectedNodeId: string | null;
-  /** Persist the refreshed node map back to the outline. */
-  onApply: (nextNodes: Outline['nodes']) => void;
+  /** Persist the refreshed node map back to the outline.
+   *  The derivation field (2026-06-10) tells the parent whether to write
+   *  in-place or create a new derivative outline. */
+  onApply: (nextNodes: Outline['nodes'], derivation?: { mode: DerivationMode; label: string }) => void;
   /** Force local Ollama (no web grounding / no citations). */
   useLocalAI?: boolean;
 }
@@ -100,6 +104,10 @@ export default function LiveBooksDialog({
   const [preview, setPreview] = useState<TransformPreview | null>(null);
   const [approved, setApproved] = useState<Set<string>>(new Set());
   const [includeUserEdited, setIncludeUserEdited] = useState<Set<string>>(new Set());
+  // Derivative-by-default: Refresh from Web brings in NEW content from the
+  // web — the safer path is "save as new outline".
+  const [derivationMode, setDerivationMode] = useState<DerivationMode>('derivative');
+  const [derivationLabel, setDerivationLabel] = useState<string>(suggestRefreshLabel());
 
   const targetNode = useMemo(() => {
     if (!outline || !selectedNodeId) return null;
@@ -117,6 +125,8 @@ export default function LiveBooksDialog({
       setPreview(null);
       setApproved(new Set());
       setIncludeUserEdited(new Set());
+      setDerivationMode('derivative');
+      setDerivationLabel(suggestRefreshLabel());
     }
   }, [open]);
 
@@ -180,10 +190,17 @@ export default function LiveBooksDialog({
           enriched,
           autoApprovedIds
         );
-        onApply(nodes);
+        onApply(nodes, {
+          mode: derivationMode,
+          label: derivationLabel.trim() || 'Modified',
+        });
         toast({
-          title: 'Refresh from Web — auto-applied',
-          description: `${appliedCount} item${appliedCount === 1 ? '' : 's'} refreshed and applied automatically.`,
+          title: derivationMode === 'derivative'
+            ? 'Refresh from Web — derivative created'
+            : 'Refresh from Web — auto-applied',
+          description: derivationMode === 'derivative'
+            ? `${appliedCount} item${appliedCount === 1 ? '' : 's'} refreshed into a new outline.`
+            : `${appliedCount} item${appliedCount === 1 ? '' : 's'} refreshed and applied automatically.`,
         });
         onOpenChange(false);
         return;
@@ -232,10 +249,17 @@ export default function LiveBooksDialog({
       });
       return;
     }
-    onApply(nodes);
+    onApply(nodes, {
+      mode: derivationMode,
+      label: derivationLabel.trim() || 'Modified',
+    });
     toast({
-      title: 'Refresh from Web applied',
-      description: `${appliedCount} item${appliedCount === 1 ? '' : 's'} refreshed.`,
+      title: derivationMode === 'derivative'
+        ? 'Refresh from Web — derivative created'
+        : 'Refresh from Web applied',
+      description: derivationMode === 'derivative'
+        ? `${appliedCount} item${appliedCount === 1 ? '' : 's'} refreshed into a new outline.`
+        : `${appliedCount} item${appliedCount === 1 ? '' : 's'} refreshed.`,
     });
     onOpenChange(false);
   };
@@ -310,6 +334,16 @@ export default function LiveBooksDialog({
                 </p>
               </Label>
             </div>
+
+            <DerivationChoice
+              mode={derivationMode}
+              onModeChange={setDerivationMode}
+              label={derivationLabel}
+              onLabelChange={setDerivationLabel}
+              idPrefix="refresh"
+              transformName="Refresh from Web"
+              currentOutlineName={outline?.name}
+            />
 
             <div className="rounded-md bg-muted/50 p-3 text-xs text-muted-foreground space-y-1">
               <p className="flex items-center gap-1.5">

@@ -19,6 +19,7 @@ import {
   Rocket,
   ExternalLink,
   RotateCw,
+  GitFork,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import {
@@ -166,34 +167,84 @@ export default function SidebarPane({
   );
   const showGuide = !outlineSearch || (guide?.name.toLowerCase().includes(searchLower) ?? false);
 
-  // ── Cross-link Phase 2 — parent → linked-children map ─────────────────────
+  // Hide derivative outlines from the TOP-LEVEL list when their parent is
+  // present — they render nested under the parent instead. Orphaned
+  // derivatives (parent deleted) still appear at top-level with a muted hint.
+  const topLevelOutlines = useMemo(() => {
+    const outlineIds = new Set(sortedOutlines.map(o => o.id));
+    return filteredOutlines.filter(o => {
+      if (!o.derivedFromOutlineId) return true;
+      // Show at top-level only if parent has been deleted.
+      return !outlineIds.has(o.derivedFromOutlineId);
+    });
+  }, [filteredOutlines, sortedOutlines]);
+
+  // ── Cross-link Phase 2 + Derivative outlines — parent → children map ─────
   //
   // For every outline that contains one or more `outline-link` nodes, compute
-  // the ordered, de-duplicated list of target outline IDs it links to.
+  // the ordered, de-duplicated list of target outline IDs it links to. ALSO
+  // include derivative outlines (`derivedFromOutlineId` field, 2026-06-10) —
+  // they render nested under their original parent with a fork badge.
+  //
   // Memoised so we only walk the outlines array when it actually changes —
   // typical library is ~50 outlines so the O(N×M) walk is negligible.
   const parentToChildrenIds = useMemo(() => {
     const map = new Map<string, string[]>();
+    const seenPerParent = new Map<string, Set<string>>();
+    const ensure = (parentId: string) => {
+      let arr = map.get(parentId);
+      if (!arr) { arr = []; map.set(parentId, arr); }
+      let seen = seenPerParent.get(parentId);
+      if (!seen) { seen = new Set<string>(); seenPerParent.set(parentId, seen); }
+      return { arr, seen };
+    };
+
+    // Pass 1: outline-link based children (cross-outline link nodes).
     for (const outline of outlines) {
       const nodes = outline.nodes;
       if (!nodes) continue;
-      const seen = new Set<string>();
-      const ordered: string[] = [];
       for (const node of Object.values(nodes)) {
         if (node.type === 'outline-link' && node.linkedOutlineId) {
-          // Multi-link dedupe: if the same parent has two link nodes both
-          // pointing at the same target, only render the target once under
-          // this parent.
+          const { arr, seen } = ensure(outline.id);
           if (seen.has(node.linkedOutlineId)) continue;
           seen.add(node.linkedOutlineId);
-          ordered.push(node.linkedOutlineId);
+          arr.push(node.linkedOutlineId);
         }
       }
-      if (ordered.length > 0) {
-        map.set(outline.id, ordered);
+    }
+
+    // Pass 2: derivative outlines — appear nested under their derivedFrom
+    // parent. If the parent has BOTH outline-link children and derivatives,
+    // they all render under the same parent row (derivatives appear at the
+    // end of the children list, after link-based children, so the user can
+    // see "links" and "derivatives" as visually contiguous groups).
+    for (const outline of outlines) {
+      if (!outline.derivedFromOutlineId) continue;
+      const parentId = outline.derivedFromOutlineId;
+      const { arr, seen } = ensure(parentId);
+      if (seen.has(outline.id)) continue;
+      seen.add(outline.id);
+      arr.push(outline.id);
+    }
+
+    return map;
+  }, [outlines]);
+
+  // ── Derivative orphan detection ──────────────────────────────────────────
+  //
+  // A derivative whose parent has been deleted ("orphaned") still exists in
+  // the library but no longer nests under anything. Render those at top-
+  // level with a muted "(was a derivative of [deleted outline])" hint. We
+  // pre-compute the set of IDs whose parent is missing.
+  const orphanedDerivativeIds = useMemo(() => {
+    const ids = new Set<string>();
+    const outlineIds = new Set(outlines.map(o => o.id));
+    for (const o of outlines) {
+      if (o.derivedFromOutlineId && !outlineIds.has(o.derivedFromOutlineId)) {
+        ids.add(o.id);
       }
     }
-    return map;
+    return ids;
   }, [outlines]);
 
   // Quick lookup: outline ID → outline object.
@@ -479,8 +530,9 @@ export default function SidebarPane({
           )}
 
           {/* User Outlines — top-level rows, each may expand to show linked
-              children nested beneath them (Phase 2 of cross-link). */}
-          {filteredOutlines.map(outline => (
+              children OR derivative outlines nested beneath them. Derivatives
+              whose parent is present render under the parent (not here). */}
+          {topLevelOutlines.map(outline => (
             <OutlineRow
               key={outline.id}
               outline={outline}
@@ -502,6 +554,7 @@ export default function SidebarPane({
               handleOutlineClick={handleOutlineClick}
               outlineSearch={outlineSearch}
               matchesSearch={matchesSearch}
+              orphanedDerivativeIds={orphanedDerivativeIds}
             />
           ))}
 
@@ -583,6 +636,9 @@ interface OutlineRowProps {
   handleOutlineClick: (o: Outline, e: React.MouseEvent) => void;
   outlineSearch: string;
   matchesSearch: (id: string, visited?: Set<string>) => boolean;
+  /** IDs of derivative outlines whose parent has been deleted. Used to
+   *  render an "(was a derivative of [deleted])" hint at top-level. */
+  orphanedDerivativeIds: Set<string>;
 }
 
 function OutlineRow(props: OutlineRowProps) {
@@ -606,7 +662,12 @@ function OutlineRow(props: OutlineRowProps) {
     handleOutlineClick,
     outlineSearch,
     matchesSearch,
+    orphanedDerivativeIds,
   } = props;
+
+  // Is THIS outline a derivative? (renders with a fork badge on the icon).
+  const isDerivative = !!outline.derivedFromOutlineId;
+  const isOrphanDerivative = isDerivative && orphanedDerivativeIds.has(outline.id);
 
   const [expanded, toggleExpanded] = usePersistedExpansion(outline.id);
 
@@ -695,10 +756,30 @@ function OutlineRow(props: OutlineRowProps) {
         <span className="h-4 w-4 shrink-0" aria-hidden="true" />
       )}
 
-      {/* Outline-type icon. Nested rows use the same link icon used by the
-          'outline-link' node in the in-outline tree (ExternalLink) so the
-          visual story stays consistent. */}
-      {isNested ? (
+      {/* Outline-type icon. Three cases:
+          1. Derivative outline (2026-06-10) → GitFork badge (purple). Marks
+             the row as forked from another outline regardless of whether it's
+             nested or orphaned at top-level.
+          2. Nested cross-outline-link child → ExternalLink (blue).
+          3. Plain top-level outline → FileText. */}
+      {isDerivative ? (
+        <TooltipProvider delayDuration={200}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="h-4 w-4 shrink-0 inline-flex items-center justify-center">
+                <GitFork className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+              </span>
+            </TooltipTrigger>
+            <TooltipContent side="right">
+              {isOrphanDerivative
+                ? 'Derivative of a deleted outline'
+                : (outline.derivationLabel
+                  ? `Derivative — ${outline.derivationLabel}`
+                  : 'Derivative outline')}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      ) : isNested ? (
         <ExternalLink className="h-4 w-4 shrink-0 text-blue-600 dark:text-blue-400" />
       ) : (
         <FileText className="h-4 w-4 shrink-0" />
@@ -716,7 +797,14 @@ function OutlineRow(props: OutlineRowProps) {
         />
       ) : (
         <>
-          <span className="truncate flex-1">{outline.name}</span>
+          <span className="truncate flex-1">
+            {outline.name}
+            {isOrphanDerivative && (
+              <span className="ml-1.5 text-[10px] text-muted-foreground/70 italic">
+                (orphan derivative)
+              </span>
+            )}
+          </span>
           {(outline as LazyOutline)._isLazyLoaded && (
             <span
               className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full shrink-0"
@@ -828,6 +916,7 @@ function OutlineRow(props: OutlineRowProps) {
             handleOutlineClick={handleOutlineClick}
             outlineSearch={outlineSearch}
             matchesSearch={matchesSearch}
+            orphanedDerivativeIds={orphanedDerivativeIds}
           />
         );
       })}

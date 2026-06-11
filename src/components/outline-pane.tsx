@@ -9,7 +9,7 @@ import { MultiSelectToolbar } from './multi-select-toolbar';
 import FileImportDialog from './file-import-dialog';
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Plus, Trash2, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, ChevronsDownUp, Settings, Search, Command, PanelLeft, PanelLeftClose, Brain, StopCircle, Inbox, LayoutDashboard, Focus, Sparkles, Mic, MessageSquare, BookDown, BookUp, Share2, ExternalLink, RefreshCw, MoreHorizontal, HelpCircle, Send, ShieldCheck } from 'lucide-react';
+import { Plus, Trash2, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, ChevronsDownUp, Settings, Search, Command, PanelLeft, PanelLeftClose, Brain, StopCircle, Inbox, LayoutDashboard, Focus, Sparkles, Mic, MessageSquare, BookDown, BookUp, Share2, ExternalLink, RefreshCw, MoreHorizontal, HelpCircle, Send, ShieldCheck, GitFork } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter } from "@/components/ui/alert-dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -1228,6 +1228,42 @@ export default function OutlinePane({
         />
 
       </div>
+
+      {/* "Derived from" banner (2026-06-10). Shown only when the loaded
+          outline was created as a derivative of another outline. Subtle
+          chip styling — does not dominate. Click "Open original" to switch
+          to the parent. */}
+      {currentOutline?.derivedFromOutlineId && (() => {
+        const parent = outlines.find(o => o.id === currentOutline.derivedFromOutlineId);
+        const parentName = parent?.name || 'a deleted outline';
+        return (
+          <div className="flex-shrink-0 px-2">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-purple-500/30 bg-purple-500/5 text-xs">
+              <GitFork className="h-3.5 w-3.5 text-purple-600 dark:text-purple-400 shrink-0" />
+              <span className="text-muted-foreground">
+                Derived from <span className="font-medium text-foreground">{`"${parentName}"`}</span>
+                {currentOutline.derivationLabel && (
+                  <span className="text-muted-foreground/80"> · {currentOutline.derivationLabel}</span>
+                )}
+              </span>
+              {parent ? (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 ml-auto text-xs text-purple-700 dark:text-purple-300 hover:bg-purple-500/10"
+                  onClick={() => onSelectOutline(parent.id)}
+                >
+                  Open original
+                </Button>
+              ) : (
+                <span className="ml-auto text-[10px] text-muted-foreground/70 italic">
+                  Original was deleted
+                </span>
+              )}
+            </div>
+          </div>
+        );
+      })()}
 
       <TooltipProvider delayDuration={300}>
         <div className="flex-shrink-0 flex items-center justify-center gap-1.5 px-2 py-1.5 bg-[hsl(var(--toolbar-bg))] rounded-xl border border-border/30">
