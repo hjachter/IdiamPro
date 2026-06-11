@@ -204,7 +204,8 @@
         "roadmap-y1",
         "roadmap-y2",
         "tech-debt",
-        "tech-stack-strategic-choice-2026-06-06"
+        "tech-stack-strategic-choice-2026-06-06",
+        "agentic-processes-2026-06-11"
       ],
       "isCollapsed": false,
       "prefix": "3"
@@ -724,7 +725,17 @@
       "childrenIds": [],
       "isCollapsed": false,
       "prefix": "2.4.x"
+    },
+    "agentic-processes-2026-06-11": {
+      "id": "agentic-processes-2026-06-11",
+      "name": "Agentic Processes (Post-launch v1.1+ direction)",
+      "content": "<p><strong>Agentic Processes (Post-launch v1.1+ direction).</strong> IdiamPro's AI architecture currently produces single-output transforms (Reformat, Translate, Refresh from Web, image-to-outline). Post-launch direction is to chain these into multi-step autonomous workflows \u2014 research \u2192 synthesis \u2192 outline \u2192 derivative outline \u2192 video package \u2014 running with minimal human supervision. Powered by Gemini agentic API and local Gemma orchestration for the privacy-conscious BYOK path. Not in v1.0 scope; tracked here so the architecture decisions in v1 stay compatible with agentic later.</p>",
+      "type": "document",
+      "parentId": "product-strategy",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "3.7"
     }
   },
-  "lastModified": 1781164546682
+  "lastModified": 1781164800000
 }

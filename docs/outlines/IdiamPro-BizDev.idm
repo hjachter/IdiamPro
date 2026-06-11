@@ -436,7 +436,8 @@
       "childrenIds": [
         "pr-2026",
         "pr-2027",
-        "pr-2028"
+        "pr-2028",
+        "agentic-processes-bizdev-2026-06-11"
       ],
       "prefix": "10"
     },
@@ -532,8 +533,18 @@
       "isCollapsed": false,
       "prefix": "3.2.x.1",
       "linkedOutlineId": "marketing-outline-v2"
+    },
+    "agentic-processes-bizdev-2026-06-11": {
+      "id": "agentic-processes-bizdev-2026-06-11",
+      "name": "Agentic Processes (Post-launch v1.1+ direction)",
+      "content": "<p><strong>Agentic Processes (Post-launch v1.1+ direction).</strong> IdiamPro's AI architecture currently produces single-output transforms (Reformat, Translate, Refresh from Web, image-to-outline). Post-launch direction is to chain these into multi-step autonomous workflows — research → synthesis → outline → derivative outline → video package — running with minimal human supervision. Powered by Gemini agentic API and local Gemma orchestration for the privacy-conscious BYOK path. Not in v1.0 scope; tracked here so the architecture decisions in v1 stay compatible with agentic later.</p><p><strong>Strategic value.</strong> Agentic workflows are a durable differentiator versus single-prompt outliners and a credible enterprise/Power-tier upsell story for investors. They also compound the AI-video-tool partnership ROI — once outline-to-video is reliable, an agent that goes research-to-publish is the natural next plateau.</p>",
+      "type": "document",
+      "parentId": "product-roadmap",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "10.4"
     }
   },
-  "lastModified": 1781164787812,
+  "lastModified": 1781164800000,
   "createdAt": 1736306400000
 }

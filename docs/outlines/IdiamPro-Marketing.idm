@@ -874,7 +874,8 @@
       "parentId": "root",
       "childrenIds": [
         "roadmap-platforms",
-        "roadmap-features"
+        "roadmap-features",
+        "agentic-processes-marketing-2026-06-11"
       ],
       "isCollapsed": true,
       "prefix": "9"
@@ -1079,6 +1080,16 @@
       "childrenIds": [],
       "isCollapsed": false,
       "prefix": ""
+    },
+    "agentic-processes-marketing-2026-06-11": {
+      "id": "agentic-processes-marketing-2026-06-11",
+      "name": "Agentic Workflows (Future)",
+      "content": "<h3>Agentic Workflows</h3><p>Coming after launch as a future capability. IdiamPro's AI tools today produce one output at a time — reformat a node, translate an outline, refresh from the web, capture an outline from an image. The next step is chaining these into multi-step autonomous workflows: research → synthesize → outline → derivative outline → video package, with you supervising rather than driving each step.</p><p><em>Not committing to a specific date — capability is on the roadmap, dates will firm up after v1 launch settles.</em></p>",
+      "type": "document",
+      "parentId": "roadmap",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "9.3"
     }
   },
   "isGuide": false,

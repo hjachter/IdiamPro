@@ -146,6 +146,10 @@ cp "~/Documents/IDM Outlines/IdiamPro - Testing.idm" docs/outlines/
 - `IdiamPro - Bootstrap Plan.idm` — Bootstrapping roadmap from web presence to App Store
 - `IdiamPro - Legal and Compliance.idm` — TOS, privacy policy, API compliance, IP
 
+*Operations:*
+- `IdiamPro - Operations.idm` — Back-office runbook: beta program, user support, bug intake, email comms, finance, partnerships pipeline, incident response, compliance/privacy
+- `IdiamPro - Bug Log.idm` — Live bug tracking sorted by severity (P0/P1/P2/P3 + Resolved); paired with the Operations Bug Intake section
+
 *Product & Features:*
 - `IdiamPro - Killer Features & Selling Points.idm` — Key differentiators and workflows
 - `IdiamPro - Killer Features & Selling Points - HJ.idm` — Howard's expanded version

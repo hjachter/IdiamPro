@@ -1,0 +1,484 @@
+{
+  "id": "idiampro-operations-2026",
+  "name": "IdiamPro - Operations",
+  "rootNodeId": "root-ops",
+  "nodes": {
+    "root-ops": {
+      "id": "root-ops",
+      "name": "IdiamPro - Operations",
+      "content": "<p><strong>Operational Runbook for IdiamPro</strong></p><p>This is the back-office playbook for running IdiamPro day-to-day: how applicants get onboarded, how users get supported, how bugs get triaged, how emails go out, how money flows in and out, how strategic partnerships get tracked, how incidents get handled, and how compliance requests get processed.</p><p>Written for the founder (and any future operations hire) to follow without guessing. When in doubt, the runbook trumps the impulse.</p><p><em>Created: 2026-06-11</em></p>",
+      "type": "root",
+      "parentId": null,
+      "childrenIds": [
+        "ops-beta-program",
+        "ops-user-support",
+        "ops-bug-intake",
+        "ops-email-comms",
+        "ops-financial",
+        "ops-partnerships",
+        "ops-incident-response",
+        "ops-compliance-privacy"
+      ],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "ops-beta-program": {
+      "id": "ops-beta-program",
+      "name": "Beta Program Operations",
+      "content": "<p>How beta applicants get from the application form to active testers to founding-user testimonial sources.</p>",
+      "type": "chapter",
+      "parentId": "root-ops",
+      "childrenIds": [
+        "beta-intake-workflow",
+        "beta-approval-process",
+        "beta-feedback-followup",
+        "beta-founding-badge",
+        "beta-crosslink-bizdev"
+      ],
+      "isCollapsed": true,
+      "prefix": "1"
+    },
+    "beta-intake-workflow": {
+      "id": "beta-intake-workflow",
+      "name": "Applicant Intake Workflow",
+      "content": "<p>Beta applications land in the database from the public beta sign-up form on the marketing site. The admin review surface for them is the <strong>/admin/applicants</strong> page in-app.</p><p><strong>Daily cadence:</strong> Open /admin/applicants once a day. New applicants appear at the top.</p><p><strong>Each application shows:</strong> name, email, intended use case, why-they-want-it free-text, sign-up date.</p><p><strong>What to look for:</strong> writers, students, researchers, knowledge workers — the primary segments. Applicants who describe a clear use case get prioritized. Vague applications (\"sounds cool\") go to the back of the queue, not the trash.</p>",
+      "type": "document",
+      "parentId": "ops-beta-program",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "1.1"
+    },
+    "beta-approval-process": {
+      "id": "beta-approval-process",
+      "name": "Approval Process",
+      "content": "<p>Approval is a single click on the /admin/applicants row.</p><p><strong>What happens when you click Approve:</strong></p><ul><li>Applicant record is marked approved.</li><li>The system queues an onboarding welcome email to the applicant.</li><li>The applicant's Clerk account is provisioned with beta access flags.</li><li>The applicant moves out of the pending queue.</li></ul><p><strong>Howard makes the call.</strong> No automated approval. The judgment call is whether this person will use the app and give useful feedback, not whether they pass a checklist.</p>",
+      "type": "document",
+      "parentId": "ops-beta-program",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "1.2"
+    },
+    "beta-feedback-followup": {
+      "id": "beta-feedback-followup",
+      "name": "Feedback Follow-up",
+      "content": "<p>Two paths for soliciting feedback from beta users.</p><p><strong>Automated 14-day cron.</strong> Fourteen days after approval, the system sends a templated feedback request asking what's working, what's broken, what's missing. Replies come back to support@2ndbrainware.com.</p><p><strong>Manual outreach via /admin/feedback.</strong> When a beta user submits unprompted feedback through the in-app form, it lands in /admin/feedback. High-quality feedback (specific, articulate, enthusiastic) gets flagged for a personal follow-up: would they be willing to do a short video testimonial? Howard sends those personally.</p><p><strong>Cadence:</strong> Review /admin/feedback every business day. Reply within 24 hours.</p>",
+      "type": "document",
+      "parentId": "ops-beta-program",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "1.3"
+    },
+    "beta-founding-badge": {
+      "id": "beta-founding-badge",
+      "name": "Founding User Badge Issuance",
+      "content": "<p>Beta users who record a video testimonial earn the <strong>Founding User</strong> badge on their profile. This is permanent recognition — the badge stays even after the beta program ends.</p><p><strong>Trigger:</strong> Howard receives a usable video testimonial (clear audio, names IdiamPro, describes specific value).</p><p><strong>Action:</strong> Flip the founding-user flag on the user record. The badge renders automatically in their account UI.</p><p><strong>Why it matters:</strong> Beta users gave us their time and their words before there was social proof to point to. The badge is the public acknowledgment, and a soft retention lever — Founding User churn-out is more painful than regular churn, so they tend to stay.</p>",
+      "type": "document",
+      "parentId": "ops-beta-program",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "1.4"
+    },
+    "beta-crosslink-bizdev": {
+      "id": "beta-crosslink-bizdev",
+      "name": "Customer Segments (BizDev — Authors)",
+      "content": "",
+      "type": "outline-link",
+      "parentId": "ops-beta-program",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "1.5",
+      "linkedOutlineId": "biz-dev-2026"
+    },
+    "ops-user-support": {
+      "id": "ops-user-support",
+      "name": "User Support",
+      "content": "<p>How user-reported issues get triaged and resolved.</p>",
+      "type": "chapter",
+      "parentId": "root-ops",
+      "childrenIds": [
+        "support-intake",
+        "support-sla",
+        "support-refund-ref",
+        "support-categories",
+        "support-escalation"
+      ],
+      "isCollapsed": true,
+      "prefix": "2"
+    },
+    "support-intake": {
+      "id": "support-intake",
+      "name": "Intake Channels",
+      "content": "<p>Users reach support through two channels.</p><p><strong>Email: support@2ndbrainware.com</strong> — primary channel. (Mailbox creation is still pending — see Bootstrap Plan. Until that mailbox is live, support replies route through Howard's personal address with a planned cutover.)</p><p><strong>In-app feedback form.</strong> A user can hit Help → Send Feedback from anywhere in the app. Submissions land in /admin/feedback alongside beta feedback.</p><p><strong>No phone, no chat widget</strong> in v1. Both channels are async on purpose — they let Howard batch responses instead of getting interrupt-driven.</p>",
+      "type": "document",
+      "parentId": "ops-user-support",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "2.1"
+    },
+    "support-sla": {
+      "id": "support-sla",
+      "name": "Response SLA",
+      "content": "<p><strong>Initial reply:</strong> within 24 business hours. Acknowledge that we heard them. Even if the answer is \"we're looking into it,\" reply same-day.</p><p><strong>Resolution target:</strong> 72 hours for non-critical issues. Critical issues (data loss, account locked out, billing wrong) bump to P0 and get handled same-day.</p><p><strong>Off-hours:</strong> Howard does not commit to weekend or evening responses in v1. The 24-hour SLA is measured in business hours, not wall-clock hours. This will need to change as the user base grows.</p>",
+      "type": "document",
+      "parentId": "ops-user-support",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "2.2"
+    },
+    "support-refund-ref": {
+      "id": "support-refund-ref",
+      "name": "Refund Policy Reference (Legal)",
+      "content": "",
+      "type": "outline-link",
+      "parentId": "ops-user-support",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "2.3",
+      "linkedOutlineId": "idiampro-legal-compliance"
+    },
+    "support-categories": {
+      "id": "support-categories",
+      "name": "Common Support Categories",
+      "content": "<p>Most support tickets fall into one of five buckets. Categorize on first reply so we can see patterns.</p><ul><li><strong>Account access</strong> — login failures, password resets, Clerk verification issues.</li><li><strong>Billing</strong> — subscription changes, refund requests, double-charges, Stripe/RevenueCat reconciliation.</li><li><strong>AI errors</strong> — Gemini timeouts, BYOK key rejected, transform produced bad output, model unavailable.</li><li><strong>Sync issues</strong> — outline didn't appear on another device, file lost, conflict resolution confusion.</li><li><strong>Feature questions</strong> — \"how do I do X?\" — answer briefly and link to the User Guide section.</li></ul><p>Track the running tally; when one category spikes, that's a signal that a fix or a doc update is overdue.</p>",
+      "type": "document",
+      "parentId": "ops-user-support",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "2.4"
+    },
+    "support-escalation": {
+      "id": "support-escalation",
+      "name": "Escalation Criteria",
+      "content": "<p>Most tickets are handled directly. Escalation is reserved for these triggers:</p><ul><li><strong>Data loss reported.</strong> Even a single user reporting a missing outline goes to incident response.</li><li><strong>Legal threat or regulator inquiry.</strong> Stop replying and route to counsel.</li><li><strong>Press inquiry.</strong> Route to Howard personally; do not improvise.</li><li><strong>Refund dispute above $100.</strong> Howard approves personally.</li><li><strong>Repeated complaints from the same user.</strong> Pattern signals; escalate for direct outreach.</li></ul>",
+      "type": "document",
+      "parentId": "ops-user-support",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "2.5"
+    },
+    "ops-bug-intake": {
+      "id": "ops-bug-intake",
+      "name": "Bug Intake",
+      "content": "<p>How user-reported bugs, internal QA finds, and Playwright failures get captured, triaged, and resolved.</p>",
+      "type": "chapter",
+      "parentId": "root-ops",
+      "childrenIds": [
+        "bug-crosslink-buglog",
+        "bug-severity",
+        "bug-triage-cadence",
+        "bug-fix-verification"
+      ],
+      "isCollapsed": true,
+      "prefix": "3"
+    },
+    "bug-crosslink-buglog": {
+      "id": "bug-crosslink-buglog",
+      "name": "IdiamPro - Bug Log",
+      "content": "",
+      "type": "outline-link",
+      "parentId": "ops-bug-intake",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "3.1",
+      "linkedOutlineId": "idiampro-bug-log-2026"
+    },
+    "bug-severity": {
+      "id": "bug-severity",
+      "name": "Severity Assignment",
+      "content": "<p>Every bug gets a severity tag on intake. The tag determines the queue it lives in and the urgency of the fix.</p><ul><li><strong>P0 — Launch blocker / data loss / app crash.</strong> Drop everything. Reproduce, fix, ship within 24 hours.</li><li><strong>P1 — Feature broken.</strong> A documented feature does not work as described. Fix within the current week.</li><li><strong>P2 — Polish.</strong> Visual glitch, awkward copy, edge-case behavior. Batch into the next release.</li><li><strong>P3 — Nice-to-have.</strong> Quality-of-life improvement that no one's complained about. Backlog.</li></ul><p>When in doubt, severity bumps up, not down. A P1 that turned out to be a P2 wastes a day; a P2 that was actually a P0 loses a user.</p>",
+      "type": "document",
+      "parentId": "ops-bug-intake",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "3.2"
+    },
+    "bug-triage-cadence": {
+      "id": "bug-triage-cadence",
+      "name": "Triage Cadence",
+      "content": "<p><strong>Daily review</strong> of newly captured bugs. Open the Bug Log outline, look at any node added since yesterday, assign severity, and either fix immediately (P0/P1) or move it to the right bucket.</p><p><strong>Weekly sweep.</strong> Once a week, walk the P2 and P3 lists and either promote, resolve, or close as won't-fix.</p>",
+      "type": "document",
+      "parentId": "ops-bug-intake",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "3.3"
+    },
+    "bug-fix-verification": {
+      "id": "bug-fix-verification",
+      "name": "Fix Verification Flow",
+      "content": "<p>The same flow applies to every bug regardless of severity.</p><ol><li><strong>Reproduce.</strong> Confirm the bug exists before touching code. If it can't be reproduced, ask the reporter for steps.</li><li><strong>Write a failing test.</strong> Playwright when the bug touches the UI; unit test when it's pure logic.</li><li><strong>Fix.</strong></li><li><strong>Re-test.</strong> Run the test, then drive the original repro by hand to confirm the user-facing experience is right.</li><li><strong>Mark verified.</strong> Move the bug node to Resolved Bugs in the Bug Log, with the fix commit hash in the content.</li></ol><p>Skipping the failing-test step is the single biggest contributor to regression. Don't skip it.</p>",
+      "type": "document",
+      "parentId": "ops-bug-intake",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "3.4"
+    },
+    "ops-email-comms": {
+      "id": "ops-email-comms",
+      "name": "Email Communications",
+      "content": "<p>How transactional and lifecycle emails go out, and where the templates live.</p>",
+      "type": "chapter",
+      "parentId": "root-ops",
+      "childrenIds": [
+        "email-onboarding-drip",
+        "email-templates-location",
+        "email-send-infra",
+        "email-unsubscribe"
+      ],
+      "isCollapsed": true,
+      "prefix": "4"
+    },
+    "email-onboarding-drip": {
+      "id": "email-onboarding-drip",
+      "name": "Onboarding Drip Schedule",
+      "content": "<p>Four touches in the first two weeks after approval.</p><ul><li><strong>Day 0 — Welcome.</strong> Account active, here's how to start, link to the User Guide.</li><li><strong>Day 3 — Tips.</strong> Three small wins (keyboard shortcuts, the AI sparkle button, drag-reorder).</li><li><strong>Day 7 — Power user features.</strong> Smart Tools, Refresh from Web, derivative outlines, image-to-outline. \"Did you know IdiamPro can…\"</li><li><strong>Day 14 — Feedback ask.</strong> What's working? What isn't? Would you do a short video testimonial?</li></ul><p>If the user has clearly stopped using the app (no sessions in 7+ days), the Day 14 email is replaced with a re-engagement nudge instead of a feedback ask.</p>",
+      "type": "document",
+      "parentId": "ops-email-comms",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "4.1"
+    },
+    "email-templates-location": {
+      "id": "email-templates-location",
+      "name": "Templates Location",
+      "content": "<p>Email templates live alongside the rest of the codebase. <strong>Action item for the operations review:</strong> find the exact directory and list it here. Likely candidates are <code>src/lib/email/</code>, <code>src/emails/</code>, or wherever Resend templates are registered. Update this node with the path once confirmed.</p><p>The templates are owned by Howard and reviewed before any drip schedule change. Wording matters disproportionately — every drip email is read by every new user.</p>",
+      "type": "document",
+      "parentId": "ops-email-comms",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "4.2"
+    },
+    "email-send-infra": {
+      "id": "email-send-infra",
+      "name": "Send Infrastructure",
+      "content": "<p><strong>Provider: Resend.</strong> Transactional and lifecycle emails go through Resend. The API key lives in environment variables, gated so missing keys silently disable sending instead of erroring.</p><p><strong>Triggers.</strong> Drip emails are kicked off by cron jobs that scan user records for due touches. Transactional emails (welcome, password reset, billing receipts) fire on the in-app event.</p><p><strong>Monitoring.</strong> Resend's dashboard shows delivery rate and bounces. Anything below 95% deliverability is investigated.</p>",
+      "type": "document",
+      "parentId": "ops-email-comms",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "4.3"
+    },
+    "email-unsubscribe": {
+      "id": "email-unsubscribe",
+      "name": "Unsubscribe Handling",
+      "content": "<p>Every lifecycle email includes a one-click unsubscribe link. Unsubscribing flips a flag on the user record that suppresses all future non-transactional emails.</p><p><strong>What still goes through:</strong> billing receipts, password resets, account-security notices, legal notices. Unsubscribe applies to marketing and lifecycle touches only.</p><p><strong>CAN-SPAM and GDPR compliance.</strong> Honor the unsubscribe within 10 business days (we do it instantly). The mechanism cannot require login or a password.</p>",
+      "type": "document",
+      "parentId": "ops-email-comms",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "4.4"
+    },
+    "ops-financial": {
+      "id": "ops-financial",
+      "name": "Financial Operations",
+      "content": "<p>How money moves in and out of the business, and the cadence for watching it.</p>",
+      "type": "chapter",
+      "parentId": "root-ops",
+      "childrenIds": [
+        "fin-revenue-tracking",
+        "fin-cost-monitoring",
+        "fin-beta-impact",
+        "fin-reconciliation"
+      ],
+      "isCollapsed": true,
+      "prefix": "5"
+    },
+    "fin-revenue-tracking": {
+      "id": "fin-revenue-tracking",
+      "name": "Revenue Tracking",
+      "content": "<p>Two dashboards.</p><ul><li><strong>Stripe</strong> — web subscriptions (Student and Pro tiers via the Stripe checkout flow). Daily MRR, new vs. churned subscribers, failed charges.</li><li><strong>RevenueCat</strong> — iOS subscriptions (App Store in-app purchases). Same metrics, but funneled through Apple's payment system.</li></ul><p>The two dashboards do not auto-merge. Monthly reconciliation pulls both into a single revenue snapshot. Watch for the gap between Stripe revenue and RevenueCat revenue — that ratio tells us where new users are coming from.</p>",
+      "type": "document",
+      "parentId": "ops-financial",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "5.1"
+    },
+    "fin-cost-monitoring": {
+      "id": "fin-cost-monitoring",
+      "name": "Cost Monitoring",
+      "content": "<p>Three buckets of recurring cost.</p><ul><li><strong>AI API spend.</strong> Gemini (today), Claude (when partnership lands), video AI tools per-user (Runway, MagicLight, etc. — see Strategic Partnerships). Check each provider dashboard weekly. Any spike >2× the rolling 7-day average gets investigated.</li><li><strong>Hosting.</strong> Vercel (web), App Store fees (iOS), Supabase/Postgres or equivalent for any server-side data.</li><li><strong>Email.</strong> Resend monthly subscription based on volume tier.</li></ul><p>Cost per active user is the headline number. As long as it sits below subscription revenue per active user, the unit economics work.</p>",
+      "type": "document",
+      "parentId": "ops-financial",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "5.2"
+    },
+    "fin-beta-impact": {
+      "id": "fin-beta-impact",
+      "name": "Beta Tester Cost Impact",
+      "content": "<p>Beta testers do not run up our AI bills the way paying users do.</p><p><strong>Why:</strong> Beta is structured around <strong>BYOK</strong> (bring-your-own-key). Beta users plug in their own Gemini or OpenAI keys, so the AI API costs stay on their accounts, not ours. This is intentional — it lets us run a big beta cohort without sacrificing margin.</p><p><strong>Pro-tier grants to beta users.</strong> Some beta testers (especially Founding Users) get free Pro for a stretch. That cost is mostly Stripe processing fees and RevenueCat fees on the $0 subscription — small per-user, but worth tracking in aggregate.</p>",
+      "type": "document",
+      "parentId": "ops-financial",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "5.3"
+    },
+    "fin-reconciliation": {
+      "id": "fin-reconciliation",
+      "name": "Monthly Reconciliation",
+      "content": "<p>On the first business day of each month, pull a single snapshot.</p><ol><li>Stripe revenue (gross and net after Stripe fees).</li><li>RevenueCat revenue (gross and net after Apple's 15-30% cut and RevenueCat's fee).</li><li>Total AI API spend across all providers.</li><li>Hosting + email + tooling subscriptions.</li><li>Net contribution = revenue minus cost.</li></ol><p>Log the snapshot in a spreadsheet or Notion table for trend tracking. Compare to the prior month; flag any line item that moved more than 20%.</p>",
+      "type": "document",
+      "parentId": "ops-financial",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "5.4"
+    },
+    "ops-partnerships": {
+      "id": "ops-partnerships",
+      "name": "Strategic Partnerships Pipeline",
+      "content": "<p>How active partnership conversations get tracked across two tracks: API providers and AI video tools. The detail and pitch material lives in the BizDev outline; this section is the operational pipeline.</p>",
+      "type": "chapter",
+      "parentId": "root-ops",
+      "childrenIds": [
+        "partnerships-api",
+        "partnerships-video",
+        "partnerships-pipeline-format",
+        "partnerships-review-cadence",
+        "partnerships-crosslink-bizdev"
+      ],
+      "isCollapsed": true,
+      "prefix": "6"
+    },
+    "partnerships-api": {
+      "id": "partnerships-api",
+      "name": "API Provider Partnerships",
+      "content": "<p>Three relationships in different phases.</p><ul><li><strong>OpenAI</strong> — partnership application form pending (see the project memory note on OpenAI partnership outreach). Status: cold, application drafted.</li><li><strong>Anthropic</strong> — no formal contact yet; future Claude partnership for the Pro and Power tiers. Status: future.</li><li><strong>Google (Gemini)</strong> — ongoing operational relationship as the default Free-tier model. Status: in-discussion for credits / co-marketing.</li></ul><p>Each row needs four fields kept current: company, primary contact, last touch date, status.</p>",
+      "type": "document",
+      "parentId": "ops-partnerships",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "6.1"
+    },
+    "partnerships-video": {
+      "id": "partnerships-video",
+      "name": "AI Video Tool Partnerships",
+      "content": "<p>Seven video-AI tools in the prospect pool: Runway, MagicLight, HeyGen, Sora (OpenAI), Veo (Google), Pika, Synthesia. The strategic framing is captured in the project memory note on AI video tool partnerships — these are co-marketing and integration plays that round out IdiamPro's Outline-to-Video pipeline.</p><p>Same four-field pipeline as API providers: company, contact, last touch, status.</p><p><strong>Sequencing.</strong> Don't pursue all seven at once. Start with the two whose APIs most cleanly slot into our existing transform architecture (likely Runway and HeyGen), close those, then expand. Trying to manage seven open partnership conversations in parallel will produce zero closed deals.</p>",
+      "type": "document",
+      "parentId": "ops-partnerships",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "6.2"
+    },
+    "partnerships-pipeline-format": {
+      "id": "partnerships-pipeline-format",
+      "name": "Pipeline Row Format",
+      "content": "<p>Each partnership tracked here has the same shape:</p><ul><li><strong>Company</strong> — e.g. Runway, OpenAI</li><li><strong>Primary contact</strong> — name + email of the person on their side</li><li><strong>Last touch</strong> — date of last meaningful communication (not just an autoreply)</li><li><strong>Status</strong> — one of: <em>cold</em>, <em>in-discussion</em>, <em>agreement-drafted</em>, <em>launched</em></li><li><strong>Notes</strong> — what was promised, what's blocking, what they're waiting on, what we're waiting on</li></ul>",
+      "type": "document",
+      "parentId": "ops-partnerships",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "6.3"
+    },
+    "partnerships-review-cadence": {
+      "id": "partnerships-review-cadence",
+      "name": "Quarterly Review",
+      "content": "<p>Every quarter, walk every row. For each: is the status accurate? Is the next action defined? Is the contact still the right person?</p><p>Partnerships die from drift more than from rejection. The quarterly review is the prophylactic.</p>",
+      "type": "document",
+      "parentId": "ops-partnerships",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "6.4"
+    },
+    "partnerships-crosslink-bizdev": {
+      "id": "partnerships-crosslink-bizdev",
+      "name": "Strategic Partnerships (BizDev)",
+      "content": "",
+      "type": "outline-link",
+      "parentId": "ops-partnerships",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "6.5",
+      "linkedOutlineId": "biz-dev-2026"
+    },
+    "ops-incident-response": {
+      "id": "ops-incident-response",
+      "name": "Incident Response",
+      "content": "<p>Operational shape of how we respond when something breaks publicly. The detailed SEV ladder and runbooks live in the Legal and Compliance outline — link below.</p>",
+      "type": "chapter",
+      "parentId": "root-ops",
+      "childrenIds": [
+        "incident-crosslink-legal",
+        "incident-oncall",
+        "incident-comms-plan"
+      ],
+      "isCollapsed": true,
+      "prefix": "7"
+    },
+    "incident-crosslink-legal": {
+      "id": "incident-crosslink-legal",
+      "name": "SEV Ladder + Runbooks (Legal & Compliance)",
+      "content": "",
+      "type": "outline-link",
+      "parentId": "ops-incident-response",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "7.1",
+      "linkedOutlineId": "idiampro-legal-compliance"
+    },
+    "incident-oncall": {
+      "id": "incident-oncall",
+      "name": "On-Call Rotation",
+      "content": "<p><strong>v1: Howard is the rotation.</strong> Every incident routes to him personally, day or night.</p><p><strong>Expansion path.</strong> The first operations or engineering hire takes the primary on-call slot during business hours, with Howard remaining the escalation backstop. As headcount grows to three people, a real rotating on-call schedule kicks in (one-week shifts, primary + backup).</p><p>Until then, the practical implication is that incident readiness is bounded by Howard's availability. The runbook compensates: clear severity tagging and pre-written comms templates mean the response doesn't depend on Howard being fresh.</p>",
+      "type": "document",
+      "parentId": "ops-incident-response",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "7.2"
+    },
+    "incident-comms-plan": {
+      "id": "incident-comms-plan",
+      "name": "Communication Plan",
+      "content": "<p>Three audiences for any user-visible incident.</p><ul><li><strong>Status page.</strong> Public-facing page that lists current status, recent incidents, and resolution times. Update within 15 minutes of confirming an incident.</li><li><strong>Email to affected users.</strong> Direct email to anyone impacted: what happened, what we did, what they should do. Plain English, no jargon, no blame-shifting.</li><li><strong>Postmortem.</strong> Within five business days of resolution, publish a postmortem. What happened, why, what we changed to prevent recurrence. Public for major outages, internal-only for minor ones.</li></ul>",
+      "type": "document",
+      "parentId": "ops-incident-response",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "7.3"
+    },
+    "ops-compliance-privacy": {
+      "id": "ops-compliance-privacy",
+      "name": "Compliance & Privacy Operations",
+      "content": "<p>The day-to-day work of honoring privacy law, AI consent, and data integrity.</p>",
+      "type": "chapter",
+      "parentId": "root-ops",
+      "childrenIds": [
+        "comp-data-requests",
+        "comp-ai-consent",
+        "comp-backup-verification"
+      ],
+      "isCollapsed": true,
+      "prefix": "8"
+    },
+    "comp-data-requests": {
+      "id": "comp-data-requests",
+      "name": "GDPR / CCPA Data Request Intake",
+      "content": "<p>Users in jurisdictions covered by GDPR (EU) or CCPA (California) can request access to, correction of, or deletion of their personal data. The full policy and required disclosures live in the Legal and Compliance outline — link below.</p><p><strong>Operational steps.</strong> Requests come in by email to support@2ndbrainware.com (or the future privacy@ alias). Verify the requester's identity (logged-in confirmation or matching email), then fulfill within the regulatory window (30 days GDPR, 45 days CCPA).</p><p><strong>Privacy details (Legal & Compliance):</strong> see the outline link in the Incident Response section.</p>",
+      "type": "document",
+      "parentId": "ops-compliance-privacy",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "8.1"
+    },
+    "comp-ai-consent": {
+      "id": "comp-ai-consent",
+      "name": "AI Consent Reviewer Process",
+      "content": "<p>Apple Guideline 5.1.2(i) requires explicit consent before sending user data to third-party AI services. The full process is documented in the AI Data Consent section of the Legal and Compliance outline.</p><p><strong>Operational summary.</strong> Every new AI-driven feature gets a consent review before launch. The reviewer (Howard, with counsel as needed) confirms the consent prompt clearly names the destination provider, the data sent, and the user's ability to revoke.</p>",
+      "type": "document",
+      "parentId": "ops-compliance-privacy",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "8.2"
+    },
+    "comp-backup-verification": {
+      "id": "comp-backup-verification",
+      "name": "Backup Verification Cadence",
+      "content": "<p>Local outline backups in <code>~/Documents/IDM Outlines/backups/</code> rotate automatically (10 most recent per outline). Verify the rotation is working monthly: open the backups folder, confirm files exist, confirm timestamps are recent.</p><p><strong>Cloud-side backups (when sync is added):</strong> verify the cloud snapshot job runs nightly, log a successful run, and quarterly do a restore-test on a throwaway account to confirm the restore path actually works. A backup is only as good as the last verified restore.</p>",
+      "type": "document",
+      "parentId": "ops-compliance-privacy",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "8.3"
+    }
+  },
+  "lastModified": 1781164800000,
+  "createdAt": 1781164800000
+}

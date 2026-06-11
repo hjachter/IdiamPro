@@ -30,7 +30,8 @@
         "tech-stack-platform-strategy-2026-06-06",
         "5b35f388-dd86-4459-aa4c-4c15b6e8522e",
         "beta-feedback-form-2026-06-10",
-        "multimedia-ai-2026-06-11"
+        "multimedia-ai-2026-06-11",
+        "operations-link-2026-06-11"
       ],
       "isCollapsed": false,
       "prefix": ""
@@ -765,9 +766,20 @@
       "childrenIds": [],
       "isCollapsed": false,
       "prefix": ""
+    },
+    "operations-link-2026-06-11": {
+      "id": "operations-link-2026-06-11",
+      "name": "Operations Runbook (back office)",
+      "content": "",
+      "type": "outline-link",
+      "parentId": "root",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "linkedOutlineId": "idiampro-operations-2026"
     }
   },
-  "lastModified": 1718049600000,
+  "lastModified": 1781164800000,
   "_fileSize": 35244,
   "_fileName": "IdiamPro - How it works.idm",
   "_isLazyLoaded": false
