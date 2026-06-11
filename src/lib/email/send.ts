@@ -202,6 +202,12 @@ export async function sendApplicantNotification(
 interface SendApplicantApprovedArgs extends SendArgsBase {
   /** Optional override; defaults to the IdiamPro sign-in page. */
   signInUrl?: string;
+  /**
+   * Optional: the applicant's free-form answer to "What brings you to
+   * IdiamPro?" — used to personalise the welcome with a one-sentence
+   * acknowledgement. Pass it straight through from the applicant record.
+   */
+  reason?: string | null;
 }
 
 /**
@@ -222,6 +228,7 @@ export async function sendApplicantApprovedEmail(
     firstName: args.firstName,
     unsubscribeUrl: pre.proceed.unsubscribeUrl,
     signInUrl: args.signInUrl,
+    reason: args.reason,
   });
   return activeTransport({
     from: HOWARD_FROM,

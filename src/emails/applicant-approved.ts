@@ -1,51 +1,120 @@
 /**
  * Applicant approved email — sent to the user when Howard clicks "Approve"
- * in /admin/applicants. Tells them they're in, where to sign in, and that
- * they can reply directly to Howard.
+ * in /admin/applicants. It reads as a personal note from Howard, not a
+ * corporate auto-reply: warm greeting, a one-line acknowledgement of why
+ * they applied (when they provided one), concrete next steps, and a
+ * standing offer to reply directly.
  *
- * Reply-To is set to howard@2ndbrainware.com so the conversational tone of
- * "Reply to this email and Howard will read it" actually works — they hit
- * Reply in their mail client and the message routes straight to Howard
- * rather than into the noreply abyss.
+ * From: Howard at IdiamPro <howard@2ndbrainware.com>
+ * Reply-To: howard@2ndbrainware.com — clicking Reply lands in Howard's
+ * inbox, not the noreply alias.
+ *
+ * Tone direction (2026-06-10): the email goes out FROM Howard
+ * automatically when he hits Approve, so the body should sound like the
+ * note he'd type himself. Plain English. No "as the founder of" puffery,
+ * no emoji, no marketing speak. Howard reads every reply, and the email
+ * has to make that promise plausible.
  */
 
-import { ctaButton, escapeHtml, greeting, wrapEmail, type RenderedEmail } from './_layout';
+import { escapeHtml, wrapEmail, type RenderedEmail } from './_layout';
 
 export interface ApplicantApprovedProps {
   firstName?: string | null;
   unsubscribeUrl: string;
   /** Optional sign-in URL — defaults to the IdiamPro sign-in page. */
   signInUrl?: string;
+  /**
+   * Optional: the "What brings you to IdiamPro?" answer the applicant
+   * supplied. When present and non-trivial we include a one-sentence
+   * acknowledgement so the email reads as genuinely personalised rather
+   * than mail-merged.
+   */
+  reason?: string | null;
+}
+
+/** Minimum characters of "reason" needed before we acknowledge it.  */
+const MIN_REASON_LENGTH = 8;
+
+/** Cap on how much we quote back, to keep the email short. */
+const MAX_REASON_LENGTH = 220;
+
+/**
+ * Decide whether the reason is worth acknowledging. We skip empties,
+ * whitespace-only strings, and ultra-short answers like "idk" — quoting
+ * those back would feel mechanical rather than personal.
+ */
+function trimmedReason(reason?: string | null): string | null {
+  const r = (reason ?? '').trim();
+  if (r.length < MIN_REASON_LENGTH) return null;
+  if (r.length <= MAX_REASON_LENGTH) return r;
+  // Truncate on a word boundary, then add an ellipsis.
+  const slice = r.slice(0, MAX_REASON_LENGTH);
+  const lastSpace = slice.lastIndexOf(' ');
+  const cut = lastSpace > 60 ? slice.slice(0, lastSpace) : slice;
+  return `${cut}…`;
 }
 
 export function renderApplicantApprovedEmail(
   props: ApplicantApprovedProps,
 ): RenderedEmail {
   const signInUrl = props.signInUrl ?? 'https://2ndbrainware.com/signin';
-  const hello = greeting(props.firstName);
+  const firstName = (props.firstName ?? '').trim();
+  const hi = firstName.length > 0 ? `Hey ${firstName}` : 'Hey there';
+  const reason = trimmedReason(props.reason);
 
-  const bodyHtml = `
-<h1 style="margin:0 0 16px;font-size:24px;line-height:1.3;font-weight:700;">You're in.</h1>
-<p style="margin:0 0 16px;">${escapeHtml(hello)} &mdash; your IdiamPro beta access is active.</p>
-<p style="margin:0 0 16px;">Sign in with the email you applied with, and your account will load straight into your first outline. IdiamPro turns scattered notes, videos, PDFs, and half-formed ideas into structured outlines you can actually use — give it a try with whatever's on your plate this week.</p>
-<p style="margin:0 0 24px;text-align:center;">
-  ${ctaButton('Sign in to IdiamPro', signInUrl)}
-</p>
-<p style="margin:0 0 8px;color:#6B7280;font-size:14px;">Questions, suggestions, anything weird?</p>
-<p style="margin:0;font-size:14px;">Hit Reply to this email — Howard reads every one personally.</p>
-`;
+  const subject = firstName.length > 0
+    ? `You're in, ${firstName} — welcome to IdiamPro`
+    : "You're in — welcome to IdiamPro";
 
-  const bodyText = `${hello} — your IdiamPro beta access is active.
+  // ---- HTML body --------------------------------------------------------
+  const greetingLine =
+    `<p style="margin:0 0 16px;">${escapeHtml(hi)},</p>`;
 
-Sign in with the email you applied with, and your account will load straight into your first outline. IdiamPro turns scattered notes, videos, PDFs, and half-formed ideas into structured outlines you can actually use — give it a try with whatever's on your plate this week.
+  const introLine =
+    `<p style="margin:0 0 16px;">Howard here — thanks for applying to the IdiamPro beta. You're approved.</p>`;
 
-Sign in: ${signInUrl}
+  const reasonLineHtml = reason
+    ? `<p style="margin:0 0 16px;">You mentioned: &ldquo;${escapeHtml(reason)}&rdquo; — that's exactly the kind of thing I built this for, and I'd love to hear how it lands once you've had a play. If it doesn't do what you need yet, write back and tell me what's missing.</p>`
+    : '';
 
-Questions, suggestions, anything weird? Hit Reply to this email — Howard reads every one personally.`;
+  const nextStepLine = `<p style="margin:0 0 16px;">Whenever you're ready, sign in at <a href="${escapeHtml(signInUrl)}" style="color:#007AFF;text-decoration:underline;">2ndbrainware.com</a> with the email you applied with. Your account will load straight into a starter outline.</p>`;
+
+  const noteList = `<p style="margin:0 0 8px;">A few things to know:</p>
+<ul style="margin:0 0 16px;padding-left:20px;">
+  <li style="margin:0 0 6px;">The beta moves fast. You'll see updates ship most days.</li>
+  <li style="margin:0 0 6px;">Your data is yours — I don't train models on it. The User Guide inside the app explains the privacy model in plain English.</li>
+  <li style="margin:0 0 6px;">If you hit a bug, a confusing menu, or want a feature, just reply to this email. I read every reply, usually within a few hours.</li>
+</ul>`;
+
+  const signoff = `<p style="margin:0 0 4px;">Thanks for trying it,</p>
+<p style="margin:0 0 2px;">Howard</p>
+<p style="margin:0;color:#6B7280;font-size:14px;">Founder, IdiamPro</p>`;
+
+  const bodyHtml = `${greetingLine}${introLine}${reasonLineHtml}${nextStepLine}${noteList}${signoff}`;
+
+  // ---- Plain-text body --------------------------------------------------
+  const reasonLineText = reason
+    ? `\nYou mentioned: "${reason}" — that's exactly the kind of thing I built this for, and I'd love to hear how it lands once you've had a play. If it doesn't do what you need yet, write back and tell me what's missing.\n`
+    : '';
+
+  const bodyText = `${hi},
+
+Howard here — thanks for applying to the IdiamPro beta. You're approved.
+${reasonLineText}
+Whenever you're ready, sign in at ${signInUrl} with the email you applied with. Your account will load straight into a starter outline.
+
+A few things to know:
+- The beta moves fast. You'll see updates ship most days.
+- Your data is yours — I don't train models on it. The User Guide inside the app explains the privacy model in plain English.
+- If you hit a bug, a confusing menu, or want a feature, just reply to this email. I read every reply, usually within a few hours.
+
+Thanks for trying it,
+Howard
+Founder, IdiamPro`;
 
   return wrapEmail({
-    subject: "You're in! Your IdiamPro beta access is active",
-    preheader: 'Your IdiamPro beta access is active. Sign in to get started.',
+    subject,
+    preheader: "You're approved for the IdiamPro beta — a quick note from Howard.",
     bodyHtml,
     bodyText,
     unsubscribe: { url: props.unsubscribeUrl },

@@ -66,6 +66,7 @@ export async function POST(request: NextRequest) {
     firstName,
     userId: record.id,
     signInUrl: getSignInUrl(request),
+    reason: record.reason,
   });
 
   return NextResponse.json({ ok: true, applicant: record, emailOutcome });
