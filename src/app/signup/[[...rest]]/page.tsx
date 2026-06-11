@@ -2,36 +2,38 @@
  * Sign-up page (catch-all so Clerk can drive multi-step flows like email
  * verification under /signup/*).
  *
- * Two-step flow:
+ * Three-step flow:
  *
- *   1. Email-check gate. The user types their email; we POST to
- *      /api/invite-check, which compares the address against the
- *      Howard-curated INVITE_ALLOWLIST. If the email isn't on the list
- *      we show a conversational gate message and never call Clerk. If
- *      it is on the list (or the allowlist is unset / stub mode), step 2
- *      reveals.
+ *   1. Application form. Most new users are NOT yet on the invite
+ *      allowlist. The form collects name, email, and an optional "What
+ *      brings you to IdiamPro?" textarea. Submitting POSTs to
+ *      /api/applicants/apply, which persists the applicant record and
+ *      emails Howard. The user lands on a "Thanks — Howard reviews every
+ *      beta application personally" confirmation screen.
  *
- *   2. Clerk's prebuilt SignUp component renders for the approved email.
- *      We can't cleanly hook into Clerk's own email field validation
- *      from outside, so we run the gate as a separate first step rather
- *      than fighting Clerk's internals. The post-signup webhook re-runs
- *      isEmailAllowed() as defense in depth in case anyone navigates
- *      around this UI.
+ *   2. Email-check fast path. Before showing the application form we run
+ *      /api/applicants/me?email=... When an email is already on the
+ *      allowlist (the env-var INVITE_ALLOWLIST OR an applicant Howard has
+ *      previously approved) we skip the application form and reveal
+ *      Clerk's prebuilt SignUp component directly.
+ *
+ *   3. Clerk's prebuilt SignUp component. The post-signup Clerk webhook
+ *      re-runs isEmailAllowedAsync() as defense in depth.
  *
  * Stub-safe: when Clerk's publishable key is not set the page shows a
- * "sign-up is being set up" message. When INVITE_ALLOWLIST is unset the
- * email check is always { allowed: true }, so the page behaves like a
- * normal Clerk sign-up — exactly the pre-invite behavior.
+ * "sign-up is being set up" message. When INVITE_ALLOWLIST is unset AND
+ * the applicant store is empty, the allowlist check is bypassed (dev
+ * mode), so the page falls straight through to Clerk's SignUp without
+ * ever showing the application form.
  *
- * Post-sign-up destination is /app (the outliner), so the new user lands
- * directly in their first outline.
+ * Post-sign-up destination is /app (the outliner).
  */
 
 'use client';
 
 import * as React from 'react';
 import dynamic from 'next/dynamic';
-import { Layers } from 'lucide-react';
+import { Layers, CheckCircle2, Clock } from 'lucide-react';
 
 const PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || '';
 
@@ -73,59 +75,140 @@ function StubNotice() {
   );
 }
 
-type CheckState =
+type ApplicationState =
   | { kind: 'idle' }
-  | { kind: 'checking' }
-  | { kind: 'denied'; message: string }
-  | { kind: 'allowed'; email: string };
+  | { kind: 'submitting' }
+  | { kind: 'submitted'; email: string }
+  | { kind: 'checking-allowlist'; email: string }
+  | { kind: 'pending-review'; email: string }
+  | { kind: 'allowed'; email: string }
+  | { kind: 'error'; message: string };
 
-function InviteGate({ children }: { children: (approvedEmail: string) => React.ReactNode }) {
+function ApplicationGate({
+  children,
+}: {
+  children: (approvedEmail: string) => React.ReactNode;
+}) {
+  const [name, setName] = React.useState('');
   const [email, setEmail] = React.useState('');
-  const [state, setState] = React.useState<CheckState>({ kind: 'idle' });
+  const [reason, setReason] = React.useState('');
+  const [state, setState] = React.useState<ApplicationState>({ kind: 'idle' });
 
   const submit = React.useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
-      const trimmed = email.trim();
-      if (!trimmed || trimmed.indexOf('@') === -1) {
-        setState({ kind: 'denied', message: 'Enter a valid email address to continue.' });
+      const trimmedName = name.trim();
+      const trimmedEmail = email.trim();
+      if (!trimmedName) {
+        setState({ kind: 'error', message: 'Add your name to continue.' });
         return;
       }
-      setState({ kind: 'checking' });
+      if (!trimmedEmail || trimmedEmail.indexOf('@') === -1) {
+        setState({
+          kind: 'error',
+          message: 'Enter a valid email address to continue.',
+        });
+        return;
+      }
+
+      // First: is this email already on the allowlist? If so, jump
+      // straight to Clerk's SignUp.
+      setState({ kind: 'checking-allowlist', email: trimmedEmail });
       try {
-        const res = await fetch('/api/invite-check', {
+        const checkRes = await fetch(
+          `/api/applicants/me?email=${encodeURIComponent(trimmedEmail)}`,
+        );
+        const checkData = (await checkRes.json()) as {
+          approved?: boolean;
+          status?: string;
+        };
+        if (checkData.approved) {
+          setState({ kind: 'allowed', email: trimmedEmail });
+          return;
+        }
+        if (checkData.status === 'pending') {
+          // They already applied. Show the "we've got your application"
+          // screen instead of creating a duplicate record.
+          setState({ kind: 'pending-review', email: trimmedEmail });
+          return;
+        }
+      } catch {
+        // Allowlist check failed — fall through to creating the
+        // application anyway. createApplicant is idempotent on email.
+      }
+
+      setState({ kind: 'submitting' });
+      try {
+        const res = await fetch('/api/applicants/apply', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: trimmed }),
+          body: JSON.stringify({
+            name: trimmedName,
+            email: trimmedEmail,
+            reason: reason.trim(),
+          }),
         });
-        const data = (await res.json()) as { allowed?: boolean; message?: string };
-        if (data.allowed) {
-          setState({ kind: 'allowed', email: trimmed });
+        const data = (await res.json()) as { ok?: boolean; error?: string };
+        if (data.ok) {
+          setState({ kind: 'submitted', email: trimmedEmail });
         } else {
           setState({
-            kind: 'denied',
+            kind: 'error',
             message:
-              data.message ??
-              "IdiamPro is in invite-only beta right now. Your email isn't on the invite list yet.",
+              data.error ??
+              "Something went sideways saving your application — please try again.",
           });
         }
       } catch {
-        // Network / server hiccup: don't lock the user out — let them try
-        // again. The webhook will still enforce the allowlist after Clerk
-        // creates the account, so even a buggy client can't slip past.
         setState({
-          kind: 'denied',
+          kind: 'error',
           message:
-            "We couldn't reach the invite check just now. Please try again in a moment.",
+            "We couldn't reach the sign-up service just now. Please try again in a moment.",
         });
       }
     },
-    [email],
+    [name, email, reason],
   );
 
   if (state.kind === 'allowed') {
     return <>{children(state.email)}</>;
   }
+
+  if (state.kind === 'submitted' || state.kind === 'pending-review') {
+    const isResubmit = state.kind === 'pending-review';
+    return (
+      <div className="w-full rounded-2xl border border-emerald-400/30 bg-emerald-500/10 p-8 text-center">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/20">
+          {isResubmit ? (
+            <Clock className="h-8 w-8 text-emerald-300" />
+          ) : (
+            <CheckCircle2 className="h-8 w-8 text-emerald-300" />
+          )}
+        </div>
+        <h2 className="mb-3 text-xl font-semibold text-white">
+          {isResubmit ? "We've got your application" : 'Thanks — application received'}
+        </h2>
+        <p className="mb-4 text-sm text-white/80 leading-relaxed">
+          Howard reviews every beta application personally. You&apos;ll get an
+          email at <strong className="text-white">{state.email}</strong> when
+          you&apos;re approved — usually within a day or two.
+        </p>
+        <p className="text-xs text-white/50">
+          Questions? Drop a note to{' '}
+          <a
+            href="mailto:howard@2ndbrainware.com"
+            className="text-emerald-300 hover:underline"
+          >
+            howard@2ndbrainware.com
+          </a>
+          .
+        </p>
+      </div>
+    );
+  }
+
+  const submitting =
+    state.kind === 'submitting' || state.kind === 'checking-allowlist';
 
   return (
     <div className="w-full">
@@ -133,6 +216,22 @@ function InviteGate({ children }: { children: (approvedEmail: string) => React.R
         onSubmit={submit}
         className="rounded-2xl border border-white/10 bg-white/5 p-6 space-y-4"
       >
+        <label className="block">
+          <span className="text-sm text-white/70">Full name</span>
+          <input
+            type="text"
+            autoComplete="name"
+            required
+            value={name}
+            onChange={(e) => {
+              setName(e.target.value);
+              if (state.kind === 'error') setState({ kind: 'idle' });
+            }}
+            placeholder="Jane Smith"
+            className="mt-1 w-full rounded-lg border border-white/15 bg-gray-900/60 px-3 py-2 text-base text-white placeholder-white/30 focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-500/40"
+            aria-label="Full name"
+          />
+        </label>
         <label className="block">
           <span className="text-sm text-white/70">Email</span>
           <input
@@ -142,21 +241,38 @@ function InviteGate({ children }: { children: (approvedEmail: string) => React.R
             value={email}
             onChange={(e) => {
               setEmail(e.target.value);
-              if (state.kind === 'denied') setState({ kind: 'idle' });
+              if (state.kind === 'error') setState({ kind: 'idle' });
             }}
             placeholder="you@example.com"
             className="mt-1 w-full rounded-lg border border-white/15 bg-gray-900/60 px-3 py-2 text-base text-white placeholder-white/30 focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-500/40"
-            aria-label="Email address for invite check"
+            aria-label="Email address"
+          />
+        </label>
+        <label className="block">
+          <span className="text-sm text-white/70">
+            What brings you to IdiamPro?{' '}
+            <span className="text-white/40">(optional)</span>
+          </span>
+          <textarea
+            value={reason}
+            onChange={(e) => {
+              setReason(e.target.value);
+              if (state.kind === 'error') setState({ kind: 'idle' });
+            }}
+            rows={3}
+            placeholder="A sentence or two about what you'd use it for — helps us prioritize."
+            className="mt-1 w-full rounded-lg border border-white/15 bg-gray-900/60 px-3 py-2 text-base text-white placeholder-white/30 focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-500/40 resize-none"
+            aria-label="What brings you to IdiamPro"
           />
         </label>
         <button
           type="submit"
-          disabled={state.kind === 'checking'}
+          disabled={submitting}
           className="w-full rounded-lg bg-gradient-to-r from-violet-500 to-indigo-600 px-4 py-2 text-base font-semibold text-white shadow-lg shadow-violet-500/30 transition hover:from-violet-400 hover:to-indigo-500 disabled:opacity-60"
         >
-          {state.kind === 'checking' ? 'Checking…' : 'Continue'}
+          {submitting ? 'Submitting…' : 'Apply for beta access'}
         </button>
-        {state.kind === 'denied' && (
+        {state.kind === 'error' && (
           <div
             role="alert"
             className="rounded-lg border border-amber-400/40 bg-amber-500/10 px-3 py-2 text-sm text-amber-100"
@@ -165,8 +281,8 @@ function InviteGate({ children }: { children: (approvedEmail: string) => React.R
           </div>
         )}
         <p className="text-xs text-white/50">
-          IdiamPro is in invite-only beta. We check your email against the
-          invite list before creating an account.
+          IdiamPro is in invite-only beta. Howard reviews every application
+          personally — usually within a day or two.
         </p>
       </form>
     </div>
@@ -187,15 +303,18 @@ export default function SignUpPage() {
           </span>
         </div>
         <h1 className="mb-2 text-2xl font-semibold text-white">
-          Start with IdiamPro — free
+          Apply for the IdiamPro beta
         </h1>
-        <p className="mb-8 text-sm text-white/60">
-          No credit card required. Twenty-five generations on the house.
+        <p className="mb-8 text-sm text-white/60 text-center">
+          No credit card. Howard reviews every application personally.
         </p>
 
-        {PUBLISHABLE_KEY ? (
-          <InviteGate>
-            {(approvedEmail) => (
+        {/* The application form is always shown — it's independent of
+            Clerk. Only the second step (Clerk's SignUp component for
+            already-approved emails) requires the publishable key. */}
+        <ApplicationGate>
+          {(approvedEmail) =>
+            PUBLISHABLE_KEY ? (
               <LazySignUp
                 path="/signup"
                 routing="path"
@@ -204,11 +323,11 @@ export default function SignUpPage() {
                 redirectUrl="/app"
                 initialValues={{ emailAddress: approvedEmail }}
               />
-            )}
-          </InviteGate>
-        ) : (
-          <StubNotice />
-        )}
+            ) : (
+              <StubNotice />
+            )
+          }
+        </ApplicationGate>
       </div>
     </div>
   );

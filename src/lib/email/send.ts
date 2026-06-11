@@ -32,9 +32,24 @@ import { renderWelcomeEmail } from '@/emails/welcome-email';
 import { renderDay3FeaturesEmail } from '@/emails/day-3-features';
 import { renderDay7TipsEmail } from '@/emails/day-7-tips';
 import { renderDay14UpgradeEmail } from '@/emails/day-14-upgrade';
+import {
+  renderApplicantNotification,
+  type ApplicantNotificationProps,
+} from '@/emails/applicant-notification';
+import { renderApplicantApprovedEmail } from '@/emails/applicant-approved';
 
 const DEFAULT_FROM = 'IdiamPro <welcome@2ndbrainware.com>';
 const RESEND_ENDPOINT = 'https://api.resend.com/emails';
+
+/**
+ * The email address Howard's beta-applicant approval notes are sent from.
+ * Configurable so we can switch to a service mailbox later without code
+ * changes. Defaults to Howard's personal address.
+ */
+const HOWARD_FROM = 'Howard at IdiamPro <howard@2ndbrainware.com>';
+
+/** Address that receives "new applicant" notifications. */
+const HOWARD_NOTIFY = 'howard@2ndbrainware.com';
 
 export interface SendOutcome {
   /** "sent": Resend accepted the payload. */
@@ -60,6 +75,8 @@ export interface ResendPayload {
   html: string;
   text: string;
   headers?: Record<string, string>;
+  /** Optional Reply-To address — used for applicant-approval emails. */
+  replyTo?: string;
 }
 
 // Module-level transport so tests can swap it without monkey-patching fetch.
@@ -85,6 +102,7 @@ async function realResendTransport(payload: ResendPayload): Promise<SendOutcome>
         html: payload.html,
         text: payload.text,
         headers: payload.headers ?? {},
+        ...(payload.replyTo ? { reply_to: payload.replyTo } : {}),
       }),
     });
     if (!res.ok) {
@@ -153,6 +171,67 @@ export type DripDay = 3 | 7 | 14;
 
 interface SendDripArgs extends SendArgsBase {
   day: DripDay;
+}
+
+/**
+ * Send the "new applicant" notification to Howard. This is internal staff
+ * mail — it bypasses the unsubscribe store (Howard would never unsubscribe
+ * himself from these and the bookkeeping cost would just slow signup).
+ *
+ * Stub-safe: with RESEND_API_KEY unset, returns 'skipped-no-key' just like
+ * every other send.
+ */
+export async function sendApplicantNotification(
+  props: ApplicantNotificationProps,
+  recipient?: string,
+): Promise<SendOutcome> {
+  const to = (recipient ?? process.env.BETA_NOTIFY_EMAIL ?? HOWARD_NOTIFY).trim();
+  if (!to || to.indexOf('@') === -1) {
+    return { status: 'skipped-no-recipient' };
+  }
+  const rendered = renderApplicantNotification(props);
+  return activeTransport({
+    from: getFromAddress(),
+    to,
+    subject: rendered.subject,
+    html: rendered.html,
+    text: rendered.text,
+  });
+}
+
+interface SendApplicantApprovedArgs extends SendArgsBase {
+  /** Optional override; defaults to the IdiamPro sign-in page. */
+  signInUrl?: string;
+}
+
+/**
+ * Send the "you're in" email to a newly-approved applicant.
+ *
+ * Differs from the regular welcome email in two ways:
+ * 1. From: howard@2ndbrainware.com (so the conversational tone matches:
+ *    "Howard reads every reply personally").
+ * 2. Reply-To: howard@2ndbrainware.com (so clicking Reply lands in his
+ *    inbox, not the noreply/welcome alias).
+ */
+export async function sendApplicantApprovedEmail(
+  args: SendApplicantApprovedArgs,
+): Promise<SendOutcome> {
+  const pre = await preflightOrSkip(args);
+  if ('skip' in pre) return pre.skip;
+  const rendered = renderApplicantApprovedEmail({
+    firstName: args.firstName,
+    unsubscribeUrl: pre.proceed.unsubscribeUrl,
+    signInUrl: args.signInUrl,
+  });
+  return activeTransport({
+    from: HOWARD_FROM,
+    to: args.to,
+    subject: rendered.subject,
+    html: rendered.html,
+    text: rendered.text,
+    headers: { 'List-Unsubscribe': `<${pre.proceed.unsubscribeUrl}>` },
+    replyTo: 'howard@2ndbrainware.com',
+  });
 }
 
 /** Send the appropriate drip email for day 3, 7, or 14. */

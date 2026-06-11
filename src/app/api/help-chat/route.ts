@@ -192,12 +192,14 @@ AUTHENTICATION & ACCOUNTS:
 - Sign-out: click the avatar in the top-right of the app toolbar and pick Sign out. Lands on the homepage [/].
 - Stub-safe pattern: when CLERK_SECRET_KEY and NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY are not set, the middleware logs a single dev warning and lets everyone through. The Account avatar in the toolbar simply doesn't render. As soon as those env vars are set in Vercel the wall goes live in production with no code change.
 
-INVITE-ONLY ACCESS (beta gating):
-- IdiamPro is in invite-only beta. Even users who can reach /signup must have an email on Howard's curated allowlist before they can create an account.
-- Two enforcement points. (1) Pre-signup UX: the /signup page asks for an email first and POSTs it to /api/invite-check; if the email isn't on the list, the page shows a conversational gate message ("IdiamPro is in invite-only beta right now. Your email isn't on the invite list yet — drop us a note at hello@2ndbrainware.com and we'll get you in.") and never hands off to Clerk. (2) Defense in depth: the Clerk user.created webhook re-runs the same check and immediately calls Clerk's REST API to delete the account if the email isn't on the list. Welcome email only fires after the allowlist check passes.
-- Storage v1: comma-separated emails in the INVITE_ALLOWLIST env var. Matching is exact + case-insensitive (no wildcards, no domain-level matching). To approve a new tester Howard edits the env var in Vercel and redeploys.
-- Extension point v1.1: /admin/invites is a stub page today; a self-service dashboard for adding/removing emails (database-backed) lands without changing any call site — every consumer talks to isEmailAllowed() / getAllowedEmails() in src/lib/access/allowlist.ts.
-- Stub-safe: with INVITE_ALLOWLIST unset OR empty, the allowlist check is bypassed (everyone is allowed) — same env-gated philosophy as Clerk / Stripe / Sentry / Resend. The signup flow behaves like a normal Clerk sign-up until the env var is set.
+INVITE-ONLY ACCESS (beta-applicant approval flow):
+- IdiamPro is in invite-only beta. Every prospective user fills out a short application at /signup and Howard personally approves each one before they can use the app.
+- The application form collects name, email, and an optional "What brings you to IdiamPro?" textarea. Submitting POSTs to /api/applicants/apply, which persists the applicant record (file-based JSON store at .idiampro/applicants.json) and emails Howard at howard@2ndbrainware.com with the details and a deep link to /admin/applicants?focus=[id].
+- The /admin/applicants dashboard lists Pending Applicants (Approve / Reject buttons) and Approved Users (with private notes, mailto, CSV export). Approving an applicant flips their record to status=approved, adds their email to the dynamic allowlist, and triggers a "You're in" email from howard@2ndbrainware.com (Reply-To howard@2ndbrainware.com, so they can write back).
+- Three enforcement points (defense in depth). (1) The /app subtree is wrapped in AppGate, which redirects signed-out users to /signup and signed-in-but-not-approved users to /waiting. (2) The Clerk user.created webhook re-runs isEmailAllowedAsync and deletes the account if the email isn't approved. (3) The pre-signup /api/invite-check endpoint still works for the fast-path "is this email already on the list?" check.
+- Allowlist source: two layers. (1) INVITE_ALLOWLIST env var (comma-separated, used for pre-seeding Howard's own addresses). (2) Every applicant Howard has clicked Approve on. isEmailAllowedAsync() unions both.
+- /waiting page: where signed-in-but-not-approved users land when they hit /app. Friendly "your application is in the queue" copy with a sign-out option for wrong-account cases.
+- Stub-safe: with no INVITE_ALLOWLIST set AND an empty applicant store, the allowlist check is bypassed (dev mode). The /admin/applicants page is gated behind localStorage.isAdmin === 'true', same v1 pattern as /admin/metrics and /admin/invites.
 
 Answer user questions clearly and concisely. If they ask how to do something, provide step-by-step instructions. Be friendly and encouraging.`;
 

@@ -263,8 +263,8 @@ I would like to join the IdiamPro beta program.
                     get back to you within 48 hours.
                   </p>
                   <p className="text-white/40 text-sm">
-                    In the meantime, you can try our web version at{' '}
-                    <a href="/app" className="text-emerald-400 hover:underline">/app</a>
+                    In the meantime, head back home and tell a colleague:{' '}
+                    <a href="/" className="text-emerald-400 hover:underline">2ndbrainware.com</a>
                   </p>
                 </div>
               ) : (
@@ -389,7 +389,7 @@ I would like to join the IdiamPro beta program.
           </p>
           <div className="flex items-center gap-6">
             <a href="/" className="text-white/30 hover:text-white text-sm transition-colors">Home</a>
-            <a href="/app" className="text-white/30 hover:text-white text-sm transition-colors">Try App</a>
+            <a href="/signup" className="text-white/30 hover:text-white text-sm transition-colors">Apply for Beta</a>
             <a href="mailto:beta@idiampro.com" className="text-white/30 hover:text-white text-sm transition-colors">Contact</a>
           </div>
         </div>

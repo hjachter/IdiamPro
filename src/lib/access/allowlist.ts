@@ -7,22 +7,35 @@
  * pre-signup UX check (server action) and the post-signup Clerk webhook
  * (defense-in-depth).
  *
- * V1 storage: a comma-separated list in the INVITE_ALLOWLIST env var.
- * Howard edits the value in Vercel project settings and redeploys to add
- * a new tester. Future v1.1 work moves the source to a tiny database
- * table + an /admin/invites dashboard, without changing any call site:
- * every consumer talks to isEmailAllowed() / getAllowedEmails().
+ * Two layered sources:
  *
- * Stub-safe: if INVITE_ALLOWLIST is unset OR empty, the allowlist check
- * is bypassed (everyone is allowed). This matches the rest of IdiamPro's
- * env-gated layers (Sentry, Clerk, Stripe, Resend) — zero runtime overhead
- * and identical-to-today behavior until Howard sets the env var.
+ *   1. INVITE_ALLOWLIST env var (comma-separated emails) — Howard's
+ *      hard-coded list, edited in Vercel project settings. Useful for
+ *      pre-seeding addresses (his own, founding testers) before the
+ *      applicant flow exists.
+ *
+ *   2. The applicant store (src/lib/access/applicant-store.ts) — every
+ *      person Howard has clicked "Approve" on in /admin/applicants. This
+ *      is the day-to-day source as the beta opens up.
+ *
+ * The two combine via getAllowedEmailsAsync() / isEmailAllowedAsync().
+ * The legacy synchronous helpers (isEmailAllowed / getAllowedEmails)
+ * still exist and read only the env-var layer — kept for compatibility
+ * with any synchronous call site (none today, but cheap to preserve).
+ *
+ * Stub-safe: if INVITE_ALLOWLIST is unset AND there are no approved
+ * applicants, the allowlist check is bypassed (everyone is allowed).
+ * This matches the rest of IdiamPro's env-gated layers (Sentry, Clerk,
+ * Stripe, Resend) — zero runtime overhead and identical-to-today
+ * behavior until Howard sets the env var or approves anyone.
  *
  * Matching is exact + case-insensitive on the full email. No wildcards
  * and no domain-level matching: those would let in random employees at
  * a partner company. If Howard ever needs broader rules, add them to
  * this helper and every consumer picks them up automatically.
  */
+
+import { getApprovedApplicantEmails } from './applicant-store';
 
 /** Normalize an email for comparison: trim + lowercase. */
 function normalize(email: string): string {
@@ -82,6 +95,56 @@ export function isEmailAllowed(email: string): boolean {
  */
 export const GATE_MESSAGE =
   "IdiamPro is in invite-only beta right now. Your email isn't on the invite list yet — drop us a note at hello@2ndbrainware.com and we'll get you in.";
+
+/**
+ * Async variant of getAllowedEmails: env-var list PLUS approved applicants
+ * from the file store. This is the authoritative source post-applicant-flow.
+ *
+ * Returns a deduped, lowercased list. Order: env-var entries first, then
+ * approved applicants in store order (callers should treat as a set).
+ */
+export async function getAllowedEmailsAsync(): Promise<string[]> {
+  const envList = getAllowedEmails();
+  let approved: string[] = [];
+  try {
+    approved = await getApprovedApplicantEmails();
+  } catch (err) {
+    // If the applicant store can't be read for any reason, fall back to the
+    // env-var list — better to under-allow than to crash signup.
+    // eslint-disable-next-line no-console
+    console.warn(
+      '[invite-allowlist] applicant store read failed, falling back to INVITE_ALLOWLIST only:',
+      err,
+    );
+  }
+  const set = new Set<string>([...envList, ...approved]);
+  return Array.from(set);
+}
+
+/**
+ * Async variant of isEmailAllowed: the authoritative gate that consults
+ * BOTH the env-var allowlist AND the approved-applicants store.
+ *
+ * Returns true (bypass) only if both sources are empty — same stub-safe
+ * behavior as the synchronous helper, just with a wider definition of
+ * "allowed source has anything in it".
+ */
+export async function isEmailAllowedAsync(email: string): Promise<boolean> {
+  const list = await getAllowedEmailsAsync();
+  if (list.length === 0) {
+    if (!warnedAboutStub) {
+      warnedAboutStub = true;
+      // eslint-disable-next-line no-console
+      console.warn(
+        '[invite-allowlist] No approved emails (INVITE_ALLOWLIST unset and applicant store empty) — allowlist check is bypassed (dev/stub mode).',
+      );
+    }
+    return true;
+  }
+  const candidate = normalize(email);
+  if (candidate.length === 0 || candidate.indexOf('@') === -1) return false;
+  return list.includes(candidate);
+}
 
 /** Test-only: reset the once-per-process warning flag. */
 export function _resetAllowlistWarningForTest(): void {

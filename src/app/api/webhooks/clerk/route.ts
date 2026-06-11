@@ -44,7 +44,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createHmac, timingSafeEqual } from 'crypto';
 import { sendWelcomeEmail } from '@/lib/email/send';
-import { isEmailAllowed } from '@/lib/access/allowlist';
+import { isEmailAllowedAsync } from '@/lib/access/allowlist';
 
 // Run on the Node runtime; the email modules use fs.
 export const runtime = 'nodejs';
@@ -217,8 +217,10 @@ export async function POST(request: NextRequest) {
 
   // Defense in depth: even if the signup page somehow let this email
   // through, we re-check the allowlist here and delete the account on
-  // mismatch BEFORE sending any welcome email.
-  if (!isEmailAllowed(email)) {
+  // mismatch BEFORE sending any welcome email. Uses the async helper so
+  // dynamically-approved applicants (via /admin/applicants) are honored
+  // in addition to the static INVITE_ALLOWLIST env var.
+  if (!(await isEmailAllowedAsync(email))) {
     // eslint-disable-next-line no-console
     console.warn(
       `[clerk-webhook] Blocked unauthorized signup: ${email} (userId=${userId}) — account deletion requested.`,

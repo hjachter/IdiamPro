@@ -82,15 +82,25 @@ import {
 // CONFIGURATION
 // ============================================
 
-// App URL - points to the app route
-const APP_URL = '/app';
+// Sign-up URL — the public entry point for new users. The home page no
+// longer links directly to /app: anyone who wants to try IdiamPro applies
+// for the invite-only beta first, and Howard approves each one personally.
+// The /app route is still reachable for already-approved users (via the
+// hero CTA's SignedIn branch and via deep links once they're authed); the
+// AppGate component enforces approval at the /app boundary.
+const SIGNUP_URL = '/signup';
 
 // Launch date: April 1, 2026
 const LAUNCH_DATE = new Date('2026-04-01T00:00:00');
 
-// Navigate to the app
+/**
+ * Send the visitor to the sign-up application flow. Every previously
+ * "Launch App" / "Try App" button on the marketing page now routes
+ * through here so prospective users always meet the application form
+ * before they can reach the outliner.
+ */
 const launchApp = () => {
-  window.location.href = APP_URL;
+  window.location.href = SIGNUP_URL;
 };
 
 // ============================================
@@ -644,13 +654,24 @@ export default function MarketingPage() {
             </div>
 
             <div className="flex items-center gap-4">
-              <Button
-                onClick={launchApp}
-                className="hidden md:inline-flex bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-lg shadow-violet-500/25"
-              >
-                Launch App
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
+              <SignedOut>
+                <Button
+                  onClick={launchApp}
+                  className="hidden md:inline-flex bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-lg shadow-violet-500/25"
+                >
+                  Sign up free
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </SignedOut>
+              <SignedIn>
+                <Button
+                  onClick={() => { window.location.href = '/app'; }}
+                  className="hidden md:inline-flex bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-lg shadow-violet-500/25"
+                >
+                  Open IdiamPro
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </SignedIn>
 
               {/* Mobile menu button */}
               <button
@@ -670,12 +691,22 @@ export default function MarketingPage() {
                 <a href="#use-cases" onClick={() => setMobileMenuOpen(false)} className="text-white/80 py-2">Use Cases</a>
                 <a href="#pricing" onClick={() => setMobileMenuOpen(false)} className="text-white/80 py-2">Pricing</a>
                 <a href="#faq" onClick={() => setMobileMenuOpen(false)} className="text-white/80 py-2">FAQ</a>
-                <Button
-                  onClick={launchApp}
-                  className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white w-full mt-2"
-                >
-                  Launch App
-                </Button>
+                <SignedOut>
+                  <Button
+                    onClick={launchApp}
+                    className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white w-full mt-2"
+                  >
+                    Sign up free
+                  </Button>
+                </SignedOut>
+                <SignedIn>
+                  <Button
+                    onClick={() => { window.location.href = '/app'; }}
+                    className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white w-full mt-2"
+                  >
+                    Open IdiamPro
+                  </Button>
+                </SignedIn>
               </div>
             </div>
           )}
@@ -1880,7 +1911,7 @@ export default function MarketingPage() {
               size="lg"
               className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-lg px-10 py-6 shadow-xl shadow-violet-500/25 hover:shadow-violet-500/40 transition-all duration-300"
             >
-              Start Creating Free
+              Sign up to try IdiamPro
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
             <p className="text-white/30 text-sm mt-4">

@@ -17,7 +17,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { GATE_MESSAGE, isEmailAllowed } from '@/lib/access/allowlist';
+import { GATE_MESSAGE, isEmailAllowedAsync } from '@/lib/access/allowlist';
 import { enforceRateLimit } from '@/lib/rate-limit';
 
 export const runtime = 'nodejs';
@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
     });
   }
 
-  const allowed = isEmailAllowed(email);
+  const allowed = await isEmailAllowedAsync(email);
   if (allowed) {
     return NextResponse.json({ allowed: true });
   }
