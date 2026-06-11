@@ -20,7 +20,8 @@
         "subscriptions",
         "video-support",
         "roadmap",
-        "action-items"
+        "action-items",
+        "real-testimonials-incoming-2026-06-10"
       ],
       "isCollapsed": false,
       "prefix": ""
@@ -28,7 +29,7 @@
     "overview": {
       "id": "overview",
       "name": "Product Overview",
-      "content": "<h2>What is IdiamPro?</h2><p>IdiamPro is your <strong>second brain \u2014 with profound capabilities</strong>. It's an AI-native outlining platform that doesn't just store your knowledge \u2014 it actively helps you think. Import your research from any source, and IdiamPro synthesizes it into structured, integrated knowledge, just as a researcher synthesizes hundreds or even thousands of sources into a knowledge base that can be used to draw original conclusions.</p><p>Most knowledge tools are passive \u2014 they hold what you put in. IdiamPro is active. It synthesizes your sources, generates content that builds on your existing structure, and lets you work at a scale that would be unmanageable manually. We call each IdiamPro outline a <strong>Knowledge Molecule</strong> \u2014 a living, structured entity that folds and unfolds like DNA, growing as you learn and expressing only what you need in the moment.</p><h3>Core Capabilities</h3><ul><li><p><strong>Hierarchical Thinking:</strong> Structure any project as a navigable outline with unlimited depth</p></li><li><p><strong>AI at Every Node:</strong> Generate contextually-aware content that understands your full document structure</p></li><li><p><strong>Built-in Research Assistant:</strong> Import and synthesize content from PDFs, YouTube, web pages, audio, and more into integrated knowledge</p></li><li><p><strong>Scale Without Limits:</strong> Handle massive documents (66,000+ nodes) with smooth performance</p></li><li><p><strong>Cross-Platform:</strong> Work seamlessly across Mac, iOS, and web today — with Windows and Linux Electron builds configured and Android via Capacitor on the roadmap</p></li></ul><h3>Who Is It For?</h3><ul><li><p>Writers and authors</p></li><li><p>Researchers and academics</p></li><li><p>Business professionals</p></li><li><p>Knowledge workers</p></li><li><p>Content creators</p></li><li><p>Consultants and strategists</p></li></ul><p></p>",
+      "content": "<h2>What is IdiamPro?</h2><p>IdiamPro is your <strong>second brain \u2014 with profound capabilities</strong>. It's an AI-native outlining platform that doesn't just store your knowledge \u2014 it actively helps you think. Import your research from any source, and IdiamPro synthesizes it into structured, integrated knowledge, just as a researcher synthesizes hundreds or even thousands of sources into a knowledge base that can be used to draw original conclusions.</p><p>Most knowledge tools are passive \u2014 they hold what you put in. IdiamPro is active. It synthesizes your sources, generates content that builds on your existing structure, and lets you work at a scale that would be unmanageable manually. We call each IdiamPro outline a <strong>Knowledge Molecule</strong> \u2014 a living, structured entity that folds and unfolds like DNA, growing as you learn and expressing only what you need in the moment.</p><h3>Core Capabilities</h3><ul><li><p><strong>Hierarchical Thinking:</strong> Structure any project as a navigable outline with unlimited depth</p></li><li><p><strong>AI at Every Node:</strong> Generate contextually-aware content that understands your full document structure</p></li><li><p><strong>Built-in Research Assistant:</strong> Import and synthesize content from PDFs, YouTube, web pages, audio, and more into integrated knowledge</p></li><li><p><strong>Scale Without Limits:</strong> Handle massive documents (66,000+ nodes) with smooth performance</p></li><li><p><strong>Cross-Platform:</strong> Work seamlessly across Mac, iOS, and web today \u2014 with Windows and Linux Electron builds configured and Android via Capacitor on the roadmap</p></li></ul><h3>Who Is It For?</h3><ul><li><p>Writers and authors</p></li><li><p>Researchers and academics</p></li><li><p>Business professionals</p></li><li><p>Knowledge workers</p></li><li><p>Content creators</p></li><li><p>Consultants and strategists</p></li></ul><p></p>",
       "type": "chapter",
       "parentId": "root",
       "childrenIds": [
@@ -976,6 +977,14 @@
       "type": "document",
       "content": "<p><strong>Pitch: \"The user captures; the system organizes.\"</strong></p>\n<p>Every PKM tool that's ever asked users to tag manually has watched users not tag manually. The cognitive load of \"what should I call this?\" is enough friction to break the capture habit. Folders go unmaintained. Categories drift. By year two, the system is a mess and the user is shopping for a new app.</p>\n<p>AI silently doing the organizational work is the AI-native value proposition: not \"here's a chat dropped in,\" but \"the system gets smarter the more you use it, with no effort on your part.\" It's the iCloud Photos \"People\" album of personal knowledge \u2014 emergent structure from raw input.</p>\n<p>This is also our <strong>moat and our marketing demo.</strong> \"Save anything. We tag it. Filter by topic without ever organizing.\" Every competitor has tagging. Almost none have AI doing it for you. It's a 30-second video that sells the Premium tier.</p>\n<p><strong>How it works:</strong> On save, AI suggests 1\u20133 tags (using node metadata schema that already exists but is unused). User accepts, edits, or skips. Tags later power filter/search.</p>",
       "isExpanded": false
+    },
+    "real-testimonials-incoming-2026-06-10": {
+      "id": "real-testimonials-incoming-2026-06-10",
+      "name": "Real testimonials incoming \u2014 replace placeholders (2026-06-10)",
+      "content": "<p>The marketing site currently runs with placeholder / illustrative testimonials. As beta users submit the new feedback form at /feedback and check the &quot;OK to quote me&quot; box, real testimonials will start landing in /admin/feedback (filter chip: Public-quotable). Plan to swap placeholders for real quotes as soon as we have three to five with non-anonymous attribution. Video testimonials, when they arrive, become a Founding User showcase strip and unlock that badge in the app. Keep the rotation honest \u2014 only use quotes where the user picked Full name + title or First name + role attribution.</p>",
+      "type": "document",
+      "parentId": "root",
+      "childrenIds": []
     }
   },
   "isGuide": false,

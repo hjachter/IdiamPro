@@ -37,6 +37,11 @@ import {
   type ApplicantNotificationProps,
 } from '@/emails/applicant-notification';
 import { renderApplicantApprovedEmail } from '@/emails/applicant-approved';
+import {
+  renderFeedbackNotification,
+  type FeedbackNotificationProps,
+} from '@/emails/feedback-notification';
+import { renderFeedbackReminderEmail } from '@/emails/feedback-reminder';
 
 const DEFAULT_FROM = 'IdiamPro <welcome@2ndbrainware.com>';
 const RESEND_ENDPOINT = 'https://api.resend.com/emails';
@@ -229,6 +234,59 @@ export async function sendApplicantApprovedEmail(
     unsubscribeUrl: pre.proceed.unsubscribeUrl,
     signInUrl: args.signInUrl,
     reason: args.reason,
+  });
+  return activeTransport({
+    from: HOWARD_FROM,
+    to: args.to,
+    subject: rendered.subject,
+    html: rendered.html,
+    text: rendered.text,
+    headers: { 'List-Unsubscribe': `<${pre.proceed.unsubscribeUrl}>` },
+    replyTo: 'howard@2ndbrainware.com',
+  });
+}
+
+/**
+ * Internal: send the beta-feedback notification to Howard. Bypasses the
+ * unsubscribe store — same rationale as sendApplicantNotification.
+ */
+export async function sendFeedbackNotification(
+  props: FeedbackNotificationProps,
+  recipient?: string,
+): Promise<SendOutcome> {
+  const to = (recipient ?? process.env.BETA_NOTIFY_EMAIL ?? HOWARD_NOTIFY).trim();
+  if (!to || to.indexOf('@') === -1) {
+    return { status: 'skipped-no-recipient' };
+  }
+  const rendered = renderFeedbackNotification(props);
+  return activeTransport({
+    from: getFromAddress(),
+    to,
+    subject: rendered.subject,
+    html: rendered.html,
+    text: rendered.text,
+  });
+}
+
+interface SendFeedbackReminderArgs extends SendArgsBase {
+  feedbackUrl?: string;
+}
+
+/**
+ * Send the "two-week mark — fancy sharing feedback?" email to an approved
+ * applicant. From Howard, reply-to Howard, so they can reply directly. Same
+ * preflight as the other user-facing sends (unsubscribe respected, no-key
+ * skip, etc.).
+ */
+export async function sendFeedbackReminderEmail(
+  args: SendFeedbackReminderArgs,
+): Promise<SendOutcome> {
+  const pre = await preflightOrSkip(args);
+  if ('skip' in pre) return pre.skip;
+  const rendered = renderFeedbackReminderEmail({
+    firstName: args.firstName,
+    unsubscribeUrl: pre.proceed.unsubscribeUrl,
+    feedbackUrl: args.feedbackUrl,
   });
   return activeTransport({
     from: HOWARD_FROM,

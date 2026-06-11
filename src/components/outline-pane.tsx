@@ -9,7 +9,7 @@ import { MultiSelectToolbar } from './multi-select-toolbar';
 import FileImportDialog from './file-import-dialog';
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Plus, Trash2, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, ChevronsDownUp, Settings, Search, Command, PanelLeft, PanelLeftClose, Brain, StopCircle, Inbox, LayoutDashboard, Focus, Sparkles, Mic, MessageSquare, BookDown, BookUp, Share2, ExternalLink, RefreshCw, MoreHorizontal, HelpCircle } from 'lucide-react';
+import { Plus, Trash2, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, ChevronsDownUp, Settings, Search, Command, PanelLeft, PanelLeftClose, Brain, StopCircle, Inbox, LayoutDashboard, Focus, Sparkles, Mic, MessageSquare, BookDown, BookUp, Share2, ExternalLink, RefreshCw, MoreHorizontal, HelpCircle, Send } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter } from "@/components/ui/alert-dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import SettingsDialog from './settings-dialog';
@@ -1104,6 +1104,21 @@ export default function OutlinePane({
                             <HelpCircle className="mr-2 h-4 w-4" /> Help & Support
                         </DropdownMenuItem>
                     )}
+                    <DropdownMenuItem
+                        onSelect={() => {
+                            // Open the beta-feedback form in a new tab. /feedback is a
+                            // web URL that works whether we're running in Electron
+                            // (opens in default browser) or in the web build.
+                            const url = '/feedback';
+                            if (typeof window !== 'undefined') {
+                                window.open(url, '_blank', 'noopener,noreferrer');
+                            }
+                        }}
+                        className="cursor-pointer py-1"
+                        aria-label="Share feedback (earn 1 year of Pro)"
+                    >
+                        <Send className="mr-2 h-4 w-4" /> Share feedback
+                    </DropdownMenuItem>
                     <DropdownMenuItem
                         onSelect={(e) => {
                             // Open Settings dialog by clicking the hidden trigger.

@@ -35,7 +35,8 @@ export function renderWelcomeEmail(props: WelcomeEmailProps): RenderedEmail {
   ${ctaButton('Open IdiamPro', appUrl)}
 </p>
 <p style="margin:0 0 8px;color:#6B7280;font-size:14px;">Want the tour first?</p>
-<p style="margin:0;font-size:14px;"><a href="${introVideoUrl}" style="color:#007AFF;">Watch the two-minute intro</a></p>
+<p style="margin:0 0 24px;font-size:14px;"><a href="${introVideoUrl}" style="color:#007AFF;">Watch the two-minute intro</a></p>
+<p style="margin:0 0 16px;color:#374151;font-size:14px;">Around the two-week mark I'll send a short feedback form. Filling it out earns you a year of Pro features free — same Pro feature set as paying customers, you just bring your own AI API key so usage costs stay with you. Sharing a quote we can put on the website also earns a Founding User badge inside the app. No pressure either way; the beta access is yours regardless.</p>
 `;
 
   const bodyText = `${hello} — thanks for joining IdiamPro.
@@ -50,7 +51,9 @@ Three quick ways to get going:
 
 3. Watch the two-minute intro: ${introVideoUrl}
 
-Open IdiamPro: ${appUrl}`;
+Open IdiamPro: ${appUrl}
+
+Around the two-week mark I'll send a short feedback form. Filling it out earns you a year of Pro features free — same Pro feature set as paying customers, you just bring your own AI API key so usage costs stay with you. Sharing a quote we can put on the website also earns a Founding User badge inside the app. No pressure either way; the beta access is yours regardless.`;
 
   return wrapEmail({
     subject: 'Welcome to IdiamPro',

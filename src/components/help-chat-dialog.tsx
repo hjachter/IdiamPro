@@ -187,6 +187,15 @@ AUTHENTICATION & ACCOUNTS:
 - Sign-out: click the avatar in the top-right of the app toolbar and pick Sign out. Lands on the homepage [/].
 - Stub-safe pattern: when CLERK_SECRET_KEY and NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY are not set, the middleware logs a single dev warning and lets everyone through. The Account avatar in the toolbar simply doesn't render. As soon as those env vars are set in Vercel the wall goes live in production with no code change.
 
+BETA FEEDBACK FORM (earn 1 year of Pro):
+- The /feedback page lets approved beta users share structured feedback. Submitting earns 1 year of Pro features at no charge — same Pro feature set as paying customers — with one catch: AI usage runs against the user's own API key (BYOK), so the cost stays with them, not Howard.
+- The form has top-line scores (NPS 0-10 + overall stars 1-5, both required), per-killer-feature rows (Multi-source synthesis, 10+ source types, AI-native from day one, True cross-platform, Your data your way, AI Smart Tools, Outline Search, Second Brain — each with stars 1-5, a one-line comment, and a "Didn't try this yet" skip checkbox), open prompts ("single best thing" / "biggest wish"), workflow questions (tool used before, kind of work, usage frequency this week), a testimonial-consent block (Yes/No → attribution choice → optional photo + 30-second video upload), a friction question, and a follow-up-OK checkbox.
+- Sharing a quote we can put on the IdiamPro website earns the user a Founding User badge inside the app (driven by uploading a 30-second video testimonial).
+- Permanent in-app entry point: Help/overflow menu > "Share feedback" opens /feedback in a new tab.
+- 14-day reminder: a daily cron job (/api/cron/feedback-reminder) emails approved applicants who haven't submitted yet, ~14 days after approval. Subject: "Hey [name] — mind sharing five minutes of feedback?". Sent from Howard, reply-to Howard, low-pressure copy.
+- Admin browsing: /admin/feedback (sibling of /admin/applicants) shows every submission with NPS / stars / feature-rating summary, filter chips (All / Testimonial-consented / Public-quotable / Video), search, and a CSV export button. Same v1 admin gate (localStorage.isAdmin === 'true').
+- The welcome email Howard sends on approval mentions the upcoming feedback ask in abstract terms ("around the two-week mark") so the reward isn't a surprise.
+
 INVITE-ONLY ACCESS (beta-applicant approval flow):
 - IdiamPro is in invite-only beta. Every prospective user fills out a short application at /signup and Howard personally approves each one before they can use the app.
 - The application form collects name, email, and an optional "What brings you to IdiamPro?" textarea. Submitting POSTs to /api/applicants/apply, which persists the applicant record (file-based JSON store at .idiampro/applicants.json) and emails Howard at howard@2ndbrainware.com with the details and a deep link to /admin/applicants?focus=[id].

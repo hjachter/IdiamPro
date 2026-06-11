@@ -45,6 +45,9 @@ export interface ApplicantRecord {
   approvedDate?: string;
   /** Howard's free-form notes — only visible in the admin dashboard. */
   notes?: string;
+  /** ISO 8601 string. Set when the 14-day feedback-reminder cron sends the
+   * "mind sharing 5 minutes" email, so we never double-send. */
+  feedbackReminderSentAt?: string;
 }
 
 interface ApplicantFile {
@@ -229,6 +232,24 @@ export async function setApplicantNotes(
   if (!record) return null;
   const trimmed = (notes ?? '').trim();
   record.notes = trimmed.length > 0 ? trimmed : undefined;
+  file.records[id] = record;
+  await writeFileAtomic(path, file);
+  return record;
+}
+
+/**
+ * Mark the 14-day feedback reminder as sent for an applicant. Idempotent on
+ * the timestamp — calling twice keeps the first send-date.
+ */
+export async function markFeedbackReminderSent(
+  id: string,
+): Promise<ApplicantRecord | null> {
+  const path = resolveStorePath();
+  const file = await readFileSafe(path);
+  const record = file.records[id];
+  if (!record) return null;
+  if (record.feedbackReminderSentAt) return record;
+  record.feedbackReminderSentAt = new Date().toISOString();
   file.records[id] = record;
   await writeFileAtomic(path, file);
   return record;
