@@ -2503,3 +2503,257 @@ export async function transcribeAudioAction(input: TranscribeAudioInput): Promis
     return { transcript: '', error: message };
   }
 }
+
+
+// ==========================================================================
+// MULTIMEDIA AI (2026-06-11) — Image-to-Outline + YouTube package generation.
+//
+// These two server actions both use Gemini's multimedia / generation API.
+// They never apply anything to user outlines — they only produce proposals.
+// The renderer dialogs show the preview and only commit on user approval,
+// going through the existing auto-snapshot + derivative-flow protections.
+// ==========================================================================
+
+export interface ImageToOutlineProposedNode {
+  name: string;
+  content?: string;
+  children?: ImageToOutlineProposedNode[];
+}
+
+export interface ImageToOutlineResult {
+  success: boolean;
+  rootLabel?: string;
+  proposedNodes?: ImageToOutlineProposedNode[];
+  provider?: string;
+  error?: string;
+}
+
+/**
+ * Image-to-Outline: send an image (base64 PNG/JPEG) to the AI and parse a
+ * hierarchical outline structure out of it. Use cases: whiteboard photos,
+ * mind maps, diagrams, sticky-note brainstorms, slide screenshots.
+ *
+ * The provider is currently hardcoded to Gemini; the dialog passes through
+ * a future-proof `provider` option so we can route to Claude Vision or
+ * other vision models without changing call sites.
+ */
+export async function imageToOutlineAction(
+  imageBase64: string,
+  context: string = '',
+  provider: 'gemini' = 'gemini',
+  userApiKey?: string | null,
+): Promise<ImageToOutlineResult> {
+  const _provider = provider; // reserved for future provider routing
+  void _provider;
+  const prompt = `You will extract a HIERARCHICAL OUTLINE from this image.
+
+The image may be: a whiteboard photo, a hand-drawn mind map, a diagram, a sticky-note brainstorm, a screenshot of slides or a textbook page, or any other content with implied or visible structure.
+
+${context ? `Context the user gave: ${context}\n\n` : ''}Return ONLY a valid JSON object with this exact shape:
+{
+  "rootLabel": "Short descriptive title for the whole outline",
+  "nodes": [
+    {
+      "name": "Top-level item name (short)",
+      "content": "Optional plain-text body, 1-3 sentences",
+      "children": [
+        { "name": "Child item", "content": "Optional", "children": [] }
+      ]
+    }
+  ]
+}
+
+Rules:
+- Preserve hierarchy you can see in the image (indentation, bullets, branches of a mind map, columns of sticky notes).
+- Keep node names short (under 60 characters when possible).
+- Put longer explanation in "content".
+- If the image is text-heavy (a slide, a page), break it into logical sections instead of dumping everything into one node.
+- Output STRICTLY the JSON object — no markdown fences, no commentary.`;
+
+  // Cloud path (Gemini). Local vision via Ollama is supported by the
+  // describeImageAction pattern but image-to-outline needs structured JSON
+  // output, which the cloud models are far more reliable at. v1: cloud only.
+  try {
+    const key = (userApiKey && userApiKey.trim()) || process.env.GEMINI_API_KEY || '';
+    if (!key) {
+      return {
+        success: false,
+        error: 'No Gemini API key found. Add one in Settings, or set GEMINI_API_KEY in your environment.',
+      };
+    }
+    const genai = new GoogleGenAI({ apiKey: key });
+    const result = await genai.models.generateContent({
+      model: getDefaultGeminiModel('sdk'),
+      contents: [{
+        role: 'user',
+        parts: [
+          { text: prompt },
+          { inlineData: { mimeType: 'image/png', data: imageBase64 } },
+        ],
+      }],
+    });
+    const text = (result.text || '').trim();
+    // Strip optional code fences in case the model wraps despite the rule.
+    const cleaned = text
+      .replace(/^```(?:json)?\s*/i, '')
+      .replace(/\s*```\s*$/i, '')
+      .trim();
+    let parsed: { rootLabel?: string; nodes?: ImageToOutlineProposedNode[] };
+    try {
+      parsed = JSON.parse(cleaned);
+    } catch {
+      return {
+        success: false,
+        error: 'The AI response did not come back as valid JSON. Try again, or use a clearer image.',
+      };
+    }
+    if (!parsed || !Array.isArray(parsed.nodes) || parsed.nodes.length === 0) {
+      return {
+        success: false,
+        error: 'The AI did not detect any structure in the image. Try a clearer or more structured image.',
+      };
+    }
+    return {
+      success: true,
+      rootLabel: parsed.rootLabel || 'Captured from image',
+      proposedNodes: parsed.nodes,
+      provider: 'Gemini 2.0 Flash',
+    };
+  } catch (error) {
+    console.error('Error in imageToOutlineAction:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Image-to-outline failed.',
+    };
+  }
+}
+
+
+export interface YoutubePackageInput {
+  /** The user-facing chapter title (the selected node's name). */
+  chapterName: string;
+  /** Optional plain-text dump of the chapter and its descendants. */
+  chapterContext: string;
+  /** Target duration in seconds. */
+  durationSeconds: 60 | 90 | 120 | 300;
+  /** Stylistic register the user picked. */
+  style: 'tutorial' | 'explainer' | 'promo' | 'story';
+  /** Free-text audience hint (e.g. "developers", "general"). */
+  audience: string;
+  userApiKey?: string | null;
+}
+
+export interface YoutubePackage {
+  voiceoverScript: string;       // Full narration with [shot N] markers + timing cues
+  chapters: string;              // YouTube-style chapter list ("00:00 Intro · 00:15 …")
+  description: string;           // 200-300 word description with chapter markers + keywords
+  titleVariants: string[];       // 5 CTR-optimized title suggestions
+  seoTags: string[];             // 15-20 YouTube tags
+  thumbnailConcept: string;      // Recommended composition (text)
+  brollPrompts: string[];        // Ready-to-paste AI video gen prompts
+  screenRecordingShotList: string[]; // Steps to record in-app demo segments
+}
+
+export interface YoutubePackageResult {
+  success: boolean;
+  package?: YoutubePackage;
+  provider?: string;
+  error?: string;
+}
+
+/**
+ * Generate a complete YouTube content package from a chapter (a selected
+ * node + its descendants). Output: 8 fields, shown in 8 editable tabs.
+ * Future-proofed to support other AI providers via the provider arg.
+ */
+export async function generateYoutubePackageAction(
+  input: YoutubePackageInput,
+): Promise<YoutubePackageResult> {
+  const minutes = input.durationSeconds / 60;
+  const durationLabel = input.durationSeconds < 120
+    ? `${input.durationSeconds} seconds`
+    : `${minutes} minute${minutes === 1 ? '' : 's'}`;
+  const styleHint = ({
+    tutorial: 'step-by-step tutorial that teaches a specific skill',
+    explainer: 'clear explainer that breaks down a concept',
+    promo: 'punchy promotional video that hooks fast and has a CTA',
+    story: 'narrative story-driven format with a beginning, middle, end',
+  } as const)[input.style];
+
+  const prompt = `You are producing a YouTube content package for the chapter "${input.chapterName}".
+
+Target duration: ${durationLabel}.
+Style: ${styleHint}.
+Audience: ${input.audience || 'general'}.
+
+Chapter content the package must cover:
+"""
+${input.chapterContext.slice(0, 8000)}
+"""
+
+Return ONLY a valid JSON object with this exact shape:
+{
+  "voiceoverScript": "Full narration with timing cues and [shot 1], [shot 2] markers inline. Total spoken length should match the target duration when read aloud at normal pace.",
+  "chapters": "YouTube description chapter markers, one per line, format MM:SS Title (e.g. 00:00 Intro)",
+  "description": "200-300 word YouTube description: hook, value summary, chapter markers section, relevant keywords woven in naturally",
+  "titleVariants": ["Title 1", "Title 2", "Title 3", "Title 4", "Title 5"],
+  "seoTags": ["tag1", "tag2", "..."],
+  "thumbnailConcept": "Text description of the recommended thumbnail composition: subject, expression, text overlay, color palette",
+  "brollPrompts": ["AI video gen prompt 1", "prompt 2", "..."],
+  "screenRecordingShotList": ["Step 1 to record", "Step 2", "..."]
+}
+
+Rules:
+- voiceoverScript: include [shot N] markers AND time cues like (0:00-0:08).
+- titleVariants: exactly 5 entries, CTR-optimized but honest.
+- seoTags: 15-20 YouTube tags, lowercase, no leading hash.
+- brollPrompts: 4-8 ready-to-paste prompts for Runway / MagicLight / Sora.
+- screenRecordingShotList: 4-10 concrete recording steps for in-app demo segments.
+- Output STRICTLY the JSON object — no markdown fences, no commentary.`;
+
+  try {
+    const key = (input.userApiKey && input.userApiKey.trim()) || process.env.GEMINI_API_KEY || '';
+    if (!key) {
+      return {
+        success: false,
+        error: 'No Gemini API key found. Add one in Settings, or set GEMINI_API_KEY in your environment.',
+      };
+    }
+    const genai = new GoogleGenAI({ apiKey: key });
+    const result = await genai.models.generateContent({
+      model: getDefaultGeminiModel('sdk'),
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+    });
+    const text = (result.text || '').trim();
+    const cleaned = text
+      .replace(/^```(?:json)?\s*/i, '')
+      .replace(/\s*```\s*$/i, '')
+      .trim();
+    let parsed: Partial<YoutubePackage>;
+    try {
+      parsed = JSON.parse(cleaned);
+    } catch {
+      return {
+        success: false,
+        error: 'The AI response did not come back as valid JSON. Try again.',
+      };
+    }
+    const pkg: YoutubePackage = {
+      voiceoverScript: parsed.voiceoverScript || '',
+      chapters: parsed.chapters || '',
+      description: parsed.description || '',
+      titleVariants: Array.isArray(parsed.titleVariants) ? parsed.titleVariants : [],
+      seoTags: Array.isArray(parsed.seoTags) ? parsed.seoTags : [],
+      thumbnailConcept: parsed.thumbnailConcept || '',
+      brollPrompts: Array.isArray(parsed.brollPrompts) ? parsed.brollPrompts : [],
+      screenRecordingShotList: Array.isArray(parsed.screenRecordingShotList) ? parsed.screenRecordingShotList : [],
+    };
+    return { success: true, package: pkg, provider: 'Gemini 2.0 Flash' };
+  } catch (error) {
+    console.error('Error in generateYoutubePackageAction:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'YouTube package generation failed.',
+    };
+  }
+}

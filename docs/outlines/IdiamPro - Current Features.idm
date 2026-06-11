@@ -1807,7 +1807,9 @@
       "id": "recent-additions-2026-06-04",
       "name": "Recently Added (2026-06-04)",
       "parentId": "0855ebbc-563f-40a1-a524-55b6b5c69833",
-      "childrenIds": [],
+      "childrenIds": [
+        "feat-multimedia-ai-2026-06-11"
+      ],
       "type": "chapter",
       "prefix": "1",
       "isCollapsed": false,
@@ -1877,9 +1879,19 @@
       "type": "document",
       "parentId": "30580a22-8cfe-4f58-856e-e373854e517a",
       "childrenIds": []
+    },
+    "feat-multimedia-ai-2026-06-11": {
+      "id": "feat-multimedia-ai-2026-06-11",
+      "name": "Multimedia AI: Capture from image + YouTube package (2026-06-11)",
+      "content": "<p><strong>Capture from image.</strong> Smart Tools menu > 'Capture from image'. Pick or capture an image (whiteboard photo, mind map, sticky-note board, slide screenshot). Gemini extracts a hierarchical outline structure. Three-panel preview lets the user edit names inline, then 'Add N nodes' appends them as children of the selected node. Auto-snapshot + Cmd+Z + 'Save as new outline' option for full data protection. iOS/Android: an additional 'Take photo' button opens the device camera.</p><p><strong>Share as YouTube package.</strong> Toolbar Export menu > 'Share as YouTube package'. Pick duration (60s / 90s / 2min / 5min), style (Tutorial / Explainer / Promo / Story), and audience hint. Generates 8 outputs at once in editable tabs: voiceover script, chapter list, description, 5 title variants, SEO tags, thumbnail concept, B-roll prompts, and a screen-recording shot list. Export as markdown or save as a new derivative outline.</p><p><strong>One generation each</strong> — both count as ONE generation against the monthly cap, regardless of how many nodes or output sections are produced. BYOK bypasses the cap.</p>",
+      "type": "document",
+      "parentId": "recent-additions-2026-06-04",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
     }
   },
-  "lastModified": 1781155846610,
+  "lastModified": 1718049600000,
   "isGuide": false,
   "_fileSize": 67531,
   "_fileName": "IdiamPro - Current Features.idm",

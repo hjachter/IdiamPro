@@ -138,6 +138,9 @@ interface OutlinePaneProps {
   onOpenReformat?: () => void;
   // Transform outline with AI — whole-subtree structural transformation per natural-language instruction
   onOpenTransformOutline?: () => void;
+  // Multimedia AI (2026-06-11) — Capture from image, Share as YouTube package
+  onOpenImageToOutline?: () => void;
+  onOpenYoutubePackage?: () => void;
   // Double-click child node creation
   onCreateChildNode?: (parentId: string) => void;
   // Edit mode control
@@ -226,6 +229,8 @@ export default function OutlinePane({
   onOpenTranslate,
   onOpenReformat,
   onOpenTransformOutline,
+  onOpenImageToOutline,
+  onOpenYoutubePackage,
   onCreateChildNode,
   justCreatedNodeId,
   editingNodeId,
@@ -1044,6 +1049,16 @@ export default function OutlinePane({
                     >
                         <Share2 className="mr-2 h-4 w-4" /> Share Branch as&hellip;
                     </DropdownMenuItem>
+                    {onOpenYoutubePackage && (
+                        <DropdownMenuItem
+                            onSelect={() => onOpenYoutubePackage?.()}
+                            disabled={!selectedNodeId}
+                            className="cursor-pointer py-1"
+                            title={selectedNodeId ? undefined : 'Select a chapter first'}
+                        >
+                            <ExternalLink className="mr-2 h-4 w-4" /> Share as YouTube package
+                        </DropdownMenuItem>
+                    )}
                     <DropdownMenuItem onSelect={onExportOutline} disabled={!currentOutline} className="cursor-pointer py-1">
                         <FileDown className="mr-2 h-4 w-4" /> Export Current Outline
                     </DropdownMenuItem>
@@ -1524,6 +1539,7 @@ export default function OutlinePane({
               onOpenTranslate={currentOutline?.isGuide ? undefined : onOpenTranslate}
               onOpenReformat={currentOutline?.isGuide ? undefined : onOpenReformat}
               onOpenTransformOutline={currentOutline?.isGuide ? undefined : onOpenTransformOutline}
+              onOpenImageToOutline={currentOutline?.isGuide ? undefined : onOpenImageToOutline}
               onAskAI={onOpenCommandPalette}
               hasSelectedNode={!!selectedNodeId && !currentOutline?.isGuide}
               selectedNodeName={selectedNodeId && currentOutline?.nodes[selectedNodeId]?.name || ''}

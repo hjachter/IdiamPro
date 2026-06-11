@@ -46,6 +46,10 @@ import LiveBooksDialog from './live-books-dialog';
 import TranslateDialog from './translate-dialog';
 import ReformatDialog from './reformat-dialog';
 import TransformOutlineDialog from './transform-outline-dialog';
+import ImageToOutlineDialog, { type ImageToOutlineApplyPayload } from './image-to-outline-dialog';
+import YoutubePackageDialog from './youtube-package-dialog';
+import { insertProposedNodes } from '@/lib/multimedia/insert-proposed-nodes';
+import type { YoutubePackage } from '@/app/actions';
 import { mergeTransformedSubtreeIntoOutline } from '@/lib/transform-outline-helpers';
 import { buildDerivativeOutline, cloneNodesWithSingleContent, deepCloneNodes } from '@/lib/derivation/build-derivative';
 import type { DerivationMode } from './derivation-choice';
@@ -401,6 +405,10 @@ export default function OutlinePro() {
   // Translate (language translation) dialog state — same transform engine
   // as LIVE BOOKS, different transformer (#52). Re-wired 2026-06-04.
   const [isTranslateOpen, setIsTranslateOpen] = useState(false);
+
+  // Multimedia AI dialogs (2026-06-11) — Image-to-Outline + YouTube package.
+  const [isImageToOutlineOpen, setIsImageToOutlineOpen] = useState(false);
+  const [isYoutubePackageOpen, setIsYoutubePackageOpen] = useState(false);
 
   // Transform outline with AI dialog state — whole-subtree structural
   // transformation driven by a plain-language instruction. Scope rule:
@@ -1271,6 +1279,143 @@ export default function OutlinePro() {
         o.id === currentOutlineId && !o.isGuide ? { ...o, nodes: nextNodes } : o
       )
     );
+  }, [currentOutlineId, markNextAction, setOutlines, outlines, toast]);
+
+  // ===== Multimedia AI handlers (2026-06-11) =====================
+  //
+  // Image-to-Outline apply: the dialog hands us a tree of proposed nodes,
+  // a derivation choice, and the original image bytes. We:
+  //   1. Auto-snapshot the target outline (data-protection rule 2)
+  //   2. Register a single undo step via markNextAction (rule 1)
+  //   3. Either append as children of the selected node (default) OR
+  //      build a derivative outline that begins with the proposed tree
+  //
+  // The original image bytes are passed to the apply payload. v1 stores
+  // them in localStorage keyed by sourceImageId so the small node-tree
+  // thumbnail can render without an Electron round-trip. Future work: move
+  // to a .media/ directory next to the outline file via Electron IPC.
+  const handleApplyImageToOutline = useCallback((payload: ImageToOutlineApplyPayload) => {
+    const target = outlines.find(o => o.id === currentOutlineId && !o.isGuide);
+    if (!target || !selectedNodeId) return;
+
+    // Persist the source image (v1: localStorage). The sourceImageId is a
+    // short hash; the data URL is stored under `idiampro:sourceImage:<id>`.
+    const sourceImageId = `img-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+    try {
+      if (typeof window !== 'undefined' && payload.imageBase64) {
+        const dataUrl = `data:${payload.imageMimeType};base64,${payload.imageBase64}`;
+        // Only store if it fits within a reasonable cap to keep localStorage healthy.
+        if (dataUrl.length < 2_500_000) {
+          window.localStorage.setItem(`idiampro:sourceImage:${sourceImageId}`, dataUrl);
+        }
+      }
+    } catch (e) {
+      console.warn('[ImageToOutline] could not persist source image:', e);
+    }
+
+    if (payload.derivation.mode === 'derivative') {
+      // Build a derivative whose root is a fresh single-node tree and apply
+      // the proposed nodes underneath it. The simplest model is: take the
+      // current outline's full nodes, then in a CLONE, append the proposed
+      // tree under the selected node, then mark that clone as the derivative.
+      const { newNodes } = insertProposedNodes(target.nodes, selectedNodeId, payload.proposedNodes, { sourceImageId });
+      const newOutline = buildDerivativeOutline({
+        original: target,
+        transformedNodes: newNodes,
+        transformedRootNodeId: target.rootNodeId,
+        derivationLabel: payload.derivation.label,
+      });
+      markNextAction('Create derivative (Capture from image)');
+      setOutlines(curr => [...curr, newOutline]);
+      setCurrentOutlineId(newOutline.id);
+      toast({
+        title: 'Derivative created',
+        description: `"${newOutline.name}". Original "${target.name}" was not modified.`,
+        duration: 8000,
+      });
+      return;
+    }
+
+    // In-place append.
+    void snapshotBeforeTransform(target, 'Capture from image');
+    markNextAction('Capture from image');
+    const { newNodes, totalInserted } = insertProposedNodes(target.nodes, selectedNodeId, payload.proposedNodes, { sourceImageId });
+    setOutlines(currentOutlines =>
+      currentOutlines.map(o =>
+        o.id === currentOutlineId && !o.isGuide ? { ...o, nodes: newNodes } : o
+      )
+    );
+    toast({
+      title: 'Captured from image',
+      description: `${totalInserted} node${totalInserted === 1 ? '' : 's'} added under "${target.nodes[selectedNodeId]?.name || 'this node'}".`,
+      duration: 10000,
+    });
+  }, [currentOutlineId, selectedNodeId, markNextAction, setOutlines, outlines, toast]);
+
+  // YouTube package: markdown export downloads via a hidden <a>.
+  const handleExportYoutubeMarkdown = useCallback((markdown: string, fileName: string) => {
+    try {
+      const blob = new Blob([markdown], { type: 'text/markdown;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      toast({ title: 'YouTube package saved', description: fileName, duration: 6000 });
+    } catch (e) {
+      console.warn('[YouTubePackage] export failed:', e);
+    }
+  }, [toast]);
+
+  // YouTube package: "Save as new outline" — packages the 8 outputs as a
+  // small derivative outline (one node per output) for easy editing.
+  const handleSaveYoutubeAsOutline = useCallback((chapterName: string, pkg: YoutubePackage) => {
+    const target = outlines.find(o => o.id === currentOutlineId && !o.isGuide);
+    if (!target) return;
+    // Build a tiny node map for the new outline.
+    const rootId = uuidv4();
+    const nodes: NodeMap = {
+      [rootId]: {
+        id: rootId, name: `${chapterName} — YouTube package`, content: '',
+        type: 'root', parentId: null, childrenIds: [],
+        isCollapsed: false, prefix: '',
+      },
+    };
+    const addChild = (name: string, content: string) => {
+      const id = uuidv4();
+      nodes[id] = {
+        id, name, content, type: 'document', parentId: rootId, childrenIds: [],
+        isCollapsed: false, prefix: '',
+        metadata: { createdAt: Date.now(), updatedAt: Date.now() },
+      };
+      (nodes[rootId].childrenIds as string[]).push(id);
+    };
+    addChild('Title variants', pkg.titleVariants.map(t => `<p>${t}</p>`).join(''));
+    addChild('Description', `<p>${pkg.description.replace(/\n/g, '</p><p>')}</p>`);
+    addChild('Chapters', `<pre>${pkg.chapters}</pre>`);
+    addChild('Voiceover script', `<pre>${pkg.voiceoverScript}</pre>`);
+    addChild('Thumbnail concept', `<p>${pkg.thumbnailConcept}</p>`);
+    addChild('SEO tags', `<p>${pkg.seoTags.join(', ')}</p>`);
+    addChild('B-roll prompts', pkg.brollPrompts.map(p => `<p>${p}</p>`).join(''));
+    addChild('Screen-recording shot list', pkg.screenRecordingShotList.map(s => `<p>${s}</p>`).join(''));
+
+    const newOutline = buildDerivativeOutline({
+      original: target,
+      transformedNodes: nodes,
+      transformedRootNodeId: rootId,
+      derivationLabel: 'YouTube package',
+    });
+    markNextAction('Create derivative (YouTube package)');
+    setOutlines(curr => [...curr, newOutline]);
+    setCurrentOutlineId(newOutline.id);
+    toast({
+      title: 'YouTube package saved as outline',
+      description: `"${newOutline.name}"`,
+      duration: 8000,
+    });
   }, [currentOutlineId, markNextAction, setOutlines, outlines, toast]);
 
   // Resolved content the Reformat dialog operates on — either the
@@ -4398,6 +4543,8 @@ export default function OutlinePro() {
             setIsReformatOpen(true);
           }}
           onOpenTransformOutline={() => setIsTransformOutlineOpen(true)}
+          onOpenImageToOutline={() => setIsImageToOutlineOpen(true)}
+          onOpenYoutubePackage={() => setIsYoutubePackageOpen(true)}
           onOpenTemplates={() => setIsTemplatesDialogOpen(true)}
           isGuide={currentOutline?.isGuide ?? false}
           isFocusMode={isFocusMode}
@@ -4438,6 +4585,23 @@ export default function OutlinePro() {
           outline={currentOutline}
           selectedNodeId={selectedNodeId}
           onApply={handleApplyTranslate}
+        />
+
+        <ImageToOutlineDialog
+          open={isImageToOutlineOpen}
+          onOpenChange={setIsImageToOutlineOpen}
+          outline={currentOutline}
+          selectedNodeId={selectedNodeId}
+          onApply={handleApplyImageToOutline}
+        />
+
+        <YoutubePackageDialog
+          open={isYoutubePackageOpen}
+          onOpenChange={setIsYoutubePackageOpen}
+          outline={currentOutline}
+          selectedNodeId={selectedNodeId}
+          onExportMarkdown={handleExportYoutubeMarkdown}
+          onSaveAsOutline={handleSaveYoutubeAsOutline}
         />
 
         <ReformatDialog
@@ -4726,6 +4890,8 @@ export default function OutlinePro() {
                   setIsReformatOpen(true);
                 }}
                 onOpenTransformOutline={() => setIsTransformOutlineOpen(true)}
+          onOpenImageToOutline={() => setIsImageToOutlineOpen(true)}
+          onOpenYoutubePackage={() => setIsYoutubePackageOpen(true)}
                 onCreateChildNode={handleCreateSiblingNode}
                 justCreatedNodeId={justCreatedNodeIdRef.current}
                 editingNodeId={editingNodeId}
@@ -4919,6 +5085,23 @@ export default function OutlinePro() {
         outline={currentOutline}
         selectedNodeId={selectedNodeId}
         onApply={handleApplyTranslate}
+      />
+
+      <ImageToOutlineDialog
+        open={isImageToOutlineOpen}
+        onOpenChange={setIsImageToOutlineOpen}
+        outline={currentOutline}
+        selectedNodeId={selectedNodeId}
+        onApply={handleApplyImageToOutline}
+      />
+
+      <YoutubePackageDialog
+        open={isYoutubePackageOpen}
+        onOpenChange={setIsYoutubePackageOpen}
+        outline={currentOutline}
+        selectedNodeId={selectedNodeId}
+        onExportMarkdown={handleExportYoutubeMarkdown}
+        onSaveAsOutline={handleSaveYoutubeAsOutline}
       />
 
       <ReformatDialog
@@ -5216,6 +5399,8 @@ export default function OutlinePro() {
                   setIsReformatOpen(true);
                 }}
                 onOpenTransformOutline={() => setIsTransformOutlineOpen(true)}
+          onOpenImageToOutline={() => setIsImageToOutlineOpen(true)}
+          onOpenYoutubePackage={() => setIsYoutubePackageOpen(true)}
                 onCreateChildNode={handleCreateSiblingNode}
                 justCreatedNodeId={justCreatedNodeIdRef.current}
                 editingNodeId={editingNodeId}

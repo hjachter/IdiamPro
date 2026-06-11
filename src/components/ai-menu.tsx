@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, FileText, Crown, Loader2, Brain, MessageSquare, Languages, WandSparkles, Wand2 } from 'lucide-react';
+import { Sparkles, FileText, Crown, Loader2, Brain, MessageSquare, Languages, WandSparkles, Wand2, Image as ImageIcon } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useAI, useAIFeature } from '@/contexts/ai-context';
 import AiGenerateDialog from './ai-generate-dialog';
@@ -29,6 +29,7 @@ interface AIMenuProps {
   onOpenTranslate?: () => void;
   onOpenReformat?: () => void;
   onOpenTransformOutline?: () => void;
+  onOpenImageToOutline?: () => void;
   onAskAI?: () => void;
   hasSelectedNode?: boolean;
   selectedNodeName?: string;
@@ -43,6 +44,7 @@ export default function AIMenu({
   onOpenTranslate,
   onOpenReformat,
   onOpenTransformOutline,
+  onOpenImageToOutline,
   onAskAI,
   hasSelectedNode,
   selectedNodeName,
@@ -134,6 +136,13 @@ export default function AIMenu({
           <DropdownMenuItem onSelect={onOpenTransformOutline} className="cursor-pointer">
             <Wand2 className="mr-2 h-4 w-4 text-fuchsia-500 dark:text-fuchsia-400" />
             Transform outline with AI…
+          </DropdownMenuItem>
+        )}
+
+        {onOpenImageToOutline && hasSelectedNode && (
+          <DropdownMenuItem onSelect={onOpenImageToOutline} className="cursor-pointer">
+            <ImageIcon className="mr-2 h-4 w-4 text-sky-500 dark:text-sky-400" />
+            Capture from image
           </DropdownMenuItem>
         )}
 

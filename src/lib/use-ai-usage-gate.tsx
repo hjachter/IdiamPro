@@ -61,7 +61,9 @@ export type AIFeatureKey =
   | 'generateOutline'
   | 'expandContent'
   | 'podcastGeneration'
-  | 'imageGeneration';
+  | 'imageGeneration'
+  | 'imageToOutline'
+  | 'youtubePackage';
 
 export interface AIGateOptions {
   /** Which feature is being invoked — used for the Pro-only check + toast. */

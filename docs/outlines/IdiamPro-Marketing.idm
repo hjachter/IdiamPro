@@ -2,7 +2,7 @@
   "id": "marketing-outline-v2",
   "name": "IdiamPro Marketing 2",
   "rootNodeId": "root",
-  "lastModified": 1781164787813,
+  "lastModified": 1718049600000,
   "nodes": {
     "root": {
       "id": "root",
@@ -12,6 +12,7 @@
       "parentId": null,
       "childrenIds": [
         "overview",
+        "feat-multimedia-shipped-2026-06-11",
         "platforms",
         "requirements",
         "features",
@@ -1068,6 +1069,16 @@
       "isCollapsed": false,
       "prefix": "11.1.2",
       "linkedOutlineId": "biz-dev-2026"
+    },
+    "feat-multimedia-shipped-2026-06-11": {
+      "id": "feat-multimedia-shipped-2026-06-11",
+      "name": "Multimedia AI shipped (2026-06-11)",
+      "content": "<p><strong>Previously planned for v1.1 — now shipping in v1.</strong></p><p><strong>1. Capture from image.</strong> Take a photo of any whiteboard, mind map, or sticky-note brainstorm — IdiamPro extracts a structured outline from it. Hand-drawn diagrams, sticky-note storms, slide screenshots, textbook pages — all turn into editable hierarchies in seconds. Three-panel preview lets you edit names before committing. Available on every platform; iOS adds a native camera button.</p><p><strong>2. Share as YouTube package.</strong> Turn any chapter of an outline into a complete YouTube content package: voiceover script with shot markers, chapter list, description, 5 title variants, SEO tags, thumbnail concept, B-roll prompts ready for Runway / MagicLight / Sora, and a screen-recording shot list. Export as markdown or save as a new outline.</p><p><strong>Why it matters for positioning:</strong> 'Outliner that turns your napkin sketch into a YouTube script' is a sharper differentiator than any of the original v1 messaging. Both features fit the 'Premier Idea Developer' tagline directly — capture an idea, develop it, ship it.</p>",
+      "type": "document",
+      "parentId": "root",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
     }
   },
   "isGuide": false,
