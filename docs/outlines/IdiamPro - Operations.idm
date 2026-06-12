@@ -219,6 +219,7 @@
       "type": "chapter",
       "parentId": "root-ops",
       "childrenIds": [
+        "email-plain-english-refresher-2026-06-11",
         "email-onboarding-drip",
         "email-templates-location",
         "email-send-infra",
@@ -226,6 +227,16 @@
       ],
       "isCollapsed": true,
       "prefix": "4"
+    },
+    "email-plain-english-refresher-2026-06-11": {
+      "id": "email-plain-english-refresher-2026-06-11",
+      "name": "Plain-English Refresher: How Email Plumbing Works",
+      "content": "<p><strong>How the email system works (plain English):</strong></p><p><strong>The five pieces:</strong></p><ul><li><strong>2ndbrainware.com</strong> — your domain name. The street address of your business on the internet.</li><li><strong>Namecheap</strong> — where you bought the domain. Also where you control its \"phone book\" — the DNS — which tells the rest of the world where your website lives and where your email lives.</li><li><strong>Vercel</strong> — the company that runs your website's computers. When someone types 2ndbrainware.com, Vercel hands them the page.</li><li><strong>PrivateEmail</strong> — your business mailbox. Think of it as a P.O. box at Namecheap that receives mail addressed to howard@2ndbrainware.com.</li><li><strong>Upstash</strong> — a tiny database that remembers who applied to your beta. Like a notebook that's always synced.</li></ul><p><strong>What happens when someone signs up:</strong></p><ol><li>They visit <strong>2ndbrainware.com</strong> in their browser. Vercel sends them the marketing page.</li><li>They fill out the signup form (name, email, \"what brings you here\") and click submit.</li><li>A small program on Vercel catches the form data. It does two things in order: writes the applicant's name and email into <strong>Upstash</strong> (so you have a permanent record), then it tells <strong>PrivateEmail</strong> (through a behind-the-scenes service called SMTP — basically the email pipeline) to send YOU a notification email.</li><li>PrivateEmail delivers the email to <strong>howard@2ndbrainware.com</strong>. It arrives in your mailbox within seconds.</li><li>You open the mailbox (via the webmail shortcut on your Desktop) and see who applied.</li></ol><p><strong>The same pieces handle approval too:</strong> when you click \"Approve\" in the admin dashboard, Vercel asks PrivateEmail to send the new user a \"welcome to the beta\" email. Same path.</p><p>Five companies, three for the website + one for the mailbox + one for the database. Each does one thing.</p><p><strong>Set up 2026-06-11</strong> during a single working session including: pointing 2ndbrainware.com DNS at Vercel, configuring PrivateEmail MX records via Namecheap's MAIL SETTINGS, provisioning Upstash KV in Vercel's Storage tab, swapping the email sender from Resend to PrivateEmail SMTP via nodemailer, and migrating file-based JSON storage to Upstash KV.</p>",
+      "type": "document",
+      "parentId": "ops-email-comms",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "4.0"
     },
     "email-onboarding-drip": {
       "id": "email-onboarding-drip",
