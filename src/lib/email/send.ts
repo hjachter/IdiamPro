@@ -1,17 +1,21 @@
 /**
- * Email send wrapper — thin layer over the Resend HTTP API.
+ * Email send wrapper — thin layer over an SMTP transport (nodemailer).
  *
  * Design notes:
  *
- * 1. NO SDK DEPENDENCY. We hit Resend's REST endpoint directly with fetch.
- *    This keeps the dependency footprint at zero new packages and means
- *    `npm install` is not required for this feature to ship. Swap in the
- *    official `resend` SDK later if we ever need streaming / batch APIs.
+ * 1. SMTP TRANSPORT VIA NODEMAILER. Howard's PrivateEmail mailbox on
+ *    Namecheap is the production sender. Resend was the previous backend
+ *    but its DKIM verification path required swapping MX records, which
+ *    the Namecheap Mail Settings UI made a lock-step migration we didn't
+ *    want to take. SMTP through PrivateEmail "just works" with the same
+ *    DNS we already have for inbox mail.
  *
- * 2. ENV-GATED. Every send is gated on RESEND_API_KEY being non-empty.
- *    With no key set the functions log "[email/send] Resend not configured
- *    — skipping" and return successfully. This means signup, the webhook,
- *    and the cron job all keep working in dev with zero configuration.
+ * 2. ENV-GATED. Every send is gated on SMTP_HOST + SMTP_USER + SMTP_PASS
+ *    all being non-empty. With any of those missing the functions log
+ *    "[email/send] SMTP not configured — skipping" and return
+ *    successfully. This means signup, the webhook, and the cron job all
+ *    keep working in dev with zero configuration — same stub-safe
+ *    behaviour the old Resend wrapper had.
  *
  * 3. UNSUBSCRIBED USERS NEVER GET EMAILED. Every send pulls the user's
  *    unsubscribed flag from the local store before composing the message.
@@ -19,10 +23,18 @@
  *    accidentally bypass it.
  *
  * 4. TEST HOOK. Tests can replace the sender by calling
- *    `_setResendTransportForTest(fn)` with a function that captures the
- *    payload. This avoids needing a real Resend account just to assert
- *    "we attempted to send the welcome email."
+ *    `_setEmailTransportForTest(fn)` with a function that captures the
+ *    payload. This avoids needing a real mailbox just to assert
+ *    "we attempted to send the welcome email." The legacy
+ *    `_setResendTransportForTest` name is re-exported as an alias so
+ *    existing tests keep compiling.
+ *
+ * 5. TRANSPORTER REUSE. The nodemailer transporter is created lazily on
+ *    first send and then cached at module scope — recreating per-message
+ *    would re-do the TLS handshake on every email.
  */
+
+import nodemailer, { type Transporter } from 'nodemailer';
 
 import {
   isUnsubscribed,
@@ -44,7 +56,6 @@ import {
 import { renderFeedbackReminderEmail } from '@/emails/feedback-reminder';
 
 const DEFAULT_FROM = 'IdiamPro <welcome@2ndbrainware.com>';
-const RESEND_ENDPOINT = 'https://api.resend.com/emails';
 
 /**
  * The email address Howard's beta-applicant approval notes are sent from.
@@ -57,23 +68,24 @@ const HOWARD_FROM = 'Howard at IdiamPro <howard@2ndbrainware.com>';
 const HOWARD_NOTIFY = 'howard@2ndbrainware.com';
 
 export interface SendOutcome {
-  /** "sent": Resend accepted the payload. */
-  /** "skipped-no-key": RESEND_API_KEY missing (dev / not configured). */
+  /** "sent": SMTP server accepted the message. */
+  /** "skipped-no-smtp": SMTP env vars missing (dev / not configured). */
+  /** "skipped-no-key": legacy alias kept for callers checking the old string. */
   /** "skipped-unsubscribed": user has opted out. */
   /** "skipped-no-recipient": no `to` address. */
-  /** "error": Resend rejected the payload or network failed. */
-  status: 'sent' | 'skipped-no-key' | 'skipped-unsubscribed' | 'skipped-no-recipient' | 'error';
-  /** Resend's message id, only present on status === 'sent'. */
+  /** "error": SMTP rejected the payload or network failed. */
+  status: 'sent' | 'skipped-no-smtp' | 'skipped-no-key' | 'skipped-unsubscribed' | 'skipped-no-recipient' | 'error';
+  /** Message id reported by the SMTP server, only present on status === 'sent'. */
   id?: string;
   /** Human-readable error description, present on status === 'error'. */
   error?: string;
 }
 
-export interface ResendTransport {
-  (payload: ResendPayload): Promise<SendOutcome>;
+export interface EmailTransport {
+  (payload: EmailPayload): Promise<SendOutcome>;
 }
 
-export interface ResendPayload {
+export interface EmailPayload {
   from: string;
   to: string;
   subject: string;
@@ -84,51 +96,93 @@ export interface ResendPayload {
   replyTo?: string;
 }
 
-// Module-level transport so tests can swap it without monkey-patching fetch.
-let activeTransport: ResendTransport = realResendTransport;
+/** Legacy type aliases — kept so existing callers/tests keep compiling. */
+export type ResendTransport = EmailTransport;
+export type ResendPayload = EmailPayload;
 
-async function realResendTransport(payload: ResendPayload): Promise<SendOutcome> {
-  const apiKey = (process.env.RESEND_API_KEY ?? '').trim();
-  if (apiKey.length === 0) {
-    console.info('[email/send] Resend not configured — skipping email send.');
-    return { status: 'skipped-no-key' };
+// Module-level transport so tests can swap it without monkey-patching SMTP.
+let activeTransport: EmailTransport = realSmtpTransport;
+
+// Cached nodemailer transporter, built lazily on first real send.
+let cachedTransporter: Transporter | null = null;
+let cachedTransporterKey = '';
+
+function buildTransporterKey(host: string, port: number, user: string): string {
+  return `${host}:${port}:${user}`;
+}
+
+function getTransporter(host: string, port: number, user: string, pass: string): Transporter {
+  const key = buildTransporterKey(host, port, user);
+  if (cachedTransporter && cachedTransporterKey === key) {
+    return cachedTransporter;
   }
+  // Port 465 → implicit TLS. Port 587 (and anything else) → STARTTLS upgrade.
+  const secure = port === 465;
+  cachedTransporter = nodemailer.createTransport({
+    host,
+    port,
+    secure,
+    auth: { user, pass },
+  });
+  cachedTransporterKey = key;
+  return cachedTransporter;
+}
+
+async function realSmtpTransport(payload: EmailPayload): Promise<SendOutcome> {
+  const host = (process.env.SMTP_HOST ?? '').trim();
+  const user = (process.env.SMTP_USER ?? '').trim();
+  const pass = (process.env.SMTP_PASS ?? '').trim();
+  const portRaw = (process.env.SMTP_PORT ?? '465').trim();
+  const port = Number.parseInt(portRaw, 10) || 465;
+
+  if (host.length === 0 || user.length === 0 || pass.length === 0) {
+    console.info('[email/send] SMTP not configured — skipping email send.');
+    return { status: 'skipped-no-smtp' };
+  }
+
   try {
-    const res = await fetch(RESEND_ENDPOINT, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: payload.from,
-        to: payload.to,
-        subject: payload.subject,
-        html: payload.html,
-        text: payload.text,
-        headers: payload.headers ?? {},
-        ...(payload.replyTo ? { reply_to: payload.replyTo } : {}),
-      }),
+    const transporter = getTransporter(host, port, user, pass);
+    const info = await transporter.sendMail({
+      from: payload.from,
+      to: payload.to,
+      subject: payload.subject,
+      html: payload.html,
+      text: payload.text,
+      headers: payload.headers ?? {},
+      ...(payload.replyTo ? { replyTo: payload.replyTo } : {}),
     });
-    if (!res.ok) {
-      const body = await res.text().catch(() => '');
-      return { status: 'error', error: `Resend ${res.status}: ${body.slice(0, 200)}` };
-    }
-    const json = (await res.json().catch(() => ({}))) as { id?: string };
-    return { status: 'sent', id: json.id };
+    return { status: 'sent', id: info.messageId };
   } catch (err) {
     return { status: 'error', error: String((err as Error)?.message ?? err) };
   }
 }
 
 /** Replace the active transport. Test-only. */
-export function _setResendTransportForTest(fn: ResendTransport | null): void {
-  activeTransport = fn ?? realResendTransport;
+export function _setEmailTransportForTest(fn: EmailTransport | null): void {
+  activeTransport = fn ?? realSmtpTransport;
+}
+
+/** Legacy alias — kept so existing tests that import the old name compile. */
+export function _setResendTransportForTest(fn: EmailTransport | null): void {
+  _setEmailTransportForTest(fn);
 }
 
 function getFromAddress(): string {
   const fromEnv = (process.env.EMAIL_FROM ?? '').trim();
-  return fromEnv.length > 0 ? fromEnv : DEFAULT_FROM;
+  if (fromEnv.length > 0) return fromEnv;
+  // Fall back to the SMTP_USER mailbox (RFC-recommended: the From address
+  // should match an address the SMTP user is authorised to send from).
+  const smtpUser = (process.env.SMTP_USER ?? '').trim();
+  if (smtpUser.length > 0) return smtpUser;
+  return DEFAULT_FROM;
+}
+
+function getAdminNotifyAddress(): string {
+  const envOverride = (process.env.EMAIL_TO_ADMIN ?? '').trim();
+  if (envOverride.length > 0) return envOverride;
+  const legacy = (process.env.BETA_NOTIFY_EMAIL ?? '').trim();
+  if (legacy.length > 0) return legacy;
+  return HOWARD_NOTIFY;
 }
 
 interface SendArgsBase {
@@ -183,14 +237,14 @@ interface SendDripArgs extends SendArgsBase {
  * mail — it bypasses the unsubscribe store (Howard would never unsubscribe
  * himself from these and the bookkeeping cost would just slow signup).
  *
- * Stub-safe: with RESEND_API_KEY unset, returns 'skipped-no-key' just like
+ * Stub-safe: with SMTP env vars unset, returns 'skipped-no-smtp' just like
  * every other send.
  */
 export async function sendApplicantNotification(
   props: ApplicantNotificationProps,
   recipient?: string,
 ): Promise<SendOutcome> {
-  const to = (recipient ?? process.env.BETA_NOTIFY_EMAIL ?? HOWARD_NOTIFY).trim();
+  const to = (recipient ?? getAdminNotifyAddress()).trim();
   if (!to || to.indexOf('@') === -1) {
     return { status: 'skipped-no-recipient' };
   }
@@ -254,7 +308,7 @@ export async function sendFeedbackNotification(
   props: FeedbackNotificationProps,
   recipient?: string,
 ): Promise<SendOutcome> {
-  const to = (recipient ?? process.env.BETA_NOTIFY_EMAIL ?? HOWARD_NOTIFY).trim();
+  const to = (recipient ?? getAdminNotifyAddress()).trim();
   if (!to || to.indexOf('@') === -1) {
     return { status: 'skipped-no-recipient' };
   }
