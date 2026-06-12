@@ -1,26 +1,24 @@
 /**
- * Feedback store — file-based JSON record of every beta-feedback submission.
+ * Feedback store — durable record of every beta-feedback submission.
  *
  * The beta-feedback form (/feedback) collects NPS, per-feature ratings,
  * open-ended responses, workflow context, testimonial consent, and friction
  * questions. Submitting unlocks a 1-year Pro entitlement for the user.
  *
- * Same atomic-write JSON pattern as src/lib/access/applicant-store.ts and
- * src/lib/email/unsubscribe-store.ts — zero new dependencies, swappable to a
- * real DB later without touching callers (everyone talks to the exported
- * functions). Storage location:
- *   - Set IDIAMPRO_FEEDBACK_STORE_PATH to an absolute path to override.
- *   - Default: `.idiampro/feedback.json` under the process cwd.
+ * Storage routes through `src/lib/storage/adapter.ts`. In production
+ * (Vercel) that's Vercel KV / Upstash Redis when `KV_REST_API_URL` +
+ * `KV_REST_API_TOKEN` are set. In Electron / dev / test it's atomic-write
+ * JSON files under `.idiampro/`. Same public API either way.
  *
- * NOTE on persistence in serverless: on Vercel, .idiampro/* lives in the
- * function's ephemeral filesystem. The applicant store already accepts this
- * tradeoff for v1 (small launch volume, swap to KV/Postgres later). We follow
- * the same contract here.
+ * Key layout:
+ *   - `feedback:<id>`              one FeedbackRecord per id
+ *   - `feedback:all`               set/index of all feedback ids
+ *   - `feedback-user:<userId>`     reverse-lookup id by user id (one
+ *                                  submission per user — idempotent)
  */
 
-import { promises as fs } from 'fs';
-import { dirname, join } from 'path';
 import { randomUUID } from 'crypto';
+import { getStorage } from '../storage/adapter';
 import {
   FEEDBACK_FEATURE_KEYS,
   FEEDBACK_FEATURE_LABELS,
@@ -41,47 +39,9 @@ export type {
   TestimonialAttribution,
 };
 
-interface FeedbackFile {
-  version: 1;
-  records: Record<string, FeedbackRecord>;
-}
-
-const FILE_VERSION = 1;
-
-function resolveStorePath(): string {
-  const override = (process.env.IDIAMPRO_FEEDBACK_STORE_PATH ?? '').trim();
-  if (override.length > 0) return override;
-  return join(process.cwd(), '.idiampro', 'feedback.json');
-}
-
-async function readFileSafe(path: string): Promise<FeedbackFile> {
-  try {
-    const raw = await fs.readFile(path, 'utf8');
-    const parsed = JSON.parse(raw) as FeedbackFile;
-    if (parsed && parsed.version === FILE_VERSION && parsed.records) {
-      return parsed;
-    }
-  } catch (err) {
-    if ((err as NodeJS.ErrnoException).code !== 'ENOENT') {
-      // eslint-disable-next-line no-console
-      console.warn(
-        '[feedback-store] could not read existing store, starting fresh:',
-        err,
-      );
-    }
-  }
-  return { version: FILE_VERSION, records: {} };
-}
-
-async function writeFileAtomic(
-  path: string,
-  data: FeedbackFile,
-): Promise<void> {
-  await fs.mkdir(dirname(path), { recursive: true });
-  const tmp = `${path}.tmp`;
-  await fs.writeFile(tmp, JSON.stringify(data, null, 2), 'utf8');
-  await fs.rename(tmp, path);
-}
+const KEY_FEEDBACK = (id: string) => `feedback:${id}`;
+const KEY_INDEX = 'feedback:all';
+const KEY_USER_LOOKUP = (userId: string) => `feedback-user:${userId}`;
 
 export interface CreateFeedbackArgs {
   userId: string;
@@ -109,11 +69,7 @@ export async function createFeedback(
   args: CreateFeedbackArgs,
 ): Promise<FeedbackRecord> {
   if (!args.userId) throw new Error('A user id is required.');
-  if (
-    !Number.isFinite(args.nps) ||
-    args.nps < 0 ||
-    args.nps > 10
-  ) {
+  if (!Number.isFinite(args.nps) || args.nps < 0 || args.nps > 10) {
     throw new Error('NPS must be between 0 and 10.');
   }
   if (
@@ -124,12 +80,13 @@ export async function createFeedback(
     throw new Error('Overall stars must be between 1 and 5.');
   }
 
-  const path = resolveStorePath();
-  const file = await readFileSafe(path);
+  const storage = getStorage();
 
-  // Idempotent on userId — re-submitting the form doesn't create a second record.
-  for (const existing of Object.values(file.records)) {
-    if (existing.userId === args.userId) return existing;
+  // Idempotent on userId — re-submitting the form returns the original record.
+  const existingId = await storage.get<string>(KEY_USER_LOOKUP(args.userId));
+  if (existingId) {
+    const existing = await storage.get<FeedbackRecord>(KEY_FEEDBACK(existingId));
+    if (existing) return existing;
   }
 
   const record: FeedbackRecord = {
@@ -156,8 +113,9 @@ export async function createFeedback(
     followUpOk: args.followUpOk === true,
   };
 
-  file.records[record.id] = record;
-  await writeFileAtomic(path, file);
+  await storage.set(KEY_FEEDBACK(record.id), record);
+  await storage.set(KEY_USER_LOOKUP(args.userId), record.id);
+  await storage.setAdd(KEY_INDEX, record.id);
   return record;
 }
 
@@ -171,11 +129,10 @@ export async function getFeedbackByUserId(
   userId: string,
 ): Promise<FeedbackRecord | null> {
   if (!userId) return null;
-  const file = await readFileSafe(resolveStorePath());
-  for (const r of Object.values(file.records)) {
-    if (r.userId === userId) return r;
-  }
-  return null;
+  const storage = getStorage();
+  const id = await storage.get<string>(KEY_USER_LOOKUP(userId));
+  if (!id) return null;
+  return storage.get<FeedbackRecord>(KEY_FEEDBACK(id));
 }
 
 /** Get a feedback record by id, or null. */
@@ -183,32 +140,38 @@ export async function getFeedbackById(
   id: string,
 ): Promise<FeedbackRecord | null> {
   if (!id) return null;
-  const file = await readFileSafe(resolveStorePath());
-  return file.records[id] ?? null;
+  return getStorage().get<FeedbackRecord>(KEY_FEEDBACK(id));
 }
 
 /** Return every feedback record, newest first. */
 export async function listFeedback(): Promise<FeedbackRecord[]> {
-  const file = await readFileSafe(resolveStorePath());
-  return Object.values(file.records).sort((a, b) =>
-    b.submittedAt.localeCompare(a.submittedAt),
-  );
+  const storage = getStorage();
+  const ids = await storage.setMembers(KEY_INDEX);
+  if (ids.length === 0) return [];
+  const records: FeedbackRecord[] = [];
+  for (const id of ids) {
+    const r = await storage.get<FeedbackRecord>(KEY_FEEDBACK(id));
+    if (r) records.push(r);
+  }
+  return records.sort((a, b) => b.submittedAt.localeCompare(a.submittedAt));
 }
 
 /** Set of user ids that have submitted feedback. */
 export async function getFeedbackUserIds(): Promise<Set<string>> {
-  const file = await readFileSafe(resolveStorePath());
+  const records = await listFeedback();
   const out = new Set<string>();
-  for (const r of Object.values(file.records)) out.add(r.userId);
+  for (const r of records) out.add(r.userId);
   return out;
 }
 
 /** Test-only: wipe the store. */
 export async function _resetFeedbackStoreForTest(): Promise<void> {
-  const path = resolveStorePath();
-  try {
-    await fs.unlink(path);
-  } catch (err) {
-    if ((err as NodeJS.ErrnoException).code !== 'ENOENT') throw err;
+  const storage = getStorage();
+  const ids = await storage.setMembers(KEY_INDEX);
+  for (const id of ids) {
+    const rec = await storage.get<FeedbackRecord>(KEY_FEEDBACK(id));
+    if (rec) await storage.delete(KEY_USER_LOOKUP(rec.userId));
+    await storage.delete(KEY_FEEDBACK(id));
+    await storage.setRemove(KEY_INDEX, id);
   }
 }

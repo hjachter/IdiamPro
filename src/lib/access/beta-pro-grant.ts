@@ -12,19 +12,17 @@
  *     - founding_user:          boolean — true when a video testimonial was
  *                                uploaded (drives the in-app badge)
  *
- *  2. Local stub-mode mirror: in dev / when Clerk isn't configured we write
- *     the same shape to .idiampro/beta-pro-grants.json so the rest of the
- *     app can read the override without depending on Clerk. The tier
- *     resolution layer (src/lib/entitlements) currently no-ops with
+ *  2. Local mirror via the storage adapter (KV in prod, JSON file in dev).
+ *     The tier resolution layer (src/lib/entitlements) currently no-ops with
  *     enforcement off — so this mirror is forward-compatible scaffolding
- *     rather than a live restriction.
+ *     rather than a live restriction. One record per user id at
+ *     `pro-grant:<userId>`.
  *
  * Stub-safe in every case. With CLERK_SECRET_KEY unset, the Clerk-update path
  * skips quietly (no error) and only the local mirror is written.
  */
 
-import { promises as fs } from 'fs';
-import { dirname, join } from 'path';
+import { getStorage } from '../storage/adapter';
 import type { TestimonialAttribution } from './feedback-store';
 
 /** One calendar year in ms. We use 365 days deliberately; the small leap-day
@@ -48,39 +46,7 @@ export interface BetaProGrant {
   grantedAt: string;
 }
 
-interface GrantsFile {
-  version: 1;
-  records: Record<string, BetaProGrant>;
-}
-
-const FILE_VERSION = 1;
-
-function resolveStorePath(): string {
-  const override = (process.env.IDIAMPRO_BETA_PRO_STORE_PATH ?? '').trim();
-  if (override.length > 0) return override;
-  return join(process.cwd(), '.idiampro', 'beta-pro-grants.json');
-}
-
-async function readFileSafe(path: string): Promise<GrantsFile> {
-  try {
-    const raw = await fs.readFile(path, 'utf8');
-    const parsed = JSON.parse(raw) as GrantsFile;
-    if (parsed && parsed.version === FILE_VERSION && parsed.records) return parsed;
-  } catch (err) {
-    if ((err as NodeJS.ErrnoException).code !== 'ENOENT') {
-      // eslint-disable-next-line no-console
-      console.warn('[beta-pro-grant] could not read existing store:', err);
-    }
-  }
-  return { version: FILE_VERSION, records: {} };
-}
-
-async function writeFileAtomic(path: string, data: GrantsFile): Promise<void> {
-  await fs.mkdir(dirname(path), { recursive: true });
-  const tmp = `${path}.tmp`;
-  await fs.writeFile(tmp, JSON.stringify(data, null, 2), 'utf8');
-  await fs.rename(tmp, path);
-}
+const KEY_GRANT = (userId: string) => `pro-grant:${userId}`;
 
 export interface GrantBetaProArgs {
   userId: string;
@@ -92,9 +58,9 @@ export interface GrantBetaProArgs {
 /**
  * Issue the "1 year of Pro" reward for a beta-feedback submission.
  *
- * Always writes the local stub mirror. Attempts the Clerk publicMetadata
- * update too — if Clerk isn't configured (no secret key), that step quietly
- * no-ops.
+ * Always writes the local mirror via the storage adapter. Attempts the Clerk
+ * publicMetadata update too — if Clerk isn't configured (no secret key),
+ * that step quietly no-ops.
  */
 export async function grantBetaProForFeedback(
   args: GrantBetaProArgs,
@@ -115,10 +81,7 @@ export async function grantBetaProForFeedback(
   };
 
   // Write local mirror (always safe, never blocks on external services).
-  const path = resolveStorePath();
-  const file = await readFileSafe(path);
-  file.records[args.userId] = grant;
-  await writeFileAtomic(path, file);
+  await getStorage().set(KEY_GRANT(args.userId), grant);
 
   // Best-effort Clerk publicMetadata update.
   await tryUpdateClerkMetadata(grant);
@@ -131,8 +94,7 @@ export async function getBetaProGrant(
   userId: string,
 ): Promise<BetaProGrant | null> {
   if (!userId) return null;
-  const file = await readFileSafe(resolveStorePath());
-  return file.records[userId] ?? null;
+  return getStorage().get<BetaProGrant>(KEY_GRANT(userId));
 }
 
 /**

@@ -1,30 +1,31 @@
 /**
- * Applicant store — file-based JSON record of every beta applicant.
+ * Applicant store — durable record of every beta applicant.
  *
  * IdiamPro's beta is invite-only: prospective users submit an application
  * at /signup, Howard reviews each one in the /admin/applicants dashboard,
  * and the act of clicking "Approve" both adds the email to the allowlist
  * AND triggers a welcome email. This module is the durable storage layer.
  *
- * v1 storage: a JSON file written atomically (write to .tmp, then rename),
- * keyed by applicant id. Same pattern as src/lib/email/unsubscribe-store.ts
- * — proven, zero new dependencies, swappable to a real DB later without
- * touching any caller (every caller talks to the exported functions).
+ * Storage: routes through `src/lib/storage/adapter.ts`. In production
+ * (Vercel) that's Vercel KV / Upstash Redis when `KV_REST_API_URL` +
+ * `KV_REST_API_TOKEN` are set. In Electron / dev / test it's atomic-write
+ * JSON files under `.idiampro/`. Same public API either way; callers don't
+ * know or care which backend serves the request.
  *
- * Storage location:
- *   - Set IDIAMPRO_APPLICANT_STORE_PATH to an absolute path to override.
- *   - Default: `.idiampro/applicants.json` under the process cwd.
+ * Key layout:
+ *   - `applicant:<id>`           one ApplicantRecord per id
+ *   - `applicants:all`           set/index of all applicant ids
+ *   - `applicant-email:<email>`  reverse-lookup id by normalized email
  *
  * The allowlist (src/lib/access/allowlist.ts) is still the single source
  * of truth for "is this email allowed to sign up?". When Howard approves
  * an applicant, two things happen: we set the record's status to "approved"
- * here, AND we add the email to the dynamic allowlist (allowlist.ts learns
- * about approved emails via getApprovedApplicantEmails()).
+ * here, AND the allowlist learns about approved emails via
+ * getApprovedApplicantEmails().
  */
 
-import { promises as fs } from 'fs';
-import { dirname, join } from 'path';
 import { randomUUID } from 'crypto';
+import { getStorage } from '../storage/adapter';
 
 export type ApplicantStatus = 'pending' | 'approved' | 'rejected';
 
@@ -50,50 +51,12 @@ export interface ApplicantRecord {
   feedbackReminderSentAt?: string;
 }
 
-interface ApplicantFile {
-  version: 1;
-  records: Record<string, ApplicantRecord>;
-}
-
-const FILE_VERSION = 1;
-
-function resolveStorePath(): string {
-  const override = (process.env.IDIAMPRO_APPLICANT_STORE_PATH ?? '').trim();
-  if (override.length > 0) return override;
-  return join(process.cwd(), '.idiampro', 'applicants.json');
-}
+const KEY_APPLICANT = (id: string) => `applicant:${id}`;
+const KEY_INDEX = 'applicants:all';
+const KEY_EMAIL_LOOKUP = (email: string) => `applicant-email:${email}`;
 
 function normalizeEmail(email: string): string {
   return (email ?? '').trim().toLowerCase();
-}
-
-async function readFileSafe(path: string): Promise<ApplicantFile> {
-  try {
-    const raw = await fs.readFile(path, 'utf8');
-    const parsed = JSON.parse(raw) as ApplicantFile;
-    if (parsed && parsed.version === FILE_VERSION && parsed.records) {
-      return parsed;
-    }
-  } catch (err) {
-    if ((err as NodeJS.ErrnoException).code !== 'ENOENT') {
-      // eslint-disable-next-line no-console
-      console.warn(
-        '[applicant-store] could not read existing store, starting fresh:',
-        err,
-      );
-    }
-  }
-  return { version: FILE_VERSION, records: {} };
-}
-
-async function writeFileAtomic(
-  path: string,
-  data: ApplicantFile,
-): Promise<void> {
-  await fs.mkdir(dirname(path), { recursive: true });
-  const tmp = `${path}.tmp`;
-  await fs.writeFile(tmp, JSON.stringify(data, null, 2), 'utf8');
-  await fs.rename(tmp, path);
 }
 
 export interface CreateApplicantArgs {
@@ -122,15 +85,13 @@ export async function createApplicant(
     throw new Error('A name is required.');
   }
 
-  const path = resolveStorePath();
-  const file = await readFileSafe(path);
+  const storage = getStorage();
 
-  // Dedupe by email — if we already have a record for this address, return it
-  // rather than creating a parallel pending entry.
-  for (const existing of Object.values(file.records)) {
-    if (normalizeEmail(existing.email) === email) {
-      return existing;
-    }
+  // Dedupe by email — fast path via the reverse-lookup key.
+  const existingId = await storage.get<string>(KEY_EMAIL_LOOKUP(email));
+  if (existingId) {
+    const existing = await storage.get<ApplicantRecord>(KEY_APPLICANT(existingId));
+    if (existing) return existing;
   }
 
   const record: ApplicantRecord = {
@@ -141,11 +102,13 @@ export async function createApplicant(
     status: 'pending',
     reason: args.reason && args.reason.trim().length > 0 ? args.reason.trim() : undefined,
     ip: args.ip && args.ip.trim().length > 0 ? args.ip.trim() : undefined,
-    referrer: args.referrer && args.referrer.trim().length > 0 ? args.referrer.trim() : undefined,
+    referrer:
+      args.referrer && args.referrer.trim().length > 0 ? args.referrer.trim() : undefined,
   };
 
-  file.records[record.id] = record;
-  await writeFileAtomic(path, file);
+  await storage.set(KEY_APPLICANT(record.id), record);
+  await storage.set(KEY_EMAIL_LOOKUP(email), record.id);
+  await storage.setAdd(KEY_INDEX, record.id);
   return record;
 }
 
@@ -154,8 +117,7 @@ export async function getApplicantById(
   id: string,
 ): Promise<ApplicantRecord | null> {
   if (!id) return null;
-  const file = await readFileSafe(resolveStorePath());
-  return file.records[id] ?? null;
+  return getStorage().get<ApplicantRecord>(KEY_APPLICANT(id));
 }
 
 /** Get a single applicant by email, or null if not found. */
@@ -164,19 +126,23 @@ export async function getApplicantByEmail(
 ): Promise<ApplicantRecord | null> {
   const target = normalizeEmail(email);
   if (!target) return null;
-  const file = await readFileSafe(resolveStorePath());
-  for (const r of Object.values(file.records)) {
-    if (normalizeEmail(r.email) === target) return r;
-  }
-  return null;
+  const storage = getStorage();
+  const id = await storage.get<string>(KEY_EMAIL_LOOKUP(target));
+  if (!id) return null;
+  return storage.get<ApplicantRecord>(KEY_APPLICANT(id));
 }
 
 /** Return every applicant record (any status). Newest-first. */
 export async function listApplicants(): Promise<ApplicantRecord[]> {
-  const file = await readFileSafe(resolveStorePath());
-  return Object.values(file.records).sort((a, b) =>
-    b.signupDate.localeCompare(a.signupDate),
-  );
+  const storage = getStorage();
+  const ids = await storage.setMembers(KEY_INDEX);
+  if (ids.length === 0) return [];
+  const records: ApplicantRecord[] = [];
+  for (const id of ids) {
+    const rec = await storage.get<ApplicantRecord>(KEY_APPLICANT(id));
+    if (rec) records.push(rec);
+  }
+  return records.sort((a, b) => b.signupDate.localeCompare(a.signupDate));
 }
 
 /**
@@ -187,15 +153,13 @@ export async function listApplicants(): Promise<ApplicantRecord[]> {
 export async function approveApplicant(
   id: string,
 ): Promise<ApplicantRecord | null> {
-  const path = resolveStorePath();
-  const file = await readFileSafe(path);
-  const record = file.records[id];
+  const storage = getStorage();
+  const record = await storage.get<ApplicantRecord>(KEY_APPLICANT(id));
   if (!record) return null;
   if (record.status === 'approved') return record;
   record.status = 'approved';
   record.approvedDate = new Date().toISOString();
-  file.records[id] = record;
-  await writeFileAtomic(path, file);
+  await storage.set(KEY_APPLICANT(id), record);
   return record;
 }
 
@@ -207,14 +171,12 @@ export async function approveApplicant(
 export async function rejectApplicant(
   id: string,
 ): Promise<ApplicantRecord | null> {
-  const path = resolveStorePath();
-  const file = await readFileSafe(path);
-  const record = file.records[id];
+  const storage = getStorage();
+  const record = await storage.get<ApplicantRecord>(KEY_APPLICANT(id));
   if (!record) return null;
   if (record.status === 'rejected') return record;
   record.status = 'rejected';
-  file.records[id] = record;
-  await writeFileAtomic(path, file);
+  await storage.set(KEY_APPLICANT(id), record);
   return record;
 }
 
@@ -226,14 +188,12 @@ export async function setApplicantNotes(
   id: string,
   notes: string,
 ): Promise<ApplicantRecord | null> {
-  const path = resolveStorePath();
-  const file = await readFileSafe(path);
-  const record = file.records[id];
+  const storage = getStorage();
+  const record = await storage.get<ApplicantRecord>(KEY_APPLICANT(id));
   if (!record) return null;
   const trimmed = (notes ?? '').trim();
   record.notes = trimmed.length > 0 ? trimmed : undefined;
-  file.records[id] = record;
-  await writeFileAtomic(path, file);
+  await storage.set(KEY_APPLICANT(id), record);
   return record;
 }
 
@@ -244,14 +204,12 @@ export async function setApplicantNotes(
 export async function markFeedbackReminderSent(
   id: string,
 ): Promise<ApplicantRecord | null> {
-  const path = resolveStorePath();
-  const file = await readFileSafe(path);
-  const record = file.records[id];
+  const storage = getStorage();
+  const record = await storage.get<ApplicantRecord>(KEY_APPLICANT(id));
   if (!record) return null;
   if (record.feedbackReminderSentAt) return record;
   record.feedbackReminderSentAt = new Date().toISOString();
-  file.records[id] = record;
-  await writeFileAtomic(path, file);
+  await storage.set(KEY_APPLICANT(id), record);
   return record;
 }
 
@@ -261,9 +219,9 @@ export async function markFeedbackReminderSent(
  * users. Lowercased + deduped.
  */
 export async function getApprovedApplicantEmails(): Promise<string[]> {
-  const file = await readFileSafe(resolveStorePath());
+  const records = await listApplicants();
   const set = new Set<string>();
-  for (const r of Object.values(file.records)) {
+  for (const r of records) {
     if (r.status === 'approved') {
       const e = normalizeEmail(r.email);
       if (e) set.add(e);
@@ -272,12 +230,16 @@ export async function getApprovedApplicantEmails(): Promise<string[]> {
   return Array.from(set);
 }
 
-/** Test-only: blow away the store. */
+/** Test-only: blow away every applicant record + index. */
 export async function _resetApplicantStoreForTest(): Promise<void> {
-  const path = resolveStorePath();
-  try {
-    await fs.unlink(path);
-  } catch (err) {
-    if ((err as NodeJS.ErrnoException).code !== 'ENOENT') throw err;
+  const storage = getStorage();
+  const ids = await storage.setMembers(KEY_INDEX);
+  for (const id of ids) {
+    const rec = await storage.get<ApplicantRecord>(KEY_APPLICANT(id));
+    if (rec) {
+      await storage.delete(KEY_EMAIL_LOOKUP(normalizeEmail(rec.email)));
+    }
+    await storage.delete(KEY_APPLICANT(id));
+    await storage.setRemove(KEY_INDEX, id);
   }
 }
