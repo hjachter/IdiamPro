@@ -88,42 +88,56 @@ function stubMiddleware(_req: NextRequest) {
 }
 
 /**
- * Live-mode middleware: lazy-import Clerk so the @clerk/nextjs runtime is
- * never loaded in stub builds. Redirect unauthenticated users to /signin
- * with the original URL preserved so they land back where they started.
+ * Live-mode middleware: built via Clerk's clerkMiddleware() wrapper, which
+ * is required for the `auth()` callback to work inside Next.js middleware.
+ * Calling `auth()` from `@clerk/nextjs/server` outside the wrapper throws
+ * with "Clerk: auth() was called but Clerk can't detect usage of
+ * clerkMiddleware()", which surfaces in Vercel as a MIDDLEWARE_INVOCATION_FAILED
+ * 500 on every request. We lazy-import the module so the Clerk runtime never
+ * loads in stub builds.
+ *
+ * Redirects unauthenticated users to /signin with the original URL
+ * preserved so they land back where they started. API routes return a
+ * 401 JSON body instead of an HTML redirect.
  */
-async function liveMiddleware(req: NextRequest) {
-  const { pathname, search } = req.nextUrl;
-  if (!isProtectedPath(pathname)) {
-    return NextResponse.next();
-  }
+let cachedLiveMiddleware:
+  | ((req: NextRequest, evt: unknown) => Promise<Response> | Response | void)
+  | null = null;
 
-  // Dynamic import keeps Clerk out of the bundle when keys aren't set.
-  const { auth } = await import('@clerk/nextjs/server');
-  const { userId } = await auth();
+async function getLiveMiddleware() {
+  if (cachedLiveMiddleware) return cachedLiveMiddleware;
+  const { clerkMiddleware } = await import('@clerk/nextjs/server');
+  cachedLiveMiddleware = clerkMiddleware(async (auth, req) => {
+    const { pathname, search } = req.nextUrl;
+    if (!isProtectedPath(pathname)) {
+      return NextResponse.next();
+    }
 
-  if (userId) {
-    return NextResponse.next();
-  }
+    const { userId } = await auth();
+    if (userId) {
+      return NextResponse.next();
+    }
 
-  // API routes return 401 JSON instead of an HTML redirect.
-  if (pathname.startsWith('/api/')) {
-    return NextResponse.json(
-      { error: 'Authentication required' },
-      { status: 401 },
-    );
-  }
+    if (pathname.startsWith('/api/')) {
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 },
+      );
+    }
 
-  const signInUrl = req.nextUrl.clone();
-  signInUrl.pathname = '/signin';
-  signInUrl.search = '';
-  signInUrl.searchParams.set('redirect_url', pathname + search);
-  return NextResponse.redirect(signInUrl);
+    const signInUrl = req.nextUrl.clone();
+    signInUrl.pathname = '/signin';
+    signInUrl.search = '';
+    signInUrl.searchParams.set('redirect_url', pathname + search);
+    return NextResponse.redirect(signInUrl);
+  }) as unknown as typeof cachedLiveMiddleware;
+  return cachedLiveMiddleware;
 }
 
-export async function middleware(req: NextRequest) {
+export async function middleware(req: NextRequest, evt: unknown) {
   if (!HAS_CLERK_KEYS) return stubMiddleware(req);
-  return liveMiddleware(req);
+  const handler = await getLiveMiddleware();
+  return handler!(req, evt);
 }
 
 /**
