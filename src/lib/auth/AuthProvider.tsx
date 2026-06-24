@@ -8,8 +8,13 @@
  * This is the exact current behavior of the app — same philosophy as the
  * Sentry integration (gated entirely on an env var, silent no-op when unset).
  *
- * ENABLED PATH (key present): lazily loads @clerk/nextjs (so the module is
- * never even resolved when disabled) and wraps children in <ClerkProvider>.
+ * ENABLED PATH (key present): lazily loads ./ClerkAuthShell — a single
+ * client module that mounts <ClerkProvider> AND the user-context bridge
+ * together. Loading both as one chunk guarantees the provider is in the
+ * React tree before any `useUser`/`useAuth` consumer renders. Earlier
+ * versions loaded the provider and bridge as two separate dynamic siblings,
+ * which raced and produced
+ *   "useUser can only be used within the <ClerkProvider /> component."
  *
  * Safe under Capacitor (iOS) and Electron — both load the same web bundle;
  * there are no SSR-only assumptions here, and the disabled path does no work.
@@ -20,33 +25,13 @@ import dynamic from 'next/dynamic';
 import { isAuthEnabled } from './auth-config';
 
 /**
- * Clerk provider, loaded only when auth is enabled. `dynamic(..., { ssr:
- * false })` keeps the Clerk module out of the bundle's critical path and
- * out of SSR; the import callback is never invoked while auth is disabled.
+ * Single dynamic import for the entire Clerk-enabled subtree. Keeps Clerk
+ * out of the bundle when disabled, and keeps provider+consumer atomic when
+ * enabled.
  */
-const LazyClerkProvider = dynamic(
-  () =>
-    import('@clerk/nextjs').then((mod) => ({
-      default: mod.ClerkProvider as unknown as React.ComponentType<{
-        publishableKey: string;
-        afterSignOutUrl?: string;
-        children: React.ReactNode;
-      }>,
-    })),
-  { ssr: false },
-);
-
-/**
- * Bridges Clerk's session into the app's CurrentUser context. Loaded only
- * on the enabled path so Clerk hooks are never called without a provider.
- */
-const LazyClerkUserBridge = dynamic(
-  () =>
-    import('./use-current-user').then((mod) => ({
-      default: mod.ClerkUserBridge,
-    })),
-  { ssr: false },
-);
+const LazyClerkAuthShell = dynamic(() => import('./ClerkAuthShell'), {
+  ssr: false,
+});
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Disabled path: identical to having no provider at all.
@@ -58,9 +43,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || '';
 
   return (
-    <LazyClerkProvider publishableKey={publishableKey} afterSignOutUrl="/">
-      <LazyClerkUserBridge>{children}</LazyClerkUserBridge>
-    </LazyClerkProvider>
+    <LazyClerkAuthShell publishableKey={publishableKey}>
+      {children}
+    </LazyClerkAuthShell>
   );
 }
 
