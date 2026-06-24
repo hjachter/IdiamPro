@@ -15,6 +15,7 @@
  */
 
 import * as React from 'react';
+import { useUser } from '@clerk/nextjs';
 import {
   resolveCurrentTier,
   isAuthEnabled,
@@ -51,9 +52,11 @@ const CurrentUserContext = React.createContext<CurrentUser>(SIGNED_OUT_USER);
  * until this component actually renders.
  */
 export function ClerkUserBridge({ children }: { children: React.ReactNode }) {
-  // Imported lazily at call sites; only reached when auth is enabled and a
-  // ClerkProvider is mounted above this component.
-  const { useUser } = require('@clerk/nextjs') as typeof import('@clerk/nextjs');
+  // Static ESM import at module top — this file is 'use client', so the
+  // import resolves to Clerk's client bundle (same @clerk/shared module
+  // instance as <ClerkProvider>'s ClientClerkProvider child). Using
+  // require() here previously could resolve to the server variant in
+  // some build paths, leaving useUser detached from the provider context.
   const { isLoaded, isSignedIn, user } = useUser();
 
   const value = React.useMemo<CurrentUser>(

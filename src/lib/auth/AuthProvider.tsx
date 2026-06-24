@@ -1,51 +1,54 @@
-'use client';
-
 /**
- * AuthProvider — env-gated auth boundary.
+ * AuthProvider — env-gated auth boundary (SERVER COMPONENT).
  *
  * DISABLED PATH (no NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY): renders {children}
  * untouched. No ClerkProvider, no Clerk import at module load, no network.
  * This is the exact current behavior of the app — same philosophy as the
  * Sentry integration (gated entirely on an env var, silent no-op when unset).
  *
- * ENABLED PATH (key present): lazily loads ./ClerkAuthShell — a single
- * client module that mounts <ClerkProvider> AND the user-context bridge
- * together. Loading both as one chunk guarantees the provider is in the
- * React tree before any `useUser`/`useAuth` consumer renders. Earlier
- * versions loaded the provider and bridge as two separate dynamic siblings,
- * which raced and produced
+ * ENABLED PATH (key present): renders <ClerkProvider> directly. Because
+ * `@clerk/nextjs`'s ClerkProvider is itself an async server component that
+ * reads cookies/headers via React's request context, it MUST be rendered
+ * on the server, not lazily mounted on the client.
+ *
+ * Earlier versions wrapped ClerkProvider inside a `dynamic(..., { ssr: false })`
+ * client component, which silently stripped ClerkProvider of its server
+ * bootstrap (the part that injects initial session state and the Clerk
+ * scripts into the document). The result: Clerk's UI components (SignUp,
+ * SignIn, Show, UserButton, etc.) mounted on the client without a working
+ * Clerk context and threw:
  *   "useUser can only be used within the <ClerkProvider /> component."
  *
+ * By placing ClerkProvider in this server component, the server renders
+ * the provider into the initial HTML, the Clerk script loads, and every
+ * downstream client component finds a real provider in the React tree.
+ *
  * Safe under Capacitor (iOS) and Electron — both load the same web bundle;
- * there are no SSR-only assumptions here, and the disabled path does no work.
+ * the disabled path does no work, and the enabled path renders identical
+ * output to a normal Next.js SSR Clerk setup.
  */
 
 import * as React from 'react';
-import dynamic from 'next/dynamic';
-import { isAuthEnabled } from './auth-config';
+import { ClerkProvider } from '@clerk/nextjs';
+import { ClerkUserBridge } from './use-current-user';
 
-/**
- * Single dynamic import for the entire Clerk-enabled subtree. Keeps Clerk
- * out of the bundle when disabled, and keeps provider+consumer atomic when
- * enabled.
- */
-const LazyClerkAuthShell = dynamic(() => import('./ClerkAuthShell'), {
-  ssr: false,
-});
+const HAS_PUBLISHABLE_KEY = Boolean(
+  process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
+);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Disabled path: identical to having no provider at all.
-  if (!isAuthEnabled()) {
+  if (!HAS_PUBLISHABLE_KEY) {
     return <>{children}</>;
   }
 
-  const publishableKey =
-    process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || '';
-
   return (
-    <LazyClerkAuthShell publishableKey={publishableKey}>
-      {children}
-    </LazyClerkAuthShell>
+    <ClerkProvider
+      publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+      afterSignOutUrl="/"
+    >
+      <ClerkUserBridge>{children}</ClerkUserBridge>
+    </ClerkProvider>
   );
 }
 
