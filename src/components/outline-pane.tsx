@@ -23,6 +23,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { AppUserButton } from '@/lib/auth/user-button';
+import { ReportIssueButton, ReportIssueMenuItem } from '@/components/report-issue-button';
 
 // Check if running in Capacitor native app (not just mobile browser)
 function isCapacitor(): boolean {
@@ -1187,6 +1188,11 @@ export default function OutlinePane({
                             <HelpCircle className="mr-2 h-4 w-4" /> Help & Support
                         </DropdownMenuItem>
                     )}
+                    {/* Report Issue — same dialog as the toolbar button.
+                        Placed inside the Help cluster so users searching
+                        the Help menu for a place to report problems find
+                        it next to "Help & Support". */}
+                    <ReportIssueMenuItem currentOutlineName={currentOutline?.name ?? null} />
                     <DropdownMenuItem
                         onSelect={() => {
                             // Open the beta-feedback form in a new tab. /feedback is a
@@ -1218,6 +1224,13 @@ export default function OutlinePane({
                 </DropdownMenuContent>
             </DropdownMenu>
         </TooltipProvider>
+
+        {/* Report Issue — opens a dialog where beta users can send Howard a
+            quick bug/issue report from inside the app. Sits right next to the
+            account avatar (anchor on the right edge), visually subordinate. */}
+        <div className="ml-1 flex shrink-0 items-center">
+            <ReportIssueButton currentOutlineName={currentOutline?.name ?? null} />
+        </div>
 
         {/* Account avatar / sign-out menu. Renders nothing when Clerk is not
             configured (stub mode for local dev), so the toolbar is unchanged

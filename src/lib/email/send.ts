@@ -54,6 +54,10 @@ import {
   type FeedbackNotificationProps,
 } from '@/emails/feedback-notification';
 import { renderFeedbackReminderEmail } from '@/emails/feedback-reminder';
+import {
+  renderBugNotification,
+  type BugNotificationProps,
+} from '@/emails/bug-notification';
 
 const DEFAULT_FROM = 'IdiamPro <welcome@2ndbrainware.com>';
 
@@ -297,6 +301,28 @@ export async function sendApplicantApprovedEmail(
     text: rendered.text,
     headers: { 'List-Unsubscribe': `<${pre.proceed.unsubscribeUrl}>` },
     replyTo: 'howard@2ndbrainware.com',
+  });
+}
+
+/**
+ * Internal: send the bug-report notification to Howard. Bypasses the
+ * unsubscribe store — same rationale as sendApplicantNotification.
+ */
+export async function sendBugNotification(
+  props: BugNotificationProps,
+  recipient?: string,
+): Promise<SendOutcome> {
+  const to = (recipient ?? getAdminNotifyAddress()).trim();
+  if (!to || to.indexOf('@') === -1) {
+    return { status: 'skipped-no-recipient' };
+  }
+  const rendered = renderBugNotification(props);
+  return activeTransport({
+    from: getFromAddress(),
+    to,
+    subject: rendered.subject,
+    html: rendered.html,
+    text: rendered.text,
   });
 }
 

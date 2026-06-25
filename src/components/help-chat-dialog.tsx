@@ -210,6 +210,13 @@ BETA FEEDBACK FORM (earn 1 year of Pro):
 - Admin browsing: /admin/feedback (sibling of /admin/applicants) shows every submission with NPS / stars / feature-rating summary, filter chips (All / Testimonial-consented / Public-quotable / Video), search, and a CSV export button. Same v1 admin gate (localStorage.isAdmin === 'true').
 - The welcome email Howard sends on approval mentions the upcoming feedback ask in abstract terms ("around the two-week mark") so the reward isn't a surprise.
 
+REPORT ISSUE (in-app bug reporting):
+- "Report Issue" has TWO entry points and both open the same dialog: (1) the bug-icon button in the app toolbar next to the account avatar, and (2) the "Report Issue" item in the More tools / Help overflow menu, placed right under "Help & Support" so anyone hunting through the help menu for a place to report problems finds it there.
+- The dialog asks: what's not working (required, plain English), what you were trying to do (optional context), how serious it is ("Just FYI" / "Annoying" / "Blocking me"), and lets you attach an optional screenshot (drag-drop or pick a file, max 2MB).
+- Submitting sends the report to Howard's inbox and stores it in the admin dashboard. You see a confirmation toast that stays until you dismiss it. Howard reads every report.
+- The app automatically captures the page URL, browser/device, current outline name, and your signed-in email so you don't have to type any of that. Your email is pulled server-side from your session — never trust-and-asked.
+- Howard's review surface: /admin/bugs (mirror of /admin/applicants and /admin/feedback). Same v1 admin gate (localStorage.isAdmin === 'true'). Sections: New, Acknowledged, In Progress, Resolved, Won't Fix. Each report can be moved through those statuses; the screenshot shows in the details panel. Howard also has a "Progress notes (internal)" textarea inside each bug's detail panel — a private free-text scratchpad for what he's looked at, next steps, and known blockers. These notes are admin-only: they are NEVER returned by any user-facing API and the reporter NEVER sees them, no matter what.
+
 INVITE-ONLY ACCESS (beta-applicant approval flow):
 - IdiamPro is in invite-only beta. Every prospective user fills out a short application at /signup and Howard personally approves each one before they can use the app.
 - The application form collects name, email, and an optional "What brings you to IdiamPro?" textarea. Submitting POSTs to /api/applicants/apply, which persists the applicant record (file-based JSON store at .idiampro/applicants.json) and emails Howard at howard@2ndbrainware.com with the details and a deep link to /admin/applicants?focus=[id].

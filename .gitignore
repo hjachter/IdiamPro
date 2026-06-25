@@ -49,3 +49,6 @@ mcp-server/node_modules/
 # iCloud exclusion shadow copies (see scripts/setup-icloud-exclusions.sh)
 *.nosync
 *.nosync/
+
+# Local KV file-storage fallback (used by storage adapter when no Vercel KV configured; pollutes repo with local Playwright test data)
+.idiampro/
