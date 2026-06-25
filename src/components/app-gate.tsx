@@ -30,18 +30,30 @@ type GateState =
   | { kind: 'redirecting'; target: '/signup' | '/waiting' }
   | { kind: 'allowed' };
 
-function getEmailFromClerkSession(): string | null {
-  // Read the email directly from the Clerk window globals — useCurrentUser
-  // gives us displayName, which is the email when there's no name set, but
-  // we want the canonical email for the allowlist check.
-  if (typeof window === 'undefined') return null;
+function getEmailsFromClerkSession(): string[] {
+  // Read every email Clerk knows about for this user, not just the primary.
+  // A user who applied with foo@aol.com but signed in via Google (which gives
+  // them bar@gmail.com) will have only the Google email as primary. We check
+  // ALL their known addresses against the allowlist so they're not falsely
+  // routed to /waiting just because their OAuth identity address differs
+  // from the address they applied with.
+  if (typeof window === 'undefined') return [];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const w = window as any;
-  const candidate =
-    w?.Clerk?.user?.primaryEmailAddress?.emailAddress ??
-    w?.Clerk?.user?.emailAddresses?.[0]?.emailAddress ??
-    null;
-  return typeof candidate === 'string' ? candidate : null;
+  const out: string[] = [];
+  const primary = w?.Clerk?.user?.primaryEmailAddress?.emailAddress;
+  if (typeof primary === 'string' && primary.indexOf('@') !== -1) {
+    out.push(primary);
+  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const list: any[] = w?.Clerk?.user?.emailAddresses ?? [];
+  for (const e of list) {
+    const addr = e?.emailAddress;
+    if (typeof addr === 'string' && addr.indexOf('@') !== -1 && !out.includes(addr)) {
+      out.push(addr);
+    }
+  }
+  return out;
 }
 
 export default function AppGate({ children }: { children: React.ReactNode }) {
@@ -66,30 +78,54 @@ export default function AppGate({ children }: { children: React.ReactNode }) {
       router.replace('/signup');
       return;
     }
-    // Signed in — check the allowlist.
+    // Signed in — check the allowlist against ALL of the user's Clerk
+    // email addresses (not just the primary). A Google OAuth user might
+    // have a Gmail primary even though they applied with an AOL address;
+    // we want to recognize both.
     let cancelled = false;
     (async () => {
-      // The Clerk hook gives us displayName, but we want the email
-      // canonically. Read it from the Clerk session window global; if
-      // unavailable, fall back to displayName (often the email anyway).
-      const email = getEmailFromClerkSession() ?? user.displayName ?? '';
-      if (!email || email.indexOf('@') === -1) {
-        // Can't determine an email — be safe and send to waiting page.
+      const emails = getEmailsFromClerkSession();
+      if (emails.length === 0 && user.displayName && user.displayName.indexOf('@') !== -1) {
+        emails.push(user.displayName);
+      }
+      if (emails.length === 0) {
+        // Can't determine any email — be safe and send to waiting page.
         if (!cancelled) {
+          // Surface a hint so the /waiting page can explain what happened.
+          try {
+            sessionStorage.setItem('idiampro-waiting-emails', JSON.stringify([]));
+          } catch {}
           setState({ kind: 'redirecting', target: '/waiting' });
           router.replace('/waiting');
         }
         return;
       }
       try {
-        const res = await fetch(
-          `/api/applicants/me?email=${encodeURIComponent(email)}`,
-        );
-        const data = (await res.json()) as { approved?: boolean };
+        // Check each email in turn — first approval wins.
+        let approved = false;
+        for (const email of emails) {
+          const res = await fetch(
+            `/api/applicants/me?email=${encodeURIComponent(email)}`,
+          );
+          const data = (await res.json()) as { approved?: boolean };
+          if (data.approved) {
+            approved = true;
+            break;
+          }
+        }
         if (cancelled) return;
-        if (data.approved) {
+        if (approved) {
           setState({ kind: 'allowed' });
         } else {
+          // Stash the emails we checked so /waiting can show them to the
+          // user — makes "applied with one address, signed in with another"
+          // mismatches diagnosable at a glance.
+          try {
+            sessionStorage.setItem(
+              'idiampro-waiting-emails',
+              JSON.stringify(emails),
+            );
+          } catch {}
           setState({ kind: 'redirecting', target: '/waiting' });
           router.replace('/waiting');
         }

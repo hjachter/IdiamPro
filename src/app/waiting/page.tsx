@@ -27,6 +27,26 @@ const LazySignOutButton = dynamic(
 const PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || '';
 
 export default function WaitingPage() {
+  // Read the emails Clerk knew about for this user when the /app gate sent
+  // them here. If any are present, the most likely scenario is "you applied
+  // with one address but signed in with a different one" — surface them so
+  // the user (and Howard reading over their shoulder) can spot the mismatch
+  // immediately.
+  const [signedInEmails, setSignedInEmails] = React.useState<string[]>([]);
+  React.useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem('idiampro-waiting-emails');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          setSignedInEmails(parsed.filter((e) => typeof e === 'string'));
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
   return (
     <div className="fixed inset-0 overflow-y-auto bg-gray-950 text-white">
       <div className="fixed inset-0 bg-gradient-to-br from-violet-950 via-gray-950 to-indigo-950" />
@@ -52,6 +72,24 @@ export default function WaitingPage() {
             a day or two. As soon as you&apos;re approved, you&apos;ll get an
             email with a sign-in link.
           </p>
+          {signedInEmails.length > 0 && (
+            <div className="mb-4 rounded-lg border border-amber-300/30 bg-amber-500/10 p-3 text-left text-xs text-amber-100">
+              <p className="mb-1 font-semibold">
+                Signed in as{' '}
+                {signedInEmails.map((e, i) => (
+                  <span key={e}>
+                    {i > 0 ? ', ' : ''}
+                    <strong>{e}</strong>
+                  </span>
+                ))}
+              </p>
+              <p className="text-amber-100/80">
+                If you applied with a different email address, sign out below
+                and sign back in using the email you applied with — or apply
+                fresh using the address above.
+              </p>
+            </div>
+          )}
           <div className="mb-4 flex items-center justify-center gap-2 text-sm text-white/70">
             <Mail className="h-4 w-4" />
             <span>Keep an eye on your inbox.</span>
