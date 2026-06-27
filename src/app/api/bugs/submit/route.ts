@@ -112,9 +112,9 @@ export async function POST(request: NextRequest) {
 
   const description =
     typeof body.description === 'string' ? body.description.trim() : '';
-  if (description.length < 10) {
+  if (description.length < 3) {
     return NextResponse.json(
-      { ok: false, error: 'Add a few more words describing what you saw.' },
+      { ok: false, error: 'Add at least a few characters describing what you saw.' },
       { status: 400 },
     );
   }

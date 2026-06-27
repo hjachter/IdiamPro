@@ -161,10 +161,14 @@ export function ReportIssueDialog({
   );
 
   const trimmedDescription = description.trim();
+  const MIN_DESCRIPTION = 3;
+  const MAX_DESCRIPTION = 5000;
   const canSubmit =
-    trimmedDescription.length >= 10 &&
-    trimmedDescription.length <= 5000 &&
+    trimmedDescription.length >= MIN_DESCRIPTION &&
+    trimmedDescription.length <= MAX_DESCRIPTION &&
     !submitting;
+  const tooShort =
+    trimmedDescription.length > 0 && trimmedDescription.length < MIN_DESCRIPTION;
 
   const submit = React.useCallback(async () => {
     if (!canSubmit) return;
@@ -252,8 +256,16 @@ export function ReportIssueDialog({
               className="mt-1"
               aria-required="true"
             />
-            <p className="mt-1 text-xs text-muted-foreground">
-              At least 10 characters. {trimmedDescription.length}/5000
+            <p
+              className={
+                tooShort
+                  ? 'mt-1 text-xs text-amber-500'
+                  : 'mt-1 text-xs text-muted-foreground'
+              }
+            >
+              {tooShort
+                ? `Add a bit more — at least ${MIN_DESCRIPTION} characters (${MIN_DESCRIPTION - trimmedDescription.length} more to go).`
+                : `${trimmedDescription.length}/${MAX_DESCRIPTION}`}
             </p>
           </div>
 
