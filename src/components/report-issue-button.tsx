@@ -46,6 +46,28 @@ import {
 import { DropdownMenuItem } from './ui/dropdown-menu';
 import { Bug, ImagePlus, Loader2, X } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { parsePlatform } from '@/lib/access/parse-platform';
+
+/**
+ * Sniff the Capacitor native platform ('ios' | 'android') if Capacitor is
+ * loaded and we're running natively. Returns undefined on Electron / web.
+ * Done via the window global rather than `import { Capacitor }` so this
+ * file stays import-clean on environments where the @capacitor/core dep
+ * isn't installed (Electron, web).
+ */
+function getCapacitorNativePlatform(): string | undefined {
+  if (typeof window === 'undefined') return undefined;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const cap = (window as any).Capacitor;
+  if (!cap || typeof cap.isNativePlatform !== 'function') return undefined;
+  try {
+    if (!cap.isNativePlatform()) return undefined;
+    const p = typeof cap.getPlatform === 'function' ? cap.getPlatform() : undefined;
+    return typeof p === 'string' ? p : undefined;
+  } catch {
+    return undefined;
+  }
+}
 
 type Severity = 'fyi' | 'annoying' | 'blocking';
 
@@ -175,6 +197,10 @@ export function ReportIssueDialog({
     setSubmitting(true);
     setSubmitError(null);
     try {
+      const ua =
+        typeof navigator !== 'undefined' ? navigator.userAgent : '';
+      const capPlatform = getCapacitorNativePlatform();
+      const platform = parsePlatform(ua, capPlatform);
       const payload = {
         description: trimmedDescription,
         context: context.trim() || undefined,
@@ -185,8 +211,11 @@ export function ReportIssueDialog({
             typeof window !== 'undefined' && window.location
               ? window.location.href
               : '',
-          userAgent:
-            typeof navigator !== 'undefined' ? navigator.userAgent : '',
+          userAgent: ua,
+          // Parsed client-side because only the client can reliably tell
+          // Electron from regular Chrome / Capacitor from web. Server
+          // backstops with a UA-only parse if this is missing.
+          platform,
           outlineName: currentOutlineName ?? null,
           timestamp: new Date().toISOString(),
         },

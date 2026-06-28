@@ -41,11 +41,13 @@ import {
   ChevronDown,
   ChevronRight,
   Clock,
+  Monitor,
   RefreshCw,
   Search,
   ShieldAlert,
   XCircle,
 } from 'lucide-react';
+import { parsePlatform } from '@/lib/access/parse-platform';
 
 const ADMIN_FLAG_KEY = 'isAdmin';
 const ADMIN_HEADER_NAME = 'x-idiampro-admin';
@@ -57,8 +59,20 @@ type BugStatus = 'new' | 'acknowledged' | 'in_progress' | 'resolved' | 'wont_fix
 interface BugMetadata {
   url: string;
   userAgent: string;
+  /** Clean platform label. Older records may lack it — see derivePlatform(). */
+  platform?: string;
   outlineName: string | null;
   timestamp: string;
+}
+
+/**
+ * Derive a clean platform label for a bug record. Newer records have
+ * `metadata.platform` set at submission time; older records pre-dating
+ * this field get parsed on the fly from the raw user-agent string.
+ */
+function derivePlatform(meta: BugMetadata): string {
+  if (meta.platform && meta.platform.trim().length > 0) return meta.platform;
+  return parsePlatform(meta.userAgent ?? '') || 'Unknown';
 }
 
 interface BugListItem {
@@ -441,6 +455,13 @@ export default function AdminBugsPage() {
                                   >
                                     {sev.label}
                                   </span>
+                                  <span
+                                    className="text-xs font-medium px-2 py-0.5 rounded bg-sky-100 text-sky-800 dark:bg-sky-950/40 dark:text-sky-300 flex items-center gap-1"
+                                    data-testid="bug-row-platform"
+                                  >
+                                    <Monitor className="h-3 w-3" />
+                                    {derivePlatform(b.metadata)}
+                                  </span>
                                   <span className="text-xs text-muted-foreground flex items-center gap-1">
                                     <Clock className="h-3 w-3" />
                                     {formatDate(b.createdAt)}
@@ -504,6 +525,26 @@ export default function AdminBugsPage() {
 
           {detail && (
             <div className="space-y-5">
+              <div className="flex items-center gap-3 flex-wrap">
+                <span className="text-xs uppercase tracking-wide text-muted-foreground">
+                  Platform:
+                </span>
+                <span
+                  className="inline-flex items-center gap-1.5 text-sm font-semibold px-3 py-1 rounded-full bg-sky-100 text-sky-800 dark:bg-sky-950/40 dark:text-sky-300"
+                  data-testid="bug-detail-platform"
+                >
+                  <Monitor className="h-4 w-4" />
+                  {derivePlatform(detail.metadata)}
+                </span>
+                <span className="text-xs uppercase tracking-wide text-muted-foreground ml-2">
+                  Severity:
+                </span>
+                <span
+                  className={`text-xs font-semibold px-2 py-0.5 rounded ${SEVERITY_META[detail.severity].tone}`}
+                >
+                  {SEVERITY_META[detail.severity].label}
+                </span>
+              </div>
               <div>
                 <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1">
                   What's not working
@@ -546,21 +587,29 @@ export default function AdminBugsPage() {
                   <span className="font-semibold text-foreground/70">When:</span>{' '}
                   {formatDate(detail.createdAt)}
                 </div>
-                <div className="break-all">
-                  <span className="font-semibold text-foreground/70">Page:</span>{' '}
-                  {detail.metadata.url}
-                </div>
                 {detail.metadata.outlineName && (
-                  <div>
+                  <div className="sm:col-span-2">
                     <span className="font-semibold text-foreground/70">Outline:</span>{' '}
                     {detail.metadata.outlineName}
                   </div>
                 )}
-                <div className="break-all sm:col-span-2">
-                  <span className="font-semibold text-foreground/70">Browser:</span>{' '}
-                  {detail.metadata.userAgent}
-                </div>
               </div>
+
+              <details className="text-xs text-muted-foreground">
+                <summary className="cursor-pointer font-semibold text-foreground/70 select-none">
+                  Technical details
+                </summary>
+                <div className="mt-2 space-y-2">
+                  <div className="break-all">
+                    <span className="font-semibold text-foreground/70">Page:</span>{' '}
+                    {detail.metadata.url}
+                  </div>
+                  <div className="break-all">
+                    <span className="font-semibold text-foreground/70">Raw user agent:</span>{' '}
+                    {detail.metadata.userAgent}
+                  </div>
+                </div>
+              </details>
 
               <div>
                 <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2">

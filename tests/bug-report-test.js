@@ -185,6 +185,21 @@ async function main() {
     JSON.stringify(interceptedPayload ?? {}).slice(0, 200),
   );
 
+  // Verify the new platform label is included and looks right for an
+  // Electron-on-Mac environment (which is what this test runs under).
+  const platformValue =
+    interceptedPayload &&
+    interceptedPayload.metadata &&
+    typeof interceptedPayload.metadata.platform === 'string'
+      ? interceptedPayload.metadata.platform
+      : '';
+  const expectedPlatform = 'Mac Desktop (Electron)';
+  record(
+    'Submission payload includes parsed platform label',
+    platformValue === expectedPlatform,
+    `got "${platformValue}" expected "${expectedPlatform}"`,
+  );
+
   const toastA = page.getByText('Thanks — Howard will look at this.', { exact: false }).first();
   const toastAVisible = await toastA.isVisible({ timeout: 5000 }).catch(() => false);
   record('Toolbar submit shows success toast', toastAVisible);
@@ -329,6 +344,18 @@ async function main() {
         fullPage: false,
       });
     } catch { /* ignore */ }
+
+    // Verify the platform pill is rendered prominently in the detail panel.
+    const platformPill = adminPage.locator('[data-testid="bug-detail-platform"]').first();
+    const platformPillVisible = await platformPill.isVisible({ timeout: 5000 }).catch(() => false);
+    const platformPillText = platformPillVisible
+      ? (await platformPill.textContent().catch(() => '')) ?? ''
+      : '';
+    record(
+      'Admin detail panel shows the parsed platform label prominently',
+      platformPillVisible && platformPillText.includes('Mac Desktop (Electron)'),
+      platformPillText.trim().slice(0, 80),
+    );
 
     const notesArea = adminPage.locator('[data-testid="bug-progress-notes"]').first();
     const notesAreaVisible = await notesArea.isVisible({ timeout: 5000 }).catch(() => false);

@@ -29,6 +29,7 @@ import {
   type BugSeverity,
   type BugMetadata,
 } from '@/lib/access/bug-store';
+import { parsePlatform } from '@/lib/access/parse-platform';
 import { sendBugNotification } from '@/lib/email/send';
 import { enforceRateLimit } from '@/lib/rate-limit';
 import { isAuthEnabled } from '@/lib/auth/auth-config';
@@ -49,6 +50,7 @@ interface SubmitBody {
   metadata?: {
     url?: unknown;
     userAgent?: unknown;
+    platform?: unknown;
     outlineName?: unknown;
     timestamp?: unknown;
   };
@@ -152,9 +154,21 @@ export async function POST(request: NextRequest) {
   }
 
   const meta = body.metadata ?? {};
+  const userAgent = typeof meta.userAgent === 'string' ? meta.userAgent : '';
+  // Client passes a parsed platform (it knows whether it's Electron /
+  // Capacitor / browser). If missing or empty, backstop with a UA-only
+  // parse server-side. Default to "Unknown" if nothing parses.
+  let platform =
+    typeof meta.platform === 'string' && meta.platform.trim().length > 0
+      ? meta.platform.trim()
+      : '';
+  if (!platform) {
+    platform = parsePlatform(userAgent) || 'Unknown';
+  }
   const metadata: BugMetadata = {
     url: typeof meta.url === 'string' ? meta.url : '',
-    userAgent: typeof meta.userAgent === 'string' ? meta.userAgent : '',
+    userAgent,
+    platform,
     outlineName:
       typeof meta.outlineName === 'string' && meta.outlineName.trim().length > 0
         ? meta.outlineName

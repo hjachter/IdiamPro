@@ -34,6 +34,14 @@ export interface BugMetadata {
   url: string;
   /** Raw user agent. Helpful for platform/browser triage. */
   userAgent: string;
+  /**
+   * Clean, human-readable platform label, e.g. "Mac Desktop (Electron)",
+   * "iOS (Capacitor, iPhone)", "Web (Chrome on macOS)", or "Unknown".
+   * Derived from the user-agent string plus (when available) the
+   * Capacitor platform hint from the client. See parse-platform.ts.
+   * Required — the API route fills it in if the client omits it.
+   */
+  platform: string;
   /** Outline name the user had open, if any. */
   outlineName: string | null;
   /** ISO 8601 timestamp captured client-side at the moment of submission. */
@@ -85,8 +93,8 @@ export interface CreateBugArgs {
 /** Create + persist a new bug. Returns the saved record. */
 export async function createBug(args: CreateBugArgs): Promise<BugRecord> {
   const description = (args.description ?? '').trim();
-  if (description.length < 10) {
-    throw new Error('Add a few more words describing what you saw.');
+  if (description.length < 3) {
+    throw new Error('Add at least a few characters describing what you saw.');
   }
   if (description.length > 5000) {
     throw new Error('That description is a bit long — please keep it under 5000 characters.');
