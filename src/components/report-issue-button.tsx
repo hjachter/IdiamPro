@@ -230,13 +230,19 @@ export function ReportIssueDialog({
       if (!res.ok || !data.ok) {
         throw new Error(data.error ?? 'Could not send your report — please try again.');
       }
-      // Success — persist-until-dismissed toast (no duration override).
-      toast({
-        title: 'Thanks — Howard will look at this.',
-        description: 'Your report was sent. Keep working — we’ll follow up if we need more info.',
-      });
+      // Close the dialog FIRST so its exit animation can finish, then
+      // queue the success toast a beat later. Otherwise the toast slides
+      // in at the bottom-right of the screen while the dialog is still
+      // fading out, visually covering the Send Report button mid-animation.
+      // 250ms matches Radix Dialog's default exit duration.
       resetForm();
       onOpenChange(false);
+      window.setTimeout(() => {
+        toast({
+          title: 'Thanks — Howard will look at this.',
+          description: 'Your report was sent. Keep working — we’ll follow up if we need more info.',
+        });
+      }, 250);
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : 'Could not send your report — please try again.');
     } finally {
