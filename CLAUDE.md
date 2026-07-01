@@ -318,7 +318,7 @@ npx cap open ios
 
 At the end of EVERY session — automatically, without being asked — regenerate the conversation log outline. Do this as your final action before the conversation ends.
 
-**How it works:** The outline is always **regenerated from scratch** using the JSONL conversation files (in `~/.claude/projects/...`) and git commit history. This means the app can overwrite the .idm file freely — nothing is ever lost.
+**How it works:** The outline is built by a **safe merge** (NOT a from-scratch overwrite — that model caused a data-loss incident on 2026-06-30 when the project moved off iCloud and the script's transcript folder went empty). The script reads the JSONL conversation files (in `~/.claude/projects/-Users-howardjachter-Developer-IdiamPro/`) and git commit history, then ADDS only previously-unlogged days to the existing outline, preserving all existing entries untouched. It is idempotent (re-running adds nothing new) and has hard guards: it aborts without writing if it parses zero sessions or if the result would shrink the outline below its current size. Older transcripts that no longer exist on disk (pre-June-2026, from the iCloud era) cannot be reconstructed and survive only as git history — but nothing currently in the log will ever be wiped.
 
 **Steps:**
 1. Run the regeneration script: `python3 scripts/create_conversation_log.py`
