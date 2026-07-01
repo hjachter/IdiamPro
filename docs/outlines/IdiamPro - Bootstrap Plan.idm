@@ -624,7 +624,9 @@
       "content": "<p><strong>Tasks:</strong></p><ul data-type=\"taskList\"><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Update website with App Store download links — <em>Estimate:</em> ___</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Prepare Product Hunt launch profile — <em>Estimate:</em> ___</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Draft launch announcement (email list, social, communities) — <em>Estimate:</em> ___</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Verify cross-platform subscription sync works end-to-end — <em>Estimate:</em> ___</p></div></li></ul><p><strong>Dependencies:</strong> Mac app live (M4), iOS app live (M5), website live (M2)</p><p><strong>Milestone complete when:</strong> Both apps live with download links on website, launch announcements sent, cross-platform subscriptions verified working</p>",
       "type": "document",
       "parentId": "project-roadmap",
-      "childrenIds": [],
+      "childrenIds": [
+        "launch-day-production-switch"
+      ],
       "isCollapsed": false,
       "prefix": "2.6"
     },
@@ -1170,10 +1172,20 @@
       "isCollapsed": false,
       "prefix": "17.1.1",
       "linkedOutlineId": "marketing-outline-v2"
+    },
+    "launch-day-production-switch": {
+      "id": "launch-day-production-switch",
+      "name": "LAUNCH DAY — Production Switch (last-minute credential flip)",
+      "content": "<p><strong>LAUNCH DAY — the last-minute production switch.</strong> Everything in this node is deliberately deferred until we go fully public. Throughout the beta we stay on Clerk's <em>free development keys</em> so nothing starts costing money and beta invites keep working. Do ALL of these together in ONE dedicated session on the day we go public — doing them piecemeal forces repeated user re-invites and multi-system updates.</p><p><strong>Clerk — development → production (where paid usage begins):</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\"><label><input type=\"checkbox\"></label><div><p>Flip the IdiamPro app from Development to Production in the Clerk dashboard (one-way switch)</p></div></li><li data-type=\"taskItem\" data-checked=\"false\"><label><input type=\"checkbox\"></label><div><p>Verify the 2ndbrainware.com domain with Clerk and generate the new production keys</p></div></li><li data-type=\"taskItem\" data-checked=\"false\"><label><input type=\"checkbox\"></label><div><p>Update the two Clerk keys in Vercel, add the sign-up webhook, remove the \"Development mode\" banner</p></div></li><li data-type=\"taskItem\" data-checked=\"false\"><label><input type=\"checkbox\"></label><div><p>Re-invite Kathy and every beta user — development accounts do NOT carry over to production</p></div></li></ul><p><strong>Storage (Upstash) — rotate and re-wire:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\"><label><input type=\"checkbox\"></label><div><p>Replace the manually-added storage credentials in Vercel with the auto-syncing integration, then rotate the token</p></div></li><li data-type=\"taskItem\" data-checked=\"false\"><label><input type=\"checkbox\"></label><div><p>Write-probe: submit a test application and confirm it lands in the admin Pending list</p></div></li></ul><p><strong>Cleanup &amp; final sanity:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\"><label><input type=\"checkbox\"></label><div><p>Revoke the temporary Vercel access tokens created during June setup</p></div></li><li data-type=\"taskItem\" data-checked=\"false\"><label><input type=\"checkbox\"></label><div><p>Sign in as howard, confirm the admin dashboard opens; have Kathy re-onboard from a fresh invite</p></div></li><li data-type=\"taskItem\" data-checked=\"false\"><label><input type=\"checkbox\"></label><div><p>Confirm the \"Development mode\" banner is gone; bump the Launch Progress outline to the production-credentials milestone</p></div></li></ul><p><em>Tracked in Claude Code as the \"LAUNCH DAY\" task. Full technical detail lives in the production-migration-checklist memory.</em></p>",
+      "type": "document",
+      "parentId": "roadmap-m6-launch",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "2.6.1"
     }
   },
   "isGuide": false,
-  "lastModified": 1718049600000,
+  "lastModified": 1782867237577,
   "_fileName": "IdiamPro - Bootstrap Plan.idm",
   "_isLazyLoaded": false,
   "_fileSize": 129827
