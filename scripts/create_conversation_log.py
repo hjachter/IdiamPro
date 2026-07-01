@@ -13,12 +13,10 @@ from pathlib import Path
 from collections import defaultdict
 
 JSONL_DIR = os.path.expanduser(
-    "~/.claude/projects/-Users-howardjachter-Library-Mobile-Documents-com-apple-CloudDocs-ClaudeProjects-IdiamPro"
+    "~/.claude/projects/-Users-howardjachter-Developer-IdiamPro"
 )
 OUTPUT_FILE = os.path.expanduser("~/Documents/IDM Outlines/ClaudeCode Conversation Logs.idm")
-PROJECT_DIR = os.path.expanduser(
-    "~/Library/Mobile Documents/com~apple~CloudDocs/ClaudeProjects/IdiamPro"
-)
+PROJECT_DIR = os.path.expanduser("~/Developer/IdiamPro")
 
 
 def get_git_commits():
@@ -198,48 +196,121 @@ def make_node(name, content="", node_type="chapter", parent_id=None, children=No
     }
 
 
-def build_outline(sessions, session_commits):
-    """Build the outline structure."""
-    nodes = {}
-    root_id = str(uuid.uuid4())
+def build_session_node(session, session_commits, parent_id, session_name):
+    """Build a single session node dict."""
+    content_parts = []
 
+    # Add commits if any
+    commits = session_commits.get(session["id"], [])
+    if commits:
+        content_parts.append("<p><strong>Changes Made:</strong></p><ul>")
+        for commit in commits:
+            msg = commit["message"]
+            short_hash = commit["hash"][:7]
+            content_parts.append(f"<li><code>{short_hash}</code> {msg}</li>")
+        content_parts.append("</ul>")
+
+    # Add conversation messages
+    content_parts.append("<p><strong>Conversation:</strong></p>")
+    for msg in session["messages"]:
+        role_label = "User" if msg["role"] == "user" else "Claude"
+        text = msg["text"].replace("<", "&lt;").replace(">", "&gt;").replace("\n", "<br/>")
+        # Remove system reminders and tool content from display
+        if "system-reminder" in text or "[Tool:" in text:
+            continue
+        if len(text) > 300:
+            text = text[:300] + "..."
+        content_parts.append(f"<p><strong>{role_label}:</strong> {text}</p>")
+
+    session_content = "\n".join(content_parts)
+    return make_node(session_name, content=session_content, parent_id=parent_id)
+
+
+def load_existing_outline():
+    """Load the existing .idm outline if present, else return None."""
+    if not os.path.exists(OUTPUT_FILE):
+        return None
+    try:
+        with open(OUTPUT_FILE, "r") as f:
+            data = json.load(f)
+        if isinstance(data, dict) and "nodes" in data and data.get("rootNodeId"):
+            return data
+    except Exception as e:
+        print(f"Warning: Could not read existing outline: {e}")
+    return None
+
+
+def build_outline(sessions, session_commits, existing=None):
+    """Build (or merge into) the outline structure.
+
+    If `existing` is provided, only NEW date nodes (by name) and their
+    sessions are appended; all existing nodes are preserved untouched.
+    Reruns are idempotent \u2014 a date already present is skipped entirely.
+    """
     # Group sessions by date
     sessions_by_date = defaultdict(list)
     for session in sorted(sessions, key=lambda s: s["date"]):
         date_key = session["date"].strftime("%Y-%m-%d")
         sessions_by_date[date_key].append(session)
 
-    total_sessions = len(sessions)
-    total_messages = sum(len(s["messages"]) for s in sessions)
-    total_commits = sum(len(c) for c in session_commits.values())
-    total_days = len(sessions_by_date)
+    if existing:
+        nodes = existing["nodes"]
+        root_id = existing["rootNodeId"]
+        root = nodes[root_id]
+        outline = existing
+    else:
+        nodes = {}
+        root_id = str(uuid.uuid4())
+        root = {
+            "id": root_id,
+            "name": "ClaudeCode Conversation Logs",
+            "type": "root",
+            "content": "",
+            "parentId": None,
+            "childrenIds": [],
+            "collapsed": False,
+            "createdAt": datetime.now(timezone.utc).isoformat(),
+            "updatedAt": datetime.now(timezone.utc).isoformat(),
+        }
+        nodes[root_id] = root
+        outline = {
+            "id": str(uuid.uuid4()),
+            "name": "ClaudeCode Conversation Logs",
+            "rootNodeId": root_id,
+            "nodes": nodes,
+            "createdAt": datetime.now(timezone.utc).isoformat(),
+            "updatedAt": datetime.now(timezone.utc).isoformat(),
+            "version": 2,
+        }
 
-    # Root node
-    root = {
-        "id": root_id,
-        "name": "ClaudeCode Conversation Logs",
-        "type": "root",
-        "content": f"<p><strong>Total:</strong> {total_sessions} sessions, {total_messages} messages, {total_commits} commits across {total_days} days</p>",
-        "parentId": None,
-        "childrenIds": [],
-        "collapsed": False,
-        "createdAt": datetime.now(timezone.utc).isoformat(),
-        "updatedAt": datetime.now(timezone.utc).isoformat(),
-    }
-    nodes[root_id] = root
+    # Names of date nodes already present under the root (merge dedup key)
+    existing_date_names = set()
+    for cid in root.get("childrenIds", []):
+        n = nodes.get(cid)
+        if n:
+            existing_date_names.add(n.get("name", ""))
 
-    # Create date nodes (sorted chronologically, newest first for easy access)
+    added_dates = 0
+    added_sessions = 0
+
+    # Create date nodes for dates not already present.
+    # Newest first so they land at the top of the root's children.
     for date_key in sorted(sessions_by_date.keys(), reverse=True):
-        date_sessions = sessions_by_date[date_key]
         date_dt = datetime.strptime(date_key, "%Y-%m-%d")
         date_name = date_dt.strftime("%A, %B %d, %Y")
 
+        if date_name in existing_date_names:
+            # Already logged \u2014 leave untouched (idempotent rerun).
+            continue
+
+        date_sessions = sessions_by_date[date_key]
         date_node = make_node(date_name, parent_id=root_id)
         date_node_id = date_node["id"]
         nodes[date_node_id] = date_node
-        root["childrenIds"].append(date_node_id)
+        # Insert new date at the top of the list (newest-first ordering)
+        root["childrenIds"].insert(0, date_node_id)
+        added_dates += 1
 
-        # Create session nodes
         for idx, session in enumerate(date_sessions, 1):
             session_time = session["date"].strftime("%H:%M")
             if len(date_sessions) > 1:
@@ -247,52 +318,29 @@ def build_outline(sessions, session_commits):
             else:
                 session_name = f"Session \u2014 {session_time}"
 
-            # Build session content
-            content_parts = []
+            session_node = build_session_node(session, session_commits, date_node_id, session_name)
+            nodes[session_node["id"]] = session_node
+            date_node["childrenIds"].append(session_node["id"])
+            added_sessions += 1
 
-            # Add commits if any
-            commits = session_commits.get(session["id"], [])
-            if commits:
-                content_parts.append("<p><strong>Changes Made:</strong></p><ul>")
-                for commit in commits:
-                    msg = commit["message"]
-                    short_hash = commit["hash"][:7]
-                    content_parts.append(f"<li><code>{short_hash}</code> {msg}</li>")
-                content_parts.append("</ul>")
-
-            # Add conversation messages
-            content_parts.append("<p><strong>Conversation:</strong></p>")
-            for msg in session["messages"]:
-                role_label = "User" if msg["role"] == "user" else "Claude"
-                text = msg["text"].replace("<", "&lt;").replace(">", "&gt;").replace("\n", "<br/>")
-                # Remove system reminders and tool content from display
-                if "system-reminder" in text or "[Tool:" in text:
-                    continue
-                if len(text) > 300:
-                    text = text[:300] + "..."
-                content_parts.append(f"<p><strong>{role_label}:</strong> {text}</p>")
-
-            session_content = "\n".join(content_parts)
-            session_node = make_node(session_name, content=session_content, parent_id=date_node_id)
-            session_node_id = session_node["id"]
-            nodes[session_node_id] = session_node
-            date_node["childrenIds"].append(session_node_id)
-
-    return {
-        "id": str(uuid.uuid4()),
-        "name": "ClaudeCode Conversation Logs",
-        "rootNodeId": root_id,
-        "nodes": nodes,
-        "createdAt": datetime.now(timezone.utc).isoformat(),
-        "updatedAt": datetime.now(timezone.utc).isoformat(),
-        "version": 2,
-    }
+    outline["updatedAt"] = datetime.now(timezone.utc).isoformat()
+    outline["_added_dates"] = added_dates
+    outline["_added_sessions"] = added_sessions
+    return outline
 
 
 def main():
     print("Parsing JSONL conversation files...")
     sessions = parse_jsonl_files()
     print(f"Found {len(sessions)} sessions")
+
+    # HARD SAFETY GUARD #1: never write with zero sessions.
+    # A zero-session run means the transcript folder is wrong/empty; writing
+    # would wipe the log. Abort without touching the output file.
+    if not sessions:
+        print("ABORT: 0 sessions parsed. Refusing to write — this would wipe the log.")
+        print("Check that JSONL_DIR points at the current transcript folder.")
+        return
 
     print("Getting git commits...")
     commits = get_git_commits()
@@ -301,15 +349,31 @@ def main():
     print("Matching commits to sessions...")
     session_commits = match_commits_to_sessions(commits, sessions)
 
-    print("Building outline...")
-    outline = build_outline(sessions, session_commits)
+    existing = load_existing_outline()
+    existing_count = len(existing["nodes"]) if existing else 0
+    print(f"Existing outline node count: {existing_count}")
 
+    print("Building outline (safe merge)...")
+    outline = build_outline(sessions, session_commits, existing=existing)
+
+    added_dates = outline.pop("_added_dates", 0)
+    added_sessions = outline.pop("_added_sessions", 0)
+    node_count = len(outline["nodes"])
+
+    # HARD SAFETY GUARD #2: never shrink the log below what already exists.
+    if node_count < existing_count:
+        print(
+            f"ABORT: merge would reduce node count "
+            f"({existing_count} -> {node_count}). Refusing to write."
+        )
+        return
+
+    print(f"Added {added_dates} new date(s), {added_sessions} new session(s).")
     print(f"Writing to {OUTPUT_FILE}...")
     with open(OUTPUT_FILE, "w") as f:
         json.dump(outline, f, indent=2)
 
-    node_count = len(outline["nodes"])
-    print(f"Done! {node_count} nodes written.")
+    print(f"Done! {node_count} nodes written (was {existing_count}).")
     print("Reload the 'ClaudeCode Conversation Logs' outline in IdiamPro to see the updated version.")
 
 
