@@ -546,7 +546,7 @@
     "mtp-sc-2-1": {
       "id": "mtp-sc-2-1",
       "name": "Turn an item into different types",
-      "content": "<ol><li>Select an item and change its type to Task.</li><li>Change another to Note, another to Link, another to Code, another to Quote.</li></ol><p><strong>Expected:</strong> Each item takes on the chosen type and shows its matching style/icon.</p><p><strong>Result:</strong> ☐ Pass ☐ Fail — Notes: ______________________________</p>",
+      "content": "<ol><li>Select an item and change its type to Task.</li><li>Change another to Note, another to Link, another to Code, another to Quote.</li></ol><p><strong>Expected:</strong> Each item takes on the chosen type and shows its matching style/icon.</p><p><strong>Result:</strong> ☐ Pass ☐ Fail — Notes: ______________________________</p><p><strong>Exact steps (verified via automation):</strong></p><ol><li>Create a new outline and add five items: AsTask, AsNote, AsLink, AsCode, AsQuote.</li><li>Right-click an item and choose 'Properties...' (Type, Color and Tags all live in this one dialog).</li><li>In the Properties dialog under 'Type', click the desired type button (Task / Note / Link / Code / Quote), then click Save.</li><li>Repeat for each item, giving each a different type.</li></ol><p><strong>Automated pre-check:</strong> &#9745; Pass &mdash; Screenshot confirmed each item took its type's style/icon: the Task shows a checkbox, the Note a note icon, the Link is blue and underlined, the Code shows code brackets, the Quote shows a quote mark. Note for the tester: types are changed via right-click &#8594; Properties, not a separate menu.</p>",
       "type": "document",
       "parentId": "mtp-area-node-types",
       "childrenIds": [],
@@ -555,7 +555,7 @@
     "mtp-sc-2-2": {
       "id": "mtp-sc-2-2",
       "name": "Check off a task",
-      "content": "<ol><li>Make an item a Task.</li><li>Click its checkbox.</li></ol><p><strong>Expected:</strong> The task shows as complete (checked) and stays that way.</p><p><strong>Result:</strong> ☐ Pass ☐ Fail — Notes: ______________________________</p>",
+      "content": "<ol><li>Make an item a Task.</li><li>Click its checkbox.</li></ol><p><strong>Expected:</strong> The task shows as complete (checked) and stays that way.</p><p><strong>Result:</strong> ☐ Pass ☐ Fail — Notes: ______________________________</p><p><strong>Exact steps (verified via automation):</strong></p><ol><li>Make an item a Task (right-click &#8594; Properties &#8594; Type: Task &#8594; Save).</li><li>Click the empty checkbox that appears to the left of the task title.</li></ol><p><strong>Automated pre-check:</strong> &#9745; Pass &mdash; Screenshot confirmed the checkbox became checked and the task title showed a strike-through, i.e. marked complete and it stayed that way.</p>",
       "type": "document",
       "parentId": "mtp-area-node-types",
       "childrenIds": [],
@@ -564,7 +564,7 @@
     "mtp-sc-2-3": {
       "id": "mtp-sc-2-3",
       "name": "Give a task a due date",
-      "content": "<ol><li>Open a task's details and add a due date.</li></ol><p><strong>Expected:</strong> The due date is saved and shown on the task.</p><p><strong>Result:</strong> ☐ Pass ☐ Fail — Notes: ______________________________</p>",
+      "content": "<ol><li>Open a task's details and add a due date.</li></ol><p><strong>Expected:</strong> The due date is saved and shown on the task.</p><p><strong>Result:</strong> ☐ Pass ☐ Fail — Notes: ______________________________</p><p><strong>Exact steps (verified via automation):</strong></p><ol><li>Make an item a Task, then right-click it &#8594; Properties... to look for a due-date field.</li></ol><p><strong>Automated pre-check:</strong> &#9745; Fail (feature gap) &mdash; The Properties dialog only offers Type, Color and Tags. There is NO per-task due-date field anywhere. ('Date' in the Type list is a node type, not a due date.) A tester will not be able to add a due date to a task. Manual sign-off likely to fail unless a due-date field is added.</p>",
       "type": "document",
       "parentId": "mtp-area-node-types",
       "childrenIds": [],
@@ -573,7 +573,7 @@
     "mtp-sc-2-4": {
       "id": "mtp-sc-2-4",
       "name": "Color-code items",
-      "content": "<ol><li>Apply a color to a few items.</li></ol><p><strong>Expected:</strong> The chosen colors show on those items and persist after reload.</p><p><strong>Result:</strong> ☐ Pass ☐ Fail — Notes: ______________________________</p>",
+      "content": "<ol><li>Apply a color to a few items.</li></ol><p><strong>Expected:</strong> The chosen colors show on those items and persist after reload.</p><p><strong>Result:</strong> ☐ Pass ☐ Fail — Notes: ______________________________</p><p><strong>Exact steps (verified via automation):</strong></p><ol><li>Right-click an item &#8594; Properties...</li><li>Under 'Color', click a color swatch (e.g. Red), then click Save.</li><li>Reload the app to confirm the color persists.</li></ol><p><strong>Automated pre-check:</strong> &#9745; Pass &mdash; Screenshot confirmed the item showed a colored left-edge stripe and the color was still present after a full reload.</p>",
       "type": "document",
       "parentId": "mtp-area-node-types",
       "childrenIds": [],
@@ -582,7 +582,7 @@
     "mtp-sc-2-5": {
       "id": "mtp-sc-2-5",
       "name": "Add and remove tags with the Tag Manager, then filter by tag",
-      "content": "<ol><li>Open the Tag Manager and add a tag to a couple of items.</li><li>Remove the tag from one of them.</li><li>Filter the outline by that tag.</li></ol><p><strong>Expected:</strong> Tags add and remove cleanly; filtering shows only items carrying the tag.</p><p><strong>Result:</strong> ☐ Pass ☐ Fail — Notes: ______________________________</p>",
+      "content": "<ol><li>Open the Tag Manager and add a tag to a couple of items.</li><li>Remove the tag from one of them.</li><li>Filter the outline by that tag.</li></ol><p><strong>Expected:</strong> Tags add and remove cleanly; filtering shows only items carrying the tag.</p><p><strong>Result:</strong> ☐ Pass ☐ Fail — Notes: ______________________________</p><p><strong>Exact steps (verified via automation):</strong></p><ol><li>Right-click an item &#8594; Properties...</li><li>In the 'Tags' field type a tag name and press Enter to add it (repeat to add more).</li><li>Remove a tag by clicking the small x on its badge inside the dialog; click Save.</li></ol><p><strong>Automated pre-check:</strong> &#9745; Partial / feature gap &mdash; Tags add and remove cleanly inside the Properties dialog and show on the item. BUT there is NO standalone 'Tag Manager' surface and NO filter-by-tag control in the app. The scenario's 'open the Tag Manager' and 'filter the outline by that tag' steps cannot be completed. Tester note: manage tags via right-click &#8594; Properties; filtering by tag is not available.</p>",
       "type": "document",
       "parentId": "mtp-area-node-types",
       "childrenIds": [],
@@ -591,7 +591,7 @@
     "mtp-sc-2-6": {
       "id": "mtp-sc-2-6",
       "name": "Add an image item",
-      "content": "<ol><li>Insert an image item and add a picture.</li></ol><p><strong>Expected:</strong> The image displays inside the outline.</p><p><strong>Result:</strong> ☐ Pass ☐ Fail — Notes: ______________________________</p>",
+      "content": "<ol><li>Insert an image item and add a picture.</li></ol><p><strong>Expected:</strong> The image displays inside the outline.</p><p><strong>Result:</strong> ☐ Pass ☐ Fail — Notes: ______________________________</p><p><strong>Exact steps (verified via automation):</strong></p><ol><li>Select an item and open its content editor (right pane).</li><li>Images are added by either (a) the AI 'Generate Visual' button, or (b) pasting/dragging an image file into the content area.</li></ol><p><strong>Automated pre-check:</strong> &#9745; Manual-only &mdash; The AI image path needs an AI API key + billing (cannot be automated without a key). The paste/drag path needs a real image file dropped by a human. The image toolbar control is present. A human tester must verify an image displays inside the outline.</p>",
       "type": "document",
       "parentId": "mtp-area-node-types",
       "childrenIds": [],
@@ -600,7 +600,7 @@
     "mtp-sc-2-7": {
       "id": "mtp-sc-2-7",
       "name": "Add a spreadsheet and edit a cell",
-      "content": "<ol><li>Insert a spreadsheet item.</li><li>Type a value into a cell and move away.</li></ol><p><strong>Expected:</strong> The spreadsheet appears and the cell keeps the value you typed.</p><p><strong>Result:</strong> ☐ Pass ☐ Fail — Notes: ______________________________</p>",
+      "content": "<ol><li>Insert a spreadsheet item.</li><li>Type a value into a cell and move away.</li></ol><p><strong>Expected:</strong> The spreadsheet appears and the cell keeps the value you typed.</p><p><strong>Result:</strong> ☐ Pass ☐ Fail — Notes: ______________________________</p><p><strong>Exact steps (verified via automation):</strong></p><ol><li>Select an item and open its content editor.</li><li>Use the content editor's Insert / convert control to turn the item into a Spreadsheet, then type a value into a cell and click elsewhere.</li></ol><p><strong>Automated pre-check:</strong> &#9745; Needs manual verification &mdash; Automation could not reliably locate the spreadsheet insert/convert control from the toolbar, so the cell-edit could not be auto-driven. The spreadsheet editor component exists in the app. A human tester should confirm the grid appears and a typed cell value persists (and report where the insert control lives so the test can be tightened).</p>",
       "type": "document",
       "parentId": "mtp-area-node-types",
       "childrenIds": [],
@@ -609,7 +609,7 @@
     "mtp-sc-2-8": {
       "id": "mtp-sc-2-8",
       "name": "Add a drawing canvas",
-      "content": "<ol><li>Insert a drawing item and sketch something.</li></ol><p><strong>Expected:</strong> You can draw and the sketch is saved with the item.</p><p><strong>Result:</strong> ☐ Pass ☐ Fail — Notes: ______________________________</p>",
+      "content": "<ol><li>Insert a drawing item and sketch something.</li></ol><p><strong>Expected:</strong> You can draw and the sketch is saved with the item.</p><p><strong>Result:</strong> ☐ Pass ☐ Fail — Notes: ______________________________</p><p><strong>Exact steps (verified via automation):</strong></p><ol><li>Select an item and open its content editor.</li><li>Use the Draw / Canvas control to open the drawing canvas, sketch something, and save.</li></ol><p><strong>Automated pre-check:</strong> &#9745; Manual-only &mdash; Automation could not locate the draw/canvas control from the toolbar in this pass, and drawing actual strokes on the canvas requires a human. The Excalidraw drawing component exists in the app. A human tester must confirm they can draw and the sketch is saved with the item.</p>",
       "type": "document",
       "parentId": "mtp-area-node-types",
       "childrenIds": [],
@@ -618,7 +618,7 @@
     "mtp-sc-2-9": {
       "id": "mtp-sc-2-9",
       "name": "Add a YouTube/video item",
-      "content": "<ol><li>Insert a video item and paste a YouTube link.</li></ol><p><strong>Expected:</strong> The video embeds and can be played inside the outline.</p><p><strong>Result:</strong> ☐ Pass ☐ Fail — Notes: ______________________________</p>",
+      "content": "<ol><li>Insert a video item and paste a YouTube link.</li></ol><p><strong>Expected:</strong> The video embeds and can be played inside the outline.</p><p><strong>Result:</strong> ☐ Pass ☐ Fail — Notes: ______________________________</p><p><strong>Exact steps (verified via automation):</strong></p><ol><li>Select an item and open its content editor.</li><li>Click the 'Insert App' button in the content toolbar.</li><li>Choose 'YouTube' from the menu; a picker dialog opens where you paste a YouTube link.</li></ol><p><strong>Automated pre-check:</strong> &#9745; Pass (open path) &mdash; Screenshot confirmed the Insert App menu contains a YouTube item and choosing it opens the video picker dialog. Pasting a real link and confirming in-outline playback is a manual confirm step for the tester.</p>",
       "type": "document",
       "parentId": "mtp-area-node-types",
       "childrenIds": [],
@@ -627,7 +627,7 @@
     "mtp-sc-2-10": {
       "id": "mtp-sc-2-10",
       "name": "Add a link item and open it",
-      "content": "<ol><li>Insert a link item with a web address.</li><li>Click it.</li></ol><p><strong>Expected:</strong> The link opens the web page.</p><p><strong>Result:</strong> ☐ Pass ☐ Fail — Notes: ______________________________</p>",
+      "content": "<ol><li>Insert a link item with a web address.</li><li>Click it.</li></ol><p><strong>Expected:</strong> The link opens the web page.</p><p><strong>Result:</strong> ☐ Pass ☐ Fail — Notes: ______________________________</p><p><strong>Exact steps (verified via automation):</strong></p><ol><li>Create an item, right-click &#8594; Properties &#8594; Type: Link &#8594; Save (the item title turns blue and underlined).</li><li>Enter the web address for the link in the content pane.</li><li>Click the link to open it.</li></ol><p><strong>Automated pre-check:</strong> &#9745; Partial (type verified) &mdash; Screenshot confirmed Link-type items render blue/underlined. Entering the URL and confirming it opens the web page in a browser is a manual confirm step for the tester.</p>",
       "type": "document",
       "parentId": "mtp-area-node-types",
       "childrenIds": [],
@@ -654,7 +654,7 @@
     "mtp-sc-3-1": {
       "id": "mtp-sc-3-1",
       "name": "Open the Command Palette",
-      "content": "<ol><li>Press Cmd+K (Ctrl+K on Windows).</li></ol><p><strong>Expected:</strong> The command palette opens and you can search for actions.</p><p><strong>Result:</strong> ☐ Pass ☐ Fail — Notes: ______________________________</p>",
+      "content": "<ol><li>Press Cmd+K (Ctrl+K on Windows).</li></ol><p><strong>Expected:</strong> The command palette opens and you can search for actions.</p><p><strong>Result:</strong> ☐ Pass ☐ Fail — Notes: ______________________________</p><p><strong>Exact steps (verified via automation):</strong></p><ol><li>Press Cmd+K (Ctrl+K on Windows/Linux).</li></ol><p><strong>Automated pre-check:</strong> &#9745; Pass &mdash; Screenshot confirmed the Command Palette opened with a 'Type a command or question...' search box and a list of actions (New Node, New Outline, Search Outline, Focus Mode, etc.).</p>",
       "type": "document",
       "parentId": "mtp-area-shortcuts",
       "childrenIds": [],
@@ -663,7 +663,7 @@
     "mtp-sc-3-2": {
       "id": "mtp-sc-3-2",
       "name": "Search within the outline",
-      "content": "<ol><li>Press Cmd+F (Ctrl+F).</li><li>Type a word that appears in your outline.</li></ol><p><strong>Expected:</strong> The search box opens and matches are found/highlighted.</p><p><strong>Result:</strong> ☐ Pass ☐ Fail — Notes: ______________________________</p>",
+      "content": "<ol><li>Press Cmd+F (Ctrl+F).</li><li>Type a word that appears in your outline.</li></ol><p><strong>Expected:</strong> The search box opens and matches are found/highlighted.</p><p><strong>Result:</strong> ☐ Pass ☐ Fail — Notes: ______________________________</p><p><strong>Exact steps (verified via automation):</strong></p><ol><li>Press Cmd+F (Ctrl+F also works &mdash; the cheat sheet lists it as Ctrl+F).</li><li>Type a word that appears in the outline.</li></ol><p><strong>Automated pre-check:</strong> &#9745; Pass &mdash; Screenshot confirmed the in-outline search bar opened (with filter and next/previous controls) and accepted the typed query. Tester should visually confirm matches are highlighted.</p>",
       "type": "document",
       "parentId": "mtp-area-shortcuts",
       "childrenIds": [],
@@ -672,7 +672,7 @@
     "mtp-sc-3-3": {
       "id": "mtp-sc-3-3",
       "name": "Open the shortcuts cheat sheet",
-      "content": "<ol><li>Press the ? key.</li></ol><p><strong>Expected:</strong> A dialog listing all keyboard shortcuts appears.</p><p><strong>Result:</strong> ☐ Pass ☐ Fail — Notes: ______________________________</p>",
+      "content": "<ol><li>Press the ? key.</li></ol><p><strong>Expected:</strong> A dialog listing all keyboard shortcuts appears.</p><p><strong>Result:</strong> ☐ Pass ☐ Fail — Notes: ______________________________</p><p><strong>Exact steps (verified via automation):</strong></p><ol><li>Click an empty area (so focus is not in a text field), then press the ? key.</li></ol><p><strong>Automated pre-check:</strong> &#9745; Pass &mdash; Screenshot confirmed a 'Keyboard Shortcuts' dialog opened listing all shortcuts grouped by General / Navigation / Editing / Clipboard.</p>",
       "type": "document",
       "parentId": "mtp-area-shortcuts",
       "childrenIds": [],
@@ -681,7 +681,7 @@
     "mtp-sc-3-4": {
       "id": "mtp-sc-3-4",
       "name": "Bold and italic in item content",
-      "content": "<ol><li>Open an item's content, select some text.</li><li>Apply bold, then italic.</li></ol><p><strong>Expected:</strong> The selected text becomes bold, then italic.</p><p><strong>Result:</strong> ☐ Pass ☐ Fail — Notes: ______________________________</p>",
+      "content": "<ol><li>Open an item's content, select some text.</li><li>Apply bold, then italic.</li></ol><p><strong>Expected:</strong> The selected text becomes bold, then italic.</p><p><strong>Result:</strong> ☐ Pass ☐ Fail — Notes: ______________________________</p><p><strong>Exact steps (verified via automation):</strong></p><ol><li>Select an item and click into its content editor.</li><li>Type some text, select all of it (Cmd+A).</li><li>Press Cmd+B for bold, then Cmd+I for italic.</li></ol><p><strong>Automated pre-check:</strong> &#9745; Pass &mdash; Screenshot / DOM confirmed the selected text became bold and italic.</p>",
       "type": "document",
       "parentId": "mtp-area-shortcuts",
       "childrenIds": [],
@@ -690,7 +690,7 @@
     "mtp-sc-3-5": {
       "id": "mtp-sc-3-5",
       "name": "Undo and redo, including a big AI change",
-      "content": "<ol><li>Make several edits, then press Cmd+Z a few times to undo.</li><li>Press Cmd+Shift+Z to redo.</li><li>Run an AI transform, then undo it and watch for the persistent notice.</li></ol><p><strong>Expected:</strong> Undo/redo step back and forward correctly; undoing a large AI change shows a notice that stays until you dismiss it.</p><p><strong>Result:</strong> ☐ Pass ☐ Fail — Notes: ______________________________</p>",
+      "content": "<ol><li>Make several edits, then press Cmd+Z a few times to undo.</li><li>Press Cmd+Shift+Z to redo.</li><li>Run an AI transform, then undo it and watch for the persistent notice.</li></ol><p><strong>Expected:</strong> Undo/redo step back and forward correctly; undoing a large AI change shows a notice that stays until you dismiss it.</p><p><strong>Result:</strong> ☐ Pass ☐ Fail — Notes: ______________________________</p><p><strong>Exact steps (verified via automation):</strong></p><ol><li>In an item's content, type some text, then press Cmd+Z to undo.</li><li>Press Cmd+Shift+Z to redo.</li></ol><p><strong>Automated pre-check:</strong> &#9745; Pass (basic undo/redo) &mdash; Confirmed Cmd+Z removed the last-typed text and Cmd+Shift+Z restored it. The 'big AI change + persistent undo notice' sub-step needs an AI API key and is Manual-only for the tester.</p>",
       "type": "document",
       "parentId": "mtp-area-shortcuts",
       "childrenIds": [],
@@ -699,7 +699,7 @@
     "mtp-sc-3-6": {
       "id": "mtp-sc-3-6",
       "name": "Move around with arrow keys",
-      "content": "<ol><li>Click an item, then use the arrow keys to move up/down between items.</li></ol><p><strong>Expected:</strong> Selection moves between items using the arrow keys.</p><p><strong>Result:</strong> ☐ Pass ☐ Fail — Notes: ______________________________</p>",
+      "content": "<ol><li>Click an item, then use the arrow keys to move up/down between items.</li></ol><p><strong>Expected:</strong> Selection moves between items using the arrow keys.</p><p><strong>Result:</strong> ☐ Pass ☐ Fail — Notes: ______________________________</p><p><strong>Exact steps (verified via automation):</strong></p><ol><li>Click an item to select it.</li><li>Press the Down arrow key to move selection to the next item (Up to go back).</li></ol><p><strong>Automated pre-check:</strong> &#9745; Pass &mdash; Confirmed pressing Down moved the selection from the first item to the next item.</p>",
       "type": "document",
       "parentId": "mtp-area-shortcuts",
       "childrenIds": [],
@@ -708,7 +708,7 @@
     "mtp-sc-3-7": {
       "id": "mtp-sc-3-7",
       "name": "Expand-all / collapse-all by shortcut",
-      "content": "<ol><li>Press Cmd+E to expand everything, then Cmd+Shift+E to collapse.</li></ol><p><strong>Expected:</strong> The whole tree opens and closes with those shortcuts.</p><p><strong>Result:</strong> ☐ Pass ☐ Fail — Notes: ______________________________</p>",
+      "content": "<ol><li>Press Cmd+E to expand everything, then Cmd+Shift+E to collapse.</li></ol><p><strong>Expected:</strong> The whole tree opens and closes with those shortcuts.</p><p><strong>Result:</strong> ☐ Pass ☐ Fail — Notes: ______________________________</p><p><strong>Exact steps (verified via automation):</strong></p><ol><li>Select the outline root (or any node), make sure focus is NOT in a text box.</li><li>Press Cmd+Shift+E to Collapse All, then Cmd+E to Expand All.</li></ol><p><strong>Automated pre-check:</strong> &#9745; FAIL (bug) &mdash; The Collapse-All / Expand-All KEYBOARD SHORTCUTS (Cmd+E and Cmd+Shift+E) do nothing: the tree stayed fully expanded in every screenshot, tested on both the read-only User Guide and a fresh editable outline (parent + two children). Note: the SAME actions DO work from the toolbar's show/hide-all dropdown menu (verified in the outline-editing batch). So this is specifically a broken keyboard-shortcut binding, not a broken feature. Recommend filing a bug.</p>",
       "type": "document",
       "parentId": "mtp-area-shortcuts",
       "childrenIds": [],
