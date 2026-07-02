@@ -192,7 +192,7 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuCheckboxItem,
 } from '@/components/ui/dropdown-menu';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, MoreHorizontal } from 'lucide-react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import { BubbleMenu } from '@tiptap/react/menus';
 import { marked } from 'marked';
@@ -2551,56 +2551,60 @@ export default function ContentPane({
 
               <Separator orientation="vertical" className="h-6 mx-1" />
 
-              {/* List controls (touch-accessible) */}
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => editor.chain().focus().toggleBulletList().run()}
-                    aria-label="Bullet list"
-                    className={`active:scale-95 active:bg-accent/30 ${editor.isActive('bulletList') ? 'bg-accent' : ''}`}
-                  >
-                    <List className="h-4 w-4 text-sky-600 dark:text-sky-400" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Bullet list</TooltipContent>
-              </Tooltip>
+              {/* List controls (touch-accessible) — collapse below md */}
+              <div className="hidden md:flex items-center gap-2">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => editor.chain().focus().toggleBulletList().run()}
+                      aria-label="Bullet list"
+                      className={`active:scale-95 active:bg-accent/30 ${editor.isActive('bulletList') ? 'bg-accent' : ''}`}
+                    >
+                      <List className="h-4 w-4 text-sky-600 dark:text-sky-400" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Bullet list</TooltipContent>
+                </Tooltip>
 
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => editor.chain().focus().toggleOrderedList().run()}
-                    aria-label="Numbered list"
-                    className={`active:scale-95 active:bg-accent/30 ${editor.isActive('orderedList') ? 'bg-accent' : ''}`}
-                  >
-                    <ListOrdered className="h-4 w-4 text-sky-600 dark:text-sky-400" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Numbered list</TooltipContent>
-              </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => editor.chain().focus().toggleOrderedList().run()}
+                      aria-label="Numbered list"
+                      className={`active:scale-95 active:bg-accent/30 ${editor.isActive('orderedList') ? 'bg-accent' : ''}`}
+                    >
+                      <ListOrdered className="h-4 w-4 text-sky-600 dark:text-sky-400" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Numbered list</TooltipContent>
+                </Tooltip>
 
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => editor.chain().focus().toggleTaskList().run()}
-                    aria-label="Checklist"
-                    className={`active:scale-95 active:bg-accent/30 ${editor.isActive('taskList') ? 'bg-accent' : ''}`}
-                  >
-                    <ListChecks className="h-4 w-4 text-sky-600 dark:text-sky-400" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Checklist</TooltipContent>
-              </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => editor.chain().focus().toggleTaskList().run()}
+                      aria-label="Checklist"
+                      className={`active:scale-95 active:bg-accent/30 ${editor.isActive('taskList') ? 'bg-accent' : ''}`}
+                    >
+                      <ListChecks className="h-4 w-4 text-sky-600 dark:text-sky-400" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Checklist</TooltipContent>
+                </Tooltip>
 
-              <Separator orientation="vertical" className="h-6 mx-1" />
+                <Separator orientation="vertical" className="h-6 mx-1" />
+              </div>
             </>
           )}
 
+          {/* Insert App + Import File — collapse below md */}
+          <div className="hidden md:flex items-center gap-2">
           {/* Add Content Button */}
           <Tooltip>
             <DropdownMenu>
@@ -2668,6 +2672,94 @@ export default function ContentPane({
             </TooltipTrigger>
             <TooltipContent>Insert File</TooltipContent>
           </Tooltip>
+          </div>
+
+          {/* More tools — shown only below md; holds collapsed Lists + Insert/Import */}
+          <DropdownMenu>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    aria-label="More tools"
+                    className="inline-flex md:hidden"
+                  >
+                    <MoreHorizontal className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                  </Button>
+                </DropdownMenuTrigger>
+              </TooltipTrigger>
+              <TooltipContent>More tools</TooltipContent>
+            </Tooltip>
+            <DropdownMenuContent align="start" className="w-52 max-h-[70vh] overflow-y-auto">
+              {shouldUseRichTextEditor && editor && (
+                <>
+                  <DropdownMenuLabel className="text-xs text-muted-foreground">Lists</DropdownMenuLabel>
+                  <DropdownMenuItem onClick={() => editor?.chain().focus().toggleBulletList().run()}>
+                    <List className="mr-2 h-4 w-4" />
+                    Bullet list
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => editor?.chain().focus().toggleOrderedList().run()}>
+                    <ListOrdered className="mr-2 h-4 w-4" />
+                    Numbered list
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => editor?.chain().focus().toggleTaskList().run()}>
+                    <ListChecks className="mr-2 h-4 w-4" />
+                    Checklist
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                </>
+              )}
+              <DropdownMenuLabel className="text-xs text-muted-foreground">Insert</DropdownMenuLabel>
+              {node.type !== 'canvas' && node.type !== 'spreadsheet' && (
+                <>
+                  <DropdownMenuItem onClick={handleConvertToCanvas}>
+                    <Brush className="mr-2 h-4 w-4" />
+                    Canvas (Freeform)
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleConvertToSpreadsheet}>
+                    <Table className="mr-2 h-4 w-4" />
+                    Spreadsheet
+                  </DropdownMenuItem>
+                </>
+              )}
+              {(node.type === 'canvas' || node.type === 'spreadsheet') && (
+                <DropdownMenuItem onClick={handleConvertToText}>
+                  <FileText className="mr-2 h-4 w-4" />
+                  Switch to Text
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem onClick={handleOpenDrawing}>
+                <Pencil className="mr-2 h-4 w-4" />
+                Drawing (Apple Pencil)
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleInsertYouTube}>
+                <Video className="mr-2 h-4 w-4" />
+                YouTube Video
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleInsertGoogleDoc}>
+                <FileText className="mr-2 h-4 w-4" />
+                Google Doc
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleInsertGoogleSheet}>
+                <Sheet className="mr-2 h-4 w-4" />
+                Google Sheet
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleInsertGoogleSlide}>
+                <Presentation className="mr-2 h-4 w-4" />
+                Google Slides
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleInsertGoogleMaps}>
+                <Map className="mr-2 h-4 w-4" />
+                Google Maps
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleImportFile}>
+                <Paperclip className="mr-2 h-4 w-4" />
+                Import File
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           {/* INSERT | SMART TOOLS cluster divider */}
           <Separator orientation="vertical" className="h-6 mx-1" />

@@ -90,7 +90,7 @@ export default function RootLayout({
             it renders children untouched (exact current behavior, no Clerk
             loaded, no network) — same philosophy as the Sentry integration. */}
         <AuthProvider>
-          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
             <ErrorBoundary>
               <div className="h-full">
                 <AIProvider>

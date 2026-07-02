@@ -70,6 +70,8 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
   const { isPremium, plan } = useAI();
   const { theme, setTheme } = useTheme();
   const { isProfessional, setProfessional } = useDiscovery();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   // Format plan name for display
   const planDisplayName = {
@@ -872,21 +874,25 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
           <div className="space-y-3">
             <h3 className="text-sm font-medium">Appearance</h3>
             <div className="flex items-center justify-between">
-              <Label htmlFor="theme-toggle" className="text-sm">
+              <Label htmlFor="theme-select" className="text-sm">
                 Theme
               </Label>
-              <div className="flex items-center gap-2">
-                <Sun className="h-4 w-4 text-muted-foreground" />
-                <Switch
-                  id="theme-toggle"
-                  checked={theme === 'dark'}
-                  onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
-                />
-                <Moon className="h-4 w-4 text-muted-foreground" />
-              </div>
+              <Select
+                value={mounted ? (theme ?? 'system') : 'system'}
+                onValueChange={setTheme}
+              >
+                <SelectTrigger id="theme-select" className="w-32">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="light">Light</SelectItem>
+                  <SelectItem value="dark">Dark</SelectItem>
+                  <SelectItem value="system">Auto</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <p className="text-xs text-muted-foreground">
-              Switch between light and dark mode
+              Light, dark, or match your device
             </p>
           </div>
 

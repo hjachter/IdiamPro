@@ -7,6 +7,7 @@ import { getDefaultGeminiModel } from '@/config/gemini-models';
 const APP_CONTEXT = `You are a helpful assistant for IdiamPro, a professional outlining application with AI-powered features.
 
 KEY FEATURES:
+- Settings > Appearance has a theme selector: choose Light, Dark, or Auto (Auto matches your device's system setting).
 - Hierarchical outlining with drag & drop, indent/outdent
 - AI-powered outline generation from topics
 - Research & Import: Merge multiple sources (YouTube, PDFs, web pages, images, docs, audio, video, outline files) into unified outlines
