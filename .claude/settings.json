@@ -6,8 +6,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "osascript -e 'tell application \"Terminal\" to activate' 2>/dev/null || true",
-            "statusMessage": "Returning focus to Terminal"
+            "command": "bash /Users/howardjachter/Developer/IdiamPro/scripts/focus-claude-terminal.sh 2>/dev/null || true",
+            "statusMessage": "Returning focus to Claude Code window"
           }
         ]
       }

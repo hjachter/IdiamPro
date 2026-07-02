@@ -60,6 +60,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { fireDiscovery, useDiscovery } from '@/hooks/use-discovery';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
 
 interface SidebarPaneProps {
   outlines: Outline[];
@@ -377,30 +378,74 @@ export default function SidebarPane({
 
   return (
     <div className="h-full w-full flex flex-col bg-background/80 sidebar-shadow">
-      {/* Header with commands */}
-      <div className="flex-shrink-0 px-3 pt-2 pb-2 border-b border-border/60 space-y-2">
-        <div className="flex items-center justify-between">
-          <span className="font-semibold text-sm tracking-tight">IdiamPro</span>
-        </div>
+      {/* Brand / app title */}
+      <div className="flex-shrink-0 px-3 pt-2.5 pb-1.5 border-b border-border/60">
+        <span className="font-semibold text-sm tracking-tight">IdiamPro</span>
+      </div>
 
-        {/* Quick actions at top */}
+      {/* Function clusters — grouped and labeled so they no longer blend
+          together. Each cluster gets an uppercase "eyebrow" header; icons
+          carry a subtle, low-saturation accent hue to tell functions apart
+          at a glance. Labels/buttons stay neutral. */}
+      <div className="flex-shrink-0 px-3 pt-2 pb-2 border-b border-border/60 space-y-3">
+        {/* Cluster: Create */}
         <div className="space-y-1">
+          <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-0.5 pt-0.5">
+            Create
+          </div>
           <Button
             variant="outline"
             size="sm"
             className="w-full justify-start gap-2 h-8 font-medium shadow-sm hover:shadow transition-all duration-150"
             onClick={onCreateOutline}
           >
-            <Plus className="h-4 w-4" />
+            <Plus className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
             New Outline
           </Button>
+
+          {/* Templates Section (collapsible) — part of the Create cluster */}
+          <Collapsible open={templatesOpen} onOpenChange={setTemplatesOpen}>
+            <CollapsibleTrigger asChild>
+              <Button variant="ghost" className="w-full justify-start gap-2 h-8 px-2 text-muted-foreground hover:text-foreground transition-colors duration-150">
+                <span className="transition-transform duration-200" style={{ transform: templatesOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}>
+                  <ChevronRight className="h-4 w-4" />
+                </span>
+                <LayoutTemplate className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                <span className="text-sm font-medium">Templates</span>
+                <span className="ml-auto text-xs text-muted-foreground/70">{templates.length}</span>
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="mt-0.5 animate-in slide-in-from-top-1 duration-200">
+              <div className="grid grid-cols-1 gap-0.5 max-h-48 overflow-y-auto pl-2">
+                {templates.map(template => (
+                  <div
+                    key={template.id}
+                    className="flex items-center gap-2 px-2 py-1 rounded-md cursor-pointer text-sm transition-all duration-150 hover:bg-muted/80 hover:translate-x-0.5 active:bg-muted"
+                    onClick={() => handleSelectTemplate(template)}
+                  >
+                    <span className="text-base">{template.icon}</span>
+                    <span className="truncate">{template.name}</span>
+                  </div>
+                ))}
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
+        </div>
+
+        <Separator className="bg-border/60" />
+
+        {/* Cluster: Learn */}
+        <div className="space-y-1">
+          <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-0.5">
+            Learn
+          </div>
           <Button
             variant="ghost"
             size="sm"
             className="w-full justify-start gap-2 h-8 text-muted-foreground hover:text-foreground transition-colors duration-150"
             onClick={onOpenGuide}
           >
-            <BookOpen className="h-4 w-4" />
+            <BookOpen className="h-4 w-4 text-sky-600 dark:text-sky-400" />
             User Guide
           </Button>
           <Button
@@ -409,51 +454,29 @@ export default function SidebarPane({
             className="w-full justify-start gap-2 h-8 text-muted-foreground hover:text-foreground transition-colors duration-150"
             onClick={onShowWelcome}
           >
-            <Rocket className="h-4 w-4" />
+            <Rocket className="h-4 w-4 text-violet-600 dark:text-violet-400" />
             Welcome Outline
           </Button>
         </div>
-
-        {/* Templates Section (collapsible) */}
-        <Collapsible open={templatesOpen} onOpenChange={setTemplatesOpen}>
-          <CollapsibleTrigger asChild>
-            <Button variant="ghost" className="w-full justify-start gap-2 h-7 px-2 text-muted-foreground hover:text-foreground transition-colors duration-150">
-              <span className="transition-transform duration-200" style={{ transform: templatesOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}>
-                <ChevronRight className="h-4 w-4" />
-              </span>
-              <LayoutTemplate className="h-4 w-4" />
-              <span className="text-sm font-medium">Templates</span>
-              <span className="ml-auto text-xs text-muted-foreground/70">{templates.length}</span>
-            </Button>
-          </CollapsibleTrigger>
-          <CollapsibleContent className="mt-0.5 animate-in slide-in-from-top-1 duration-200">
-            <div className="grid grid-cols-1 gap-0.5 max-h-48 overflow-y-auto pl-2">
-              {templates.map(template => (
-                <div
-                  key={template.id}
-                  className="flex items-center gap-2 px-2 py-1 rounded-md cursor-pointer text-sm transition-all duration-150 hover:bg-muted/80 hover:translate-x-0.5 active:bg-muted"
-                  onClick={() => handleSelectTemplate(template)}
-                >
-                  <span className="text-base">{template.icon}</span>
-                  <span className="truncate">{template.name}</span>
-                </div>
-              ))}
-            </div>
-          </CollapsibleContent>
-        </Collapsible>
       </div>
 
-      {/* Outlines list header */}
-      <div className="flex items-center gap-2 px-3 py-1 border-b border-border/40 bg-muted/30">
-        <FileText className="h-3.5 w-3.5 text-muted-foreground" />
-        <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Outlines</span>
-        <span className="ml-auto text-[10px] text-muted-foreground/70 tabular-nums">
-          {outlineSearch ? `${filteredOutlines.length} / ${uniqueUserOutlines.length}` : uniqueUserOutlines.length}
-        </span>
+      {/* ── Clear labeled boundary where the outline list begins ──────────
+          "OUTLINES" eyebrow header sits directly above the list, with a
+          heavier accent bar + rule so it's obvious and intuitive where the
+          library starts (Howard's explicit request). */}
+      <div className="flex-shrink-0">
+        <div className="flex items-center gap-2 px-3 pt-2.5 pb-1.5 bg-muted/40">
+          <FileText className="h-4 w-4 text-primary/70" />
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-foreground/80">Outlines</span>
+          <span className="ml-auto text-[11px] text-muted-foreground/70 tabular-nums font-medium">
+            {outlineSearch ? `${filteredOutlines.length} / ${uniqueUserOutlines.length}` : uniqueUserOutlines.length}
+          </span>
+        </div>
+        <Separator className="bg-border" />
       </div>
 
       {/* Search input */}
-      <div className="flex-shrink-0 px-2 py-1 border-b border-border/40">
+      <div className="flex-shrink-0 px-2 py-1.5 border-b border-border/40 bg-muted/20">
         <div className="relative flex items-center">
           <Search className="absolute left-2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
           <Input
@@ -461,7 +484,7 @@ export default function SidebarPane({
             onChange={(e) => setOutlineSearch(e.target.value)}
             onKeyDown={(e) => e.stopPropagation()}
             placeholder="Search outlines..."
-            className="h-8 pl-7 pr-7 text-sm bg-muted/40 border-border/50"
+            className="h-8 pl-7 pr-7 text-sm bg-background border-border/50"
           />
           {outlineSearch && (
             <button
