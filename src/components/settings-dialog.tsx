@@ -208,6 +208,23 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
     if (open) refreshUsageState();
   }, [open, refreshUsageState]);
 
+  // Deep-link target: when any surface (e.g. the paywall dialog's "Use own
+  // key" button) fires 'open-ai-key-settings', open Settings and scroll the
+  // AI Service Keys section into view so the user lands right on it.
+  useEffect(() => {
+    const handleOpenAiKeys = () => {
+      setOpen(true);
+      setTimeout(() => {
+        document
+          .getElementById('ai-service-keys-section')
+          ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 250);
+    };
+    window.addEventListener('open-ai-key-settings', handleOpenAiKeys);
+    return () =>
+      window.removeEventListener('open-ai-key-settings', handleOpenAiKeys);
+  }, [setOpen]);
+
   // Check Ollama status when dialog opens
   useEffect(() => {
     if (open) {
@@ -986,11 +1003,15 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
           </div>
 
           {/* AI Service API Keys */}
-          <div className="space-y-3">
+          <div id="ai-service-keys-section" className="space-y-3">
             <h3 className="text-sm font-medium flex items-center gap-2">
               <Cloud className="h-4 w-4" />
               AI Service Keys
             </h3>
+            <p className="text-xs text-muted-foreground">
+              Add your own key for unlimited AI, free forever — you pay your
+              provider directly, IdiamPro takes nothing.
+            </p>
 
             {/* Quick start recommendation */}
             {!apiKeys['gemini'] && (

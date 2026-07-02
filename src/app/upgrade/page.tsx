@@ -48,7 +48,7 @@ const PLANS: PlanCard[] = [
   {
     id: 'free',
     name: 'Free (BYOK)',
-    tagline: 'Use your own AI key. Unlimited.',
+    tagline: 'Unlimited AI, free forever — bring your own key.',
     monthlyPrice: '$0',
     monthlyPriceNote: 'forever',
     features: [
@@ -174,8 +174,9 @@ export default function UpgradePage() {
             Pick the plan that fits.
           </h1>
           <p className="mx-auto mt-3 max-w-2xl text-base text-muted-foreground lg:text-lg">
-            Free forever with your own AI key. Or get AI included with Student
-            or Pro — cancel anytime.
+            Get unlimited AI, free forever — bring your own key and you pay your
+            provider directly, we take nothing. Prefer AI included? Student and
+            Pro add it in — cancel anytime.
           </p>
         </div>
 

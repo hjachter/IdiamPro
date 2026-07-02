@@ -38,7 +38,13 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Crown, Sparkles } from 'lucide-react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { Crown, Sparkles, KeyRound } from 'lucide-react';
 import {
   tierDisplayName,
   type SubscriptionTierId,
@@ -140,15 +146,49 @@ export function UpgradePromptProvider({
                 </li>
               ))}
             </ul>
+            {/* Never leave the user cornered into paying: the free BYOK path
+                is always offered as an equal alternative to upgrading. */}
+            <div className="rounded-md border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-700 dark:text-emerald-300">
+              Or get unlimited AI free — bring your own key. You pay your
+              provider directly.
+            </div>
             <p className="rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">
               Secure checkout via Stripe. Cancel anytime from Settings.
             </p>
           </div>
 
-          <DialogFooter className="gap-2 sm:gap-0">
+          <DialogFooter className="flex-col gap-2 sm:flex-row sm:justify-end sm:gap-2">
             <Button variant="ghost" onClick={() => setOpen(false)}>
               Maybe later
             </Button>
+            {/* Free BYOK path — deep-links the user to the AI key settings so
+                they can get unlimited AI at zero cost instead of paying. */}
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="border-emerald-500/40 text-emerald-700 hover:bg-emerald-500/10 dark:text-emerald-300"
+                    aria-label="Get unlimited AI free — plug in your own Gemini or OpenAI key. You pay your provider directly; IdiamPro takes nothing."
+                    onClick={() => {
+                      if (typeof window !== 'undefined') {
+                        window.dispatchEvent(
+                          new CustomEvent('open-ai-key-settings'),
+                        );
+                      }
+                      setOpen(false);
+                    }}
+                  >
+                    <KeyRound className="mr-2 h-4 w-4" />
+                    Use own key
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs">
+                  Get unlimited AI free — plug in your own Gemini or OpenAI key.
+                  You pay your provider directly; IdiamPro takes nothing.
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
             {/* Real CTA — routes to /upgrade where the user picks a plan
                 (Student vs Pro monthly vs Pro annual) and goes through
                 Stripe Checkout (web/Electron) or Apple IAP (iOS). */}

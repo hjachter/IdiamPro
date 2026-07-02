@@ -709,6 +709,84 @@ export default function MarketingPage() {
           </div>
         </div>
         </section>
+
+        {/* Idea Incubator — lead concept section that frames the whole product */}
+        <section className="px-6 pb-16 lg:px-12">
+          <div className="max-w-5xl mx-auto">
+            <div className="rounded-3xl border border-violet-500/20 bg-gradient-to-br from-violet-500/10 via-purple-500/5 to-indigo-500/10 p-8 md:p-12">
+              <div className="text-center mb-10">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/20 border border-violet-500/30 mb-6">
+                  <Sparkles className="w-4 h-4 text-violet-400" />
+                  <span className="text-sm font-medium text-violet-300">The Idea Incubator</span>
+                </div>
+                <h2 className="text-3xl md:text-5xl font-bold mb-6 leading-tight">
+                  <span className="bg-gradient-to-r from-white via-white to-white/80 bg-clip-text text-transparent">
+                    An Idea Incubator is where raw thoughts grow into finished work.
+                  </span>
+                </h2>
+                <p className="text-base md:text-lg text-white/70 leading-relaxed max-w-3xl mx-auto">
+                  Most tools store your notes. An Idea Incubator does something different — it takes the scattered raw material of your thinking (half-formed thoughts, saved videos, PDFs, web pages, meeting scraps) and actively grows them into structured, usable ideas.
+                </p>
+              </div>
+
+              {/* Four stages */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
+                {[
+                  {
+                    icon: Import,
+                    label: 'Capture',
+                    description: 'Drop in anything, no matter how rough. A 2am thought, a YouTube video, a dense PDF, a voice memo.',
+                    gradient: 'bg-gradient-to-br from-violet-500 to-purple-500',
+                  },
+                  {
+                    icon: FolderTree,
+                    label: 'Structure',
+                    description: 'Watch chaos become an outline you can shape, expand, and rearrange.',
+                    gradient: 'bg-gradient-to-br from-purple-500 to-indigo-500',
+                  },
+                  {
+                    icon: Globe,
+                    label: 'Enrich',
+                    description: 'Refresh any part against the live web so your thinking never goes stale, and ask your own outlines questions.',
+                    gradient: 'bg-gradient-to-br from-indigo-500 to-blue-500',
+                  },
+                  {
+                    icon: Rocket,
+                    label: 'Hatch',
+                    description: 'When an idea is ready, generate the finished thing: a document, a script, a podcast, a content package.',
+                    gradient: 'bg-gradient-to-br from-blue-500 to-cyan-500',
+                  },
+                ].map((stage, i) => {
+                  const StageIcon = stage.icon;
+                  return (
+                    <div
+                      key={stage.label}
+                      className="relative p-6 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/[0.07] hover:border-white/20 transition-all duration-300"
+                    >
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className={`w-11 h-11 rounded-xl ${stage.gradient} flex items-center justify-center flex-shrink-0`}>
+                          <StageIcon className="w-6 h-6 text-white" />
+                        </div>
+                        <span className="text-xs font-semibold text-white/40">{`0${i + 1}`}</span>
+                      </div>
+                      <h3 className="text-lg font-bold text-white mb-2">{stage.label}</h3>
+                      <p className="text-white/60 text-sm leading-relaxed">{stage.description}</p>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Closing emphasized line */}
+              <p className="text-center text-lg md:text-2xl font-semibold text-white mt-10 max-w-3xl mx-auto leading-snug">
+                That&apos;s the difference between a filing cabinet and an incubator.{' '}
+                <span className="bg-gradient-to-r from-violet-300 to-indigo-300 bg-clip-text text-transparent">
+                  One stores your ideas. The other helps them grow up.
+                </span>
+              </p>
+            </div>
+          </div>
+        </section>
+
         {/* Globally distributed teams — concrete-example block */}
         <section className="px-6 pb-16 lg:px-12">
           <div className="max-w-4xl mx-auto">
@@ -1817,13 +1895,22 @@ export default function MarketingPage() {
               <p className="text-white/50 text-lg max-w-2xl mx-auto">
                 Start free, upgrade when you need more. No hidden fees.
               </p>
+              <div className="mt-6 flex justify-center">
+                <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-gradient-to-r from-violet-500/10 to-emerald-500/10 px-5 py-2.5 text-sm font-medium text-white/90">
+                  <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                  Bring your own AI key and get unlimited AI, free forever — you
+                  pay your provider directly, we take nothing.
+                </div>
+              </div>
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
               <PricingCard
                 name="Free"
                 price="$0"
-                description="For personal use — use your own AI key (BYOK), no limits."
+                highlighted={true}
+                badge="Free forever"
+                description="Unlimited AI, free forever — bring your own key. You pay your provider directly; we take nothing."
                 features={[
                   'Unlimited outlines',
                   'All core outliner features',
