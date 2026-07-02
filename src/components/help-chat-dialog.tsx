@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { ScrollArea } from './ui/scroll-area';
-import { CircleHelp, Send, Sparkles, User, Loader2, Mic } from 'lucide-react';
+import { CircleHelp, Send, Sparkles, User, Loader2, Mic, TriangleAlert } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useSpeechToText } from '@/hooks/use-speech-to-text';
 import { useInputModePreference } from '@/lib/use-input-mode-preference';
@@ -13,12 +13,15 @@ import { getMicPermissionHelp } from '@/lib/platform-help';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { toast } from '@/hooks/use-toast';
 import { useAIUsageGate } from '@/lib/use-ai-usage-gate';
+import { getUserApiKey } from '@/lib/byok-keys';
 
 interface Message {
   id: string;
   role: 'user' | 'assistant';
   content: string;
   timestamp: number;
+  /** Calm inline notice (e.g. cloud unavailable — answered with local Gemma). */
+  notice?: string;
 }
 
 interface HelpChatDialogProps {
@@ -120,6 +123,7 @@ AI FEATURES:
 - Smart Auto-Tagging: When you save anything to Second Brain (including via Quick Capture), AI suggests 1-3 short topical tags and applies them automatically. Tags are stored as node metadata and shown in the dashboard. You can edit tags later via the existing tag UI.
 - Describe with AI: Every embedded image has a "Describe with AI" button. Uses Gemma 4 vision (local) or Gemini (cloud) to generate a description. When local, no image data leaves your device.
 - Local AI / Ollama: Settings > AI Provider. Choose Cloud, Local (Ollama on localhost:11434), or Auto. Recommended models: gemma4:e4b (multimodal, 4GB RAM), gemma4:26b (16GB+ RAM, fastest large model), gemma4:31b (24GB+ RAM, max quality). Legacy: llama3.2 (3GB RAM, low-spec systems). Requires Ollama 0.20+ for Gemma 4 support.
+- AI resilience / automatic fallback: The Help chat (and, over time, other AI features) honor your AI Provider setting. On "Cloud" or "Auto", if the cloud AI is unavailable — an outage, a rate limit, or a billing/quota problem — and you have a local Gemma model installed via Ollama, the Help chat automatically answers with local Gemma instead and shows a calm notice ("Gemini is unavailable right now — answered with local Gemma instead. Quality may differ."). If the failing key is your OWN key (BYOK) and the failure is a billing/quota issue, the notice also reminds you to check your AI provider's billing. If no local model is available, you'll see a brief "AI is temporarily unavailable — please try again shortly." On "Local", the Help chat answers with local Gemma directly and never calls the cloud.
 - AI Data Consent: On first use of any AI feature, a consent dialog appears explaining that data is sent to Google Gemini, OpenAI, and AssemblyAI. Users must agree before AI features work. If you click Decline, a warning screen lists all features that will be disabled and asks you to confirm. Consent can be revoked in Settings > Data & Privacy. Privacy policy available at /privacy.
 - Privacy & Data (GDPR/CCPA): Settings > Privacy & Data has two buttons. "Export my data" generates a .zip archive containing every outline (as .idm files), localStorage preferences, all stored AI API keys, and your AI consent state — saved via native dialog on desktop, Share sheet on iOS, or browser download on web. "Delete all my data" requires a two-step confirmation (warning dialog, then type DELETE) and permanently wipes outlines, settings, API keys, and consent state from this device, then reloads the app to its fresh-install state. Both work even with AI consent revoked. Neither touches anything outside IdiamPro's data scope.
 - Pending Import Recovery (Desktop): If import times out or app closes, result is saved and recovery dialog appears on next launch
@@ -349,6 +353,15 @@ export default function HelpChatDialog({ open, onOpenChange }: HelpChatDialogPro
     setIsLoading(true);
 
     try {
+      // Honor the user's AI Provider setting (Cloud / Local / Auto) and tell
+      // the server whether the Gemini key in play is the user's own (BYOK),
+      // so any billing message can be phrased correctly.
+      const aiProvider =
+        (typeof localStorage !== 'undefined' &&
+          (localStorage.getItem('aiProvider') as 'cloud' | 'local' | 'auto')) ||
+        'auto';
+      const geminiKeyIsByok = !!getUserApiKey('gemini');
+
       // Call help chat action
       const response = await fetch('/api/help-chat', {
         method: 'POST',
@@ -358,6 +371,8 @@ export default function HelpChatDialog({ open, onOpenChange }: HelpChatDialogPro
             role: m.role,
             content: m.content,
           })),
+          aiProvider,
+          geminiKeyIsByok,
         }),
       });
 
@@ -372,6 +387,7 @@ export default function HelpChatDialog({ open, onOpenChange }: HelpChatDialogPro
         role: 'assistant',
         content: data.response,
         timestamp: Date.now(),
+        notice: data.notice || undefined,
       };
 
       setMessages(prev => [...prev, assistantMessage]);
@@ -437,6 +453,15 @@ export default function HelpChatDialog({ open, onOpenChange }: HelpChatDialogPro
                       : 'bg-muted'
                   )}
                 >
+                  {message.notice && (
+                    <div
+                      data-testid="fallback-notice"
+                      className="mb-2 flex items-start gap-2 rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-700 dark:text-amber-300"
+                    >
+                      <TriangleAlert className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
+                      <span className="select-text">{message.notice}</span>
+                    </div>
+                  )}
                   <p className="text-sm whitespace-pre-wrap select-text cursor-text">{message.content}</p>
                 </div>
                 {message.role === 'user' && (

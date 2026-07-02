@@ -2,6 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { ai } from '@/ai/genkit';
 import { enforceRateLimit } from '@/lib/rate-limit';
 import { getDefaultGeminiModel } from '@/config/gemini-models';
+import { generateWithOllama } from '@/lib/ollama-service';
+import {
+  runAIWithFailover,
+  buildFailoverNotice,
+  buildNoFallbackMessage,
+  AIFailoverError,
+  type AIProviderChoice,
+} from '@/lib/ai-failover';
 
 // App context for AI to understand what IdiamPro does
 const APP_CONTEXT = `You are a helpful assistant for IdiamPro, a professional outlining application with AI-powered features.
@@ -97,6 +105,7 @@ AI FEATURES:
 - Smart Auto-Tagging: When you save anything to Second Brain (including via Quick Capture), AI suggests 1-3 short topical tags and applies them automatically. Tags are stored as node metadata and shown in the dashboard. You can edit tags later via the existing tag UI.
 - Describe with AI: Every embedded image has a "Describe with AI" button. Uses Gemma 4 vision (local) or Gemini (cloud) to generate a description. When local, no image data leaves your device.
 - Local AI / Ollama: Settings > AI Provider. Choose Cloud, Local (Ollama on localhost:11434), or Auto. Recommended models: gemma4:e4b (multimodal, 4GB RAM), gemma4:26b (16GB+ RAM, fastest large model), gemma4:31b (24GB+ RAM, max quality). Legacy: llama3.2 (3GB RAM, low-spec systems). Requires Ollama 0.20+ for Gemma 4 support.
+- AI resilience / automatic fallback: The Help chat (and, over time, other AI features) honor your AI Provider setting. On "Cloud" or "Auto", if the cloud AI is unavailable — an outage, a rate limit, or a billing/quota problem — and you have a local Gemma model installed via Ollama, the Help chat automatically answers with local Gemma instead and shows a calm notice ("Gemini is unavailable right now — answered with local Gemma instead. Quality may differ."). If the failing key is your OWN key (BYOK) and the failure is a billing/quota issue, the notice also reminds you to check your AI provider's billing. If no local model is available, you'll see a brief "AI is temporarily unavailable — please try again shortly." On "Local", the Help chat answers with local Gemma directly and never calls the cloud.
 - AI Data Consent: On first use of any AI feature, a consent dialog appears explaining that data is sent to Google Gemini, OpenAI, and AssemblyAI. Users must agree before AI features work. If you click Decline, a warning screen lists all features that will be disabled and asks you to confirm. Consent can be revoked in Settings > Data & Privacy. Privacy policy available at /privacy.
 - Privacy & Data (GDPR/CCPA): Settings > Privacy & Data has two buttons. "Export my data" generates a .zip archive containing every outline (as .idm files), localStorage preferences, all stored AI API keys, and your AI consent state — saved via native dialog on desktop, Share sheet on iOS, or browser download on web. "Delete all my data" requires a two-step confirmation (warning dialog, then type DELETE) and permanently wipes outlines, settings, API keys, and consent state from this device, then reloads the app to its fresh-install state. Both work even with AI consent revoked. Neither touches anything outside IdiamPro's data scope.
 - Pending Import Recovery (Desktop): If import times out or app closes, result is saved and recovery dialog appears on next launch
@@ -218,7 +227,16 @@ export async function POST(request: NextRequest) {
   if (limited) return limited;
 
   try {
-    const { messages } = await request.json() as { messages: Message[] };
+    const {
+      messages,
+      aiProvider = 'auto',
+      geminiKeyIsByok = false,
+    } = await request.json() as {
+      messages: Message[];
+      aiProvider?: AIProviderChoice;
+      /** True when the client is using the user's OWN Gemini key (BYOK). */
+      geminiKeyIsByok?: boolean;
+    };
 
     if (!messages || messages.length === 0) {
       return NextResponse.json(
@@ -232,20 +250,51 @@ export async function POST(request: NextRequest) {
       `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}`
     ).join('\n\n');
 
-    const userQuestion = messages[messages.length - 1].content;
-
-    // Generate response using Gemini
-    const { text } = await ai.generate({
-      model: getDefaultGeminiModel('genkit'),
-      prompt: `${APP_CONTEXT}
+    const prompt = `${APP_CONTEXT}
 
 Conversation history:
 ${conversationHistory}
 
-Provide a helpful, clear, and concise response to the user's question. If explaining a feature, be specific about where to find it and how to use it. Keep your response under 200 words unless more detail is genuinely needed.`,
-    });
+Provide a helpful, clear, and concise response to the user's question. If explaining a feature, be specific about where to find it and how to use it. Keep your response under 200 words unless more detail is genuinely needed.`;
 
-    return NextResponse.json({ response: text });
+    try {
+      const result = await runAIWithFailover({
+        provider: aiProvider,
+        cloudKeyIsByok: geminiKeyIsByok,
+        cloudProviderName: 'Gemini',
+        cloudAttempt: async () => {
+          const { text } = await ai.generate({
+            model: getDefaultGeminiModel('genkit'),
+            prompt,
+          });
+          return text;
+        },
+        localAttempt: async (model) => {
+          return generateWithOllama({ model, prompt, maxTokens: 1200 });
+        },
+      });
+
+      return NextResponse.json({
+        response: result.text,
+        // Metadata the dialog uses to render the calm fallback / billing notice.
+        answeredBy: result.answeredBy,
+        fellBackToLocal: result.fellBackToLocal,
+        billingIssue: result.billingIssue,
+        notice: buildFailoverNotice(result),
+      });
+    } catch (err) {
+      if (err instanceof AIFailoverError) {
+        // Cloud failed and no local fallback was reachable.
+        return NextResponse.json({
+          response: buildNoFallbackMessage(err),
+          answeredBy: 'cloud',
+          fellBackToLocal: false,
+          billingIssue: err.billingIssue,
+          noFallback: true,
+        });
+      }
+      throw err;
+    }
   } catch (error) {
     console.error('Help chat error:', error);
     return NextResponse.json(
