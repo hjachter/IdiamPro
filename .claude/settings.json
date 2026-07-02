@@ -11,6 +11,18 @@
           }
         ]
       }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /Users/howardjachter/Developer/IdiamPro/scripts/backup-transcripts.sh >/dev/null 2>&1 || true",
+            "async": true,
+            "statusMessage": "Backing up transcripts to iCloud"
+          }
+        ]
+      }
     ]
   }
 }
