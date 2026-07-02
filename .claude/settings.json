@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "osascript -e 'tell application \"Terminal\" to activate' 2>/dev/null || true",
+            "statusMessage": "Returning focus to Terminal"
+          }
+        ]
+      }
+    ]
+  }
+}
