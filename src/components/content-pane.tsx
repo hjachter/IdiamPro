@@ -3317,7 +3317,7 @@ export default function ContentPane({
                         size="icon"
                         aria-label="Bold"
                         onClick={() => editor.chain().focus().toggleBold().run()}
-                        className={`h-8 w-8 active:scale-95 active:bg-accent/30 ${editor.isActive('bold') ? 'bg-accent' : ''}`}
+                        className={`h-8 w-8 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-8 md:min-w-8 active:scale-95 active:bg-accent/30 ${editor.isActive('bold') ? 'bg-accent' : ''}`}
                       >
                         <Bold className="h-4 w-4" />
                       </Button>
@@ -3332,7 +3332,7 @@ export default function ContentPane({
                         size="icon"
                         aria-label="Italic"
                         onClick={() => editor.chain().focus().toggleItalic().run()}
-                        className={`h-8 w-8 active:scale-95 active:bg-accent/30 ${editor.isActive('italic') ? 'bg-accent' : ''}`}
+                        className={`h-8 w-8 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-8 md:min-w-8 active:scale-95 active:bg-accent/30 ${editor.isActive('italic') ? 'bg-accent' : ''}`}
                       >
                         <Italic className="h-4 w-4" />
                       </Button>
@@ -3347,7 +3347,7 @@ export default function ContentPane({
                         size="icon"
                         aria-label="Strikethrough"
                         onClick={() => editor.chain().focus().toggleStrike().run()}
-                        className={`h-8 w-8 active:scale-95 active:bg-accent/30 ${editor.isActive('strike') ? 'bg-accent' : ''}`}
+                        className={`h-8 w-8 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-8 md:min-w-8 active:scale-95 active:bg-accent/30 ${editor.isActive('strike') ? 'bg-accent' : ''}`}
                       >
                         <Strikethrough className="h-4 w-4" />
                       </Button>
@@ -3362,7 +3362,7 @@ export default function ContentPane({
                         size="icon"
                         aria-label="Inline code"
                         onClick={() => editor.chain().focus().toggleCode().run()}
-                        className={`h-8 w-8 active:scale-95 active:bg-accent/30 ${editor.isActive('code') ? 'bg-accent' : ''}`}
+                        className={`h-8 w-8 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-8 md:min-w-8 active:scale-95 active:bg-accent/30 ${editor.isActive('code') ? 'bg-accent' : ''}`}
                       >
                         <Code className="h-4 w-4" />
                       </Button>
@@ -3378,7 +3378,7 @@ export default function ContentPane({
                         size="icon"
                         aria-label="Heading 1"
                         onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-                        className={`h-8 w-8 active:scale-95 active:bg-accent/30 ${editor.isActive('heading', { level: 1 }) ? 'bg-accent' : ''}`}
+                        className={`h-8 w-8 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-8 md:min-w-8 active:scale-95 active:bg-accent/30 ${editor.isActive('heading', { level: 1 }) ? 'bg-accent' : ''}`}
                       >
                         <Heading1 className="h-4 w-4" />
                       </Button>
@@ -3393,7 +3393,7 @@ export default function ContentPane({
                         size="icon"
                         aria-label="Heading 2"
                         onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-                        className={`h-8 w-8 active:scale-95 active:bg-accent/30 ${editor.isActive('heading', { level: 2 }) ? 'bg-accent' : ''}`}
+                        className={`h-8 w-8 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-8 md:min-w-8 active:scale-95 active:bg-accent/30 ${editor.isActive('heading', { level: 2 }) ? 'bg-accent' : ''}`}
                       >
                         <Heading2 className="h-4 w-4" />
                       </Button>
@@ -3408,7 +3408,7 @@ export default function ContentPane({
                         size="icon"
                         aria-label="Heading 3"
                         onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-                        className={`h-8 w-8 active:scale-95 active:bg-accent/30 ${editor.isActive('heading', { level: 3 }) ? 'bg-accent' : ''}`}
+                        className={`h-8 w-8 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-8 md:min-w-8 active:scale-95 active:bg-accent/30 ${editor.isActive('heading', { level: 3 }) ? 'bg-accent' : ''}`}
                       >
                         <Heading3 className="h-4 w-4" />
                       </Button>

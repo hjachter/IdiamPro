@@ -318,14 +318,14 @@ export default function TranslateDialog({
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                       <div className="rounded border border-border/50 p-2 bg-background/50">
-                        <div className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1">Before</div>
+                        <div className="text-xs uppercase tracking-wide text-muted-foreground mb-1">Before</div>
                         <div
                           className="prose prose-xs dark:prose-invert max-w-none line-clamp-6"
                           dangerouslySetInnerHTML={{ __html: p.beforeContent || '<em>(empty)</em>' }}
                         />
                       </div>
                       <div className="rounded border border-primary/30 p-2 bg-primary/5">
-                        <div className="text-[10px] uppercase tracking-wide text-primary mb-1">After ({targetLanguage})</div>
+                        <div className="text-xs uppercase tracking-wide text-primary mb-1">After ({targetLanguage})</div>
                         <div
                           className="prose prose-xs dark:prose-invert max-w-none line-clamp-6"
                           dangerouslySetInnerHTML={{ __html: p.afterContent || '<em>(empty)</em>' }}

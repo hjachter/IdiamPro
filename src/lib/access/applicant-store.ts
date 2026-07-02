@@ -230,6 +230,26 @@ export async function getApprovedApplicantEmails(): Promise<string[]> {
   return Array.from(set);
 }
 
+/**
+ * Delete the applicant record tied to an email address (if any).
+ *
+ * Used by the in-app "Delete Account" flow so that when a user erases their
+ * account we also erase the durable beta-applicant record we hold for them.
+ * Best-effort and idempotent: returns true if a record was found + removed,
+ * false if there was nothing to delete.
+ */
+export async function deleteApplicantByEmail(email: string): Promise<boolean> {
+  const target = normalizeEmail(email);
+  if (!target) return false;
+  const storage = getStorage();
+  const id = await storage.get<string>(KEY_EMAIL_LOOKUP(target));
+  if (!id) return false;
+  await storage.delete(KEY_APPLICANT(id));
+  await storage.delete(KEY_EMAIL_LOOKUP(target));
+  await storage.setRemove(KEY_INDEX, id);
+  return true;
+}
+
 /** Test-only: blow away every applicant record + index. */
 export async function _resetApplicantStoreForTest(): Promise<void> {
   const storage = getStorage();

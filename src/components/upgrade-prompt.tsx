@@ -50,6 +50,19 @@ import {
   type SubscriptionTierId,
 } from '@/lib/entitlements';
 
+// LAUNCH DECISION (2026-07, approved by Howard — see Decisions Log): on
+// iOS/iPad we hide the paid-purchase CTA at launch because Apple in-app
+// purchase isn't wired yet; a broken/absent purchase path = App Store
+// rejection. iOS users get ONLY the free bring-your-own-key path here.
+// Reverse by removing this helper's use once Apple IAP is live.
+function isNativeIOS(): boolean {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const cap = typeof window !== 'undefined' ? (window as any).Capacitor : undefined;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const isElectron = typeof window !== 'undefined' && !!(window as any).electronAPI;
+  return !!cap?.isNativePlatform?.() && !isElectron;
+}
+
 export interface UpgradePromptOptions {
   /** Plain-language reason, e.g. "This is a Pro feature" or a quota message. */
   reason: string;
@@ -117,6 +130,8 @@ export function UpgradePromptProvider({
 
   const tierLabel = opts ? tierDisplayName(opts.requiredTier) : '';
   const benefits = opts ? TIER_BENEFITS[opts.requiredTier] : [];
+  // On iOS the paid path is hidden at launch; only BYOK is offered.
+  const hidePaid = isNativeIOS();
 
   return (
     <UpgradePromptContext.Provider value={value}>
@@ -152,9 +167,11 @@ export function UpgradePromptProvider({
               Or get unlimited AI free — bring your own key. You pay your
               provider directly.
             </div>
-            <p className="rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">
-              Secure checkout via Stripe. Cancel anytime from Settings.
-            </p>
+            {!hidePaid && (
+              <p className="rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">
+                Secure checkout via Stripe. Cancel anytime from Settings.
+              </p>
+            )}
           </div>
 
           <DialogFooter className="flex-col gap-2 sm:flex-row sm:justify-end sm:gap-2">
@@ -191,18 +208,21 @@ export function UpgradePromptProvider({
             </TooltipProvider>
             {/* Real CTA — routes to /upgrade where the user picks a plan
                 (Student vs Pro monthly vs Pro annual) and goes through
-                Stripe Checkout (web/Electron) or Apple IAP (iOS). */}
-            <Button
-              onClick={() => {
-                setOpen(false);
-                if (typeof window !== 'undefined') {
-                  window.location.href = '/upgrade';
-                }
-              }}
-            >
-              <Crown className="mr-2 h-4 w-4" />
-              See plans
-            </Button>
+                Stripe Checkout (web/Electron). HIDDEN on iOS at launch (see
+                decision comment at top of file) — iOS users use BYOK only. */}
+            {!hidePaid && (
+              <Button
+                onClick={() => {
+                  setOpen(false);
+                  if (typeof window !== 'undefined') {
+                    window.location.href = '/upgrade';
+                  }
+                }}
+              >
+                <Crown className="mr-2 h-4 w-4" />
+                See plans
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>

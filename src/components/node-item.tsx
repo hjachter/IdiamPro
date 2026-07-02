@@ -624,7 +624,7 @@ export default function NodeItem({
         >
             <button
                 className={cn(
-                    "inline-flex items-center justify-center min-h-8 min-w-8 rounded-md hover:bg-primary/20 active:scale-95 active:bg-accent/30 transition-colors",
+                    "inline-flex items-center justify-center min-h-[44px] min-w-[44px] touch-manipulation md:min-h-8 md:min-w-8 rounded-md hover:bg-primary/20 active:scale-95 active:bg-accent/30 transition-colors",
                     (node.childrenIds && node.childrenIds.length > 0) ? "visible" : "invisible"
                 )}
                 onClick={(e) => {

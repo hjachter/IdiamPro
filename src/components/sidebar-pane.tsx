@@ -823,14 +823,14 @@ function OutlineRow(props: OutlineRowProps) {
           <span className="truncate flex-1">
             {outline.name}
             {isOrphanDerivative && (
-              <span className="ml-1.5 text-[10px] text-muted-foreground/70 italic">
+              <span className="ml-1.5 text-xs text-muted-foreground/70 italic">
                 (orphan derivative)
               </span>
             )}
           </span>
           {(outline as LazyOutline)._isLazyLoaded && (
             <span
-              className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full shrink-0"
+              className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full shrink-0"
               title={`Large outline (~${((outline as LazyOutline)._estimatedNodeCount || 0).toLocaleString()} nodes)`}
             >
               {((outline as LazyOutline)._fileSize || 0) > 100_000_000

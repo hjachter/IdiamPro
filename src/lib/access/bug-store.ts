@@ -179,6 +179,37 @@ export async function setBugStatus(
   return record;
 }
 
+/**
+ * Delete every bug report filed by a given user (matched by Clerk user id
+ * and/or email). Used by the in-app "Delete Account" flow so a user's bug
+ * reports are erased along with their account. Best-effort; returns the count
+ * of records removed. Bugs have no reverse-lookup index, so we scan the
+ * index set — fine at beta scale.
+ */
+export async function deleteBugsByUser(args: {
+  userId?: string | null;
+  email?: string | null;
+}): Promise<number> {
+  const userId = (args.userId ?? '').trim() || null;
+  const email = (args.email ?? '').trim().toLowerCase() || null;
+  if (!userId && !email) return 0;
+  const storage = getStorage();
+  const ids = await storage.setMembers(KEY_INDEX);
+  let removed = 0;
+  for (const id of ids) {
+    const rec = await storage.get<BugRecord>(KEY_BUG(id));
+    if (!rec) continue;
+    const matchesUser = userId && rec.userId === userId;
+    const matchesEmail = email && (rec.userEmail ?? '').toLowerCase() === email;
+    if (matchesUser || matchesEmail) {
+      await storage.delete(KEY_BUG(id));
+      await storage.setRemove(KEY_INDEX, id);
+      removed += 1;
+    }
+  }
+  return removed;
+}
+
 /** Test-only: wipe the store. */
 export async function _resetBugStoreForTest(): Promise<void> {
   const storage = getStorage();

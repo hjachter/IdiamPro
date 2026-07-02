@@ -416,7 +416,7 @@ export default function LiveBooksDialog({
 
                     <div className="grid grid-cols-2 gap-2 mt-2">
                       <div>
-                        <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1">
+                        <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1">
                           Before
                         </p>
                         <div className="text-xs whitespace-pre-wrap max-h-32 overflow-y-auto bg-muted/40 rounded p-2">
@@ -424,7 +424,7 @@ export default function LiveBooksDialog({
                         </div>
                       </div>
                       <div>
-                        <p className="text-[10px] uppercase tracking-wide text-emerald-600 mb-1">
+                        <p className="text-xs uppercase tracking-wide text-emerald-600 mb-1">
                           After
                         </p>
                         <div className="text-xs whitespace-pre-wrap max-h-32 overflow-y-auto bg-emerald-500/5 rounded p-2">
@@ -434,15 +434,15 @@ export default function LiveBooksDialog({
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2 mt-2">
-                      <Badge variant="secondary" className="text-[10px]">
+                      <Badge variant="secondary" className="text-xs">
                         Refreshed with {preview.model}
                       </Badge>
                       {p.citations.length > 0 ? (
-                        <span className="text-[11px] text-muted-foreground">
+                        <span className="text-xs text-muted-foreground">
                           {p.citations.length} source{p.citations.length === 1 ? '' : 's'}:
                         </span>
                       ) : (
-                        <span className="text-[11px] text-muted-foreground italic">
+                        <span className="text-xs text-muted-foreground italic">
                           No web sources
                         </span>
                       )}
@@ -452,7 +452,7 @@ export default function LiveBooksDialog({
                           href={c.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-[11px] text-blue-600 hover:underline inline-flex items-center gap-0.5 max-w-[180px] truncate"
+                          className="text-xs text-blue-600 hover:underline inline-flex items-center gap-0.5 max-w-[180px] truncate"
                           title={c.url}
                         >
                           {c.title || new URL(c.url).hostname.replace('www.', '')}

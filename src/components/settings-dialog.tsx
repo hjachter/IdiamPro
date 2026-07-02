@@ -7,7 +7,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { Folder, Info, Smartphone, Cpu, Cloud, Loader2, CheckCircle, XCircle, Crown, Shield, Moon, Sun, Download, Trash2, AlertTriangle, Play, Sparkles, ShieldCheck } from 'lucide-react';
+import { Folder, Info, Smartphone, Cpu, Cloud, Loader2, CheckCircle, XCircle, Crown, Shield, Moon, Sun, Download, Trash2, AlertTriangle, Play, Sparkles, ShieldCheck, KeyRound, UserX } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,6 +19,8 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { exportAllUserData, deleteAllUserData, inspectUserDataScope } from '@/lib/privacy-data';
+import { useCurrentUser } from '@/lib/auth/use-current-user';
+import { isAuthEnabled } from '@/lib/auth/auth-config';
 import { useTheme } from 'next-themes';
 import { Badge } from '@/components/ui/badge';
 import { useAI } from '@/contexts/ai-context';
@@ -68,6 +70,11 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
   const [aiDataConsent, setAiDataConsent] = useState<boolean>(false);
   const { toast } = useToast();
   const { isPremium, plan } = useAI();
+  const currentUser = useCurrentUser();
+  // On iOS/iPad we hide paid-purchase UI at launch (see handleAccountDelete
+  // block comment / Decisions Log). isCapacitor() covers iOS specifically
+  // because Electron is excluded inside it.
+  const isNativeIOS = isCapacitor();
   const { theme, setTheme } = useTheme();
   const { isProfessional, setProfessional } = useDiscovery();
   const [mounted, setMounted] = useState(false);
@@ -453,6 +460,75 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
     }
   };
 
+  // --- Account deletion (Apple guideline 5.1.1(v)) ------------------------
+  // This is DISTINCT from "Delete all my data" above. That one only wipes
+  // local device data. This one permanently deletes the user's actual
+  // account (their Clerk identity) plus any server-side records we hold for
+  // them, THEN wipes local data and signs them out. Apple requires an
+  // in-app account-deletion path for any app that offers account creation.
+  const [accountDeleteOpen, setAccountDeleteOpen] = useState(false);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+
+  const handleAccountDelete = async () => {
+    if (isDeletingAccount) return;
+    setIsDeletingAccount(true);
+    try {
+      // 1. Server-side: erase our stored records + the Clerk account.
+      //    (No-op / friendly success when auth is disabled.)
+      const res = await fetch('/api/account/delete', { method: 'POST' });
+      let serverOk = res.ok;
+      if (!res.ok && res.status !== 401) {
+        // 401 = not signed in on the server; still proceed to clear local
+        // data below so the button never dead-ends. Other errors we surface.
+        serverOk = false;
+      } else {
+        serverOk = true;
+      }
+
+      // 2. Client-side Clerk delete as belt-and-suspenders (also ends the
+      //    session on this device). Safe no-op when auth is disabled.
+      try {
+        await currentUser.deleteAccount();
+      } catch (err) {
+        console.warn('[account-delete] client-side Clerk delete skipped:', err);
+      }
+
+      // 3. Sign out (in case the account delete above didn't end the session).
+      try {
+        await currentUser.signOut();
+      } catch {
+        // ignore — best effort
+      }
+
+      if (!serverOk) {
+        toast({
+          variant: 'destructive',
+          title: 'Account deletion had a problem',
+          description:
+            'We cleared this device, but the server account may not be fully removed. Please contact support if you still see your account.',
+        });
+      } else {
+        toast({
+          title: 'Account deleted',
+          description:
+            'Your account and data have been removed. Clearing this device…',
+        });
+      }
+
+      // 4. Wipe local data + reload to a fresh, signed-out state.
+      await deleteAllUserData();
+    } catch (err) {
+      console.error('Account delete failed:', err);
+      setIsDeletingAccount(false);
+      setAccountDeleteOpen(false);
+      toast({
+        variant: 'destructive',
+        title: 'Could not delete account',
+        description: (err as Error)?.message || 'Please try again or contact support.',
+      });
+    }
+  };
+
   const aiProviders: {
     id: string; name: string; placeholder: string;
     free: boolean; recommended: boolean; keyUrl: string;
@@ -678,11 +754,30 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
                 {planDisplayName}
               </Badge>
             </div>
-            {/* Paid users (student / pro) see "Manage Subscription" which
-                opens Stripe's hosted Customer Portal (cancel, change plan,
-                update card). Free / trial users see "See plans" which goes
-                to /upgrade. Both buttons gracefully degrade in stub mode. */}
-            {(usageState.tier === 'student' || usageState.tier === 'pro') ? (
+            {/* LAUNCH DECISION (2026-07 — approved by Howard, see Decisions
+                Log): on iOS/iPad we do NOT show paid-purchase UI at launch.
+                Apple in-app purchase isn't wired yet, and showing a broken or
+                absent purchase path is a guaranteed App Store rejection.
+                Instead, iOS users get ONLY the free bring-your-own-key path
+                (unlimited AI, no cost) — surfaced here as a link straight to
+                the AI key settings, never a dead end. Reverse by deleting this
+                `isNativeIOS` branch once Apple IAP (RevenueCat) is live. */}
+            {isNativeIOS ? (
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full"
+                data-testid="ios-byok-cta"
+                onClick={() => {
+                  // Deep-link to the AI key settings section below.
+                  const el = document.getElementById('ai-service-keys-section');
+                  el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }}
+              >
+                <KeyRound className="mr-2 h-4 w-4" />
+                Add your key
+              </Button>
+            ) : (usageState.tier === 'student' || usageState.tier === 'pro') ? (
               <Button
                 variant="outline"
                 size="sm"
@@ -1321,6 +1416,30 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
                 device. Cannot be undone. Reloads the app afterwards.
               </p>
             </div>
+
+            {/* Real account deletion (Apple guideline 5.1.1(v)). Only shown
+                when auth is actually enabled AND the user is signed in —
+                there's no account to delete otherwise. Distinct from "Delete
+                all my data" above, which only clears this device. */}
+            {isAuthEnabled() && currentUser.isSignedIn && (
+              <div className="space-y-2 pt-1">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full justify-start text-destructive border-destructive/40 hover:bg-destructive/10 hover:text-destructive"
+                  onClick={() => setAccountDeleteOpen(true)}
+                  disabled={isDeletingAccount}
+                  data-testid="delete-account-btn"
+                >
+                  <UserX className="mr-2 h-4 w-4" />
+                  Delete account
+                </Button>
+                <p className="text-xs text-muted-foreground">
+                  Permanently deletes your account and all data we hold for you,
+                  then signs you out. This cannot be undone.
+                </p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -1413,6 +1532,64 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
                 </>
               ) : (
                 'Delete everything'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Account deletion (Apple guideline 5.1.1(v)) */}
+      <AlertDialog
+        open={accountDeleteOpen}
+        onOpenChange={(o) => { if (!o && !isDeletingAccount) setAccountDeleteOpen(false); }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <UserX className="h-5 w-5 text-destructive" />
+              Delete your account?
+            </AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-2 text-sm">
+                <p>
+                  This <strong>permanently deletes your account</strong> and
+                  everything tied to it. It <strong>cannot be undone.</strong>
+                </p>
+                <ul className="list-disc list-inside text-xs space-y-1">
+                  <li>Your sign-in account is deleted for good</li>
+                  <li>Your beta application, feedback, and bug reports are erased</li>
+                  <li>All outlines, settings, and API keys on this device are wiped</li>
+                  <li>You&apos;ll be signed out immediately</li>
+                </ul>
+                <p className="text-xs text-muted-foreground pt-1">
+                  Want to keep a copy first? Close this and use{' '}
+                  <strong>Export my data</strong>. There is no way to recover
+                  your account after this.
+                </p>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              onClick={() => setAccountDeleteOpen(false)}
+              disabled={isDeletingAccount}
+              data-testid="account-delete-cancel"
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50"
+              disabled={isDeletingAccount}
+              onClick={(e) => { e.preventDefault(); handleAccountDelete(); }}
+              data-testid="account-delete-confirm"
+            >
+              {isDeletingAccount ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Deleting…
+                </>
+              ) : (
+                'Delete my account'
               )}
             </AlertDialogAction>
           </AlertDialogFooter>

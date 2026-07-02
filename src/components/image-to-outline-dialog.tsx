@@ -373,7 +373,7 @@ export default function ImageToOutlineDialog({
                   <img src={imageDataUrl} alt="Source" className="w-full rounded border border-border" />
                 )}
                 {provider && (
-                  <Badge variant="secondary" className="text-[10px]">{provider}</Badge>
+                  <Badge variant="secondary" className="text-xs">{provider}</Badge>
                 )}
               </div>
 

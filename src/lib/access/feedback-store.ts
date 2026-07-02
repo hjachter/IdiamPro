@@ -164,6 +164,24 @@ export async function getFeedbackUserIds(): Promise<Set<string>> {
   return out;
 }
 
+/**
+ * Delete the feedback record tied to a Clerk user id (if any).
+ *
+ * Used by the in-app "Delete Account" flow to erase server-side feedback we
+ * hold for the user. Best-effort and idempotent.
+ */
+export async function deleteFeedbackByUserId(userId: string): Promise<boolean> {
+  const target = (userId ?? '').trim();
+  if (!target) return false;
+  const storage = getStorage();
+  const id = await storage.get<string>(KEY_USER_LOOKUP(target));
+  if (!id) return false;
+  await storage.delete(KEY_FEEDBACK(id));
+  await storage.delete(KEY_USER_LOOKUP(target));
+  await storage.setRemove(KEY_INDEX, id);
+  return true;
+}
+
 /** Test-only: wipe the store. */
 export async function _resetFeedbackStoreForTest(): Promise<void> {
   const storage = getStorage();

@@ -245,6 +245,19 @@ export default function UpgradePage() {
                   >
                     <Link href="/">{plan.cta}</Link>
                   </Button>
+                ) : isIOSCapacitor ? (
+                  /* LAUNCH DECISION (2026-07, see Decisions Log): iOS hides
+                     paid purchase buttons — Apple IAP isn't wired yet and a
+                     broken purchase = rejection. iOS users are pointed to the
+                     free BYOK path instead of a dead purchase button. */
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="w-full"
+                    size="lg"
+                  >
+                    <Link href="/">Use free with your own key</Link>
+                  </Button>
                 ) : (
                   <>
                     <Button
@@ -391,10 +404,9 @@ export default function UpgradePage() {
         {/* iOS-only note */}
         {isIOSCapacitor && (
           <div className="mt-8 rounded-xl border border-blue-500/30 bg-blue-500/5 p-4 text-sm">
-            <strong>On iPhone or iPad?</strong> Subscriptions on iOS go
-            through Apple&apos;s In-App Purchase, not Stripe. The buttons
-            above will open Apple&apos;s purchase sheet instead of a web
-            checkout.
+            <strong>On iPhone or iPad?</strong> IdiamPro is free on iOS — bring
+            your own AI key for unlimited AI at no cost. Paid plans (Student and
+            Pro) are available on the web and Mac apps for now.
           </div>
         )}
       </div>

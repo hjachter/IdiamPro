@@ -261,7 +261,7 @@ export default function YoutubePackageDialog({
         {phase === 'preview' && pkg && (
           <div className="flex-1 overflow-hidden flex flex-col">
             {provider && (
-              <Badge variant="secondary" className="self-start text-[10px] mb-2">{provider}</Badge>
+              <Badge variant="secondary" className="self-start text-xs mb-2">{provider}</Badge>
             )}
             <Tabs defaultValue="titles" className="flex-1 flex flex-col overflow-hidden">
               <TabsList className="flex flex-wrap h-auto">

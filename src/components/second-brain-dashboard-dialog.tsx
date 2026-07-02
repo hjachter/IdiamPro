@@ -181,7 +181,7 @@ export function SecondBrainDashboardDialog({
                         {e.tags.length > 0 && (
                           <div className="mt-1.5 flex flex-wrap gap-1">
                             {e.tags.map(t => (
-                              <Badge key={t} variant="secondary" className="text-[10px] px-1.5 py-0">#{t}</Badge>
+                              <Badge key={t} variant="secondary" className="text-xs px-1.5 py-0">#{t}</Badge>
                             ))}
                           </div>
                         )}

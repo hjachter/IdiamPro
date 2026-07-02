@@ -732,6 +732,41 @@ export default function OutlinePro() {
     return () => clearInterval(interval);
   }, [isClient, checkExternalModification]);
 
+  // iOS soft-keyboard scroll-into-view: when a text field / editor gains focus
+  // on a touch device, the on-screen keyboard can cover it. Scroll the focused
+  // element to the vertical center after a short delay so the keyboard has time
+  // to animate up. Touch-only (pointer: coarse) so desktop is unaffected.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (typeof window.matchMedia !== 'function') return;
+    if (!window.matchMedia('(pointer: coarse)').matches) return;
+
+    let scrollTimeout: ReturnType<typeof setTimeout> | null = null;
+
+    const handleFocusIn = (e: FocusEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (!target) return;
+      const tag = target.tagName;
+      const isEditable =
+        tag === 'INPUT' ||
+        tag === 'TEXTAREA' ||
+        target.isContentEditable === true;
+      if (!isEditable) return;
+      if (scrollTimeout) clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        if (typeof target.scrollIntoView === 'function') {
+          target.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        }
+      }, 300);
+    };
+
+    document.addEventListener('focusin', handleFocusIn);
+    return () => {
+      document.removeEventListener('focusin', handleFocusIn);
+      if (scrollTimeout) clearTimeout(scrollTimeout);
+    };
+  }, []);
+
   // Initial load: Load data from storage
   useEffect(() => {
     setIsClient(true);
@@ -4307,7 +4342,11 @@ export default function OutlinePro() {
     const handleSecondBrainKeys = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
       const isTyping = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.contentEditable === 'true';
-      if (isTyping) return;
+
+      // Expand/Collapse All are OUTLINE-STRUCTURE commands, not text commands.
+      // They must fire even when focus sits inside a node's contentEditable
+      // (which happens right after selecting/editing a node), exactly like the
+      // outline-undo (Cmd+Z) handler. So they run ABOVE the isTyping guard.
 
       // Cmd+Shift+E — Collapse All (recursive). Tested first because
       // Cmd+E without shift would otherwise match the shift-modified form too.
@@ -4319,11 +4358,15 @@ export default function OutlinePro() {
 
       // Cmd+E — Expand All (recursive). Operates on current selection if any,
       // otherwise the whole outline.
-      if ((e.metaKey || e.ctrlKey) && !e.shiftKey && e.key === 'e') {
+      if ((e.metaKey || e.ctrlKey) && !e.shiftKey && (e.key === 'E' || e.key === 'e')) {
         e.preventDefault();
         handleExpandAll();
         return;
       }
+
+      // Second-Brain shortcuts below are text-context-sensitive, so they stay
+      // guarded — don't hijack typing.
+      if (isTyping) return;
 
       // Cmd+B is reserved for sidebar toggle (platform convention: Notion, VS Code).
       // Second Brain is accessed via toolbar Brain button / menu — no shortcut.

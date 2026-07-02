@@ -867,7 +867,7 @@ export default function OutlinePane({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 shrink-0"
+                  className="h-8 w-8 shrink-0 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
                   onClick={onToggleSidebar}
                   aria-label={isSidebarOpen ? 'Hide sidebar' : 'Show sidebar'}
                   aria-expanded={isSidebarOpen}
@@ -894,7 +894,7 @@ export default function OutlinePane({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className={cn("shrink-0", isMobile ? "h-10 w-10" : "h-8 w-8")}
+                  className={cn("shrink-0 touch-manipulation", isMobile ? "h-11 w-11" : "h-8 w-8")}
                   onClick={onOpenMobileSidebar}
                   aria-label="Open outlines sidebar"
                 >
@@ -925,7 +925,7 @@ export default function OutlinePane({
                     <Button
                         variant="outline"
                         size="icon"
-                        className="shrink-0 active:scale-95 active:bg-accent/30"
+                        className="shrink-0 active:scale-95 active:bg-accent/30 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
                         onClick={() => onOpenCommandPalette?.()}
                         aria-label="Quick Command — type what you want done (Cmd+K)"
                     >
@@ -945,7 +945,7 @@ export default function OutlinePane({
                             <Button
                                 variant="outline"
                                 size="icon"
-                                className="shrink-0 active:scale-95 active:bg-accent/30 hidden sm:inline-flex"
+                                className="shrink-0 active:scale-95 active:bg-accent/30 hidden sm:inline-flex min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
                                 aria-label="Import — bring data into your outline"
                             >
                                 <BookDown className="h-4 w-4" />
@@ -1011,7 +1011,7 @@ export default function OutlinePane({
                             size="icon"
                             onClick={onOpenBackup}
                             disabled={!currentOutline}
-                            className="shrink-0 active:scale-95 active:bg-accent/30 hidden sm:inline-flex"
+                            className="shrink-0 active:scale-95 active:bg-accent/30 hidden sm:inline-flex min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
                             aria-label="Backup — save a snapshot of this outline"
                             data-testid="backup-outline-button"
                         >
@@ -1032,7 +1032,7 @@ export default function OutlinePane({
                             <Button
                                 variant="outline"
                                 size="icon"
-                                className="shrink-0 active:scale-95 active:bg-accent/30 hidden sm:inline-flex"
+                                className="shrink-0 active:scale-95 active:bg-accent/30 hidden sm:inline-flex min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
                                 aria-label="Export — send your outline data out"
                             >
                                 <BookUp className="h-4 w-4" />
@@ -1083,7 +1083,7 @@ export default function OutlinePane({
                             <Button
                                 variant="outline"
                                 size="icon"
-                                className="shrink-0 active:scale-95 active:bg-accent/30 inline-flex lg:hidden"
+                                className="shrink-0 active:scale-95 active:bg-accent/30 inline-flex lg:hidden min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
                                 aria-label="More tools"
                             >
                                 <MoreHorizontal className="h-4 w-4" />
@@ -1299,7 +1299,7 @@ export default function OutlinePane({
           <Tooltip>
             <TooltipTrigger asChild>
               <span tabIndex={-1} className="inline-flex">
-                <Button variant="outline" size="icon" onClick={() => onCreateNode()} disabled={!selectedNodeId || currentOutline?.isGuide} className="hover:bg-accent/20" aria-label="Add sibling item">
+                <Button variant="outline" size="icon" onClick={() => onCreateNode()} disabled={!selectedNodeId || currentOutline?.isGuide} className="hover:bg-accent/20 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0" aria-label="Add sibling item">
                   <Plus className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                 </Button>
               </span>
@@ -1315,7 +1315,7 @@ export default function OutlinePane({
                     variant="outline"
                     size="icon"
                     disabled={!selectedNodeId || isSelectedNodeRoot || currentOutline?.isGuide}
-                    className="text-destructive hover:bg-destructive/20"
+                    className="text-destructive hover:bg-destructive/20 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
                     aria-label="Delete item"
                     onClick={() => {
                       if (currentOutline?.isGuide) return;
@@ -1375,7 +1375,7 @@ export default function OutlinePane({
           <Tooltip>
             <TooltipTrigger asChild>
               <span tabIndex={-1} className="inline-flex">
-                <Button variant="outline" size="icon" onClick={() => setIsSearchOpen(true)} disabled={!currentOutline} className="hover:bg-accent/20" aria-label="Search outline">
+                <Button variant="outline" size="icon" onClick={() => setIsSearchOpen(true)} disabled={!currentOutline} className="hover:bg-accent/20 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0" aria-label="Search outline">
                   <Search className="h-4 w-4 text-sky-600 dark:text-sky-400" />
                 </Button>
               </span>
@@ -1394,7 +1394,7 @@ export default function OutlinePane({
                     onClick={onToggleFocusMode}
                     disabled={!selectedNodeId}
                     className={cn(
-                      "hover:bg-accent/20 active:scale-95 active:bg-accent/30",
+                      "hover:bg-accent/20 active:scale-95 active:bg-accent/30 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0",
                       isFocusMode && "bg-primary/15 ring-1 ring-primary/40 text-primary"
                     )}
                     aria-pressed={isFocusMode}
@@ -1424,7 +1424,7 @@ export default function OutlinePane({
                       variant="outline"
                       size="icon"
                       disabled={!currentOutline}
-                      className="hover:bg-accent/20 shrink-0 active:scale-95 active:bg-accent/30"
+                      className="hover:bg-accent/20 shrink-0 active:scale-95 active:bg-accent/30 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
                       aria-label="Show or hide all items"
                     >
                       <ChevronsDownUp className="h-4 w-4 text-sky-600 dark:text-sky-400" />
@@ -1471,7 +1471,7 @@ export default function OutlinePane({
                   size="icon"
                   disabled={!selectedNodeId}
                   onClick={() => selectedNodeId && onExportSubtree?.(selectedNodeId)}
-                  className="hover:bg-accent/20"
+                  className="hover:bg-accent/20 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
                   aria-label="Share branch"
                 >
                   <svg className="h-4 w-4 text-blue-600 dark:text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -1500,7 +1500,7 @@ export default function OutlinePane({
                   <Button
                     variant="outline"
                     size="icon"
-                    className="text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 active:scale-95 active:bg-accent/30 hidden sm:inline-flex"
+                    className="text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 active:scale-95 active:bg-accent/30 hidden sm:inline-flex min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
                     aria-label="Second Brain menu"
                   >
                     <Brain className="h-4 w-4" />
@@ -1573,7 +1573,7 @@ export default function OutlinePane({
                   variant="outline"
                   size="icon"
                   onClick={onCancelAI}
-                  className="border-red-500/50 hover:bg-red-500/20 animate-pulse"
+                  className="border-red-500/50 hover:bg-red-500/20 animate-pulse min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
                   aria-label="Stop AI operation"
                 >
                   <StopCircle className="h-4 w-4 text-red-500 dark:text-red-400" />
@@ -1590,7 +1590,7 @@ export default function OutlinePane({
                   variant="outline"
                   size="icon"
                   onClick={onUnmerge}
-                  className="hover:bg-orange-500/20 border-orange-500/30"
+                  className="hover:bg-orange-500/20 border-orange-500/30 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
                   aria-label="Unmerge — restore outline to pre-merge state"
                 >
                   <RotateCcw className="h-4 w-4 text-orange-500 dark:text-orange-400" />
@@ -1609,7 +1609,7 @@ export default function OutlinePane({
               size="icon"
               title="Settings"
               aria-label="Settings"
-              className="hover:bg-accent/20 hidden lg:inline-flex"
+              className="hover:bg-accent/20 hidden lg:inline-flex min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
               data-settings-trigger
             >
               <Settings className="h-4 w-4 text-violet-600 dark:text-violet-400" />
@@ -1622,7 +1622,7 @@ export default function OutlinePane({
                 variant="outline"
                 size="icon"
                 onClick={onOpenHelp}
-                className="hover:bg-red-500/20 border-red-500/30 hidden lg:inline-flex"
+                className="hover:bg-red-500/20 border-red-500/30 hidden lg:inline-flex min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
                 aria-label="Help and support"
               >
                 <span aria-hidden="true" className="text-red-500 dark:text-red-400 font-bold text-lg leading-none">?</span>

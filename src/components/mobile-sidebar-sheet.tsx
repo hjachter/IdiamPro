@@ -449,7 +449,7 @@ export default function MobileSidebarSheet({
         {/* Outlines list header */}
         <div className="flex-shrink-0 flex items-center gap-2 px-4 py-1 border-b border-border/40 bg-muted/30">
           <FileText className="h-3.5 w-3.5 text-muted-foreground" />
-          <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Outlines</span>
+          <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Outlines</span>
           <span className="ml-auto text-[10px] text-muted-foreground/70 tabular-nums">
             {outlineSearch ? `${filteredOutlines.length} / ${userOutlines.length}` : userOutlines.length}
           </span>

@@ -15,7 +15,7 @@
  */
 
 import * as React from 'react';
-import { useUser } from '@clerk/nextjs';
+import { useUser, useClerk } from '@clerk/nextjs';
 import {
   resolveCurrentTier,
   isAuthEnabled,
@@ -31,13 +31,28 @@ export interface CurrentUser {
   userId: string | null;
   /** Best-effort display name / email, or null. */
   displayName: string | null;
+  /** Best-effort primary email, or null. */
+  email: string | null;
+  /**
+   * Permanently delete the signed-in user's Clerk account (client-side).
+   * No-op that resolves immediately when auth is disabled or signed out.
+   * Callers should erase server-side + local data separately.
+   */
+  deleteAccount: () => Promise<void>;
+  /** Sign the user out. No-op when auth is disabled. */
+  signOut: () => Promise<void>;
 }
+
+const NOOP_ASYNC = async () => {};
 
 const SIGNED_OUT_USER: CurrentUser = {
   isLoading: false,
   isSignedIn: false,
   userId: null,
   displayName: null,
+  email: null,
+  deleteAccount: NOOP_ASYNC,
+  signOut: NOOP_ASYNC,
 };
 
 /**
@@ -58,6 +73,7 @@ export function ClerkUserBridge({ children }: { children: React.ReactNode }) {
   // require() here previously could resolve to the server variant in
   // some build paths, leaving useUser detached from the provider context.
   const { isLoaded, isSignedIn, user } = useUser();
+  const clerk = useClerk();
 
   const value = React.useMemo<CurrentUser>(
     () => ({
@@ -68,8 +84,16 @@ export function ClerkUserBridge({ children }: { children: React.ReactNode }) {
         user?.fullName ||
         user?.primaryEmailAddress?.emailAddress ||
         null,
+      email: user?.primaryEmailAddress?.emailAddress ?? null,
+      deleteAccount: async () => {
+        // Clerk's client SDK: the signed-in user deletes their own account.
+        if (user) await user.delete();
+      },
+      signOut: async () => {
+        await clerk.signOut();
+      },
     }),
-    [isLoaded, isSignedIn, user],
+    [isLoaded, isSignedIn, user, clerk],
   );
 
   return (
