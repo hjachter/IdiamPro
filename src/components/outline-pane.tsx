@@ -8,6 +8,7 @@ import OutlineSearch, { type SearchMatch } from './outline-search';
 import { MultiSelectToolbar } from './multi-select-toolbar';
 import FileImportDialog from './file-import-dialog';
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Plus, Trash2, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, ChevronsDownUp, Settings, Search, Command, PanelLeft, PanelLeftClose, Brain, StopCircle, Inbox, LayoutDashboard, Focus, Sparkles, Mic, MessageSquare, BookDown, BookUp, Share2, ExternalLink, RefreshCw, MoreHorizontal, HelpCircle, Send, ShieldCheck, GitFork } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter } from "@/components/ui/alert-dialog";
@@ -1299,7 +1300,7 @@ export default function OutlinePane({
             <TooltipTrigger asChild>
               <span tabIndex={-1} className="inline-flex">
                 <Button variant="outline" size="icon" onClick={() => onCreateNode()} disabled={!selectedNodeId || currentOutline?.isGuide} className="hover:bg-accent/20" aria-label="Add sibling item">
-                  <Plus className="h-4 w-4" />
+                  <Plus className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                 </Button>
               </span>
             </TooltipTrigger>
@@ -1368,14 +1369,14 @@ export default function OutlinePane({
             </AlertDialogContent>
           </AlertDialog>
 
-          {/* Visual spacer */}
-          <div className="w-px h-6 bg-border/50 mx-0.5"></div>
+          {/* EDIT | VIEW/NAV cluster divider */}
+          <Separator orientation="vertical" className="h-6 mx-0.5" />
 
           <Tooltip>
             <TooltipTrigger asChild>
               <span tabIndex={-1} className="inline-flex">
                 <Button variant="outline" size="icon" onClick={() => setIsSearchOpen(true)} disabled={!currentOutline} className="hover:bg-accent/20" aria-label="Search outline">
-                  <Search className="h-4 w-4" />
+                  <Search className="h-4 w-4 text-sky-600 dark:text-sky-400" />
                 </Button>
               </span>
             </TooltipTrigger>
@@ -1399,7 +1400,7 @@ export default function OutlinePane({
                     aria-pressed={isFocusMode}
                     aria-label="Focus Mode"
                   >
-                    <Focus className="h-4 w-4" />
+                    <Focus className="h-4 w-4 text-sky-600 dark:text-sky-400" />
                   </Button>
                 </span>
               </TooltipTrigger>
@@ -1426,7 +1427,7 @@ export default function OutlinePane({
                       className="hover:bg-accent/20 shrink-0 active:scale-95 active:bg-accent/30"
                       aria-label="Show or hide all items"
                     >
-                      <ChevronsDownUp className="h-4 w-4" />
+                      <ChevronsDownUp className="h-4 w-4 text-sky-600 dark:text-sky-400" />
                     </Button>
                   </DropdownMenuTrigger>
                 </span>
@@ -1459,6 +1460,9 @@ export default function OutlinePane({
             </DropdownMenuContent>
           </DropdownMenu>
 
+          {/* VIEW/NAV | SHARE cluster divider */}
+          <Separator orientation="vertical" className="h-6 mx-0.5 hidden sm:block" />
+
           <Tooltip>
             <TooltipTrigger asChild>
               <span tabIndex={-1} className="hidden sm:inline-flex">
@@ -1470,7 +1474,7 @@ export default function OutlinePane({
                   className="hover:bg-accent/20"
                   aria-label="Share branch"
                 >
-                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <svg className="h-4 w-4 text-blue-600 dark:text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     <path d="M12 3v12" />
                     <path d="m8 7 4-4 4 4" />
                     <rect x="4" y="11" width="16" height="11" rx="2" ry="2" fill="none" />
@@ -1484,6 +1488,9 @@ export default function OutlinePane({
           {/* Command palette tree-toolbar entry removed 2026-06-08 — the title-row
               MessageSquare button is the single primary entry point for Cmd+K.
               The mobile-overflow menu still surfaces "Command palette" as a backup. */}
+
+          {/* SHARE | SMART/BRAIN cluster divider */}
+          <Separator orientation="vertical" className="h-6 mx-0.5 hidden sm:block" />
 
           {/* Second Brain Menu */}
           <DropdownMenu>
@@ -1593,8 +1600,8 @@ export default function OutlinePane({
             </Tooltip>
           )}
 
-          {/* Visual spacer (only visible when adjacent tier-3 items are shown) */}
-          <div className="w-px h-6 bg-border/50 mx-0.5 hidden lg:block"></div>
+          {/* SMART/BRAIN | APP cluster divider (only visible when adjacent tier-3 items are shown) */}
+          <Separator orientation="vertical" className="h-6 mx-0.5 hidden lg:block" />
 
           <SettingsDialog onFolderSelected={onFolderSelected}>
             <Button
@@ -1605,7 +1612,7 @@ export default function OutlinePane({
               className="hover:bg-accent/20 hidden lg:inline-flex"
               data-settings-trigger
             >
-              <Settings className="h-4 w-4" />
+              <Settings className="h-4 w-4 text-violet-600 dark:text-violet-400" />
             </Button>
           </SettingsDialog>
 

@@ -121,6 +121,7 @@ function migrateOldImages(html: string): string {
 
 import NodeIcon from './node-icon';
 import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Image from 'next/image';
@@ -2526,7 +2527,7 @@ export default function ContentPane({
                     aria-label="Undo"
                     className="active:scale-95 active:bg-accent/30"
                   >
-                    <Undo className="h-4 w-4" />
+                    <Undo className="h-4 w-4 text-amber-600 dark:text-amber-400" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>{isMobile ? 'Undo' : 'Undo (⌘Z)'}</TooltipContent>
@@ -2542,13 +2543,13 @@ export default function ContentPane({
                     aria-label="Redo"
                     className="active:scale-95 active:bg-accent/30"
                   >
-                    <Redo className="h-4 w-4" />
+                    <Redo className="h-4 w-4 text-amber-600 dark:text-amber-400" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>{isMobile ? 'Redo' : 'Redo (⌘⇧Z)'}</TooltipContent>
               </Tooltip>
 
-              <div className="w-px h-6 bg-border/50 mx-1" />
+              <Separator orientation="vertical" className="h-6 mx-1" />
 
               {/* List controls (touch-accessible) */}
               <Tooltip>
@@ -2560,7 +2561,7 @@ export default function ContentPane({
                     aria-label="Bullet list"
                     className={`active:scale-95 active:bg-accent/30 ${editor.isActive('bulletList') ? 'bg-accent' : ''}`}
                   >
-                    <List className="h-4 w-4" />
+                    <List className="h-4 w-4 text-sky-600 dark:text-sky-400" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Bullet list</TooltipContent>
@@ -2575,7 +2576,7 @@ export default function ContentPane({
                     aria-label="Numbered list"
                     className={`active:scale-95 active:bg-accent/30 ${editor.isActive('orderedList') ? 'bg-accent' : ''}`}
                   >
-                    <ListOrdered className="h-4 w-4" />
+                    <ListOrdered className="h-4 w-4 text-sky-600 dark:text-sky-400" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Numbered list</TooltipContent>
@@ -2590,13 +2591,13 @@ export default function ContentPane({
                     aria-label="Checklist"
                     className={`active:scale-95 active:bg-accent/30 ${editor.isActive('taskList') ? 'bg-accent' : ''}`}
                   >
-                    <ListChecks className="h-4 w-4" />
+                    <ListChecks className="h-4 w-4 text-sky-600 dark:text-sky-400" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Checklist</TooltipContent>
               </Tooltip>
 
-              <div className="w-px h-6 bg-border/50 mx-1" />
+              <Separator orientation="vertical" className="h-6 mx-1" />
             </>
           )}
 
@@ -2606,7 +2607,7 @@ export default function ContentPane({
               <TooltipTrigger asChild>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="icon" aria-label="Insert app">
-                    <LayoutGrid className="h-4 w-4" />
+                    <LayoutGrid className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                   </Button>
                 </DropdownMenuTrigger>
               </TooltipTrigger>
@@ -2662,12 +2663,14 @@ export default function ContentPane({
           <Tooltip>
             <TooltipTrigger asChild>
               <Button variant="outline" size="icon" onClick={handleImportFile} aria-label="Insert file">
-                <Paperclip className="h-4 w-4" />
+                <Paperclip className="h-4 w-4 text-blue-600 dark:text-blue-400" />
               </Button>
             </TooltipTrigger>
             <TooltipContent>Insert File</TooltipContent>
           </Tooltip>
 
+          {/* INSERT | SMART TOOLS cluster divider */}
+          <Separator orientation="vertical" className="h-6 mx-1" />
 
           {/* Ask AI Button - opens prompt dialog directly */}
           {aiContentEnabled && (
