@@ -20,7 +20,8 @@
         "financials",
         "team-hiring",
         "risks",
-        "milestones"
+        "milestones",
+        "ai-monetization-strategy-2026-07-03"
       ],
       "isCollapsed": false,
       "prefix": ""
@@ -735,7 +736,95 @@
       "childrenIds": [],
       "isCollapsed": false,
       "prefix": "3.7"
+    },
+    "ai-monetization-strategy-2026-07-03": {
+      "id": "ai-monetization-strategy-2026-07-03",
+      "name": "AI Provider & Monetization Strategy (2026-07-03)",
+      "content": "<p><strong>AI Provider &amp; Monetization Strategy</strong> \u2014 synthesized 2026-07-03.</p><p>How IdiamPro becomes provider-agnostic and \"local-first, cloud-optional\": a buy-once entry tier that runs on near-zero-cost AI, recurring Pro tiers for premium cloud LLMs and heavy features, and a decision-making router that picks the right model per tier, task, availability, and cost. Sections below cover the strategy, 2026 pricing across providers, the recommended architecture, tiering and monetization, privacy guardrails, the implementation roadmap, and open decisions for Howard.</p>",
+      "type": "document",
+      "parentId": "root-planning",
+      "childrenIds": [
+        "ai-strat-exec-summary",
+        "ai-strat-pricing-2026",
+        "ai-strat-router",
+        "ai-strat-tiering",
+        "ai-strat-privacy",
+        "ai-strat-roadmap",
+        "ai-strat-open-decisions"
+      ],
+      "isCollapsed": false,
+      "prefix": "12"
+    },
+    "ai-strat-exec-summary": {
+      "id": "ai-strat-exec-summary",
+      "name": "Executive Summary",
+      "content": "<p><strong>The strategy in one paragraph.</strong></p><p>IdiamPro becomes <strong>provider-agnostic</strong> and <strong>\"local-first, cloud-optional.\"</strong> A generous <strong>entry tier sold ONCE</strong> (buy-once, no subscription) runs on <strong>near-zero-cost AI</strong> \u2014 on-device Gemma / Ollama, plus a tightly-capped free cloud allowance, plus bring-your-own-key (BYOK) \u2014 so each sale is almost pure margin. Recurring <strong>Pro tiers</strong> unlock premium cloud LLMs and heavy features (podcast, image generation, big-context Refresh-from-Web and Transform, higher caps). Sitting on top of the failover layer already shipped is a new <strong>decision-making router</strong> that picks the right model for each tier, task, provider availability, and cost. The result: an impulse-priced, own-it product that hooks users cheaply, and a recurring upsell that lives above it \u2014 with our AI bill staying near zero for the entry tier by design.</p>",
+      "type": "document",
+      "parentId": "ai-monetization-strategy-2026-07-03",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "12.1"
+    },
+    "ai-strat-pricing-2026": {
+      "id": "ai-strat-pricing-2026",
+      "name": "2026 Provider Pricing Snapshot",
+      "content": "<p><strong>2026 provider pricing, per 1M tokens (input / output). Sources cited inline.</strong></p><p><strong>Google Gemini</strong> (ai.google.dev/gemini-api/docs/pricing)</p><ul><li>3.5 Flash \u2014 $1.50 / $9.00</li><li>3.1 Flash-Lite \u2014 $0.25 / $1.50</li><li>2.5 Flash \u2014 $0.30 / $2.50</li><li>3.1 Pro \u2014 $2.00 / $12.00</li><li><strong>FREE tier (AI Studio):</strong> Flash 10 req/min &amp; 250/day; Flash-Lite 15/min &amp; 1,000/day (Pro removed from free tier Apr 2026).</li><li><strong>\u26a0 Privacy:</strong> free-tier data MAY be used for training; PAID tier is NOT trained on.</li></ul><p><strong>OpenAI &amp; Anthropic</strong></p><ul><li>OpenAI gpt-5.4-nano \u2014 $0.20 / $1.25</li><li>OpenAI gpt-5.5 \u2014 $5 / $30</li><li>Anthropic Haiku 4.5 \u2014 $1 / $5</li><li>Anthropic Sonnet 4.6 \u2014 $3 / $15</li><li>Anthropic Opus 4.8 \u2014 $5 / $25</li></ul><p><strong>DeepSeek</strong> \u2014 V4-Flash $0.14 / $0.28 (cache-hit $0.0028); V4-Pro $0.435 / $0.87. <strong>\u26a0 BUT</strong> data stored in China, trains on inputs, government-accessible, restricted in several countries. <strong>NOT a hosted default for a private-notes app.</strong></p><p><strong>Alibaba Qwen</strong> (Model Studio, Singapore endpoint) \u2014 ~1M free tokens/model for 90 days; Qwen-Flash ~$0.05 / $0.40 up to Qwen-Max ~$1.25 / $3.75. The Singapore international arm does NOT train on inputs and offers regional data residency. <strong>Qwen3 is open-weight (Apache-2.0, self-hostable for free.)</strong></p><p><strong>Other Chinese providers</strong></p><ul><li>Zhipu GLM ~$0.93 / $3 (GLM-5 open, MIT)</li><li>Moonshot Kimi ~$0.60 / $2.40 (open weights)</li><li>MiniMax ~$0.78 / $3.12 (MIT open)</li></ul><p><strong>OpenRouter</strong> \u2014 one key \u2192 many providers, pass-through pricing with NO markup. Fees: 5.5% top-up card fee; 5% on BYOK requests above 1M/month (first 1M free). <strong>28+ genuinely FREE models</strong> (DeepSeek R1, Llama 3.3 70B, Qwen3, Gemma 3, Gemini Flash) at ~20 req/min &amp; 50/day (1,000/day with $10+ credit). No logging/training by default.</p><p><strong>Groq</strong> \u2014 free ~30/min &amp; 14,400/day; paid from $0.05/1M. <strong>Cerebras</strong> \u2014 1M free tokens/day. <strong>Mistral</strong> \u2014 free \"Experiment\" tier (~1B/month, eval only).</p><p><strong>Local via Ollama ($0, on device)</strong></p><ul><li>3\u20134B models run on 8GB RAM (light tasks)</li><li>7\u20139B need 16GB (near cheap-cloud quality)</li><li>27\u201332B need 24GB+</li></ul><p><strong>Cost levers:</strong> prompt caching (~90% off) and batch (~50% off) cut cloud cost materially.</p>",
+      "type": "document",
+      "parentId": "ai-monetization-strategy-2026-07-03",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "12.2"
+    },
+    "ai-strat-router": {
+      "id": "ai-strat-router",
+      "name": "Recommended Architecture \u2014 Decision-Making Router",
+      "content": "<p><strong>The missing choke-point: a central AI router.</strong></p><p>Every AI feature should call one central router that decides <strong>provider + model</strong> per request, based on:</p><ul><li><strong>User tier</strong> \u2014 free, entry (own-it), Pro, or BYOK.</li><li><strong>Task weight.</strong> <em>Light:</em> tags, translate, short commands. <em>Heavy:</em> Refresh-from-Web, Transform, Knowledge-chat, deep generation, podcast, image.</li><li><strong>BYOK status</strong> \u2014 if the user brought their own key, route through it.</li><li><strong>Provider availability</strong> \u2014 reuse the shipped failover (cloud \u2192 local Gemma fallback with the \"switched to Gemma\" notice).</li><li><strong>Cost</strong> \u2014 cheapest capable model that satisfies tier + task.</li></ul><p><strong>Policy:</strong> local-first for light tasks and offline; paid, privacy-safe cloud for heavy/Pro work. Add <strong>OpenRouter as a provider</strong> so one integration unlocks many cheap + free models and BYOK.</p><p><strong>Current gap:</strong> there is no single choke-point today \u2014 roughly 9 features each call AI their own way. The registries, failover, and BYOK modules already exist to build the router on top of.</p>",
+      "type": "document",
+      "parentId": "ai-monetization-strategy-2026-07-03",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "12.3"
+    },
+    "ai-strat-tiering": {
+      "id": "ai-strat-tiering",
+      "name": "Tiering & Monetization",
+      "content": "<p><strong>Free trial \u2014 a taste.</strong> A small capped allowance to hook interest and prove value.</p><p><strong>ENTRY \u2014 \"Own it\" (one-time purchase).</strong> <strong>Recommended $29.99 one-time</strong> (launch / founder price $19.99). Powered by on-device Gemma + a capped free-cloud allowance + BYOK, so marginal AI cost \u2248 $0. The upsell lives ABOVE it.</p><p><strong>One-time comps (2026):</strong></p><ul><li>Things 3 \u2014 $49.99</li><li>iA Writer \u2014 $49.99</li><li>Scrivener \u2014 $59.99</li><li>DEVONthink \u2014 $99 / $199</li><li>Obsidian \u2014 free + $25 supporter</li><li>MarginNote \u2014 $12.99\u2013$51.99</li><li>Agenda \u2014 $34.99</li><li><em>Subscription-only contrast:</em> Bear, Ulysses, Notion, Tana, Workflowy</li></ul><p><strong>Rationale:</strong> a serious-but-impulse price is an adoption engine. Apple's Small Business Program (15% cut, under $1M/yr): $29.99 nets ~$25.49; $19.99 nets ~$16.99.</p><p><strong>PRO \u2014 recurring ~$9.99/mo (or $89/yr).</strong> Premium cloud LLMs; heavy features (podcast/image, big-context Refresh/Transform); higher or unlimited caps; priority. Keep the existing Student $4.99/mo idea.</p><p><strong>BYOK \u2014 unlimited.</strong> User pays their provider directly. \"Unlimited AI, free forever\" positioning already shipped.</p><p><strong>Cost math + the one-time risk.</strong> Buy-once software with ongoing cost bleeds money forever. <strong>Mitigation:</strong> the entry tier's AI is local / BYOK / near-zero, and the free CLOUD cap stays TIGHT \u2014 so buy-once never becomes \"we pay their cloud AI bill forever.\" Anyone who wants our PAID cloud AI must cross into recurring Pro. Current per-user AI cost is estimated at ~$0.03\u2013$0.60 with a 20% margin target.</p>",
+      "type": "document",
+      "parentId": "ai-monetization-strategy-2026-07-03",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "12.4"
+    },
+    "ai-strat-privacy": {
+      "id": "ai-strat-privacy",
+      "name": "Data / Privacy Guardrails",
+      "content": "<p><strong>Founder decisions \u2014 money / legal / brand. Flagged for Howard.</strong></p><ul><li><strong>Never</strong> route private notes through free-tier Gemini or Chinese HOSTED APIs silently (training / data-residency risk).</li><li>Chinese models are acceptable ONLY as <strong>self-hosted open-weight</strong> (Qwen3 / GLM / Kimi via Ollama \u2014 data never leaves the device) or as an <strong>explicit opt-in BYOK</strong> choice.</li><li><strong>All data flows must be disclosed</strong> in the privacy policy.</li><li><strong>Default heavy-cloud = PAID Gemini / OpenAI</strong> (not trained on user data).</li></ul>",
+      "type": "document",
+      "parentId": "ai-monetization-strategy-2026-07-03",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "12.5"
+    },
+    "ai-strat-roadmap": {
+      "id": "ai-strat-roadmap",
+      "name": "Implementation Roadmap",
+      "content": "<p><strong>Leverage what's already built.</strong></p><ol><li><strong>DONE:</strong> failover helper (cloud \u2192 local Gemma) + BYOK module (5 providers) + model registries.</li><li><strong>Build the central router</strong> + a per-tier / per-task provider map.</li><li><strong>Add the OpenRouter provider</strong> (one integration \u2192 many cheap + free models + BYOK).</li><li><strong>Server-side usage metering</strong> + tier source-of-truth via Clerk / RevenueCat (today's counter is client-side and bypassable).</li><li><strong>Migrate BYOK keys to secure storage.</strong></li><li><strong>Wire the one-time-purchase SKU.</strong></li></ol>",
+      "type": "document",
+      "parentId": "ai-monetization-strategy-2026-07-03",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "12.6"
+    },
+    "ai-strat-open-decisions": {
+      "id": "ai-strat-open-decisions",
+      "name": "Open Decisions for Howard",
+      "content": "<p><strong>Open decisions for Howard.</strong></p><ul><li>Final entry price \u2014 $29.99 vs a $19.99 launch/founder price.</li><li>Whether to offer any Chinese HOSTED providers as an opt-in.</li><li>The exact free-cloud cap for the entry tier.</li><li>Whether to add Student and/or Lifetime SKUs.</li><li>The specific privacy-policy disclosures for each data flow.</li></ul>",
+      "type": "document",
+      "parentId": "ai-monetization-strategy-2026-07-03",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "12.7"
     }
   },
-  "lastModified": 1781164800000
+  "lastModified": 1783000000000
 }
