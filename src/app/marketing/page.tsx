@@ -1882,6 +1882,123 @@ export default function MarketingPage() {
           </div>
         </section>
 
+        {/* Plan Benefits — the "why" behind each plan (complements the comparison grid's "what") */}
+        <section className="px-6 pt-24 pb-8 lg:px-12">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-14">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/20 border border-violet-500/30 mb-6">
+                <Star className="w-4 h-4 text-violet-400" />
+                <span className="text-sm font-medium text-violet-300">Why each plan wins</span>
+              </div>
+              <h2 className="text-3xl lg:text-5xl font-bold mb-4">
+                <span className="bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent">
+                  Pick the advantage that{' '}
+                </span>
+                <span className="bg-gradient-to-r from-violet-400 to-indigo-400 bg-clip-text text-transparent">
+                  matters most to you
+                </span>
+              </h2>
+              <p className="text-white/50 text-lg max-w-2xl mx-auto mt-4">
+                Every plan leads with a standout benefit. Here&apos;s the one reason each is worth it.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Own it — privacy + no subscription */}
+              <div className="relative group flex flex-col p-8 rounded-3xl bg-gradient-to-br from-emerald-500/15 via-teal-500/10 to-violet-500/10 border border-emerald-400/30 hover:border-emerald-400/50 transition-all duration-300">
+                <div className="flex items-center justify-between mb-5">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/30">
+                    <Lock className="w-7 h-7 text-white" />
+                  </div>
+                  <span className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-white/70">
+                    Coming soon
+                  </span>
+                </div>
+                <div className="text-xs font-semibold uppercase tracking-wider text-emerald-300 mb-1">
+                  Own it
+                </div>
+                <div className="flex items-baseline gap-2 mb-4">
+                  <span className="text-2xl font-bold text-white">$29.99</span>
+                  <span className="text-white/50 text-sm">once</span>
+                  <span className="inline-flex items-center rounded-full border border-emerald-400/40 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-300">
+                    $19.99 founder launch
+                  </span>
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-3 leading-tight">
+                  Buy once. Own it forever.
+                </h3>
+                <p className="text-white/70 leading-relaxed">
+                  No subscription — ever. The AI runs on your own device, so{' '}
+                  <span className="text-white font-semibold">your notes never leave it</span>. Total privacy, works fully offline, everyday AI included.
+                </p>
+              </div>
+
+              {/* Bring your own key — unlimited, free */}
+              <div className="relative group flex flex-col p-8 rounded-3xl bg-gradient-to-br from-violet-500/20 via-purple-500/10 to-indigo-500/20 border border-violet-500/40 shadow-xl shadow-violet-500/10 hover:border-violet-500/60 transition-all duration-300">
+                <div className="flex items-center justify-between mb-5">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-violet-500/30">
+                    <Zap className="w-7 h-7 text-white" />
+                  </div>
+                  <span className="px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-violet-500 to-indigo-500 text-white">
+                    Most popular
+                  </span>
+                </div>
+                <div className="text-xs font-semibold uppercase tracking-wider text-violet-300 mb-1">
+                  Bring your own key
+                </div>
+                <div className="flex items-baseline gap-2 mb-4">
+                  <span className="text-2xl font-bold text-white">Free</span>
+                  <span className="text-white/50 text-sm">forever</span>
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-3 leading-tight">
+                  Unlimited AI, free forever.
+                </h3>
+                <p className="text-white/70 leading-relaxed">
+                  Plug in your own Gemini or OpenAI key and use AI without limits — at zero cost to you.{' '}
+                  <span className="text-white font-semibold">Your provider, your account — we never see your data.</span>
+                </p>
+              </div>
+
+              {/* Pro — cloud superpowers */}
+              <div className="relative group flex flex-col p-8 rounded-3xl bg-gradient-to-br from-indigo-500/15 via-blue-500/10 to-cyan-500/10 border border-indigo-400/30 hover:border-indigo-400/50 transition-all duration-300">
+                <div className="mb-5">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                    <Rocket className="w-7 h-7 text-white" />
+                  </div>
+                </div>
+                <div className="text-xs font-semibold uppercase tracking-wider text-indigo-300 mb-1">
+                  Pro
+                </div>
+                <div className="flex items-baseline gap-2 mb-4">
+                  <span className="text-2xl font-bold text-white">$9.99</span>
+                  <span className="text-white/50 text-sm">/ month</span>
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-3 leading-tight">
+                  Cloud superpowers.
+                </h3>
+                <p className="text-white/70 leading-relaxed">
+                  The heavy features that need premium cloud AI: Refresh from Web with citations, multi-source Research &amp; Import, AI outline Transform, podcast and image generation, and answers drawn from your whole knowledge base — on frontier models with higher limits and priority.
+                </p>
+                <p className="text-white/40 text-xs mt-3">
+                  Video generation coming in v1.1.
+                </p>
+              </div>
+            </div>
+
+            {/* Free trial callout */}
+            <div className="mt-6 flex justify-center">
+              <div className="inline-flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-6 py-4 text-center">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-500 to-gray-600 flex items-center justify-center flex-shrink-0">
+                  <Play className="w-5 h-5 text-white" />
+                </div>
+                <p className="text-white/70 text-sm sm:text-base">
+                  <span className="text-white font-semibold">Try it free</span> — the full app with a taste of AI. No card required.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Pricing */}
         <section id="pricing" className="px-6 py-24 lg:px-12">
           <div className="max-w-7xl mx-auto">
