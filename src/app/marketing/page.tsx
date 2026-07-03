@@ -1955,6 +1955,119 @@ export default function MarketingPage() {
               All plans include a 14-day free trial. Cancel anytime.
             </p>
 
+            {/* Comparison grid — 4-option split */}
+            <div className="mt-20">
+              <h3 className="text-center text-2xl lg:text-3xl font-bold mb-2">
+                Compare what you get
+              </h3>
+              <p className="text-center text-white/50 text-sm mb-8">
+                Four ways to use IdiamPro. Pick the one that fits how you work.
+              </p>
+              <div className="overflow-x-auto rounded-3xl border border-white/10 bg-white/5">
+                <table className="w-full min-w-[820px] text-sm text-white/80 border-collapse">
+                  <thead>
+                    <tr className="align-top">
+                      <th className="p-4 text-left font-medium text-white/50 w-[26%]">
+                        <span className="text-xs uppercase tracking-wide">Feature</span>
+                      </th>
+                      <th className="p-4 text-left align-top border-l border-white/10">
+                        <div className="text-white font-semibold text-base">Free trial</div>
+                        <div className="text-white/50 text-xs mt-1">Try it, 25 AI uses</div>
+                        <div className="mt-2 text-white/90 font-bold">$0</div>
+                      </th>
+                      <th className="p-4 text-left align-top border-l border-white/10 bg-white/[0.03]">
+                        <div className="text-white font-semibold text-base">Own it</div>
+                        <div className="text-white/50 text-xs mt-1">Runs on your device &amp; your own key</div>
+                        <div className="mt-2 flex items-center gap-2 flex-wrap">
+                          <span className="text-white/90 font-bold">$29.99</span>
+                          <span className="inline-flex items-center rounded-full border border-emerald-400/40 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-300">
+                            $19.99 founder launch
+                          </span>
+                        </div>
+                        <span className="mt-2 inline-flex items-center rounded-full border border-white/20 bg-white/10 px-2.5 py-0.5 text-[10px] font-medium text-white/70">
+                          Coming soon
+                        </span>
+                      </th>
+                      <th className="p-4 text-left align-top border-l border-white/10 bg-gradient-to-b from-violet-500/15 to-indigo-500/10">
+                        <div className="text-white font-semibold text-base">Pro</div>
+                        <div className="text-white/50 text-xs mt-1">Premium cloud AI</div>
+                        <div className="mt-2 text-white/90 font-bold">
+                          $9.99<span className="text-white/50 font-normal text-xs">/mo</span>
+                          <span className="text-white/40 font-normal text-xs"> · $89/yr</span>
+                        </div>
+                      </th>
+                      <th className="p-4 text-left align-top border-l border-white/10">
+                        <div className="text-white font-semibold text-base">BYOK</div>
+                        <div className="text-white/50 text-xs mt-1">Your key, unlimited</div>
+                        <div className="mt-2 text-white/90 font-bold">Free</div>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/10">
+                    {[
+                      {
+                        label: 'Core outlining',
+                        sub: 'Unlimited outlines, drag-drop, tags & colors, search, export/share, backups, data protection',
+                        cells: [<Check key="c" className="w-4 h-4 text-emerald-400" />, <Check key="c" className="w-4 h-4 text-emerald-400" />, <Check key="c" className="w-4 h-4 text-emerald-400" />, <Check key="c" className="w-4 h-4 text-emerald-400" />],
+                      },
+                      {
+                        label: 'Everyday AI',
+                        sub: 'Generate from a topic, reformat, translate, suggest tags, describe images, quick commands, Help chat',
+                        cells: ['25 total', <Check key="c" className="w-4 h-4 text-emerald-400" />, <Check key="c" className="w-4 h-4 text-emerald-400" />, <Check key="c" className="w-4 h-4 text-emerald-400" />],
+                      },
+                      {
+                        label: 'On-device / private AI',
+                        sub: 'Notes never leave your device',
+                        cells: ['—', <Check key="c" className="w-4 h-4 text-emerald-400" />, <Check key="c" className="w-4 h-4 text-emerald-400" />, <Check key="c" className="w-4 h-4 text-emerald-400" />],
+                      },
+                      {
+                        label: 'Pro superpowers',
+                        sub: 'Refresh from Web + citations, Research & Import, Transform Outline, Ask Your Outlines at scale, Podcast, Image generation, frontier cloud models',
+                        cells: ['—', '—', <Check key="c" className="w-4 h-4 text-emerald-400" />, '✓ with your key'],
+                      },
+                      {
+                        label: 'Video / YouTube package',
+                        sub: 'Turn outlines into video scripts and clips',
+                        cells: ['—', '—', 'Coming soon (v1.1)', 'Coming soon'],
+                      },
+                      {
+                        label: 'Generation caps / priority',
+                        sub: 'How much AI you can run',
+                        cells: ['25 total', 'Local / your key', 'High / unlimited + priority', 'Unlimited (your key)'],
+                      },
+                      {
+                        label: 'Privacy',
+                        sub: 'Where your data goes',
+                        cells: ['Cloud trial', 'Stays on your device', 'Premium cloud, not trained on your data', 'Your provider, we never see it'],
+                      },
+                    ].map((row, ri) => (
+                      <tr key={ri} className="align-top">
+                        <td className="p-4 min-h-[44px]">
+                          <div className="text-white font-medium">{row.label}</div>
+                          <div className="text-white/40 text-xs mt-1 leading-relaxed">{row.sub}</div>
+                        </td>
+                        {row.cells.map((cell, ci) => (
+                          <td
+                            key={ci}
+                            className={`p-4 border-l border-white/10 align-middle ${ci === 1 ? 'bg-white/[0.03]' : ''} ${ci === 2 ? 'bg-violet-500/[0.06]' : ''}`}
+                          >
+                            {typeof cell === 'string' ? (
+                              <span className={cell === '—' ? 'text-white/30' : 'text-white/80'}>{cell}</span>
+                            ) : (
+                              cell
+                            )}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <p className="text-center text-white/40 text-xs mt-4">
+                &ldquo;Own it&rdquo; one-time purchase is coming soon — join the free trial or Pro today.
+              </p>
+            </div>
+
             {/* Academic & Student Pricing Callout */}
             <div className="mt-12 p-8 rounded-3xl bg-gradient-to-r from-indigo-500/10 via-violet-500/10 to-purple-500/10 border border-indigo-500/20">
               <div className="flex flex-col md:flex-row items-center justify-between gap-6">

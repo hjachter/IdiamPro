@@ -318,61 +318,100 @@ export default function UpgradePage() {
             Compare plans
           </h2>
           <div className="overflow-x-auto rounded-xl border">
-            <table className="w-full min-w-[600px] text-sm">
+            <table className="w-full min-w-[760px] text-sm">
               <thead className="bg-muted/50">
-                <tr className="text-left">
-                  <th className="p-3 font-medium">Feature</th>
-                  <th className="p-3 font-medium">Free (BYOK)</th>
-                  <th className="p-3 font-medium">Student</th>
-                  <th className="p-3 font-medium">Pro</th>
+                <tr className="text-left align-top">
+                  <th className="p-3 font-medium w-[24%]">Feature</th>
+                  <th className="p-3 font-medium">
+                    <div className="font-semibold">Free trial</div>
+                    <div className="text-xs font-normal text-muted-foreground mt-0.5">Try it, 25 AI uses</div>
+                    <div className="text-xs font-normal mt-1">$0</div>
+                  </th>
+                  <th className="p-3 font-medium border-l">
+                    <div className="font-semibold">Own it</div>
+                    <div className="text-xs font-normal text-muted-foreground mt-0.5">Runs on your device &amp; your own key</div>
+                    <div className="mt-1 flex items-center gap-1.5 flex-wrap">
+                      <span className="text-xs font-normal">$29.99</span>
+                      <span className="inline-flex items-center rounded-full border border-emerald-500/40 bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-medium text-emerald-600 dark:text-emerald-400">
+                        $19.99 founder launch
+                      </span>
+                    </div>
+                    <span className="mt-1 inline-flex items-center rounded-full border bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+                      Coming soon
+                    </span>
+                  </th>
+                  <th className="p-3 font-medium border-l">
+                    <div className="font-semibold">Pro</div>
+                    <div className="text-xs font-normal text-muted-foreground mt-0.5">Premium cloud AI</div>
+                    <div className="text-xs font-normal mt-1">$9.99/mo · $89/yr</div>
+                  </th>
+                  <th className="p-3 font-medium border-l">
+                    <div className="font-semibold">BYOK</div>
+                    <div className="text-xs font-normal text-muted-foreground mt-0.5">Your key, unlimited</div>
+                    <div className="text-xs font-normal mt-1">Free</div>
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y">
-                <tr>
-                  <td className="p-3">AI generations / month</td>
-                  <td className="p-3">Unlimited (your key)</td>
-                  <td className="p-3">200</td>
-                  <td className="p-3">1,000</td>
-                </tr>
-                <tr>
-                  <td className="p-3">AI key included</td>
-                  <td className="p-3 text-muted-foreground">No (you supply)</td>
-                  <td className="p-3">Yes</td>
-                  <td className="p-3">Yes</td>
-                </tr>
-                <tr>
-                  <td className="p-3">Refresh from Web (citations)</td>
-                  <td className="p-3">Yes (your key)</td>
-                  <td className="p-3">Yes</td>
-                  <td className="p-3">Yes</td>
-                </tr>
-                <tr>
-                  <td className="p-3">Translate (20+ languages)</td>
-                  <td className="p-3">Yes (your key)</td>
-                  <td className="p-3">Yes</td>
-                  <td className="p-3">Yes</td>
-                </tr>
-                <tr>
-                  <td className="p-3">Podcast generation</td>
-                  <td className="p-3 text-muted-foreground">—</td>
-                  <td className="p-3 text-muted-foreground">—</td>
-                  <td className="p-3">Yes (Pro-only)</td>
-                </tr>
-                <tr>
-                  <td className="p-3">Image generation</td>
-                  <td className="p-3 text-muted-foreground">—</td>
-                  <td className="p-3 text-muted-foreground">—</td>
-                  <td className="p-3">Yes (Pro-only)</td>
-                </tr>
-                <tr>
-                  <td className="p-3">Priority support</td>
-                  <td className="p-3 text-muted-foreground">Community</td>
-                  <td className="p-3">Email</td>
-                  <td className="p-3">Priority email</td>
-                </tr>
+                {[
+                  {
+                    label: 'Core outlining',
+                    sub: 'Unlimited outlines, drag-drop, tags & colors, search, export/share, backups, data protection',
+                    cells: ['check', 'check', 'check', 'check'],
+                  },
+                  {
+                    label: 'Everyday AI',
+                    sub: 'Generate from a topic, reformat, translate, suggest tags, describe images, quick commands, Help chat',
+                    cells: ['25 total', 'check', 'check', 'check'],
+                  },
+                  {
+                    label: 'On-device / private AI',
+                    sub: 'Notes never leave your device',
+                    cells: ['—', 'check', 'check', 'check'],
+                  },
+                  {
+                    label: 'Pro superpowers',
+                    sub: 'Refresh from Web + citations, Research & Import, Transform Outline, Ask Your Outlines at scale, Podcast, Image generation, frontier cloud models',
+                    cells: ['—', '—', 'check', '✓ with your key'],
+                  },
+                  {
+                    label: 'Video / YouTube package',
+                    sub: 'Turn outlines into video scripts and clips',
+                    cells: ['—', '—', 'Coming soon (v1.1)', 'Coming soon'],
+                  },
+                  {
+                    label: 'Generation caps / priority',
+                    sub: 'How much AI you can run',
+                    cells: ['25 total', 'Local / your key', 'High / unlimited + priority', 'Unlimited (your key)'],
+                  },
+                  {
+                    label: 'Privacy',
+                    sub: 'Where your data goes',
+                    cells: ['Cloud trial', 'Stays on your device', 'Premium cloud, not trained on your data', 'Your provider, we never see it'],
+                  },
+                ].map((row, ri) => (
+                  <tr key={ri} className="align-top">
+                    <td className="p-3">
+                      <div className="font-medium">{row.label}</div>
+                      <div className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{row.sub}</div>
+                    </td>
+                    {row.cells.map((cell, ci) => (
+                      <td key={ci} className="p-3 border-l align-middle">
+                        {cell === 'check' ? (
+                          <Check className="h-4 w-4 text-emerald-500" />
+                        ) : (
+                          <span className={cell === '—' ? 'text-muted-foreground' : ''}>{cell}</span>
+                        )}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
+          <p className="mt-3 text-center text-xs text-muted-foreground">
+            &ldquo;Own it&rdquo; one-time purchase is coming soon — start with the free trial or Pro today.
+          </p>
         </div>
 
         {/* Trust signals */}
