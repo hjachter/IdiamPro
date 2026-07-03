@@ -1007,8 +1007,29 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
                 onCheckedChange={handleAiConsentChange}
               />
             </div>
+            {aiProvider === 'local' && (
+              <div className="rounded-md border border-emerald-500/20 bg-emerald-500/5 px-2.5 py-1.5">
+                <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                  You&apos;re using On-device AI — fully private. Your notes never leave your device.
+                </p>
+              </div>
+            )}
             <p className="text-xs text-muted-foreground">
-              When enabled, your outline content may be sent to <strong>Google Gemini</strong>, <strong>OpenAI</strong>, and <strong>AssemblyAI</strong> for AI features. No data is stored beyond processing.
+              Where your content goes depends on which AI you use:
+            </p>
+            <ul className="space-y-1.5 text-xs text-muted-foreground">
+              <li>
+                <strong className="text-foreground">On-device AI (Local / Gemma):</strong> fully private — your notes never leave your device.
+              </li>
+              <li>
+                <strong className="text-foreground">Your own key (BYOK):</strong> your content goes to your chosen provider under your own account. IdiamPro never sees it.
+              </li>
+              <li>
+                <strong className="text-foreground">Our cloud AI (Gemini, OpenAI, AssemblyAI for audio):</strong> your content is sent to the provider only to handle your request — never stored, and on paid tiers never used for training.
+              </li>
+            </ul>
+            <p className="text-xs text-muted-foreground">
+              This toggle controls cloud AI only. On-device AI stays private either way.
             </p>
             <a
               href="/privacy"
@@ -1121,7 +1142,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
                   Quick Start — Set up in 2 minutes
                 </p>
                 <p className="text-xs text-muted-foreground mb-2">
-                  Google Gemini is free and powers most SecondBrainWare AI features. No credit card required.
+                  Google Gemini is free and powers most IdiamPro AI features. No credit card required.
                 </p>
                 <Button
                   variant="outline"
