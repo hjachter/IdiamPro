@@ -18,16 +18,20 @@
 dev="$(ps -e -o tty=,command= | awk '$1 ~ /^ttys/ && /claude/ {print $1; exit}')"
 [ -z "$dev" ] && { osascript -e 'tell application "Terminal" to activate' 2>/dev/null; exit 0; }
 
+# Bring Terminal forward FIRST, then explicitly raise the target window.
+# (Doing it the other way round lets `activate` restore whatever Terminal
+# window was last active — often the wrong one — after the target was set.)
 osascript <<OSA 2>/dev/null || true
 tell application "Terminal"
+  activate
   repeat with w in windows
     repeat with t in tabs of w
       if tty of t is "/dev/$dev" then
-        set selected of t to true
-        set index of w to 1
+        set selected tab of w to t
+        set frontmost of w to true
+        return
       end if
     end repeat
   end repeat
-  activate
 end tell
 OSA
