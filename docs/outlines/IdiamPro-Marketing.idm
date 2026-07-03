@@ -752,6 +752,7 @@
    "parentId": "root",
    "childrenIds": [
     "sub-free",
+    "sub-ownit",
     "sub-pro",
     "sub-power",
     "sub-pricing-options"
@@ -777,7 +778,7 @@
    "parentId": "subscriptions",
    "childrenIds": [],
    "isCollapsed": false,
-   "prefix": "7.2"
+   "prefix": "7.3"
   },
   "sub-power": {
    "id": "sub-power",
@@ -787,7 +788,7 @@
    "parentId": "subscriptions",
    "childrenIds": [],
    "isCollapsed": false,
-   "prefix": "7.3"
+   "prefix": "7.4"
   },
   "sub-pricing-options": {
    "id": "sub-pricing-options",
@@ -797,7 +798,7 @@
    "parentId": "subscriptions",
    "childrenIds": [],
    "isCollapsed": false,
-   "prefix": "7.4"
+   "prefix": "7.5"
   },
   "video-support": {
    "id": "video-support",
@@ -1158,6 +1159,16 @@
    ],
    "isCollapsed": false,
    "prefix": ""
+  },
+  "sub-ownit": {
+   "id": "sub-ownit",
+   "name": "Own it — $29.99 one-time ($19.99 founder launch)",
+   "content": "<h3>Own it — One-Time Purchase</h3><p><strong>Price:</strong> $29.99 one-time — <strong>$19.99 founder launch price</strong> for the first cohort. Buy it once, own it forever. No subscription.</p><h4>What You Get</h4><ul><li>All the core outlining and second-brain features — unlimited outlines, all item types, the full editor, import, export, and multi-platform (Mac, iPhone, web).</li><li><strong>Private on-device AI (Ollama / Gemma)</strong> — runs on your own computer, no key needed, unlimited.</li><li><strong>A capped free-cloud AI allowance</strong> — enough to get real work done for the core features.</li><li><strong>Bring your own key (BYOK)</strong> — plug in your own AI key for unlimited cloud AI; you pay your provider directly.</li></ul><h4>Why One-Time Works Here</h4><p>The entry tier's AI is local, capped-free, or your-own-key — so it costs IdiamPro almost nothing to run. That's what makes an honest buy-once, no-subscription price sustainable.</p><h4>When to Step Up to Pro</h4><p>Pro (recurring) sits <strong>above</strong> Own it. Choose Pro when you want premium cloud LLMs, heavy features (podcast/image generation, big-context Refresh/Transform), and higher or unlimited AI caps. Own it covers the essentials; Pro is for power and premium cloud AI.</p>",
+   "type": "document",
+   "parentId": "subscriptions",
+   "childrenIds": [],
+   "isCollapsed": false,
+   "prefix": "7.2"
   }
  },
  "isGuide": false,
