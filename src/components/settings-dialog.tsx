@@ -7,7 +7,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { Folder, Info, Smartphone, Cpu, Cloud, Loader2, CheckCircle, XCircle, Crown, Shield, Moon, Sun, Download, Trash2, AlertTriangle, Play, Sparkles, ShieldCheck, KeyRound, UserX } from 'lucide-react';
+import { Folder, Info, Smartphone, Cpu, Cloud, Loader2, CheckCircle, XCircle, Crown, Shield, Moon, Sun, Download, Trash2, AlertTriangle, Play, Sparkles, ShieldCheck, KeyRound, UserX, Settings as SettingsIcon, Mail } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -52,6 +52,12 @@ import {
   resetUsage,
 } from '@/lib/ai-usage-counter';
 
+// App version shown in the About panel. Mirrors package.json "version".
+const APP_VERSION = '1.0.0';
+
+// Settings categories for the side navigation.
+type SettingsCategory = 'general' | 'ai' | 'privacy' | 'account' | 'backups' | 'about';
+
 // Check if running in Capacitor native app (but NOT Electron)
 function isCapacitor(): boolean {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -65,6 +71,7 @@ interface SettingsDialogProps {
 
 export default function SettingsDialog({ children, onFolderSelected }: SettingsDialogProps) {
   const [open, setOpen] = useState(false);
+  const [activeCategory, setActiveCategory] = useState<SettingsCategory>('general');
   const [dataFolder, setDataFolder] = useState<string>('Browser Storage (Default)');
   const [confirmDelete, setConfirmDelete] = useState<boolean>(true);
   const [aiDataConsent, setAiDataConsent] = useState<boolean>(false);
@@ -223,6 +230,9 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
   useEffect(() => {
     const handleOpenAiKeys = () => {
       setOpen(true);
+      // Reveal the AI panel where the keys live, then scroll to the section
+      // as a fallback once it has rendered.
+      setActiveCategory('ai');
       setTimeout(() => {
         document
           .getElementById('ai-service-keys-section')
@@ -684,7 +694,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px] max-h-[85vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[760px] max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Settings</DialogTitle>
           <DialogDescription>
@@ -692,7 +702,136 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6 py-4">
+        <div className="flex flex-col sm:flex-row gap-4 py-4">
+          {/* Category navigation. On desktop this is a vertical left column;
+              on narrow screens it becomes a horizontal scrollable strip. */}
+          <nav className="flex sm:flex-col gap-1 overflow-x-auto sm:w-44 sm:shrink-0 -mx-1 px-1 sm:mx-0 sm:px-0">
+            {([
+              { id: 'general', label: 'General', icon: SettingsIcon },
+              { id: 'ai', label: 'AI', icon: Sparkles },
+              { id: 'privacy', label: 'Privacy & Data', icon: Shield },
+              { id: 'account', label: 'Account', icon: Crown },
+              { id: 'backups', label: 'Backups', icon: ShieldCheck },
+              { id: 'about', label: 'About', icon: Info },
+            ] as { id: SettingsCategory; label: string; icon: typeof Shield }[]).map((cat) => {
+              const Icon = cat.icon;
+              const active = activeCategory === cat.id;
+              return (
+                <button
+                  key={cat.id}
+                  type="button"
+                  data-testid={`settings-nav-${cat.id}`}
+                  onClick={() => setActiveCategory(cat.id)}
+                  className={
+                    `flex items-center gap-2 whitespace-nowrap rounded-md px-3 min-h-[44px] text-sm font-medium text-left transition-colors ` +
+                    (active
+                      ? 'bg-primary text-primary-foreground'
+                      : 'text-muted-foreground hover:bg-muted')
+                  }
+                >
+                  <Icon className="h-4 w-4 shrink-0" />
+                  <span>{cat.label}</span>
+                </button>
+              );
+            })}
+          </nav>
+
+          {/* Panel content — only the active category's sections render. */}
+          <div className="flex-1 min-w-0 max-h-[70vh] overflow-y-auto pr-1 space-y-6">
+
+          {activeCategory === 'general' && (<>
+          {/* Appearance Section */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-medium">Appearance</h3>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="theme-select" className="text-sm">
+                Theme
+              </Label>
+              <Select
+                value={mounted ? (theme ?? 'system') : 'system'}
+                onValueChange={setTheme}
+              >
+                <SelectTrigger id="theme-select" className="w-32">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="light">Light</SelectItem>
+                  <SelectItem value="dark">Dark</SelectItem>
+                  <SelectItem value="system">Auto</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Light, dark, or match your device
+            </p>
+          </div>
+
+          {/* User Preferences Section */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-medium">Preferences</h3>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="confirm-delete" className="text-sm">
+                Confirm before deleting items
+              </Label>
+              <Switch
+                id="confirm-delete"
+                checked={confirmDelete}
+                onCheckedChange={handleConfirmDeleteChange}
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Show confirmation dialog when deleting items or branches
+            </p>
+
+            {/* Reset confirmation prompts (2026-06-10). Clears every per-prompt
+                "Don't ask again" suppression so the user can roll back their
+                opt-outs without flipping Professional mode. */}
+            <div className="flex items-center justify-between pt-2">
+              <div>
+                <Label className="text-sm">Reset confirmation prompts</Label>
+                <p className="text-xs text-muted-foreground">
+                  Brings back all dialogs you previously dismissed with &ldquo;Don&apos;t ask again&rdquo;
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const cleared = resetAllConfirmSuppressions();
+                  toast({
+                    title: cleared > 0 ? 'Confirmations reset' : 'No prompts were suppressed',
+                    description: cleared > 0
+                      ? `Cleared ${cleared} suppressed prompt${cleared === 1 ? '' : 's'}.`
+                      : 'You hadn’t opted out of any confirmations.',
+                  });
+                }}
+              >
+                Reset
+              </Button>
+            </div>
+          </div>
+
+          {/* Tips & Discovery Section */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-medium">Tips</h3>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="professional-mode" className="text-sm">
+                Professional mode
+              </Label>
+              <Switch
+                id="professional-mode"
+                checked={isProfessional}
+                onCheckedChange={setProfessional}
+                data-testid="professional-mode-toggle"
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Suppress &ldquo;Did You Know?&rdquo; tips and all confirmation dialogs. Recommended once you know your way around.
+            </p>
+          </div>
+          </>)}
+
+          {activeCategory === 'privacy' && (<>
           {/* Data Storage Section */}
           <div className="space-y-3">
             <h3 className="text-sm font-medium">Data Storage</h3>
@@ -742,6 +881,108 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
             )}
           </div>
 
+          {/* Data & Privacy Section */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-medium flex items-center gap-2">
+              <Shield className="h-4 w-4" />
+              Data &amp; Privacy
+            </h3>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="ai-consent" className="text-sm">
+                Allow AI data processing
+              </Label>
+              <Switch
+                id="ai-consent"
+                checked={aiDataConsent}
+                onCheckedChange={handleAiConsentChange}
+              />
+            </div>
+            {aiProvider === 'local' && (
+              <div className="rounded-md border border-emerald-500/20 bg-emerald-500/5 px-2.5 py-1.5">
+                <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                  You&apos;re using On-device AI — fully private. Your notes never leave your device.
+                </p>
+              </div>
+            )}
+            <p className="text-xs text-muted-foreground">
+              Where your content goes depends on which AI you use:
+            </p>
+            <ul className="space-y-1.5 text-xs text-muted-foreground">
+              <li>
+                <strong className="text-foreground">On-device AI (Local / Gemma):</strong> fully private — your notes never leave your device.
+              </li>
+              <li>
+                <strong className="text-foreground">Your own key (BYOK):</strong> your content goes to your chosen provider under your own account. IdiamPro never sees it.
+              </li>
+              <li>
+                <strong className="text-foreground">Our cloud AI (Gemini, OpenAI, AssemblyAI for audio):</strong> your content is sent to the provider only to handle your request — never stored, and on paid tiers never used for training.
+              </li>
+            </ul>
+            <p className="text-xs text-muted-foreground">
+              This toggle controls cloud AI only. On-device AI stays private either way.
+            </p>
+            <a
+              href="/privacy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-sky-500 dark:text-sky-400 hover:underline"
+            >
+              View Privacy Policy
+            </a>
+          </div>
+
+          {/* Privacy & Data — GDPR/CCPA export and delete */}
+          <div className="space-y-3 pt-2 border-t border-border/40">
+            <h3 className="text-sm font-medium flex items-center gap-2">
+              <Shield className="h-4 w-4" />
+              Privacy &amp; Data
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              IdiamPro stores all your data locally on this device. Use these
+              tools to export everything we hold or to delete it permanently.
+            </p>
+
+            <div className="space-y-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full justify-start"
+                onClick={handleExportData}
+                disabled={isExporting}
+              >
+                {isExporting ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Download className="mr-2 h-4 w-4" />
+                )}
+                {isExporting ? 'Preparing archive…' : 'Export my data'}
+              </Button>
+              <p className="text-xs text-muted-foreground">
+                Saves a single .zip with every outline (as .idm files), your
+                settings, API keys, and AI consent state.
+              </p>
+            </div>
+
+            <div className="space-y-2 pt-1">
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full justify-start text-destructive border-destructive/40 hover:bg-destructive/10 hover:text-destructive"
+                onClick={handleStartDelete}
+                disabled={isDeleting}
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete all my data…
+              </Button>
+              <p className="text-xs text-muted-foreground">
+                Wipes outlines, settings, API keys, and AI consent from this
+                device. Cannot be undone. Reloads the app afterwards.
+              </p>
+            </div>
+          </div>
+          </>)}
+
+          {activeCategory === 'account' && (<>
           {/* Account Section */}
           <div className="space-y-3">
             <h3 className="text-sm font-medium">Account</h3>
@@ -769,9 +1010,12 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
                 className="w-full"
                 data-testid="ios-byok-cta"
                 onClick={() => {
-                  // Deep-link to the AI key settings section below.
-                  const el = document.getElementById('ai-service-keys-section');
-                  el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  // Reveal the AI panel, then deep-link to the key section.
+                  setActiveCategory('ai');
+                  setTimeout(() => {
+                    const el = document.getElementById('ai-service-keys-section');
+                    el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }, 50);
                 }}
               >
                 <KeyRound className="mr-2 h-4 w-4" />
@@ -816,75 +1060,32 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
             )}
           </div>
 
-          {/* Answer quality Section */}
-          <div className="space-y-3">
-            <h3 className="text-sm font-medium">Answer quality</h3>
-            <p className="text-xs text-muted-foreground">
-              Choose how thorough AI responses should be. Can be overridden per-request.
-            </p>
-            <Select value={aiDepth} onValueChange={handleAiDepthChange}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {(Object.keys(AI_DEPTH_CONFIG) as AIDepth[]).map((depth) => (
-                  <SelectItem key={depth} value={depth}>
-                    <div className="flex items-center gap-2">
-                      <span>{AI_DEPTH_CONFIG[depth].icon}</span>
-                      <span>{AI_DEPTH_CONFIG[depth].label}</span>
-                      <span className="text-xs text-muted-foreground">— {AI_DEPTH_CONFIG[depth].description}</span>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* User Preferences Section */}
-          <div className="space-y-3">
-            <h3 className="text-sm font-medium">Preferences</h3>
-            <div className="flex items-center justify-between">
-              <Label htmlFor="confirm-delete" className="text-sm">
-                Confirm before deleting items
-              </Label>
-              <Switch
-                id="confirm-delete"
-                checked={confirmDelete}
-                onCheckedChange={handleConfirmDeleteChange}
-              />
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Show confirmation dialog when deleting items or branches
-            </p>
-
-            {/* Reset confirmation prompts (2026-06-10). Clears every per-prompt
-                "Don't ask again" suppression so the user can roll back their
-                opt-outs without flipping Professional mode. */}
-            <div className="flex items-center justify-between pt-2">
-              <div>
-                <Label className="text-sm">Reset confirmation prompts</Label>
-                <p className="text-xs text-muted-foreground">
-                  Brings back all dialogs you previously dismissed with &ldquo;Don&apos;t ask again&rdquo;
-                </p>
-              </div>
+          {/* Real account deletion (Apple guideline 5.1.1(v)). Only shown
+              when auth is actually enabled AND the user is signed in —
+              there's no account to delete otherwise. Distinct from "Delete
+              all my data", which only clears this device. */}
+          {isAuthEnabled() && currentUser.isSignedIn && (
+            <div className="space-y-2 pt-1">
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => {
-                  const cleared = resetAllConfirmSuppressions();
-                  toast({
-                    title: cleared > 0 ? 'Confirmations reset' : 'No prompts were suppressed',
-                    description: cleared > 0
-                      ? `Cleared ${cleared} suppressed prompt${cleared === 1 ? '' : 's'}.`
-                      : 'You hadn’t opted out of any confirmations.',
-                  });
-                }}
+                className="w-full justify-start text-destructive border-destructive/40 hover:bg-destructive/10 hover:text-destructive"
+                onClick={() => setAccountDeleteOpen(true)}
+                disabled={isDeletingAccount}
+                data-testid="delete-account-btn"
               >
-                Reset
+                <UserX className="mr-2 h-4 w-4" />
+                Delete account
               </Button>
+              <p className="text-xs text-muted-foreground">
+                Permanently deletes your account and all data we hold for you,
+                then signs you out. This cannot be undone.
+              </p>
             </div>
-          </div>
+          )}
+          </>)}
 
+          {activeCategory === 'backups' && (<>
           {/* Outline Backups Section (2026-06-10) — two auto-snapshot toggles
               and a button to open the backups folder. Both toggles default ON.
               Snapshots are the second protective layer under undo. */}
@@ -945,100 +1146,62 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
               </Button>
             )}
           </div>
+          </>)}
 
-          {/* Tips & Discovery Section */}
-          <div className="space-y-3">
-            <h3 className="text-sm font-medium">Tips</h3>
-            <div className="flex items-center justify-between">
-              <Label htmlFor="professional-mode" className="text-sm">
-                Professional mode
-              </Label>
-              <Switch
-                id="professional-mode"
-                checked={isProfessional}
-                onCheckedChange={setProfessional}
-                data-testid="professional-mode-toggle"
-              />
+          {activeCategory === 'about' && (<>
+          {/* About Section */}
+          <div className="space-y-4">
+            <div className="space-y-1">
+              <h3 className="text-base font-semibold">IdiamPro</h3>
+              <p className="text-xs text-muted-foreground">Version {APP_VERSION}</p>
             </div>
             <p className="text-xs text-muted-foreground">
-              Suppress &ldquo;Did You Know?&rdquo; tips and all confirmation dialogs. Recommended once you know your way around.
+              Professional outlining with AI-powered assistance.
             </p>
-          </div>
-
-          {/* Appearance Section */}
-          <div className="space-y-3">
-            <h3 className="text-sm font-medium">Appearance</h3>
-            <div className="flex items-center justify-between">
-              <Label htmlFor="theme-select" className="text-sm">
-                Theme
-              </Label>
-              <Select
-                value={mounted ? (theme ?? 'system') : 'system'}
-                onValueChange={setTheme}
+            <div className="flex flex-col gap-2 pt-1">
+              <a
+                href="/privacy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-sm text-sky-500 dark:text-sky-400 hover:underline"
               >
-                <SelectTrigger id="theme-select" className="w-32">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="light">Light</SelectItem>
-                  <SelectItem value="dark">Dark</SelectItem>
-                  <SelectItem value="system">Auto</SelectItem>
-                </SelectContent>
-              </Select>
+                <Shield className="h-4 w-4" />
+                Privacy Policy
+              </a>
+              <a
+                href="mailto:hjachter@gmail.com"
+                className="flex items-center gap-2 text-sm text-sky-500 dark:text-sky-400 hover:underline"
+              >
+                <Mail className="h-4 w-4" />
+                Contact Support
+              </a>
             </div>
-            <p className="text-xs text-muted-foreground">
-              Light, dark, or match your device
-            </p>
           </div>
+          </>)}
 
-          {/* Data & Privacy Section */}
+          {activeCategory === 'ai' && (<>
+          {/* Answer quality Section */}
           <div className="space-y-3">
-            <h3 className="text-sm font-medium flex items-center gap-2">
-              <Shield className="h-4 w-4" />
-              Data &amp; Privacy
-            </h3>
-            <div className="flex items-center justify-between">
-              <Label htmlFor="ai-consent" className="text-sm">
-                Allow AI data processing
-              </Label>
-              <Switch
-                id="ai-consent"
-                checked={aiDataConsent}
-                onCheckedChange={handleAiConsentChange}
-              />
-            </div>
-            {aiProvider === 'local' && (
-              <div className="rounded-md border border-emerald-500/20 bg-emerald-500/5 px-2.5 py-1.5">
-                <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
-                  You&apos;re using On-device AI — fully private. Your notes never leave your device.
-                </p>
-              </div>
-            )}
+            <h3 className="text-sm font-medium">Answer quality</h3>
             <p className="text-xs text-muted-foreground">
-              Where your content goes depends on which AI you use:
+              Choose how thorough AI responses should be. Can be overridden per-request.
             </p>
-            <ul className="space-y-1.5 text-xs text-muted-foreground">
-              <li>
-                <strong className="text-foreground">On-device AI (Local / Gemma):</strong> fully private — your notes never leave your device.
-              </li>
-              <li>
-                <strong className="text-foreground">Your own key (BYOK):</strong> your content goes to your chosen provider under your own account. IdiamPro never sees it.
-              </li>
-              <li>
-                <strong className="text-foreground">Our cloud AI (Gemini, OpenAI, AssemblyAI for audio):</strong> your content is sent to the provider only to handle your request — never stored, and on paid tiers never used for training.
-              </li>
-            </ul>
-            <p className="text-xs text-muted-foreground">
-              This toggle controls cloud AI only. On-device AI stays private either way.
-            </p>
-            <a
-              href="/privacy"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs text-sky-500 dark:text-sky-400 hover:underline"
-            >
-              View Privacy Policy
-            </a>
+            <Select value={aiDepth} onValueChange={handleAiDepthChange}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {(Object.keys(AI_DEPTH_CONFIG) as AIDepth[]).map((depth) => (
+                  <SelectItem key={depth} value={depth}>
+                    <div className="flex items-center gap-2">
+                      <span>{AI_DEPTH_CONFIG[depth].icon}</span>
+                      <span>{AI_DEPTH_CONFIG[depth].label}</span>
+                      <span className="text-xs text-muted-foreground">— {AI_DEPTH_CONFIG[depth].description}</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* AI Usage — launch tier counter (#33) */}
@@ -1389,78 +1552,8 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
             </div>
           )}
 
-          {/* Privacy & Data — GDPR/CCPA export and delete */}
-          <div className="space-y-3 pt-2 border-t border-border/40">
-            <h3 className="text-sm font-medium flex items-center gap-2">
-              <Shield className="h-4 w-4" />
-              Privacy &amp; Data
-            </h3>
-            <p className="text-xs text-muted-foreground">
-              IdiamPro stores all your data locally on this device. Use these
-              tools to export everything we hold or to delete it permanently.
-            </p>
+          </>)}
 
-            <div className="space-y-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full justify-start"
-                onClick={handleExportData}
-                disabled={isExporting}
-              >
-                {isExporting ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <Download className="mr-2 h-4 w-4" />
-                )}
-                {isExporting ? 'Preparing archive…' : 'Export my data'}
-              </Button>
-              <p className="text-xs text-muted-foreground">
-                Saves a single .zip with every outline (as .idm files), your
-                settings, API keys, and AI consent state.
-              </p>
-            </div>
-
-            <div className="space-y-2 pt-1">
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full justify-start text-destructive border-destructive/40 hover:bg-destructive/10 hover:text-destructive"
-                onClick={handleStartDelete}
-                disabled={isDeleting}
-              >
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete all my data…
-              </Button>
-              <p className="text-xs text-muted-foreground">
-                Wipes outlines, settings, API keys, and AI consent from this
-                device. Cannot be undone. Reloads the app afterwards.
-              </p>
-            </div>
-
-            {/* Real account deletion (Apple guideline 5.1.1(v)). Only shown
-                when auth is actually enabled AND the user is signed in —
-                there's no account to delete otherwise. Distinct from "Delete
-                all my data" above, which only clears this device. */}
-            {isAuthEnabled() && currentUser.isSignedIn && (
-              <div className="space-y-2 pt-1">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full justify-start text-destructive border-destructive/40 hover:bg-destructive/10 hover:text-destructive"
-                  onClick={() => setAccountDeleteOpen(true)}
-                  disabled={isDeletingAccount}
-                  data-testid="delete-account-btn"
-                >
-                  <UserX className="mr-2 h-4 w-4" />
-                  Delete account
-                </Button>
-                <p className="text-xs text-muted-foreground">
-                  Permanently deletes your account and all data we hold for you,
-                  then signs you out. This cannot be undone.
-                </p>
-              </div>
-            )}
           </div>
         </div>
 

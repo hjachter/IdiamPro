@@ -15,6 +15,7 @@ import {
 const APP_CONTEXT = `You are a helpful assistant for IdiamPro, a professional outlining application with AI-powered features.
 
 KEY FEATURES:
+- Settings is organized into six categories: General, AI, Privacy & Data, Account, Backups, and About.
 - Settings > Appearance has a theme selector: choose Light, Dark, or Auto (Auto matches your device's system setting).
 - Hierarchical outlining with drag & drop, indent/outdent
 - AI-powered outline generation from topics
