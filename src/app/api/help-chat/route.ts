@@ -263,6 +263,9 @@ Provide a helpful, clear, and concise response to the user's question. If explai
         provider: aiProvider,
         cloudKeyIsByok: geminiKeyIsByok,
         cloudProviderName: 'Gemini',
+        // Secondary-cloud (OpenRouter) tier — dormant until OPENROUTER_API_KEY
+        // (or a user BYOK key) is present; passing the prompt just arms it.
+        openRouterPrompt: prompt,
         cloudAttempt: async () => {
           const { text } = await ai.generate({
             model: getDefaultGeminiModel('genkit'),

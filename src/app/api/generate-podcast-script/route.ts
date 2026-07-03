@@ -3,6 +3,8 @@ import { ai } from '@/ai/genkit';
 import type { NodeMap, PodcastConfig } from '@/types';
 import { extractSubtreeContent, buildScriptPrompt, parseScriptResponse } from '@/lib/podcast-generator';
 import { getDefaultGeminiModel } from '@/config/gemini-models';
+import { generateWithOllama } from '@/lib/ollama-service';
+import { runAIWithFailover, type AIProviderChoice } from '@/lib/ai-failover';
 
 /**
  * Generate only the podcast script (no TTS).
@@ -15,6 +17,8 @@ export async function POST(request: NextRequest) {
       rootId?: string;
       config: PodcastConfig;
       customPrompt?: string; // If provided, use this instead of building from nodes
+      aiProvider?: AIProviderChoice; // Cloud / Local / Auto — honors the user's setting like Help chat
+      geminiKeyIsByok?: boolean;
     };
 
     const { config, customPrompt } = body;
@@ -54,15 +58,29 @@ export async function POST(request: NextRequest) {
       prompt = `${system}\n\n${user}`;
     }
 
-    // Generate script with AI
-    const { text: scriptText } = await ai.generate({
-      model: getDefaultGeminiModel('genkit'),
-      prompt,
-      config: {
-        maxOutputTokens: 8192,
-        temperature: 0.9,
+    // Generate script with AI — cloud first, with automatic local Gemma
+    // fallback (and the dormant OpenRouter secondary tier) just like Help chat.
+    // This is a NON-STREAMING generation; nothing about streaming changes.
+    const result = await runAIWithFailover({
+      provider: body.aiProvider ?? 'auto',
+      cloudKeyIsByok: body.geminiKeyIsByok ?? false,
+      cloudProviderName: 'Gemini',
+      openRouterPrompt: prompt,
+      cloudAttempt: async () => {
+        const { text } = await ai.generate({
+          model: getDefaultGeminiModel('genkit'),
+          prompt,
+          config: {
+            maxOutputTokens: 8192,
+            temperature: 0.9,
+          },
+        });
+        return text;
       },
+      localAttempt: async (model) =>
+        generateWithOllama({ model, prompt, maxTokens: 8192, temperature: 0.9 }),
     });
+    const scriptText = result.text;
 
     const segments = parseScriptResponse(scriptText, config.voices);
     console.log(`[Podcast] Script generated: ${segments.length} segments`);

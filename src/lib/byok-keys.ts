@@ -21,9 +21,9 @@
  * below are intentionally shaped so that swap is a one-file change.
  */
 
-export type BYOKProvider = 'gemini' | 'openai' | 'anthropic' | 'mistral' | 'groq';
+export type BYOKProvider = 'gemini' | 'openai' | 'anthropic' | 'mistral' | 'groq' | 'openrouter';
 
-export const BYOK_PROVIDERS: BYOKProvider[] = ['gemini', 'openai', 'anthropic', 'mistral', 'groq'];
+export const BYOK_PROVIDERS: BYOKProvider[] = ['gemini', 'openai', 'anthropic', 'mistral', 'groq', 'openrouter'];
 
 /**
  * Map a provider id to the env-var name the server falls back to when
@@ -35,6 +35,10 @@ const ENV_VAR_NAME: Record<BYOKProvider, string> = {
   anthropic: 'ANTHROPIC_API_KEY',
   mistral: 'MISTRAL_API_KEY',
   groq: 'GROQ_API_KEY',
+  // OpenRouter is registered as a dormant secondary-cloud provider. Its
+  // client localStorage key is apiKey_openrouter (derived from the id below).
+  // Nothing uses it until a key/env var is present — see ai-failover.ts.
+  openrouter: 'OPENROUTER_API_KEY',
 };
 
 /**

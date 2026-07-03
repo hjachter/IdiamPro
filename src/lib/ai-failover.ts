@@ -24,8 +24,13 @@ import { getBestAvailableModel, hasGemma4, isOllamaAvailable } from '@/lib/ollam
 
 export type AIProviderChoice = 'cloud' | 'local' | 'auto';
 
-/** Which real backend produced the answer. */
-export type AnsweredBy = 'cloud' | 'local';
+/**
+ * Which real backend produced the answer.
+ * - 'cloud'           → the primary cloud provider (Gemini today)
+ * - 'secondary-cloud' → the dormant OpenRouter tier (only when a key exists)
+ * - 'local'           → local Ollama Gemma
+ */
+export type AnsweredBy = 'cloud' | 'secondary-cloud' | 'local';
 
 /** Result of a failover-wrapped AI call. */
 export interface AIFailoverResult {
@@ -35,12 +40,19 @@ export interface AIFailoverResult {
   answeredBy: AnsweredBy;
   /** True when the cloud provider failed and we fell back to local Gemma. */
   fellBackToLocal: boolean;
+  /**
+   * True when the primary cloud failed and we answered with the secondary-cloud
+   * provider (OpenRouter). Dormant unless an OpenRouter key/env is present.
+   */
+  secondaryCloudUsed: boolean;
   /** True when the cloud failure looked like a billing / auth / quota problem. */
   billingIssue: boolean;
   /** True when the failing cloud key was the user's own (BYOK) key, not the app default. */
   failingKeyWasByok: boolean;
   /** Friendly name of the cloud provider that failed (for user messaging). */
   cloudProviderName: string;
+  /** Friendly name of the secondary-cloud provider that answered, when applicable. */
+  secondaryCloudProviderName?: string;
   /** The local model name that answered, when applicable (e.g. "gemma4:e4b"). */
   localModelName?: string;
 }
@@ -62,6 +74,72 @@ export interface RunAIWithFailoverOptions {
   cloudKeyIsByok: boolean;
   /** Friendly provider name for user messaging. Defaults to "Gemini". */
   cloudProviderName?: string;
+
+  // ---- Optional secondary-cloud (OpenRouter) tier — fully dormant unless a key exists ----
+  /**
+   * OpenRouter API key to use for the secondary-cloud attempt. When omitted,
+   * the OPENROUTER_API_KEY env var is used. When NEITHER is present, the
+   * secondary tier never fires and behavior is identical to before.
+   */
+  openRouterApiKey?: string | null;
+  /**
+   * The prompt to send to OpenRouter if the primary cloud fails. The tier only
+   * activates when both a key AND this prompt are present, so a caller that
+   * doesn't opt in stays on the original cloud → local path.
+   */
+  openRouterPrompt?: string;
+  /** Optional OpenRouter model id override (defaults to DEFAULT_OPENROUTER_MODEL). */
+  openRouterModel?: string;
+  /** Friendly name for the secondary provider in user messaging. Defaults to "OpenRouter". */
+  secondaryCloudProviderName?: string;
+}
+
+/**
+ * Default OpenRouter model for the secondary-cloud tier. A cheap, widely
+ * available OpenAI-compatible model; callers can override via openRouterModel.
+ */
+export const DEFAULT_OPENROUTER_MODEL = 'openai/gpt-4o-mini';
+
+/**
+ * Call OpenRouter's OpenAI-compatible chat completions endpoint and return the
+ * text. This is the secondary-cloud helper: given a key and a prompt, it does a
+ * single non-streaming completion. Throws on any non-OK response, preserving the
+ * HTTP status in the message so isBillingOrAuthError() can classify auth/billing
+ * failures the same way it does for the primary provider.
+ */
+export async function callOpenRouter(
+  apiKey: string,
+  prompt: string,
+  model?: string,
+): Promise<string> {
+  const chosenModel = model || DEFAULT_OPENROUTER_MODEL;
+
+  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+      // Optional attribution headers OpenRouter recommends; harmless if ignored.
+      'HTTP-Referer': 'https://idiampro.com',
+      'X-Title': 'IdiamPro',
+    },
+    body: JSON.stringify({
+      model: chosenModel,
+      messages: [{ role: 'user', content: prompt }],
+    }),
+  });
+
+  if (!response.ok) {
+    const body = await response.text().catch(() => '');
+    throw new Error(`OpenRouter error (${response.status}): ${body}`);
+  }
+
+  const data = await response.json();
+  const text = data?.choices?.[0]?.message?.content;
+  if (typeof text !== 'string' || text.trim().length === 0) {
+    throw new Error('OpenRouter returned an empty response');
+  }
+  return text;
 }
 
 /**
@@ -160,6 +238,7 @@ export async function runAIWithFailover(
       text,
       answeredBy: 'local',
       fellBackToLocal: false,
+      secondaryCloudUsed: false,
       billingIssue: false,
       failingKeyWasByok: false,
       cloudProviderName,
@@ -174,12 +253,41 @@ export async function runAIWithFailover(
       text,
       answeredBy: 'cloud',
       fellBackToLocal: false,
+      secondaryCloudUsed: false,
       billingIssue: false,
       failingKeyWasByok: opts.cloudKeyIsByok,
       cloudProviderName,
     };
   } catch (cloudErr) {
     const billingIssue = isBillingOrAuthError(cloudErr);
+    const secondaryCloudProviderName = opts.secondaryCloudProviderName || 'OpenRouter';
+
+    // SECONDARY-CLOUD TIER (OpenRouter) — dormant unless a key AND prompt exist.
+    // When the primary cloud fails, try OpenRouter BEFORE dropping to local
+    // Gemma. If no key/env is configured this whole block is skipped and the
+    // behavior is byte-for-byte the same as before.
+    const openRouterKey = opts.openRouterApiKey || process.env.OPENROUTER_API_KEY || null;
+    if (openRouterKey && opts.openRouterPrompt) {
+      try {
+        const text = await callOpenRouter(
+          openRouterKey,
+          opts.openRouterPrompt,
+          opts.openRouterModel,
+        );
+        return {
+          text,
+          answeredBy: 'secondary-cloud',
+          fellBackToLocal: false,
+          secondaryCloudUsed: true,
+          billingIssue,
+          failingKeyWasByok: opts.cloudKeyIsByok,
+          cloudProviderName,
+          secondaryCloudProviderName,
+        };
+      } catch {
+        // Secondary cloud also failed — fall through to local Gemma below.
+      }
+    }
 
     // Try to fall back to local Gemma for BOTH 'cloud' and 'auto' — a cloud
     // outage should not leave the user with no answer if a local model exists.
@@ -190,6 +298,7 @@ export async function runAIWithFailover(
         text,
         answeredBy: 'local',
         fellBackToLocal: true,
+        secondaryCloudUsed: false,
         billingIssue,
         failingKeyWasByok: opts.cloudKeyIsByok,
         cloudProviderName,
@@ -235,6 +344,16 @@ export class AIFailoverError extends Error {
  * Returns null when no notice is needed (clean cloud answer, or plain local run).
  */
 export function buildFailoverNotice(r: AIFailoverResult): string | null {
+  // Secondary-cloud (OpenRouter) answered because the primary cloud failed.
+  if (r.secondaryCloudUsed) {
+    const provider = r.cloudProviderName;
+    const secondary = r.secondaryCloudProviderName || 'a backup cloud provider';
+    if (r.billingIssue && r.failingKeyWasByok) {
+      return `Your ${provider} API key was rejected for a billing/quota reason — please check your provider's billing settings. In the meantime I answered with ${secondary} instead.`;
+    }
+    return `⚠ ${provider} is unavailable right now — answered with ${secondary} instead. Quality may differ.`;
+  }
+
   if (!r.fellBackToLocal) return null;
 
   const provider = r.cloudProviderName;

@@ -3,6 +3,8 @@ import { ai } from '@/ai/genkit';
 import type { NodeMap, PodcastConfig, PodcastScriptSegment, OpenAIVoice } from '@/types';
 import { extractSubtreeContent, buildScriptPrompt, parseScriptResponse } from '@/lib/podcast-generator';
 import { getDefaultGeminiModel } from '@/config/gemini-models';
+import { generateWithOllama } from '@/lib/ollama-service';
+import { runAIWithFailover, type AIProviderChoice } from '@/lib/ai-failover';
 
 const SSE_HEADERS = {
   'Content-Type': 'text/event-stream',
@@ -99,6 +101,8 @@ export async function POST(request: NextRequest) {
       rootId: string;
       config: PodcastConfig;
       userOpenaiKey?: string;
+      aiProvider?: AIProviderChoice; // Cloud / Local / Auto — honors the user's setting like Help chat
+      geminiKeyIsByok?: boolean;
     };
     const { nodes, rootId, config } = _body;
 
@@ -146,15 +150,32 @@ export async function POST(request: NextRequest) {
             percent: 10,
           })));
 
-          // Use non-streaming generation for the script (we need the full text to parse JSON)
-          const { text: scriptText } = await ai.generate({
-            model: getDefaultGeminiModel('genkit'),
-            prompt: `${system}\n\n${user}`,
-            config: {
-              maxOutputTokens: 8192,
-              temperature: 0.9,
+          // Use non-streaming generation for the script (we need the full text
+          // to parse JSON). Wrapped in the failover helper so a cloud outage
+          // falls back to local Gemma (and the dormant OpenRouter tier). Only
+          // this discrete script call is wrapped — the surrounding SSE stream
+          // for TTS progress is untouched.
+          const scriptPrompt = `${system}\n\n${user}`;
+          const scriptResult = await runAIWithFailover({
+            provider: _body.aiProvider ?? 'auto',
+            cloudKeyIsByok: _body.geminiKeyIsByok ?? false,
+            cloudProviderName: 'Gemini',
+            openRouterPrompt: scriptPrompt,
+            cloudAttempt: async () => {
+              const { text } = await ai.generate({
+                model: getDefaultGeminiModel('genkit'),
+                prompt: scriptPrompt,
+                config: {
+                  maxOutputTokens: 8192,
+                  temperature: 0.9,
+                },
+              });
+              return text;
             },
+            localAttempt: async (model) =>
+              generateWithOllama({ model, prompt: scriptPrompt, maxTokens: 8192, temperature: 0.9 }),
           });
+          const scriptText = scriptResult.text;
 
           controller.enqueue(encoder.encode(sseEvent({
             phase: 'script',
