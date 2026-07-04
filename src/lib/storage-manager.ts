@@ -33,6 +33,36 @@ import { fixDuplicateChildren } from './fix-duplicates';
 
 const LOCAL_STORAGE_KEY = 'outline-pro-data';
 
+/**
+ * Data-protection heal: coerce any node whose `prefix` is missing or not a
+ * string into an empty string ('').
+ *
+ * Why this exists: the sidebar validator (isValidOutline) rejects an entire
+ * outline if ANY single node lacks a string `prefix`. A malformed prefix on one
+ * bullet must NEVER be allowed to hide a whole outline (years of work) from the
+ * sidebar. By healing prefixes on load — for EVERY outline — a single bad node
+ * becomes a harmless empty prefix instead of a fatal, outline-dropping error.
+ * The repaired outline is then persisted on save so the fix sticks.
+ *
+ * This is intentionally narrow: it only touches `prefix`. All other structural
+ * validation (nodes object present, valid rootNodeId, etc.) is left untouched.
+ */
+function coerceNodePrefixes(outline: Outline): { fixed: boolean; outline: Outline } {
+  if (!outline || !outline.nodes || typeof outline.nodes !== 'object') {
+    return { fixed: false, outline };
+  }
+
+  let fixed = false;
+  for (const node of Object.values(outline.nodes)) {
+    if (node && typeof (node as { prefix?: unknown }).prefix !== 'string') {
+      (node as { prefix: string }).prefix = '';
+      fixed = true;
+    }
+  }
+
+  return { fixed, outline };
+}
+
 export interface StorageData {
   outlines: Outline[];
   currentOutlineId: string;
@@ -129,12 +159,19 @@ async function repairCorruptOutlines(outlines: Outline[]): Promise<Outline[]> {
 
   for (const outline of outlines) {
     const result = fixDuplicateChildren(outline);
+    // Heal missing/non-string prefixes on EVERY outline so one bad bullet can
+    // never make the whole outline fail sidebar validation and vanish.
+    const prefixResult = coerceNodePrefixes(result.outline);
+    const wasFixed = result.fixed || prefixResult.fixed;
 
-    if (result.fixed) {
+    if (wasFixed) {
       console.warn(`🔧 Repaired outline "${outline.name}" (${outline.id}):`);
       result.report.forEach(msg => console.warn(`  ${msg}`));
-      repairedOutlines.push(result.outline);
-      fixedIds.push(result.outline.id);
+      if (prefixResult.fixed) {
+        console.warn('  Coerced one or more missing/invalid node prefixes to empty string');
+      }
+      repairedOutlines.push(prefixResult.outline);
+      fixedIds.push(prefixResult.outline.id);
     } else {
       repairedOutlines.push(outline);
     }

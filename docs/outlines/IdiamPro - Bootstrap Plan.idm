@@ -1015,7 +1015,8 @@
       "type": "document",
       "content": "<p><strong>Enterprise API Applications — Final Push:</strong></p><ul><li><p>Submitted Anthropic Claude enterprise inquiry via anthropic.com/contact-sales (business email howard@2ndbrainware.com — gmail blocked). Pitched Claude as premium AI tier for research synthesis and Second Brain reasoning.</p></li><li><p>Submitted Groq enterprise inquiry via groq.com Enterprise Plan form. Pitched Groq as speed-optimized provider for time-sensitive features (Knowledge Chat quick mode, voice transcription via Whisper, real-time suggestions). Selected 5 models: llama-3.3-70b-versatile, llama-3.1-8b-instant, llama-4-scout, whisper-large-v3-turbo, compound-mini.</p></li></ul><p><strong>Status of all 4 enterprise applications:</strong> ALL SUBMITTED ✓ (Google ✓ Apr, OpenAI ✓ May 6, Anthropic ✓ May 8, Groq ✓ May 8). Now waiting on responses (typical timeline: 1–4 weeks).</p><p><strong>iOS TestFlight (#27):</strong> Web build + iOS sync complete. Xcode project opened. Archive + upload paused — user is on slow internet, will resume when at office.</p><p><strong>Memory updates:</strong> Saved business email (howard@2ndbrainware.com) as reference memory for future enterprise forms.</p>",
       "isExpanded": true,
-      "isCollapsed": false
+      "isCollapsed": false,
+      "prefix": ""
     },
     "unrealized-todo-20260513": {
       "id": "unrealized-todo-20260513",
@@ -1138,7 +1139,7 @@
       "parentId": "root-bootstrap",
       "childrenIds": [],
       "isCollapsed": false,
-      "prefix": null
+      "prefix": ""
     },
     "video-production-roadmap-hybrid-2026-06-11": {
       "id": "video-production-roadmap-hybrid-2026-06-11",
