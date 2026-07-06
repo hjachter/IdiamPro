@@ -107,15 +107,21 @@ export async function getAllowedEmailsAsync(): Promise<string[]> {
   const envList = getAllowedEmails();
   let approved: string[] = [];
   try {
+    // RESILIENCE (defense in depth): the applicant store reads Upstash/Vercel
+    // KV. When that beta database is dead or stale in production, the read can
+    // throw. If that throw escaped here, the whole approval check would fail
+    // closed and lock out EVERYONE — including emails that ARE on the
+    // INVITE_ALLOWLIST env var (e.g. the founder). A dead beta DB must degrade
+    // to "env-var allowlist still works," never "everyone locked out." So on
+    // ANY failure we log once and fall back to the env-var list only.
     approved = await getApprovedApplicantEmails();
   } catch (err) {
-    // If the applicant store can't be read for any reason, fall back to the
-    // env-var list — better to under-allow than to crash signup.
     // eslint-disable-next-line no-console
     console.warn(
-      '[invite-allowlist] applicant store read failed, falling back to INVITE_ALLOWLIST only:',
+      '[invite-allowlist] applicant store unavailable, falling back to INVITE_ALLOWLIST env var only:',
       err,
     );
+    approved = [];
   }
   const set = new Set<string>([...envList, ...approved]);
   return Array.from(set);

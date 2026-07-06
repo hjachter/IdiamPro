@@ -219,15 +219,30 @@ export async function markFeedbackReminderSent(
  * users. Lowercased + deduped.
  */
 export async function getApprovedApplicantEmails(): Promise<string[]> {
-  const records = await listApplicants();
-  const set = new Set<string>();
-  for (const r of records) {
-    if (r.status === 'approved') {
-      const e = normalizeEmail(r.email);
-      if (e) set.add(e);
+  // RESILIENCE: never let a dead/stale beta database (Upstash/Vercel KV) throw
+  // out of this function. This list only *extends* the INVITE_ALLOWLIST env
+  // var. If the KV read fails, we must degrade to "no dynamically-approved
+  // emails" and let the env-var allowlist keep working — a broken beta DB must
+  // NEVER lock out allowlisted users (e.g. the founder). Fail open to [], warn
+  // once, never throw.
+  try {
+    const records = await listApplicants();
+    const set = new Set<string>();
+    for (const r of records) {
+      if (r.status === 'approved') {
+        const e = normalizeEmail(r.email);
+        if (e) set.add(e);
+      }
     }
+    return Array.from(set);
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      '[applicant-store] approved-applicant read failed (beta DB unavailable) — returning empty list so the INVITE_ALLOWLIST env var still gates access:',
+      err,
+    );
+    return [];
   }
-  return Array.from(set);
 }
 
 /**
