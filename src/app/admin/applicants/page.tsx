@@ -313,8 +313,8 @@ export default function AdminApplicantsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-6xl mx-auto px-6 py-10">
+    <div className="min-h-screen bg-background overflow-x-hidden">
+      <div className="max-w-6xl w-full mx-auto px-4 sm:px-6 py-10">
         <header className="mb-8 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 shadow-md shadow-violet-500/30">
@@ -436,11 +436,11 @@ export default function AdminApplicantsPage() {
                   <CardContent className="py-5">
                     <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-baseline gap-3 flex-wrap">
+                        <div className="flex items-baseline gap-3 flex-wrap min-w-0">
                           <span className="font-medium text-base">{a.name}</span>
                           <a
                             href={`mailto:${a.email}`}
-                            className="text-sm text-violet-600 hover:underline truncate"
+                            className="text-sm text-violet-600 hover:underline break-all"
                           >
                             {a.email}
                           </a>
@@ -454,7 +454,7 @@ export default function AdminApplicantsPage() {
                           </p>
                         )}
                         {(a.ip || a.referrer) && (
-                          <p className="mt-2 text-xs text-muted-foreground/70">
+                          <p className="mt-2 text-xs text-muted-foreground/70 break-all">
                             {a.ip && <>IP: {a.ip}</>}
                             {a.ip && a.referrer && ' · '}
                             {a.referrer && <>Referrer: {a.referrer}</>}
@@ -531,13 +531,13 @@ export default function AdminApplicantsPage() {
                     <CardContent className="py-5">
                       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-baseline gap-3 flex-wrap">
+                          <div className="flex items-baseline gap-3 flex-wrap min-w-0">
                             <span className="font-medium text-base">
                               {a.name}
                             </span>
                             <a
                               href={`mailto:${a.email}`}
-                              className="text-sm text-violet-600 hover:underline truncate"
+                              className="text-sm text-violet-600 hover:underline break-all"
                             >
                               {a.email}
                             </a>
@@ -633,11 +633,11 @@ export default function AdminApplicantsPage() {
               <CardContent className="py-4">
                 <ul className="text-sm text-muted-foreground space-y-1">
                   {rejected.map((a) => (
-                    <li key={a.id} className="flex gap-3">
+                    <li key={a.id} className="flex gap-3 flex-wrap min-w-0">
                       <span className="font-medium text-foreground/80">
                         {a.name}
                       </span>
-                      <span>{a.email}</span>
+                      <span className="break-all">{a.email}</span>
                       <span className="text-xs">
                         {formatDate(a.signupDate)}
                       </span>
