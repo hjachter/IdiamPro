@@ -58,6 +58,10 @@ import {
   renderBugNotification,
   type BugNotificationProps,
 } from '@/emails/bug-notification';
+import {
+  renderStorageAlert,
+  type StorageAlertProps,
+} from '@/emails/storage-alert';
 
 const DEFAULT_FROM = 'IdiamPro <welcome@2ndbrainware.com>';
 
@@ -301,6 +305,37 @@ export async function sendApplicantApprovedEmail(
     text: rendered.text,
     headers: { 'List-Unsubscribe': `<${pre.proceed.unsubscribeUrl}>` },
     replyTo: 'howard@2ndbrainware.com',
+  });
+}
+
+/**
+ * Internal: alert Howard that the applicant store / KV backend is
+ * unreachable. Bypasses the unsubscribe store — same rationale as
+ * sendApplicantNotification (internal staff mail).
+ *
+ * Two triggers:
+ *   - 'apply-degraded': a real application could not be persisted and now
+ *     lives only in the notification email — this alert is the "don't lose
+ *     it" flare.
+ *   - 'health-check': the routine storage-health cron round-trip failed.
+ *
+ * Stub-safe: with SMTP env vars unset, returns 'skipped-no-smtp'.
+ */
+export async function sendStorageAlert(
+  props: StorageAlertProps,
+  recipient?: string,
+): Promise<SendOutcome> {
+  const to = (recipient ?? getAdminNotifyAddress()).trim();
+  if (!to || to.indexOf('@') === -1) {
+    return { status: 'skipped-no-recipient' };
+  }
+  const rendered = renderStorageAlert(props);
+  return activeTransport({
+    from: getFromAddress(),
+    to,
+    subject: rendered.subject,
+    html: rendered.html,
+    text: rendered.text,
   });
 }
 

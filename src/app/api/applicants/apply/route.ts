@@ -15,8 +15,12 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createApplicant } from '@/lib/access/applicant-store';
-import { sendApplicantNotification } from '@/lib/email/send';
+import {
+  createApplicant,
+  getApplicantById,
+  type ApplicantRecord,
+} from '@/lib/access/applicant-store';
+import { sendApplicantNotification, sendStorageAlert } from '@/lib/email/send';
 import { enforceRateLimit } from '@/lib/rate-limit';
 
 export const runtime = 'nodejs';
@@ -73,9 +77,11 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  let applicantId: string;
-  let isNewApplication = false;
-  let createdRecord: Awaited<ReturnType<typeof createApplicant>>;
+  // LAYER 1 — attempt persistence, never throwing out of the handler. The
+  // stub backend silently drops writes and a dead KV throws; a write+read
+  // round-trip is the only trustworthy "did it land?" test.
+  let createdRecord: ApplicantRecord | null = null;
+  let persisted = false;
   try {
     createdRecord = await createApplicant({
       name,
@@ -84,46 +90,77 @@ export async function POST(request: NextRequest) {
       ip: getClientIp(request),
       referrer: request.headers.get('referer') ?? undefined,
     });
-    applicantId = createdRecord.id;
-    // createApplicant returns the existing record on duplicate email; we
-    // can tell whether this was new by comparing the signup date to "now".
-    const ageMs = Date.now() - new Date(createdRecord.signupDate).getTime();
-    isNewApplication = ageMs < 5_000; // freshly stamped
+    try {
+      persisted = (await getApplicantById(createdRecord.id)) !== null;
+    } catch {
+      persisted = false;
+    }
   } catch (err) {
-    return NextResponse.json(
-      {
-        ok: false,
-        error:
-          err instanceof Error
-            ? err.message
-            : 'Something went sideways saving your application — please try again.',
-      },
-      { status: 400 },
-    );
+    // eslint-disable-next-line no-console
+    console.warn('[applicants/apply] store save failed:', err);
+    createdRecord = null;
+    persisted = false;
   }
 
-  // Notify Howard — but only when this is a genuinely new application.
-  // Resubmits from the same email shouldn't keep paging him.
-  if (isNewApplication) {
-    const adminUrl = `${getAdminBaseUrl(request)}/admin/applicants?focus=${encodeURIComponent(applicantId)}`;
+  // LAYER 2 — ALWAYS notify Howard with full detail, decoupled from the
+  // store. Built from the REQUEST data so it works even when the record
+  // never persisted. This redundant email IS the backup.
+  const base = getAdminBaseUrl(request);
+  const applicantId = createdRecord?.id ?? '';
+  const signupDate = createdRecord?.signupDate ?? new Date().toISOString();
+  const adminUrl = applicantId
+    ? `${base}/admin/applicants?focus=${encodeURIComponent(applicantId)}`
+    : `${base}/admin/applicants`;
+
+  let notifyOk = false;
+  try {
+    const outcome = await sendApplicantNotification({
+      applicantId,
+      name,
+      email,
+      signupDate,
+      reason: reason.length > 0 ? reason : undefined,
+      ip: getClientIp(request),
+      referrer: request.headers.get('referer') ?? undefined,
+      adminUrl,
+    });
+    // 'skipped-no-smtp' is fine — in dev there's no SMTP but the file store
+    // persists, so that branch never becomes a degraded case.
+    notifyOk = outcome.status !== 'error';
+  } catch {
+    notifyOk = false;
+  }
+
+  // Normal success: the record landed in the store.
+  if (persisted) {
+    return NextResponse.json({ ok: true, applicantId });
+  }
+
+  // Not persisted — but the applicant is safely captured in Howard's inbox.
+  if (notifyOk) {
     try {
-      await sendApplicantNotification({
-        applicantId,
-        name: createdRecord.name,
-        email: createdRecord.email,
-        signupDate: createdRecord.signupDate,
-        reason: createdRecord.reason,
-        ip: createdRecord.ip,
-        referrer: createdRecord.referrer,
+      await sendStorageAlert({
+        kind: 'apply-degraded',
+        detectedAt: new Date().toISOString(),
+        applicant: {
+          name,
+          email,
+          reason: reason.length > 0 ? reason : undefined,
+        },
         adminUrl,
       });
-    } catch (err) {
-      // Don't fail the applicant just because the notification didn't go
-      // out. The record is saved; Howard will see it in /admin/applicants.
-      // eslint-disable-next-line no-console
-      console.warn('[applicants/apply] notification send failed:', err);
+    } catch {
+      // Best-effort — the notification email already holds the applicant.
     }
+    return NextResponse.json({ ok: true, applicantId, degraded: true });
   }
 
-  return NextResponse.json({ ok: true, applicantId });
+  // Both store AND email failed = true total loss → fail loud.
+  return NextResponse.json(
+    {
+      ok: false,
+      error: 'Something went wrong on our end — please try again in a moment.',
+    },
+    { status: 500 },
+  );
 }
