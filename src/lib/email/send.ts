@@ -62,6 +62,10 @@ import {
   renderStorageAlert,
   type StorageAlertProps,
 } from '@/emails/storage-alert';
+import {
+  renderDependencyHealthAlert,
+  type DependencyHealthAlertProps,
+} from '@/emails/dependency-health-alert';
 
 const DEFAULT_FROM = 'IdiamPro <welcome@2ndbrainware.com>';
 
@@ -330,6 +334,34 @@ export async function sendStorageAlert(
     return { status: 'skipped-no-recipient' };
   }
   const rendered = renderStorageAlert(props);
+  return activeTransport({
+    from: getFromAddress(),
+    to,
+    subject: rendered.subject,
+    html: rendered.html,
+    text: rendered.text,
+  });
+}
+
+/**
+ * Internal: alert Howard that one or more of the app's OWN third-party
+ * dependencies failed the routine health sweep. Bypasses the unsubscribe
+ * store — same rationale as sendApplicantNotification (internal staff mail).
+ *
+ * PRIVATE-FIRST: this is back-office mail to Howard only — it is never sent to
+ * an end user and there is no user-facing status broadcast anywhere.
+ *
+ * Stub-safe: with SMTP env vars unset, returns 'skipped-no-smtp'.
+ */
+export async function sendDependencyHealthAlert(
+  props: DependencyHealthAlertProps,
+  recipient?: string,
+): Promise<SendOutcome> {
+  const to = (recipient ?? getAdminNotifyAddress()).trim();
+  if (!to || to.indexOf('@') === -1) {
+    return { status: 'skipped-no-recipient' };
+  }
+  const rendered = renderDependencyHealthAlert(props);
   return activeTransport({
     from: getFromAddress(),
     to,
