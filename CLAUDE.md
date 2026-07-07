@@ -149,6 +149,7 @@ cp "~/Documents/IDM Outlines/IdiamPro - Testing.idm" docs/outlines/
 *Operations:*
 - `IdiamPro - Operations.idm` — Back-office runbook: beta program, user support, bug intake, email comms, finance, partnerships pipeline, incident response, compliance/privacy
 - `IdiamPro - Bug Log.idm` — Live bug tracking sorted by severity (P0/P1/P2/P3 + Resolved); paired with the Operations Bug Intake section
+- `IdiamPro - Dependencies.idm` — Third-party vendor/dependency register: every external product we rely on, its blast radius if it fails, and our recurring responsibilities (billing, key rotation, cert/domain renewal, monitoring, compliance) to keep each one honest
 
 *Product & Features:*
 - `IdiamPro - Killer Features & Selling Points.idm` — Key differentiators and workflows
