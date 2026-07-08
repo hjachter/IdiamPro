@@ -63,7 +63,8 @@ export type AIFeatureKey =
   | 'podcastGeneration'
   | 'imageGeneration'
   | 'imageToOutline'
-  | 'youtubePackage';
+  | 'youtubePackage'
+  | 'videoGeneration';
 
 export interface AIGateOptions {
   /** Which feature is being invoked — used for the Pro-only check + toast. */
@@ -132,6 +133,9 @@ function hardBlockReason(
 function proOnlyReason(feature: ProOnlyFeature): string {
   if (feature === 'podcastGeneration') {
     return 'Podcast generation is a Pro feature — $9.99/mo unlocks unlimited podcast scripts plus image generation, 1,000 AI generations a month, and priority support.';
+  }
+  if (feature === 'videoGeneration') {
+    return 'Video generation is a Pro feature — $9.99/mo unlocks narrated slideshow videos plus podcast scripts and image generation, 1,000 AI generations a month, and priority support.';
   }
   return 'Image generation is a Pro feature — $9.99/mo unlocks unlimited image generation plus podcast scripts, 1,000 AI generations a month, and priority support.';
 }

@@ -39,11 +39,12 @@ export const UNLIMITED = Number.POSITIVE_INFINITY;
  * clicking them opens an upgrade dialog instead of hiding the feature
  * (per the locked product decision — better for discovery / upsell).
  */
-export type ProOnlyFeature = 'podcastGeneration' | 'imageGeneration';
+export type ProOnlyFeature = 'podcastGeneration' | 'imageGeneration' | 'videoGeneration';
 
 const PRO_ONLY_FEATURES: ReadonlySet<ProOnlyFeature> = new Set<ProOnlyFeature>([
   'podcastGeneration',
   'imageGeneration',
+  'videoGeneration',
 ]);
 
 export function isProOnlyFeature(featureKey: string): featureKey is ProOnlyFeature {

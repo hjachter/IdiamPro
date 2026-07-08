@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type { NodeMap, PodcastStyle, PodcastLength, PodcastConfig, PodcastProgress, PodcastScriptSegment, OpenAIVoice } from '@/types';
-import { getDefaultSpeakers, getDefaultVoices, extractSubtreeContent, buildScriptPrompt } from '@/lib/podcast-generator';
+import { getDefaultSpeakers, getDefaultVoices, extractSubtreeContent, buildScriptPrompt, OPENAI_VOICE_LABELS } from '@/lib/podcast-generator';
 import {
   Dialog,
   DialogContent,
@@ -58,14 +58,9 @@ const LENGTH_LABELS: Record<PodcastLength, string> = {
   detailed: 'Detailed (10-15 min)',
 };
 
-const VOICE_LABELS: Record<OpenAIVoice, string> = {
-  alloy: 'Alloy (neutral)',
-  echo: 'Echo (male)',
-  fable: 'Fable (expressive)',
-  nova: 'Nova (female)',
-  onyx: 'Onyx (male, deep)',
-  shimmer: 'Shimmer (female, warm)',
-};
+// Voice labels come from the shared canonical list in podcast-generator so the
+// Podcast dialog and the Generate Video Style step always match.
+const VOICE_LABELS = OPENAI_VOICE_LABELS;
 
 type Phase = 'config' | 'edit-prompt' | 'generating-script' | 'edit-script' | 'generating-audio' | 'preview';
 

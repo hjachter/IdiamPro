@@ -66,10 +66,11 @@ interface ElectronAPI {
   }) => Promise<string | null>;
   // Faceless slideshow video generator (Electron desktop only — native ffmpeg).
   generateSlideshowVideo?: (args: {
-    slides: Array<{ title: string; bullets: string[]; narration: string }>;
+    slides: Array<{ title: string; bullets: string[]; narration: string; kind?: 'cover' | 'content' }>;
     outputPath?: string;
     openaiApiKey?: string;
     voice?: string;
+    style?: { theme?: string; accent?: string; brandLabel?: string; logoDataUrl?: string };
   }) => Promise<{
     success: boolean;
     outputPath?: string;

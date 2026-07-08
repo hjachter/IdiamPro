@@ -84,6 +84,27 @@ export function getDefaultSpeakers(style: PodcastStyle): string[] {
 }
 
 /**
+ * Canonical labels for the OpenAI TTS voices. Single source of truth shared by
+ * the Podcast dialog and the Generate Video Style step so the two features
+ * always offer the same voice menu (never drift apart).
+ */
+export const OPENAI_VOICE_LABELS: Record<OpenAIVoice, string> = {
+  alloy: 'Alloy (neutral)',
+  echo: 'Echo (male)',
+  fable: 'Fable (expressive)',
+  nova: 'Nova (female)',
+  onyx: 'Onyx (male, deep)',
+  shimmer: 'Shimmer (female, warm)',
+};
+
+/** The voices in menu order, ready for a radio group / dropdown. */
+export const OPENAI_VOICE_OPTIONS: { value: OpenAIVoice; label: string }[] =
+  (Object.keys(OPENAI_VOICE_LABELS) as OpenAIVoice[]).map((value) => ({
+    value,
+    label: OPENAI_VOICE_LABELS[value],
+  }));
+
+/**
  * Get default voice assignments for a style.
  */
 export function getDefaultVoices(style: PodcastStyle): Record<string, OpenAIVoice> {

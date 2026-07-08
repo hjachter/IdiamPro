@@ -11,13 +11,19 @@
  * desktop app, so on web/iOS this dialog is honest about being desktop-only.
  *
  * Phase 2 scope: real outline content → slides → render → open the file.
- * Slide design stays rough (Phase 3), no Pro-gating yet (Phase 5), voice/theme
- * controls stay minimal (Phase 4). We DO include a simple voice pick since it's
- * free, and a large-chapter guard so a huge outline can't silently kick off a
+ * Slide design stays rough (Phase 3), voice/theme controls stay minimal
+ * (Phase 4). We DO include a simple voice pick since it's free, and a
+ * large-chapter guard so a huge outline can't silently kick off a
  * 40-minute render.
+ *
+ * Pro-gating (Phase 5, 2026-07): video generation is a Pro-only feature,
+ * gated exactly like the Podcast feature — the same useAIUsageGate hook (which
+ * shows the shared upgrade prompt for non-Pro users) plus the canUseFeature
+ * fallback. When auth/billing aren't configured (today) enforcement is a
+ * no-op and everyone can render, so free users lose nothing else.
  */
 
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -28,12 +34,30 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Video, Loader2, AlertTriangle, Play, Monitor, CheckCircle2 } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Video, Loader2, AlertTriangle, Play, Monitor, CheckCircle2, Upload, X, Check, Sparkles } from 'lucide-react';
 import type { Outline } from '@/types';
 import { isElectron } from '@/lib/electron-storage';
 import { getUserApiKey } from '@/lib/byok-keys';
+import { canUseFeature } from '@/lib/entitlements';
+import { useAIUsageGate } from '@/lib/use-ai-usage-gate';
+import { useUpgradePrompt } from '@/components/upgrade-prompt';
 import { deriveSlidesFromChapter, type VideoSlide } from '@/lib/video/derive-slides';
+import { OPENAI_VOICE_OPTIONS } from '@/lib/podcast-generator';
+import type { OpenAIVoice } from '@/types';
+import {
+  ACCENT_PRESETS,
+  DEFAULT_VIDEO_STYLE,
+  loadVideoStyle,
+  saveVideoStyle,
+  type VideoStyle,
+} from '@/lib/video/video-style';
+
+// Reject logo uploads bigger than this — keeps localStorage small and renders fast.
+const MAX_LOGO_BYTES = 1_500_000;
+const ACCEPTED_LOGO_TYPES = ['image/png', 'image/jpeg', 'image/svg+xml', 'image/webp'];
 
 interface GenerateVideoDialogProps {
   open: boolean;
@@ -49,12 +73,9 @@ type Phase = 'configure' | 'running' | 'done' | 'error';
 // silently, we surface the trade-off and let them decide.
 const MANY_SLIDES = 18;
 
-const VOICE_OPTIONS: { value: string; label: string }[] = [
-  { value: 'nova', label: 'Nova (warm)' },
-  { value: 'alloy', label: 'Alloy (neutral)' },
-  { value: 'echo', label: 'Echo (deep)' },
-  { value: 'shimmer', label: 'Shimmer (bright)' },
-];
+// Reuse the podcast feature's canonical voice list so both features offer the
+// exact same narrator voices (single source of truth in podcast-generator).
+const VOICE_OPTIONS = OPENAI_VOICE_OPTIONS;
 
 // Rough render-time estimate for the progress copy: ~6s of work per slide
 // (image render + TTS round-trip + encode) plus a final stitch pass.
@@ -76,7 +97,9 @@ export default function GenerateVideoDialog({
   selectedNodeId,
 }: GenerateVideoDialogProps) {
   const [phase, setPhase] = useState<Phase>('configure');
-  const [voice, setVoice] = useState<string>('nova');
+  const [style, setStyle] = useState<VideoStyle>(DEFAULT_VIDEO_STYLE);
+  const [logoNote, setLogoNote] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [progressLabel, setProgressLabel] = useState<string>('');
   const [outputPath, setOutputPath] = useState<string | null>(null);
@@ -85,6 +108,60 @@ export default function GenerateVideoDialog({
 
   const desktop = isElectron();
   const chapterNode = outline && selectedNodeId ? outline.nodes[selectedNodeId] : null;
+
+  const { promptUpgrade } = useUpgradePrompt();
+  const { gate: aiUsageGate } = useAIUsageGate();
+
+  /**
+   * Pro gate: video generation is a Pro-only feature. Returns true if the
+   * user may proceed. Mirrors the Podcast dialog's ensurePodcastAllowed.
+   *
+   * NO-OP SAFETY: for non-Pro users aiUsageGate shows the shared upgrade
+   * prompt and returns false; when auth/billing enforcement is inactive
+   * (no keys — the state today) both checks allow and video generation
+   * works exactly as before, so free users lose nothing.
+   */
+  const ensureVideoAllowed = useCallback((): boolean => {
+    if (!aiUsageGate({ feature: 'videoGeneration' })) return false;
+    if (canUseFeature('podcastGeneration')) return true;
+    promptUpgrade({
+      reason: 'Video generation is a Pro feature.',
+      requiredTier: 'pro',
+    });
+    return false;
+  }, [promptUpgrade, aiUsageGate]);
+
+  // Load the saved look on mount so the dialog defaults to the user's last
+  // customization. Persist on every change so it sticks for next time.
+  useEffect(() => {
+    setStyle(loadVideoStyle());
+  }, []);
+
+  const updateStyle = (patch: Partial<VideoStyle>) => {
+    setStyle((prev) => {
+      const next = { ...prev, ...patch };
+      saveVideoStyle(next);
+      return next;
+    });
+  };
+
+  const handleLogoFile = (file: File | null) => {
+    setLogoNote(null);
+    if (!file) return;
+    if (!ACCEPTED_LOGO_TYPES.includes(file.type)) {
+      setLogoNote('Please choose a PNG, JPEG, SVG, or WebP image.');
+      return;
+    }
+    if (file.size > MAX_LOGO_BYTES) {
+      setLogoNote('That image is a bit large. Please pick one under about 1.5 MB.');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') updateStyle({ logoDataUrl: reader.result });
+    };
+    reader.readAsDataURL(file);
+  };
 
   const slides = useMemo<VideoSlide[]>(() => {
     if (!outline || !selectedNodeId) return [];
@@ -110,6 +187,8 @@ export default function GenerateVideoDialog({
 
   const handleGenerate = async () => {
     if (!desktop || !chapterNode || slideCount === 0) return;
+    // Pro gate — non-Pro users get the upgrade prompt instead of a render.
+    if (!ensureVideoAllowed()) return;
     const api = (window as unknown as { electronAPI?: { generateSlideshowVideo?: (a: unknown) => Promise<{
       success: boolean; outputPath?: string; durationSeconds?: number; usedTts?: boolean; error?: string;
     }> } }).electronAPI;
@@ -136,8 +215,14 @@ export default function GenerateVideoDialog({
     try {
       const result = await api.generateSlideshowVideo({
         slides,
-        voice,
+        voice: style.voice,
         openaiApiKey: getUserApiKey('openai') || undefined,
+        style: {
+          theme: style.theme,
+          accent: style.accent,
+          brandLabel: style.brandLabel,
+          logoDataUrl: style.logoDataUrl,
+        },
       });
       clearInterval(timer);
       if (!result?.success || !result.outputPath) {
@@ -175,6 +260,10 @@ export default function GenerateVideoDialog({
           <DialogTitle className="flex items-center gap-2">
             <Video className="h-5 w-5" />
             Generate Video
+            <span className="ml-1 inline-flex items-center gap-1 text-xs font-normal bg-gradient-to-r from-emerald-500/20 to-emerald-500/20 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-300/30">
+              <Sparkles className="h-3 w-3" />
+              Pro
+            </span>
           </DialogTitle>
           <DialogDescription>
             {chapterNode
@@ -212,24 +301,148 @@ export default function GenerateVideoDialog({
               )}
             </div>
 
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">Narrator voice</Label>
-              <RadioGroup value={voice} onValueChange={setVoice}>
-                <div className="flex flex-wrap gap-3">
-                  {VOICE_OPTIONS.map(opt => (
-                    <div key={opt.value} className="flex items-center gap-2">
-                      <RadioGroupItem value={opt.value} id={`vid-voice-${opt.value}`} />
-                      <Label htmlFor={`vid-voice-${opt.value}`} className="text-sm cursor-pointer">{opt.label}</Label>
-                    </div>
-                  ))}
+            {/* --- Style / branding --- */}
+            <TooltipProvider delayDuration={300}>
+              <div className="space-y-4">
+                {/* Theme */}
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Theme</Label>
+                  <div className="inline-flex rounded-md border p-0.5">
+                    {(['dark', 'light'] as const).map((t) => (
+                      <button
+                        key={t}
+                        type="button"
+                        onClick={() => updateStyle({ theme: t })}
+                        className={`px-4 py-1.5 text-sm rounded-[5px] capitalize transition-colors ${
+                          style.theme === t
+                            ? 'bg-primary text-primary-foreground'
+                            : 'text-muted-foreground hover:bg-accent'
+                        }`}
+                      >
+                        {t}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </RadioGroup>
-              {!getUserApiKey('openai') && (
-                <p className="text-xs text-muted-foreground">
-                  No OpenAI key found — the video will render with silent slides. Add a key in Settings for AI voiceover.
-                </p>
-              )}
-            </div>
+
+                {/* Accent */}
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Accent</Label>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {ACCENT_PRESETS.map((p) => {
+                      const selected = style.accent.toLowerCase() === p.hex.toLowerCase();
+                      return (
+                        <Tooltip key={p.hex}>
+                          <TooltipTrigger asChild>
+                            <button
+                              type="button"
+                              aria-label={p.name}
+                              onClick={() => updateStyle({ accent: p.hex })}
+                              className={`h-7 w-7 rounded-full transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background ${
+                                selected ? 'ring-2 ring-offset-2 ring-offset-background ring-foreground' : ''
+                              }`}
+                              style={{ backgroundColor: p.hex }}
+                            >
+                              {selected && <Check className="h-4 w-4 mx-auto text-white drop-shadow" />}
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>{p.name}</TooltipContent>
+                        </Tooltip>
+                      );
+                    })}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <label className="relative h-7 w-7 rounded-full border border-border overflow-hidden cursor-pointer" aria-label="Custom color">
+                          <input
+                            type="color"
+                            value={style.accent}
+                            onChange={(e) => updateStyle({ accent: e.target.value })}
+                            className="absolute inset-0 h-[200%] w-[200%] -translate-x-1/4 -translate-y-1/4 cursor-pointer border-0 p-0"
+                          />
+                        </label>
+                      </TooltipTrigger>
+                      <TooltipContent>Custom color</TooltipContent>
+                    </Tooltip>
+                  </div>
+                </div>
+
+                {/* Brand */}
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Brand</Label>
+                  <Input
+                    value={style.brandLabel}
+                    onChange={(e) => updateStyle({ brandLabel: e.target.value })}
+                    placeholder="Your name or brand"
+                    className="text-sm"
+                  />
+                  <div className="flex items-center gap-3">
+                    {style.logoDataUrl ? (
+                      <div className="flex items-center gap-2 rounded-md border bg-muted/40 p-1.5">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={style.logoDataUrl} alt="Logo preview" className="h-8 w-auto max-w-[120px] object-contain" />
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6"
+                              aria-label="Remove logo"
+                              onClick={() => { updateStyle({ logoDataUrl: '' }); setLogoNote(null); }}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Remove logo</TooltipContent>
+                        </Tooltip>
+                      </div>
+                    ) : (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => fileInputRef.current?.click()}
+                      >
+                        <Upload className="h-4 w-4 mr-1" />
+                        Upload logo
+                      </Button>
+                    )}
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/png,image/jpeg,image/svg+xml,image/webp"
+                      className="hidden"
+                      onChange={(e) => { handleLogoFile(e.target.files?.[0] ?? null); e.target.value = ''; }}
+                    />
+                  </div>
+                  {logoNote && <p className="text-xs text-amber-600">{logoNote}</p>}
+                </div>
+
+                {/* Voice */}
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Narrator voice</Label>
+                  <RadioGroup value={style.voice} onValueChange={(v) => updateStyle({ voice: v as OpenAIVoice })}>
+                    <div className="flex flex-wrap gap-3">
+                      {VOICE_OPTIONS.map(opt => (
+                        <div key={opt.value} className="flex items-center gap-2">
+                          <RadioGroupItem value={opt.value} id={`vid-voice-${opt.value}`} />
+                          <Label htmlFor={`vid-voice-${opt.value}`} className="text-sm cursor-pointer">{opt.label}</Label>
+                        </div>
+                      ))}
+                    </div>
+                  </RadioGroup>
+                  {!getUserApiKey('openai') && (
+                    <p className="text-xs text-muted-foreground">
+                      No OpenAI key found — the video will render with silent slides. Add a key in Settings for AI voiceover.
+                    </p>
+                  )}
+                </div>
+
+                {/* Live preview — an approximation of the slide look, not a real render. */}
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Preview</Label>
+                  <StylePreview style={style} />
+                </div>
+              </div>
+            </TooltipProvider>
 
             {isLarge && (
               <label className="flex items-start gap-2 rounded-md border border-amber-500/30 bg-amber-500/10 p-3 text-sm cursor-pointer">
@@ -308,5 +521,62 @@ export default function GenerateVideoDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+/**
+ * A small 16:9 approximation of a slide so the user can see their theme, accent,
+ * and brand before rendering. This is NOT a real render — it's plain divs styled
+ * inline to build confidence in the chosen look.
+ */
+function StylePreview({ style }: { style: VideoStyle }) {
+  const isLight = style.theme === 'light';
+  const bg = isLight
+    ? 'linear-gradient(135deg,#ffffff 0%,#f3f6fb 55%,#e9eff7 100%)'
+    : 'linear-gradient(135deg,#0a1120 0%,#0f1a30 55%,#0b1424 100%)';
+  const titleColor = isLight ? '#0b1220' : '#f5f8ff';
+  const mutedColor = isLight ? '#7d8ea3' : '#5f7286';
+  const nameColor = isLight ? '#4a5c74' : '#93a4b8';
+  const hasBrand = !!style.logoDataUrl || !!style.brandLabel.trim();
+
+  return (
+    <div
+      className="relative w-[320px] max-w-full aspect-video rounded-md border overflow-hidden"
+      style={{ background: bg }}
+    >
+      {/* faint accent glow */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background: `radial-gradient(circle at 82% 16%, ${style.accent}${isLight ? '22' : '38'}, transparent 48%)`,
+        }}
+      />
+      <div className="absolute left-4 right-4 top-4 bottom-8 flex flex-col justify-center">
+        <div className="h-1.5 w-10 rounded-full mb-2" style={{ backgroundColor: style.accent }} />
+        <div className="text-sm font-bold leading-tight" style={{ color: titleColor }}>
+          Your title here
+        </div>
+      </div>
+      <div className="absolute left-4 right-4 bottom-2.5 flex items-center justify-between text-[10px]">
+        {style.logoDataUrl ? (
+          <span className="flex items-center gap-1.5">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={style.logoDataUrl} alt="" className="h-3.5 w-auto max-w-[70px] object-contain" />
+            {style.brandLabel.trim() && (
+              <span style={{ color: nameColor }} className="tracking-wide">{style.brandLabel}</span>
+            )}
+          </span>
+        ) : style.brandLabel.trim() ? (
+          <span className="flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-full" style={{ backgroundColor: style.accent }} />
+            <span style={{ color: nameColor }} className="tracking-wide">{style.brandLabel}</span>
+          </span>
+        ) : (
+          <span />
+        )}
+        <span style={{ color: mutedColor }}>1 / 5</span>
+      </div>
+      {!hasBrand && <span className="sr-only">No brand shown</span>}
+    </div>
   );
 }

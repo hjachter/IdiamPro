@@ -25,6 +25,8 @@ export interface VideoSlide {
   title: string;
   bullets: string[];
   narration: string;
+  /** 'cover' = the opening title slide; 'content' = a regular body slide. */
+  kind?: 'cover' | 'content';
 }
 
 const MAX_BULLETS = 5;
@@ -75,6 +77,7 @@ export function deriveSlidesFromChapter(nodes: NodeMap, chapterId: string): Vide
     title: chapter.name || 'Untitled',
     bullets: agenda,
     narration: [chapter.name, chapterProse].filter(Boolean).join('. '),
+    kind: 'cover',
   });
 
   // --- One slide per direct child. ---
@@ -104,6 +107,7 @@ export function deriveSlidesFromChapter(nodes: NodeMap, chapterId: string): Vide
       title: child.name || 'Untitled',
       bullets,
       narration,
+      kind: 'content',
     });
   }
 

@@ -37,40 +37,170 @@ function escapeHtml(str) {
     .replace(/"/g, '&quot;');
 }
 
-// Build the HTML for one slide. Plain text on a solid dark background — Phase 1.
-function slideHtml(slide) {
+// Build the HTML for one slide (Phase 3 — professional design).
+// Two layouts share one visual system:
+//   • cover  — centered title + brand eyebrow + accent rule + optional agenda
+//   • content — title with accent rule, refined bullet list
+// Both sit on a subtle dark gradient with a faint brand-blue glow, carry a footer
+// (IdiamPro wordmark + slide number), and AUTO-FIT: an inline script shrinks the
+// content until it fits the safe area, so dense real-outline text never overflows.
+// Brand accent is IdiamPro's iOS blue (bright variant for dark-bg readability).
+function slideHtml(slide, index, total, style) {
+  const isCover = slide && slide.kind === 'cover';
   const title = escapeHtml(slide.title || '');
-  const bullets = Array.isArray(slide.bullets) ? slide.bullets : [];
-  const bulletHtml = bullets
-    .map((b) => `<li>${escapeHtml(b)}</li>`)
-    .join('');
-  return `<!doctype html><html><head><meta charset="utf-8"><style>
+  const bullets = (Array.isArray(slide.bullets) ? slide.bullets : []).filter(Boolean);
+  const num = `${(index || 0) + 1} / ${total || 1}`;
+
+  // --- Resolve style with safe fallbacks to the original dark / blue look. ---
+  const s = style || {};
+  const theme = s.theme === 'light' ? 'light' : 'dark';
+  const ACCENT = (typeof s.accent === 'string' && s.accent.trim()) || '#3898ff';
+  const brandLabel = typeof s.brandLabel === 'string' ? s.brandLabel.trim() : 'IdiamPro';
+  const logoDataUrl = typeof s.logoDataUrl === 'string' ? s.logoDataUrl.trim() : '';
+
+  // Theme palettes. The accent glows use color-mix so they follow the chosen
+  // accent (Chromium in Electron supports color-mix, so we lean on it freely).
+  const isLight = theme === 'light';
+  const TITLE = isLight ? '#0b1220' : '#f5f8ff';
+  const BODY = isLight ? '#35485f' : '#c7d2e3';
+  const MUTED = isLight ? '#7d8ea3' : '#5f7286';
+  const NAME = isLight ? '#4a5c74' : '#93a4b8';
+  const baseGradient = isLight
+    ? 'linear-gradient(135deg, #ffffff 0%, #f3f6fb 55%, #e9eff7 100%)'
+    : 'linear-gradient(135deg, #0a1120 0%, #0f1a30 55%, #0b1424 100%)';
+  const glowStrong = isLight ? '13%' : '22%';
+  const glowSoft = isLight ? '8%' : '10%';
+  const background = `
+        radial-gradient(circle at 82% 16%, color-mix(in srgb, ${ACCENT} ${glowStrong}, transparent), transparent 46%),
+        radial-gradient(circle at 12% 92%, color-mix(in srgb, ${ACCENT} ${glowSoft}, transparent), transparent 44%),
+        ${baseGradient}`;
+  const accentLight = `color-mix(in srgb, ${ACCENT} 55%, white)`;
+  const accentGlow = `color-mix(in srgb, ${ACCENT} 65%, transparent)`;
+
+  // Footer brand: logo (if any) beside label (if any); else accent dot + label;
+  // else nothing at all when neither is set.
+  let brandHtml = '';
+  if (logoDataUrl) {
+    const labelSpan = brandLabel ? `<span class="name">${escapeHtml(brandLabel)}</span>` : '';
+    brandHtml = `<div class="brand"><img class="logo" src="${logoDataUrl}" alt="" />${labelSpan}</div>`;
+  } else if (brandLabel) {
+    brandHtml = `<div class="brand"><span class="dot"></span><span class="name">${escapeHtml(brandLabel)}</span></div>`;
+  } else {
+    brandHtml = `<div class="brand"></div>`;
+  }
+  const footerHtml = `
+        <div class="footer">
+          ${brandHtml}
+          <div class="num">${num}</div>
+        </div>`;
+
+  const commonHead = `
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body { width: ${WIDTH}px; height: ${HEIGHT}px; overflow: hidden; }
     body {
-      background: #0f172a;
-      color: #f8fafc;
-      font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif;
-      display: flex; flex-direction: column; justify-content: center;
-      padding: 140px 160px;
+      font-family: -apple-system, 'Helvetica Neue', 'Segoe UI', Arial, sans-serif;
+      color: ${TITLE};
+      background:${background};
+      -webkit-font-smoothing: antialiased;
     }
-    h1 {
-      font-size: 96px; line-height: 1.1; font-weight: 800;
-      color: #ffffff; margin-bottom: 60px;
-      border-left: 16px solid #6366f1; padding-left: 40px;
+    .stage { position: relative; width: 100%; height: 100%; }
+    .footer {
+      position: absolute; left: 150px; right: 150px; bottom: 66px;
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 30px; letter-spacing: 0.5px; color: ${MUTED};
     }
-    ul { list-style: none; }
-    li {
-      font-size: 56px; line-height: 1.5; color: #cbd5e1;
-      margin-bottom: 32px; padding-left: 60px; position: relative;
-    }
-    li::before {
-      content: ''; position: absolute; left: 0; top: 28px;
-      width: 22px; height: 22px; border-radius: 50%; background: #6366f1;
-    }
+    .brand { display: flex; align-items: center; gap: 18px; font-weight: 600; min-height: 46px; }
+    .brand .dot { width: 20px; height: 20px; border-radius: 50%;
+      background: ${ACCENT}; box-shadow: 0 0 22px ${accentGlow}; }
+    .brand .logo { max-height: 46px; width: auto; object-fit: contain; display: block; }
+    .brand .name { color: ${NAME}; letter-spacing: 1px; }
+    .num { font-variant-numeric: tabular-nums; color: ${MUTED}; }
+    .accent-rule { width: 132px; height: 10px; border-radius: 6px;
+      background: linear-gradient(90deg, ${ACCENT}, ${accentLight}); }
+  `;
+
+  const bulletHtml = bullets
+    .map((b) => `<li><span class="mk"></span><span class="tx">${escapeHtml(b)}</span></li>`)
+    .join('');
+
+  let body;
+  if (isCover) {
+    const agenda = bullets.length
+      ? `<div class="agenda-label">In this video</div>
+         <ul class="agenda">${bulletHtml}</ul>`
+      : '';
+    const eyebrow = brandLabel
+      ? `<div class="eyebrow">${escapeHtml(brandLabel.toUpperCase())}</div>`
+      : '';
+    body = `
+      <div class="stage">
+        <div id="fit" class="cover">
+          ${eyebrow}
+          <h1>${title}</h1>
+          <div class="accent-rule cover-rule"></div>
+          ${agenda}
+        </div>
+        ${footerHtml}
+      </div>`;
+  } else {
+    body = `
+      <div class="stage">
+        <div id="fit" class="content">
+          <div class="accent-rule"></div>
+          <h1>${title}</h1>
+          <ul>${bulletHtml}</ul>
+        </div>
+        ${footerHtml}
+      </div>`;
+  }
+
+  return `<!doctype html><html><head><meta charset="utf-8"><style>
+    ${commonHead}
+    /* --- Content layout --- */
+    .content { position: absolute; left: 150px; right: 150px; top: 150px; bottom: 170px;
+      display: flex; flex-direction: column; justify-content: center; transform-origin: left center; }
+    .content .accent-rule { margin-bottom: 44px; }
+    .content h1 { font-size: 92px; line-height: 1.08; font-weight: 800;
+      color: ${TITLE}; margin-bottom: 62px; letter-spacing: -1px; max-width: 1500px; }
+    .content ul { list-style: none; }
+    .content li { display: flex; align-items: flex-start; gap: 34px;
+      font-size: 52px; line-height: 1.45; color: ${BODY}; margin-bottom: 34px; max-width: 1520px; }
+    .content li .mk { flex: 0 0 auto; width: 20px; height: 20px; margin-top: 22px;
+      border-radius: 6px; background: ${ACCENT}; box-shadow: 0 0 16px ${accentGlow}; }
+    /* --- Cover layout --- */
+    .cover { position: absolute; left: 150px; right: 150px; top: 150px; bottom: 170px;
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      text-align: center; transform-origin: center center; }
+    .cover .eyebrow { font-size: 34px; font-weight: 700; letter-spacing: 10px;
+      color: ${ACCENT}; margin-bottom: 40px; }
+    .cover h1 { font-size: 118px; line-height: 1.06; font-weight: 800;
+      color: ${TITLE}; letter-spacing: -1.5px; max-width: 1500px; }
+    .cover .cover-rule { margin: 52px auto 0; }
+    .cover .agenda-label { margin-top: 60px; font-size: 32px; letter-spacing: 4px;
+      text-transform: uppercase; color: ${MUTED}; }
+    .cover .agenda { list-style: none; margin-top: 26px; }
+    .cover .agenda li { display: flex; align-items: center; justify-content: center; gap: 24px;
+      font-size: 46px; line-height: 1.5; color: ${BODY}; margin-bottom: 18px; }
+    .cover .agenda li .mk { width: 16px; height: 16px; border-radius: 50%; background: ${ACCENT}; }
   </style></head><body>
-    <h1>${title}</h1>
-    <ul>${bulletHtml}</ul>
+    ${body}
+    <script>
+      // Auto-fit: shrink the content block until it fits within its box, so long
+      // real-outline titles/bullets never clip. Runs before we capture the frame.
+      (function () {
+        var el = document.getElementById('fit');
+        if (!el) return;
+        var box = el.getBoundingClientRect();
+        var maxH = box.height, maxW = box.width;
+        var scale = 1;
+        for (var i = 0; i < 24; i++) {
+          if (el.scrollHeight <= maxH + 1 && el.scrollWidth <= maxW + 1) break;
+          scale -= 0.06;
+          if (scale < 0.4) { scale = 0.4; el.style.transform = 'scale(' + scale + ')'; break; }
+          el.style.transform = 'scale(' + scale + ')';
+        }
+      })();
+    </script>
   </body></html>`;
 }
 
@@ -104,7 +234,7 @@ function grabFreshFrame(win, getLatestFrame, { timeoutMs = 4000 } = {}) {
 }
 
 // Render one slide to a PNG file using an offscreen BrowserWindow capture.
-async function renderSlidePng(slide, outPath) {
+async function renderSlidePng(slide, outPath, index, total, style) {
   const win = new BrowserWindow({
     width: WIDTH,
     height: HEIGHT,
@@ -124,7 +254,7 @@ async function renderSlidePng(slide, outPath) {
   try {
     win.webContents.on('paint', onPaint);
     win.webContents.setFrameRate(30);
-    const html = slideHtml(slide);
+    const html = slideHtml(slide, index, total, style);
     await win.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(html)}`);
     // Let webfonts + layout settle so the title/bullets are actually drawn before
     // we grab a frame (two rAFs guarantees a post-layout paint has been scheduled).
@@ -209,8 +339,17 @@ async function probeDuration(filePath) {
   return Number.isFinite(d) ? d : 0;
 }
 
-// Encode one slide (still image + audio) into an MP4 segment.
-async function encodeSegment(pngPath, audioPath, outPath) {
+// Encode one slide (still image + audio) into an MP4 segment, with a gentle
+// video fade-in at the start and fade-out at the end. On the near-black slide
+// background these read as a soft dissolve between slides (replacing the Phase 1
+// hard cuts) while leaving the narration audio untouched. `durationSeconds` is
+// the segment length (the audio's duration); short clips get proportionally
+// smaller fades so nothing fades to black over the whole slide.
+async function encodeSegment(pngPath, audioPath, outPath, durationSeconds) {
+  const dur = Number.isFinite(durationSeconds) && durationSeconds > 0 ? durationSeconds : FALLBACK_SECONDS;
+  const fade = Math.min(0.5, dur / 6); // cap fade length; shrink on short slides
+  const outStart = Math.max(0, dur - fade);
+  const vf = `scale=${WIDTH}:${HEIGHT},fade=t=in:st=0:d=${fade.toFixed(3)},fade=t=out:st=${outStart.toFixed(3)}:d=${fade.toFixed(3)}`;
   await run(ffmpegPath, [
     '-y',
     '-loop', '1',
@@ -220,7 +359,8 @@ async function encodeSegment(pngPath, audioPath, outPath) {
     '-tune', 'stillimage',
     '-r', String(FPS),
     '-pix_fmt', 'yuv420p',
-    '-vf', `scale=${WIDTH}:${HEIGHT}`,
+    '-t', dur.toFixed(3),
+    '-vf', vf,
     '-c:a', 'aac',
     '-b:a', '192k',
     '-ar', '44100',
@@ -277,6 +417,7 @@ async function generateSlideshowVideo(opts) {
 
   const apiKey = (opts.openaiApiKey && String(opts.openaiApiKey).trim()) || process.env.OPENAI_API_KEY || '';
   const voice = opts.voice || 'nova';
+  const style = opts.style || {};
 
   // Working directory for intermediate files.
   const workDir = fs.mkdtempSync(path.join(os.tmpdir(), 'idiampro-video-'));
@@ -302,7 +443,7 @@ async function generateSlideshowVideo(opts) {
       const segPath = path.join(workDir, `segment-${i}.mp4`);
 
       // 1. Render slide image.
-      await renderSlidePng(slide, pngPath);
+      await renderSlidePng(slide, pngPath, i, slides.length, style);
 
       // 2. Narration audio (TTS if we can, else fixed-length silence).
       const narration = (slide.narration || slide.title || '').trim();
@@ -323,8 +464,9 @@ async function generateSlideshowVideo(opts) {
         await synthesizeSilence(seconds, audioPath);
       }
 
-      // 3. Encode the per-slide segment.
-      await encodeSegment(pngPath, audioPath, segPath);
+      // 3. Encode the per-slide segment (fades sized to the narration length).
+      const segDuration = await probeDuration(audioPath);
+      await encodeSegment(pngPath, audioPath, segPath, segDuration);
       segmentPaths.push(segPath);
     }
 
@@ -375,7 +517,7 @@ function buildSlidesFromChapter(chapterName, paragraphs) {
     const lines = text.split('\n').map((l) => l.trim()).filter(Boolean);
     const title = i === 0 ? chapterName : (lines[0] || `${chapterName} (${i + 1})`);
     const bullets = lines.slice(i === 0 ? 0 : 1).slice(0, 4);
-    slides.push({ title, bullets, narration: text });
+    slides.push({ title, bullets, narration: text, kind: i === 0 ? 'cover' : 'content' });
   }
   return slides;
 }
