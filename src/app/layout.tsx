@@ -10,6 +10,7 @@ import { Analytics } from '@vercel/analytics/react';
 import { AuthProvider } from '@/lib/auth/AuthProvider';
 import { DiscoveryProvider } from '@/hooks/use-discovery';
 import { DiscoveryToastStack } from '@/components/discovery-toast';
+import { DevSimulateFreeIndicator } from '@/components/dev-simulate-free-indicator';
 
 // NOTE: /og-image.png is referenced below but has not been designed yet.
 // A 1200x630 PNG should be added to /public/og-image.png before production launch.
@@ -110,6 +111,7 @@ export default function RootLayout({
                 </AIProvider>
               </div>
               <Toaster />
+              <DevSimulateFreeIndicator />
             </ErrorBoundary>
           </ThemeProvider>
         </AuthProvider>

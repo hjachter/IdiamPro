@@ -28,6 +28,7 @@
  */
 
 import { BYOK_PROVIDERS, getUserApiKey } from '@/lib/byok-keys';
+import { isSimulatingFreeUser } from '@/lib/dev/dev-simulate-free';
 
 export type LaunchTierId = 'free-trial' | 'free-byok' | 'student' | 'pro';
 
@@ -89,6 +90,11 @@ function readPaidTierId(): 'student' | 'pro' | null {
  * On the server (no window) returns 'free-trial' as a conservative default.
  */
 export function getCurrentTier(): LaunchTierId {
+  // DEVELOPER/ADMIN OVERRIDE (view-only, stricter-only): when the "Simulate
+  // free user" toggle is on, force the strictest free tier so every Pro-gated
+  // surface (video counter/watermark, podcast, AI cap, upgrade prompts) shows
+  // the free experience. This never grants paid access — it can only tighten.
+  if (isSimulatingFreeUser()) return 'free-trial';
   const paid = readPaidTierId();
   if (paid) return paid;
   if (hasAnyByokKey()) return 'free-byok';

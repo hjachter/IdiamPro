@@ -7,7 +7,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { Folder, Info, Smartphone, Cpu, Cloud, Loader2, CheckCircle, XCircle, Crown, Shield, Moon, Sun, Download, Trash2, AlertTriangle, Play, Sparkles, ShieldCheck, KeyRound, UserX, Settings as SettingsIcon, Mail } from 'lucide-react';
+import { Folder, Info, Smartphone, Cpu, Cloud, Loader2, CheckCircle, XCircle, Crown, Shield, Moon, Sun, Download, Trash2, AlertTriangle, Play, Sparkles, ShieldCheck, KeyRound, UserX, Settings as SettingsIcon, Mail, FlaskConical } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,6 +21,7 @@ import {
 import { exportAllUserData, deleteAllUserData, inspectUserDataScope } from '@/lib/privacy-data';
 import { useCurrentUser } from '@/lib/auth/use-current-user';
 import { isAuthEnabled } from '@/lib/auth/auth-config';
+import { isSimulatingFreeUser, setSimulateFreeUser, isDeveloperSurfaceVisible } from '@/lib/dev/dev-simulate-free';
 import { useTheme } from 'next-themes';
 import { Badge } from '@/components/ui/badge';
 import { useAI } from '@/contexts/ai-context';
@@ -56,7 +57,7 @@ import {
 const APP_VERSION = '1.0.0';
 
 // Settings categories for the side navigation.
-type SettingsCategory = 'general' | 'ai' | 'privacy' | 'account' | 'backups' | 'about';
+type SettingsCategory = 'general' | 'ai' | 'privacy' | 'account' | 'backups' | 'about' | 'developer';
 
 // Check if running in Capacitor native app (but NOT Electron)
 function isCapacitor(): boolean {
@@ -86,6 +87,14 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
   const { isProfessional, setProfessional } = useDiscovery();
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
+
+  // Developer-only "simulate free user" override. Only rendered for the owner
+  // (dev build, or admin email in production). View-only + stricter-only.
+  const showDeveloper = isDeveloperSurfaceVisible(currentUser.email);
+  const [simulateFree, setSimulateFree] = useState(false);
+  useEffect(() => {
+    if (open) setSimulateFree(isSimulatingFreeUser());
+  }, [open]);
 
   // Format plan name for display
   const planDisplayName = {
@@ -713,9 +722,13 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
               { id: 'account', label: 'Account', icon: Crown },
               { id: 'backups', label: 'Backups', icon: ShieldCheck },
               { id: 'about', label: 'About', icon: Info },
+              ...(showDeveloper
+                ? [{ id: 'developer' as SettingsCategory, label: 'Developer', icon: FlaskConical }]
+                : []),
             ] as { id: SettingsCategory; label: string; icon: typeof Shield }[]).map((cat) => {
               const Icon = cat.icon;
               const active = activeCategory === cat.id;
+              const isDev = cat.id === 'developer';
               return (
                 <button
                   key={cat.id}
@@ -725,8 +738,10 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
                   className={
                     `flex items-center gap-2 whitespace-nowrap rounded-md px-3 min-h-[44px] text-sm font-medium text-left transition-colors ` +
                     (active
-                      ? 'bg-primary text-primary-foreground'
-                      : 'text-muted-foreground hover:bg-muted')
+                      ? (isDev ? 'bg-amber-500 text-amber-950' : 'bg-primary text-primary-foreground')
+                      : (isDev
+                          ? 'text-amber-700 dark:text-amber-400 hover:bg-amber-500/10'
+                          : 'text-muted-foreground hover:bg-muted'))
                   }
                 >
                   <Icon className="h-4 w-4 shrink-0" />
@@ -1145,6 +1160,46 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
                 <Folder className="h-4 w-4 mr-1" /> Show backups folder
               </Button>
             )}
+          </div>
+          </>)}
+
+          {activeCategory === 'developer' && showDeveloper && (<>
+          {/* Developer Section — amber, owner-only. View-only overrides that
+              change what THIS screen shows for testing; never real access. */}
+          <div className="space-y-4 rounded-lg border-2 border-amber-500/60 bg-amber-500/10 p-4">
+            <div className="flex items-center gap-2">
+              <FlaskConical className="h-4 w-4 text-amber-600 dark:text-amber-400" aria-hidden="true" />
+              <h3 className="text-sm font-semibold uppercase tracking-widest text-amber-700 dark:text-amber-400">
+                Developer
+              </h3>
+              <span className="ml-auto text-[11px] font-medium text-amber-700/80 dark:text-amber-400/80">
+                only visible to you
+              </span>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              These controls change only what you see, for testing. They never
+              change your real account and can never unlock paid features.
+            </p>
+            <div className="flex items-center justify-between gap-4 rounded-md border border-amber-500/40 bg-background/60 p-3">
+              <div className="min-w-0">
+                <Label htmlFor="dev-simulate-free" className="text-sm font-medium">
+                  Simulate free (non-Pro) user
+                </Label>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  Preview the free experience everywhere: the video free counter,
+                  the &ldquo;Made with IdiamPro&rdquo; watermark, and Pro upgrade prompts.
+                </p>
+              </div>
+              <Switch
+                id="dev-simulate-free"
+                data-testid="dev-simulate-free-toggle"
+                checked={simulateFree}
+                onCheckedChange={(v) => {
+                  setSimulateFree(v);
+                  setSimulateFreeUser(v);
+                }}
+              />
+            </div>
           </div>
           </>)}
 
