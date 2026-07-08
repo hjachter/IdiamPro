@@ -787,16 +787,24 @@ export default function MarketingPage() {
           </div>
         </section>
 
-        {/* Globally distributed teams — concrete-example block */}
+        {/* Thinkers — primary target segment (writers are one example) */}
         <section className="px-6 pb-16 lg:px-12">
           <div className="max-w-4xl mx-auto">
-            <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-violet-500/5 to-indigo-500/5 p-8 md:p-10">
+            <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-amber-500/5 to-rose-500/5 p-8 md:p-10">
               <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">
-                Built for globally distributed teams.
+                Built for people who think for a living.
               </h2>
-              <p className="text-base md:text-lg text-white/70 leading-relaxed">
-                A research team in Boston, a partner lab in Shanghai, and a graduate student in São Paulo — all working in the same outline, each contributing in their native language. The structure stays in sync; the translations stay current; the conversation never stops.
+              <p className="text-base md:text-lg text-white/70 leading-relaxed mb-5">
+                However you earn your living, you earn it by thinking — researching, structuring, connecting ideas, and turning them into something real. IdiamPro is where that thinking takes shape: it pulls in your research, organizes it the way you reason, and helps you ship the result — a report, a strategy, a manuscript, a talk, a video.
               </p>
+              <div className="flex flex-wrap gap-2">
+                <span className="px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/20 text-amber-200 text-xs">Researchers</span>
+                <span className="px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/20 text-amber-200 text-xs">Strategists &amp; consultants</span>
+                <span className="px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/20 text-amber-200 text-xs">Analysts</span>
+                <span className="px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/20 text-amber-200 text-xs">Founders &amp; product leaders</span>
+                <span className="px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/20 text-amber-200 text-xs">Educators &amp; students</span>
+                <span className="px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/20 text-amber-200 text-xs">Writers &amp; authors</span>
+              </div>
             </div>
           </div>
         </section>
@@ -823,24 +831,16 @@ export default function MarketingPage() {
           </div>
         </section>
 
-        {/* Authors — primary target customer segment */}
+        {/* Globally distributed teams — concrete-example block */}
         <section className="px-6 pb-16 lg:px-12">
           <div className="max-w-4xl mx-auto">
-            <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-amber-500/5 to-rose-500/5 p-8 md:p-10">
+            <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-violet-500/5 to-indigo-500/5 p-8 md:p-10">
               <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">
-                Built for people who write for a living.
+                Built for globally distributed teams.
               </h2>
-              <p className="text-base md:text-lg text-white/70 leading-relaxed mb-5">
-                Outlining is already core to your craft. IdiamPro pulls in your research, drafts inside your structure, and ships the finished work — manuscript, screenplay, article, or YouTube companion package.
+              <p className="text-base md:text-lg text-white/70 leading-relaxed">
+                A research team in Boston, a partner lab in Shanghai, and a graduate student in São Paulo — all working in the same outline, each contributing in their native language. The structure stays in sync; the translations stay current; the conversation never stops.
               </p>
-              <div className="flex flex-wrap gap-2">
-                <span className="px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/20 text-amber-200 text-xs">Screenwriters</span>
-                <span className="px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/20 text-amber-200 text-xs">Novelists</span>
-                <span className="px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/20 text-amber-200 text-xs">Nonfiction authors</span>
-                <span className="px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/20 text-amber-200 text-xs">Technical writers</span>
-                <span className="px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/20 text-amber-200 text-xs">Journalists</span>
-                <span className="px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/20 text-amber-200 text-xs">Content marketers</span>
-              </div>
             </div>
           </div>
         </section>
