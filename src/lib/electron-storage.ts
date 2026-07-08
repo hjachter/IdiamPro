@@ -56,6 +56,29 @@ interface ElectronAPI {
   restartToUpdate?: () => Promise<{ ok: boolean; error?: string }>;
   checkForUpdates?: () => Promise<{ ok: boolean; error?: string }>;
   getAppVersion?: () => Promise<{ version: string }>;
+  // Open a file with the OS default application (e.g. an MP4 in the system player).
+  openFile?: (filePath: string) => Promise<{ success: boolean; error?: string }>;
+  // Native save-file dialog. Returns the chosen path, or null if cancelled.
+  saveFileDialog?: (options: {
+    title?: string;
+    defaultPath?: string;
+    filters?: Array<{ name: string; extensions: string[] }>;
+  }) => Promise<string | null>;
+  // Faceless slideshow video generator (Electron desktop only — native ffmpeg).
+  generateSlideshowVideo?: (args: {
+    slides: Array<{ title: string; bullets: string[]; narration: string }>;
+    outputPath?: string;
+    openaiApiKey?: string;
+    voice?: string;
+  }) => Promise<{
+    success: boolean;
+    outputPath?: string;
+    durationSeconds?: number;
+    fileSizeBytes?: number;
+    usedTts?: boolean;
+    slideCount?: number;
+    error?: string;
+  }>;
 }
 
 /**

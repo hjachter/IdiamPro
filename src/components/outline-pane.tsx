@@ -10,7 +10,7 @@ import FileImportDialog from './file-import-dialog';
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Plus, Trash2, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, ChevronsDownUp, Settings, Search, Command, PanelLeft, PanelLeftClose, Brain, StopCircle, Inbox, LayoutDashboard, Focus, Sparkles, Mic, MessageSquare, BookDown, BookUp, Share2, ExternalLink, RefreshCw, MoreHorizontal, HelpCircle, Send, ShieldCheck, GitFork } from 'lucide-react';
+import { Plus, Trash2, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, ChevronsDownUp, Settings, Search, Command, PanelLeft, PanelLeftClose, Brain, StopCircle, Inbox, LayoutDashboard, Focus, Sparkles, Mic, MessageSquare, BookDown, BookUp, Share2, ExternalLink, RefreshCw, MoreHorizontal, HelpCircle, Send, ShieldCheck, GitFork, Video } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter } from "@/components/ui/alert-dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -143,6 +143,7 @@ interface OutlinePaneProps {
   // Multimedia AI (2026-06-11) — Capture from image, Share as YouTube package
   onOpenImageToOutline?: () => void;
   onOpenYoutubePackage?: () => void;
+  onOpenGenerateVideo?: () => void;
   // Double-click child node creation
   onCreateChildNode?: (parentId: string) => void;
   // Edit mode control
@@ -233,6 +234,7 @@ export default function OutlinePane({
   onOpenTransformOutline,
   onOpenImageToOutline,
   onOpenYoutubePackage,
+  onOpenGenerateVideo,
   onCreateChildNode,
   justCreatedNodeId,
   editingNodeId,
@@ -1059,6 +1061,16 @@ export default function OutlinePane({
                             title={selectedNodeId ? undefined : 'Select a chapter first'}
                         >
                             <ExternalLink className="mr-2 h-4 w-4" /> Share as YouTube package
+                        </DropdownMenuItem>
+                    )}
+                    {onOpenGenerateVideo && (
+                        <DropdownMenuItem
+                            onSelect={() => onOpenGenerateVideo?.()}
+                            disabled={!selectedNodeId}
+                            className="cursor-pointer py-1"
+                            title={selectedNodeId ? undefined : 'Select a chapter first'}
+                        >
+                            <Video className="mr-2 h-4 w-4" /> Generate Video
                         </DropdownMenuItem>
                     )}
                     <DropdownMenuItem onSelect={onExportOutline} disabled={!currentOutline} className="cursor-pointer py-1">

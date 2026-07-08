@@ -48,6 +48,7 @@ import ReformatDialog from './reformat-dialog';
 import TransformOutlineDialog from './transform-outline-dialog';
 import ImageToOutlineDialog, { type ImageToOutlineApplyPayload } from './image-to-outline-dialog';
 import YoutubePackageDialog from './youtube-package-dialog';
+import GenerateVideoDialog from './generate-video-dialog';
 import { insertProposedNodes } from '@/lib/multimedia/insert-proposed-nodes';
 import type { YoutubePackage } from '@/app/actions';
 import { mergeTransformedSubtreeIntoOutline } from '@/lib/transform-outline-helpers';
@@ -409,6 +410,9 @@ export default function OutlinePro() {
   // Multimedia AI dialogs (2026-06-11) — Image-to-Outline + YouTube package.
   const [isImageToOutlineOpen, setIsImageToOutlineOpen] = useState(false);
   const [isYoutubePackageOpen, setIsYoutubePackageOpen] = useState(false);
+  // Generate Video (Phase 2, 2026-07) — render the selected chapter into a
+  // narrated slideshow MP4 (Electron desktop only).
+  const [isGenerateVideoOpen, setIsGenerateVideoOpen] = useState(false);
 
   // Transform outline with AI dialog state — whole-subtree structural
   // transformation driven by a plain-language instruction. Scope rule:
@@ -4588,6 +4592,7 @@ export default function OutlinePro() {
           onOpenTransformOutline={() => setIsTransformOutlineOpen(true)}
           onOpenImageToOutline={() => setIsImageToOutlineOpen(true)}
           onOpenYoutubePackage={() => setIsYoutubePackageOpen(true)}
+          onOpenGenerateVideo={() => setIsGenerateVideoOpen(true)}
           onOpenTemplates={() => setIsTemplatesDialogOpen(true)}
           isGuide={currentOutline?.isGuide ?? false}
           isFocusMode={isFocusMode}
@@ -4645,6 +4650,13 @@ export default function OutlinePro() {
           selectedNodeId={selectedNodeId}
           onExportMarkdown={handleExportYoutubeMarkdown}
           onSaveAsOutline={handleSaveYoutubeAsOutline}
+        />
+
+        <GenerateVideoDialog
+          open={isGenerateVideoOpen}
+          onOpenChange={setIsGenerateVideoOpen}
+          outline={currentOutline}
+          selectedNodeId={selectedNodeId}
         />
 
         <ReformatDialog
@@ -4935,6 +4947,7 @@ export default function OutlinePro() {
                 onOpenTransformOutline={() => setIsTransformOutlineOpen(true)}
           onOpenImageToOutline={() => setIsImageToOutlineOpen(true)}
           onOpenYoutubePackage={() => setIsYoutubePackageOpen(true)}
+          onOpenGenerateVideo={() => setIsGenerateVideoOpen(true)}
                 onCreateChildNode={handleCreateSiblingNode}
                 justCreatedNodeId={justCreatedNodeIdRef.current}
                 editingNodeId={editingNodeId}
@@ -5145,6 +5158,13 @@ export default function OutlinePro() {
         selectedNodeId={selectedNodeId}
         onExportMarkdown={handleExportYoutubeMarkdown}
         onSaveAsOutline={handleSaveYoutubeAsOutline}
+      />
+
+      <GenerateVideoDialog
+        open={isGenerateVideoOpen}
+        onOpenChange={setIsGenerateVideoOpen}
+        outline={currentOutline}
+        selectedNodeId={selectedNodeId}
       />
 
       <ReformatDialog
@@ -5444,6 +5464,7 @@ export default function OutlinePro() {
                 onOpenTransformOutline={() => setIsTransformOutlineOpen(true)}
           onOpenImageToOutline={() => setIsImageToOutlineOpen(true)}
           onOpenYoutubePackage={() => setIsYoutubePackageOpen(true)}
+          onOpenGenerateVideo={() => setIsGenerateVideoOpen(true)}
                 onCreateChildNode={handleCreateSiblingNode}
                 justCreatedNodeId={justCreatedNodeIdRef.current}
                 editingNodeId={editingNodeId}
