@@ -101,4 +101,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
   getAppVersion: () => ipcRenderer.invoke('get-app-version'),
 
+  // Video generation (Phase 1 — faceless slideshow: chapter -> slides+VO -> MP4)
+  generateSlideshowVideo: (args) => ipcRenderer.invoke('generate-slideshow-video', args),
+
 });

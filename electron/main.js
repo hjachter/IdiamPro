@@ -1738,6 +1738,34 @@ ipcMain.handle('start-ollama', async () => {
   }
 });
 
+// ========== Video Generation IPC (Phase 1 — faceless slideshow) ==========
+
+// Lazily require the generator so a missing ffmpeg dep can't break app startup.
+let __videoGenerator = null;
+function getVideoGenerator() {
+  if (!__videoGenerator) {
+    __videoGenerator = require('./video-generator');
+  }
+  return __videoGenerator;
+}
+
+ipcMain.handle('generate-slideshow-video', async (event, args) => {
+  try {
+    const { generateSlideshowVideo } = getVideoGenerator();
+    return await generateSlideshowVideo(args || {});
+  } catch (error) {
+    console.error('[VideoGen] generate-slideshow-video failed:', error);
+    return { success: false, error: (error && error.message) || String(error) };
+  }
+});
+
+// Exposed on global so automated tests can drive the pipeline directly in the
+// main process via electronApp.evaluate() without needing full UI wiring.
+global.__generateSlideshowVideo = async (args) => {
+  const { generateSlideshowVideo } = getVideoGenerator();
+  return generateSlideshowVideo(args || {});
+};
+
 // ========== App Lifecycle ==========
 
 // This method will be called when Electron has finished
