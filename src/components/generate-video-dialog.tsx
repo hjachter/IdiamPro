@@ -16,11 +16,12 @@
  * large-chapter guard so a huge outline can't silently kick off a
  * 40-minute render.
  *
- * Pro-gating (Phase 5, 2026-07): video generation is a Pro-only feature,
- * gated exactly like the Podcast feature — the same useAIUsageGate hook (which
- * shows the shared upgrade prompt for non-Pro users) plus the canUseFeature
- * fallback. When auth/billing aren't configured (today) enforcement is a
- * no-op and everyone can render, so free users lose nothing else.
+ * Free "taste" tier (2026-07): non-Pro users get FREE_VIDEO_LIMIT (10)
+ * LIFETIME free renders. Those free videos render normally but carry a
+ * subtle "Made with IdiamPro" watermark. After the allowance is spent, the
+ * render is blocked and the shared upgrade prompt is shown. Pro users are
+ * unlimited AND unmarked (their videos stay fully white-labeled). The
+ * lifetime counter lives in src/lib/video/video-free-quota.ts.
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -41,8 +42,12 @@ import { Video, Loader2, AlertTriangle, Play, Monitor, CheckCircle2, Upload, X, 
 import type { Outline } from '@/types';
 import { isElectron } from '@/lib/electron-storage';
 import { getUserApiKey } from '@/lib/byok-keys';
-import { canUseFeature } from '@/lib/entitlements';
-import { useAIUsageGate } from '@/lib/use-ai-usage-gate';
+import { getCurrentTier } from '@/lib/tier-detection';
+import {
+  FREE_VIDEO_LIMIT,
+  getFreeVideosUsed,
+  incrementFreeVideosUsed,
+} from '@/lib/video/video-free-quota';
 import { useUpgradePrompt } from '@/components/upgrade-prompt';
 import { deriveSlidesFromChapter, type VideoSlide } from '@/lib/video/derive-slides';
 import { OPENAI_VOICE_OPTIONS } from '@/lib/podcast-generator';
@@ -110,26 +115,45 @@ export default function GenerateVideoDialog({
   const chapterNode = outline && selectedNodeId ? outline.nodes[selectedNodeId] : null;
 
   const { promptUpgrade } = useUpgradePrompt();
-  const { gate: aiUsageGate } = useAIUsageGate();
+
+  // Pro vs. free "taste" state. Pro = unlimited + no watermark. Non-Pro =
+  // FREE_VIDEO_LIMIT lifetime watermarked renders, then the upgrade prompt.
+  // Read fresh whenever the dialog opens so the counter is always current.
+  const [isPro, setIsPro] = useState(false);
+  const [freeUsed, setFreeUsed] = useState(0);
+
+  useEffect(() => {
+    if (!open) return;
+    setIsPro(getCurrentTier() === 'pro');
+    setFreeUsed(getFreeVideosUsed());
+  }, [open]);
+
+  const freeRemaining = Math.max(0, FREE_VIDEO_LIMIT - freeUsed);
+  const freeExhausted = !isPro && freeRemaining <= 0;
+
+  // Copy for the "you've used them all" upsell — reused by the gate and the
+  // primary button so the message is identical wherever the user hits it.
+  const showAllUsedUpgrade = useCallback(() => {
+    promptUpgrade({
+      requiredTier: 'pro',
+      title: `You've used all ${FREE_VIDEO_LIMIT} free videos`,
+      reason: `You've used all ${FREE_VIDEO_LIMIT} free videos — upgrade to Pro for unlimited videos with no watermark.`,
+    });
+  }, [promptUpgrade]);
 
   /**
-   * Pro gate: video generation is a Pro-only feature. Returns true if the
-   * user may proceed. Mirrors the Podcast dialog's ensurePodcastAllowed.
-   *
-   * NO-OP SAFETY: for non-Pro users aiUsageGate shows the shared upgrade
-   * prompt and returns false; when auth/billing enforcement is inactive
-   * (no keys — the state today) both checks allow and video generation
-   * works exactly as before, so free users lose nothing.
+   * Free-taste gate. Returns whether the render may proceed and whether it
+   * should carry the watermark:
+   *   Pro           → proceed, no watermark
+   *   free & <limit → proceed WITH watermark
+   *   free & spent  → show upgrade prompt, do NOT render
    */
-  const ensureVideoAllowed = useCallback((): boolean => {
-    if (!aiUsageGate({ feature: 'videoGeneration' })) return false;
-    if (canUseFeature('podcastGeneration')) return true;
-    promptUpgrade({
-      reason: 'Video generation is a Pro feature.',
-      requiredTier: 'pro',
-    });
-    return false;
-  }, [promptUpgrade, aiUsageGate]);
+  const evaluateGate = useCallback((): { allowed: boolean; watermark: boolean } => {
+    if (isPro) return { allowed: true, watermark: false };
+    if (getFreeVideosUsed() < FREE_VIDEO_LIMIT) return { allowed: true, watermark: true };
+    showAllUsedUpgrade();
+    return { allowed: false, watermark: false };
+  }, [isPro, showAllUsedUpgrade]);
 
   // Load the saved look on mount so the dialog defaults to the user's last
   // customization. Persist on every change so it sticks for next time.
@@ -187,8 +211,11 @@ export default function GenerateVideoDialog({
 
   const handleGenerate = async () => {
     if (!desktop || !chapterNode || slideCount === 0) return;
-    // Pro gate — non-Pro users get the upgrade prompt instead of a render.
-    if (!ensureVideoAllowed()) return;
+    // Free-taste gate — Pro renders clean; free renders carry a watermark
+    // until the 10-video lifetime allowance is spent, then the upgrade prompt.
+    const decision = evaluateGate();
+    if (!decision.allowed) return;
+    const watermark = decision.watermark;
     const api = (window as unknown as { electronAPI?: { generateSlideshowVideo?: (a: unknown) => Promise<{
       success: boolean; outputPath?: string; durationSeconds?: number; usedTts?: boolean; error?: string;
     }> } }).electronAPI;
@@ -222,6 +249,7 @@ export default function GenerateVideoDialog({
           accent: style.accent,
           brandLabel: style.brandLabel,
           logoDataUrl: style.logoDataUrl,
+          watermark,
         },
       });
       clearInterval(timer);
@@ -229,6 +257,11 @@ export default function GenerateVideoDialog({
         setErrorMsg(result?.error || 'The video could not be generated. Please try again.');
         setPhase('error');
         return;
+      }
+      // Charge one free-video credit ONLY on a successful render (never on
+      // failure/cancel). Pro renders are unlimited and don't touch the counter.
+      if (watermark) {
+        setFreeUsed(incrementFreeVideosUsed());
       }
       setOutputPath(result.outputPath);
       setResultInfo({ durationSeconds: result.durationSeconds, usedTts: result.usedTts });
@@ -300,6 +333,28 @@ export default function GenerateVideoDialog({
                 <span className="text-muted-foreground">This chapter has no content to turn into slides.</span>
               )}
             </div>
+
+            {/* Free "taste" allowance — shown only to non-Pro users. Pro users
+                are unlimited and unmarked, so they see no counter. */}
+            {!isPro && (
+              <div className="rounded-md border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm">
+                {freeRemaining > 0 ? (
+                  <p>
+                    <span className="font-medium">Free preview — {freeUsed} of {FREE_VIDEO_LIMIT} videos used.</span>{' '}
+                    <span className="text-muted-foreground">
+                      Free videos carry a small &ldquo;Made with IdiamPro&rdquo; mark. Upgrade to Pro for unlimited, unmarked videos.
+                    </span>
+                  </p>
+                ) : (
+                  <p>
+                    <span className="font-medium">You&rsquo;ve used all {FREE_VIDEO_LIMIT} free videos.</span>{' '}
+                    <span className="text-muted-foreground">
+                      Upgrade to Pro for unlimited videos with no watermark.
+                    </span>
+                  </p>
+                )}
+              </div>
+            )}
 
             {/* --- Style / branding --- */}
             <TooltipProvider delayDuration={300}>
@@ -498,10 +553,17 @@ export default function GenerateVideoDialog({
             <Button variant="ghost" onClick={handleClose}>Close</Button>
           )}
           {desktop && (phase === 'configure' || phase === 'error') && (
-            <Button onClick={handleGenerate} disabled={!canGenerate}>
-              <Video className="h-4 w-4 mr-1" />
-              {phase === 'error' ? 'Try again' : 'Generate'}
-            </Button>
+            freeExhausted ? (
+              <Button onClick={showAllUsedUpgrade}>
+                <Sparkles className="h-4 w-4 mr-1" />
+                Upgrade to Pro
+              </Button>
+            ) : (
+              <Button onClick={handleGenerate} disabled={!canGenerate}>
+                <Video className="h-4 w-4 mr-1" />
+                {phase === 'error' ? 'Try again' : 'Generate'}
+              </Button>
+            )
           )}
           {desktop && phase === 'running' && (
             <Button disabled>

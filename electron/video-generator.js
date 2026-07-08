@@ -57,6 +57,9 @@ function slideHtml(slide, index, total, style) {
   const ACCENT = (typeof s.accent === 'string' && s.accent.trim()) || '#3898ff';
   const brandLabel = typeof s.brandLabel === 'string' ? s.brandLabel.trim() : 'IdiamPro';
   const logoDataUrl = typeof s.logoDataUrl === 'string' ? s.logoDataUrl.trim() : '';
+  // Free-tier taste: non-Pro renders carry a subtle "Made with IdiamPro" mark.
+  // Pro renders leave this off so their videos stay fully white-labeled.
+  const watermark = s.watermark === true;
 
   // Theme palettes. The accent glows use color-mix so they follow the chosen
   // accent (Chromium in Electron supports color-mix, so we lean on it freely).
@@ -88,11 +91,19 @@ function slideHtml(slide, index, total, style) {
   } else {
     brandHtml = `<div class="brand"></div>`;
   }
+  // Free-tier watermark: bottom-CENTER so it never collides with the user's
+  // own brand (bottom-left) or the slide number (bottom-right). Small, muted
+  // (reuses MUTED so it reads on dark AND light themes), with a tiny accent
+  // dot — legible but understated, never garish.
+  const watermarkHtml = watermark
+    ? `<div class="wm"><span class="wm-dot"></span>Made with IdiamPro</div>`
+    : '';
   const footerHtml = `
         <div class="footer">
           ${brandHtml}
           <div class="num">${num}</div>
-        </div>`;
+        </div>
+        ${watermarkHtml}`;
 
   const commonHead = `
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -117,6 +128,14 @@ function slideHtml(slide, index, total, style) {
     .num { font-variant-numeric: tabular-nums; color: ${MUTED}; }
     .accent-rule { width: 132px; height: 10px; border-radius: 6px;
       background: linear-gradient(90deg, ${ACCENT}, ${accentLight}); }
+    .wm {
+      position: absolute; left: 50%; bottom: 66px; transform: translateX(-50%);
+      display: flex; align-items: center; gap: 12px; white-space: nowrap;
+      font-size: 24px; font-weight: 500; letter-spacing: 0.5px;
+      color: ${MUTED}; opacity: 0.72;
+    }
+    .wm .wm-dot { width: 12px; height: 12px; border-radius: 50%;
+      background: ${ACCENT}; opacity: 0.85; }
   `;
 
   const bulletHtml = bullets
