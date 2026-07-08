@@ -11,19 +11,14 @@
  * Top controls: search across name + email, time-window filter chips
  * (All / This week / This month), CSV export buttons.
  *
- * Gate: localStorage `isAdmin === 'true'`. Same v1 pattern as
- * /admin/metrics and /admin/invites. Server-side endpoints also check
- * the `x-idiampro-admin` header, so the page passes that on every fetch.
+ * Access is enforced server-side by the /admin layout (a signed-in Clerk
+ * user on the ADMIN_EMAILS allowlist) AND by each applicant API route's
+ * requireAdmin() guard — there is no client flag. Same-origin fetches carry
+ * the Clerk session cookie automatically.
  */
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -32,17 +27,12 @@ import {
   Mail,
   RefreshCw,
   Search,
-  ShieldAlert,
   ShieldX,
   StickyNote,
   UserCheck,
   Users,
   XCircle,
 } from 'lucide-react';
-
-const ADMIN_FLAG_KEY = 'isAdmin';
-const ADMIN_HEADER_NAME = 'x-idiampro-admin';
-const ADMIN_HEADER_VALUE = 'true';
 
 type ApplicantStatus = 'pending' | 'approved' | 'rejected';
 
@@ -62,10 +52,7 @@ interface ApplicantRecord {
 type TimeFilter = 'all' | 'week' | 'month';
 
 function adminHeaders(): HeadersInit {
-  return {
-    'Content-Type': 'application/json',
-    [ADMIN_HEADER_NAME]: ADMIN_HEADER_VALUE,
-  };
+  return { 'Content-Type': 'application/json' };
 }
 
 function formatDate(iso: string): string {
@@ -108,7 +95,6 @@ function downloadCsv(filename: string, rows: string[][]): void {
 }
 
 export default function AdminApplicantsPage() {
-  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [applicants, setApplicants] = useState<ApplicantRecord[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -120,11 +106,6 @@ export default function AdminApplicantsPage() {
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    try {
-      setIsAdmin(window.localStorage.getItem(ADMIN_FLAG_KEY) === 'true');
-    } catch {
-      setIsAdmin(false);
-    }
     const params = new URLSearchParams(window.location.search);
     const focus = params.get('focus');
     if (focus) setFocusedId(focus);
@@ -151,8 +132,8 @@ export default function AdminApplicantsPage() {
   }, []);
 
   useEffect(() => {
-    if (isAdmin) void reload();
-  }, [isAdmin, reload]);
+    void reload();
+  }, [reload]);
 
   // Auto-clear the toast after a few seconds.
   useEffect(() => {
@@ -277,40 +258,6 @@ export default function AdminApplicantsPage() {
     ];
     downloadCsv('idiampro-approved-users.csv', rows);
   }, [approved]);
-
-  if (isAdmin === null) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center text-muted-foreground">
-        Loading...
-      </div>
-    );
-  }
-
-  if (!isAdmin) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center px-6">
-        <Card className="max-w-md w-full">
-          <CardHeader>
-            <div className="flex items-center gap-2 text-amber-600">
-              <ShieldAlert className="h-5 w-5" />
-              <CardTitle className="text-lg">Admin access required</CardTitle>
-            </div>
-            <CardDescription>
-              This page is restricted to IdiamPro admins. If you are an admin,
-              enable the admin flag on this device and reload.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="text-sm text-muted-foreground">
-            Open the browser DevTools console and run{' '}
-            <code className="text-xs px-1.5 py-0.5 rounded bg-muted">
-              localStorage.setItem(&apos;isAdmin&apos;, &apos;true&apos;)
-            </code>
-            , then reload this page.
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">

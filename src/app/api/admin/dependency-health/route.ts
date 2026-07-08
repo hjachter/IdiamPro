@@ -9,20 +9,21 @@
  * probes read the app's own keys server-side; nothing sensitive crosses the
  * wire.
  *
- * Auth note: this mirrors the other v1 admin surfaces — the page itself is
- * gated by the client `isAdmin` localStorage flag (real Clerk admin roles are
- * planned post-launch). To keep the board from being publicly scrapable it is
- * also marked no-store / non-indexable. It exposes no user data and spends no
- * money, so this is an acceptable v1 posture.
+ * Auth: server-enforced admin gate (requireAdmin) — a signed-in Clerk user
+ * on the ADMIN_EMAILS allowlist. Non-admins get a 401. Also marked no-store
+ * / non-indexable so the board is never publicly scrapable.
  */
 
 import { NextResponse } from 'next/server';
 import { checkAllDependencies } from '@/lib/health/dependency-health';
+import { requireAdmin } from '@/lib/access/admin-guard';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
+  const denied = await requireAdmin();
+  if (denied) return denied;
   try {
     const results = await checkAllDependencies();
     return NextResponse.json(

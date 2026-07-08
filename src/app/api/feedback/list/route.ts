@@ -11,7 +11,7 @@ import { requireAdmin } from '@/lib/access/admin-guard';
 export const runtime = 'nodejs';
 
 export async function GET(request: NextRequest) {
-  const denied = requireAdmin(request);
+  const denied = await requireAdmin();
   if (denied) return denied;
   const records = await listFeedback();
   return NextResponse.json({ ok: true, feedback: records });

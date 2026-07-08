@@ -20,7 +20,7 @@ interface Ctx {
 }
 
 export async function POST(request: NextRequest, ctx: Ctx) {
-  const denied = requireAdmin(request);
+  const denied = await requireAdmin();
   if (denied) return denied;
 
   const { id } = await Promise.resolve(ctx.params);

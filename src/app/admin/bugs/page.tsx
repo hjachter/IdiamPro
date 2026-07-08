@@ -12,19 +12,14 @@
  * full description, context, screenshot (if any), metadata, and the
  * status action buttons.
  *
- * Gate: localStorage `isAdmin === 'true'`. Server-side endpoints also
- * check the `x-idiampro-admin` header, so the page passes that on every
- * fetch — same v1 pattern as the other admin pages.
+ * Access is enforced server-side by the /admin layout (a signed-in Clerk
+ * user on the ADMIN_EMAILS allowlist) AND by each bug API route's
+ * requireAdmin() guard — there is no client flag. Same-origin fetches carry
+ * the Clerk session cookie automatically.
  */
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -44,14 +39,9 @@ import {
   Monitor,
   RefreshCw,
   Search,
-  ShieldAlert,
   XCircle,
 } from 'lucide-react';
 import { parsePlatform } from '@/lib/access/parse-platform';
-
-const ADMIN_FLAG_KEY = 'isAdmin';
-const ADMIN_HEADER_NAME = 'x-idiampro-admin';
-const ADMIN_HEADER_VALUE = 'true';
 
 type BugSeverity = 'fyi' | 'annoying' | 'blocking';
 type BugStatus = 'new' | 'acknowledged' | 'in_progress' | 'resolved' | 'wont_fix';
@@ -119,10 +109,7 @@ const SEVERITY_META: Record<BugSeverity, { label: string; tone: string }> = {
 };
 
 function adminHeaders(): HeadersInit {
-  return {
-    'Content-Type': 'application/json',
-    [ADMIN_HEADER_NAME]: ADMIN_HEADER_VALUE,
-  };
+  return { 'Content-Type': 'application/json' };
 }
 
 function formatDate(iso: string): string {
@@ -143,7 +130,6 @@ function preview(text: string, max = 100): string {
 }
 
 export default function AdminBugsPage() {
-  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [bugs, setBugs] = useState<BugListItem[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -166,11 +152,6 @@ export default function AdminBugsPage() {
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    try {
-      setIsAdmin(window.localStorage.getItem(ADMIN_FLAG_KEY) === 'true');
-    } catch {
-      setIsAdmin(false);
-    }
     const params = new URLSearchParams(window.location.search);
     const focus = params.get('focus');
     if (focus) setFocusedId(focus);
@@ -195,8 +176,8 @@ export default function AdminBugsPage() {
   }, []);
 
   useEffect(() => {
-    if (isAdmin) void reload();
-  }, [isAdmin, reload]);
+    void reload();
+  }, [reload]);
 
   useEffect(() => {
     if (!toast) return;
@@ -313,40 +294,6 @@ export default function AdminBugsPage() {
     },
     [detail, reload],
   );
-
-  if (isAdmin === null) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center text-muted-foreground">
-        Loading...
-      </div>
-    );
-  }
-
-  if (!isAdmin) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center px-6">
-        <Card className="max-w-md w-full">
-          <CardHeader>
-            <div className="flex items-center gap-2 text-amber-600">
-              <ShieldAlert className="h-5 w-5" />
-              <CardTitle className="text-lg">Admin access required</CardTitle>
-            </div>
-            <CardDescription>
-              This page is restricted to IdiamPro admins. If you are an admin,
-              enable the admin flag on this device and reload.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="text-sm text-muted-foreground">
-            Open the browser DevTools console and run{' '}
-            <code className="text-xs px-1.5 py-0.5 rounded bg-muted">
-              localStorage.setItem(&apos;isAdmin&apos;, &apos;true&apos;)
-            </code>
-            , then reload this page.
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-background">

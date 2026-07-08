@@ -4,7 +4,6 @@ import React, { useCallback, useEffect, useState } from 'react';
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -15,7 +14,6 @@ import {
   ArrowUpRight,
   Minus,
   RefreshCw,
-  ShieldAlert,
   TriangleAlert,
 } from 'lucide-react';
 import {
@@ -26,34 +24,19 @@ import {
   type LaunchMetricsSnapshot,
 } from '@/lib/launch-metrics';
 
-const ADMIN_FLAG_KEY = 'isAdmin';
-
 /**
  * Launch Metrics Dashboard — the at-a-glance launch-week vitals page.
  *
- * Gate: localStorage `isAdmin === 'true'`. This is a v1 stopgap until
- * real auth + role checks land (Clerk admin role, planned post-launch).
- * To enable on a machine: open DevTools console and run
- *   localStorage.setItem('isAdmin', 'true')
- * then reload.
+ * Access is enforced server-side by the /admin layout (a signed-in Clerk
+ * user on the ADMIN_EMAILS allowlist) — there is no client flag to flip.
  */
 export default function AdminMetricsPage() {
-  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [snapshot, setSnapshot] = useState<LaunchMetricsSnapshot | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   // Force the "last updated ... ago" string to recompute every minute so the
   // page never claims the data is fresher than it is.
   const [, setTick] = useState(0);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    try {
-      setIsAdmin(window.localStorage.getItem(ADMIN_FLAG_KEY) === 'true');
-    } catch {
-      setIsAdmin(false);
-    }
-  }, []);
 
   const reload = useCallback(async () => {
     setLoading(true);
@@ -69,51 +52,14 @@ export default function AdminMetricsPage() {
   }, []);
 
   useEffect(() => {
-    if (isAdmin) {
-      void reload();
-    }
-  }, [isAdmin, reload]);
+    void reload();
+  }, [reload]);
 
   // Re-render every 60 seconds so "Last updated 2 min ago" stays honest.
   useEffect(() => {
-    if (!isAdmin) return;
     const id = window.setInterval(() => setTick((t) => t + 1), 60_000);
     return () => window.clearInterval(id);
-  }, [isAdmin]);
-
-  if (isAdmin === null) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center text-muted-foreground">
-        Loading...
-      </div>
-    );
-  }
-
-  if (!isAdmin) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center px-6">
-        <Card className="max-w-md w-full">
-          <CardHeader>
-            <div className="flex items-center gap-2 text-amber-600">
-              <ShieldAlert className="h-5 w-5" />
-              <CardTitle className="text-lg">Admin access required</CardTitle>
-            </div>
-            <CardDescription>
-              This page is restricted to IdiamPro admins. If you are an admin,
-              enable the admin flag on this device and reload.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="text-sm text-muted-foreground">
-            Open the browser DevTools console and run{' '}
-            <code className="text-xs px-1.5 py-0.5 rounded bg-muted">
-              localStorage.setItem(&apos;isAdmin&apos;, &apos;true&apos;)
-            </code>
-            , then reload this page.
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">

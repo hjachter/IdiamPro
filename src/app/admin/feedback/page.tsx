@@ -5,19 +5,13 @@
  * submissions.
  *
  * Mirrors /admin/applicants in layout: search, filter chips, CSV export,
- * one card per submission. Gated by localStorage.isAdmin === 'true' (same
- * v1 pattern). Server-side /api/feedback/list also checks the
- * x-idiampro-admin header.
+ * one card per submission. Access is enforced server-side by the /admin
+ * layout (a signed-in Clerk user on the ADMIN_EMAILS allowlist) AND by the
+ * /api/feedback/list requireAdmin() guard — there is no client flag.
  */
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -25,7 +19,6 @@ import {
   MessageSquare,
   RefreshCw,
   Search,
-  ShieldAlert,
   Star,
   ThumbsUp,
   Quote,
@@ -37,17 +30,10 @@ import {
   type FeedbackRecord,
 } from '@/lib/access/feedback-types';
 
-const ADMIN_FLAG_KEY = 'isAdmin';
-const ADMIN_HEADER_NAME = 'x-idiampro-admin';
-const ADMIN_HEADER_VALUE = 'true';
-
 type FilterMode = 'all' | 'testimonial' | 'public_quotable' | 'video';
 
 function adminHeaders(): HeadersInit {
-  return {
-    'Content-Type': 'application/json',
-    [ADMIN_HEADER_NAME]: ADMIN_HEADER_VALUE,
-  };
+  return { 'Content-Type': 'application/json' };
 }
 
 function formatDate(iso: string): string {
@@ -129,7 +115,6 @@ function recordMatchesFilter(r: FeedbackRecord, f: FilterMode): boolean {
 }
 
 export default function AdminFeedbackPage() {
-  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [records, setRecords] = useState<FeedbackRecord[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -139,11 +124,6 @@ export default function AdminFeedbackPage() {
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    try {
-      setIsAdmin(window.localStorage.getItem(ADMIN_FLAG_KEY) === 'true');
-    } catch {
-      setIsAdmin(false);
-    }
     const params = new URLSearchParams(window.location.search);
     const focus = params.get('focus');
     if (focus) setFocusedId(focus);
@@ -168,8 +148,8 @@ export default function AdminFeedbackPage() {
   }, []);
 
   useEffect(() => {
-    if (isAdmin) void reload();
-  }, [isAdmin, reload]);
+    void reload();
+  }, [reload]);
 
   const filtered = useMemo(() => {
     if (!records) return null;
@@ -218,31 +198,6 @@ export default function AdminFeedbackPage() {
     downloadCsv('idiampro-feedback.csv', rows);
   }, [filtered]);
 
-  if (isAdmin === null) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center text-muted-foreground">
-        Loading...
-      </div>
-    );
-  }
-
-  if (!isAdmin) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center px-6">
-        <Card className="max-w-md w-full">
-          <CardHeader>
-            <div className="flex items-center gap-2 text-amber-600">
-              <ShieldAlert className="h-5 w-5" />
-              <CardTitle className="text-lg">Admin access required</CardTitle>
-            </div>
-            <CardDescription>
-              This page is restricted to IdiamPro admins.
-            </CardDescription>
-          </CardHeader>
-        </Card>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-background">

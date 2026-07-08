@@ -4,14 +4,11 @@ import React, { useCallback, useEffect, useState } from 'react';
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, ShieldAlert } from 'lucide-react';
-
-const ADMIN_FLAG_KEY = 'isAdmin';
+import { RefreshCw } from 'lucide-react';
 
 type HealthStatus = 'ok' | 'degraded' | 'down' | 'not_configured';
 
@@ -33,24 +30,15 @@ interface HealthResponse {
  * Dependency Health Monitor — the admin-only board showing whether each of the
  * app's own third-party dependencies is reachable/healthy.
  *
- * Gate: localStorage `isAdmin === 'true'` (same v1 stopgap as /admin/metrics,
- * until Clerk admin roles land). The actual probes run server-side via
+ * Access is enforced server-side by the /admin layout (a signed-in Clerk
+ * user on the ADMIN_EMAILS allowlist) and by the dependency-health API guard
+ * — no client flag. The actual probes run server-side via
  * /api/admin/dependency-health — no secret ever reaches the browser.
  */
 export default function AdminHealthPage() {
-  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [data, setData] = useState<HealthResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    try {
-      setIsAdmin(window.localStorage.getItem(ADMIN_FLAG_KEY) === 'true');
-    } catch {
-      setIsAdmin(false);
-    }
-  }, []);
 
   const reload = useCallback(async () => {
     setLoading(true);
@@ -70,44 +58,8 @@ export default function AdminHealthPage() {
   }, []);
 
   useEffect(() => {
-    if (isAdmin) {
-      void reload();
-    }
-  }, [isAdmin, reload]);
-
-  if (isAdmin === null) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center text-muted-foreground">
-        Loading...
-      </div>
-    );
-  }
-
-  if (!isAdmin) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center px-6">
-        <Card className="max-w-md w-full">
-          <CardHeader>
-            <div className="flex items-center gap-2 text-amber-600">
-              <ShieldAlert className="h-5 w-5" />
-              <CardTitle className="text-lg">Admin access required</CardTitle>
-            </div>
-            <CardDescription>
-              This page is restricted to IdiamPro admins. If you are an admin,
-              enable the admin flag on this device and reload.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="text-sm text-muted-foreground">
-            Open the browser DevTools console and run{' '}
-            <code className="text-xs px-1.5 py-0.5 rounded bg-muted">
-              localStorage.setItem(&apos;isAdmin&apos;, &apos;true&apos;)
-            </code>
-            , then reload this page.
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+    void reload();
+  }, [reload]);
 
   const results = data?.results ?? [];
   const counts = summarize(results);

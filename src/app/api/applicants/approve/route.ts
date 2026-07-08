@@ -28,7 +28,7 @@ function getSignInUrl(request: NextRequest): string {
 }
 
 export async function POST(request: NextRequest) {
-  const denied = requireAdmin(request);
+  const denied = await requireAdmin();
   if (denied) return denied;
 
   let body: { id?: unknown };

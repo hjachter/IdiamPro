@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import {
   Card,
   CardContent,
@@ -8,9 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Mail, ShieldAlert } from 'lucide-react';
-
-const ADMIN_FLAG_KEY = 'isAdmin';
+import { Mail } from 'lucide-react';
 
 /**
  * Invite management — stub for v1.1.
@@ -20,55 +18,10 @@ const ADMIN_FLAG_KEY = 'isAdmin';
  * point for v1.1 when we add a database-backed allowlist + a real form
  * here for adding / removing emails without a redeploy.
  *
- * Gate matches the existing /admin/metrics pattern: localStorage isAdmin
- * flag for v1, real Clerk-backed admin roles post-launch.
+ * Access is enforced server-side by the /admin layout (a signed-in Clerk
+ * user on the ADMIN_EMAILS allowlist) — there is no client flag to flip.
  */
 export default function AdminInvitesPage() {
-  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    try {
-      setIsAdmin(window.localStorage.getItem(ADMIN_FLAG_KEY) === 'true');
-    } catch {
-      setIsAdmin(false);
-    }
-  }, []);
-
-  if (isAdmin === null) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center text-muted-foreground">
-        Loading...
-      </div>
-    );
-  }
-
-  if (!isAdmin) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center px-6">
-        <Card className="max-w-md w-full">
-          <CardHeader>
-            <div className="flex items-center gap-2 text-amber-600">
-              <ShieldAlert className="h-5 w-5" />
-              <CardTitle className="text-lg">Admin access required</CardTitle>
-            </div>
-            <CardDescription>
-              This page is restricted to IdiamPro admins. If you are an admin,
-              enable the admin flag on this device and reload.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="text-sm text-muted-foreground">
-            Open the browser DevTools console and run{' '}
-            <code className="text-xs px-1.5 py-0.5 rounded bg-muted">
-              localStorage.setItem(&apos;isAdmin&apos;, &apos;true&apos;)
-            </code>
-            , then reload this page.
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-3xl mx-auto px-6 py-10">

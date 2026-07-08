@@ -1,37 +1,40 @@
 /**
- * Tiny admin gate for v1 admin API endpoints.
+ * Server-side admin gate for admin-only API endpoints.
  *
- * The /admin/* pages check `localStorage.isAdmin === 'true'` before
- * rendering. To extend that same gate to server-side endpoints (so the
- * applicant approve / reject / notes mutations don't fall back to the
- * env-var allowlist alone), the admin page reads the flag and sends it
- * as a header on every fetch.
+ * Every admin data route (applicant list/approve/reject/notes, feedback
+ * list, bug list/detail/status/notes, dependency-health) calls
+ * `requireAdmin()` before doing anything. Authorization is decided ENTIRELY
+ * on the server via `isAdminUser()` — a signed-in Clerk user whose email is
+ * on the ADMIN_EMAILS allowlist (see src/lib/access/admin.ts).
  *
- * This is intentionally weak — anyone who flips the localStorage flag in
- * DevTools can call the endpoints. Real admin auth (Clerk organizations
- * + role check) is the post-launch upgrade; the contract here doesn't
- * change when that lands.
+ * This replaces the old v1 stopgap that trusted an `x-idiampro-admin`
+ * request header derived from a client `localStorage.isAdmin` flag — which
+ * anyone could set. The header is no longer read; the Clerk session cookie
+ * (sent automatically on same-origin fetches) is the source of truth.
+ *
+ * Dev/stub: when Clerk auth is not configured, `isAdminUser()` returns true,
+ * so local dev keeps working exactly as before.
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-
-const ADMIN_HEADER = 'x-idiampro-admin';
-const ADMIN_TOKEN = 'true';
+import { NextResponse } from 'next/server';
+import { isAdminUser } from '@/lib/access/admin';
 
 /**
- * Returns a 403 NextResponse if the request lacks the admin header.
- * Returns null when the caller is authorized, letting the route handler
- * carry on.
+ * Returns a 401 NextResponse when the caller is not an authorized admin.
+ * Returns null when authorized, letting the route handler carry on.
+ *
+ * Takes no request argument — admin status is read from the server session.
+ * (The optional arg is accepted and ignored for call-site compatibility.)
  */
-export function requireAdmin(request: NextRequest): NextResponse | null {
-  const header = request.headers.get(ADMIN_HEADER) ?? '';
-  if (header.trim().toLowerCase() !== ADMIN_TOKEN) {
+export async function requireAdmin(
+  _request?: unknown,
+): Promise<NextResponse | null> {
+  const ok = await isAdminUser();
+  if (!ok) {
     return NextResponse.json(
       { ok: false, error: 'Admin access required.' },
-      { status: 403 },
+      { status: 401 },
     );
   }
   return null;
 }
-
-export { ADMIN_HEADER, ADMIN_TOKEN };

@@ -17,7 +17,7 @@ import { requireAdmin } from '@/lib/access/admin-guard';
 export const runtime = 'nodejs';
 
 export async function POST(request: NextRequest) {
-  const denied = requireAdmin(request);
+  const denied = await requireAdmin();
   if (denied) return denied;
 
   let body: { id?: unknown; notes?: unknown };
