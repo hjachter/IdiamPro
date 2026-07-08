@@ -74,6 +74,35 @@ function slideHtml(slide) {
   </body></html>`;
 }
 
+// Wait for the next real composited frame of THIS offscreen window and return it
+// as a PNG buffer. We rely on the offscreen 'paint' stream (each frame it emits
+// belongs to this specific window's webContents) instead of a blind-timeout
+// capturePage(). A timed capturePage can hand back a stale buffer from a
+// previously-rendered slide — the defect that made every slide come out looking
+// like slide 1. Falls back to capturePage() only if no paint arrives in time.
+function grabFreshFrame(win, getLatestFrame, { timeoutMs = 4000 } = {}) {
+  const deadline = Date.now() + timeoutMs;
+  return new Promise((resolve) => {
+    const tick = async () => {
+      const frame = getLatestFrame();
+      if (frame) {
+        const png = frame.toPNG();
+        if (png && png.length >= 1000) return resolve(png);
+      }
+      if (Date.now() > deadline) {
+        try {
+          const image = await win.webContents.capturePage();
+          return resolve(image ? image.toPNG() : null);
+        } catch {
+          return resolve(null);
+        }
+      }
+      setTimeout(tick, 50);
+    };
+    tick();
+  });
+}
+
 // Render one slide to a PNG file using an offscreen BrowserWindow capture.
 async function renderSlidePng(slide, outPath) {
   const win = new BrowserWindow({
@@ -87,18 +116,33 @@ async function renderSlidePng(slide, outPath) {
       contextIsolation: true,
     },
   });
+  // Capture the freshest composited frame this window emits. Because each 'paint'
+  // image is tied to this window's webContents, we can never accidentally save a
+  // different slide's stale frame.
+  let latestFrame = null;
+  const onPaint = (_event, _dirty, image) => { latestFrame = image; };
   try {
+    win.webContents.on('paint', onPaint);
+    win.webContents.setFrameRate(30);
     const html = slideHtml(slide);
     await win.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(html)}`);
-    // Give the offscreen compositor a couple of frames to paint.
-    await new Promise((r) => setTimeout(r, 500));
-    const image = await win.webContents.capturePage();
-    const png = image.toPNG();
+    // Let webfonts + layout settle so the title/bullets are actually drawn before
+    // we grab a frame (two rAFs guarantees a post-layout paint has been scheduled).
+    await win.webContents
+      .executeJavaScript(
+        'new Promise((res) => { const go = () => requestAnimationFrame(() => requestAnimationFrame(() => res(true)));' +
+          '(document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(go); })'
+      )
+      .catch(() => {});
+    // Discard any pre-content frame so we wait for a paint of the settled slide.
+    latestFrame = null;
+    const png = await grabFreshFrame(win, () => latestFrame);
     if (!png || png.length < 1000) {
       throw new Error('Slide capture produced an empty image');
     }
     fs.writeFileSync(outPath, png);
   } finally {
+    try { win.webContents.removeListener('paint', onPaint); } catch { /* ignore */ }
     win.destroy();
   }
 }
