@@ -11,6 +11,7 @@ import { AuthProvider } from '@/lib/auth/AuthProvider';
 import { DiscoveryProvider } from '@/hooks/use-discovery';
 import { DiscoveryToastStack } from '@/components/discovery-toast';
 import { DevSimulateFreeIndicator } from '@/components/dev-simulate-free-indicator';
+import { FeatureFlagsProvider } from '@/components/feature-flags-provider';
 
 // NOTE: /og-image.png is referenced below but has not been designed yet.
 // A 1200x630 PNG should be added to /public/og-image.png before production launch.
@@ -95,19 +96,25 @@ export default function RootLayout({
             <ErrorBoundary>
               <div className="h-full">
                 <AIProvider>
-                  {/* Phase 3 friendly gate-hit UX. Inert when enforcement
-                      is off — the gates that trigger it are themselves
-                      no-ops with no auth/billing keys. */}
-                  <UpgradePromptProvider>
-                    {/* Discovery hints — "Did You Know?" sticky toasts.
-                        Provider holds the dismissed-state and queue;
-                        DiscoveryToastStack renders the cards. Toggling
-                        Professional mode in Settings suppresses them. */}
-                    <DiscoveryProvider>
-                      {children}
-                      <DiscoveryToastStack />
-                    </DiscoveryProvider>
-                  </UpgradePromptProvider>
+                  {/* Feature Switchboard — fetches server-driven feature flags
+                      once on startup and exposes useFeatureFlag(). Seeded with
+                      safe DEFAULT_FLAGS so it can never blank/block the app if
+                      the flag service is unreachable. */}
+                  <FeatureFlagsProvider>
+                    {/* Phase 3 friendly gate-hit UX. Inert when enforcement
+                        is off — the gates that trigger it are themselves
+                        no-ops with no auth/billing keys. */}
+                    <UpgradePromptProvider>
+                      {/* Discovery hints — "Did You Know?" sticky toasts.
+                          Provider holds the dismissed-state and queue;
+                          DiscoveryToastStack renders the cards. Toggling
+                          Professional mode in Settings suppresses them. */}
+                      <DiscoveryProvider>
+                        {children}
+                        <DiscoveryToastStack />
+                      </DiscoveryProvider>
+                    </UpgradePromptProvider>
+                  </FeatureFlagsProvider>
                 </AIProvider>
               </div>
               <Toaster />

@@ -49,6 +49,7 @@ import TransformOutlineDialog from './transform-outline-dialog';
 import ImageToOutlineDialog, { type ImageToOutlineApplyPayload } from './image-to-outline-dialog';
 import YoutubePackageDialog from './youtube-package-dialog';
 import GenerateVideoDialog from './generate-video-dialog';
+import { useFeatureFlag } from './feature-flags-provider';
 import { insertProposedNodes } from '@/lib/multimedia/insert-proposed-nodes';
 import type { YoutubePackage } from '@/app/actions';
 import { mergeTransformedSubtreeIntoOutline } from '@/lib/transform-outline-helpers';
@@ -413,6 +414,16 @@ export default function OutlinePro() {
   // Generate Video (Phase 2, 2026-07) — render the selected chapter into a
   // narrated slideshow MP4 (Electron desktop only).
   const [isGenerateVideoOpen, setIsGenerateVideoOpen] = useState(false);
+
+  // Feature Switchboard: an ADDITIONAL outer switch over Generate Video. The
+  // admin can kill it or target it to Everyone/Free/Pro from /admin/flags,
+  // resolved tier-aware here. When off (or the audience excludes this user),
+  // the entry point disappears; the desktop-only + Pro/free-taste rules still
+  // apply underneath inside the dialog. Fail-safe: defaults to enabled.
+  const isGenerateVideoFlagOn = useFeatureFlag('generate-video');
+  const handleOpenGenerateVideo = isGenerateVideoFlagOn
+    ? () => setIsGenerateVideoOpen(true)
+    : undefined;
 
   // Transform outline with AI dialog state — whole-subtree structural
   // transformation driven by a plain-language instruction. Scope rule:
@@ -4592,7 +4603,7 @@ export default function OutlinePro() {
           onOpenTransformOutline={() => setIsTransformOutlineOpen(true)}
           onOpenImageToOutline={() => setIsImageToOutlineOpen(true)}
           onOpenYoutubePackage={() => setIsYoutubePackageOpen(true)}
-          onOpenGenerateVideo={() => setIsGenerateVideoOpen(true)}
+          onOpenGenerateVideo={handleOpenGenerateVideo}
           onOpenTemplates={() => setIsTemplatesDialogOpen(true)}
           isGuide={currentOutline?.isGuide ?? false}
           isFocusMode={isFocusMode}
@@ -4947,7 +4958,7 @@ export default function OutlinePro() {
                 onOpenTransformOutline={() => setIsTransformOutlineOpen(true)}
           onOpenImageToOutline={() => setIsImageToOutlineOpen(true)}
           onOpenYoutubePackage={() => setIsYoutubePackageOpen(true)}
-          onOpenGenerateVideo={() => setIsGenerateVideoOpen(true)}
+          onOpenGenerateVideo={handleOpenGenerateVideo}
                 onCreateChildNode={handleCreateSiblingNode}
                 justCreatedNodeId={justCreatedNodeIdRef.current}
                 editingNodeId={editingNodeId}
@@ -5464,7 +5475,7 @@ export default function OutlinePro() {
                 onOpenTransformOutline={() => setIsTransformOutlineOpen(true)}
           onOpenImageToOutline={() => setIsImageToOutlineOpen(true)}
           onOpenYoutubePackage={() => setIsYoutubePackageOpen(true)}
-          onOpenGenerateVideo={() => setIsGenerateVideoOpen(true)}
+          onOpenGenerateVideo={handleOpenGenerateVideo}
                 onCreateChildNode={handleCreateSiblingNode}
                 justCreatedNodeId={justCreatedNodeIdRef.current}
                 editingNodeId={editingNodeId}

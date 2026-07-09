@@ -35,7 +35,8 @@
         "operations-link-2026-06-11",
         "architecture-ref-env-vars-vercel-2026-06-12",
         "report-issue-in-app-2026-06-25",
-        "generate-video-how-it-works-2026-07-08"
+        "generate-video-how-it-works-2026-07-08",
+        "feature-switchboard-2026-07-08"
       ],
       "isCollapsed": false,
       "prefix": ""
@@ -831,9 +832,19 @@
       "childrenIds": [],
       "isCollapsed": false,
       "prefix": ""
+    },
+    "feature-switchboard-2026-07-08": {
+      "id": "feature-switchboard-2026-07-08",
+      "name": "Feature Switchboard — remote feature on/off + audience targeting (2026-07-08)",
+      "content": "How the Feature Switchboard is built, in plain language.\n\n**What it is:** An admin master switchboard that turns app features on or off for users instantly, without shipping a new version of the app. Howard opens it at /admin/flags (inside the amber Admin Console) and sees every controllable feature listed with two controls: an On/Off switch (a \"kill switch\") and an Audience picker — Everyone, Free only, or Pro only.\n\n**How it flows:** Every feature that can be switched is registered in code with a safe default state (this is the source of truth for which switches exist). When Howard flips a switch, the change is saved to the app's shared storage (Vercel KV in production; a local file on the desktop dev machine). When the app starts up, it fetches the current switch settings once and remembers them. Each feature's entry point then asks \"is my switch on for this user?\" — checking both the on/off state and whether the user's tier (Free vs Pro) matches the chosen audience.\n\n**The proof feature:** \"Generate Video\" is wired to a switch. Turn it off and the Generate Video menu item disappears for everyone; set it to \"Pro only\" and free users stop seeing it while Pro users keep it. The feature's own rules (desktop-only, Pro gating, free tastes) still apply underneath — the switch is an extra outer gate, not a replacement.\n\n**Why it's safe (the important part):** The flag system can never break the app. If the switch service is unreachable — the storage is down, the network fails, the fetch errors — the app quietly falls back to the built-in safe defaults, so every feature keeps working exactly as shipped. A switch turned off only ever hides a feature; a missing or unreachable switch never hides one. On the admin side, if a save can't be stored, Howard sees a plain error saying so instead of the app pretending it saved.\n\n**Planned later:** gradual percentage rollouts and per-user targeting. Today's version is the simple on/off + Free/Pro/Everyone audience.",
+      "type": "document",
+      "parentId": "root",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
     }
   },
-  "lastModified": 1783550592873,
+  "lastModified": "2026-07-08T00:00:00.000Z",
   "_fileSize": 143604,
   "_fileName": "IdiamPro - How it works.idm",
   "_isLazyLoaded": false
