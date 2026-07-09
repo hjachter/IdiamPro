@@ -717,18 +717,32 @@ export default function MarketingPage() {
               <div className={`${mounted ? 'animate-fade-in-up' : 'opacity-0'}`}>
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/20 border border-violet-500/30 mb-6">
                   <Brain className="w-4 h-4 text-violet-400" />
-                  <span className="text-sm text-violet-300">The Premier Idea Developer</span>
+                  <span className="text-sm text-violet-300">Develop it. Publish everywhere.</span>
                 </div>
                 <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
                   <span className="block text-white">The Premier</span>
                   <span className="block bg-gradient-to-r from-violet-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent">Idea Developer.</span>
                 </h1>
-                <p className="text-xl md:text-2xl text-white/70 mb-4 max-w-3xl mx-auto">
-                  Any idea. Any team, anywhere. Any language. AI at every step.
+                <p className="text-xl md:text-2xl text-white/80 mb-4 max-w-3xl mx-auto">
+                  Capture, consolidate, and develop your ideas with AI — then turn them into articles, podcasts, videos, and presentations in a click.
                 </p>
                 <p className="text-base md:text-lg text-white/60 mb-8 max-w-3xl mx-auto leading-relaxed">
-                  An outliner for students, researchers, and professionals — developing research papers, project plans, Second Brains, product designs, or whatever you&apos;re building. AI doesn&apos;t just answer questions: it generates outlines from your sources, refreshes them against live web data, translates them into 20 languages, even produces podcasts and illustrations.
+                  Not a chat that forgets — a thinking machine that helps you{' '}
+                  <span className="text-violet-300">consolidate many sources into coherent, developed thinking</span>{' '}
+                  — a single idea, a complex concept, or a whole narrative — refined over many passes, then published in whatever format you need.
                 </p>
+
+                {/* Output strip — provable formats IdiamPro produces */}
+                <div className="flex flex-wrap justify-center gap-2 mb-8 max-w-2xl mx-auto">
+                  {['Research papers', 'Podcasts', 'Videos', 'Presentations', 'Illustrations', '21 languages'].map((label) => (
+                    <span
+                      key={label}
+                      className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-white/70 text-sm"
+                    >
+                      {label}
+                    </span>
+                  ))}
+                </div>
 
                 {/* Hero CTA — signed-out shows sign-up; signed-in opens the app. */}
                 <div className="mb-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
@@ -771,6 +785,82 @@ export default function MarketingPage() {
           </div>
         </div>
         </section>
+
+        {/* Idea development band — the "not a single prompt" story + three-step flow */}
+        <section className="px-6 pb-16 lg:px-12 border-t border-white/5 pt-16">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center max-w-3xl mx-auto mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+                A great idea isn&apos;t a single prompt.
+              </h2>
+              <p className="text-base md:text-lg text-white/60 leading-relaxed max-w-[660px] mx-auto">
+                It might take a hundred sources — articles, PDFs, YouTube videos, meeting notes, textbooks, even what you type yourself — read, weighed, and merged into one outline before the essence comes into focus. Developing an idea is iterative: many passes, not one flash of insight. IdiamPro is built for that work.
+              </p>
+            </div>
+
+            {/* Three-step flow */}
+            <div className="flex flex-col lg:flex-row items-stretch justify-center gap-4 lg:gap-2">
+              {/* Card 1 — Many inputs */}
+              <div className="flex-1 rounded-2xl border border-white/10 bg-white/5 p-6 md:p-8">
+                <div className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-violet-500/15 border border-violet-500/25 mb-4">
+                  <FileUp className="w-5 h-5 text-violet-300" />
+                </div>
+                <h3 className="text-lg font-bold text-white mb-3">Many inputs</h3>
+                <ul className="space-y-2 text-sm text-white/60">
+                  <li>Type it in yourself</li>
+                  <li>Articles, web pages &amp; PDFs</li>
+                  <li>YouTube, audio &amp; video</li>
+                  <li>Notes, docs &amp; live web</li>
+                  <li className="text-white/40">…and growing</li>
+                </ul>
+              </div>
+
+              {/* Arrow */}
+              <div className="flex items-center justify-center lg:px-1 text-white/30">
+                <ArrowRight className="hidden lg:block w-6 h-6" />
+                <ChevronDown className="block lg:hidden w-6 h-6" />
+              </div>
+
+              {/* Card 2 — Merge & consolidate (emphasized) */}
+              <div className="flex-1 rounded-2xl border-2 border-violet-500/40 bg-gradient-to-br from-violet-600/15 to-indigo-600/10 p-6 md:p-8 shadow-lg shadow-violet-500/20">
+                <div className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-violet-500/25 border border-violet-500/40 mb-4">
+                  <Merge className="w-5 h-5 text-violet-200" />
+                </div>
+                <h3 className="text-lg font-bold text-white mb-3">Merge &amp; consolidate</h3>
+                <ul className="space-y-2 text-sm text-white/75">
+                  <li>Merge sources into one outline</li>
+                  <li>Consolidate into a coherent whole</li>
+                  <li>Develop &amp; refine over many passes</li>
+                </ul>
+              </div>
+
+              {/* Arrow */}
+              <div className="flex items-center justify-center lg:px-1 text-white/30">
+                <ArrowRight className="hidden lg:block w-6 h-6" />
+                <ChevronDown className="block lg:hidden w-6 h-6" />
+              </div>
+
+              {/* Card 3 — Publish everywhere */}
+              <div className="flex-1 rounded-2xl border border-white/10 bg-white/5 p-6 md:p-8">
+                <div className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-indigo-500/15 border border-indigo-500/25 mb-4">
+                  <Rocket className="w-5 h-5 text-indigo-300" />
+                </div>
+                <h3 className="text-lg font-bold text-white mb-3">Publish everywhere</h3>
+                <ul className="space-y-2 text-sm text-white/60">
+                  <li>Papers &amp; articles</li>
+                  <li>Podcasts &amp; videos</li>
+                  <li>Slides &amp; illustrations</li>
+                  <li className="text-white/40">…and growing</li>
+                </ul>
+              </div>
+            </div>
+
+            <p className="text-center text-sm text-white/50 mt-10 max-w-2xl mx-auto">
+              Read widely, merge the sources into one outline, refine the essence — then publish it in any format. That&apos;s idea development, not a one-shot answer.
+            </p>
+          </div>
+        </section>
+
         {/* Thinkers — primary target segment (writers are one example) */}
         <section className="px-6 pb-16 lg:px-12">
           <div className="max-w-4xl mx-auto">
