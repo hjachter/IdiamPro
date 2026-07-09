@@ -93,18 +93,20 @@ function saveDepthKey(key: DepthKey): void {
 }
 
 // Slide visuals control — what appears alongside the text on each slide.
-// Phase A shipped mind maps (auto-drawn from the outline branch); Phase B adds
-// free public-domain photos and an "Auto" mix. "AI illustrations" and video clips
-// are still deferred. Default is Auto — the richest all-free experience.
-//   Off      — text-only slides
-//   Mind maps— a mind map of each section, drawn from the outline
-//   Photos   — a free public-domain photo on every slide
-//   Auto     — mind maps for sections + photos for details (recommended)
+// Phase A shipped mind maps (auto-drawn from the outline branch); Phase B added
+// free public-domain photos and an "Auto" mix; Phase C adds moving public-domain
+// video-clip backgrounds. "AI illustrations" remain deferred. Default is Auto.
+//   Off        — text-only slides
+//   Mind maps  — a mind map of each section, drawn from the outline
+//   Photos     — a free public-domain photo on every slide
+//   Auto       — mind maps for sections + photos for details (recommended)
+//   Video clips— mind maps for sections + a moving public-domain clip on details
 const VISUALS_OPTIONS = [
   { value: 'off', label: 'Off', hint: 'Text-only slides' },
   { value: 'mindmap', label: 'Mind maps', hint: 'Draw a mind map of each section from your outline' },
   { value: 'photo', label: 'Photos', hint: 'Add a free public-domain photo to each slide' },
   { value: 'auto', label: 'Auto', hint: 'Mind maps for sections, photos for details (recommended)' },
+  { value: 'videoclip', label: 'Video clips', hint: 'Moving public-domain clip behind detail slides (free); mind maps for sections' },
 ] as const;
 
 type VisualsKey = (typeof VISUALS_OPTIONS)[number]['value'];

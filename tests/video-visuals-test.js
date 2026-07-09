@@ -1,9 +1,9 @@
 // ============================================================================
 // Generate Video — "Slide visuals" control test.
-// Verifies the Slide visuals control renders with all FOUR options (Off, Mind
-// maps, Photos, Auto — Phase B added Photos + Auto), defaults to Auto, and that
-// clicking between them toggles the pressed state. Follows the launch/window
-// patterns in video-depth-test.js.
+// Verifies the Slide visuals control renders with all FIVE options (Off, Mind
+// maps, Photos, Auto, Video clips — Phase B added Photos + Auto, Phase C added
+// Video clips), defaults to Auto, and that clicking between them toggles the
+// pressed state. Follows the launch/window patterns in video-depth-test.js.
 // ============================================================================
 const { _electron: electron } = require('playwright');
 const path = require('path');
@@ -77,15 +77,17 @@ async function shot(page, name) {
     ok(await page.getByText('Slide visuals', { exact: true }).first().isVisible().catch(() => false),
       '"Slide visuals" label renders');
 
-    // All four options present.
+    // All five options present (Phase C added "Video clips").
     const offBtn = page.getByRole('button', { name: /^Off\b/ }).first();
     const mindMapsBtn = page.getByRole('button', { name: /^Mind maps/ }).first();
     const photosBtn = page.getByRole('button', { name: /^Photos/ }).first();
     const autoBtn = page.getByRole('button', { name: /^Auto/ }).first();
+    const videoClipBtn = page.getByRole('button', { name: /^Video clips/ }).first();
     ok(await offBtn.isVisible().catch(() => false), 'Slide visuals option "Off" renders');
     ok(await mindMapsBtn.isVisible().catch(() => false), 'Slide visuals option "Mind maps" renders');
     ok(await photosBtn.isVisible().catch(() => false), 'Slide visuals option "Photos" renders');
     ok(await autoBtn.isVisible().catch(() => false), 'Slide visuals option "Auto" renders');
+    ok(await videoClipBtn.isVisible().catch(() => false), 'Slide visuals option "Video clips" renders');
 
     // Default is Auto (aria-pressed true on Auto).
     const defaultPressed = await autoBtn.getAttribute('aria-pressed').catch(() => null);
@@ -104,10 +106,17 @@ async function shot(page, name) {
     await shot(page, '04-off-selected.png');
     ok(offPressed === 'true', `Off becomes selected after click (aria-pressed=${offPressed})`);
 
+    // Select Video clips, confirm it toggles on.
+    await videoClipBtn.click();
+    await page.waitForTimeout(300);
+    const clipPressed = await videoClipBtn.getAttribute('aria-pressed').catch(() => null);
+    await shot(page, '05-videoclip-selected.png');
+    ok(clipPressed === 'true', `Video clips becomes selected after click (aria-pressed=${clipPressed})`);
+
     await autoBtn.click();
     await page.waitForTimeout(300);
     const backPressed = await autoBtn.getAttribute('aria-pressed').catch(() => null);
-    await shot(page, '05-auto-selected.png');
+    await shot(page, '06-auto-selected.png');
     ok(backPressed === 'true', `Auto re-selectable (aria-pressed=${backPressed})`);
   } catch (e) {
     report.fail++;
