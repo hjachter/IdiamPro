@@ -724,7 +724,7 @@ export default function MarketingPage() {
                   <span className="block bg-gradient-to-r from-violet-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent">Idea Developer.</span>
                 </h1>
                 <p className="text-xl md:text-2xl text-white/80 mb-4 max-w-3xl mx-auto">
-                  Capture, consolidate, and develop your ideas with AI — then turn them into articles, podcasts, videos, and presentations in a click.
+                  Capture, consolidate, and develop your ideas with AI — then turn them into articles, podcasts, videos, websites, and more, in a click.
                 </p>
                 <p className="text-base md:text-lg text-white/60 mb-8 max-w-3xl mx-auto leading-relaxed">
                   Not a chat that forgets — a thinking machine that helps you{' '}
@@ -734,10 +734,10 @@ export default function MarketingPage() {
 
                 {/* Output strip — provable formats IdiamPro produces */}
                 <div className="flex flex-wrap justify-center gap-2 mb-8 max-w-2xl mx-auto">
-                  {['Research papers', 'Podcasts', 'Videos', 'Presentations', 'Illustrations', '21 languages'].map((label) => (
+                  {['Research papers', 'Podcasts', 'Videos', 'Websites', 'Presentations', 'Illustrations', '21 languages', '…and more'].map((label) => (
                     <span
                       key={label}
-                      className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-white/70 text-sm"
+                      className={`px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-sm ${label === '…and more' ? 'text-white/50 italic' : 'text-white/70'}`}
                     >
                       {label}
                     </span>
