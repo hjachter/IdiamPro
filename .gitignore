@@ -53,3 +53,4 @@ mcp-server/node_modules/
 # Local KV file-storage fallback (used by storage adapter when no Vercel KV configured; pollutes repo with local Playwright test data)
 .idiampro/
 __pycache__/
+.env*

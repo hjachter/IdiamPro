@@ -488,6 +488,69 @@ export function generateMindmapFromSubtree(rootNode: OutlineNode, allNodes: Node
 }
 
 /**
+ * Generate a Mermaid "mind map" (rendered as a top-down flowchart for
+ * readability) from a subtree, CAPPED in depth and node count so it stays
+ * legible on a video slide. Mirrors the app's own mindmap generation (root as a
+ * rounded `((name))` node, children as `["name"]` boxes) so the video's mind
+ * maps match what users see inside the app. Used by the Generate Video pipeline.
+ *
+ * @param rootNode  the section node whose subtree becomes the mind map
+ * @param allNodes  the full node map
+ * @param opts      maxDepth (levels below root, default 2) and maxNodes (hard
+ *                  cap on total nodes drawn, default 20) keep it readable.
+ * @returns a Mermaid `flowchart TD` definition string.
+ */
+export function generateCappedMindmapMermaid(
+  rootNode: OutlineNode,
+  allNodes: NodeMap,
+  opts: { maxDepth?: number; maxNodes?: number } = {},
+): string {
+  const maxDepth = Math.max(1, Math.floor(opts.maxDepth ?? 2));
+  const maxNodes = Math.max(2, Math.floor(opts.maxNodes ?? 20));
+
+  const sanitizeName = (name: string) => {
+    // Remove characters that break Mermaid syntax, collapse whitespace, and
+    // trim overly long labels so a wordy node name doesn't blow out the layout.
+    const cleaned = String(name || '')
+      .replace(/[()[\]{}"`]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+    return cleaned.length > 42 ? `${cleaned.slice(0, 40)}…` : cleaned || ' ';
+  };
+
+  const lines: string[] = ['flowchart TD'];
+  const connections: string[] = [];
+  let nodeCounter = 0;
+  const nodeIds: Record<string, string> = {};
+
+  const processNode = (nodeId: string, depth: number, isRoot: boolean): boolean => {
+    // Returns false once we've hit the node cap so callers stop descending.
+    const currentNode = allNodes[nodeId];
+    if (!currentNode) return true;
+    if (nodeCounter >= maxNodes) return false;
+
+    const mermaidId = `N${nodeCounter++}`;
+    nodeIds[nodeId] = mermaidId;
+    const name = sanitizeName(currentNode.name);
+    lines.push(`  ${mermaidId}${isRoot ? `(("${name}"))` : `["${name}"]`}`);
+
+    if (depth >= maxDepth) return true;
+    const children = (currentNode.childrenIds || []).filter((cid) => allNodes[cid]);
+    for (const childId of children) {
+      if (nodeCounter >= maxNodes) return false;
+      const cont = processNode(childId, depth + 1, false);
+      if (nodeIds[childId]) connections.push(`  ${mermaidId} --> ${nodeIds[childId]}`);
+      if (!cont) return false;
+    }
+    return true;
+  };
+
+  processNode(rootNode.id, 0, true);
+
+  return [...lines, ...connections].join('\n');
+}
+
+/**
  * Generate a Mermaid flowchart diagram from a subtree
  */
 export function generateFlowchartFromSubtree(rootNode: OutlineNode, allNodes: NodeMap): string {

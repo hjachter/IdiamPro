@@ -60,6 +60,71 @@ import {
   type VideoStyle,
 } from '@/lib/video/video-style';
 
+// Detail (depth) control — how many levels of the outline become their own
+// slides. Value-based labels; the number is the maxDepth passed to the slide
+// deriver. "Full outline" uses a large depth that effectively means "all levels."
+const DEPTH_OPTIONS = [
+  { value: 'overview', label: 'Overview', depth: 1, hint: 'Top sections only' },
+  { value: 'standard', label: 'Standard', depth: 2, hint: 'Sections and subsections' },
+  { value: 'deep', label: 'Deep', depth: 3, hint: 'Three levels deep' },
+  { value: 'full', label: 'Full outline', depth: 99, hint: 'Every level of the outline' },
+] as const;
+
+type DepthKey = (typeof DEPTH_OPTIONS)[number]['value'];
+const DEFAULT_DEPTH_KEY: DepthKey = 'standard';
+const DEPTH_STORAGE_KEY = 'idiampro:video-depth';
+
+// The safety cap that derive-slides.ts enforces. If the derived slide count
+// equals this, the outline was truncated and we surface a gentle note.
+const SLIDE_CAP = 400;
+
+function loadDepthKey(): DepthKey {
+  if (typeof window === 'undefined') return DEFAULT_DEPTH_KEY;
+  try {
+    const saved = window.localStorage.getItem(DEPTH_STORAGE_KEY);
+    if (saved && DEPTH_OPTIONS.some((o) => o.value === saved)) return saved as DepthKey;
+  } catch { /* localStorage unavailable — fall back to default */ }
+  return DEFAULT_DEPTH_KEY;
+}
+
+function saveDepthKey(key: DepthKey): void {
+  if (typeof window === 'undefined') return;
+  try { window.localStorage.setItem(DEPTH_STORAGE_KEY, key); } catch { /* ignore */ }
+}
+
+// Slide visuals control — what appears alongside the text on each slide.
+// Phase A shipped mind maps (auto-drawn from the outline branch); Phase B adds
+// free public-domain photos and an "Auto" mix. "AI illustrations" and video clips
+// are still deferred. Default is Auto — the richest all-free experience.
+//   Off      — text-only slides
+//   Mind maps— a mind map of each section, drawn from the outline
+//   Photos   — a free public-domain photo on every slide
+//   Auto     — mind maps for sections + photos for details (recommended)
+const VISUALS_OPTIONS = [
+  { value: 'off', label: 'Off', hint: 'Text-only slides' },
+  { value: 'mindmap', label: 'Mind maps', hint: 'Draw a mind map of each section from your outline' },
+  { value: 'photo', label: 'Photos', hint: 'Add a free public-domain photo to each slide' },
+  { value: 'auto', label: 'Auto', hint: 'Mind maps for sections, photos for details (recommended)' },
+] as const;
+
+type VisualsKey = (typeof VISUALS_OPTIONS)[number]['value'];
+const DEFAULT_VISUALS_KEY: VisualsKey = 'auto';
+const VISUALS_STORAGE_KEY = 'idiampro:video-visuals';
+
+function loadVisualsKey(): VisualsKey {
+  if (typeof window === 'undefined') return DEFAULT_VISUALS_KEY;
+  try {
+    const saved = window.localStorage.getItem(VISUALS_STORAGE_KEY);
+    if (saved && VISUALS_OPTIONS.some((o) => o.value === saved)) return saved as VisualsKey;
+  } catch { /* localStorage unavailable — fall back to default */ }
+  return DEFAULT_VISUALS_KEY;
+}
+
+function saveVisualsKey(key: VisualsKey): void {
+  if (typeof window === 'undefined') return;
+  try { window.localStorage.setItem(VISUALS_STORAGE_KEY, key); } catch { /* ignore */ }
+}
+
 // Reject logo uploads bigger than this — keeps localStorage small and renders fast.
 const MAX_LOGO_BYTES = 1_500_000;
 const ACCEPTED_LOGO_TYPES = ['image/png', 'image/jpeg', 'image/svg+xml', 'image/webp'];
@@ -110,6 +175,8 @@ export default function GenerateVideoDialog({
   const [outputPath, setOutputPath] = useState<string | null>(null);
   const [resultInfo, setResultInfo] = useState<{ durationSeconds?: number; usedTts?: boolean } | null>(null);
   const [acknowledgedLarge, setAcknowledgedLarge] = useState(false);
+  const [depthKey, setDepthKey] = useState<DepthKey>(DEFAULT_DEPTH_KEY);
+  const [visualsKey, setVisualsKey] = useState<VisualsKey>(DEFAULT_VISUALS_KEY);
 
   const desktop = isElectron();
   const chapterNode = outline && selectedNodeId ? outline.nodes[selectedNodeId] : null;
@@ -159,7 +226,25 @@ export default function GenerateVideoDialog({
   // customization. Persist on every change so it sticks for next time.
   useEffect(() => {
     setStyle(loadVideoStyle());
+    setDepthKey(loadDepthKey());
+    setVisualsKey(loadVisualsKey());
   }, []);
+
+  const handleVisualsChange = (key: VisualsKey) => {
+    setVisualsKey(key);
+    saveVisualsKey(key);
+  };
+
+  const maxDepth = useMemo(
+    () => DEPTH_OPTIONS.find((o) => o.value === depthKey)?.depth ?? 2,
+    [depthKey],
+  );
+
+  const handleDepthChange = (key: DepthKey) => {
+    setDepthKey(key);
+    saveDepthKey(key);
+    setAcknowledgedLarge(false); // new depth ⇒ re-confirm the large-chapter guard
+  };
 
   const updateStyle = (patch: Partial<VideoStyle>) => {
     setStyle((prev) => {
@@ -189,11 +274,12 @@ export default function GenerateVideoDialog({
 
   const slides = useMemo<VideoSlide[]>(() => {
     if (!outline || !selectedNodeId) return [];
-    return deriveSlidesFromChapter(outline.nodes, selectedNodeId);
-  }, [outline, selectedNodeId]);
+    return deriveSlidesFromChapter(outline.nodes, selectedNodeId, { maxDepth });
+  }, [outline, selectedNodeId, maxDepth]);
 
   const slideCount = slides.length;
   const isLarge = slideCount > MANY_SLIDES;
+  const hitCap = slideCount >= SLIDE_CAP;
 
   const reset = () => {
     setPhase('configure');
@@ -244,6 +330,7 @@ export default function GenerateVideoDialog({
         slides,
         voice: style.voice,
         openaiApiKey: getUserApiKey('openai') || undefined,
+        visuals: visualsKey,
         style: {
           theme: style.theme,
           accent: style.accent,
@@ -332,6 +419,11 @@ export default function GenerateVideoDialog({
               ) : (
                 <span className="text-muted-foreground">This chapter has no content to turn into slides.</span>
               )}
+              {hitCap && (
+                <p className="text-muted-foreground mt-1 text-xs">
+                  Showing the first {SLIDE_CAP} slides — pick a shallower Detail for a shorter video.
+                </p>
+              )}
             </div>
 
             {/* Free "taste" allowance — shown only to non-Pro users. Pro users
@@ -359,6 +451,66 @@ export default function GenerateVideoDialog({
             {/* --- Style / branding --- */}
             <TooltipProvider delayDuration={300}>
               <div className="space-y-4">
+                {/* Detail (depth) — how much of the outline becomes slides. */}
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Detail</Label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {DEPTH_OPTIONS.map((opt) => {
+                      const selected = depthKey === opt.value;
+                      return (
+                        <Tooltip key={opt.value}>
+                          <TooltipTrigger asChild>
+                            <button
+                              type="button"
+                              onClick={() => handleDepthChange(opt.value)}
+                              aria-label={`${opt.label} — ${opt.hint}`}
+                              aria-pressed={selected}
+                              className={`px-3 py-1.5 text-sm rounded-md border transition-colors ${
+                                selected
+                                  ? 'bg-primary text-primary-foreground border-primary'
+                                  : 'text-muted-foreground border-border hover:bg-accent'
+                              }`}
+                            >
+                              {opt.label}
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>{opt.hint}</TooltipContent>
+                        </Tooltip>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Slide visuals — what appears alongside the text (Phase A: mind maps). */}
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Slide visuals</Label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {VISUALS_OPTIONS.map((opt) => {
+                      const selected = visualsKey === opt.value;
+                      return (
+                        <Tooltip key={opt.value}>
+                          <TooltipTrigger asChild>
+                            <button
+                              type="button"
+                              onClick={() => handleVisualsChange(opt.value)}
+                              aria-label={`${opt.label} — ${opt.hint}`}
+                              aria-pressed={selected}
+                              className={`px-3 py-1.5 text-sm rounded-md border transition-colors ${
+                                selected
+                                  ? 'bg-primary text-primary-foreground border-primary'
+                                  : 'text-muted-foreground border-border hover:bg-accent'
+                              }`}
+                            >
+                              {opt.label}
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>{opt.hint}</TooltipContent>
+                        </Tooltip>
+                      );
+                    })}
+                  </div>
+                </div>
+
                 {/* Theme */}
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">Theme</Label>

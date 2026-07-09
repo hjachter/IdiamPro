@@ -20,6 +20,22 @@ const path = require('path');
 const fs = require('fs');
 const os = require('os');
 const { execFile } = require('child_process');
+const { pathToFileURL } = require('url');
+
+// Resolve the bundled Mermaid browser build (a self-contained ~3MB UMD file that
+// sets globalThis.mermaid). Cached after the first lookup. Used to render a
+// slide's mind map to an SVG inside an offscreen window (slide visuals — Phase A).
+let __mermaidJsPath = null;
+function mermaidJsPath() {
+  if (__mermaidJsPath) return __mermaidJsPath;
+  try {
+    __mermaidJsPath = require.resolve('mermaid/dist/mermaid.min.js');
+  } catch {
+    const pkg = require.resolve('mermaid/package.json');
+    __mermaidJsPath = path.join(path.dirname(pkg), 'dist', 'mermaid.min.js');
+  }
+  return __mermaidJsPath;
+}
 
 const ffmpegPath = require('ffmpeg-static');
 const ffprobePath = require('ffprobe-static').path;
@@ -37,6 +53,174 @@ function escapeHtml(str) {
     .replace(/"/g, '&quot;');
 }
 
+// ============================================================================
+// Stock photos (slide visuals — Phase B). FREE + license-clean ONLY.
+// ----------------------------------------------------------------------------
+// We pull a relevant photo per slide from the Openverse API — keyless for basic
+// use — and FILTER to CC0 + Public Domain Mark (`license=cc0,pdm`), so every
+// image is free for commercial use with NO attribution required and NO per-image
+// charge. The fetch runs on the user's own machine (Electron main process), not
+// a server we pay for. For each image we record source/creator/license and write
+// an "image-credits.txt" beside the MP4 (good practice even when not required).
+//
+// ROBUSTNESS: short per-request timeout + a couple of retries; results are cached
+// per query (including misses) so we never hammer the API. If an image can't be
+// fetched (offline, rate-limited, no match), the slide gracefully falls back to
+// its mind-map or text-only layout — a failed image NEVER breaks a slide.
+// ============================================================================
+const OPENVERSE_ENDPOINT = 'https://api.openverse.org/v1/images/';
+const OV_USER_AGENT = 'IdiamPro/1.0 (slideshow slide illustrations; https://secondbrainware.com)';
+const IMG_TIMEOUT_MS = 9000;
+const IMG_MAX_BYTES = 14 * 1024 * 1024; // skip anything implausibly large
+const IMG_MIN_BYTES = 1500;             // skip empty/error bodies
+
+// Words that add noise to an image search (outline titles are often phrased as
+// tasks/notes). Trimming them yields more photogenic results.
+const QUERY_STOPWORDS = new Set([
+  'the', 'a', 'an', 'and', 'or', 'of', 'to', 'in', 'on', 'for', 'with', 'your',
+  'my', 'our', 'their', 'this', 'that', 'these', 'those', 'is', 'are', 'be',
+  'how', 'why', 'what', 'when', 'about', 'via', 'per', 'vs', 'notes', 'note',
+]);
+
+// Turn a slide title (plus a hint word from its first bullet) into a compact,
+// photogenic search query. Strips punctuation + stopwords, caps the length.
+function buildImageQuery(title, bullets) {
+  const clean = (s) => String(s || '')
+    .replace(/[^\p{L}\p{N}\s]/gu, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  let words = clean(title).split(' ').filter((w) => w && !QUERY_STOPWORDS.has(w.toLowerCase()));
+  // If the title is very short, borrow a keyword or two from the first bullet.
+  if (words.length < 2 && Array.isArray(bullets) && bullets[0]) {
+    const extra = clean(bullets[0]).split(' ').filter((w) => w && !QUERY_STOPWORDS.has(w.toLowerCase()));
+    words = words.concat(extra);
+  }
+  if (words.length === 0) words = clean(title).split(' ').filter(Boolean); // last resort: keep stopwords
+  return words.slice(0, 6).join(' ').trim();
+}
+
+// fetch() with an AbortController timeout (Electron main has global fetch).
+async function fetchWithTimeout(url, opts, timeoutMs) {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...(opts || {}), signal: ctrl.signal });
+  } finally {
+    clearTimeout(t);
+  }
+}
+
+// Query Openverse for CC0/PDM, landscape-ish images. Returns the results array.
+async function openverseSearch(query) {
+  const params = new URLSearchParams({
+    q: query,
+    license: 'cc0,pdm',      // CC0 + Public Domain Mark: free commercial, no attribution
+    aspect_ratio: 'wide',    // prefer landscape for 16:9 slides
+    size: 'medium',
+    mature: 'false',
+    page_size: '8',
+  });
+  const resp = await fetchWithTimeout(
+    `${OPENVERSE_ENDPOINT}?${params.toString()}`,
+    { headers: { 'User-Agent': OV_USER_AGENT, Accept: 'application/json' } },
+    IMG_TIMEOUT_MS,
+  );
+  if (!resp.ok) throw new Error(`Openverse search HTTP ${resp.status}`);
+  const data = await resp.json();
+  return Array.isArray(data.results) ? data.results : [];
+}
+
+// Download an image URL to bytes, verifying it's actually an image of sane size.
+async function downloadImageBytes(url) {
+  const resp = await fetchWithTimeout(url, { headers: { 'User-Agent': OV_USER_AGENT } }, IMG_TIMEOUT_MS);
+  if (!resp.ok) throw new Error(`image HTTP ${resp.status}`);
+  const ct = (resp.headers.get('content-type') || '').toLowerCase();
+  if (!/^image\//.test(ct)) throw new Error(`not an image (${ct || 'no content-type'})`);
+  const buf = Buffer.from(await resp.arrayBuffer());
+  if (buf.length < IMG_MIN_BYTES || buf.length > IMG_MAX_BYTES) throw new Error(`image size ${buf.length}`);
+  const ext = ct.includes('png') ? 'png' : ct.includes('webp') ? 'webp' : ct.includes('gif') ? 'gif' : 'jpg';
+  return { buf, ext };
+}
+
+// Fetch a photo for a query, save it into workDir, and return
+// { fileUrl, credit } — or null on any failure (caller falls back gracefully).
+// Cached per query (misses included) so repeated queries never refetch.
+async function fetchSlidePhoto(query, workDir, cache) {
+  const q = String(query || '').trim();
+  if (!q) return null;
+  if (cache.has(q)) return cache.get(q);
+
+  let out = null;
+  for (let attempt = 0; attempt < 2 && !out; attempt++) {
+    try {
+      const results = await openverseSearch(q);
+      for (const r of results) {
+        const src = r.url || r.thumbnail; // prefer full image, fall back to thumbnail
+        if (!src) continue;
+        try {
+          const { buf, ext } = await downloadImageBytes(src);
+          const safe = q.replace(/[^a-z0-9]+/gi, '-').slice(0, 40) || 'img';
+          const filePath = path.join(workDir, `photo-${safe}-${attempt}.${ext}`);
+          fs.writeFileSync(filePath, buf);
+          out = {
+            fileUrl: pathToFileURL(filePath).href,
+            credit: {
+              query: q,
+              title: r.title || '(untitled)',
+              creator: r.creator || 'Unknown',
+              license: `${(r.license || 'cc0').toUpperCase()}${r.license_version ? ` ${r.license_version}` : ''}`.trim(),
+              licenseUrl: r.license_url || '',
+              source: r.foreign_landing_url || r.url || src,
+              provider: r.source || r.provider || 'Openverse',
+            },
+          };
+          break;
+        } catch {
+          /* try the next result */
+        }
+      }
+    } catch (e) {
+      // Search failed (offline / rate-limited): brief backoff, then one retry.
+      console.warn('[VideoGen] Openverse fetch failed:', e && e.message ? e.message : e);
+      await new Promise((r) => setTimeout(r, 450));
+    }
+  }
+  cache.set(q, out); // cache misses too, so we don't retry the same dead query
+  return out;
+}
+
+// Write image-credits.txt beside the finished MP4. Attribution isn't required
+// for CC0/PDM, but recording provenance is good practice (and reassures users
+// the images are license-clean). Best-effort: never throws into the render.
+function writeImageCredits(outputPath, credits) {
+  if (!Array.isArray(credits) || credits.length === 0) return;
+  try {
+    const lines = [
+      `Image credits — ${path.basename(outputPath)}`,
+      `Generated by IdiamPro on ${new Date().toISOString()}`,
+      '',
+      'All images were sourced from Openverse (https://openverse.org) and filtered to',
+      'CC0 (Public Domain Dedication) and PDM (Public Domain Mark). These are free for',
+      'commercial use with no attribution required. Credits are listed as good practice.',
+      '',
+    ];
+    credits.forEach((c, i) => {
+      lines.push(
+        `${i + 1}. Slide: ${c.slide || '(untitled)'}`,
+        `   Search: "${c.query}"`,
+        `   Image:  ${c.title}`,
+        `   By:     ${c.creator} (${c.provider})`,
+        `   License:${c.license}${c.licenseUrl ? `  ${c.licenseUrl}` : ''}`,
+        `   Source: ${c.source}`,
+        '',
+      );
+    });
+    fs.writeFileSync(path.join(path.dirname(outputPath), 'image-credits.txt'), lines.join('\n'), 'utf8');
+  } catch (e) {
+    console.warn('[VideoGen] Could not write image-credits.txt:', e && e.message ? e.message : e);
+  }
+}
+
 // Build the HTML for one slide (Phase 3 — professional design).
 // Two layouts share one visual system:
 //   • cover  — centered title + brand eyebrow + accent rule + optional agenda
@@ -45,11 +229,22 @@ function escapeHtml(str) {
 // (IdiamPro wordmark + slide number), and AUTO-FIT: an inline script shrinks the
 // content until it fits the safe area, so dense real-outline text never overflows.
 // Brand accent is IdiamPro's iOS blue (bright variant for dark-bg readability).
-function slideHtml(slide, index, total, style) {
+function slideHtml(slide, index, total, style, mindmapSvg, photoUrl) {
   const isCover = slide && slide.kind === 'cover';
   const title = escapeHtml(slide.title || '');
   const bullets = (Array.isArray(slide.bullets) ? slide.bullets : []).filter(Boolean);
   const num = `${(index || 0) + 1} / ${total || 1}`;
+  // A section slide can carry a rendered mind-map SVG. When present (and this is
+  // not the cover), we compose a split layout: text on the left, the mind map as
+  // the hero visual on the right. If it's absent (leaf slide, or the diagram
+  // failed to render), we fall back to the original text-only layout.
+  const hasMindmap = !isCover && typeof mindmapSvg === 'string' && mindmapSvg.length > 40;
+  // A slide can carry a stock photo (Phase B). Mind maps win over photos on the
+  // same slide (they never both apply in Auto mode). When a photo is present we
+  // compose a cinematic full-bleed layout: the photo fills the frame under a
+  // strong dark scrim, with the text on top — legible over ANY image. If the
+  // fetch failed, photoUrl is empty and we fall back to mind-map/text layouts.
+  const hasPhoto = !hasMindmap && typeof photoUrl === 'string' && photoUrl.length > 4;
 
   // --- Resolve style with safe fallbacks to the original dark / blue look. ---
   const s = style || {};
@@ -79,6 +274,10 @@ function slideHtml(slide, index, total, style) {
         ${baseGradient}`;
   const accentLight = `color-mix(in srgb, ${ACCENT} 55%, white)`;
   const accentGlow = `color-mix(in srgb, ${ACCENT} 65%, transparent)`;
+  // Panel behind the mind map — a subtle card that lifts the diagram off the
+  // slide background and reads on both themes.
+  const cardBg = isLight ? 'rgba(255,255,255,0.72)' : 'rgba(255,255,255,0.045)';
+  const cardBorder = isLight ? 'rgba(11,18,32,0.10)' : 'rgba(245,248,255,0.10)';
 
   // Footer brand: logo (if any) beside label (if any); else accent dot + label;
   // else nothing at all when neither is set.
@@ -142,6 +341,15 @@ function slideHtml(slide, index, total, style) {
     .map((b) => `<li><span class="mk"></span><span class="tx">${escapeHtml(b)}</span></li>`)
     .join('');
 
+  // When a photo is present, lay it under a scrim as the first thing in the
+  // stage so all text/footers paint on top of it. Cover and content use
+  // differently-shaped scrims (centered vs. lower-left) for legibility.
+  const stageClass = hasPhoto ? 'stage on-photo' : 'stage';
+  const photoLayer = hasPhoto
+    ? `<div class="photo-bg" style="background-image:url('${photoUrl}')"></div>` +
+      `<div class="scrim ${isCover ? 'scrim-cover' : 'scrim-content'}"></div>`
+    : '';
+
   let body;
   if (isCover) {
     const agenda = bullets.length
@@ -152,7 +360,8 @@ function slideHtml(slide, index, total, style) {
       ? `<div class="eyebrow">${escapeHtml(brandLabel.toUpperCase())}</div>`
       : '';
     body = `
-      <div class="stage">
+      <div class="${stageClass}">
+        ${photoLayer}
         <div id="fit" class="cover">
           ${eyebrow}
           <h1>${title}</h1>
@@ -161,9 +370,31 @@ function slideHtml(slide, index, total, style) {
         </div>
         ${footerHtml}
       </div>`;
-  } else {
+  } else if (hasMindmap) {
+    // Split layout: title on top, bullets on the left, mind map as the hero on
+    // the right. The mind-map SVG is injected raw (it is self-contained markup).
+    const bulletsBlock = bullets.length ? `<ul>${bulletHtml}</ul>` : '';
     body = `
       <div class="stage">
+        <div id="fit" class="split">
+          <div class="head">
+            <div class="accent-rule"></div>
+            <h1>${title}</h1>
+          </div>
+          <div class="cols">
+            <div class="textcol">${bulletsBlock}</div>
+            <div class="mapcol"><div class="mm">${mindmapSvg}</div></div>
+          </div>
+        </div>
+        ${footerHtml}
+      </div>`;
+  } else {
+    // Text layout — also used, unchanged in structure, as the photo layout: the
+    // .content block sits over the photo/scrim (narrowed to the left in CSS when
+    // .on-photo is set) so the words stay readable against the image.
+    body = `
+      <div class="${stageClass}">
+        ${photoLayer}
         <div id="fit" class="content">
           <div class="accent-rule"></div>
           <h1>${title}</h1>
@@ -186,6 +417,23 @@ function slideHtml(slide, index, total, style) {
       font-size: 52px; line-height: 1.45; color: ${BODY}; margin-bottom: 34px; max-width: 1520px; }
     .content li .mk { flex: 0 0 auto; width: 20px; height: 20px; margin-top: 22px;
       border-radius: 6px; background: ${ACCENT}; box-shadow: 0 0 16px ${accentGlow}; }
+    /* --- Split layout (text + mind map) --- */
+    .split { position: absolute; left: 150px; right: 150px; top: 130px; bottom: 160px;
+      display: flex; flex-direction: column; transform-origin: left top; }
+    .split .head .accent-rule { margin-bottom: 30px; }
+    .split .head h1 { font-size: 72px; line-height: 1.06; font-weight: 800;
+      color: ${TITLE}; letter-spacing: -1px; margin-bottom: 44px; max-width: 1600px; }
+    .split .cols { display: flex; gap: 60px; flex: 1 1 auto; min-height: 0; }
+    .split .textcol { flex: 0 0 36%; display: flex; flex-direction: column; justify-content: flex-start; }
+    .split .textcol ul { list-style: none; }
+    .split .textcol li { display: flex; align-items: flex-start; gap: 26px;
+      font-size: 42px; line-height: 1.4; color: ${BODY}; margin-bottom: 28px; }
+    .split .textcol li .mk { flex: 0 0 auto; width: 18px; height: 18px; margin-top: 16px;
+      border-radius: 5px; background: ${ACCENT}; box-shadow: 0 0 14px ${accentGlow}; }
+    .split .mapcol { flex: 1 1 64%; min-width: 0; display: flex; align-items: center; justify-content: center;
+      background: ${cardBg}; border: 1px solid ${cardBorder}; border-radius: 26px; padding: 36px; }
+    .split .mm { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+    .split .mm svg { width: 100%; height: auto; max-height: 100%; display: block; margin: auto; }
     /* --- Cover layout --- */
     .cover { position: absolute; left: 150px; right: 150px; top: 150px; bottom: 170px;
       display: flex; flex-direction: column; justify-content: center; align-items: center;
@@ -201,6 +449,28 @@ function slideHtml(slide, index, total, style) {
     .cover .agenda li { display: flex; align-items: center; justify-content: center; gap: 24px;
       font-size: 46px; line-height: 1.5; color: ${BODY}; margin-bottom: 18px; }
     .cover .agenda li .mk { width: 16px; height: 16px; border-radius: 50%; background: ${ACCENT}; }
+    /* --- Photo layout (stock images, Phase B) --- */
+    .photo-bg { position: absolute; inset: 0; background-repeat: no-repeat;
+      background-size: cover; background-position: center; }
+    .scrim { position: absolute; inset: 0; }
+    /* Content photo: darkest at the lower-left where the text + footer sit, fading
+       to reveal the image on the right — a cinematic caption look. */
+    .scrim-content { background:
+      linear-gradient(90deg, rgba(4,8,16,0.92) 0%, rgba(4,8,16,0.74) 40%, rgba(4,8,16,0.30) 68%, rgba(4,8,16,0.06) 100%),
+      linear-gradient(0deg, rgba(4,8,16,0.82) 0%, rgba(4,8,16,0.12) 34%, rgba(4,8,16,0) 56%); }
+    /* Cover photo: an even vignette so the centered title reads anywhere. */
+    .scrim-cover { background:
+      radial-gradient(circle at 50% 42%, rgba(4,8,16,0.30), rgba(4,8,16,0.60) 66%, rgba(4,8,16,0.84) 100%),
+      linear-gradient(0deg, rgba(4,8,16,0.74) 0%, rgba(4,8,16,0) 48%); }
+    /* Over a photo, force light text + a soft shadow so it stays legible on ANY
+       image regardless of the chosen dark/light theme; narrow content to the left. */
+    .on-photo h1 { color: #ffffff !important; text-shadow: 0 2px 26px rgba(0,0,0,0.6); }
+    .on-photo .content { right: 46%; }
+    .on-photo .content li { color: #eaf1fa !important; text-shadow: 0 2px 18px rgba(0,0,0,0.55); }
+    .on-photo .cover .agenda li { color: #eaf1fa !important; text-shadow: 0 2px 18px rgba(0,0,0,0.55); }
+    .on-photo .cover .agenda-label { color: #cdd8e6 !important; }
+    .on-photo .footer .name, .on-photo .footer .num { color: #d6dfec !important; }
+    .on-photo .wm { color: #d6dfec !important; opacity: 0.9; }
   </style></head><body>
     ${body}
     <script>
@@ -252,8 +522,91 @@ function grabFreshFrame(win, getLatestFrame, { timeoutMs = 4000 } = {}) {
   });
 }
 
+// Render a Mermaid definition to an SVG string inside an offscreen window that
+// loads the bundled Mermaid library. Returns the SVG markup, or null if Mermaid
+// isn't available / the diagram fails to render — callers then fall back to a
+// text-only slide, so a bad diagram can never break the render. (Slide visuals —
+// mind maps, Phase A.)
+async function renderMermaidSvg(mermaidDef, theme, workDir, tag) {
+  const def = String(mermaidDef || '').trim();
+  if (!def) return null;
+  const mmTheme = theme === 'light' ? 'default' : 'dark';
+  const htmlPath = path.join(workDir, `mm-${tag}.html`);
+  let jsHref;
+  try {
+    jsHref = pathToFileURL(mermaidJsPath()).href;
+  } catch {
+    return null;
+  }
+  const defLiteral = JSON.stringify(def);
+  const html = `<!doctype html><html><head><meta charset="utf-8"><style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { background: transparent; }
+    #c svg { max-width: 100%; height: auto; }
+  </style><script src="${jsHref}"></script></head><body>
+    <div id="c"></div>
+    <script>
+      (async function () {
+        try {
+          if (!window.mermaid) { window.__mmErr = 'mermaid-not-loaded'; window.__mmDone = 'err'; return; }
+          window.mermaid.initialize({
+            startOnLoad: false,
+            theme: ${JSON.stringify(mmTheme)},
+            securityLevel: 'loose',
+            flowchart: { htmlLabels: true, curve: 'basis', padding: 14, nodeSpacing: 40, rankSpacing: 46 },
+            fontFamily: '-apple-system, Helvetica Neue, Segoe UI, Arial, sans-serif',
+          });
+          const out = await window.mermaid.render('mmg', ${defLiteral});
+          window.__mmSvg = (out && out.svg) ? out.svg : '';
+          window.__mmDone = window.__mmSvg ? 'ok' : 'err';
+        } catch (e) {
+          window.__mmErr = String((e && e.message) || e);
+          window.__mmDone = 'err';
+        }
+      })();
+    </script></body></html>`;
+  fs.writeFileSync(htmlPath, html);
+
+  const win = new BrowserWindow({
+    width: 1400,
+    height: 1200,
+    show: false,
+    frame: false,
+    webPreferences: { offscreen: true, nodeIntegration: false, contextIsolation: true },
+  });
+  try {
+    await win.loadURL(pathToFileURL(htmlPath).href);
+    const deadline = Date.now() + 8000;
+    let status = null;
+    while (Date.now() < deadline) {
+      status = await win.webContents.executeJavaScript('window.__mmDone || null').catch(() => null);
+      if (status) break;
+      await new Promise((r) => setTimeout(r, 80));
+    }
+    if (status !== 'ok') {
+      const err = await win.webContents.executeJavaScript('window.__mmErr || ""').catch(() => '');
+      if (err) console.warn(`[VideoGen] Mermaid render failed (${tag}):`, err);
+      return null;
+    }
+    let svg = await win.webContents.executeJavaScript('window.__mmSvg || ""').catch(() => '');
+    if (!svg || svg.length <= 40) return null;
+    // Mermaid stamps an inline `max-width: NNNpx` (its natural size) on the root
+    // <svg>, which would stop the diagram from scaling UP to fill its slide card.
+    // Relax that cap to 100% so the slide's CSS controls the size; the viewBox
+    // keeps the aspect ratio intact when it grows.
+    svg = svg.replace(/max-width:\s*[\d.]+px/gi, 'max-width: 100%');
+    return svg;
+  } catch (e) {
+    console.warn(`[VideoGen] Mermaid window error (${tag}):`, e && e.message ? e.message : e);
+    return null;
+  } finally {
+    win.destroy();
+    try { fs.unlinkSync(htmlPath); } catch { /* ignore */ }
+  }
+}
+
 // Render one slide to a PNG file using an offscreen BrowserWindow capture.
-async function renderSlidePng(slide, outPath, index, total, style) {
+async function renderSlidePng(slide, outPath, index, total, style, mindmapSvg, photoUrl) {
   const win = new BrowserWindow({
     width: WIDTH,
     height: HEIGHT,
@@ -270,11 +623,17 @@ async function renderSlidePng(slide, outPath, index, total, style) {
   // different slide's stale frame.
   let latestFrame = null;
   const onPaint = (_event, _dirty, image) => { latestFrame = image; };
+  // The slide HTML is written to a temp file and loaded via a file:// URL rather
+  // than a data: URL. This keeps loads reliable when the slide references a local
+  // photo file (file:// image on a file:// page loads under webSecurity) and
+  // avoids data-URL length limits when a large image is embedded.
+  const htmlPath = `${outPath}.html`;
   try {
     win.webContents.on('paint', onPaint);
     win.webContents.setFrameRate(30);
-    const html = slideHtml(slide, index, total, style);
-    await win.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(html)}`);
+    const html = slideHtml(slide, index, total, style, mindmapSvg, photoUrl);
+    fs.writeFileSync(htmlPath, html);
+    await win.loadURL(pathToFileURL(htmlPath).href);
     // Let webfonts + layout settle so the title/bullets are actually drawn before
     // we grab a frame (two rAFs guarantees a post-layout paint has been scheduled).
     await win.webContents
@@ -293,6 +652,7 @@ async function renderSlidePng(slide, outPath, index, total, style) {
   } finally {
     try { win.webContents.removeListener('paint', onPaint); } catch { /* ignore */ }
     win.destroy();
+    try { fs.unlinkSync(htmlPath); } catch { /* ignore */ }
   }
 }
 
@@ -424,6 +784,12 @@ async function concatSegments(segmentPaths, outPath) {
  * @param {string} [opts.outputPath]      Where to write the final MP4.
  * @param {string} [opts.openaiApiKey]    OpenAI key for TTS (falls back to env).
  * @param {string} [opts.voice]           OpenAI TTS voice (default 'nova').
+ * @param {'off'|'mindmap'|'photo'|'auto'} [opts.visuals] Slide visuals mode
+ *        (default 'auto'). off = text only; mindmap = mind map on section slides;
+ *        photo = a free CC0/PDM stock photo on every content slide; auto = mind
+ *        maps for sections + photos for leaf/detail slides (the richest, all-free
+ *        mix). Photos come from Openverse (no cost, no key, license-clean) and a
+ *        failed fetch always falls back to mind-map/text so it can't break a slide.
  * @returns {Promise<{success:boolean, outputPath?:string, durationSeconds?:number,
  *                     fileSizeBytes?:number, usedTts:boolean, slideCount:number,
  *                     error?:string}>}
@@ -437,6 +803,15 @@ async function generateSlideshowVideo(opts) {
   const apiKey = (opts.openaiApiKey && String(opts.openaiApiKey).trim()) || process.env.OPENAI_API_KEY || '';
   const voice = opts.voice || 'nova';
   const style = opts.style || {};
+  // Slide visuals: 'off' = text only; 'mindmap' = mind map on section slides
+  // (Phase A); 'photo' = a free stock photo on every content slide; 'auto' = mind
+  // maps for sections + photos for leaf slides (Phase B). Default to 'auto' — the
+  // richest all-free mix. Any unknown value falls back to 'auto'.
+  const VISUALS_MODES = ['off', 'mindmap', 'photo', 'auto'];
+  const visuals = VISUALS_MODES.includes(opts.visuals) ? opts.visuals : 'auto';
+  // Per-render photo cache (query -> result|null) and credit log.
+  const photoCache = new Map();
+  const imageCredits = [];
 
   // Working directory for intermediate files.
   const workDir = fs.mkdtempSync(path.join(os.tmpdir(), 'idiampro-video-'));
@@ -461,8 +836,42 @@ async function generateSlideshowVideo(opts) {
       const audioPath = path.join(workDir, `audio-${i}.mp3`);
       const segPath = path.join(workDir, `segment-${i}.mp4`);
 
-      // 1. Render slide image.
-      await renderSlidePng(slide, pngPath, i, slides.length, style);
+      // 1. Decide this slide's visual, then render. A "section" slide is one that
+      // carries a mind-map definition (it has children); anything else is a leaf.
+      // Mode → visual:
+      //   off      → nothing
+      //   mindmap  → mind map on section slides only
+      //   photo    → a stock photo on every content slide (+ optional cover photo)
+      //   auto     → mind map on sections, photo on leaves (+ optional cover photo)
+      // A failed mind map OR a failed photo returns null and the slide falls back
+      // to the next-best layout — a visual failure can NEVER break the render.
+      const isCover = slide && slide.kind === 'cover';
+      const isSection = !!(slide && slide.mindmapMermaid);
+
+      let wantMindmap = false;
+      let wantPhoto = false;
+      if (!isCover) {
+        if (visuals === 'mindmap') wantMindmap = isSection;
+        else if (visuals === 'photo') wantPhoto = true;
+        else if (visuals === 'auto') { wantMindmap = isSection; wantPhoto = !isSection; }
+      } else if (visuals === 'photo' || visuals === 'auto') {
+        wantPhoto = true; // cover gets a tasteful photo background when available
+      }
+
+      let mindmapSvg = null;
+      if (wantMindmap && slide && slide.mindmapMermaid) {
+        mindmapSvg = await renderMermaidSvg(slide.mindmapMermaid, style.theme, workDir, i);
+      }
+      let photoUrl = null;
+      if (wantPhoto && !mindmapSvg) {
+        const query = buildImageQuery(slide && slide.title, slide && slide.bullets);
+        const photo = await fetchSlidePhoto(query, workDir, photoCache);
+        if (photo) {
+          photoUrl = photo.fileUrl;
+          imageCredits.push({ slide: slide && slide.title, ...photo.credit });
+        }
+      }
+      await renderSlidePng(slide, pngPath, i, slides.length, style, mindmapSvg, photoUrl);
 
       // 2. Narration audio (TTS if we can, else fixed-length silence).
       const narration = (slide.narration || slide.title || '').trim();
@@ -491,6 +900,9 @@ async function generateSlideshowVideo(opts) {
 
     // Stitch everything together.
     await concatSegments(segmentPaths, outputPath);
+
+    // Record image provenance beside the MP4 (best-effort; never blocks success).
+    writeImageCredits(outputPath, imageCredits);
 
     const durationSeconds = await probeDuration(outputPath);
     const fileSizeBytes = fs.statSync(outputPath).size;
