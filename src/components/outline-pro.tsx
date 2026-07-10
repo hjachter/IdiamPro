@@ -454,6 +454,18 @@ export default function OutlinePro() {
   const [isBackupRestoreOpen, setIsBackupRestoreOpen] = useState(false);
   const [backupRestoreInitialTab, setBackupRestoreInitialTab] = useState<'backup' | 'restore'>('backup');
 
+  // The backup-health warning toast (mounted globally in the root layout)
+  // dispatches this event when the user clicks "How to fix". Open the Backup &
+  // Restore dialog on the Backup tab so they can save a copy right away.
+  useEffect(() => {
+    const openBackup = () => {
+      setBackupRestoreInitialTab('backup');
+      setIsBackupRestoreOpen(true);
+    };
+    window.addEventListener('idm:open-backup-restore', openBackup);
+    return () => window.removeEventListener('idm:open-backup-restore', openBackup);
+  }, []);
+
   // Help chat dialog state
   const [isHelpChatOpen, setIsHelpChatOpen] = useState(false);
 
@@ -4821,6 +4833,10 @@ export default function OutlinePro() {
           onRestore={handleRestoreFromSnapshot}
         />
 
+        {/* Always-on backup watchdog — raises a loud, persistent warning if
+            automatic backups ever silently fail, and clears it on recovery.
+            "How to fix" opens the Backup & Restore dialog so the user can save
+            a copy right away. Silent while backups are healthy. */}
         <OutlineLinkPickerDialog
           open={isOutlineLinkPickerOpen}
           onOpenChange={setIsOutlineLinkPickerOpen}

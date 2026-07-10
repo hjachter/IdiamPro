@@ -26,6 +26,7 @@
 
 import type { Outline } from '@/types';
 import { isElectron } from './electron-storage';
+import { reportBackupSuccess, reportBackupFailure } from './health/backup-health';
 
 export type SnapshotKind = 'manual' | 'auto-transform' | 'auto-restore';
 
@@ -58,26 +59,90 @@ function getSnapshotAPI(): SnapshotAPI | null {
 }
 
 /**
- * Write a snapshot of the given outline to disk. Returns the snapshot
- * metadata on success, or null on failure (the caller logs but does not
- * surface — snapshots are belt-and-suspenders, not a blocking step).
+ * Read a just-written snapshot straight back and confirm it round-trips to the
+ * same outline. "The create call succeeded" is NOT proof the file is really on
+ * disk and recoverable — that is exactly how the last silent failure hid. This
+ * is the verification step: it must return true only when the backup is
+ * genuinely readable. Never throws.
+ */
+async function verifySnapshotWritten(
+  api: SnapshotAPI,
+  outline: Outline,
+  fileName: string,
+): Promise<boolean> {
+  try {
+    const readBack = await api.snapshotRead({ outlineName: outline.name, fileName });
+    return !!(readBack && readBack.success && readBack.outline && readBack.outline.id === outline.id);
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Write a snapshot of the given outline to disk, VERIFY it actually landed, and
+ * report the real outcome to the backup-health watchdog. Returns the snapshot
+ * metadata on success, or null on failure.
+ *
+ * Health reporting rules (see src/lib/health/backup-health.ts):
+ *   - Web / non-desktop: snapshots are intentionally off here, so we stay
+ *     silent — NOT a failure, no false alarm.
+ *   - Desktop but the backup engine is missing, the write fails, or the write
+ *     can't be read back → reportBackupFailure() so the UI raises a loud,
+ *     persistent warning.
+ *   - Write succeeds AND round-trips → reportBackupSuccess(), clearing any
+ *     standing warning.
  */
 export async function createSnapshot(
   outline: Outline,
   options: { label?: string; kind?: SnapshotKind } = {},
 ): Promise<SnapshotMeta | null> {
+  // Not the desktop app → backups are intentionally deferred. Stay quiet.
+  if (!isElectron()) return null;
+
+  // Test hook: Playwright sets this flag to prove the health check fires a loud
+  // warning on a REAL backup failure — WITHOUT writing (or risking) any data.
+  try {
+    if (
+      typeof window !== 'undefined' &&
+      (window as unknown as { __IDM_SIMULATE_BACKUP_FAILURE?: boolean }).__IDM_SIMULATE_BACKUP_FAILURE
+    ) {
+      reportBackupFailure('Simulated backup failure (test).');
+      return null;
+    }
+  } catch {
+    /* ignore — never let the test hook affect real behavior */
+  }
+
   const api = getSnapshotAPI();
-  if (!api) return null;
+  if (!api) {
+    // On desktop but the backup engine isn't reachable — this IS the silent
+    // dead-backup case. Make it loud.
+    reportBackupFailure('Backup engine unavailable — try restarting the app.');
+    return null;
+  }
+
   try {
     const result = await api.snapshotCreate({
       outline,
       label: options.label,
       kind: options.kind || 'manual',
     });
-    if (result.success && result.snapshot) return result.snapshot;
-    console.warn('[Snapshot] create failed:', result.error);
-    return null;
+    if (!result.success || !result.snapshot) {
+      reportBackupFailure(result.error || 'The backup did not save.');
+      console.warn('[Snapshot] create failed:', result.error);
+      return null;
+    }
+    // Verify the write is genuinely on disk and readable before we trust it.
+    const verified = await verifySnapshotWritten(api, outline, result.snapshot.fileName);
+    if (!verified) {
+      reportBackupFailure('The backup was written but could not be read back.');
+      console.warn('[Snapshot] verify failed for', result.snapshot.fileName);
+      return null;
+    }
+    reportBackupSuccess();
+    return result.snapshot;
   } catch (err) {
+    reportBackupFailure(err instanceof Error ? err.message : 'The backup failed unexpectedly.');
     console.warn('[Snapshot] create threw:', err);
     return null;
   }

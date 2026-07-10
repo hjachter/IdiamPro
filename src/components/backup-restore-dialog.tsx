@@ -112,10 +112,15 @@ export default function BackupRestoreDialog({
     try {
       const meta = await createSnapshot(outline, { label, kind: 'manual' });
       if (!meta) {
+        // createSnapshot already reports a real desktop failure to the backup
+        // health watchdog (which raises its own loud, persistent warning). On
+        // the web build it simply isn't available yet, so keep this neutral.
         toast({
-          title: 'Backup unavailable',
-          description: 'Snapshots only run in the desktop app right now.',
-          duration: 5000,
+          title: isElectron() ? "Backup didn't save" : 'Backup unavailable',
+          description: isElectron()
+            ? 'Your changes may not be protected — see the backup warning for how to fix it.'
+            : 'Snapshots only run in the desktop app right now.',
+          duration: Infinity,
         });
         return;
       }

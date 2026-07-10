@@ -12,6 +12,7 @@ import { DiscoveryProvider } from '@/hooks/use-discovery';
 import { DiscoveryToastStack } from '@/components/discovery-toast';
 import { DevSimulateFreeIndicator } from '@/components/dev-simulate-free-indicator';
 import { FeatureFlagsProvider } from '@/components/feature-flags-provider';
+import BackupHealthWatcher from '@/components/backup-health-watcher';
 
 // NOTE: /og-image.png is referenced below but has not been designed yet.
 // A 1200x630 PNG should be added to /public/og-image.png before production launch.
@@ -118,6 +119,11 @@ export default function RootLayout({
                 </AIProvider>
               </div>
               <Toaster />
+              {/* Always-on backup watchdog — raises a loud, persistent warning
+                  if automatic backups ever silently fail (and clears it on
+                  recovery). Mounted once here so it's present on every screen.
+                  Silent while backups are healthy. */}
+              <BackupHealthWatcher />
               <DevSimulateFreeIndicator />
             </ErrorBoundary>
           </ThemeProvider>
