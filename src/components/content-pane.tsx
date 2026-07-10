@@ -2382,7 +2382,13 @@ export default function ContentPane({
 
             {(imageVisualType === 'mindmap' || imageVisualType === 'flowchart') && (
               <p className="text-sm text-muted-foreground">
-                This will automatically generate a {imageVisualType === 'mindmap' ? 'mind map' : 'flowchart'} from the current node&apos;s outline structure. No description needed.
+                This will automatically generate a {imageVisualType === 'mindmap' ? 'mind map' : 'flowchart'} from the current node&apos;s outline structure. Free — drawn from your outline, no AI used.
+              </p>
+            )}
+
+            {imageVisualType !== 'mindmap' && imageVisualType !== 'flowchart' && (
+              <p className="text-xs text-muted-foreground">
+                Uses AI to create this visual — counts as one generation (a Pro feature). Mind Map and Flowchart are always free.
               </p>
             )}
 
