@@ -493,7 +493,7 @@ export default function MarketingPage() {
       icon: Scale,
       title: 'Trial Prep',
       subtitle: 'Attorneys & Paralegals',
-      description: 'Upload 200 pages of medical records, expert reports, and prior testimony. SecondBrainWare builds a chronological timeline, flags contradictions between sources, and produces a one-page list of questions to ask the witness. Three days of paralegal work — done in twenty minutes.',
+      description: 'Upload 200 pages of medical records, expert reports, and prior testimony. IdiamPro builds a chronological timeline, flags contradictions between sources, and produces a one-page list of questions to ask the witness. Three days of paralegal work — done in twenty minutes.',
       gradient: 'bg-gradient-to-br from-slate-500 to-gray-600',
       examples: [
         { text: 'Drop in a 90-minute deposition recording — it transcribes the whole thing and labels who said what, so you can read the exchange instead of scrubbing audio.' },
@@ -507,7 +507,7 @@ export default function MarketingPage() {
       icon: Microscope,
       title: 'Literature Reviews',
       subtitle: 'Researchers & PhD Students',
-      description: 'Drop fifty research papers into one outline. SecondBrainWare groups them by methodology, summarizes each finding in plain English, and shows where the field agrees and where it\'s still fighting. You arrive at the writing stage already knowing the structure of your argument.',
+      description: 'Drop fifty research papers into one outline. IdiamPro groups them by methodology, summarizes each finding in plain English, and shows where the field agrees and where it\'s still fighting. You arrive at the writing stage already knowing the structure of your argument.',
       gradient: 'bg-gradient-to-br from-blue-500 to-cyan-600',
       examples: [
         { text: 'Import 50 PDFs at once and get each paper summarized in plain English, grouped by method — no more reading abstracts one tab at a time.' },
@@ -521,7 +521,7 @@ export default function MarketingPage() {
       icon: BookMarked,
       title: 'Writing Non-Fiction',
       subtitle: 'Authors & Writers',
-      description: 'Import interview transcripts, archival research, and your own notes. SecondBrainWare drafts chapter outlines from your source material, suggests where each anecdote fits the narrative, and flags chapters where you\'re thin on evidence — so you know what to research next.',
+      description: 'Import interview transcripts, archival research, and your own notes. IdiamPro drafts chapter outlines from your source material, suggests where each anecdote fits the narrative, and flags chapters where you\'re thin on evidence — so you know what to research next.',
       gradient: 'bg-gradient-to-br from-amber-500 to-orange-600',
       examples: [
         { text: 'Give it your premise in one sentence and get a full chapter-by-chapter book outline to react to instead of staring at page one.' },
@@ -535,7 +535,7 @@ export default function MarketingPage() {
       icon: Lightbulb,
       title: 'Client Engagements',
       subtitle: 'Consultants & Analysts',
-      description: 'Combine client emails, stakeholder interviews, and competitive research into one outline. SecondBrainWare produces a slide-deck outline organized by client priority, with every claim traceable back to the email, transcript, or report that supports it.',
+      description: 'Combine client emails, stakeholder interviews, and competitive research into one outline. IdiamPro produces a slide-deck outline organized by client priority, with every claim traceable back to the email, transcript, or report that supports it.',
       gradient: 'bg-gradient-to-br from-emerald-500 to-teal-600',
       examples: [
         { text: 'Import the client\'s data room — PDFs, spreadsheets, Google Docs and Slides — and have it organized into one working outline by lunch.' },
@@ -549,7 +549,7 @@ export default function MarketingPage() {
       icon: Video,
       title: 'Learning from Video',
       subtitle: 'Students & Learners',
-      description: 'Paste a link to a 90-minute lecture. SecondBrainWare transcribes it, organizes the content by topic with timestamps, and turns it into a study guide. Then ask follow-up questions and get answers from the lecture itself — not generic web search.',
+      description: 'Paste a link to a 90-minute lecture. IdiamPro transcribes it, organizes the content by topic with timestamps, and turns it into a study guide. Then ask follow-up questions and get answers from the lecture itself — not generic web search.',
       gradient: 'bg-gradient-to-br from-red-500 to-rose-600',
       examples: [
         { text: 'Paste a YouTube lecture link and get a topic-organized study guide with timestamps — go straight to the five minutes you actually missed.' },
@@ -563,7 +563,7 @@ export default function MarketingPage() {
       icon: Newspaper,
       title: 'Investigative Reporting',
       subtitle: 'Journalists & Reporters',
-      description: 'Import court records, leaked documents, and source interviews into a single secure outline. SecondBrainWare cross-references names, dates, and locations across sources to surface a coherent timeline. Every claim in your final story carries a click-through to the exact page that supports it.',
+      description: 'Import court records, leaked documents, and source interviews into a single secure outline. IdiamPro cross-references names, dates, and locations across sources to surface a coherent timeline. Every claim in your final story carries a click-through to the exact page that supports it.',
       gradient: 'bg-gradient-to-br from-violet-500 to-purple-600',
       examples: [
         { text: 'Record a source interview and get it transcribed with each speaker identified — the exact quote, attributed, without a second listen.' },
@@ -577,16 +577,16 @@ export default function MarketingPage() {
 
   const faqs = [
     {
-      question: 'How is SecondBrainWare different from Notion or Obsidian?',
-      answer: 'SecondBrainWare is purpose-built for research synthesis and content creation. Unlike general note-taking apps, we focus on importing multiple sources (YouTube, PDFs, audio) and using AI to synthesize them into structured outlines. Our multi-source analysis and speaker diarization features are unique to SecondBrainWare.'
+      question: 'How is IdiamPro different from Notion or Obsidian?',
+      answer: 'IdiamPro is purpose-built for research synthesis and content creation. Unlike general note-taking apps, we focus on importing multiple sources (YouTube, PDFs, audio) and using AI to synthesize them into structured outlines. Our multi-source analysis and speaker diarization features are unique to IdiamPro.'
     },
     {
       question: 'Can I import my existing notes?',
-      answer: 'Yes! SecondBrainWare supports importing from Markdown, OPML, plain text, and JSON formats. You can also import content from PDFs, Word documents, web pages, and even YouTube videos with automatic transcription.'
+      answer: 'Yes! IdiamPro supports importing from Markdown, OPML, plain text, and JSON formats. You can also import content from PDFs, Word documents, web pages, and even YouTube videos with automatic transcription.'
     },
     {
       question: 'Is my data private and secure?',
-      answer: 'Absolutely. SecondBrainWare uses a local-first architecture—your outlines are stored on your device by default. When you use AI features, your content is sent securely to process but is never used to train AI models. We never sell your data.'
+      answer: 'Absolutely. IdiamPro uses a local-first architecture—your outlines are stored on your device by default. When you use AI features, your content is sent securely to process but is never used to train AI models. We never sell your data.'
     },
     {
       question: 'What AI models do you use?',
@@ -598,23 +598,23 @@ export default function MarketingPage() {
     },
     {
       question: 'Can I export my work?',
-      answer: 'SecondBrainWare offers 9 export formats: PDF, Markdown, HTML (collapsible website), Plain Text, OPML, Obsidian (with wiki-links), CSV, JSON Tree, and more. Your data is never locked in.'
+      answer: 'IdiamPro offers 9 export formats: PDF, Markdown, HTML (collapsible website), Plain Text, OPML, Obsidian (with wiki-links), CSV, JSON Tree, and more. Your data is never locked in.'
     }
   ];
 
   const testimonials = [
     {
-      quote: 'I imported 47 research papers and SecondBrainWare synthesized them into a coherent literature review in minutes. What used to take months now takes an afternoon.',
+      quote: 'I imported 47 research papers and IdiamPro synthesized them into a coherent literature review in minutes. What used to take months now takes an afternoon.',
       author: 'Dr. Sarah Chen',
       role: 'Postdoctoral Researcher, Computational Biology'
     },
     {
-      quote: 'We recorded 12 hours of stakeholder interviews in the field. SecondBrainWare transcribed everything with perfect speaker identification and organized it by theme. Game changer for qualitative research.',
+      quote: 'We recorded 12 hours of stakeholder interviews in the field. IdiamPro transcribed everything with perfect speaker identification and organized it by theme. Game changer for qualitative research.',
       author: 'Dr. Michael Torres',
       role: 'Principal Research Scientist, Industrial R&D'
     },
     {
-      quote: 'For legal discovery, we process thousands of documents. SecondBrainWare synthesizes deposition transcripts, case files, and expert reports into structured briefs. It\'s become essential to our workflow.',
+      quote: 'For legal discovery, we process thousands of documents. IdiamPro synthesizes deposition transcripts, case files, and expert reports into structured briefs. It\'s become essential to our workflow.',
       author: 'Jennifer Walsh, JD',
       role: 'Senior Associate, Litigation Practice'
     }
@@ -939,7 +939,7 @@ export default function MarketingPage() {
                 </span>
               </h2>
               <p className="text-xl text-white/60 max-w-3xl mx-auto leading-relaxed">
-                SecondBrainWare is a true intelligence amplifier—it doesn&apos;t just store information, it enhances
+                IdiamPro is a true intelligence amplifier—it doesn&apos;t just store information, it enhances
                 your cognitive capabilities. Build a knowledge repository that grows with you, surfaces hidden
                 connections, and accelerates your thinking.
               </p>
@@ -956,7 +956,7 @@ export default function MarketingPage() {
                   </div>
                   <h3 className="text-2xl font-bold text-white mb-4">Expanded Knowledge Scope</h3>
                   <p className="text-white/60 leading-relaxed mb-4">
-                    Your brain can only hold so much. SecondBrainWare becomes your external memory—capturing every source,
+                    Your brain can only hold so much. IdiamPro becomes your external memory—capturing every source,
                     every insight, every connection you&apos;ve ever encountered. Access decades of accumulated
                     knowledge instantly.
                   </p>
@@ -1014,7 +1014,7 @@ export default function MarketingPage() {
               <Quote className="w-12 h-12 text-violet-400/50 mx-auto mb-6" />
               <blockquote className="text-2xl lg:text-3xl font-light text-white/90 italic max-w-4xl mx-auto leading-relaxed">
                 &ldquo;The difference between experts and novices isn&apos;t just what they know—it&apos;s how quickly
-                they can access and connect that knowledge. SecondBrainWare gives everyone an expert&apos;s cognitive edge.&rdquo;
+                they can access and connect that knowledge. IdiamPro gives everyone an expert&apos;s cognitive edge.&rdquo;
               </blockquote>
               <div className="mt-6 text-white/40">
                 — The Cognitive Enhancement Philosophy
@@ -1343,7 +1343,7 @@ export default function MarketingPage() {
         <section id="features" className="px-6 py-24 lg:px-12">
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-16">
-              <p className="text-violet-400 font-medium mb-2">Why Professionals Choose SecondBrainWare</p>
+              <p className="text-violet-400 font-medium mb-2">Why Professionals Choose IdiamPro</p>
               <h2 className="text-3xl lg:text-5xl font-bold mb-4">
                 Built for{' '}
                 <span className="bg-gradient-to-r from-violet-400 to-indigo-400 bg-clip-text text-transparent">
@@ -1351,7 +1351,7 @@ export default function MarketingPage() {
                 </span>
               </h2>
               <p className="text-white/50 text-lg max-w-2xl mx-auto">
-                Consumer note-taking apps weren't designed for professional research. SecondBrainWare was built from the ground up for serious knowledge synthesis.
+                Consumer note-taking apps weren't designed for professional research. IdiamPro was built from the ground up for serious knowledge synthesis.
               </p>
             </div>
 
@@ -1391,7 +1391,7 @@ export default function MarketingPage() {
               <div className="p-8 rounded-3xl bg-gradient-to-br from-violet-500/10 to-indigo-500/10 border border-violet-500/30">
                 <h3 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
                   <span className="w-6 h-6 rounded-full bg-violet-500 flex items-center justify-center text-xs">✓</span>
-                  What SecondBrainWare does differently
+                  What IdiamPro does differently
                 </h3>
                 <ul className="space-y-4">
                   <li className="flex items-start gap-3 text-white/80">
@@ -1423,22 +1423,22 @@ export default function MarketingPage() {
               <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
                 <h4 className="text-white font-semibold mb-2">vs. Notion</h4>
                 <p className="text-white/40 text-sm mb-3">Feature-bloated, slow, not research-focused</p>
-                <p className="text-violet-400 text-sm font-medium">SecondBrainWare: Fast, focused, AI-powered research</p>
+                <p className="text-violet-400 text-sm font-medium">IdiamPro: Fast, focused, AI-powered research</p>
               </div>
               <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
                 <h4 className="text-white font-semibold mb-2">vs. Obsidian</h4>
                 <p className="text-white/40 text-sm mb-3">Steep learning curve, clunky mobile, no AI</p>
-                <p className="text-violet-400 text-sm font-medium">SecondBrainWare: Intuitive, great mobile, AI-native</p>
+                <p className="text-violet-400 text-sm font-medium">IdiamPro: Intuitive, great mobile, AI-native</p>
               </div>
               <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
                 <h4 className="text-white font-semibold mb-2">vs. WorkFlowy</h4>
                 <p className="text-white/40 text-sm mb-3">Dated UI, limited features, no source import</p>
-                <p className="text-violet-400 text-sm font-medium">SecondBrainWare: Modern, 19 node types, AI synthesis</p>
+                <p className="text-violet-400 text-sm font-medium">IdiamPro: Modern, 19 node types, AI synthesis</p>
               </div>
               <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
                 <h4 className="text-white font-semibold mb-2">vs. Roam</h4>
                 <p className="text-white/40 text-sm mb-3">Expensive, cloud-only, performance issues</p>
-                <p className="text-violet-400 text-sm font-medium">SecondBrainWare: Affordable, local-first, fast</p>
+                <p className="text-violet-400 text-sm font-medium">IdiamPro: Affordable, local-first, fast</p>
               </div>
             </div>
 
@@ -1449,7 +1449,7 @@ export default function MarketingPage() {
                   <tr className="border-b border-white/10">
                     <th className="text-left py-4 px-4 text-white font-semibold">Feature</th>
                     <th className="text-center py-4 px-4">
-                      <span className="text-violet-400 font-bold">SecondBrainWare</span>
+                      <span className="text-violet-400 font-bold">IdiamPro</span>
                     </th>
                     <th className="text-center py-4 px-4 text-white/50">Notion</th>
                     <th className="text-center py-4 px-4 text-white/50">Obsidian</th>
@@ -1612,7 +1612,7 @@ export default function MarketingPage() {
                   </span>
                 </h2>
                 <p className="text-white/60 text-lg mb-8">
-                  Unlike cloud-first apps that hold your data hostage, SecondBrainWare is built local-first.
+                  Unlike cloud-first apps that hold your data hostage, IdiamPro is built local-first.
                   Your outlines live on your device. You're always in control.
                 </p>
 
@@ -1711,7 +1711,7 @@ export default function MarketingPage() {
                 </span>
               </h2>
               <p className="text-white/50 text-lg max-w-2xl mx-auto">
-                From PhD dissertations to investigative journalism, SecondBrainWare powers knowledge work that matters.
+                From PhD dissertations to investigative journalism, IdiamPro powers knowledge work that matters.
               </p>
             </div>
 
@@ -1729,7 +1729,7 @@ export default function MarketingPage() {
                   <div className="text-3xl font-bold text-blue-400 mb-2">47 → 1</div>
                   <h4 className="text-white font-semibold mb-2">Literature Review Synthesis</h4>
                   <p className="text-white/50 text-sm mb-4">
-                    A PhD candidate imported 47 research papers on computational biology. SecondBrainWare synthesized them into a coherent literature review organized by methodology, findings, and gaps.
+                    A PhD candidate imported 47 research papers on computational biology. IdiamPro synthesized them into a coherent literature review organized by methodology, findings, and gaps.
                   </p>
                   <div className="text-blue-400 text-xs font-medium">Computational Biology • Stanford</div>
                 </div>
@@ -1738,7 +1738,7 @@ export default function MarketingPage() {
                   <div className="text-3xl font-bold text-amber-400 mb-2">12 hrs → 30 min</div>
                   <h4 className="text-white font-semibold mb-2">Field Interview Analysis</h4>
                   <p className="text-white/50 text-sm mb-4">
-                    An industrial R&D team recorded 12 hours of stakeholder interviews across 3 sites. SecondBrainWare transcribed with speaker diarization and organized insights by theme.
+                    An industrial R&D team recorded 12 hours of stakeholder interviews across 3 sites. IdiamPro transcribed with speaker diarization and organized insights by theme.
                   </p>
                   <div className="text-amber-400 text-xs font-medium">Industrial Research • Fortune 500</div>
                 </div>
@@ -1747,7 +1747,7 @@ export default function MarketingPage() {
                   <div className="text-3xl font-bold text-emerald-400 mb-2">2,400 docs</div>
                   <h4 className="text-white font-semibold mb-2">Legal Discovery</h4>
                   <p className="text-white/50 text-sm mb-4">
-                    A litigation team processed 2,400 discovery documents including depositions, contracts, and communications. SecondBrainWare organized evidence by timeline and relevance.
+                    A litigation team processed 2,400 discovery documents including depositions, contracts, and communications. IdiamPro organized evidence by timeline and relevance.
                   </p>
                   <div className="text-emerald-400 text-xs font-medium">Complex Litigation • AmLaw 100</div>
                 </div>
@@ -1997,7 +1997,7 @@ export default function MarketingPage() {
                     </div>
                     <h3 className="text-2xl font-bold text-white mb-2">Join Our Beta Program</h3>
                     <p className="text-white/60 max-w-xl">
-                      Be among the first to experience SecondBrainWare. Beta testers get <span className="text-emerald-400 font-semibold">free lifetime access to Pro features</span>,
+                      Be among the first to experience IdiamPro. Beta testers get <span className="text-emerald-400 font-semibold">free lifetime access to Pro features</span>,
                       direct input into our roadmap, and priority support. Help us build the ultimate cognitive enhancement platform.
                     </p>
                     <div className="flex flex-wrap gap-3 mt-4">
@@ -2054,7 +2054,7 @@ export default function MarketingPage() {
               </span>
             </h2>
             <p className="text-white/50 text-lg mb-8 max-w-2xl mx-auto">
-              Join thousands of researchers, authors, and professionals who've upgraded their workflow with SecondBrainWare.
+              Join thousands of researchers, authors, and professionals who've upgraded their workflow with IdiamPro.
             </p>
             <Button
               onClick={launchApp}
