@@ -361,6 +361,10 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
     setTestingProvider(provider);
     try {
       let ok = false;
+      // Anthropic has no browser-reachable list-models endpoint (CORS), so we
+      // can only check the key's format — not make a real live call. We report
+      // that honestly rather than claiming a "connection".
+      let formatOnly = false;
       if (provider === 'gemini') {
         const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${key}`);
         ok = resp.ok;
@@ -368,9 +372,8 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
         const resp = await fetch('https://api.openai.com/v1/models', { headers: { 'Authorization': `Bearer ${key}` } });
         ok = resp.ok;
       } else if (provider === 'anthropic') {
-        // Anthropic doesn't have a simple list-models endpoint accessible from browser
-        // We'll do a minimal call to check auth
         ok = key.startsWith('sk-ant-');
+        formatOnly = true;
       } else if (provider === 'mistral') {
         const resp = await fetch('https://api.mistral.ai/v1/models', { headers: { 'Authorization': `Bearer ${key}` } });
         ok = resp.ok;
@@ -379,7 +382,11 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
         ok = resp.ok;
       }
       setProviderStatus(prev => ({ ...prev, [provider]: ok ? 'ok' : 'error' }));
-      toast({ title: ok ? 'Connection successful' : 'Connection failed', description: ok ? `${provider} API key is valid.` : `Could not verify ${provider} API key.`, variant: ok ? 'default' : 'destructive' });
+      if (ok && formatOnly) {
+        toast({ title: 'Key format looks valid', description: `We can't fully verify an Anthropic key from the app, but this one has the right format and will be used.` });
+      } else {
+        toast({ title: ok ? 'Connection successful' : 'Connection failed', description: ok ? `${provider} API key is valid.` : `Could not verify ${provider} API key.`, variant: ok ? 'default' : 'destructive' });
+      }
     } catch {
       setProviderStatus(prev => ({ ...prev, [provider]: 'error' }));
       toast({ title: 'Connection failed', description: `Could not reach ${provider} API.`, variant: 'destructive' });
@@ -950,7 +957,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
           <div className="space-y-3 pt-2 border-t border-border/40">
             <h3 className="text-sm font-medium flex items-center gap-2">
               <Shield className="h-4 w-4" />
-              Privacy &amp; Data
+              Export or Delete Your Data
             </h3>
             <p className="text-xs text-muted-foreground">
               IdiamPro stores all your data locally on this device. Use these

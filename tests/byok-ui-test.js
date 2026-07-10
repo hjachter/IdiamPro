@@ -80,12 +80,20 @@ async function clearAllBYOKKeys() {
 }
 
 async function openSettings() {
-  // data-settings-trigger is always rendered (even when the visible button is
-  // hidden lg:inline-flex on narrow widths).
-  const trigger = page.locator(
-    '[data-settings-trigger], button:has(svg[class*="settings"]), button:has(.lucide-settings), [aria-label*="Settings"]',
-  );
-  await trigger.first().click({ force: true });
+  // data-settings-trigger is always rendered, but at narrow window widths the
+  // visible button is display:none (hidden lg:inline-flex), so a Playwright
+  // click — even force:true — fails the visibility gate. Fire the DOM click
+  // directly so the test is width-independent. Then reveal the AI panel where
+  // the usage section + keys live.
+  await page.evaluate(() => {
+    const btn = document.querySelector('[data-settings-trigger]');
+    if (btn) btn.click();
+  });
+  await page.waitForTimeout(500);
+  await page
+    .locator('[data-testid="settings-nav-ai"]')
+    .click({ force: true })
+    .catch(() => {});
   await page
     .locator('[data-testid="ai-usage-section"]')
     .waitFor({ state: 'visible', timeout: 5000 });
