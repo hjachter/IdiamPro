@@ -5322,6 +5322,18 @@ export default function OutlinePro() {
         onApply={handleApplyTransformOutline}
       />
 
+      {/* Backup / Restore — desktop layout copy. This was previously only
+          rendered in the mobile-layout branch, so on desktop the Backup toolbar
+          button flipped the open state but no dialog was mounted to show it,
+          making the manual Backup/Restore feature dead on desktop/web. */}
+      <BackupRestoreDialog
+        open={isBackupRestoreOpen}
+        onOpenChange={setIsBackupRestoreOpen}
+        initialTab={backupRestoreInitialTab}
+        outline={currentOutline}
+        onRestore={handleRestoreFromSnapshot}
+      />
+
       <OutlineLinkPickerDialog
         open={isOutlineLinkPickerOpen}
         onOpenChange={setIsOutlineLinkPickerOpen}
