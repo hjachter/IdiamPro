@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef, useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
 import { ScrollArea } from './ui/scroll-area';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
-import { Brain, Inbox, Clock, RefreshCw, Tag, FileText } from 'lucide-react';
+import { Input } from './ui/input';
+import { Brain, Inbox, Clock, RefreshCw, Tag, FileText, Search } from 'lucide-react';
 import type { Outline, OutlineNode } from '@/types';
 
 interface SecondBrainDashboardDialogProps {
@@ -14,14 +15,23 @@ interface SecondBrainDashboardDialogProps {
   secondBrain: Outline | null;
   onOpenSecondBrain: () => void;
   onJumpToNode: (nodeId: string) => void;
+  /** When true, focus the search box as soon as the dialog opens. */
+  autoFocusSearch?: boolean;
 }
 
 interface EntryStat {
   id: string;
   name: string;
   snippet: string;
+  /** Full, whitespace-collapsed, lowercased title + content for substring matching. */
+  searchText: string;
   createdAt: number;
   tags: string[];
+}
+
+/** Collapse whitespace + trim + lowercase for case-insensitive substring matching. */
+function normalize(s: string): string {
+  return s.replace(/\s+/g, ' ').trim().toLowerCase();
 }
 
 const ONE_DAY = 24 * 60 * 60 * 1000;
@@ -40,15 +50,43 @@ function getEntries(sb: Outline | null): EntryStat[] {
     const node = sb.nodes[childId];
     if (!node) continue;
     const createdAt = node.metadata?.createdAt || node.metadata?.updatedAt || 0;
+    const name = node.name || '(untitled)';
+    const fullContent = stripHtml(node.content || '');
     entries.push({
       id: node.id,
-      name: node.name || '(untitled)',
-      snippet: stripHtml(node.content || '').slice(0, 120),
+      name,
+      snippet: fullContent.slice(0, 120),
+      searchText: normalize(`${name} ${fullContent}`),
       createdAt,
       tags: node.metadata?.tags || [],
     });
   }
   return entries;
+}
+
+// Every node in the Second Brain (except the root) as a searchable entry.
+// Unlike getEntries (which only lists top-level saves for the dashboard
+// sections), this walks the whole tree so keyword search also finds
+// quick-captured Inbox items and content nested inside saved branches.
+function getSearchableEntries(sb: Outline | null): EntryStat[] {
+  if (!sb) return [];
+  const out: EntryStat[] = [];
+  for (const id of Object.keys(sb.nodes)) {
+    if (id === sb.rootNodeId) continue;
+    const node = sb.nodes[id];
+    if (!node) continue;
+    const name = node.name || '(untitled)';
+    const fullContent = stripHtml(node.content || '');
+    out.push({
+      id: node.id,
+      name,
+      snippet: fullContent.slice(0, 120),
+      searchText: normalize(`${name} ${fullContent}`),
+      createdAt: node.metadata?.createdAt || node.metadata?.updatedAt || 0,
+      tags: node.metadata?.tags || [],
+    });
+  }
+  return out;
 }
 
 function countAllNodes(sb: Outline | null): number {
@@ -82,15 +120,71 @@ function formatRelative(ts: number): string {
   return `${Math.floor(days / 365)}y ago`;
 }
 
+/** Highlight every case-insensitive occurrence of `query` inside `text`. */
+function highlightMatch(text: string, query: string): React.ReactNode {
+  const q = query.trim();
+  if (!q) return text;
+  const lowerText = text.toLowerCase();
+  const lowerQ = q.toLowerCase();
+  const parts: React.ReactNode[] = [];
+  let i = 0;
+  let key = 0;
+  while (i < text.length) {
+    const idx = lowerText.indexOf(lowerQ, i);
+    if (idx === -1) {
+      parts.push(text.slice(i));
+      break;
+    }
+    if (idx > i) parts.push(text.slice(i, idx));
+    parts.push(
+      <mark key={key++} className="rounded bg-emerald-200 dark:bg-emerald-700/60 px-0.5 text-inherit">
+        {text.slice(idx, idx + q.length)}
+      </mark>
+    );
+    i = idx + q.length;
+  }
+  return parts;
+}
+
 export function SecondBrainDashboardDialog({
   open,
   onOpenChange,
   secondBrain,
   onOpenSecondBrain,
   onJumpToNode,
+  autoFocusSearch,
 }: SecondBrainDashboardDialogProps) {
   const allEntries = useMemo(() => getEntries(secondBrain), [secondBrain]);
+  // Full node set for keyword search (includes Inbox items + nested content).
+  const searchableEntries = useMemo(() => getSearchableEntries(secondBrain), [secondBrain]);
   const total = useMemo(() => countAllNodes(secondBrain), [secondBrain]);
+
+  const [query, setQuery] = useState('');
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Focus the search box when the dialog opens with autoFocusSearch, and always
+  // clear any previous query when the dialog closes so it opens fresh next time.
+  useEffect(() => {
+    if (open) {
+      if (autoFocusSearch) {
+        // Delay a tick so the dialog's own open-focus doesn't steal it back.
+        const t = setTimeout(() => searchInputRef.current?.focus(), 60);
+        return () => clearTimeout(t);
+      }
+    } else {
+      setQuery('');
+    }
+  }, [open, autoFocusSearch]);
+
+  const trimmedQuery = query.trim();
+  const isSearching = trimmedQuery.length > 0;
+  const results = useMemo(() => {
+    if (!isSearching) return [];
+    const nq = normalize(trimmedQuery);
+    return searchableEntries
+      .filter(e => e.searchText.includes(nq))
+      .sort((a, b) => b.createdAt - a.createdAt);
+  }, [searchableEntries, isSearching, trimmedQuery]);
 
   const recent = useMemo(() => {
     const cutoff = Date.now() - 7 * ONE_DAY;
@@ -128,7 +222,58 @@ export function SecondBrainDashboardDialog({
           </DialogDescription>
         </DialogHeader>
 
+        {/* Free, instant, local keyword search — filters saved entries by title +
+            full content. No AI, no network, no cost (distinct from "Ask Second Brain"). */}
+        <div className="relative">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            ref={searchInputRef}
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            placeholder="Search your saved entries…"
+            aria-label="Search your saved entries (free, instant, local)"
+            className="pl-9"
+          />
+        </div>
+
         <ScrollArea className="flex-1 pr-4">
+          {isSearching ? (
+            <div className="space-y-3 pb-2">
+              <h3 className="flex items-center gap-2 text-sm font-semibold">
+                <Search className="h-4 w-4 text-emerald-500" />
+                Results ({results.length})
+              </h3>
+              {results.length === 0 ? (
+                <p className="text-sm text-muted-foreground italic">No matches.</p>
+              ) : (
+                <ul className="space-y-1.5">
+                  {results.map(e => (
+                    <li key={e.id}>
+                      <button
+                        onClick={() => handleJump(e.id)}
+                        className="w-full text-left rounded-md border bg-card px-3 py-2 hover:bg-accent active:bg-accent/80 transition-colors"
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="font-medium text-sm truncate">{highlightMatch(e.name, trimmedQuery)}</div>
+                          <div className="text-xs text-muted-foreground whitespace-nowrap">{formatRelative(e.createdAt)}</div>
+                        </div>
+                        {e.snippet && (
+                          <div className="mt-0.5 text-xs text-muted-foreground line-clamp-2">{e.snippet}</div>
+                        )}
+                        {e.tags.length > 0 && (
+                          <div className="mt-1.5 flex flex-wrap gap-1">
+                            {e.tags.map(t => (
+                              <Badge key={t} variant="secondary" className="text-xs px-1.5 py-0">#{t}</Badge>
+                            ))}
+                          </div>
+                        )}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          ) : (
           <div className="space-y-6 pb-2">
             {/* Stats row */}
             <div className="grid grid-cols-3 gap-3">
@@ -239,6 +384,7 @@ export function SecondBrainDashboardDialog({
               </section>
             )}
           </div>
+          )}
         </ScrollArea>
 
         <div className="flex justify-end gap-2 pt-2 border-t">

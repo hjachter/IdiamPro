@@ -168,6 +168,8 @@ interface OutlinePaneProps {
   // Second Brain navigation
   onOpenSecondBrain?: () => void;
   onSearchSecondBrain?: () => void;
+  /** FREE instant local keyword search of the Second Brain (no AI, no cost). */
+  onSearchSecondBrainLocal?: () => void;
   onImportToSecondBrain?: () => void;
   onOpenQuickCapture?: () => void;
   onOpenSecondBrainDashboard?: () => void;
@@ -252,6 +254,7 @@ export default function OutlinePane({
   onSaveToSecondBrain,
   onOpenSecondBrain,
   onSearchSecondBrain,
+  onSearchSecondBrainLocal,
   onImportToSecondBrain,
   onOpenQuickCapture,
   onOpenSecondBrainDashboard,
@@ -1186,8 +1189,11 @@ export default function OutlinePane({
                             <Inbox className="mr-2 h-4 w-4" /> Quick Capture
                             {!isMobile && <DropdownMenuShortcut>⌘⇧I</DropdownMenuShortcut>}
                         </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={() => onSearchSecondBrain?.()} className="cursor-pointer py-1">
-                            <Search className="mr-2 h-4 w-4" /> Ask Second Brain
+                        <DropdownMenuItem onSelect={() => onSearchSecondBrainLocal?.()} className="cursor-pointer py-1" aria-label="Search Second Brain — free, instant, local keyword search">
+                            <Search className="mr-2 h-4 w-4" /> Search Second Brain
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => onSearchSecondBrain?.()} className="cursor-pointer py-1" aria-label="Ask Second Brain — AI answer (uses an AI generation)">
+                            <MessageSquare className="mr-2 h-4 w-4" /> Ask Second Brain
                         </DropdownMenuItem>
                         {onOpenKnowledgeChat && (
                             <DropdownMenuItem onSelect={onOpenKnowledgeChat} className="cursor-pointer py-1">
@@ -1547,8 +1553,12 @@ export default function OutlinePane({
                 Save Selection to Second Brain
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onSelect={() => onSearchSecondBrain?.()} className="cursor-pointer">
+              <DropdownMenuItem onSelect={() => onSearchSecondBrainLocal?.()} className="cursor-pointer" aria-label="Search Second Brain — free, instant, local keyword search">
                 <Search className="mr-2 h-4 w-4" />
+                Search Second Brain
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => onSearchSecondBrain?.()} className="cursor-pointer" aria-label="Ask Second Brain — AI answer (uses an AI generation)">
+                <MessageSquare className="mr-2 h-4 w-4" />
                 Ask Second Brain
               </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => onOpenSecondBrainDashboard?.()} className="cursor-pointer">

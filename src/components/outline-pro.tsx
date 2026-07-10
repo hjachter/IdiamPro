@@ -464,6 +464,8 @@ export default function OutlinePro() {
 
   // Second Brain Dashboard dialog state
   const [isSecondBrainDashboardOpen, setIsSecondBrainDashboardOpen] = useState(false);
+  // When true, the dashboard opens with its free local search box focused.
+  const [secondBrainSearchFocus, setSecondBrainSearchFocus] = useState(false);
 
   // Export dialog state
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
@@ -4285,6 +4287,13 @@ export default function OutlinePro() {
   }, []);
 
   const handleOpenSecondBrainDashboard = useCallback(() => {
+    setSecondBrainSearchFocus(false);
+    setIsSecondBrainDashboardOpen(true);
+  }, []);
+
+  // FREE instant local keyword search: opens the dashboard with the search box focused.
+  const handleOpenSecondBrainSearch = useCallback(() => {
+    setSecondBrainSearchFocus(true);
     setIsSecondBrainDashboardOpen(true);
   }, []);
 
@@ -4784,10 +4793,11 @@ export default function OutlinePro() {
         />
         <SecondBrainDashboardDialog
           open={isSecondBrainDashboardOpen}
-          onOpenChange={setIsSecondBrainDashboardOpen}
+          onOpenChange={(o) => { setIsSecondBrainDashboardOpen(o); if (!o) setSecondBrainSearchFocus(false); }}
           secondBrain={outlines.find(o => o.isSecondBrain) || null}
           onOpenSecondBrain={handleOpenSecondBrain}
           onJumpToNode={handleJumpToSecondBrainNode}
+          autoFocusSearch={secondBrainSearchFocus}
         />
 
         {currentOutline && (
@@ -5029,6 +5039,7 @@ export default function OutlinePro() {
                 onSaveToSecondBrain={handleSaveToSecondBrain}
                 onOpenSecondBrain={handleOpenSecondBrain}
                 onSearchSecondBrain={handleSearchSecondBrain}
+                onSearchSecondBrainLocal={handleOpenSecondBrainSearch}
                 onOpenQuickCapture={handleOpenQuickCapture}
                 onOpenSecondBrainDashboard={handleOpenSecondBrainDashboard}
                 onImportToSecondBrain={handleImportToSecondBrain}
@@ -5294,10 +5305,11 @@ export default function OutlinePro() {
       />
       <SecondBrainDashboardDialog
         open={isSecondBrainDashboardOpen}
-        onOpenChange={setIsSecondBrainDashboardOpen}
+        onOpenChange={(o) => { setIsSecondBrainDashboardOpen(o); if (!o) setSecondBrainSearchFocus(false); }}
         secondBrain={outlines.find(o => o.isSecondBrain) || null}
         onOpenSecondBrain={handleOpenSecondBrain}
         onJumpToNode={handleJumpToSecondBrainNode}
+        autoFocusSearch={secondBrainSearchFocus}
       />
 
       {currentOutline && (
@@ -5546,6 +5558,7 @@ export default function OutlinePro() {
                 onSaveToSecondBrain={handleSaveToSecondBrain}
                 onOpenSecondBrain={handleOpenSecondBrain}
                 onSearchSecondBrain={handleSearchSecondBrain}
+                onSearchSecondBrainLocal={handleOpenSecondBrainSearch}
                 onOpenQuickCapture={handleOpenQuickCapture}
                 onOpenSecondBrainDashboard={handleOpenSecondBrainDashboard}
                 onImportToSecondBrain={handleImportToSecondBrain}
