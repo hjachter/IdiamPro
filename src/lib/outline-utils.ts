@@ -1,6 +1,35 @@
 import { v4 as uuidv4 } from 'uuid';
 import type { OutlineNode, NodeMap, NodeType } from '@/types';
 
+/**
+ * Strip raw markdown formatting from a node TITLE so AI-generated outlines
+ * never leave literal `**Bold**`, `*emphasis*`, `# heading`, `> quote`,
+ * backticks or stray list markers in item names. This is for TITLES ONLY —
+ * do NOT run it on rich content bodies, which are allowed to contain
+ * formatting. Conservative by design: it removes obvious formatting wrappers
+ * and leading list/heading markers but preserves real characters like the
+ * "#" in "C#" (only a "#" that heads a line and is followed by a space is
+ * treated as a markdown heading marker).
+ */
+export function stripMarkdownFromTitle(raw: string): string {
+  if (!raw) return raw;
+  let s = raw.trim();
+  // Leading list / ordered-list / heading / blockquote markers (repeatable).
+  s = s.replace(/^\s*(?:[-*+•]\s+|\d+[.)]\s+|#{1,6}\s+|>\s+)+/, '');
+  // Links: [text](url) -> text
+  s = s.replace(/\[([^\]]*)\]\([^)]*\)/g, '$1');
+  // Paired emphasis wrappers.
+  s = s.replace(/(\*\*|__)(.*?)\1/g, '$2'); // **bold** / __bold__
+  s = s.replace(/(\*|_)(.*?)\1/g, '$2');     // *em* / _em_
+  s = s.replace(/~~(.*?)~~/g, '$1');         // ~~strike~~
+  // Inline code backticks.
+  s = s.replace(/`/g, '');
+  // Any leftover unpaired emphasis/backtick runs at the very edges
+  // (e.g. an opening "**" with no close). Leaves interior "#" like "C#" alone.
+  s = s.replace(/^[\s*_~`]+/, '').replace(/[\s*_~`]+$/, '');
+  return s.trim();
+}
+
 function copyNodes(nodes: NodeMap): NodeMap {
   const newNodes: NodeMap = {};
   for (const key in nodes) {
@@ -368,7 +397,7 @@ export function parseMarkdownToNodes(markdown: string, topic: string): { rootNod
 
         const newNode: OutlineNode = {
           id: newNodeId,
-          name: rawText,
+          name: stripMarkdownFromTitle(rawText),
           content: '',
           type: 'document',
           parentId,
@@ -438,7 +467,7 @@ export function parseMarkdownToNodes(markdown: string, topic: string): { rootNod
 
       const newNode: OutlineNode = {
         id: newNodeId,
-        name,
+        name: stripMarkdownFromTitle(name),
         content,
         type: 'document',
         parentId,

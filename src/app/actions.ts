@@ -38,7 +38,7 @@ import type {
   AITone,
   AILevel,
 } from '@/types';
-import { parseMarkdownToNodes } from '@/lib/outline-utils';
+import { parseMarkdownToNodes, stripMarkdownFromTitle } from '@/lib/outline-utils';
 import { v4 as uuidv4 } from 'uuid';
 import { ai } from '@/ai/genkit';
 import { GoogleGenAI } from '@google/genai';
@@ -555,7 +555,7 @@ function parseMarkdownToPreviewNodes(markdown: string): IngestPreview['nodesToAd
   lines.forEach(line => {
     const indentation = line.search(/\S|$/);
     const level = Math.floor(indentation / 2);
-    const name = line.trim().substring(2);
+    const name = stripMarkdownFromTitle(line.trim().substring(2));
 
     // Adjust path stack to current level
     while (pathStack.length > level) {

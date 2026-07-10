@@ -16,7 +16,7 @@
 
 import { v4 as uuidv4 } from 'uuid';
 import type { NodeMap, OutlineNode } from '@/types';
-import { recalculatePrefixesForBranch } from '@/lib/outline-utils';
+import { recalculatePrefixesForBranch, stripMarkdownFromTitle } from '@/lib/outline-utils';
 import type { ImageToOutlineProposedNode } from '@/app/actions';
 
 export interface InsertProposedOptions {
@@ -33,7 +33,7 @@ function buildNode(
 ): OutlineNode {
   return {
     id: uuidv4(),
-    name: (proposed.name || 'Untitled').slice(0, 200),
+    name: (stripMarkdownFromTitle(proposed.name || '') || 'Untitled').slice(0, 200),
     content: proposed.content || '',
     type: 'document',
     parentId,

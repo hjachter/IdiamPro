@@ -9,7 +9,7 @@ import { MultiSelectToolbar } from './multi-select-toolbar';
 import FileImportDialog from './file-import-dialog';
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger } from "@/components/ui/dropdown-menu";
 import { Plus, Trash2, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, ChevronsDownUp, Settings, Search, Command, PanelLeft, PanelLeftClose, Brain, StopCircle, Inbox, LayoutDashboard, Focus, Sparkles, Mic, MessageSquare, BookDown, BookUp, Share2, ExternalLink, RefreshCw, MoreHorizontal, HelpCircle, Send, ShieldCheck, GitFork, Video } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter } from "@/components/ui/alert-dialog";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -285,6 +285,36 @@ export default function OutlinePane({
 
   // Collapse/Expand toggle state
   const [isAllCollapsed, setIsAllCollapsed] = useState(false);
+
+  // Action-toolbar responsive overflow (2026-07-10).
+  // The middle outline COLUMN can be narrow even on a wide desktop viewport
+  // (it sits between the sidebar and the content pane in a resizable layout),
+  // so Tailwind's viewport breakpoints don't reflect how much room this
+  // toolbar actually has. We measure the toolbar's own width and collapse
+  // lower-priority tools into a "More" (⋯) menu when space is tight, so no
+  // button is ever clipped off the edges. Same overflow-menu UX as the title
+  // row above; here it's column-width-driven instead of viewport-driven.
+  const actionToolbarRef = useRef<HTMLDivElement>(null);
+  const [actionToolbarWidth, setActionToolbarWidth] = useState<number>(Number.POSITIVE_INFINITY);
+  useEffect(() => {
+    const el = actionToolbarRef.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        setActionToolbarWidth(entry.contentRect.width);
+      }
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  // Priority tiers. Only the three essentials (Add, Delete, Search) stay
+  // inline at every width — the middle column can be as narrow as ~220px in a
+  // 3-pane desktop layout, where nothing else fits. Tier 2 = Focus, Show/Hide
+  // all, Share branch, Second Brain, Smart Tools. Tier 3 = Settings, Help.
+  // Whatever is collapsed is mirrored in the "More" (⋯) menu.
+  const showTier2Inline = actionToolbarWidth >= 480;
+  const showTier3Inline = actionToolbarWidth >= 600;
+  const showActionOverflow = !showTier2Inline || !showTier3Inline;
 
   // Search state
   const [isSearchOpenInternal, setIsSearchOpenInternal] = useState(false);
@@ -1315,7 +1345,7 @@ export default function OutlinePane({
       })()}
 
       <TooltipProvider delayDuration={300}>
-        <div className="flex-shrink-0 flex items-center justify-center gap-1.5 px-2 py-1.5 bg-[hsl(var(--toolbar-bg))] rounded-xl border border-border/30">
+        <div ref={actionToolbarRef} data-testid="outline-action-toolbar" className="flex-shrink-0 flex items-center justify-center gap-1.5 px-2 py-1.5 bg-[hsl(var(--toolbar-bg))] rounded-xl border border-border/30 min-w-0">
           <Tooltip>
             <TooltipTrigger asChild>
               <span tabIndex={-1} className="inline-flex">
@@ -1407,7 +1437,7 @@ export default function OutlinePane({
           {onToggleFocusMode && (
             <Tooltip>
               <TooltipTrigger asChild>
-                <span tabIndex={-1} className="hidden sm:inline-flex">
+                <span tabIndex={-1} className={cn(showTier2Inline ? "inline-flex" : "hidden")}>
                   <Button
                     variant="outline"
                     size="icon"
@@ -1438,7 +1468,7 @@ export default function OutlinePane({
           <DropdownMenu>
             <Tooltip>
               <TooltipTrigger asChild>
-                <span tabIndex={-1} className="hidden sm:inline-flex">
+                <span tabIndex={-1} className={cn(showTier2Inline ? "inline-flex" : "hidden")}>
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="outline"
@@ -1481,7 +1511,7 @@ export default function OutlinePane({
           </DropdownMenu>
 
           {/* VIEW/NAV | SHARE cluster divider */}
-          <Separator orientation="vertical" className="h-6 mx-0.5 hidden sm:block" />
+          <Separator orientation="vertical" className={cn("h-6 mx-0.5", showTier2Inline ? "block" : "hidden")} />
 
           <Tooltip>
             <TooltipTrigger asChild>
@@ -1510,7 +1540,7 @@ export default function OutlinePane({
               The mobile-overflow menu still surfaces "Command palette" as a backup. */}
 
           {/* SHARE | SMART/BRAIN cluster divider */}
-          <Separator orientation="vertical" className="h-6 mx-0.5 hidden sm:block" />
+          <Separator orientation="vertical" className={cn("h-6 mx-0.5", showTier2Inline ? "block" : "hidden")} />
 
           {/* Second Brain Menu */}
           <DropdownMenu>
@@ -1520,7 +1550,7 @@ export default function OutlinePane({
                   <Button
                     variant="outline"
                     size="icon"
-                    className="text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 active:scale-95 active:bg-accent/30 hidden sm:inline-flex min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
+                    className={cn("text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 active:scale-95 active:bg-accent/30 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0", showTier2Inline ? "inline-flex" : "hidden")}
                     aria-label="Second Brain menu"
                   >
                     <Brain className="h-4 w-4" />
@@ -1573,7 +1603,7 @@ export default function OutlinePane({
           </DropdownMenu>
 
           {/* AIMenu (Smart Tools) — Tier 2: tablet+ */}
-          <span className="hidden sm:inline-flex">
+          <span className={cn(showTier2Inline ? "inline-flex" : "hidden")}>
             <AIMenu
               onGenerateOutline={onGenerateOutline}
               outlineSummary={currentOutline?.name}
@@ -1625,7 +1655,7 @@ export default function OutlinePane({
           )}
 
           {/* SMART/BRAIN | APP cluster divider (only visible when adjacent tier-3 items are shown) */}
-          <Separator orientation="vertical" className="h-6 mx-0.5 hidden lg:block" />
+          <Separator orientation="vertical" className={cn("h-6 mx-0.5", showTier3Inline ? "block" : "hidden")} />
 
           <SettingsDialog onFolderSelected={onFolderSelected}>
             <Button
@@ -1633,7 +1663,7 @@ export default function OutlinePane({
               size="icon"
               title="Settings"
               aria-label="Settings"
-              className="hover:bg-accent/20 hidden lg:inline-flex min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
+              className={cn("hover:bg-accent/20 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0", showTier3Inline ? "inline-flex" : "hidden")}
               data-settings-trigger
             >
               <Settings className="h-4 w-4 text-violet-600 dark:text-violet-400" />
@@ -1646,7 +1676,7 @@ export default function OutlinePane({
                 variant="outline"
                 size="icon"
                 onClick={onOpenHelp}
-                className="hover:bg-red-500/20 border-red-500/30 hidden lg:inline-flex min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
+                className={cn("hover:bg-red-500/20 border-red-500/30 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0", showTier3Inline ? "inline-flex" : "hidden")}
                 aria-label="Help and support"
               >
                 <span aria-hidden="true" className="text-red-500 dark:text-red-400 font-bold text-lg leading-none">?</span>
@@ -1654,6 +1684,171 @@ export default function OutlinePane({
             </TooltipTrigger>
             <TooltipContent>Help & Support</TooltipContent>
           </Tooltip>
+
+          {/* Overflow "More" (⋯) menu — surfaces any tool collapsed out of the
+              toolbar when the outline column is too narrow to show it inline,
+              so every action stays reachable and nothing is clipped. Shown
+              only when at least one tier is collapsed. */}
+          {showActionOverflow && (
+            <DropdownMenu>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="hover:bg-accent/20 shrink-0 active:scale-95 active:bg-accent/30 inline-flex min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
+                      aria-label="More tools"
+                      data-testid="outline-toolbar-more"
+                    >
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                </TooltipTrigger>
+                <TooltipContent>More tools</TooltipContent>
+              </Tooltip>
+              <DropdownMenuContent align="end" className="w-56 p-0.5">
+                <DropdownMenuLabel className="py-1 text-xs uppercase tracking-wide text-muted-foreground">More tools</DropdownMenuLabel>
+                {!showTier2Inline && (
+                  <>
+                    {onToggleFocusMode && (
+                      <DropdownMenuItem
+                        onSelect={() => onToggleFocusMode?.()}
+                        disabled={!selectedNodeId}
+                        className="cursor-pointer py-1"
+                      >
+                        <Focus className="mr-2 h-4 w-4" /> Focus Mode
+                        {!isMobile && <DropdownMenuShortcut>⌘⇧F</DropdownMenuShortcut>}
+                      </DropdownMenuItem>
+                    )}
+                    <DropdownMenuItem
+                      onSelect={() => { onExpandAll(); setIsAllCollapsed(false); }}
+                      disabled={!currentOutline}
+                      className="cursor-pointer py-1"
+                    >
+                      <ChevronsDown className="mr-2 h-4 w-4" /> Expand All
+                      {!isMobile && <DropdownMenuShortcut>⌘E</DropdownMenuShortcut>}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onSelect={() => { onCollapseAll(); setIsAllCollapsed(true); }}
+                      disabled={!currentOutline}
+                      className="cursor-pointer py-1"
+                    >
+                      <ChevronsUp className="mr-2 h-4 w-4" /> Collapse All
+                      {!isMobile && <DropdownMenuShortcut>⌘⇧E</DropdownMenuShortcut>}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onSelect={() => selectedNodeId && onExportSubtree?.(selectedNodeId)}
+                      disabled={!selectedNodeId}
+                      className="cursor-pointer py-1"
+                    >
+                      <Share2 className="mr-2 h-4 w-4" /> Share Branch…
+                    </DropdownMenuItem>
+
+                    {/* Second Brain — full menu preserved as a submenu. */}
+                    <DropdownMenuSub>
+                      <DropdownMenuSubTrigger className="cursor-pointer py-1">
+                        <Brain className="mr-2 h-4 w-4 text-emerald-600 dark:text-emerald-400" /> Second Brain
+                      </DropdownMenuSubTrigger>
+                      <DropdownMenuSubContent className="w-56">
+                        <DropdownMenuItem onSelect={() => onOpenSecondBrain?.()} className="cursor-pointer">
+                          <Brain className="mr-2 h-4 w-4" /> Open Second Brain
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => onOpenQuickCapture?.()} className="cursor-pointer">
+                          <Inbox className="mr-2 h-4 w-4" /> Quick Capture
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onSelect={() => selectedNodeId && onSaveToSecondBrain?.(selectedNodeId)}
+                          disabled={!selectedNodeId || currentOutline?.isSecondBrain}
+                          className="cursor-pointer"
+                        >
+                          <Plus className="mr-2 h-4 w-4" /> Save Selection to Second Brain
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onSelect={() => onSearchSecondBrainLocal?.()} className="cursor-pointer">
+                          <Search className="mr-2 h-4 w-4" /> Search Second Brain
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => onSearchSecondBrain?.()} className="cursor-pointer">
+                          <MessageSquare className="mr-2 h-4 w-4" /> Ask Second Brain
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => onOpenSecondBrainDashboard?.()} className="cursor-pointer">
+                          <LayoutDashboard className="mr-2 h-4 w-4" /> View Dashboard
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => onImportToSecondBrain?.()} className="cursor-pointer">
+                          <Library className="mr-2 h-4 w-4" /> Import to Second Brain
+                        </DropdownMenuItem>
+                      </DropdownMenuSubContent>
+                    </DropdownMenuSub>
+
+                    {/* Smart Tools — AI actions preserved as a submenu. */}
+                    <DropdownMenuSub>
+                      <DropdownMenuSubTrigger className="cursor-pointer py-1">
+                        <Sparkles className="mr-2 h-4 w-4 text-violet-600 dark:text-violet-400" /> Smart Tools
+                      </DropdownMenuSubTrigger>
+                      <DropdownMenuSubContent className="w-56">
+                        {onOpenCommandPalette && (
+                          <DropdownMenuItem onSelect={() => onOpenCommandPalette?.()} className="cursor-pointer">
+                            <Command className="mr-2 h-4 w-4" /> Quick Command
+                            {!isMobile && <DropdownMenuShortcut>⌘K</DropdownMenuShortcut>}
+                          </DropdownMenuItem>
+                        )}
+                        {onOpenKnowledgeChat && (
+                          <DropdownMenuItem onSelect={onOpenKnowledgeChat} className="cursor-pointer">
+                            <Sparkles className="mr-2 h-4 w-4" /> Ask Your Outlines
+                          </DropdownMenuItem>
+                        )}
+                        {onOpenBulkResearch && (
+                          <DropdownMenuItem onSelect={onOpenBulkResearch} className="cursor-pointer">
+                            <Library className="mr-2 h-4 w-4" /> Research & Import
+                          </DropdownMenuItem>
+                        )}
+                        {onOpenReformat && !currentOutline?.isGuide && (
+                          <DropdownMenuItem onSelect={onOpenReformat} disabled={!selectedNodeId} className="cursor-pointer">
+                            <Sparkles className="mr-2 h-4 w-4" /> Reformat
+                          </DropdownMenuItem>
+                        )}
+                        {onOpenTranslate && !currentOutline?.isGuide && (
+                          <DropdownMenuItem onSelect={onOpenTranslate} disabled={!selectedNodeId} className="cursor-pointer">
+                            <Sparkles className="mr-2 h-4 w-4" /> Translate
+                          </DropdownMenuItem>
+                        )}
+                        {onOpenTransformOutline && !currentOutline?.isGuide && (
+                          <DropdownMenuItem onSelect={onOpenTransformOutline} className="cursor-pointer">
+                            <Sparkles className="mr-2 h-4 w-4" /> Transform Outline
+                          </DropdownMenuItem>
+                        )}
+                        {onOpenImageToOutline && !currentOutline?.isGuide && (
+                          <DropdownMenuItem onSelect={onOpenImageToOutline} disabled={!selectedNodeId} className="cursor-pointer">
+                            <Sparkles className="mr-2 h-4 w-4" /> Image to Outline
+                          </DropdownMenuItem>
+                        )}
+                      </DropdownMenuSubContent>
+                    </DropdownMenuSub>
+                  </>
+                )}
+                {!showTier2Inline && !showTier3Inline && <DropdownMenuSeparator />}
+                {!showTier3Inline && (
+                  <>
+                    <DropdownMenuItem
+                      onSelect={(e) => {
+                        e.preventDefault();
+                        const trigger = document.querySelector<HTMLButtonElement>('[data-settings-trigger]');
+                        trigger?.click();
+                      }}
+                      className="cursor-pointer py-1"
+                    >
+                      <Settings className="mr-2 h-4 w-4" /> Settings
+                    </DropdownMenuItem>
+                    {onOpenHelp && (
+                      <DropdownMenuItem onSelect={() => onOpenHelp()} className="cursor-pointer py-1">
+                        <HelpCircle className="mr-2 h-4 w-4" /> Help & Support
+                      </DropdownMenuItem>
+                    )}
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
       </TooltipProvider>
 
