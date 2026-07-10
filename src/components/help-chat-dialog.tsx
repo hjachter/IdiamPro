@@ -66,6 +66,7 @@ KEY FEATURES:
 - Import: Multi-format import via the toolbar Import menu (BookDown icon) > "Import Outline". Supports Markdown (.md - heading hierarchy), Plain Text (.txt - indentation), OPML (.opml - standard outline XML), JSON/IDM (native format). Drag-and-drop or browse to select. Auto-detects format.
 - Canvas/Drawing nodes (Excalidraw-based): Right-click > Set Type > Canvas
 - Spreadsheet nodes (Fortune Sheet): Right-click > Set Type > Spreadsheet
+- Scrollable dialogs: Any dialog that's taller than your screen can be scrolled. On touch devices (iPhone/iPad) you can drag the content up and down with your finger — handy on small windows.
 
 CONTENT EDITOR:
 - Rich text: Bold (Cmd+B), Italic (Cmd+I), Strikethrough, Headings (H1-H3)

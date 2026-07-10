@@ -427,7 +427,7 @@ Want to keep personal notes alongside the guide? Create a new outline of your ow
 
   // === MOBILE & iOS ===
   const mobileId = uuidv4();
-  createNode(nodes, mobileId, rootId, "Mobile & iOS", "On mobile devices and iOS, IdiamPro adapts its interface to work well on smaller screens.\n\n**View Modes:**\nToggle between two view modes using the view switcher:\n\n- **Stacked View**: Shows both the outline pane and content pane side by side (or stacked vertically on narrow screens). Good for quick navigation between nodes.\n- **Content View**: Shows only the content editor in full-screen mode. Ideal for focused writing and editing on mobile.\n\nSwitch between views using the toggle button in the toolbar. Your selected view mode is remembered across sessions.");
+  createNode(nodes, mobileId, rootId, "Mobile & iOS", "On mobile devices and iOS, IdiamPro adapts its interface to work well on smaller screens.\n\n**View Modes:**\nToggle between two view modes using the view switcher:\n\n- **Stacked View**: Shows both the outline pane and content pane side by side (or stacked vertically on narrow screens). Good for quick navigation between nodes.\n- **Content View**: Shows only the content editor in full-screen mode. Ideal for focused writing and editing on mobile.\n\nSwitch between views using the toggle button in the toolbar. Your selected view mode is remembered across sessions.\n\n**Scrollable dialogs:** Any dialog that's taller than your screen can be scrolled. On touch devices (iPhone/iPad) you can drag the content up and down with your finger — handy on small windows.");
 
   // === PRIVACY & DATA ===
   const privacyDataId = uuidv4();

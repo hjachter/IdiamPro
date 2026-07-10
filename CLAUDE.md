@@ -46,6 +46,7 @@ IdiamPro/SecondBrainWare targets 6 platforms. macOS, iOS, and Web are actively s
 | Expand All (recursive) | Cmd+E | Ctrl+E | Down-chevron toolbar button | Cmd/Ctrl+E or button |
 | Collapse All (recursive) | Cmd+Shift+E | Ctrl+Shift+E | Up-chevron toolbar button | Cmd/Ctrl+Shift+E or button |
 | Submit / Send (input fields) | Return / Enter | Enter | Return (soft keyboard) | Enter |
+| Scroll a tall dialog | Trackpad / scroll wheel / drag | Trackpad / scroll wheel / drag | Drag with finger | Trackpad / scroll wheel / drag |
 
 ---
 
