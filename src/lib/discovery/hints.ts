@@ -33,6 +33,7 @@
  *   - 'first-byok-prompt-encountered'  First time the user opens a BYOK key entry surface
  *   - 'first-cross-link-created'       First time an outline-link node is inserted
  *   - 'smart-tools-menu-opened'        First open of the Smart Tools dropdown
+ *   - 'outline-has-content'            One-time: an outline first reaches a few nodes of real content
  *
  * Adding a hint:
  *   1. Append to `DISCOVERY_HINTS` below.
@@ -48,7 +49,8 @@ export type DiscoveryTrigger =
   | 'first-outline-created'
   | 'first-byok-prompt-encountered'
   | 'first-cross-link-created'
-  | 'smart-tools-menu-opened';
+  | 'smart-tools-menu-opened'
+  | 'outline-has-content';
 
 export interface DiscoveryHint {
   /** Stable id — used as the dismissal key in storage. */
@@ -129,6 +131,15 @@ export const DISCOVERY_HINTS: readonly DiscoveryHint[] = [
       'The book-down (Import) and book-up (Export) icons hold Research & Import, Backup All, Share Branch, and other bulk actions.',
     trigger: 'first-outline-created',
     minDelayMs: 10000,
+  },
+  {
+    id: 'make-something-from-this',
+    title: 'Ready to turn this into something?',
+    body:
+      'Your outline has enough to work with. Open the Export menu (book-up icon) to render it into a narrated video, a website, or 20+ formats — or right-click a section to Generate Podcast.',
+    // Fires once, guarded by a localStorage flag at the call site, the first
+    // time an outline reaches a few nodes of real content. One-time by design.
+    trigger: 'outline-has-content',
   },
   {
     id: 'byok-unlimited',

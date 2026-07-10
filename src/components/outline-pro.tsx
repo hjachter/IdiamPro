@@ -37,6 +37,7 @@ import { Button } from './ui/button';
 import { loadStorageData, saveAllOutlines, migrateToFileSystem, deleteOutline, loadSingleOutlineOnDemand, saveUnmergeBackup, loadUnmergeBackup, deleteUnmergeBackup, type MigrationConflict, type ConflictResolution, type LazyOutline } from '@/lib/storage-manager';
 import CommandPalette from './command-palette';
 import EmptyState from './empty-state';
+import { WelcomeShowcase } from './welcome-showcase';
 import TemplatesDialog from './templates-dialog';
 import SidebarPane from './sidebar-pane';
 import MobileSidebarSheet from './mobile-sidebar-sheet';
@@ -530,6 +531,25 @@ export default function OutlinePro() {
 
   // Check if there are any user outlines (not just the guide)
   const hasUserOutlines = useMemo(() => outlines.some(o => !o.isGuide), [outlines]);
+
+  // One-time "make something from this" nudge — fires exactly once, the first
+  // time the user has a real outline with a few nodes of content. Uses the
+  // Discovery Hints system so it honors the two-tier opt-out + Professional
+  // mode. Guarded by a dedicated localStorage flag so it can never nag.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!currentOutline || currentOutline.isGuide) return;
+    const nodeCount = currentOutline.nodes ? Object.keys(currentOutline.nodes).length : 0;
+    // Root + a few children = something worth turning into media.
+    if (nodeCount < 4) return;
+    try {
+      if (window.localStorage.getItem('onboarding:makeSomethingNudgeFired') === 'true') return;
+      window.localStorage.setItem('onboarding:makeSomethingNudgeFired', 'true');
+    } catch {
+      return;
+    }
+    fireDiscovery('outline-has-content');
+  }, [currentOutline]);
 
   const { plan } = useAI();
   const { promptUpgrade } = useUpgradePrompt();
@@ -4619,6 +4639,7 @@ export default function OutlinePro() {
     return (
       <div className="h-screen w-full">
         {progressIndicator}
+        <WelcomeShowcase />
         <EmptyState
           onCreateBlankOutline={handleCreateOutline}
           onCreateFromTemplate={handleCreateFromTemplate}
@@ -4631,6 +4652,7 @@ export default function OutlinePro() {
   if (isMobile) {
     return (
       <div className="h-screen bg-background">
+        <WelcomeShowcase />
         {/* Hidden file input for import */}
         <input
           type="file"
@@ -5134,6 +5156,7 @@ export default function OutlinePro() {
 
   return (
     <div className="flex h-screen w-full">
+      <WelcomeShowcase />
       {/* Collapsible Sidebar */}
       {isSidebarOpen && (
         <div className="relative flex-shrink-0" style={{ width: sidebarWidth }}>

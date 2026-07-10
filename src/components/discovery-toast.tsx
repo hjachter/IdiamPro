@@ -97,6 +97,20 @@ function DiscoveryToastCard({
 export function DiscoveryToastStack() {
   const { activeHints, dismissHint } = useDiscovery();
 
+  // Hold sticky hints while the first-run welcome panel is open, so the two
+  // don't overlap for brand-new users. The hints are sticky, so they simply
+  // resume once the welcome is dismissed / re-fire on their next trigger.
+  const [welcomeOpen, setWelcomeOpen] = React.useState<boolean>(false);
+  React.useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent<{ open: boolean }>).detail;
+      setWelcomeOpen(Boolean(detail?.open));
+    };
+    window.addEventListener('welcome-showcase:toggle', handler);
+    return () => window.removeEventListener('welcome-showcase:toggle', handler);
+  }, []);
+
+  if (welcomeOpen) return null;
   if (activeHints.length === 0) return null;
 
   return (

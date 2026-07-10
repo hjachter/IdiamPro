@@ -981,13 +981,13 @@ export default function OutlinePane({
                                 variant="outline"
                                 size="icon"
                                 className="shrink-0 active:scale-95 active:bg-accent/30 hidden sm:inline-flex min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
-                                aria-label="Import — bring data into your outline"
+                                aria-label="Import — bring in content from YouTube, PDFs, web pages, and notes"
                             >
                                 <BookDown className="h-4 w-4" />
                             </Button>
                         </DropdownMenuTrigger>
                     </TooltipTrigger>
-                    <TooltipContent side="bottom">Import</TooltipContent>
+                    <TooltipContent side="bottom">Bring in content — YouTube, PDFs, web pages, notes</TooltipContent>
                 </Tooltip>
                 <DropdownMenuContent align="end" className="w-56 p-0.5">
                     <DropdownMenuLabel className="py-1 text-xs uppercase tracking-wide text-muted-foreground">Import</DropdownMenuLabel>
@@ -1047,13 +1047,13 @@ export default function OutlinePane({
                                 variant="outline"
                                 size="icon"
                                 className="shrink-0 active:scale-95 active:bg-accent/30 hidden sm:inline-flex min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
-                                aria-label="Export — send your outline data out"
+                                aria-label="Export — turn this into a video, podcast, website, or 20+ formats"
                             >
                                 <BookUp className="h-4 w-4" />
                             </Button>
                         </DropdownMenuTrigger>
                     </TooltipTrigger>
-                    <TooltipContent side="bottom">Export</TooltipContent>
+                    <TooltipContent side="bottom">Turn this into a video, podcast, website, or 20+ formats</TooltipContent>
                 </Tooltip>
                 <DropdownMenuContent align="end" className="w-56 p-0.5">
                     <DropdownMenuLabel className="py-1 text-xs uppercase tracking-wide text-muted-foreground">Export</DropdownMenuLabel>
