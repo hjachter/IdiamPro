@@ -1187,7 +1187,7 @@ export default function OutlinePane({
                             {!isMobile && <DropdownMenuShortcut>⌘⇧I</DropdownMenuShortcut>}
                         </DropdownMenuItem>
                         <DropdownMenuItem onSelect={() => onSearchSecondBrain?.()} className="cursor-pointer py-1">
-                            <Search className="mr-2 h-4 w-4" /> Search Second Brain
+                            <Search className="mr-2 h-4 w-4" /> Ask Second Brain
                         </DropdownMenuItem>
                         {onOpenKnowledgeChat && (
                             <DropdownMenuItem onSelect={onOpenKnowledgeChat} className="cursor-pointer py-1">
@@ -1549,7 +1549,7 @@ export default function OutlinePane({
               <DropdownMenuSeparator />
               <DropdownMenuItem onSelect={() => onSearchSecondBrain?.()} className="cursor-pointer">
                 <Search className="mr-2 h-4 w-4" />
-                Search Second Brain
+                Ask Second Brain
               </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => onOpenSecondBrainDashboard?.()} className="cursor-pointer">
                 <LayoutDashboard className="mr-2 h-4 w-4" />

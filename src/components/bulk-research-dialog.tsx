@@ -459,6 +459,8 @@ export default function BulkResearchDialog({
     const recording = recordedAudio[id];
     if (!recording) return;
 
+    if (!gate({ feature: 'recordingTranscription' })) return;
+
     setIsTranscribing(id);
     try {
       const transcriptionResult = await transcribeRecordingAction(

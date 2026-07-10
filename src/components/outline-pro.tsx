@@ -4446,7 +4446,7 @@ export default function OutlinePro() {
         return;
       }
 
-      // Cmd+Shift+S — Search Second Brain
+      // Cmd+Shift+S — Ask Second Brain
       if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'S') {
         e.preventDefault();
         handleSearchSecondBrain();
