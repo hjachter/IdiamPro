@@ -125,7 +125,7 @@ import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Image from 'next/image';
-import { ArrowLeft, Sparkles, Loader2, Eraser, Scissors, Copy, Clipboard, Type, Undo, Redo, List, ListOrdered, ListX, Minus, FileText, Sheet, Presentation, Video, Map, AppWindow, Plus, Bold, Italic, Strikethrough, Code, Heading1, Heading2, Heading3, ChevronRight, Home, Pencil, ALargeSmall, Check, Calendar, Brush, Network, GitBranch, MessageSquare, ImagePlus, Table, Layers, Image as ImageIcon, Film, CheckSquare, Paperclip, LayoutGrid, WandSparkles } from 'lucide-react';
+import { ArrowLeft, Sparkles, Loader2, Eraser, Scissors, Copy, Clipboard, Type, Undo, Redo, List, ListOrdered, ListX, Minus, FileText, Sheet, Presentation, Video, Map, AppWindow, Plus, Bold, Italic, Underline, Strikethrough, Code, Heading1, Heading2, Heading3, ChevronRight, Home, Pencil, ALargeSmall, Check, Calendar, Brush, Network, GitBranch, MessageSquare, ImagePlus, Table, Layers, Image as ImageIcon, Film, CheckSquare, Paperclip, LayoutGrid, WandSparkles } from 'lucide-react';
 import { generateImageAction, generateImageDescriptionAction, generateContentForNodeAction } from '@/app/actions';
 import { useAIUsageGate } from '@/lib/use-ai-usage-gate';
 import { getUserApiKey } from '@/lib/byok-keys';
@@ -3234,7 +3234,15 @@ export default function ContentPane({
                   // can flip up cleanly, all still inside the pane.
                   // Howard 2026-06-08.
                   options={{
-                    placement: isMobile ? 'bottom' : 'top',
+                    // Anchor the format toolbar BELOW the selection on every
+                    // viewport. A 'top' placement collides with the sticky
+                    // editor toolbar whenever the selection is on the first
+                    // line(s) — the common "short note, select all, format"
+                    // case — leaving the bubble's buttons hidden UNDER the
+                    // toolbar and unclickable. 'bottom' keeps it in open editor
+                    // space; `flip` still lets a selection near the very bottom
+                    // of a long note flip the menu upward. Howard 2026-07-10.
+                    placement: 'bottom',
                     offset: 8,
                     flip: {
                       boundary: contentPaneRef.current ?? undefined,
@@ -3287,7 +3295,13 @@ export default function ContentPane({
                     }
                     return true;
                   }}
-                  className="flex flex-wrap items-center gap-0.5 rounded-md border bg-popover p-1 shadow-md"
+                  // z-50 keeps the floating format toolbar painted ABOVE the
+                  // editor toolbar. For a selection on the first line(s) of the
+                  // editor the bubble anchors near the top and would otherwise
+                  // tuck UNDER the sticky toolbar, making its buttons unclickable
+                  // — the common "write a short note, select all, format" case.
+                  // Howard 2026-07-10 (editor polish).
+                  className="z-50 flex flex-wrap items-center gap-0.5 rounded-md border bg-popover p-1 shadow-md"
                 >
                   {/* Every BubbleMenu button is wrapped in a Tooltip so users
                       learn what each icon does on hover. The BubbleMenu renders
@@ -3359,6 +3373,21 @@ export default function ContentPane({
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>Italic (⌘I)</TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        aria-label="Underline"
+                        onClick={() => editor.chain().focus().toggleUnderline().run()}
+                        className={`h-8 w-8 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-8 md:min-w-8 active:scale-95 active:bg-accent/30 ${editor.isActive('underline') ? 'bg-accent' : ''}`}
+                      >
+                        <Underline className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Underline (⌘U)</TooltipContent>
                   </Tooltip>
                   <Tooltip>
                     <TooltipTrigger asChild>
