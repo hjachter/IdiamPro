@@ -1,9 +1,10 @@
 // ============================================================================
-// Generate Video — "Slide visuals" control test.
-// Verifies the Slide visuals control renders with all FIVE options (Off, Mind
-// maps, Photos, Auto, Video clips — Phase B added Photos + Auto, Phase C added
-// Video clips), defaults to Auto, and that clicking between them toggles the
-// pressed state. Follows the launch/window patterns in video-depth-test.js.
+// Generate Video — "Slide visuals" control test (multi-select checkboxes).
+// Verifies the Slide visuals control renders THREE independent, combinable
+// checkboxes (Mind maps, Photos, Video clips), defaults to Mind maps + Photos
+// ON and Video clips OFF, and that they toggle independently (multi-select, not
+// mutually-exclusive radios). Follows the launch/window patterns in
+// video-depth-test.js.
 // ============================================================================
 const { _electron: electron } = require('playwright');
 const path = require('path');
@@ -54,6 +55,11 @@ async function shot(page, name) {
     const page = await findMainWindow(app);
     await page.waitForLoadState('domcontentloaded');
     await page.waitForTimeout(3500);
+    // Fresh default: clear any previously-persisted selection so we test the
+    // real out-of-box default (Mind maps + Photos).
+    await page.evaluate(() => { try { localStorage.removeItem('idiampro:video-visuals-set'); } catch (_) {} });
+    await page.reload().catch(() => {});
+    await page.waitForTimeout(2500);
     await shot(page, '01-loaded.png');
 
     // Load the User Guide outline and select its root node as the chapter.
@@ -72,52 +78,44 @@ async function shot(page, name) {
     await shot(page, '02-dialog.png');
 
     ok(await page.getByText('Generate Video').first().isVisible(), 'Generate Video dialog is open');
-
-    // Slide visuals label present.
     ok(await page.getByText('Slide visuals', { exact: true }).first().isVisible().catch(() => false),
       '"Slide visuals" label renders');
 
-    // All five options present (Phase C added "Video clips").
-    const offBtn = page.getByRole('button', { name: /^Off\b/ }).first();
-    const mindMapsBtn = page.getByRole('button', { name: /^Mind maps/ }).first();
-    const photosBtn = page.getByRole('button', { name: /^Photos/ }).first();
-    const autoBtn = page.getByRole('button', { name: /^Auto/ }).first();
-    const videoClipBtn = page.getByRole('button', { name: /^Video clips/ }).first();
-    ok(await offBtn.isVisible().catch(() => false), 'Slide visuals option "Off" renders');
-    ok(await mindMapsBtn.isVisible().catch(() => false), 'Slide visuals option "Mind maps" renders');
-    ok(await photosBtn.isVisible().catch(() => false), 'Slide visuals option "Photos" renders');
-    ok(await autoBtn.isVisible().catch(() => false), 'Slide visuals option "Auto" renders');
-    ok(await videoClipBtn.isVisible().catch(() => false), 'Slide visuals option "Video clips" renders');
+    // Three checkbox options (multi-select). Radix Checkbox exposes role=checkbox.
+    const mindMaps = page.getByRole('checkbox', { name: 'Mind maps' }).first();
+    const photos = page.getByRole('checkbox', { name: 'Photos' }).first();
+    const videoClips = page.getByRole('checkbox', { name: 'Video clips' }).first();
+    ok(await mindMaps.isVisible().catch(() => false), 'Slide visuals CHECKBOX "Mind maps" renders');
+    ok(await photos.isVisible().catch(() => false), 'Slide visuals CHECKBOX "Photos" renders');
+    ok(await videoClips.isVisible().catch(() => false), 'Slide visuals CHECKBOX "Video clips" renders');
 
-    // Default is Auto (aria-pressed true on Auto).
-    const defaultPressed = await autoBtn.getAttribute('aria-pressed').catch(() => null);
-    ok(defaultPressed === 'true', `Default selection is Auto (aria-pressed=${defaultPressed})`);
+    // Default: Mind maps + Photos ON, Video clips OFF.
+    const mmChecked = await mindMaps.getAttribute('aria-checked').catch(() => null);
+    const phChecked = await photos.getAttribute('aria-checked').catch(() => null);
+    const vcChecked = await videoClips.getAttribute('aria-checked').catch(() => null);
+    ok(mmChecked === 'true', `Default: Mind maps ON (aria-checked=${mmChecked})`);
+    ok(phChecked === 'true', `Default: Photos ON (aria-checked=${phChecked})`);
+    ok(vcChecked === 'false', `Default: Video clips OFF (aria-checked=${vcChecked})`);
 
-    // Toggle to Photos, then to Off, then back to Auto.
-    await photosBtn.click();
+    // Multi-select: turning Video clips on leaves Mind maps + Photos on (NOT radios).
+    await videoClips.click();
     await page.waitForTimeout(300);
-    const photosPressed = await photosBtn.getAttribute('aria-pressed').catch(() => null);
-    await shot(page, '03-photos-selected.png');
-    ok(photosPressed === 'true', `Photos becomes selected after click (aria-pressed=${photosPressed})`);
+    await shot(page, '03-videoclips-added.png');
+    const vcAfter = await videoClips.getAttribute('aria-checked').catch(() => null);
+    const mmStill = await mindMaps.getAttribute('aria-checked').catch(() => null);
+    const phStill = await photos.getAttribute('aria-checked').catch(() => null);
+    ok(vcAfter === 'true', `Video clips toggles ON (aria-checked=${vcAfter})`);
+    ok(mmStill === 'true' && phStill === 'true',
+      `Multi-select: Mind maps + Photos STAY on after adding Video clips (mm=${mmStill}, ph=${phStill})`);
 
-    await offBtn.click();
+    // Independently uncheck Mind maps; the others are unaffected.
+    await mindMaps.click();
     await page.waitForTimeout(300);
-    const offPressed = await offBtn.getAttribute('aria-pressed').catch(() => null);
-    await shot(page, '04-off-selected.png');
-    ok(offPressed === 'true', `Off becomes selected after click (aria-pressed=${offPressed})`);
-
-    // Select Video clips, confirm it toggles on.
-    await videoClipBtn.click();
-    await page.waitForTimeout(300);
-    const clipPressed = await videoClipBtn.getAttribute('aria-pressed').catch(() => null);
-    await shot(page, '05-videoclip-selected.png');
-    ok(clipPressed === 'true', `Video clips becomes selected after click (aria-pressed=${clipPressed})`);
-
-    await autoBtn.click();
-    await page.waitForTimeout(300);
-    const backPressed = await autoBtn.getAttribute('aria-pressed').catch(() => null);
-    await shot(page, '06-auto-selected.png');
-    ok(backPressed === 'true', `Auto re-selectable (aria-pressed=${backPressed})`);
+    await shot(page, '04-mindmaps-off.png');
+    const mmOff = await mindMaps.getAttribute('aria-checked').catch(() => null);
+    const phStill2 = await photos.getAttribute('aria-checked').catch(() => null);
+    ok(mmOff === 'false', `Mind maps toggles OFF independently (aria-checked=${mmOff})`);
+    ok(phStill2 === 'true', `Photos unaffected by Mind maps toggle (aria-checked=${phStill2})`);
   } catch (e) {
     report.fail++;
     report.steps.push({ ok: false, msg: 'EXCEPTION: ' + (e && e.message) });

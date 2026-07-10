@@ -1752,7 +1752,12 @@ function getVideoGenerator() {
 ipcMain.handle('generate-slideshow-video', async (event, args) => {
   try {
     const { generateSlideshowVideo } = getVideoGenerator();
-    return await generateSlideshowVideo(args || {});
+    // Pipe live render progress back to the renderer that started this call, so
+    // the Generate Video dialog can drive a real progress bar + time estimate.
+    const onProgress = (payload) => {
+      try { event.sender.send('generate-video-progress', payload); } catch { /* renderer gone */ }
+    };
+    return await generateSlideshowVideo({ ...(args || {}), onProgress });
   } catch (error) {
     console.error('[VideoGen] generate-slideshow-video failed:', error);
     return { success: false, error: (error && error.message) || String(error) };

@@ -103,5 +103,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
   // Video generation (Phase 1 — faceless slideshow: chapter -> slides+VO -> MP4)
   generateSlideshowVideo: (args) => ipcRenderer.invoke('generate-slideshow-video', args),
+  // Live render progress → returns an unsubscribe function. The main process
+  // emits 'generate-video-progress' at each step (per-slide + final stitch).
+  onGenerateVideoProgress: (callback) => {
+    const wrapped = (_event, payload) => callback(payload);
+    ipcRenderer.on('generate-video-progress', wrapped);
+    return () => ipcRenderer.removeListener('generate-video-progress', wrapped);
+  },
 
 });

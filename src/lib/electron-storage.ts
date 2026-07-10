@@ -70,8 +70,8 @@ interface ElectronAPI {
     outputPath?: string;
     openaiApiKey?: string;
     voice?: string;
-    visuals?: 'off' | 'mindmap';
-    style?: { theme?: string; accent?: string; brandLabel?: string; logoDataUrl?: string };
+    visuals?: 'off' | 'mindmap' | 'photo' | 'auto' | 'videoclip';
+    style?: { theme?: string; accent?: string; brandLabel?: string; logoDataUrl?: string; watermark?: boolean };
   }) => Promise<{
     success: boolean;
     outputPath?: string;
@@ -81,6 +81,16 @@ interface ElectronAPI {
     slideCount?: number;
     error?: string;
   }>;
+  // Subscribe to live video-render progress. Fires once per meaningful step
+  // (each slide, plus a final stitch step). Returns an unsubscribe function.
+  onGenerateVideoProgress?: (callback: (payload: {
+    phase: string;
+    current: number;
+    total: number;
+    completed: number;
+    totalSteps: number;
+    label: string;
+  }) => void) => () => void;
 }
 
 /**

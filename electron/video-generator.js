@@ -954,6 +954,51 @@ async function synthesizeTts(text, voice, apiKey, outPath) {
   return true;
 }
 
+// Sanitize narration for the offline `say` engine: strip control chars,
+// neutralize its [[...]] command syntax, collapse whitespace, and cap length.
+// (We run `say` via execFile WITHOUT a shell and feed the text from a FILE, so
+// there is no shell-injection surface at all; this just keeps the spoken text
+// clean and bounded.)
+function sanitizeForSay(text) {
+  return String(text == null ? '' : text)
+    .replace(/[\u0000-\u001F\u007F]/g, ' ')  // strip control chars
+    .replace(/[\[\]]/g, ' ')                   // `say` treats [[ ]] as commands
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 8000);
+}
+
+// FREE offline voiceover fallback using the operating system's built-in
+// text-to-speech, so a video is NEVER silent even without an OpenAI key. On
+// macOS this is the built-in `say` command (free + offline): it writes an AIFF
+// we hand straight to the encoder (ffmpeg reads AIFF natively — no lossy
+// re-encode needed). The narration is passed via a temp text FILE (`say -f`) so
+// nothing in the text can be misread as a command-line option. Returns the
+// produced audio file path, or null if this platform has no wired free engine
+// or the engine failed (caller then falls back to silence).
+async function synthesizeLocalTts(text, workDir, index) {
+  const clean = sanitizeForSay(text);
+  if (!clean) return null;
+  if (process.platform === 'darwin') {
+    const txtPath = path.join(workDir, `say-${index}.txt`);
+    const aiffPath = path.join(workDir, `say-${index}.aiff`);
+    try {
+      fs.writeFileSync(txtPath, clean, 'utf8');
+      await run('say', ['-f', txtPath, '-o', aiffPath]);
+      if (fs.existsSync(aiffPath) && fs.statSync(aiffPath).size > 1000) return aiffPath;
+    } catch (e) {
+      console.warn('[VideoGen] macOS `say` voiceover failed:', e && e.message ? e.message : e);
+    } finally {
+      try { fs.unlinkSync(txtPath); } catch { /* ignore */ }
+    }
+    return null;
+  }
+  // Other platforms (Windows/Linux): no trivially-available free offline engine
+  // is wired yet, so the caller falls back to silence. (Windows SAPI / Linux
+  // espeak could be added here later.)
+  return null;
+}
+
 // Generate a silent MP3 of a fixed length (fallback when TTS is unavailable).
 async function synthesizeSilence(seconds, outPath) {
   await run(ffmpegPath, [
@@ -1088,6 +1133,10 @@ async function concatSegments(segmentPaths, outPath) {
  * @param {string} [opts.outputPath]      Where to write the final MP4.
  * @param {string} [opts.openaiApiKey]    OpenAI key for TTS (falls back to env).
  * @param {string} [opts.voice]           OpenAI TTS voice (default 'nova').
+ * @param {(p:{phase:string,current:number,total:number,completed:number,totalSteps:number,label:string})=>void} [opts.onProgress]
+ *        Optional live-progress callback fired at each meaningful step (one per
+ *        slide, plus a final stitch step) so the UI can show a real progress bar
+ *        and an estimated time remaining. Errors it throws are swallowed.
  * @param {'off'|'mindmap'|'photo'|'auto'|'videoclip'} [opts.visuals] Slide visuals
  *        mode (default 'auto'). off = text only; mindmap = mind map on section
  *        slides; photo = a free CC0/PDM stock photo on every content slide; auto =
@@ -1102,6 +1151,24 @@ async function concatSegments(segmentPaths, outPath) {
  *                     fileSizeBytes?:number, usedTts:boolean, slideCount:number,
  *                     error?:string}>}
  */
+// Normalize the caller's slide-visuals selection into independent on/off flags.
+// Accepts EITHER the new multi-select object { mindmap, photo, videoclip } OR a
+// legacy single-string mode (off|mindmap|photo|auto|videoclip). Default (nothing
+// passed) is the reliable, free, no-garbage combo: mind maps + photos, NO clips.
+function normalizeVisuals(v) {
+  if (v && typeof v === 'object') {
+    return { mindmap: !!v.mindmap, photo: !!v.photo, videoclip: !!v.videoclip };
+  }
+  switch (v) {
+    case 'off':       return { mindmap: false, photo: false, videoclip: false };
+    case 'mindmap':   return { mindmap: true,  photo: false, videoclip: false };
+    case 'photo':     return { mindmap: false, photo: true,  videoclip: false };
+    case 'videoclip': return { mindmap: true,  photo: false, videoclip: true };
+    case 'auto':      return { mindmap: true,  photo: true,  videoclip: false };
+    default:          return { mindmap: true,  photo: true,  videoclip: false };
+  }
+}
+
 async function generateSlideshowVideo(opts) {
   const slides = Array.isArray(opts && opts.slides) ? opts.slides : [];
   if (slides.length === 0) {
@@ -1111,13 +1178,23 @@ async function generateSlideshowVideo(opts) {
   const apiKey = (opts.openaiApiKey && String(opts.openaiApiKey).trim()) || process.env.OPENAI_API_KEY || '';
   const voice = opts.voice || 'nova';
   const style = opts.style || {};
-  // Slide visuals: 'off' = text only; 'mindmap' = mind map on section slides
-  // (Phase A); 'photo' = a free stock photo on every content slide; 'auto' = mind
-  // maps for sections + photos for leaf slides (Phase B); 'videoclip' = moving
-  // public-domain clip behind leaf/cover slides (Phase C). Default to 'auto'. Any
-  // unknown value falls back to 'auto'.
-  const VISUALS_MODES = ['off', 'mindmap', 'photo', 'auto', 'videoclip'];
-  const visuals = VISUALS_MODES.includes(opts.visuals) ? opts.visuals : 'auto';
+
+  // Live progress reporting. The caller (IPC handler) passes an onProgress
+  // callback; we invoke it at meaningful steps so the dialog can show a real
+  // progress bar + time-remaining estimate. Every slide is one step, plus a
+  // final "stitch" step, so the bar only reaches 100% when the file is done.
+  // Wrapped so a misbehaving listener can NEVER break or slow the render.
+  const onProgress = typeof opts.onProgress === 'function' ? opts.onProgress : null;
+  const totalSteps = slides.length + 1;
+  const report = (payload) => {
+    if (!onProgress) return;
+    try { onProgress(payload); } catch { /* a progress listener must never break the render */ }
+  };
+  // Slide visuals are now INDEPENDENT, combinable toggles: mind maps, photos, and
+  // video clips can each be on or off. normalizeVisuals accepts the new
+  // { mindmap, photo, videoclip } object OR a legacy single-string mode, and
+  // defaults (nothing passed) to the reliable, free combo mind maps + photos.
+  const vis = normalizeVisuals(opts.visuals);
   // Per-render photo cache (query -> result|null) and a shared media credit log
   // (photos AND clips both write into it).
   const photoCache = new Map();
@@ -1153,6 +1230,12 @@ async function generateSlideshowVideo(opts) {
   try {
     for (let i = 0; i < slides.length; i++) {
       const slide = slides[i];
+      // Report the start of this slide's work — the bar advances one step per
+      // completed slide (completed = i means i slides are already behind us).
+      report({
+        phase: 'rendering', current: i + 1, total: slides.length,
+        completed: i, totalSteps, label: `Rendering slide ${i + 1} of ${slides.length}`,
+      });
       const pngPath = path.join(workDir, `slide-${i}.png`);
       const audioPath = path.join(workDir, `audio-${i}.mp3`);
       const segPath = path.join(workDir, `segment-${i}.mp4`);
@@ -1172,18 +1255,26 @@ async function generateSlideshowVideo(opts) {
       const isCover = slide && slide.kind === 'cover';
       const isSection = !!(slide && slide.mindmapMermaid);
 
+      // Combinable per-slide rules:
+      //   • section slide (has children) → a mind map, if Mind maps is on
+      //   • detail/leaf slide (or a section with Mind maps off) → a video clip if
+      //     Video clips is on, else a photo if Photos is on
+      //   • cover slide → a video clip if on, else a photo if on
+      // Video clips prefer over photos on the SAME detail slide; a clip that
+      // can't be matched falls back to a photo below (never a forced bad clip).
       let wantMindmap = false;
       let wantPhoto = false;
       let wantClip = false;
       if (!isCover) {
-        if (visuals === 'mindmap') wantMindmap = isSection;
-        else if (visuals === 'photo') wantPhoto = true;
-        else if (visuals === 'auto') { wantMindmap = isSection; wantPhoto = !isSection; }
-        else if (visuals === 'videoclip') { wantMindmap = isSection; wantClip = !isSection; }
-      } else if (visuals === 'photo' || visuals === 'auto') {
-        wantPhoto = true; // cover gets a tasteful photo background when available
-      } else if (visuals === 'videoclip') {
-        wantClip = true; // cover gets a moving clip background when available
+        if (isSection && vis.mindmap) {
+          wantMindmap = true;
+        } else {
+          if (vis.videoclip) wantClip = true;
+          else if (vis.photo) wantPhoto = true;
+        }
+      } else {
+        if (vis.videoclip) wantClip = true;
+        else if (vis.photo) wantPhoto = true;
       }
 
       let mindmapSvg = null;
@@ -1222,31 +1313,55 @@ async function generateSlideshowVideo(opts) {
         isVideoSlide ? { videoClip: true, transparent: true } : undefined,
       );
 
-      // 2. Narration audio (TTS if we can, else fixed-length silence).
+      // 2. Narration audio. Fallback chain so a video is NEVER silent:
+      //    OpenAI TTS (if a key is present) → FREE built-in OS voice (macOS
+      //    `say`) → fixed-length silence (last resort). `audioFile` points at
+      //    whichever track we produced (the OS voice writes its own AIFF).
       const narration = (slide.narration || slide.title || '').trim();
       let gotAudio = false;
+      let audioFile = audioPath;
+      if (narration && (apiKey || process.platform === 'darwin')) {
+        // Same step (bar doesn't jump back) — just a friendlier label while the
+        // voiceover work runs, which is the slow part of a slide.
+        report({
+          phase: 'voiceover', current: i + 1, total: slides.length,
+          completed: i, totalSteps, label: `Adding voiceover (${i + 1} of ${slides.length})`,
+        });
+      }
       if (apiKey && narration) {
         try {
           await synthesizeTts(narration, voice, apiKey, audioPath);
           usedTts = true;
           gotAudio = true;
+          audioFile = audioPath;
         } catch (ttsErr) {
-          console.warn('[VideoGen] TTS failed, using silent fallback:', ttsErr.message);
+          console.warn('[VideoGen] OpenAI TTS failed, trying the free built-in voice:', ttsErr.message);
+        }
+      }
+      if (!gotAudio && narration) {
+        // FREE offline voiceover so the video still narrates without any key.
+        const localPath = await synthesizeLocalTts(narration, workDir, i);
+        if (localPath) {
+          usedTts = true;
+          gotAudio = true;
+          audioFile = localPath;
         }
       }
       if (!gotAudio) {
-        // Length roughly proportional to narration so silent videos still pace.
+        // Last resort: fixed-length silence, roughly proportional to narration
+        // so a silent slide still paces sensibly.
         const words = narration ? narration.split(/\s+/).length : 0;
         const seconds = Math.max(FALLBACK_SECONDS, Math.round(words / 2.5));
         await synthesizeSilence(seconds, audioPath);
+        audioFile = audioPath;
       }
 
       // 3. Encode the per-slide segment (fades sized to the narration length).
-      const segDuration = await probeDuration(audioPath);
+      const segDuration = await probeDuration(audioFile);
       if (isVideoSlide) {
         try {
           // Composite the moving clip behind the transparent text overlay.
-          await encodeVideoSegment(clipPath, pngPath, audioPath, segPath, segDuration);
+          await encodeVideoSegment(clipPath, pngPath, audioFile, segPath, segDuration);
         } catch (clipErr) {
           // Compositing failed (bad/corrupt clip, unsupported codec, etc.). The
           // transparent PNG alone would be unreadable, so re-render this slide as
@@ -1254,16 +1369,24 @@ async function generateSlideshowVideo(opts) {
           // stays intact and the slide is still perfectly usable.
           console.warn('[VideoGen] clip compositing failed, using text slide:', clipErr && clipErr.message ? clipErr.message : clipErr);
           await renderSlidePng(slide, pngPath, i, slides.length, style, null, null, undefined);
-          await encodeSegment(pngPath, audioPath, segPath, segDuration);
+          await encodeSegment(pngPath, audioFile, segPath, segDuration);
         }
       } else {
-        await encodeSegment(pngPath, audioPath, segPath, segDuration);
+        await encodeSegment(pngPath, audioFile, segPath, segDuration);
       }
       segmentPaths.push(segPath);
     }
 
-    // Stitch everything together.
+    // Stitch everything together — the final step of the progress bar.
+    report({
+      phase: 'stitching', current: slides.length, total: slides.length,
+      completed: slides.length, totalSteps, label: 'Stitching video',
+    });
     await concatSegments(segmentPaths, outputPath);
+    report({
+      phase: 'done', current: slides.length, total: slides.length,
+      completed: totalSteps, totalSteps, label: 'Finishing up',
+    });
 
     // Record photo + clip provenance beside the MP4 (best-effort; never blocks).
     writeMediaCredits(outputPath, mediaCredits);

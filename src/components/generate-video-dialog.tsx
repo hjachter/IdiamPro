@@ -36,7 +36,9 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { Progress } from '@/components/ui/progress';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Video, Loader2, AlertTriangle, Play, Monitor, CheckCircle2, Upload, X, Check, Sparkles } from 'lucide-react';
 import type { Outline } from '@/types';
@@ -92,39 +94,42 @@ function saveDepthKey(key: DepthKey): void {
   try { window.localStorage.setItem(DEPTH_STORAGE_KEY, key); } catch { /* ignore */ }
 }
 
-// Slide visuals control — what appears alongside the text on each slide.
-// Phase A shipped mind maps (auto-drawn from the outline branch); Phase B added
-// free public-domain photos and an "Auto" mix; Phase C adds moving public-domain
-// video-clip backgrounds. "AI illustrations" remain deferred. Default is Auto.
-//   Off        — text-only slides
-//   Mind maps  — a mind map of each section, drawn from the outline
-//   Photos     — a free public-domain photo on every slide
-//   Auto       — mind maps for sections + photos for details (recommended)
-//   Video clips— mind maps for sections + a moving public-domain clip on details
-const VISUALS_OPTIONS = [
-  { value: 'off', label: 'Off', hint: 'Text-only slides' },
-  { value: 'mindmap', label: 'Mind maps', hint: 'Draw a mind map of each section from your outline' },
-  { value: 'photo', label: 'Photos', hint: 'Add a free public-domain photo to each slide' },
-  { value: 'auto', label: 'Auto', hint: 'Mind maps for sections, photos for details (recommended)' },
-  { value: 'videoclip', label: 'Video clips', hint: 'Moving public-domain clip behind detail slides (free); mind maps for sections' },
+// Slide visuals — INDEPENDENT, combinable options (not mutually exclusive). Each
+// can be toggled on its own; mixing is resolved per-slide by the render pipeline:
+//   • Mind maps  — a mind map of each section, drawn from your outline
+//   • Photos     — a free public-domain photo matched to a slide
+//   • Video clips— a moving free public-domain clip behind detail slides
+// Per-slide logic: sections prefer a mind map (if on); detail slides prefer a
+// video clip (if on) else a photo (if on); the cover gets a photo/clip if on.
+// Nothing checked → text-only slides. Default: Mind maps + Photos ON, Video
+// clips OFF (the reliable, free, no-garbage combo).
+type VisualsSel = { mindmap: boolean; photo: boolean; videoclip: boolean };
+const DEFAULT_VISUALS_SEL: VisualsSel = { mindmap: true, photo: true, videoclip: false };
+const VISUALS_STORAGE_KEY = 'idiampro:video-visuals-set';
+
+const VISUALS_ITEMS = [
+  { key: 'mindmap', label: 'Mind maps', hint: 'Draw a mind map of each section from your outline' },
+  { key: 'photo', label: 'Photos', hint: 'Add a free public-domain photo matched to your slides' },
+  { key: 'videoclip', label: 'Video clips', hint: 'Moving public-domain clip behind detail slides (free); falls back to a photo when no strong match is found' },
 ] as const;
 
-type VisualsKey = (typeof VISUALS_OPTIONS)[number]['value'];
-const DEFAULT_VISUALS_KEY: VisualsKey = 'auto';
-const VISUALS_STORAGE_KEY = 'idiampro:video-visuals';
-
-function loadVisualsKey(): VisualsKey {
-  if (typeof window === 'undefined') return DEFAULT_VISUALS_KEY;
+function loadVisualsSel(): VisualsSel {
+  if (typeof window === 'undefined') return { ...DEFAULT_VISUALS_SEL };
   try {
     const saved = window.localStorage.getItem(VISUALS_STORAGE_KEY);
-    if (saved && VISUALS_OPTIONS.some((o) => o.value === saved)) return saved as VisualsKey;
-  } catch { /* localStorage unavailable — fall back to default */ }
-  return DEFAULT_VISUALS_KEY;
+    if (saved) {
+      const p = JSON.parse(saved) as Partial<VisualsSel>;
+      if (p && typeof p === 'object') {
+        return { mindmap: !!p.mindmap, photo: !!p.photo, videoclip: !!p.videoclip };
+      }
+    }
+  } catch { /* localStorage unavailable / bad JSON — fall back to default */ }
+  return { ...DEFAULT_VISUALS_SEL };
 }
 
-function saveVisualsKey(key: VisualsKey): void {
+function saveVisualsSel(sel: VisualsSel): void {
   if (typeof window === 'undefined') return;
-  try { window.localStorage.setItem(VISUALS_STORAGE_KEY, key); } catch { /* ignore */ }
+  try { window.localStorage.setItem(VISUALS_STORAGE_KEY, JSON.stringify(sel)); } catch { /* ignore */ }
 }
 
 // Reject logo uploads bigger than this — keeps localStorage small and renders fast.
@@ -162,6 +167,26 @@ function formatDuration(totalSeconds: number): string {
   return m > 0 ? `${m} min ${s}s` : `${s}s`;
 }
 
+// Honest, calm phrasing for the live time-remaining line while a video renders.
+// Under a minute reads "less than a minute left"; otherwise "about M min Ss left".
+function formatRemaining(seconds: number): string {
+  if (!Number.isFinite(seconds) || seconds <= 0) return 'almost done';
+  if (seconds < 60) return 'less than a minute left';
+  const m = Math.floor(seconds / 60);
+  const s = Math.round(seconds % 60);
+  return s > 0 ? `about ${m} min ${s}s left` : `about ${m} min left`;
+}
+
+// The shape of a live progress update emitted by the Electron render pipeline.
+type VideoProgress = {
+  phase: string;
+  current: number;
+  total: number;
+  completed: number;
+  totalSteps: number;
+  label: string;
+};
+
 export default function GenerateVideoDialog({
   open,
   onOpenChange,
@@ -173,12 +198,17 @@ export default function GenerateVideoDialog({
   const [logoNote, setLogoNote] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [progressLabel, setProgressLabel] = useState<string>('');
+  // Live render progress (real, driven by the Electron pipeline over IPC).
+  const [progress, setProgress] = useState<VideoProgress | null>(null);
+  const renderStartRef = useRef<number>(0);
+  const progressUnsubRef = useRef<null | (() => void)>(null);
+  // Bumped once a second while rendering so the time-remaining line recomputes.
+  const [, setNowTick] = useState(0);
   const [outputPath, setOutputPath] = useState<string | null>(null);
   const [resultInfo, setResultInfo] = useState<{ durationSeconds?: number; usedTts?: boolean } | null>(null);
   const [acknowledgedLarge, setAcknowledgedLarge] = useState(false);
   const [depthKey, setDepthKey] = useState<DepthKey>(DEFAULT_DEPTH_KEY);
-  const [visualsKey, setVisualsKey] = useState<VisualsKey>(DEFAULT_VISUALS_KEY);
+  const [visualsSel, setVisualsSel] = useState<VisualsSel>(DEFAULT_VISUALS_SEL);
 
   const desktop = isElectron();
   const chapterNode = outline && selectedNodeId ? outline.nodes[selectedNodeId] : null;
@@ -229,12 +259,26 @@ export default function GenerateVideoDialog({
   useEffect(() => {
     setStyle(loadVideoStyle());
     setDepthKey(loadDepthKey());
-    setVisualsKey(loadVisualsKey());
+    setVisualsSel(loadVisualsSel());
   }, []);
 
-  const handleVisualsChange = (key: VisualsKey) => {
-    setVisualsKey(key);
-    saveVisualsKey(key);
+  // While a render is running, tick once a second so the time-remaining line
+  // stays live even between the pipeline's per-slide progress events.
+  useEffect(() => {
+    if (phase !== 'running') return;
+    const id = window.setInterval(() => setNowTick((n) => n + 1), 1000);
+    return () => window.clearInterval(id);
+  }, [phase]);
+
+  // Always drop the progress subscription when the dialog unmounts (leak guard).
+  useEffect(() => () => { progressUnsubRef.current?.(); progressUnsubRef.current = null; }, []);
+
+  const toggleVisual = (key: keyof VisualsSel) => {
+    setVisualsSel((prev) => {
+      const next = { ...prev, [key]: !prev[key] };
+      saveVisualsSel(next);
+      return next;
+    });
   };
 
   const maxDepth = useMemo(
@@ -286,7 +330,9 @@ export default function GenerateVideoDialog({
   const reset = () => {
     setPhase('configure');
     setErrorMsg(null);
-    setProgressLabel('');
+    progressUnsubRef.current?.();
+    progressUnsubRef.current = null;
+    setProgress(null);
     setOutputPath(null);
     setResultInfo(null);
     setAcknowledgedLarge(false);
@@ -316,23 +362,25 @@ export default function GenerateVideoDialog({
     setPhase('running');
     setErrorMsg(null);
 
-    // The IPC call is a single long-running promise (no streaming events yet),
-    // so we simulate staged progress copy on a timer to reassure the user the
-    // render is alive. The stages mirror the pipeline's real internal steps.
-    const stages = ['Writing slides…', 'Generating voiceover…', 'Stitching video…'];
-    let stageIdx = 0;
-    setProgressLabel(stages[0]);
-    const timer = setInterval(() => {
-      stageIdx = Math.min(stageIdx + 1, stages.length - 1);
-      setProgressLabel(stages[stageIdx]);
-    }, Math.max(3000, estimateSeconds(slideCount) * 1000 / 3));
+    // Real progress: subscribe to the pipeline's live per-slide events (plus a
+    // final stitch step) so the bar and the time-remaining line reflect the
+    // ACTUAL render, not a timer. Seed a 0% "Preparing…" state so the UI shows a
+    // bar immediately, before the first event lands.
+    renderStartRef.current = Date.now();
+    setProgress({ phase: 'preparing', current: 0, total: slideCount, completed: 0, totalSteps: slideCount + 1, label: 'Preparing…' });
+    progressUnsubRef.current?.();
+    const progressApi = (window as unknown as {
+      electronAPI?: { onGenerateVideoProgress?: (cb: (p: VideoProgress) => void) => () => void };
+    }).electronAPI;
+    progressUnsubRef.current = progressApi?.onGenerateVideoProgress?.((p) => setProgress(p)) ?? null;
+    const stopProgress = () => { progressUnsubRef.current?.(); progressUnsubRef.current = null; };
 
     try {
       const result = await api.generateSlideshowVideo({
         slides,
         voice: style.voice,
         openaiApiKey: getUserApiKey('openai') || undefined,
-        visuals: visualsKey,
+        visuals: visualsSel,
         style: {
           theme: style.theme,
           accent: style.accent,
@@ -341,7 +389,7 @@ export default function GenerateVideoDialog({
           watermark,
         },
       });
-      clearInterval(timer);
+      stopProgress();
       if (!result?.success || !result.outputPath) {
         setErrorMsg(result?.error || 'The video could not be generated. Please try again.');
         setPhase('error');
@@ -356,7 +404,7 @@ export default function GenerateVideoDialog({
       setResultInfo({ durationSeconds: result.durationSeconds, usedTts: result.usedTts });
       setPhase('done');
     } catch (e) {
-      clearInterval(timer);
+      stopProgress();
       const raw = e instanceof Error ? e.message : String(e);
       setErrorMsg(`The video did not generate. ${raw ? `Reason: ${raw}.` : ''}`);
       setPhase('error');
@@ -483,33 +531,33 @@ export default function GenerateVideoDialog({
                   </div>
                 </div>
 
-                {/* Slide visuals — what appears alongside the text (Phase A: mind maps). */}
+                {/* Slide visuals — combinable, independent options (mind maps,
+                    photos, video clips). Multi-select, not mutually exclusive. */}
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">Slide visuals</Label>
-                  <div className="flex flex-wrap gap-1.5">
-                    {VISUALS_OPTIONS.map((opt) => {
-                      const selected = visualsKey === opt.value;
-                      return (
-                        <Tooltip key={opt.value}>
-                          <TooltipTrigger asChild>
-                            <button
-                              type="button"
-                              onClick={() => handleVisualsChange(opt.value)}
-                              aria-label={`${opt.label} — ${opt.hint}`}
-                              aria-pressed={selected}
-                              className={`px-3 py-1.5 text-sm rounded-md border transition-colors ${
-                                selected
-                                  ? 'bg-primary text-primary-foreground border-primary'
-                                  : 'text-muted-foreground border-border hover:bg-accent'
-                              }`}
-                            >
-                              {opt.label}
-                            </button>
-                          </TooltipTrigger>
-                          <TooltipContent>{opt.hint}</TooltipContent>
-                        </Tooltip>
-                      );
-                    })}
+                  <p className="text-xs text-muted-foreground">
+                    Combine any of these. Mind maps and photos are on by default; leave all unchecked for text-only slides.
+                  </p>
+                  <div className="space-y-1.5">
+                    {VISUALS_ITEMS.map((opt) => (
+                      <label
+                        key={opt.key}
+                        htmlFor={`vis-${opt.key}`}
+                        className="flex items-start gap-2.5 rounded-md border p-2.5 cursor-pointer hover:bg-accent/50 transition-colors"
+                      >
+                        <Checkbox
+                          id={`vis-${opt.key}`}
+                          checked={visualsSel[opt.key]}
+                          onCheckedChange={() => toggleVisual(opt.key)}
+                          aria-label={opt.label}
+                          className="mt-0.5"
+                        />
+                        <span className="grid gap-0.5">
+                          <span className="text-sm font-medium leading-none">{opt.label}</span>
+                          <span className="text-xs text-muted-foreground">{opt.hint}</span>
+                        </span>
+                      </label>
+                    ))}
                   </div>
                 </div>
 
@@ -640,7 +688,7 @@ export default function GenerateVideoDialog({
                   </RadioGroup>
                   {!getUserApiKey('openai') && (
                     <p className="text-xs text-muted-foreground">
-                      No OpenAI key found — the video will render with silent slides. Add a key in Settings for AI voiceover.
+                      No AI voice key found — your video still narrates, using your Mac&rsquo;s built-in voice (free). Add an OpenAI key in Settings for a more natural AI voiceover.
                     </p>
                   )}
                 </div>
@@ -673,15 +721,36 @@ export default function GenerateVideoDialog({
           </div>
         )}
 
-        {desktop && phase === 'running' && (
-          <div className="flex flex-col items-center justify-center py-10 gap-3">
-            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-            <p className="text-sm font-medium">{progressLabel || 'Rendering…'}</p>
-            <p className="text-xs text-muted-foreground">
-              This can take a few minutes. Keep the app open.
-            </p>
-          </div>
-        )}
+        {desktop && phase === 'running' && (() => {
+          const totalStepsNow = progress?.totalSteps ?? (slideCount + 1);
+          const completedNow = progress?.completed ?? 0;
+          const rawFraction = totalStepsNow > 0 ? completedNow / totalStepsNow : 0;
+          // Hold the bar just under 100% until the file is truly finished.
+          const fraction = completedNow >= totalStepsNow ? 1 : Math.min(0.99, rawFraction);
+          const percent = Math.round(fraction * 100);
+          const elapsedSec = renderStartRef.current ? (Date.now() - renderStartRef.current) / 1000 : 0;
+          // Once we have real progress, project remaining from elapsed vs. fraction
+          // done; before that, fall back to the slide-count estimate.
+          const remainingSec = fraction > 0.02
+            ? elapsedSec * (1 - fraction) / fraction
+            : Math.max(0, estimateSeconds(slideCount) - elapsedSec);
+          return (
+            <div className="py-8 px-1 space-y-4">
+              <div className="flex items-center gap-2.5 text-sm font-medium">
+                <Loader2 className="h-4 w-4 animate-spin text-muted-foreground shrink-0" />
+                <span className="truncate">{progress?.label || 'Preparing…'}</span>
+              </div>
+              <Progress value={percent} aria-label="Video render progress" />
+              <div className="flex items-center justify-between text-xs text-muted-foreground tabular-nums">
+                <span>{percent}%</span>
+                <span>{formatRemaining(remainingSec)}</span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Keep the app open while your video renders.
+              </p>
+            </div>
+          );
+        })()}
 
         {desktop && phase === 'done' && (
           <div className="flex flex-col items-center justify-center py-8 gap-3 text-center">
@@ -690,7 +759,7 @@ export default function GenerateVideoDialog({
             <p className="text-xs text-muted-foreground">
               Saved to your Documents · IdiamPro Videos folder
               {resultInfo?.durationSeconds ? ` · ${formatDuration(resultInfo.durationSeconds)} long` : ''}
-              {resultInfo && resultInfo.usedTts === false ? ' · silent (no voiceover key)' : ''}
+              {resultInfo && resultInfo.usedTts === false ? ' · silent (no voiceover available)' : ''}
             </p>
           </div>
         )}

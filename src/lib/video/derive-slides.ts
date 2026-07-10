@@ -49,6 +49,10 @@ const MINDMAP_MAX_DEPTH = 2;
 const MINDMAP_MAX_NODES = 20;
 
 const MAX_BULLETS = 5;
+// A bullet is a PHRASE, never a paragraph. Anything longer than this gets
+// truncated at a word boundary with an ellipsis so slides stay readable and
+// never render a run-on wall of text.
+const MAX_BULLET_CHARS = 120;
 const DEFAULT_MAX_DEPTH = 2;
 const DEFAULT_MAX_SLIDES = 400;
 
@@ -72,14 +76,54 @@ function stripHtml(html: string): string {
     .trim();
 }
 
-/** Break plain prose into up to `max` sentence-ish bullet fragments. */
-function sentencesToBullets(text: string, max: number): string[] {
-  if (!text) return [];
-  return text
-    .split(/(?<=[.!?])\s+/)
-    .map((s) => s.trim())
-    .filter((s) => s.length > 0)
-    .slice(0, max);
+/**
+ * Tidy a single bullet: collapse stray whitespace and cap it to a readable
+ * length, truncating at a word boundary with an ellipsis when it runs long.
+ * Emojis are preserved; only the layout-breaking length is trimmed.
+ */
+function tidyBullet(s: string): string {
+  const t = String(s || '').replace(/\s+/g, ' ').trim();
+  if (t.length <= MAX_BULLET_CHARS) return t;
+  const slice = t.slice(0, MAX_BULLET_CHARS);
+  const lastSpace = slice.lastIndexOf(' ');
+  const cut = lastSpace > MAX_BULLET_CHARS * 0.6 ? slice.slice(0, lastSpace) : slice;
+  return cut.replace(/[\s.,;:!?—-]+$/, '') + '…';
+}
+
+/**
+ * Break a node's rich-text content into SHORT, clean bullets. Splits on block
+ * boundaries (paragraphs, list items, <br>) AND sentence boundaries, trims each
+ * fragment, drops empties, caps each bullet's length, and caps the count — so a
+ * single dense paragraph becomes several readable phrases instead of one
+ * run-on wall of text.
+ */
+function contentToBullets(html: string, max: number): string[] {
+  if (!html) return [];
+  // Turn block-level boundaries into newlines BEFORE stripping tags, so separate
+  // paragraphs / list items don't fuse into one giant bullet.
+  const withBreaks = String(html)
+    .replace(/<\/(p|div|li|h[1-6]|tr)>/gi, '\n')
+    .replace(/<br\s*\/?>/gi, '\n');
+  const text = withBreaks
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/[^\S\n]+/g, ' '); // collapse spaces/tabs but KEEP newlines as splits
+  const out: string[] = [];
+  for (const rawLine of text.split(/\n+/)) {
+    const line = rawLine.trim();
+    if (!line) continue;
+    // Split each line on sentence boundaries so a multi-sentence paragraph
+    // becomes several bullets rather than one.
+    for (const sentence of line.split(/(?<=[.!?])\s+/)) {
+      const b = tidyBullet(sentence);
+      if (b) out.push(b);
+      if (out.length >= max) return out;
+    }
+  }
+  return out;
 }
 
 /** Live child ids (existing nodes only). */
@@ -115,7 +159,8 @@ export function deriveSlidesFromChapter(
   const agenda = liveChildIds(nodes, chapterId)
     .map((id) => nodes[id]?.name?.trim())
     .filter((n): n is string => !!n)
-    .slice(0, MAX_BULLETS);
+    .slice(0, MAX_BULLETS)
+    .map(tidyBullet);
   slides.push({
     title: chapter.name || 'Untitled',
     bullets: agenda,
@@ -131,7 +176,8 @@ export function deriveSlidesFromChapter(
     const grandchildNames = childIds
       .map((id) => nodes[id]?.name?.trim())
       .filter((n): n is string => !!n)
-      .slice(0, MAX_BULLETS);
+      .slice(0, MAX_BULLETS)
+      .map(tidyBullet);
 
     // Section slides (a node that HAS children) carry a mind map of their
     // subtree; leaf slides stay text-only. Capped so it stays legible.
@@ -146,7 +192,7 @@ export function deriveSlidesFromChapter(
     // sentences of the node's own content so the slide isn't empty.
     const bullets = grandchildNames.length > 0
       ? grandchildNames
-      : sentencesToBullets(prose, 4);
+      : contentToBullets(child.content, MAX_BULLETS);
 
     // Narration: the node's name plus its prose. If neither exists, at least
     // read the title so the slide has audio.
