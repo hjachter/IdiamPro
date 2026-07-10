@@ -1002,30 +1002,9 @@ export default function OutlinePane({
             </DropdownMenu>
         </TooltipProvider>
 
-        {/* Backup button — quick snapshot of the current outline. The Restore
-            tab lives one click away inside the same dialog. (Tier 2: tablet+) */}
-        {onOpenBackup && (
-            <TooltipProvider>
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={onOpenBackup}
-                            disabled={!currentOutline}
-                            className="shrink-0 active:scale-95 active:bg-accent/30 hidden sm:inline-flex min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
-                            aria-label="Backup — save a snapshot of this outline"
-                            data-testid="backup-outline-button"
-                        >
-                            <ShieldCheck className="h-4 w-4" />
-                        </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom">Backup outline</TooltipContent>
-                </Tooltip>
-            </TooltipProvider>
-        )}
-
-        {/* Export dropdown — sending data OUT of the outline (Tier 2: tablet+) */}
+        {/* Export dropdown — sending data OUT of the outline. Placed
+            immediately after Import so the two data-transfer controls read as
+            one Import → Export pair. (Tier 2: tablet+) */}
         <TooltipProvider>
             <DropdownMenu>
                 <Tooltip>
@@ -1082,6 +1061,29 @@ export default function OutlinePane({
                 </DropdownMenuContent>
             </DropdownMenu>
         </TooltipProvider>
+
+        {/* Backup button — quick snapshot of the current outline. The Restore
+            tab lives one click away inside the same dialog. (Tier 2: tablet+) */}
+        {onOpenBackup && (
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={onOpenBackup}
+                            disabled={!currentOutline}
+                            className="shrink-0 active:scale-95 active:bg-accent/30 hidden sm:inline-flex min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
+                            aria-label="Backup — save a snapshot of this outline"
+                            data-testid="backup-outline-button"
+                        >
+                            <ShieldCheck className="h-4 w-4" />
+                        </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom">Backup outline</TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
+        )}
 
         {/* Overflow menu — gathers tier-2 and tier-3 toolbar actions on
             narrow viewports. Visible on phone + tablet, hidden on desktop
