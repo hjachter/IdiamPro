@@ -1146,6 +1146,33 @@ export default function OutlinePro() {
         return;
       }
 
+      // Ctrl+F to open the outline search. We deliberately use Control (not
+      // Command) so we don't fight Electron/Chromium's built-in Cmd+F page
+      // find. This matches the ⌃F hint shown in the command palette and the
+      // keyboard-shortcuts cheat-sheet. Works from anywhere, including while a
+      // node's inline editor is focused.
+      if (e.ctrlKey && !e.metaKey && !e.shiftKey && (e.key === 'f' || e.key === 'F')) {
+        e.preventDefault();
+        setIsSearchOpen(true);
+        return;
+      }
+
+      // Cmd+B / Ctrl+B to toggle the sidebar (platform convention: Notion,
+      // VS Code). Guarded so it never hijacks Bold while the user is typing in
+      // an input / textarea / rich-text node editor.
+      if ((e.metaKey || e.ctrlKey) && !e.shiftKey && (e.key === 'b' || e.key === 'B')) {
+        const el = document.activeElement as HTMLElement | null;
+        const isEditingText = !!el && (
+          el.tagName === 'INPUT' ||
+          el.tagName === 'TEXTAREA' ||
+          el.isContentEditable
+        );
+        if (isEditingText) return;
+        e.preventDefault();
+        setIsSidebarOpen((prev) => !prev);
+        return;
+      }
+
       // Cmd+Z / Ctrl+Z to undo, +Shift to redo. Skip when the user is editing
       // text in an input / textarea / contenteditable — there the browser's
       // own character-level text undo should win, not the outline-level undo.
