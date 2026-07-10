@@ -367,7 +367,7 @@ export default function CommandPalette({
             >
               <Sparkles className="h-4 w-4 shrink-0 text-primary" />
               <span className="flex-1 min-w-0">
-                <span className="text-muted-foreground">Ask AI: </span>
+                <span className="text-muted-foreground">Tell AI: </span>
                 <span className="font-medium truncate">
                   &ldquo;{searchValue.trim()}&rdquo;
                 </span>

@@ -1745,6 +1745,49 @@ export default function OutlinePro() {
     });
   }, [currentOutlineId]);
 
+  // Add a named node from the Tell-AI command bar. Adds it as a CHILD of the
+  // currently-selected node, or as a top-level node (child of the root) when
+  // nothing is selected. Returns true if the node was actually inserted.
+  // Goes through setOutlines, so it records an undo snapshot automatically.
+  const handleCreateNamedNode = useCallback((rawName: string): boolean => {
+    const name = (rawName && rawName.trim()) || 'New Node';
+    const outline = outlines.find(o => o.id === currentOutlineId);
+    if (!outline) return false;
+    // Prefer the selected node as parent; fall back to the outline root so a
+    // bare "add a node" with nothing selected still lands somewhere sensible.
+    const parentId = (selectedNodeId && outline.nodes[selectedNodeId])
+      ? selectedNodeId
+      : outline.rootNodeId;
+    if (!parentId || !outline.nodes[parentId]) return false;
+
+    setSelectedNodeIds(new Set());
+    setOutlines(currentOutlines => {
+      let newNodeId: string | null = null;
+      const newOutlines = currentOutlines.map(o => {
+        if (o.id === currentOutlineId) {
+          const { newNodes, newNodeId: createdNodeId } = addNode(
+            o.nodes,
+            parentId,
+            'document',
+            name,
+            ''
+          );
+          newNodeId = createdNodeId;
+          return { ...o, nodes: newNodes };
+        }
+        return o;
+      });
+      if (newNodeId) {
+        const capturedNewNodeId = newNodeId;
+        requestAnimationFrame(() => {
+          setSelectedNodeId(capturedNewNodeId);
+        });
+      }
+      return newOutlines;
+    });
+    return true;
+  }, [outlines, currentOutlineId, selectedNodeId]);
+
   // handleCreateSiblingNode adds new node as sibling after specified node (for double-click creation)
   const handleCreateSiblingNode = useCallback((nodeId: string) => {
     // Clear multi-select to ensure single selection (same as handleCreateNode)
@@ -2095,6 +2138,16 @@ export default function OutlinePro() {
           handleCreateOutline(a.name);
           toast({ title: 'AI command', description: `I created a new outline called "${a.name}".`, duration: AI_PERSIST });
           break;
+        case 'create_node': {
+          const nodeName = (a.name && a.name.trim()) || 'New Node';
+          const added = handleCreateNamedNode(nodeName);
+          if (added) {
+            toast({ title: 'AI command', description: `Added a node called "${nodeName}".`, duration: AI_PERSIST });
+          } else {
+            toast({ title: "I'm not sure", description: `I wanted to add a node called "${nodeName}", but I couldn't find an open outline to put it in. Open or create an outline first and I'll add it right away.`, duration: AI_PERSIST });
+          }
+          break;
+        }
         case 'collapse_all':
           handleCollapseAll();
           toast({ title: 'AI command', description: 'I collapsed the whole tree for you.', duration: AI_PERSIST });
@@ -2149,7 +2202,7 @@ export default function OutlinePro() {
     } finally {
       setPendingAICommand(null);
     }
-  }, [handleCreateOutline, handleCollapseAll, handleExpandAll, handleDeleteNode, resolveNodeHint, toast]);
+  }, [handleCreateOutline, handleCreateNamedNode, handleCollapseAll, handleExpandAll, handleDeleteNode, resolveNodeHint, toast]);
 
   const handleAICommand = useCallback(async (text: string) => {
     // Tier-enforcement gate (#33): one Tell-AI / NL-command submission =
