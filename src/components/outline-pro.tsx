@@ -877,11 +877,14 @@ export default function OutlinePro() {
           }
         }
 
-        // Notify user if duplicate IDs were fixed
+        // Notify user if duplicate IDs were fixed. Framed as a calm, plain-English
+        // reassurance rather than the old CLI-style "Fixed Duplicate Outline IDs".
         if (fixedDuplicateCount && fixedDuplicateCount > 0) {
+          const many = fixedDuplicateCount > 1;
+          const names = fixedDuplicateNames?.length ? `: ${fixedDuplicateNames.join(', ')}` : '';
           toast({
-            title: "Fixed Duplicate Outline IDs",
-            description: `${fixedDuplicateCount} outline(s) had duplicate IDs that were automatically fixed: ${fixedDuplicateNames?.join(', ')}`,
+            title: "Outlines tidied up",
+            description: `${fixedDuplicateCount} ${many ? 'outlines were' : 'outline was'} automatically cleaned up in the background — no action needed${names}.`,
             duration: 8000,
           });
         }
@@ -2825,7 +2828,7 @@ export default function OutlinePro() {
     } catch (e) {
       toast({
         variant: "destructive",
-        title: "AI Error",
+        title: "Couldn't generate that",
         description: (e as Error).message || "Could not generate branch.",
       });
     } finally {
@@ -2875,7 +2878,7 @@ export default function OutlinePro() {
     } catch (e) {
       toast({
         variant: "destructive",
-        title: "AI Error",
+        title: "Couldn't expand this note",
         description: (e as Error).message || "Could not expand content.",
       });
     } finally {
@@ -2892,7 +2895,7 @@ export default function OutlinePro() {
     } catch (e) {
       toast({
         variant: "destructive",
-        title: "AI Error",
+        title: "Couldn't generate content",
         description: (e as Error).message || "Could not generate content.",
       });
       throw e;

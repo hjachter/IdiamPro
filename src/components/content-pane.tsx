@@ -1495,8 +1495,8 @@ export default function ContentPane({
     } catch (error) {
       console.error('Error generating image:', error);
       toast({
-        title: "Error",
-        description: "Failed to generate visual. Please try again.",
+        title: "Couldn't add that image",
+        description: "Something went wrong creating the image. Please try again.",
         variant: "destructive",
       });
     } finally {
