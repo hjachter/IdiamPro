@@ -84,6 +84,21 @@ export interface DiscoveryHint {
  */
 export const DISCOVERY_HINTS: readonly DiscoveryHint[] = [
   {
+    id: 'research-import-sources',
+    title: 'Turn YouTube, PDFs & the web into outlines',
+    body:
+      'Use the Import menu (book-down icon) → "Research & Import" to pull in videos, PDFs, web pages, and recordings — AI synthesizes them into one structured outline.',
+    trigger: 'sidebar-first-load',
+  },
+  {
+    id: 'outline-to-media',
+    title: 'Turn any outline into a video, podcast, or website',
+    body:
+      'Open the Export menu (book-up icon) to render a narrated video or website, or right-click a section to Generate Podcast. Your outline becomes the script.',
+    trigger: 'first-outline-created',
+    minDelayMs: 16000,
+  },
+  {
     id: 'reformat-with-ai',
     title: 'Reformat with AI is here',
     body:

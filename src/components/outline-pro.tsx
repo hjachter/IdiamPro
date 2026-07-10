@@ -2112,6 +2112,9 @@ export default function OutlinePro() {
     setOutlines(currentOutlines => [...currentOutlines, templateOutline]);
     setCurrentOutlineId(templateOutline.id);
     setSelectedNodeId(templateOutline.rootNodeId);
+    // Discovery: template starters are the dominant first-run path, so they
+    // should also see the marquee-feature tips. Dedupe is in the hook.
+    fireDiscovery('first-outline-created');
     toast({
       title: "Outline Created",
       description: `"${templateOutline.name}" has been created from template.`,

@@ -29,7 +29,8 @@ export default function EmptyState({
         </div>
         <h1 className="text-3xl font-bold tracking-tight">Welcome to IdiamPro</h1>
         <p className="text-muted-foreground text-lg leading-relaxed">
-          Create structured outlines for your ideas, projects, and notes.
+          Organize your ideas into outlines — then let AI turn them into videos,
+          podcasts, and websites, or pull in research from YouTube, PDFs, and the web.
         </p>
       </div>
 
