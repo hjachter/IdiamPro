@@ -83,6 +83,7 @@ KEYBOARD SHORTCUTS:
 - Tab: Indent node
 - Shift+Tab: Outdent node
 - Cmd+K: Command palette (also: Expand All, Collapse All)
+- Quick Command / Ask AI command bar (Cmd+K, or the chat-bubble toolbar button): a natural-language command bar that can act on your outline, not just answer questions. You can say things like "add a node called Budget" to create a node in the current outline, or "create an outline called Trip Plan" to make a whole new outline. Plain-English requests; conversational confirmations, never CLI-speak.
 - Cmd+E: Expand All — recursive open of the selected branch (or the whole outline if nothing is selected). Also available from the toolbar's bidirectional double-chevron button (tooltip: "Show or hide all nodes") which opens a dropdown with [Expand all] and [Collapse all] items.
 - Cmd+Shift+E: Collapse All — recursive close of the selected branch (or the whole outline if nothing is selected). Same toolbar dropdown as above.
 - Single-chevron click on a node: toggles ONLY that node and preserves each descendant's previous open/closed state. Use this when you want a node to remember how it was last left.
