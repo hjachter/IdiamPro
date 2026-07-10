@@ -127,6 +127,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import Image from 'next/image';
 import { ArrowLeft, Sparkles, Loader2, Eraser, Scissors, Copy, Clipboard, Type, Undo, Redo, List, ListOrdered, ListX, Minus, FileText, Sheet, Presentation, Video, Map, AppWindow, Plus, Bold, Italic, Strikethrough, Code, Heading1, Heading2, Heading3, ChevronRight, Home, Pencil, ALargeSmall, Check, Calendar, Brush, Network, GitBranch, MessageSquare, ImagePlus, Table, Layers, Image as ImageIcon, Film, CheckSquare, Paperclip, LayoutGrid, WandSparkles } from 'lucide-react';
 import { generateImageAction, generateImageDescriptionAction, generateContentForNodeAction } from '@/app/actions';
+import { useAIUsageGate } from '@/lib/use-ai-usage-gate';
 import { getUserApiKey } from '@/lib/byok-keys';
 import dynamic from 'next/dynamic';
 
@@ -518,6 +519,11 @@ export default function ContentPane({
 
   const aiContentEnabled = useAIFeature('enableAIContentGeneration');
   const { toast } = useToast();
+  // Cost gate: AI image generation (Google Imagen) is a paid, Pro-only spend.
+  // Same shared gate the Podcast / Video features use — it shows the upgrade
+  // prompt for non-Pro users and counts the generation against the monthly cap
+  // for Pro. Mind maps / flowcharts are drawn locally and are never gated.
+  const { gate: aiUsageGate } = useAIUsageGate();
   const isMobile = useIsMobile();
 
   // Only create editor for node types that need rich text editing
@@ -1427,6 +1433,15 @@ export default function ContentPane({
 
         setImagePromptDialogOpen(false);
         setImagePrompt('');
+        return;
+      }
+
+      // COST GATE — this is the real paid Google Imagen spend path. Free /
+      // over-quota users get the shared upgrade prompt here instead of a paid
+      // call; Pro proceeds and the generation is metered. gate() shows the
+      // right UX itself, so we just stop when it returns false.
+      if (!aiUsageGate({ feature: 'imageGeneration' })) {
+        setIsGeneratingImage(false);
         return;
       }
 
