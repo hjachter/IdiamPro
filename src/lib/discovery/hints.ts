@@ -96,7 +96,7 @@ export const DISCOVERY_HINTS: readonly DiscoveryHint[] = [
     id: 'outline-to-media',
     title: 'Turn any outline into a video, podcast, or website',
     body:
-      'Open the Export menu (book-up icon) to render a narrated video or website, or right-click a section to Generate Podcast. Your outline becomes the script.',
+      'Open the Export menu (book-up icon) to turn a section into a narrated video, a website, or a podcast. Your outline becomes the script.',
     trigger: 'first-outline-created',
     minDelayMs: 16000,
   },
@@ -136,7 +136,7 @@ export const DISCOVERY_HINTS: readonly DiscoveryHint[] = [
     id: 'make-something-from-this',
     title: 'Ready to turn this into something?',
     body:
-      'Your outline has enough to work with. Open the Export menu (book-up icon) to render it into a narrated video, a website, or 20+ formats — or right-click a section to Generate Podcast.',
+      'Your outline has enough to work with. Open the Export menu (book-up icon) to turn it into a narrated video, a website, a podcast, or 20+ formats.',
     // Fires once, guarded by a localStorage flag at the call site, the first
     // time an outline reaches a few nodes of real content. One-time by design.
     trigger: 'outline-has-content',

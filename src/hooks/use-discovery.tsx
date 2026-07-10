@@ -22,6 +22,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from 'react';
@@ -199,8 +200,21 @@ export function DiscoveryProvider({ children }: { children: ReactNode }) {
     () => new Set(),
   );
   const [isProfessional, setIsProfessional] = useState<boolean>(false);
-  const [activeIds, setActiveIds] = useState<string[]>([]);
+  // Single-at-a-time surfacing (2026-07-10): only ONE hint is visible at any
+  // moment (`activeId`). Additional eligible hints wait in `queue` and are
+  // promoted one at a time — the next only appears after the current one is
+  // dismissed, plus a short breather. This stops the "three toasts at once"
+  // pile-up a brand-new user hit when creating their first outline. No hint is
+  // ever lost — everything that would have fired is queued instead.
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [queue, setQueue] = useState<string[]>([]);
   const [hydrated, setHydrated] = useState<boolean>(false);
+
+  // Mirror of activeId for read-during-enqueue without a dependency cycle.
+  const activeIdRef = useRef<string | null>(null);
+  useEffect(() => {
+    activeIdRef.current = activeId;
+  }, [activeId]);
 
   useEffect(() => {
     setHardDismissed(storage.loadHardDismissed());
@@ -208,16 +222,26 @@ export function DiscoveryProvider({ children }: { children: ReactNode }) {
     setHydrated(true);
   }, []);
 
-  const showHint = useCallback(
-    (hint: DiscoveryHint) => {
-      setActiveIds((prev) => {
-        // dedupe — never show the same hint twice at once
-        if (prev.includes(hint.id)) return prev;
-        return [...prev, hint.id];
-      });
-    },
-    [],
-  );
+  // Add a hint to the waiting line. Deduped against the currently-visible hint
+  // and anything already queued so a re-fired trigger can't stack duplicates.
+  const enqueueHint = useCallback((hint: DiscoveryHint) => {
+    setQueue((prev) => {
+      if (hint.id === activeIdRef.current) return prev;
+      if (prev.includes(hint.id)) return prev;
+      return [...prev, hint.id];
+    });
+  }, []);
+
+  // Promotion loop: whenever nothing is showing and the queue is non-empty,
+  // surface the next hint after a short, humane gap.
+  useEffect(() => {
+    if (activeId !== null || queue.length === 0) return;
+    const timer = setTimeout(() => {
+      setActiveId(queue[0]);
+      setQueue((prev) => prev.slice(1));
+    }, 600);
+    return () => clearTimeout(timer);
+  }, [activeId, queue]);
 
   // Listen for fire events globally.
   useEffect(() => {
@@ -239,16 +263,16 @@ export function DiscoveryProvider({ children }: { children: ReactNode }) {
             const latestProfessional = storage.loadProfessional();
             if (latestProfessional) return;
             if (latestHard.has(hint.id)) return;
-            showHint(hint);
+            enqueueHint(hint);
           }, delay);
         } else {
-          showHint(hint);
+          enqueueHint(hint);
         }
       }
     };
     eventBus.addEventListener(FIRE_EVENT, handler);
     return () => eventBus.removeEventListener(FIRE_EVENT, handler);
-  }, [hardDismissed, isProfessional, hydrated, showHint]);
+  }, [hardDismissed, isProfessional, hydrated, enqueueHint]);
 
   // Expose a debug helper on window in dev builds.
   useEffect(() => {
@@ -260,8 +284,11 @@ export function DiscoveryProvider({ children }: { children: ReactNode }) {
 
   const dismissHint = useCallback(
     (id: string, options?: DismissOptions) => {
-      // Always remove from the currently-visible queue.
-      setActiveIds((prev) => prev.filter((x) => x !== id));
+      // Clear the currently-visible hint (if it's this one) so the promotion
+      // loop can surface the next queued hint. Also drop it from the queue in
+      // case it was waiting rather than showing.
+      setActiveId((prev) => (prev === id ? null : prev));
+      setQueue((prev) => prev.filter((x) => x !== id));
       // Permanent? Add to the hard-dismissed set and persist.
       if (options?.permanent) {
         setHardDismissed((prev) => {
@@ -283,9 +310,10 @@ export function DiscoveryProvider({ children }: { children: ReactNode }) {
     storage.saveProfessional(value);
     if (value) {
       // Turning Professional mode ON clears everything currently visible
-      // and suppresses future fires (the listener above bails on
-      // `isProfessional`).
-      setActiveIds([]);
+      // and the waiting line, and suppresses future fires (the listener above
+      // bails on `isProfessional`).
+      setActiveId(null);
+      setQueue([]);
     } else {
       // Turning Professional mode OFF restores normal behavior: hints can
       // fire again on their triggers. We DO NOT clear the hard-dismissed
@@ -299,13 +327,11 @@ export function DiscoveryProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const activeHints = useMemo(
-    () =>
-      activeIds
-        .map((id) => DISCOVERY_HINTS.find((h) => h.id === id))
-        .filter((h): h is DiscoveryHint => Boolean(h)),
-    [activeIds],
-  );
+  const activeHints = useMemo(() => {
+    if (!activeId) return [];
+    const hint = DISCOVERY_HINTS.find((h) => h.id === activeId);
+    return hint ? [hint] : [];
+  }, [activeId]);
 
   const value = useMemo<DiscoveryContextValue>(
     () => ({
