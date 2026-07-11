@@ -154,11 +154,20 @@ export function WelcomeShowcase() {
 
   return (
     <Dialog open={open} onOpenChange={(next) => { if (!next) dismiss(); }}>
+      {/*
+        Flex-column layout so the panel stays usable on windows SHORTER than
+        the panel: the header and footer stay pinned while ONLY the card region
+        scrolls. This guarantees the Skip / Get started buttons are always
+        reachable no matter how small the window. `p-0` + `gap-0` override the
+        shared dialog padding so we can pad each region individually; `min-h-0`
+        on the scroll region lets it shrink inside the flex column so its own
+        overflow (not the whole dialog) takes over.
+      */}
       <DialogContent
-        className="sm:max-w-2xl"
+        className="sm:max-w-2xl flex flex-col p-0 gap-0"
         data-testid="welcome-showcase"
       >
-        <DialogHeader>
+        <DialogHeader className="shrink-0 p-6 pb-3">
           <DialogTitle className="text-2xl font-bold tracking-tight">
             What you can make here
           </DialogTitle>
@@ -168,37 +177,42 @@ export function WelcomeShowcase() {
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 py-2">
-          {ITEMS.map((item) => {
-            const Icon = item.icon;
-            return (
-              <div
-                key={item.title}
-                className="flex flex-col gap-2 rounded-lg border border-border/60 bg-card/60 p-4 transition-colors hover:border-primary/40"
-              >
-                <div className="flex items-center gap-2.5">
-                  <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary shrink-0">
-                    <Icon className="h-5 w-5" />
-                  </span>
-                  <span className="font-semibold leading-tight">{item.title}</span>
-                  {item.pro && (
-                    <Badge
-                      variant="secondary"
-                      className="ml-auto shrink-0 px-1.5 py-0 text-[10px] font-semibold uppercase tracking-wide"
-                    >
-                      Pro
-                    </Badge>
-                  )}
+        <div
+          className="min-h-0 flex-1 overflow-y-auto px-6"
+          style={{ WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain' }}
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-2">
+            {ITEMS.map((item) => {
+              const Icon = item.icon;
+              return (
+                <div
+                  key={item.title}
+                  className="flex flex-col gap-2 rounded-lg border border-border/60 bg-card/60 p-4 transition-colors hover:border-primary/40"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary shrink-0">
+                      <Icon className="h-5 w-5" />
+                    </span>
+                    <span className="font-semibold leading-tight">{item.title}</span>
+                    {item.pro && (
+                      <Badge
+                        variant="secondary"
+                        className="ml-auto shrink-0 px-1.5 py-0 text-[10px] font-semibold uppercase tracking-wide"
+                      >
+                        Pro
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {item.blurb}
+                  </p>
                 </div>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  {item.blurb}
-                </p>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
 
-        <DialogFooter className="gap-2 sm:gap-2">
+        <DialogFooter className="shrink-0 gap-2 border-t border-border/40 p-6 pt-3 sm:gap-2">
           <Button
             type="button"
             variant="ghost"
