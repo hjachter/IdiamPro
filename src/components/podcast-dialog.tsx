@@ -29,6 +29,8 @@ import { ChevronDown, ChevronRight, Download, X, Pencil, Plus, Trash2, Sparkles 
 import { canUseFeature } from '@/lib/entitlements';
 import { useAIUsageGate } from '@/lib/use-ai-usage-gate';
 import { useUpgradePrompt } from '@/components/upgrade-prompt';
+import { isElectron } from '@/lib/electron-storage';
+import { getUserApiKey } from '@/lib/byok-keys';
 
 interface PodcastDialogProps {
   open: boolean;
@@ -330,11 +332,76 @@ export default function PodcastDialog({
     const controller = new AbortController();
     abortControllerRef.current = controller;
 
+    // The user's own OpenAI key (BYOK), if they entered one in Settings. This is
+    // the SAME shared key the Generate Video feature reads, so a user who already
+    // added it for video does not re-enter it here.
+    const userOpenaiKey = getUserApiKey('openai') || undefined;
+
+    // Desktop path (mirrors Video): run synthesis in the Electron main process so
+    // a keyless/free user still gets an AUDIBLE two-voice podcast via the free
+    // built-in macOS voices, and a BYOK user's premium OpenAI audio runs on THEIR
+    // key — never a silent output, never a surprise company-key charge.
+    const desktopApi = typeof window !== 'undefined'
+      ? (window as unknown as { electronAPI?: {
+          generatePodcastAudio?: (a: unknown) => Promise<{ success: boolean; audioBase64?: string; usedLocalVoice?: boolean; error?: string }>;
+          onGeneratePodcastProgress?: (cb: (p: { phase: string; message: string; percent: number; segmentIndex?: number; totalSegments?: number }) => void) => () => void;
+        } }).electronAPI
+      : undefined;
+
+    if (isElectron() && desktopApi?.generatePodcastAudio) {
+      let unsub: null | (() => void) = null;
+      try {
+        unsub = desktopApi.onGeneratePodcastProgress?.((p) => {
+          if (p.phase === 'done') return; // handled after the call resolves
+          setProgress({
+            phase: p.phase as PodcastProgress['phase'],
+            message: p.message,
+            percent: p.percent || 0,
+            segmentIndex: p.segmentIndex,
+            totalSegments: p.totalSegments,
+          });
+        }) ?? null;
+
+        const result = await desktopApi.generatePodcastAudio({
+          segments: editableSegments,
+          ttsModel,
+          openaiApiKey: userOpenaiKey,
+        });
+        unsub?.();
+
+        if (!result?.success || !result.audioBase64) {
+          throw new Error(result?.error || 'Audio synthesis failed');
+        }
+        const binary = atob(result.audioBase64);
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+        const blob = new Blob([bytes], { type: 'audio/mpeg' });
+        const url = URL.createObjectURL(blob);
+
+        setAudioBase64(result.audioBase64);
+        setAudioUrl(url);
+        setScriptSegments(editableSegments);
+        setPhase('preview');
+      } catch (err) {
+        unsub?.();
+        setProgress({
+          phase: 'error',
+          message: (err as Error).message || 'Audio synthesis failed',
+          percent: 0,
+        });
+      } finally {
+        abortControllerRef.current = null;
+      }
+      return;
+    }
+
+    // Web / iOS path: the server route. Uses the user's BYOK key if present,
+    // otherwise the company key (the paid path for web/iOS users).
     try {
       const response = await fetch('/api/synthesize-podcast', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ segments: editableSegments, ttsModel }),
+        body: JSON.stringify({ segments: editableSegments, ttsModel, userOpenaiKey }),
         signal: controller.signal,
       });
 
@@ -629,6 +696,11 @@ export default function PodcastDialog({
                     <SelectItem value="tts-1-hd">HD (higher quality)</SelectItem>
                   </SelectContent>
                 </Select>
+                {isElectron() && !getUserApiKey('openai') && (
+                  <p className="text-xs text-muted-foreground">
+                    No AI voice key found — your podcast still records, using your Mac&rsquo;s built-in voices (free, one per speaker). Add an OpenAI key in Settings for more natural AI voices.
+                  </p>
+                )}
               </div>
             </div>
 

@@ -111,4 +111,15 @@ contextBridge.exposeInMainWorld('electronAPI', {
     return () => ipcRenderer.removeListener('generate-video-progress', wrapped);
   },
 
+  // Podcast audio synthesis (voice parity with Video). Runs the OpenAI-TTS →
+  // free macOS `say` two-voice → skip fallback chain in the main process so a
+  // keyless user still gets an audible podcast. Returns { success, audioBase64, ... }.
+  generatePodcastAudio: (args) => ipcRenderer.invoke('generate-podcast-audio', args),
+  // Live synthesis progress → returns an unsubscribe function.
+  onGeneratePodcastProgress: (callback) => {
+    const wrapped = (_event, payload) => callback(payload);
+    ipcRenderer.on('generate-podcast-progress', wrapped);
+    return () => ipcRenderer.removeListener('generate-podcast-progress', wrapped);
+  },
+
 });

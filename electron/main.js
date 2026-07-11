@@ -1771,6 +1771,46 @@ global.__generateSlideshowVideo = async (args) => {
   return generateSlideshowVideo(args || {});
 };
 
+// ========== Podcast Audio IPC (voice parity with Video) ==========
+
+// Lazily require the podcast generator (mirrors the video-generator pattern) so
+// a missing ffmpeg dep can't break app startup.
+let __podcastGenerator = null;
+function getPodcastGenerator() {
+  if (!__podcastGenerator) {
+    __podcastGenerator = require('./podcast-generator');
+  }
+  return __podcastGenerator;
+}
+
+ipcMain.handle('generate-podcast-audio', async (event, args) => {
+  try {
+    const { generatePodcastAudio } = getPodcastGenerator();
+    // Pipe live synthesis progress back to the renderer that started this call.
+    const onProgress = (payload) => {
+      try { event.sender.send('generate-podcast-progress', payload); } catch { /* renderer gone */ }
+    };
+    return await generatePodcastAudio({ ...(args || {}), onProgress });
+  } catch (error) {
+    console.error('[PodcastGen] generate-podcast-audio failed:', error);
+    return { success: false, error: (error && error.message) || String(error) };
+  }
+});
+
+// Exposed on global so automated tests can drive synthesis directly in the main
+// process via electronApp.evaluate() without needing full UI wiring.
+global.__generatePodcastAudio = async (args) => {
+  const { generatePodcastAudio } = getPodcastGenerator();
+  return generatePodcastAudio(args || {});
+};
+
+// Test hook: resolve the DISTINCT macOS `say` voices that would be assigned to a
+// set of OpenAI voices, so a test can prove two speakers get two different voices.
+global.__pickPodcastSayVoices = (voices) => {
+  const { __test } = getPodcastGenerator();
+  return __test.pickSayVoices(Array.isArray(voices) ? voices : []);
+};
+
 // ========== App Lifecycle ==========
 
 // This method will be called when Electron has finished
