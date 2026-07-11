@@ -976,15 +976,40 @@ function sanitizeForSay(text) {
 // nothing in the text can be misread as a command-line option. Returns the
 // produced audio file path, or null if this platform has no wired free engine
 // or the engine failed (caller then falls back to silence).
+// Cache the chosen best free voice for the life of one render (querying the
+// installed voice list is cheap but we only need it once per video).
+let __bestSayVoice;
+function bestNarrationVoice() {
+  if (__bestSayVoice !== undefined) return __bestSayVoice;
+  try {
+    // Reuse the podcast generator's voice picker so both features select the
+    // same high-quality Apple voice (Premium/Enhanced tier when installed).
+    const { pickBestSayVoice } = require('./podcast-generator');
+    __bestSayVoice = pickBestSayVoice('n') || null; // neutral narrator flavor
+  } catch {
+    __bestSayVoice = null;
+  }
+  return __bestSayVoice;
+}
+
 async function synthesizeLocalTts(text, workDir, index) {
   const clean = sanitizeForSay(text);
   if (!clean) return null;
   if (process.platform === 'darwin') {
     const txtPath = path.join(workDir, `say-${index}.txt`);
     const aiffPath = path.join(workDir, `say-${index}.aiff`);
+    const voice = bestNarrationVoice();
+    const baseArgs = ['-f', txtPath, '-o', aiffPath];
     try {
       fs.writeFileSync(txtPath, clean, 'utf8');
-      await run('say', ['-f', txtPath, '-o', aiffPath]);
+      try {
+        await run('say', voice ? ['-v', voice, ...baseArgs] : baseArgs);
+      } catch (e) {
+        // A named high-quality voice might not be installed after all — retry
+        // once with the system default so narration is never lost.
+        if (voice) await run('say', baseArgs);
+        else throw e;
+      }
       if (fs.existsSync(aiffPath) && fs.statSync(aiffPath).size > 1000) return aiffPath;
     } catch (e) {
       console.warn('[VideoGen] macOS `say` voiceover failed:', e && e.message ? e.message : e);

@@ -31,6 +31,7 @@ import { useAIUsageGate } from '@/lib/use-ai-usage-gate';
 import { useUpgradePrompt } from '@/components/upgrade-prompt';
 import { isElectron } from '@/lib/electron-storage';
 import { getUserApiKey } from '@/lib/byok-keys';
+import { nativeTtsAvailable, synthesizePodcastNative } from '@/lib/native-tts';
 
 interface PodcastDialogProps {
   open: boolean;
@@ -387,6 +388,30 @@ export default function PodcastDialog({
         setProgress({
           phase: 'error',
           message: (err as Error).message || 'Audio synthesis failed',
+          percent: 0,
+        });
+      } finally {
+        abortControllerRef.current = null;
+      }
+      return;
+    }
+
+    // iOS / iPadOS FREE path: a keyless user synthesizes the whole podcast on
+    // device with Apple's built-in voices — audible, multi-voice, and $0. It
+    // never touches a paid key. (A BYOK iOS user falls through to the premium
+    // server route below, which runs on THEIR own key.)
+    if (!userOpenaiKey && nativeTtsAvailable()) {
+      try {
+        setProgress({ phase: 'tts', message: 'Synthesizing audio on your device...', percent: 10 });
+        const native = await synthesizePodcastNative(editableSegments);
+        setAudioBase64(native.audioBase64);
+        setAudioUrl(native.audioUrl);
+        setScriptSegments(editableSegments);
+        setPhase('preview');
+      } catch (err) {
+        setProgress({
+          phase: 'error',
+          message: (err as Error).message || 'On-device audio synthesis failed',
           percent: 0,
         });
       } finally {
