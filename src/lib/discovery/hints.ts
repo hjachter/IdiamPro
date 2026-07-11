@@ -104,7 +104,7 @@ export const DISCOVERY_HINTS: readonly DiscoveryHint[] = [
     id: 'reformat-with-ai',
     title: 'Reformat with AI is here',
     body:
-      "You can describe a format change in plain language and SecondBrainWare's AI will do it. Try the violet wand at the left end of the floating toolbar.",
+      "You can describe a format change in plain language and IdiamPro's AI will do it. Try the violet wand at the left end of the floating toolbar.",
     trigger: 'editor-first-text-selection',
   },
   {
