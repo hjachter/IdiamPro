@@ -12,6 +12,7 @@
 const { _electron: electron } = require('playwright');
 const path = require('path');
 const fs = require('fs');
+const { dismissWelcomeShowcase, setElectronWindowSize } = require('./_helpers');
 
 process.on('unhandledRejection', (err) => {
   const msg = String((err && err.message) || err);
@@ -111,6 +112,11 @@ async function run() {
   const started = Date.now();
 
   await launchApp();
+  // Widen the window so the Second Brain (Brain) menu stays inline in the
+  // action toolbar instead of collapsing into the "More" overflow.
+  await setElectronWindowSize(electronApp, 1500, 950);
+  await page.waitForTimeout(800);
+  await dismissWelcomeShowcase(page);
   result.steps.push('App launched');
   await shot('01-app');
 

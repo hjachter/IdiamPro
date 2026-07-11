@@ -16,6 +16,7 @@
 const { _electron: electron } = require('playwright');
 const path = require('path');
 const fs = require('fs');
+const { dismissWelcomeShowcase } = require('./_helpers');
 
 process.on('unhandledRejection', (err) => {
   const msg = String((err && err.message) || err);
@@ -68,6 +69,7 @@ async function waitPastSplash(page) {
     await page.evaluate(() => { try { localStorage.setItem('aiProvider', 'cloud'); } catch {} });
     await page.goto('http://localhost:9002/app', { waitUntil: 'domcontentloaded', timeout: 90000 }).catch(() => {});
     await waitPastSplash(page);
+    await dismissWelcomeShowcase(page);
     await page.waitForTimeout(1500);
 
     const countNodes = async () => page.locator('[role="treeitem"]').count();
@@ -138,7 +140,7 @@ async function waitPastSplash(page) {
         await editable.fill(huge).catch(() => {});
         await page.waitForTimeout(500);
         // App is responsive if we can still click the settings button quickly.
-        const settings = page.locator('[data-settings-trigger], button:has(.lucide-settings), [aria-label*="Outline Files"]').first();
+        const settings = page.locator('[data-testid="outline-action-toolbar"], button:has-text("New Outline"), [role="treeitem"]').first();
         responsive = await settings.isVisible({ timeout: 8000 }).catch(() => false);
         record('Oversized input (120k chars)', responsive,
           [`fill+probe took ${Date.now() - t0}ms`, `UI still responsive: ${responsive}`]);
@@ -158,7 +160,7 @@ async function waitPastSplash(page) {
       }
       await page.waitForTimeout(800);
       // App didn't crash if the window still has the toolbar.
-      const alive = await page.locator('[data-settings-trigger], button:has(.lucide-settings), [aria-label*="Outline Files"]').first().isVisible({ timeout: 8000 }).catch(() => false);
+      const alive = await page.locator('[data-testid="outline-action-toolbar"], button:has-text("New Outline"), [role="treeitem"]').first().isVisible({ timeout: 8000 }).catch(() => false);
       record('Rapid-fire actions (15x)', alive, [`UI alive after rapid input: ${alive}`]);
       await page.screenshot({ path: path.join(SHOTS, '3-rapid.png') }).catch(() => {});
     } catch (e) {
@@ -175,7 +177,7 @@ async function waitPastSplash(page) {
         await editable.fill(weird).catch(() => { ok = false; });
         await page.waitForTimeout(500);
       }
-      const alive = await page.locator('[data-settings-trigger], button:has(.lucide-settings), [aria-label*="Outline Files"]').first().isVisible({ timeout: 8000 }).catch(() => false);
+      const alive = await page.locator('[data-testid="outline-action-toolbar"], button:has-text("New Outline"), [role="treeitem"]').first().isVisible({ timeout: 8000 }).catch(() => false);
       record('Special characters (emoji/RTL/HTML)', ok && alive, [`UI alive after weird input: ${alive}`]);
       await page.screenshot({ path: path.join(SHOTS, '4-special-chars.png') }).catch(() => {});
     } catch (e) {

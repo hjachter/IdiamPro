@@ -2,6 +2,7 @@ const { _electron: electron } = require('playwright');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
+const { prepareApp, openSettings } = require('./_helpers');
 
 // Playwright auto-handles native JS dialogs (confirm/beforeunload). During
 // app teardown the dialog auto-handler can race the page closing, surfacing
@@ -108,6 +109,10 @@ async function launchApp() {
     }
   }
 
+  // Clear the invite/sign-in gate and dismiss the first-run welcome panel so
+  // its overlay can't block subsequent clicks. Shared across suites.
+  await prepareApp(page);
+
   console.log('App launched successfully, now at:', page.url());
   return { electronApp, page };
 }
@@ -162,41 +167,39 @@ async function testSettingsDialog() {
   const details = { steps: [] };
 
   try {
-    // Look for settings button (data-settings-trigger is always in the DOM
-    // even when the visible button is hidden lg:inline-flex on narrow widths).
-    const settingsButton = page.locator('[data-settings-trigger], button:has(svg[class*="settings"]), button:has(.lucide-settings), [aria-label*="Settings"]');
-    const count = await settingsButton.count();
-    details.steps.push(`Found ${count} Settings button(s)`);
+    // Open Settings via the shared helper, which handles the new toolbar
+    // "More" overflow menu (Settings collapses into it on narrow widths).
+    const opened = await openSettings(page);
+    details.steps.push(`Settings opened via helper: ${opened}`);
 
-    if (count > 0) {
-      await settingsButton.first().click({ force: true });
-      details.steps.push('Settings button clicked');
-
+    if (opened) {
       await page.waitForTimeout(1000);
 
-      // Look for subscription plan section
+      // Settings was reorganized (2026-07) into left-hand category tabs.
+      // The plan info lives under the "Account" category, so select it first.
+      const accountTab = page.locator('[role="dialog"] button:has-text("Account")');
+      if (await accountTab.first().isVisible({ timeout: 2000 }).catch(() => false)) {
+        await accountTab.first().click().catch(() => {});
+        details.steps.push('Selected Account category');
+        await page.waitForTimeout(500);
+      }
+
+      // Look for subscription plan section (now under Account category)
       const subscriptionPlan = page.locator('text="Subscription Plan"');
       if (await subscriptionPlan.isVisible({ timeout: 3000 })) {
         details.steps.push('Settings dialog opened with Subscription Plan visible');
 
-        // Click on the plan badge to open plan dialog
-        const planBadge = page.locator('button:has-text("Manage Plan"), button:has-text("Change Plan")');
-        if (await planBadge.first().isVisible({ timeout: 2000 })) {
-          await planBadge.first().click();
-          details.steps.push('Plan dialog opened');
-
-          // Check for 4 tiers
-          await page.waitForTimeout(500);
-          const freePlan = await page.locator('text="Free"').count();
-          const basicPlan = await page.locator('text="Basic"').count();
-          const premiumPlan = await page.locator('text="Premium"').count();
-          const academicPlan = await page.locator('text="Academic"').count();
-
-          details.plansFound = { free: freePlan, basic: basicPlan, premium: premiumPlan, academic: academicPlan };
-
-          if (freePlan > 0 && basicPlan > 0 && premiumPlan > 0 && academicPlan > 0) {
-            details.steps.push('All 4 subscription tiers present');
-          }
+        // The plan surface now shows the current-plan badge plus a
+        // context-appropriate action (Manage Subscription for paid tiers,
+        // an upgrade path for free/BYOK). Assert that at least one plan
+        // action is present rather than the retired 4-tier picker dialog.
+        const planAction = page.locator(
+          '[data-testid="manage-subscription-btn"], [data-testid="ios-byok-cta"], button:has-text("Manage Subscription"), a:has-text("Upgrade"), button:has-text("Upgrade")'
+        );
+        const planActionCount = await planAction.count().catch(() => 0);
+        details.planActionCount = planActionCount;
+        if (planActionCount > 0) {
+          details.steps.push('Plan action control present');
         }
 
         // Close every open dialog via Escape until the DOM is clean. The
@@ -220,7 +223,7 @@ async function testSettingsDialog() {
         return { passed: true, details };
       }
     } else {
-      details.error = 'Settings button not found';
+      details.error = 'Settings dialog did not open';
     }
   } catch (error) {
     details.error = error.message;
@@ -458,11 +461,9 @@ async function testDarkMode() {
   const details = { steps: [] };
 
   try {
-    // Open settings (use the canonical data-attribute trigger that is in
-    // the DOM at every viewport width; force-click in case the visible
-    // button is hidden on narrow widths).
-    const settingsButton = page.locator('[data-settings-trigger], button:has(svg[class*="settings"]), button:has(.lucide-settings), [aria-label*="Settings"]');
-    await settingsButton.first().click({ force: true });
+    // Open Settings via the shared helper (handles the new "More" overflow
+    // menu on narrow widths).
+    await openSettings(page);
     await page.waitForTimeout(1000);
     details.steps.push('Opened settings');
 

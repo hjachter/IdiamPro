@@ -19,6 +19,7 @@ const { _electron: electron } = require('playwright');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
+const { dismissWelcomeShowcase, setElectronWindowSize, openSettings, waitForAppReady } = require('./_helpers');
 
 let electronApp;
 let page;
@@ -73,6 +74,9 @@ async function launchApp() {
   if (!page.url().includes('/app')) {
     await page.evaluate(() => { window.location.href = '/app'; });
     await page.waitForLoadState('domcontentloaded');
+    // Clear the invite/sign-in gate ("Loading…") which intermittently stalls
+    // on the dev rate limit before the real app shell mounts.
+    await waitForAppReady(page);
     try {
       await page.locator('button:has-text("New Outline")').waitFor({ state: 'visible', timeout: 30000 });
     } catch {
@@ -80,6 +84,15 @@ async function launchApp() {
     }
   }
   console.log('App ready at:', page.url());
+
+  // Widen the window so Settings / Help / Smart Tools stay inline in the
+  // toolbar instead of collapsing into the "More" overflow menu.
+  await setElectronWindowSize(electronApp, 1500, 950);
+  await page.waitForTimeout(800);
+
+  // Dismiss the first-run "What you can make here" welcome panel so its modal
+  // overlay can't intercept toolbar clicks.
+  await dismissWelcomeShowcase(page);
 
   // Capture browser console for diagnostics. Filter to AI / Ollama / KnowledgeChat lines.
   page.on('console', msg => {
@@ -141,12 +154,20 @@ async function ensureNoDialogs() {
 async function testSettingsProvider() {
   const d = { steps: [] };
   try {
-    // Open Settings (gear icon)
-    const settingsBtn = page.locator('button:has(.lucide-settings), [aria-label*="Settings"]').first();
-    await settingsBtn.click();
+    // Open Settings via the shared helper (Settings now lives in the toolbar
+    // "More" overflow menu when the outline column is narrow).
+    await openSettings(page);
     await page.waitForTimeout(800);
     d.steps.push('Opened Settings dialog');
     await shot('01-settings-open');
+
+    // Settings was reorganized into left-hand category tabs; the AI Provider
+    // control lives under the "AI" category — select it first if present.
+    const aiTab = page.locator('[role="dialog"] button:has-text("AI")').first();
+    if (await aiTab.isVisible({ timeout: 1500 }).catch(() => false)) {
+      await aiTab.click().catch(() => {});
+      await page.waitForTimeout(400);
+    }
 
     // Look for AI Provider section
     const providerLabel = page.locator('text=/AI Provider|Provider/i').first();
@@ -185,13 +206,39 @@ async function testSettingsProvider() {
 async function testHelpChat() {
   const d = { steps: [] };
   try {
-    // Help Chat is the red "?" button in the top-right toolbar
-    const helpBtn = page.locator('button:has(span:text("?"))').first();
-    if (!(await helpBtn.isVisible({ timeout: 3000 }))) {
-      d.error = 'Help button (?) not found in toolbar';
+    // Make sure no leftover dialog from a prior test is covering the toolbar.
+    await ensureNoDialogs();
+
+    // Help Chat opens from the red "?" button when it's inline, or from the
+    // title-bar "More tools" overflow menu ("Help & Support"). The latter is
+    // `lg:hidden` (only rendered below 1024px), so briefly narrow the window
+    // to reveal a guaranteed path, then restore the wide layout afterward.
+    let opened = false;
+    const helpBtn = page.locator('[aria-label="Help and support"]').first();
+    if (await helpBtn.waitFor({ state: 'visible', timeout: 1500 }).then(() => true).catch(() => false)) {
+      await helpBtn.click();
+      opened = true;
+    } else {
+      await setElectronWindowSize(electronApp, 900, 900);
+      await page.waitForTimeout(700);
+      const more = page.locator('[aria-label="More tools"]').first();
+      if (await more.waitFor({ state: 'visible', timeout: 4000 }).then(() => true).catch(() => false)) {
+        await more.click();
+        await page.waitForTimeout(400);
+        const helpItem = page.locator('[role="menuitem"]:has-text("Help & Support")').first();
+        if (await helpItem.waitFor({ state: 'visible', timeout: 3000 }).then(() => true).catch(() => false)) {
+          await helpItem.click();
+          opened = true;
+        }
+      }
+      // Restore the wide layout for any subsequent tests.
+      await setElectronWindowSize(electronApp, 1500, 950);
+      await page.waitForTimeout(500);
+    }
+    if (!opened) {
+      d.error = 'Help & Support not reachable from toolbar or More menu';
       return { passed: false, details: d };
     }
-    await helpBtn.click();
     await page.waitForTimeout(1000);
     d.steps.push('Opened Help Chat dialog');
     await shot('02-help-chat-open');

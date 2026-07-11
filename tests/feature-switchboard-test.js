@@ -2,6 +2,7 @@ const { _electron: electron } = require('playwright');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
+const { dismissWelcomeShowcase } = require('./_helpers');
 
 // Swallow the benign teardown JS-dialog race (see electron-test.js).
 process.on('unhandledRejection', (err) => {
@@ -189,6 +190,7 @@ async function run() {
 
   try {
     await launchApp();
+    await dismissWelcomeShowcase(page);
 
     // STEP 1: Baseline reset — enabled:true, audience:all.
     {

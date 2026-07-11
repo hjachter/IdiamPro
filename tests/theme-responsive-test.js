@@ -2,6 +2,7 @@ const { _electron: electron } = require('playwright');
 const path = require('path');
 const fs = require('fs');
 const { execSync } = require('child_process');
+const { dismissWelcomeShowcase } = require('./_helpers');
 
 process.on('unhandledRejection', (err) => {
   const msg = String((err && err.message) || err);
@@ -60,6 +61,7 @@ async function findMainWindow(app, maxWait = 30000) {
       await page.waitForTimeout(1000);
     }
     await page.waitForTimeout(2000);
+    await dismissWelcomeShowcase(page);
 
     // Ensure a content node is open so the content-pane toolbar renders.
     // Click first outline row / first node so content pane shows.

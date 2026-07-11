@@ -6,6 +6,7 @@
 const { _electron: electron } = require('playwright');
 const path = require('path');
 const fs = require('fs');
+const { dismissWelcomeShowcase } = require('./_helpers');
 
 process.on('unhandledRejection', (err) => {
   const msg = String((err && err.message) || err);
@@ -87,6 +88,7 @@ async function inspectToolbar() {
         await page.locator('button:has-text("New Outline")').waitFor({ state: 'visible', timeout: 30000 });
       } catch (e) { await page.waitForTimeout(5000); }
     }
+    await dismissWelcomeShowcase(page);
 
     // Load an outline so the action toolbar is present/active.
     const welcome = page.locator('button:has-text("Welcome Outline"), button:has-text("Welcome")').first();

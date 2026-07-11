@@ -14,6 +14,7 @@ const { _electron: electron } = require('playwright');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
+const { dismissWelcomeShowcase, openSettings: openSettingsShared } = require('./_helpers');
 
 const REPORT_DIR = path.resolve(
   __dirname,
@@ -114,10 +115,15 @@ async function openSettings() {
   // Settings trigger may live inside the overflow menu on narrow widths
   // (hidden lg:inline-flex). The data-settings-trigger attribute exists on
   // the always-rendered DialogTrigger child even when visually hidden.
-  const trigger = page.locator(
-    '[data-settings-trigger], button:has(svg[class*="settings"]), button:has(.lucide-settings), [aria-label*="Settings"]',
-  );
-  await trigger.first().click({ force: true });
+  // Open the dialog via the shared helper (handles the toolbar "More" overflow
+  // menu and falls back to firing the app's canonical hidden trigger).
+  await openSettingsShared(page);
+  // The AI Usage section lives under the reorganized "AI" settings category
+  // (2026-07). Select it so data-testid="ai-usage-section" renders.
+  const aiTab = page.locator('[role="dialog"] button:has-text("AI")').first();
+  if (await aiTab.isVisible().catch(() => false)) {
+    await aiTab.click().catch(() => {});
+  }
   await page.locator('[data-testid="ai-usage-section"]').waitFor({
     state: 'visible',
     timeout: 5000,
@@ -260,6 +266,7 @@ async function testProgressBarColorAtCap() {
 async function main() {
   console.log('Launching Electron for tier-enforcement-test…');
   await launchApp();
+  await dismissWelcomeShowcase(page);
   console.log('App ready.');
 
   await runTest('fresh free-trial shows 0 of 25', testFreshFreeTrialShows25Cap);
