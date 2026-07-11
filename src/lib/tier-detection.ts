@@ -52,10 +52,12 @@ export function isProOnlyFeature(featureKey: string): featureKey is ProOnlyFeatu
   return PRO_ONLY_FEATURES.has(featureKey as ProOnlyFeature);
 }
 
-/** True if ANY BYOK key (any supported provider) is configured. */
+/** True if ANY text-LLM BYOK key is configured. Excludes 'assemblyai', which
+ *  is a transcription-only key and must NOT grant unlimited text generation. */
 export function hasAnyByokKey(): boolean {
   if (typeof window === 'undefined') return false;
   for (const p of BYOK_PROVIDERS) {
+    if (p === 'assemblyai') continue;
     if (getUserApiKey(p)) return true;
   }
   return false;

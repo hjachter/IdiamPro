@@ -24,6 +24,8 @@ import {
   transcribeWithDiarization,
   formatTranscriptForSource,
 } from '@/lib/transcription-service';
+import { enforcePaidFeature } from '@/lib/billing/paid-feature-gate';
+import { getCompanyKey } from '@/lib/billing/company-keys';
 import type {
   NodeGenerationContext,
   ExternalSourceInput,
@@ -2227,16 +2229,36 @@ ${childContent.substring(0, 5000)}`;
 export async function transcribeRecordingAction(
   audioData: string,
   mimeType: string,
-  options: TranscriptionOptions = {}
+  options: TranscriptionOptions = {},
+  userAssemblyaiKey?: string | null
 ): Promise<{
   success: boolean;
   transcript?: DiarizedTranscript;
   formattedText?: string;
   error?: string;
+  upgradeRequired?: boolean;
 }> {
   try {
+    // Transcription (AssemblyAI) is a PAID-per-use feature. It may run ONLY on
+    // the user's own key (BYOK) or a funded COMPANY key — NEVER the founder's
+    // personal env key. The shared server gate enforces plan + lifetime taste.
+    const byokKey = typeof userAssemblyaiKey === 'string' ? userAssemblyaiKey.trim() : '';
+    const isByok = byokKey.length > 0;
+    const decision = await enforcePaidFeature('transcription', { isByok });
+    if (!decision.ok) {
+      return { success: false, error: decision.error, upgradeRequired: decision.upgradeRequired };
+    }
+    const assemblyKey = decision.fund === 'byok' ? byokKey : getCompanyKey('transcription');
+    if (!assemblyKey) {
+      return {
+        success: false,
+        upgradeRequired: true,
+        error: 'Audio transcription runs on your own AssemblyAI key for now. Add one in Settings → AI Service Keys.',
+      };
+    }
+
     // Transcribe with diarization
-    const transcript = await transcribeWithDiarization(audioData, mimeType, options);
+    const transcript = await transcribeWithDiarization(audioData, mimeType, options, assemblyKey);
 
     // Format for source integration
     const formattedText = formatTranscriptForSource(transcript);
@@ -2274,9 +2296,22 @@ export async function generateImageAction(
   error?: string;
 }> {
   try {
-    const apiKey = (userApiKey && userApiKey.trim()) || process.env.GEMINI_API_KEY;
+    // AI image generation (Imagen) is a PAID-per-use feature. It may run ONLY
+    // on the user's own key (BYOK) or a funded COMPANY key — NEVER the
+    // founder's personal env key. The shared server gate enforces plan +
+    // lifetime taste.
+    const byokKey = (userApiKey && userApiKey.trim()) || '';
+    const isByok = byokKey.length > 0;
+    const decision = await enforcePaidFeature('imageGeneration', { isByok });
+    if (!decision.ok) {
+      return { success: false, error: decision.error };
+    }
+    const apiKey = decision.fund === 'byok' ? byokKey : getCompanyKey('imageGeneration');
     if (!apiKey) {
-      throw new Error('No Gemini API key available. Add one in Settings → AI Service Keys, or set GEMINI_API_KEY on the server.');
+      return {
+        success: false,
+        error: 'AI image generation runs on your own Gemini key for now. Add one in Settings → AI Service Keys.',
+      };
     }
 
     const genai = new GoogleGenAI({ apiKey });

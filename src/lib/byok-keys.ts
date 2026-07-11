@@ -21,9 +21,9 @@
  * below are intentionally shaped so that swap is a one-file change.
  */
 
-export type BYOKProvider = 'gemini' | 'openai' | 'anthropic' | 'mistral' | 'groq' | 'openrouter';
+export type BYOKProvider = 'gemini' | 'openai' | 'anthropic' | 'mistral' | 'groq' | 'openrouter' | 'assemblyai';
 
-export const BYOK_PROVIDERS: BYOKProvider[] = ['gemini', 'openai', 'anthropic', 'mistral', 'groq', 'openrouter'];
+export const BYOK_PROVIDERS: BYOKProvider[] = ['gemini', 'openai', 'anthropic', 'mistral', 'groq', 'openrouter', 'assemblyai'];
 
 /**
  * Map a provider id to the env-var name the server falls back to when
@@ -39,6 +39,10 @@ const ENV_VAR_NAME: Record<BYOKProvider, string> = {
   // client localStorage key is apiKey_openrouter (derived from the id below).
   // Nothing uses it until a key/env var is present — see ai-failover.ts.
   openrouter: 'OPENROUTER_API_KEY',
+  // AssemblyAI powers audio transcription (BYOK). NOTE: the paid-feature gate
+  // resolves the AssemblyAI key WITHOUT env fallback (never the founder's
+  // personal key); this mapping exists only for symmetry / display.
+  assemblyai: 'ASSEMBLYAI_API_KEY',
 };
 
 /**

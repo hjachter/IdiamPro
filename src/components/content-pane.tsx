@@ -1445,10 +1445,12 @@ export default function ContentPane({
         return;
       }
 
-      // For illustration type, use Google Imagen to generate an AI image
+      // For illustration type, use Google Imagen to generate an AI image.
+      // Pass the user's own Gemini key (BYOK) so the paid image call runs on
+      // their key, never the founder's personal key.
       const result = await generateImageAction(imagePrompt.trim(), {
         aspectRatio: imageAspectRatio,
-      });
+      }, getUserApiKey('gemini'));
 
       if (result.success && result.imageBase64) {
         const dataUrl = `data:${result.mimeType};base64,${result.imageBase64}`;

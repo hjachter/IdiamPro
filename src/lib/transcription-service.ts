@@ -42,11 +42,11 @@ interface AssemblyAITranscriptResponse {
   audio_duration?: number;
 }
 
-// Upload audio to AssemblyAI
-async function uploadAudio(audioData: string, mimeType: string): Promise<string> {
-  const apiKey = process.env.ASSEMBLYAI_API_KEY;
+// Upload audio to AssemblyAI. The key is passed in explicitly (BYOK or a
+// funded COMPANY key) — this module never reads the founder's personal env key.
+async function uploadAudio(audioData: string, mimeType: string, apiKey: string): Promise<string> {
   if (!apiKey) {
-    throw new Error('ASSEMBLYAI_API_KEY environment variable not set');
+    throw new Error('No AssemblyAI key available for transcription.');
   }
 
   // Convert base64 to buffer
@@ -73,11 +73,11 @@ async function uploadAudio(audioData: string, mimeType: string): Promise<string>
 // Start transcription job
 async function startTranscription(
   audioUrl: string,
-  options: TranscriptionOptions
+  options: TranscriptionOptions,
+  apiKey: string
 ): Promise<string> {
-  const apiKey = process.env.ASSEMBLYAI_API_KEY;
   if (!apiKey) {
-    throw new Error('ASSEMBLYAI_API_KEY environment variable not set');
+    throw new Error('No AssemblyAI key available for transcription.');
   }
 
   const request: AssemblyAITranscriptRequest = {
@@ -109,10 +109,9 @@ async function startTranscription(
 }
 
 // Poll for transcription result
-async function pollTranscription(transcriptId: string): Promise<AssemblyAITranscriptResponse> {
-  const apiKey = process.env.ASSEMBLYAI_API_KEY;
+async function pollTranscription(transcriptId: string, apiKey: string): Promise<AssemblyAITranscriptResponse> {
   if (!apiKey) {
-    throw new Error('ASSEMBLYAI_API_KEY environment variable not set');
+    throw new Error('No AssemblyAI key available for transcription.');
   }
 
   const maxAttempts = 120; // 10 minutes max with 5-second intervals
@@ -192,22 +191,23 @@ function convertToTranscript(response: AssemblyAITranscriptResponse): DiarizedTr
 export async function transcribeWithDiarization(
   audioData: string,
   mimeType: string,
-  options: TranscriptionOptions = {}
+  options: TranscriptionOptions = {},
+  apiKey = ''
 ): Promise<DiarizedTranscript> {
   // Upload audio
   console.log('Uploading audio to AssemblyAI...');
-  const audioUrl = await uploadAudio(audioData, mimeType);
+  const audioUrl = await uploadAudio(audioData, mimeType, apiKey);
 
   // Start transcription with diarization
   console.log('Starting transcription...');
   const transcriptId = await startTranscription(audioUrl, {
     enableDiarization: true,
     ...options,
-  });
+  }, apiKey);
 
   // Poll for completion
   console.log('Waiting for transcription to complete...');
-  const result = await pollTranscription(transcriptId);
+  const result = await pollTranscription(transcriptId, apiKey);
 
   // Convert to our format
   console.log('Transcription complete, processing results...');

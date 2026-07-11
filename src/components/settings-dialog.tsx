@@ -209,7 +209,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
 
     // Load API keys
     const savedKeys: Record<string, string> = {};
-    for (const provider of ['gemini', 'openai', 'anthropic', 'mistral', 'groq']) {
+    for (const provider of ['gemini', 'openai', 'anthropic', 'mistral', 'groq', 'assemblyai']) {
       const key = localStorage.getItem(`apiKey_${provider}`);
       if (key) savedKeys[provider] = key;
     }
@@ -380,6 +380,11 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
       } else if (provider === 'groq') {
         const resp = await fetch('https://api.groq.com/openai/v1/models', { headers: { 'Authorization': `Bearer ${key}` } });
         ok = resp.ok;
+      } else if (provider === 'assemblyai') {
+        // AssemblyAI has no browser-reachable, CORS-friendly validation
+        // endpoint, so we can only sanity-check the key's shape.
+        ok = key.trim().length >= 20;
+        formatOnly = true;
       }
       setProviderStatus(prev => ({ ...prev, [provider]: ok ? 'ok' : 'error' }));
       if (ok && formatOnly) {
@@ -620,6 +625,18 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
         'Sign in with Google or create an account',
         'Click "Create API Key"',
         'Copy the key and paste it below',
+      ],
+    },
+    {
+      id: 'assemblyai', name: 'AssemblyAI', placeholder: 'AssemblyAI key...',
+      free: false, recommended: false,
+      keyUrl: 'https://www.assemblyai.com/dashboard/signup',
+      cost: 'Pay-as-you-go. Powers audio/recording transcription with speaker labels. Your key, your bill.',
+      steps: [
+        'Click "Get Key" to open AssemblyAI',
+        'Sign in or create an account',
+        'Copy your API key from the dashboard',
+        'Paste it below to enable transcription on your own key',
       ],
     },
   ];

@@ -11,6 +11,7 @@ import { X, Plus, FileText, Youtube, Type, Globe, Image as ImageIcon, FileArchiv
 import type { ExternalSourceInput, BulkResearchSources, DiarizedTranscript, ExtractionDetailLevel } from '@/types';
 import { useAudioRecorder } from '@/lib/use-audio-recorder';
 import { transcribeRecordingAction, getYoutubeTitleAction, checkOllamaStatusAction } from '@/app/actions';
+import { getUserApiKey } from '@/lib/byok-keys';
 import { openExternalUrl, isElectron, checkOllamaInstallation, startOllama } from '@/lib/electron-storage';
 import { useAIUsageGate } from '@/lib/use-ai-usage-gate';
 
@@ -466,7 +467,8 @@ export default function BulkResearchDialog({
       const transcriptionResult = await transcribeRecordingAction(
         recording.audioData,
         recording.mimeType,
-        { enableDiarization: true }
+        { enableDiarization: true },
+        getUserApiKey('assemblyai')
       );
 
       if (transcriptionResult.success && transcriptionResult.transcript && transcriptionResult.formattedText) {

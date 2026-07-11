@@ -59,6 +59,16 @@ export interface StorageAdapter {
   /** Delete the key. No-op if absent. */
   delete(key: string): Promise<void>;
   /**
+   * Atomically increment the integer value at `key` by 1 and return the new
+   * value (starting from 0 if absent). Used by the server-side lifetime
+   * usage counter — a durable, un-resettable-from-client tally. On the KV
+   * backend this is a true atomic INCR; the file backend does a
+   * read-modify-write (single-process, good enough for Electron/dev); the
+   * stub backend cannot persist, so it signals that by returning
+   * Number.MAX_SAFE_INTEGER (callers treat "can't count" as fail-closed).
+   */
+  increment(key: string): Promise<number>;
+  /**
    * Append `member` to the set indexed by `setKey`. Idempotent.
    * Use this together with `setMembers` to enumerate records by prefix.
    */
@@ -157,6 +167,11 @@ function createKvAdapter(): StorageAdapter {
     async delete(key: string): Promise<void> {
       await kv.del(key);
     },
+    async increment(key: string): Promise<number> {
+      // Redis INCR is atomic across all serverless instances.
+      const next = await kv.incr(key);
+      return typeof next === 'number' ? next : Number(next);
+    },
     async setAdd(setKey: string, member: string): Promise<void> {
       await kv.sadd(setKey, member);
     },
@@ -231,6 +246,14 @@ function createFileAdapter(): StorageAdapter {
         if ((err as NodeJS.ErrnoException).code !== 'ENOENT') throw err;
       }
     },
+    async increment(key: string): Promise<number> {
+      // Single-process read-modify-write. Fine for Electron/dev; production
+      // uses the atomic KV backend above.
+      const current = (await readJsonSafe<number>(pathForKey(key))) ?? 0;
+      const next = (typeof current === 'number' && current >= 0 ? current : 0) + 1;
+      await writeJsonAtomic(pathForKey(key), next);
+      return next;
+    },
     async setAdd(setKey: string, member: string): Promise<void> {
       const path = pathForSet(setKey);
       const members = (await readJsonSafe<string[]>(path)) ?? [];
@@ -280,6 +303,12 @@ function createStubAdapter(): StorageAdapter {
     },
     async delete(): Promise<void> {
       warn('delete');
+    },
+    async increment(): Promise<number> {
+      // No durable storage — cannot count. Signal "cannot count" so the
+      // gate fails CLOSED (never funds an uncountable company-paid call).
+      warn('increment');
+      return Number.MAX_SAFE_INTEGER;
     },
     async setAdd(): Promise<void> {
       warn('setAdd');

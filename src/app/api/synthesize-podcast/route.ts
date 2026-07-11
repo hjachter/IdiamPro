@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import type { PodcastScriptSegment, OpenAIVoice } from '@/types';
+import { enforcePaidFeature } from '@/lib/billing/paid-feature-gate';
+import { getCompanyKey } from '@/lib/billing/company-keys';
 
 const SSE_HEADERS = {
   'Content-Type': 'text/event-stream',
@@ -101,13 +103,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // BYOK: caller may pass userOpenaiKey in the request body; env var is fallback.
+    // Premium AI voice is a PAID-per-use feature. It may run ONLY on the
+    // user's own key (BYOK) or a funded COMPANY key — NEVER the founder's
+    // personal env key. The shared server gate enforces plan + lifetime taste.
     const userOpenaiKey = typeof _body.userOpenaiKey === 'string' ? _body.userOpenaiKey.trim() : '';
-    const openaiKey = userOpenaiKey || process.env.OPENAI_API_KEY;
+    const isByok = userOpenaiKey.length > 0;
+    const decision = await enforcePaidFeature('premiumVoice', { isByok });
+    if (!decision.ok) {
+      return NextResponse.json(
+        { error: decision.error, upgradeRequired: decision.upgradeRequired },
+        { status: decision.status }
+      );
+    }
+    const openaiKey = decision.fund === 'byok' ? userOpenaiKey : getCompanyKey('premiumVoice');
     if (!openaiKey) {
       return NextResponse.json(
-        { error: 'OPENAI_API_KEY not configured.' },
-        { status: 500 }
+        { error: 'The premium AI voice needs your own OpenAI key. Add one in Settings → AI Service Keys.', upgradeRequired: true },
+        { status: 402 }
       );
     }
 
