@@ -235,6 +235,9 @@ export function SecondBrainDashboardDialog({
             className="pl-9"
           />
         </div>
+        <p className="-mt-1 px-1 text-xs text-muted-foreground">
+          Free instant keyword search — no AI, no cost.
+        </p>
 
         <ScrollArea className="flex-1 pr-4">
           {isSearching ? (
@@ -244,7 +247,7 @@ export function SecondBrainDashboardDialog({
                 Results ({results.length})
               </h3>
               {results.length === 0 ? (
-                <p className="text-sm text-muted-foreground italic">No matches.</p>
+                <p className="text-sm text-muted-foreground italic">No entries match that — try another word.</p>
               ) : (
                 <ul className="space-y-1.5">
                   {results.map(e => (
@@ -280,7 +283,7 @@ export function SecondBrainDashboardDialog({
               <div className="rounded-lg border bg-card p-3">
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <FileText className="h-3.5 w-3.5" />
-                  Total nodes
+                  Total items
                 </div>
                 <div className="mt-1 text-2xl font-semibold">{total}</div>
               </div>
