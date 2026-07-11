@@ -69,12 +69,12 @@ export async function verifyDirectoryPermission(
   const opts = { mode };
 
   // Check if permission was already granted
-  if ((await dirHandle.queryPermission(opts)) === 'granted') {
+  if ((await (dirHandle as any).queryPermission(opts)) === 'granted') {
     return true;
   }
 
   // Request permission
-  if ((await dirHandle.requestPermission(opts)) === 'granted') {
+  if ((await (dirHandle as any).requestPermission(opts)) === 'granted') {
     return true;
   }
 
@@ -192,7 +192,7 @@ export async function loadOutlinesFromDirectory(
     const outlines: Outline[] = [];
 
     // Iterate through all files in the directory
-    for await (const entry of dirHandle.values()) {
+    for await (const entry of (dirHandle as any).values()) {
       if (entry.kind === 'file' && entry.name.endsWith('.idm')) {
         try {
           const outline = await loadOutlineFromFile(entry as FileSystemFileHandle);

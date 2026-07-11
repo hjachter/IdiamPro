@@ -166,11 +166,58 @@ async function findMainWindow(app, maxWait = 30000) {
   record('Export tooltip reads by value', exportTip);
 
   // ── Win 3: one-time make-something nudge ─────────────────────────────
-  await page.evaluate(() => {
-    const f = window.__fireDiscovery;
-    if (f) f('outline-has-content');
-  }).catch(() => {});
-  const nudgeShown = await pollVisible(page, '[data-testid="discovery-toast-make-something-from-this"]', 8000);
+  // The app now surfaces exactly ONE discovery toast at a time (2026-07-10),
+  // and toasts persist until dismissed. A load-time hint (e.g. the
+  // sidebar-first-load "Research & Import" tip) can therefore be sitting in
+  // the single active slot, holding our make-something hint in the queue. So
+  // we drive it like a real user would: fire the trigger, and while our hint
+  // isn't showing yet, dismiss whatever OTHER discovery toast is occupying the
+  // slot (re-firing when the slot is momentarily empty) until ours promotes.
+  const fireMakeSomething = () =>
+    page.evaluate(() => {
+      const f = window.__fireDiscovery;
+      if (f) f('outline-has-content');
+    }).catch(() => {});
+  const visibleDiscoveryToast = () =>
+    page.evaluate(() => {
+      const cards = Array.from(
+        document.querySelectorAll('[data-testid^="discovery-toast-"]'),
+      )
+        .map((e) => e.getAttribute('data-testid'))
+        .filter(
+          (t) =>
+            t &&
+            t.startsWith('discovery-toast-') &&
+            !t.includes('dismiss') &&
+            !t.includes('never') &&
+            t !== 'discovery-toast-stack',
+        );
+      return cards[0] || null;
+    }).catch(() => null);
+
+  await fireMakeSomething();
+  let nudgeShown = false;
+  const deadline = Date.now() + 15000;
+  while (Date.now() < deadline) {
+    if (await isVisibleDom(page, '[data-testid="discovery-toast-make-something-from-this"]')) {
+      nudgeShown = true;
+      break;
+    }
+    const other = await visibleDiscoveryToast();
+    if (other && other !== 'discovery-toast-make-something-from-this') {
+      // Some other hint holds the single slot — soft-dismiss it so the queue
+      // promotes the next hint (ours).
+      await page.evaluate((tid) => {
+        const id = tid.replace('discovery-toast-', '');
+        const btn = document.querySelector(`[data-testid="discovery-toast-dismiss-${id}"]`);
+        if (btn) btn.click();
+      }, other).catch(() => {});
+    } else if (!other) {
+      // Slot is empty but ours hasn't shown — (re)fire the trigger.
+      await fireMakeSomething();
+    }
+    await sleep(800); // > the 600ms promotion gap
+  }
   await page.screenshot({ path: path.join(OUT, '06-make-something-nudge.png') }).catch(() => {});
   record('Make-something nudge appears', nudgeShown);
 

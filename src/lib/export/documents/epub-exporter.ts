@@ -256,7 +256,7 @@ ${ch.html}
     eocdView.setUint16(20, 0, true); // comment length
     parts.push(new Uint8Array(eocd));
 
-    return new Blob(parts, { type: 'application/epub+zip' });
+    return new Blob(parts as BlobPart[], { type: 'application/epub+zip' });
   }
 
   private crc32(data: Uint8Array): number {

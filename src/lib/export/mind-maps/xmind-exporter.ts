@@ -181,7 +181,7 @@ export class XMindExporter extends BaseExporter {
     eocdView.setUint16(20, 0, true);
     parts.push(new Uint8Array(eocd));
 
-    return new Blob(parts, { type: 'application/x-xmind' });
+    return new Blob(parts as BlobPart[], { type: 'application/x-xmind' });
   }
 
   private crc32(data: Uint8Array): number {

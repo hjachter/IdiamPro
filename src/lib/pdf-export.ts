@@ -6,7 +6,7 @@ import pdfFonts from 'pdfmake/build/vfs_fonts';
 import mermaid from 'mermaid';
 
 // Initialize pdfMake with fonts
-pdfMake.vfs = pdfFonts.vfs;
+pdfMake.vfs = pdfFonts.vfs as unknown as { [file: string]: string };
 
 // Initialize mermaid for PDF rendering
 function initMermaidForPdf() {

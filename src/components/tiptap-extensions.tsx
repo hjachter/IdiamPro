@@ -1,4 +1,4 @@
-import { Node, mergeAttributes } from '@tiptap/core';
+import { Node, mergeAttributes, type CommandProps, type RawCommands } from '@tiptap/core';
 import { ReactNodeViewRenderer, NodeViewWrapper } from '@tiptap/react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import mermaid from 'mermaid';
@@ -458,13 +458,13 @@ export const MermaidBlock = Node.create({
     return {
       setMermaidDiagram:
         (code: string) =>
-        ({ commands }) => {
+        ({ commands }: CommandProps) => {
           return commands.insertContent({
             type: this.name,
             attrs: { code },
           });
         },
-    };
+    } as Partial<RawCommands>;
   },
 });
 
@@ -527,13 +527,13 @@ export const GoogleDocs = Node.create({
     return {
       setGoogleDocs:
         (src: string) =>
-        ({ commands }) => {
+        ({ commands }: CommandProps) => {
           return commands.insertContent({
             type: this.name,
             attrs: { src },
           });
         },
-    };
+    } as Partial<RawCommands>;
   },
 });
 
@@ -588,13 +588,13 @@ export const GoogleSheets = Node.create({
     return {
       setGoogleSheets:
         (src: string) =>
-        ({ commands }) => {
+        ({ commands }: CommandProps) => {
           return commands.insertContent({
             type: this.name,
             attrs: { src },
           });
         },
-    };
+    } as Partial<RawCommands>;
   },
 });
 
@@ -649,13 +649,13 @@ export const GoogleSlides = Node.create({
     return {
       setGoogleSlides:
         (src: string) =>
-        ({ commands }) => {
+        ({ commands }: CommandProps) => {
           return commands.insertContent({
             type: this.name,
             attrs: { src },
           });
         },
-    };
+    } as Partial<RawCommands>;
   },
 });
 
@@ -710,13 +710,13 @@ export const GoogleMaps = Node.create({
     return {
       setGoogleMaps:
         (src: string) =>
-        ({ commands }) => {
+        ({ commands }: CommandProps) => {
           return commands.insertContent({
             type: this.name,
             attrs: { src },
           });
         },
-    };
+    } as Partial<RawCommands>;
   },
 });
 
@@ -913,13 +913,13 @@ export const ImageBlock = Node.create({
     return {
       setImageBlock:
         (src: string, alt?: string) =>
-        ({ commands }) => {
+        ({ commands }: CommandProps) => {
           return commands.insertContent({
             type: this.name,
             attrs: { src, alt: alt || '' },
           });
         },
-    };
+    } as Partial<RawCommands>;
   },
 });
 
@@ -1088,13 +1088,13 @@ export const VideoBlock = Node.create({
     return {
       setVideoBlock:
         (src: string, mimeType?: string) =>
-        ({ commands }) => {
+        ({ commands }: CommandProps) => {
           return commands.insertContent({
             type: this.name,
             attrs: { src, mimeType: mimeType || 'video/mp4' },
           });
         },
-    };
+    } as Partial<RawCommands>;
   },
 });
 
@@ -1166,12 +1166,12 @@ export const AudioBlock = Node.create({
     return {
       setAudioBlock:
         (src: string, mimeType?: string) =>
-        ({ commands }) => {
+        ({ commands }: CommandProps) => {
           return commands.insertContent({
             type: this.name,
             attrs: { src, mimeType: mimeType || 'audio/mpeg' },
           });
         },
-    };
+    } as Partial<RawCommands>;
   },
 });

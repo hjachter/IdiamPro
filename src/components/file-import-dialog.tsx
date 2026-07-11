@@ -110,6 +110,7 @@ export default function FileImportDialog({
       data: [],
       presentations: [],
       social: [],
+      media: [],
     };
 
     for (const category of Object.keys(all) as FormatCategory[]) {

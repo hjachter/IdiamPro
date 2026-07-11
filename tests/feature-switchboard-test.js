@@ -93,7 +93,14 @@ async function setFlag(body) {
 }
 
 // Reload the app window and wait for the flags provider fetch to settle.
+// Hop through "/" first so the whole React tree (incl. FeatureFlagsProvider)
+// unmounts and remounts — a same-URL href assignment does NOT reliably force
+// a remount in Electron, so the provider would keep its startup flags and the
+// new override would never be re-fetched. (Same technique the onboarding suite
+// uses.) This mirrors a real user relaunch/hard-reload, where flags DO refresh.
 async function reloadApp() {
+  await page.evaluate(() => { window.location.href = '/'; });
+  await page.waitForTimeout(1200);
   await page.evaluate(() => { window.location.href = '/app'; });
   await page.waitForLoadState('domcontentloaded');
   try {

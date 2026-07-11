@@ -48,10 +48,10 @@ export function calculateNodePrefix(nodes: NodeMap, nodeId: string): string {
     let currentNodeId: string | null = nodeId;
 
     while (currentNodeId) {
-        const currentNode = nodes[currentNodeId];
+        const currentNode: OutlineNode | undefined = nodes[currentNodeId];
         if (!currentNode || !currentNode.parentId) break;
 
-        const parent = nodes[currentNode.parentId];
+        const parent: OutlineNode | undefined = nodes[currentNode.parentId];
         if (!parent || !parent.childrenIds) break;
 
         const index = parent.childrenIds.indexOf(currentNodeId);

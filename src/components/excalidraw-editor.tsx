@@ -121,7 +121,7 @@ export default function ExcalidrawEditor({
     <div className={`w-full h-full min-h-[500px] ${className}`}>
       <Excalidraw
         excalidrawAPI={(api) => setExcalidrawAPI(api)}
-        initialData={initialData}
+        initialData={initialData as any}
         onChange={handleChange}
         theme={isDarkMode ? 'dark' : 'light'}
         UIOptions={{

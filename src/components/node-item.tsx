@@ -912,7 +912,7 @@ export default function NodeItem({
         {!node.isCollapsed && isChapter && Array.isArray(node.childrenIds) && (
             <>
               {/* Progressive rendering disabled - using collapse approach instead for large outlines */}
-              {false && maxRenderDepth !== undefined && level >= maxRenderDepth ? (
+              {false && maxRenderDepth !== undefined && level >= maxRenderDepth! ? (
                 <div
                   className="text-xs text-muted-foreground italic py-1"
                   style={{ paddingLeft: `${(level + 1) * 1.5 + 0.5}rem` }}
