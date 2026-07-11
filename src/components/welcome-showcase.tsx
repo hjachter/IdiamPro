@@ -29,6 +29,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { useDiscovery } from '@/hooks/use-discovery';
 import {
   Video,
@@ -76,6 +77,8 @@ interface ShowcaseItem {
   icon: React.ComponentType<{ className?: string }>;
   title: string;
   blurb: string;
+  /** Marks a Pro-gated output so the panel signals paid features honestly. */
+  pro?: boolean;
 }
 
 const ITEMS: ShowcaseItem[] = [
@@ -83,16 +86,19 @@ const ITEMS: ShowcaseItem[] = [
     icon: Video,
     title: 'Video',
     blurb: 'Turn an outline into a narrated slideshow video.',
+    pro: true,
   },
   {
     icon: Mic,
     title: 'Podcast',
     blurb: 'Generate a natural two-voice podcast from any section.',
+    pro: true,
   },
   {
     icon: Globe,
     title: 'Website',
     blurb: 'Publish an outline as a clean, shareable web page.',
+    pro: true,
   },
   {
     icon: FileDown,
@@ -175,6 +181,14 @@ export function WelcomeShowcase() {
                     <Icon className="h-5 w-5" />
                   </span>
                   <span className="font-semibold leading-tight">{item.title}</span>
+                  {item.pro && (
+                    <Badge
+                      variant="secondary"
+                      className="ml-auto shrink-0 px-1.5 py-0 text-[10px] font-semibold uppercase tracking-wide"
+                    >
+                      Pro
+                    </Badge>
+                  )}
                 </div>
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   {item.blurb}
