@@ -412,39 +412,6 @@ function ParticlesBackground() {
   );
 }
 
-// Testimonial card
-function TestimonialCard({
-  quote,
-  author,
-  role,
-  avatar
-}: {
-  quote: string;
-  author: string;
-  role: string;
-  avatar?: string;
-}) {
-  return (
-    <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
-      <div className="flex gap-1 mb-4">
-        {[...Array(5)].map((_, i) => (
-          <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-        ))}
-      </div>
-      <p className="text-white/80 text-sm leading-relaxed mb-4">"{quote}"</p>
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-indigo-500 flex items-center justify-center text-white font-semibold">
-          {author.charAt(0)}
-        </div>
-        <div>
-          <div className="text-white font-medium text-sm">{author}</div>
-          <div className="text-white/50 text-xs">{role}</div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // ============================================
 // MAIN PAGE
 // ============================================
@@ -590,24 +557,6 @@ export default function MarketingPage() {
     {
       question: 'Can I export my work?',
       answer: 'IdiamPro offers 10+ export formats including PDF, Markdown, HTML, Plain Text, OPML, Obsidian (with wiki-links), CSV, and JSON Tree. Plus, you can export any outline as a professional Marketing Website with 8 templates (Marketing, Informational, Documentation, Portfolio, Event, Educational, Blog, Personal). Your data is never locked in.'
-    }
-  ];
-
-  const testimonials = [
-    {
-      quote: 'I imported 47 research papers and IdiamPro synthesized them into a coherent literature review in minutes. What used to take months now takes an afternoon.',
-      author: 'Dr. Sarah Chen',
-      role: 'Postdoctoral Researcher, Computational Biology'
-    },
-    {
-      quote: 'We recorded 12 hours of stakeholder interviews in the field. IdiamPro transcribed everything with perfect speaker identification and organized it by theme. Game changer for qualitative research.',
-      author: 'Dr. Michael Torres',
-      role: 'Principal Research Scientist, Industrial R&D'
-    },
-    {
-      quote: 'For legal discovery, we process thousands of documents. IdiamPro synthesizes deposition transcripts, case files, and expert reports into structured briefs. It\'s become essential to our workflow.',
-      author: 'Jennifer Walsh, JD',
-      role: 'Senior Associate, Litigation Practice'
     }
   ];
 
@@ -1718,33 +1667,33 @@ export default function MarketingPage() {
 
             {/* Case Studies */}
             <div className="mt-16">
-              <h3 className="text-2xl font-bold text-white text-center mb-8">Real Research, Real Results</h3>
+              <h3 className="text-2xl font-bold text-white text-center mb-8">What you could do</h3>
               <div className="grid md:grid-cols-3 gap-6">
                 <div className="p-6 rounded-2xl bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20">
                   <div className="text-3xl font-bold text-blue-400 mb-2">47 → 1</div>
                   <h4 className="text-white font-semibold mb-2">Literature Review Synthesis</h4>
                   <p className="text-white/50 text-sm mb-4">
-                    A PhD candidate imported 47 research papers on computational biology. IdiamPro synthesized them into a coherent literature review organized by methodology, findings, and gaps.
+                    Imagine importing 47 research papers on computational biology — IdiamPro synthesizes them into a coherent literature review organized by methodology, findings, and gaps.
                   </p>
-                  <div className="text-blue-400 text-xs font-medium">Computational Biology • Stanford</div>
+                  <div className="text-blue-400 text-xs font-medium">Example scenario • Computational Biology</div>
                 </div>
 
                 <div className="p-6 rounded-2xl bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-amber-500/20">
                   <div className="text-3xl font-bold text-amber-400 mb-2">12 hrs → 30 min</div>
                   <h4 className="text-white font-semibold mb-2">Field Interview Analysis</h4>
                   <p className="text-white/50 text-sm mb-4">
-                    An industrial R&D team recorded 12 hours of stakeholder interviews across 3 sites. IdiamPro transcribed with speaker diarization and organized insights by theme.
+                    Imagine an R&D team recording 12 hours of stakeholder interviews across 3 sites — IdiamPro transcribes with speaker diarization and organizes insights by theme.
                   </p>
-                  <div className="text-amber-400 text-xs font-medium">Industrial Research • Fortune 500</div>
+                  <div className="text-amber-400 text-xs font-medium">Example scenario • Industrial R&D</div>
                 </div>
 
                 <div className="p-6 rounded-2xl bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border border-emerald-500/20">
                   <div className="text-3xl font-bold text-emerald-400 mb-2">2,400 docs</div>
                   <h4 className="text-white font-semibold mb-2">Legal Discovery</h4>
                   <p className="text-white/50 text-sm mb-4">
-                    A litigation team processed 2,400 discovery documents including depositions, contracts, and communications. IdiamPro organized evidence by timeline and relevance.
+                    Imagine a litigation team processing 2,400 discovery documents including depositions, contracts, and communications — IdiamPro organizes evidence by timeline and relevance.
                   </p>
-                  <div className="text-emerald-400 text-xs font-medium">Complex Litigation • AmLaw 100</div>
+                  <div className="text-emerald-400 text-xs font-medium">Example scenario • Legal Discovery</div>
                 </div>
               </div>
             </div>
@@ -1857,27 +1806,6 @@ export default function MarketingPage() {
                   <div className="text-emerald-400 text-xs">Available Now</div>
                 </div>
               </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Testimonials */}
-        <section className="px-6 py-24 lg:px-12 relative">
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-violet-950/20 to-transparent" />
-          <div className="max-w-7xl mx-auto relative">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl lg:text-5xl font-bold mb-4">
-                Trusted by{' '}
-                <span className="bg-gradient-to-r from-violet-400 to-indigo-400 bg-clip-text text-transparent">
-                  professional researchers
-                </span>
-              </h2>
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-6">
-              {testimonials.map((testimonial, i) => (
-                <TestimonialCard key={i} {...testimonial} />
-              ))}
             </div>
           </div>
         </section>
@@ -2288,7 +2216,7 @@ export default function MarketingPage() {
               </span>
             </h2>
             <p className="text-white/50 text-lg mb-8 max-w-2xl mx-auto">
-              Join thousands of researchers, authors, and professionals who've upgraded their workflow with IdiamPro.
+              Join researchers, authors, and professionals who've upgraded their workflow with IdiamPro.
             </p>
             <Button
               onClick={launchApp}
