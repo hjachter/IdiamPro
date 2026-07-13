@@ -486,7 +486,7 @@ export default function MarketingPage() {
         { text: 'Record your subject interviews and get a clean transcript with speakers named — quotes ready to drop into the manuscript.' },
         { text: 'Expand a thin section with AI drafting in your structure, then rewrite it in your own voice — the scaffolding is already there.' },
         { text: 'Capture stray ideas and clippings to your Second Brain; smart auto-tagging files them so the right note resurfaces at the right chapter.' },
-        { text: 'Export the finished draft to a manuscript-ready Word doc or an EPUB ebook — one of 30+ formats, no copy-paste cleanup.' }
+        { text: 'Export the finished draft to a manuscript-ready Word doc or an EPUB ebook — one of 23 formats, no copy-paste cleanup.' }
       ]
     },
     {
@@ -528,7 +528,7 @@ export default function MarketingPage() {
         { text: 'Import the FOIA PDFs, the leaked spreadsheet, and the hearing video transcript into one outline that ties names and dates together.' },
         { text: 'Ask the file "who knew about the contract before the vote?" and get an answer drawn only from your documents, with the source attached.' },
         { text: 'Run LIVE BOOKS on a developing story so your backgrounder reflects today\'s filings, with every change shown before you approve it.' },
-        { text: 'Export the verified draft to your CMS format from 30+ options, every claim still traceable to the page that proves it.' }
+        { text: 'Export the verified draft to your CMS format from 23 options, every claim still traceable to the page that proves it.' }
       ]
     }
   ];
@@ -556,7 +556,7 @@ export default function MarketingPage() {
     },
     {
       question: 'Can I export my work?',
-      answer: 'IdiamPro offers 10+ export formats including PDF, Markdown, HTML, Plain Text, OPML, Obsidian (with wiki-links), CSV, and JSON Tree. Plus, you can export any outline as a professional Marketing Website with 8 templates (Marketing, Informational, Documentation, Portfolio, Event, Educational, Blog, Personal). Your data is never locked in.'
+      answer: 'IdiamPro offers 23 export formats including PDF, Markdown, HTML, Word, LaTeX, EPUB, Plain Text, OPML, Obsidian (with wiki-links), Notion, CSV, and JSON Tree. Plus, you can export any outline as a professional Marketing Website with 8 templates (Marketing, Informational, Documentation, Portfolio, Event, Educational, Blog, Personal). Your data is never locked in.'
     }
   ];
 
@@ -579,7 +579,7 @@ export default function MarketingPage() {
                 <Layers className="w-5 h-5 text-white" />
               </div>
               <span className="text-xl font-bold bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">
-                SecondBrainWare
+                IdiamPro
               </span>
             </div>
 
@@ -646,7 +646,7 @@ export default function MarketingPage() {
                   Any idea. Any team, anywhere. Any language. AI at every step.
                 </p>
                 <p className="text-base md:text-lg text-white/60 mb-8 max-w-3xl mx-auto leading-relaxed">
-                  An outliner for students, researchers, and professionals — developing research papers, project plans, Second Brains, product designs, or whatever you&apos;re building. AI doesn&apos;t just answer questions: it generates outlines from your sources, refreshes them against live web data, translates them into 20 languages, even produces podcasts and illustrations.
+                  An outliner for students, researchers, and professionals — developing research papers, project plans, Second Brains, product designs, or whatever you&apos;re building. AI doesn&apos;t just answer questions: it generates outlines from your sources, refreshes them against live web data, translates them into 21 languages, even produces podcasts and illustrations.
                 </p>
               {/* Decorative elements */}
               <div className="absolute top-4 left-4 flex gap-1.5">
@@ -1173,7 +1173,7 @@ export default function MarketingPage() {
                     </div>
                     <div>
                       <h3 className="text-xl font-bold text-white mb-2">
-                        Export Anywhere in 10+ Formats
+                        Export Anywhere in 23 Formats
                       </h3>
                       <p className="text-white/60 text-sm mb-4">
                         Your data is never locked in. Export to PDF, Markdown, HTML, Marketing Websites, OPML, Obsidian with wiki-links, CSV, and more.
@@ -1356,7 +1356,7 @@ export default function MarketingPage() {
                   </li>
                   <li className="flex items-start gap-3 text-white/80">
                     <Check className="w-5 h-5 text-violet-400 flex-shrink-0 mt-0.5" />
-                    <span><strong className="text-white">Your data, your way</strong>—9 export formats, local-first storage, no lock-in</span>
+                    <span><strong className="text-white">Your data, your way</strong>—23 export formats, local-first storage, no lock-in</span>
                   </li>
                 </ul>
               </div>
@@ -1597,7 +1597,7 @@ export default function MarketingPage() {
                     </div>
                     <div>
                       <h4 className="text-white font-semibold mb-1">Export Anytime, Any Format</h4>
-                      <p className="text-white/50 text-sm">9 export formats mean you're never locked in. Leave anytime with all your data.</p>
+                      <p className="text-white/50 text-sm">23 export formats mean you're never locked in. Leave anytime with all your data.</p>
                     </div>
                   </div>
                 </div>
@@ -2263,13 +2263,13 @@ export default function MarketingPage() {
         {/* Footer */}
         <footer className="px-6 py-12 lg:px-12 border-t border-white/10">
           <div className="max-w-7xl mx-auto">
-            <div className="grid md:grid-cols-4 gap-8 mb-12">
+            <div className="grid md:grid-cols-3 gap-8 mb-12">
               <div>
                 <div className="flex items-center gap-2 mb-4">
                   <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center">
                     <Brain className="w-4 h-4 text-white" />
                   </div>
-                  <span className="font-bold text-white">SecondBrainWare</span>
+                  <span className="font-bold text-white">IdiamPro</span>
                 </div>
                 <p className="text-white/40 text-sm mb-2">
                   Your Intelligence Amplifier.
@@ -2285,40 +2285,22 @@ export default function MarketingPage() {
                   <li><a href="#features" className="text-white/40 hover:text-white text-sm transition-colors">Features</a></li>
                   <li><a href="#pricing" className="text-white/40 hover:text-white text-sm transition-colors">Pricing</a></li>
                   <li><a href="#use-cases" className="text-white/40 hover:text-white text-sm transition-colors">Use Cases</a></li>
-                  <li><a href="#" className="text-white/40 hover:text-white text-sm transition-colors">Roadmap</a></li>
-                </ul>
-              </div>
-
-              <div>
-                <h4 className="text-white font-semibold mb-4">Resources</h4>
-                <ul className="space-y-2">
-                  <li><a href="#" className="text-white/40 hover:text-white text-sm transition-colors">Documentation</a></li>
-                  <li><a href="#" className="text-white/40 hover:text-white text-sm transition-colors">Tutorials</a></li>
-                  <li><a href="#" className="text-white/40 hover:text-white text-sm transition-colors">Blog</a></li>
                   <li><a href="#faq" className="text-white/40 hover:text-white text-sm transition-colors">FAQ</a></li>
                 </ul>
               </div>
 
               <div>
-                <h4 className="text-white font-semibold mb-4">Company</h4>
+                <h4 className="text-white font-semibold mb-4">Legal</h4>
                 <ul className="space-y-2">
-                  <li><a href="#" className="text-white/40 hover:text-white text-sm transition-colors">About</a></li>
-                  <li><a href="#" className="text-white/40 hover:text-white text-sm transition-colors">Privacy</a></li>
-                  <li><a href="#" className="text-white/40 hover:text-white text-sm transition-colors">Terms</a></li>
-                  <li><a href="#" className="text-white/40 hover:text-white text-sm transition-colors">Contact</a></li>
+                  <li><a href="/privacy" className="text-white/40 hover:text-white text-sm transition-colors">Privacy</a></li>
                 </ul>
               </div>
             </div>
 
-            <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="pt-8 border-t border-white/10">
               <p className="text-white/30 text-sm">
                 © 2026 SecondBrainWare. All rights reserved.
               </p>
-              <div className="flex items-center gap-6">
-                <a href="#" className="text-white/30 hover:text-white text-sm transition-colors">Twitter</a>
-                <a href="#" className="text-white/30 hover:text-white text-sm transition-colors">LinkedIn</a>
-                <a href="#" className="text-white/30 hover:text-white text-sm transition-colors">GitHub</a>
-              </div>
             </div>
           </div>
         </footer>

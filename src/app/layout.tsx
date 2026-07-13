@@ -19,13 +19,13 @@ import BackupHealthWatcher from '@/components/backup-health-watcher';
 export const metadata: Metadata = {
   metadataBase: new URL('https://2ndbrainware.com'),
   title: {
-    default: 'SecondBrainWare — AI-native outliner for thinkers and researchers',
-    template: '%s | SecondBrainWare',
+    default: 'IdiamPro — AI-native outliner for thinkers and researchers',
+    template: '%s | IdiamPro',
   },
   description:
-    'SecondBrainWare is an AI-native outliner that helps you think, research, and write. Local-first, BYOK, cross-platform — the outline editor your second brain deserves.',
+    'IdiamPro is an AI-native outliner that helps you think, research, and write. Local-first, BYOK, cross-platform — the outline editor your second brain deserves.',
   manifest: '/manifest.json',
-  applicationName: 'SecondBrainWare',
+  applicationName: 'IdiamPro',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
@@ -46,8 +46,8 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: 'https://2ndbrainware.com',
-    siteName: 'SecondBrainWare',
-    title: 'SecondBrainWare — AI-native outliner for thinkers and researchers',
+    siteName: 'IdiamPro',
+    title: 'IdiamPro — AI-native outliner for thinkers and researchers',
     description:
       'An AI-native outliner that helps you think, research, and write. Local-first, BYOK, cross-platform.',
     images: [
@@ -56,13 +56,13 @@ export const metadata: Metadata = {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'SecondBrainWare — AI-native outliner',
+        alt: 'IdiamPro — AI-native outliner',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'SecondBrainWare — AI-native outliner for thinkers and researchers',
+    title: 'IdiamPro — AI-native outliner for thinkers and researchers',
     description:
       'An AI-native outliner that helps you think, research, and write. Local-first, BYOK, cross-platform.',
     images: ['/og-image.png'],

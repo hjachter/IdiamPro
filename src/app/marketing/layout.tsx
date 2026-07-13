@@ -3,10 +3,10 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'AI-native outliner for thinkers, researchers, and writers',
   description:
-    'SecondBrainWare turns your notes into a structured second brain. AI-assisted outlining, local-first storage, BYOK keys, and cross-platform sync.',
+    'IdiamPro turns your notes into a structured second brain. AI-assisted outlining, local-first storage, BYOK keys, and cross-platform sync.',
   alternates: { canonical: '/marketing' },
   openGraph: {
-    title: 'SecondBrainWare — AI-native outliner',
+    title: 'IdiamPro — AI-native outliner',
     description:
       'Turn your notes into a structured second brain. AI-assisted outlining, local-first, BYOK.',
     url: '/marketing',
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'SecondBrainWare — AI-native outliner',
+    title: 'IdiamPro — AI-native outliner',
     description:
       'Turn your notes into a structured second brain. AI-assisted outlining, local-first, BYOK.',
   },
