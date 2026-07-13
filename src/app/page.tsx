@@ -10,9 +10,6 @@ import {
   Layers,
   Zap,
   FileText,
-  Image as ImageIcon,
-  Table,
-  Mic,
   ChevronRight,
   ChevronDown,
   ArrowRight,
@@ -62,11 +59,7 @@ import {
   Download,
   Upload,
   Merge,
-  RotateCcw,
-  Tags,
   Palette,
-  Focus,
-  ListOrdered,
   ExternalLink,
   Menu,
   X,
@@ -289,75 +282,6 @@ function PricingCard({
       >
         {cta}
       </Button>
-    </div>
-  );
-}
-
-// Use case card
-function UseCaseCard({
-  icon: Icon,
-  title,
-  subtitle,
-  description,
-  gradient,
-  examples
-}: {
-  icon: React.ElementType;
-  title: string;
-  subtitle: string;
-  description: string;
-  gradient: string;
-  examples?: { text: string; comingSoon?: boolean }[];
-}) {
-  const [showHow, setShowHow] = useState(false);
-
-  return (
-    <div className="group p-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10
-      hover:border-white/20 transition-all duration-300">
-      <div className={`w-14 h-14 rounded-xl ${gradient} flex items-center justify-center mb-4
-        group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
-        <Icon className="w-7 h-7 text-white" />
-      </div>
-      <div className="text-xs text-violet-400 font-medium uppercase tracking-wider mb-1">{subtitle}</div>
-      <h3 className="text-lg font-semibold text-white mb-2">{title}</h3>
-      <p className="text-white/50 text-sm leading-relaxed">{description}</p>
-
-      {examples && examples.length > 0 && (
-        <div className="mt-4 border-t border-white/10 pt-3">
-          <button
-            type="button"
-            onClick={() => setShowHow(!showHow)}
-            aria-expanded={showHow}
-            className="w-full flex items-center justify-between text-left rounded-lg
-              -mx-1 px-1 py-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/60"
-          >
-            <span className="text-sm font-medium text-violet-300">See how it works</span>
-            <ChevronDown className={`w-4 h-4 text-white/40 transition-transform duration-300 flex-shrink-0
-              ${showHow ? 'rotate-180' : ''}`}
-            />
-          </button>
-          <div className={`overflow-hidden transition-all duration-300
-            ${showHow ? 'max-h-[28rem] pt-3' : 'max-h-0'}`}>
-            <ul className="space-y-2">
-              {examples.map((ex, idx) => (
-                <li key={idx} className="flex gap-2 text-white/60 text-sm leading-relaxed">
-                  <span className="text-violet-400 mt-0.5 flex-shrink-0">›</span>
-                  <span>
-                    {ex.text}
-                    {ex.comingSoon && (
-                      <span className="ml-2 inline-block align-middle text-[10px] font-semibold
-                        uppercase tracking-wider text-amber-300 bg-amber-400/10 border border-amber-400/20
-                        rounded px-1.5 py-0.5">
-                        Coming soon
-                      </span>
-                    )}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
@@ -632,6 +556,92 @@ function OneOutlineManyOutputs() {
   );
 }
 
+// Who it's for — a compact persona selector. Instead of stacking all six
+// use-case cards, the visitor picks the role that matches them (pill tabs)
+// and sees that one deep panel: the outcome-focused description plus the
+// concrete "how it works" steps. All the original copy is preserved — it's
+// just selectable now, not dumped all at once.
+type UseCase = {
+  icon: React.ElementType;
+  title: string;
+  subtitle: string;
+  description: string;
+  gradient: string;
+  examples?: { text: string; comingSoon?: boolean }[];
+};
+
+function WhoItsFor({ useCases }: { useCases: UseCase[] }) {
+  const [active, setActive] = useState(0);
+  const current = useCases[active];
+  const Icon = current.icon;
+
+  return (
+    <div>
+      {/* Persona pills */}
+      <div role="tablist" aria-label="Who IdiamPro is for" className="flex flex-wrap justify-center gap-2 md:gap-3 mb-10">
+        {useCases.map((uc, i) => {
+          const selected = i === active;
+          const PillIcon = uc.icon;
+          return (
+            <button
+              key={i}
+              role="tab"
+              type="button"
+              aria-selected={selected}
+              onClick={() => setActive(i)}
+              className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-all duration-200
+                focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/60
+                ${selected
+                  ? 'bg-gradient-to-r from-violet-600 to-indigo-600 border-violet-400/50 text-white shadow-lg shadow-violet-500/25'
+                  : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:text-white'}`}
+            >
+              <PillIcon className="w-4 h-4 flex-shrink-0" />
+              <span>{uc.title}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Selected persona panel */}
+      <div className="rounded-3xl border border-white/10 bg-white/5 p-8 md:p-10">
+        <div className="flex flex-col md:flex-row md:items-start gap-6 md:gap-8">
+          <div className="md:w-2/5">
+            <div className={`w-14 h-14 rounded-2xl ${current.gradient} flex items-center justify-center mb-4 shadow-lg`}>
+              <Icon className="w-7 h-7 text-white" />
+            </div>
+            <div className="text-xs text-violet-400 font-medium uppercase tracking-wider mb-1">{current.subtitle}</div>
+            <h3 className="text-2xl font-bold text-white mb-3">{current.title}</h3>
+            <p className="text-white/60 leading-relaxed">{current.description}</p>
+          </div>
+
+          {current.examples && current.examples.length > 0 && (
+            <div className="md:w-3/5 md:border-l md:border-white/10 md:pl-8">
+              <div className="text-sm font-medium text-violet-300 mb-4">How it works</div>
+              <ul className="space-y-3">
+                {current.examples.map((ex, idx) => (
+                  <li key={idx} className="flex gap-3 text-white/70 text-sm leading-relaxed">
+                    <span className="text-violet-400 mt-0.5 flex-shrink-0">›</span>
+                    <span>
+                      {ex.text}
+                      {ex.comingSoon && (
+                        <span className="ml-2 inline-block align-middle text-[10px] font-semibold
+                          uppercase tracking-wider text-amber-300 bg-amber-400/10 border border-amber-400/20
+                          rounded px-1.5 py-0.5">
+                          Coming soon
+                        </span>
+                      )}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ============================================
 // MAIN PAGE
 // ============================================
@@ -646,20 +656,6 @@ export default function MarketingPage() {
   }, []);
 
   // Data
-  const allFeatures = [
-    { icon: Brain, title: 'AI Content Generation', description: 'Generate content for any node with one click' },
-    { icon: ImageIcon, title: 'AI Image Creation', description: 'Create custom illustrations with Google Imagen 3' },
-    { icon: Table, title: 'Inline Spreadsheets', description: 'Full Excel-like spreadsheets embedded in your outline' },
-    { icon: Mic, title: 'Voice Dictation', description: 'Speak your thoughts with speech-to-text' },
-    { icon: Network, title: 'Auto Diagrams', description: 'Generate mind maps and flowcharts from any branch' },
-    { icon: Youtube, title: 'Video Embedding', description: 'Embed YouTube, Vimeo, and other video players' },
-    { icon: Tags, title: 'Tags & Colors', description: '8 colors and unlimited tags for organization' },
-    { icon: Focus, title: 'Focus Mode', description: 'Isolate a branch for distraction-free work' },
-    { icon: ListOrdered, title: 'Auto Numbering', description: 'Hierarchical prefixes (1.2.3 style)' },
-    { icon: Search, title: 'Full-Text Search', description: 'Search across all outlines and content' },
-    { icon: Download, title: 'Multi-Format Export', description: 'PDF, Markdown, HTML, OPML, Obsidian, and more' }
-  ];
-
   const useCases = [
     {
       icon: Scale,
@@ -1206,7 +1202,7 @@ export default function MarketingPage() {
 
             {/* Workflow Cards - Large, Visual */}
             <div className="space-y-6">
-              {/* Row 1 */}
+              {/* Hero row - the flagship synthesis workflow + two signature captures */}
               <div className="grid md:grid-cols-2 gap-6">
                 {/* Research Synthesis - Hero Workflow */}
                 <div className="md:col-span-2 group relative overflow-hidden rounded-3xl bg-gradient-to-br from-violet-500/20 via-purple-500/10 to-indigo-500/20 border border-violet-500/30 p-8 lg:p-12 hover:border-violet-500/50 transition-all duration-500">
@@ -1255,7 +1251,7 @@ export default function MarketingPage() {
                       <Headphones className="w-6 h-6 text-white" />
                     </div>
                     <h3 className="text-xl lg:text-2xl font-bold text-white mb-2">
-                      Capture Physical Meetings & Interviews
+                      Capture Physical Meetings &amp; Interviews
                     </h3>
                     <p className="text-white/60 mb-4">
                       Record in-person meetings, focus groups, or field interviews. Upload the audio and get automatic transcription with speaker diarization—know exactly who said what.
@@ -1280,195 +1276,135 @@ export default function MarketingPage() {
                       Select any branch and generate a professional podcast. Choose voices, style, and length.
                     </p>
                     <div className="text-emerald-400 text-sm font-medium">
-                      Multiple voices & styles →
+                      Multiple voices &amp; styles →
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Row 2 */}
+              {/* Signature outputs - three more one-click workflows */}
               <div className="grid md:grid-cols-3 gap-6">
-                {/* AI Content Generation */}
-                <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-pink-500/10 to-rose-500/10 border border-pink-500/20 p-8 hover:border-pink-500/40 transition-all duration-500">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center shadow-lg shadow-pink-500/30 mb-4">
-                    <Brain className="w-6 h-6 text-white" />
+                {/* Auto Mind Maps */}
+                <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border border-cyan-500/20 p-8 hover:border-cyan-500/40 transition-all duration-500">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/30 mb-4">
+                    <Network className="w-6 h-6 text-white" />
                   </div>
                   <h3 className="text-xl font-bold text-white mb-2">
-                    Generate Rich Content
+                    Auto-Generate Mind Maps &amp; Flowcharts
                   </h3>
                   <p className="text-white/60 text-sm mb-4">
-                    One click generates content for any node. AI understands your outline's context and hierarchy.
+                    Select any branch and instantly turn its structure into a mind map, flowchart, or org chart—export it or embed it right in your outline.
                   </p>
-                  <div className="text-pink-400 text-sm font-medium">
-                    Context-aware writing →
+                  <div className="flex flex-wrap gap-2">
+                    <span className="px-3 py-1 rounded-lg bg-white/10 text-white/60 text-xs">Mind Maps</span>
+                    <span className="px-3 py-1 rounded-lg bg-white/10 text-white/60 text-xs">Flowcharts</span>
+                    <span className="px-3 py-1 rounded-lg bg-white/10 text-white/60 text-xs">Org Charts</span>
                   </div>
                 </div>
 
-                {/* Bulk Content Generation */}
-                <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20 p-8 hover:border-blue-500/40 transition-all duration-500">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center shadow-lg shadow-blue-500/30 mb-4">
-                    <Zap className="w-6 h-6 text-white" />
-                  </div>
-                  <h3 className="text-xl font-bold text-white mb-2">
-                    Bulk Generate for Children
-                  </h3>
-                  <p className="text-white/60 text-sm mb-4">
-                    Select a parent node and generate content for all children at once. Perfect for filling out chapters.
-                  </p>
-                  <div className="text-blue-400 text-sm font-medium">
-                    One click, many nodes →
-                  </div>
-                </div>
-
-                {/* Knowledge Chat */}
+                {/* Ask your knowledge base (formerly Knowledge Chat) */}
                 <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-500/10 to-violet-500/10 border border-indigo-500/20 p-8 hover:border-indigo-500/40 transition-all duration-500">
                   <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/30 mb-4">
                     <MessagesSquare className="w-6 h-6 text-white" />
                   </div>
                   <h3 className="text-xl font-bold text-white mb-2">
-                    Chat With Your Knowledge
+                    Ask Your Knowledge Base
                   </h3>
                   <p className="text-white/60 text-sm mb-4">
-                    Ask questions about one outline or query all your outlines at once. Your personal Second Brain.
+                    Ask questions about one outline or across everything you’ve captured—answers come from your own sources, not a generic web guess.
                   </p>
                   <div className="text-indigo-400 text-sm font-medium">
                     Single or multi-outline →
                   </div>
                 </div>
-              </div>
 
-              {/* Row 3 */}
-              <div className="grid md:grid-cols-2 gap-6">
-                {/* Visual Diagrams */}
-                <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border border-cyan-500/20 p-8 hover:border-cyan-500/40 transition-all duration-500">
-                  <div className="flex items-start gap-6">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/30 flex-shrink-0">
-                      <Network className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-white mb-2">
-                        Auto-Generate Mind Maps & Flowcharts
-                      </h3>
-                      <p className="text-white/60 text-sm mb-4">
-                        Select any branch and instantly create beautiful visual diagrams. Export or embed directly in your outline.
-                      </p>
-                      <div className="flex gap-3">
-                        <span className="px-3 py-1 rounded-lg bg-white/10 text-white/60 text-xs">Mind Maps</span>
-                        <span className="px-3 py-1 rounded-lg bg-white/10 text-white/60 text-xs">Flowcharts</span>
-                        <span className="px-3 py-1 rounded-lg bg-white/10 text-white/60 text-xs">Org Charts</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* AI Images */}
-                <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-fuchsia-500/10 to-pink-500/10 border border-fuchsia-500/20 p-8 hover:border-fuchsia-500/40 transition-all duration-500">
-                  <div className="flex items-start gap-6">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-fuchsia-500 to-pink-600 flex items-center justify-center shadow-lg shadow-fuchsia-500/30 flex-shrink-0">
-                      <ImageIcon className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-white mb-2">
-                        Create Custom Illustrations
-                      </h3>
-                      <p className="text-white/60 text-sm mb-4">
-                        Describe what you need and AI generates it using Google Imagen 3. Insert directly into your outline.
-                      </p>
-                      <div className="flex gap-3">
-                        <span className="px-3 py-1 rounded-lg bg-white/10 text-white/60 text-xs">Google Imagen 3</span>
-                        <span className="px-3 py-1 rounded-lg bg-white/10 text-white/60 text-xs">Instant embed</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Row 4 - Export */}
-              <div className="grid md:grid-cols-3 gap-6">
-                <div className="md:col-span-2 group relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-500/10 to-gray-500/10 border border-slate-500/20 p-8 hover:border-slate-500/40 transition-all duration-500">
-                  <div className="flex items-start gap-6">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-slate-500 to-gray-600 flex items-center justify-center shadow-lg shadow-slate-500/30 flex-shrink-0">
-                      <Download className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-white mb-2">
-                        Export Anywhere in 9 Formats
-                      </h3>
-                      <p className="text-white/60 text-sm mb-4">
-                        Your data is never locked in. Export to PDF, Markdown, HTML (collapsible website), OPML, Obsidian with wiki-links, CSV, and more.
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        <span className="px-2 py-1 rounded bg-white/10 text-white/60 text-xs">PDF</span>
-                        <span className="px-2 py-1 rounded bg-white/10 text-white/60 text-xs">Markdown</span>
-                        <span className="px-2 py-1 rounded bg-white/10 text-white/60 text-xs">HTML</span>
-                        <span className="px-2 py-1 rounded bg-white/10 text-white/60 text-xs">OPML</span>
-                        <span className="px-2 py-1 rounded bg-white/10 text-white/60 text-xs">Obsidian</span>
-                        <span className="px-2 py-1 rounded bg-white/10 text-white/60 text-xs">CSV</span>
-                        <span className="px-2 py-1 rounded bg-white/10 text-white/60 text-xs">JSON</span>
-                        <span className="px-2 py-1 rounded bg-white/10 text-white/60 text-xs">Plain Text</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Undo Merge */}
-                <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-red-500/10 to-orange-500/10 border border-red-500/20 p-8 hover:border-red-500/40 transition-all duration-500">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500 to-orange-600 flex items-center justify-center shadow-lg shadow-red-500/30 mb-4">
-                    <RotateCcw className="w-6 h-6 text-white" />
-                  </div>
-                  <h3 className="text-xl font-bold text-white mb-2">
-                    One-Click Unmerge
-                  </h3>
-                  <p className="text-white/60 text-sm">
-                    Changed your mind after merging research? One click restores your outline to its pre-merge state. Always recoverable.
-                  </p>
-                </div>
-              </div>
-
-              {/* New — Multimedia pair: YouTube package generation + Image-to-outline (shipped 2026-06-11) */}
-              <div className="mt-8 grid lg:grid-cols-2 gap-6">
-                {/* YouTube generation — shipped */}
+                {/* From outline to YouTube - shipped multimedia workflow */}
                 <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-red-500/10 via-rose-500/5 to-amber-500/10 border border-red-500/20 p-8 hover:border-red-500/40 transition-all duration-500">
                   <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center shadow-lg shadow-red-500/30 mb-4">
                     <Youtube className="w-6 h-6 text-white" />
                   </div>
-                  <div className="flex items-center gap-3 mb-2 flex-wrap">
+                  <div className="flex items-center gap-2 mb-2 flex-wrap">
                     <h3 className="text-xl font-bold text-white">
-                      From outline to YouTube in one click
+                      From Outline to Video Package
                     </h3>
                     <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-300 bg-emerald-400/10 border border-emerald-400/20 rounded px-2 py-0.5">
                       Shipped
                     </span>
                   </div>
-                  <p className="text-white/60 text-sm mb-3">
-                    Pick any outline branch and IdiamPro generates a complete YouTube content package — voiceover script with timing cues, chapter markers for the description, 5 title variants, 15+ SEO tags, a thumbnail concept, B-roll prompts for AI video tools (Runway, MagicLight, Sora), and a shot list for your screen recording.
+                  <p className="text-white/60 text-sm mb-4">
+                    Pick any branch and generate a complete YouTube package—voiceover script, chapter markers, title variants, SEO tags, thumbnail concept, and B-roll prompts.
                   </p>
-                  <p className="text-white/40 text-xs">
-                    Built for content creators who outline first, produce second.
-                  </p>
-                </div>
-
-                {/* Image-to-outline — shipped */}
-                <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-cyan-500/10 via-sky-500/5 to-violet-500/10 border border-cyan-500/20 p-8 hover:border-cyan-500/40 transition-all duration-500">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-sky-600 flex items-center justify-center shadow-lg shadow-cyan-500/30 mb-4">
-                    <ImageIcon className="w-6 h-6 text-white" />
+                  <div className="text-red-400 text-sm font-medium">
+                    Outline first, produce second →
                   </div>
-                  <div className="flex items-center gap-3 mb-2 flex-wrap">
-                    <h3 className="text-xl font-bold text-white">
-                      Capture an idea, structure it instantly
-                    </h3>
-                    <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-300 bg-emerald-400/10 border border-emerald-400/20 rounded px-2 py-0.5">
-                      Shipped
-                    </span>
-                  </div>
-                  <p className="text-white/60 text-sm mb-3">
-                    Photograph a whiteboard, drop in a screenshot, snap a diagram. IdiamPro extracts the hierarchical structure as outline nodes — preserving relationships, not just text.
-                  </p>
-                  <p className="text-white/40 text-xs">
-                    The source image stays attached so you can always trace back to where an idea came from.
-                  </p>
                 </div>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* See it in action — real product screenshots */}
+        <section className="px-6 py-20 lg:px-12">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-12">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/20 border border-violet-500/30 mb-6">
+                <Sparkles className="w-4 h-4 text-violet-400" />
+                <span className="text-sm font-medium text-violet-300">See it in action</span>
+              </div>
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+                Real screenshots, real product.
+              </h2>
+              <p className="text-base md:text-lg text-white/60 leading-relaxed max-w-2xl mx-auto">
+                No mockups. This is IdiamPro today — from the writing workspace to the finished outputs it produces.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6 lg:gap-8">
+              {[
+                {
+                  src: '/screenshots/outline-editor.png',
+                  label: 'Workspace',
+                  title: 'The two-pane workspace',
+                  desc: 'Your outline structure on the left, a rich content editor on the right.',
+                },
+                {
+                  src: '/screenshots/mind-map.png',
+                  label: 'Visualize',
+                  title: 'Auto-generated mind maps',
+                  desc: 'Turn any branch into a mind map, flowchart, or org chart in one click.',
+                },
+                {
+                  src: '/screenshots/outputs.png',
+                  label: 'Publish',
+                  title: 'One outline, many outputs',
+                  desc: 'Video, podcast, website, docs and more — all from the same outline.',
+                },
+                {
+                  src: '/screenshots/feature.png',
+                  label: 'Command',
+                  title: 'Everything from one shortcut',
+                  desc: 'Open the command palette to run any action or ask a question — no menu hunting.',
+                },
+              ].map((shot) => (
+                <figure
+                  key={shot.src}
+                  className="group rounded-2xl border border-white/10 bg-white/5 overflow-hidden hover:border-violet-400/30 transition-colors"
+                >
+                  <div className="bg-gray-950/60 border-b border-white/5">
+                    <img
+                      src={shot.src}
+                      alt={shot.title}
+                      loading="lazy"
+                      className="w-full h-auto block"
+                    />
+                  </div>
+                  <figcaption className="p-5 md:p-6">
+                    <div className="text-xs text-violet-400 font-medium uppercase tracking-wider mb-1">{shot.label}</div>
+                    <h3 className="text-lg font-semibold text-white mb-1">{shot.title}</h3>
+                    <p className="text-white/50 text-sm leading-relaxed">{shot.desc}</p>
+                  </figcaption>
+                </figure>
+              ))}
             </div>
           </div>
         </section>
@@ -1577,30 +1513,6 @@ export default function MarketingPage() {
                     <span><strong className="text-white">Your data, your way</strong>—23 export formats, local-first storage, no lock-in</span>
                   </li>
                 </ul>
-              </div>
-            </div>
-
-            {/* Competitor Comparison Cards */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
-                <h4 className="text-white font-semibold mb-2">vs. Notion</h4>
-                <p className="text-white/40 text-sm mb-3">Feature-bloated, slow, not research-focused</p>
-                <p className="text-violet-400 text-sm font-medium">IdiamPro: Fast, focused, AI-powered research</p>
-              </div>
-              <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
-                <h4 className="text-white font-semibold mb-2">vs. Obsidian</h4>
-                <p className="text-white/40 text-sm mb-3">Steep learning curve, clunky mobile, no AI</p>
-                <p className="text-violet-400 text-sm font-medium">IdiamPro: Intuitive, great mobile, AI-native</p>
-              </div>
-              <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
-                <h4 className="text-white font-semibold mb-2">vs. WorkFlowy</h4>
-                <p className="text-white/40 text-sm mb-3">Dated UI, limited features, no source import</p>
-                <p className="text-violet-400 text-sm font-medium">IdiamPro: Modern, 19 node types, AI synthesis</p>
-              </div>
-              <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
-                <h4 className="text-white font-semibold mb-2">vs. Roam</h4>
-                <p className="text-white/40 text-sm mb-3">Expensive, cloud-only, performance issues</p>
-                <p className="text-violet-400 text-sm font-medium">IdiamPro: Affordable, local-first, fast</p>
               </div>
             </div>
 
@@ -1865,23 +1777,19 @@ export default function MarketingPage() {
         {/* Use Cases */}
         <section id="use-cases" className="px-6 py-24 lg:px-12">
           <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-16">
+            <div className="text-center mb-12">
               <h2 className="text-3xl lg:text-5xl font-bold mb-4">
-                Built for{' '}
+                Who it&apos;s{' '}
                 <span className="bg-gradient-to-r from-violet-400 to-indigo-400 bg-clip-text text-transparent">
-                  serious work
+                  for
                 </span>
               </h2>
               <p className="text-white/50 text-lg max-w-2xl mx-auto">
-                From PhD dissertations to investigative journalism, IdiamPro powers knowledge work that matters.
+                Pick the work you do and see exactly how IdiamPro fits it — from PhD dissertations to investigative journalism.
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {useCases.map((useCase, i) => (
-                <UseCaseCard key={i} {...useCase} />
-              ))}
-            </div>
+            <WhoItsFor useCases={useCases} />
 
             {/* Case Studies */}
             <div className="mt-16">
@@ -1914,31 +1822,6 @@ export default function MarketingPage() {
                   <div className="text-emerald-400 text-xs font-medium">Example scenario • Legal Discovery</div>
                 </div>
               </div>
-            </div>
-          </div>
-        </section>
-
-        {/* All Features Grid */}
-        <section className="px-6 py-24 lg:px-12 relative">
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-indigo-950/20 to-transparent" />
-          <div className="max-w-7xl mx-auto relative">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl lg:text-5xl font-bold mb-4">
-                50+ features to{' '}
-                <span className="bg-gradient-to-r from-violet-400 to-indigo-400 bg-clip-text text-transparent">
-                  amplify your work
-                </span>
-              </h2>
-            </div>
-
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {allFeatures.map((feature, i) => (
-                <div key={i} className="p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
-                  <feature.icon className="w-5 h-5 text-violet-400 mb-2" />
-                  <h4 className="text-white font-medium text-sm mb-1">{feature.title}</h4>
-                  <p className="text-white/40 text-xs">{feature.description}</p>
-                </div>
-              ))}
             </div>
           </div>
         </section>
