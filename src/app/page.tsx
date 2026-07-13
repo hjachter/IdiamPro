@@ -74,7 +74,8 @@ import {
   FileAudio,
   SpeakerIcon,
   Volume2,
-  BarChart3
+  BarChart3,
+  Languages
 } from 'lucide-react';
 
 // ============================================
@@ -427,6 +428,210 @@ function ParticlesBackground() {
   );
 }
 
+// Idea development band — the page's thesis: "a great idea isn't a single
+// prompt." Extracted to a component so it can lead the page (rendered right
+// under the hero) without duplicating markup.
+function IdeaDevelopmentBand() {
+  return (
+    <section className="px-6 pb-16 lg:px-12 border-t border-white/5 pt-16">
+      <div className="max-w-6xl mx-auto">
+        <div className="text-center max-w-3xl mx-auto mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+            A great idea isn&apos;t a single prompt.
+          </h2>
+          <p className="text-base md:text-lg text-white/60 leading-relaxed max-w-[660px] mx-auto">
+            It might take a hundred sources — articles, PDFs, YouTube videos, meeting notes, textbooks, even what you type yourself — read, weighed, and merged into one outline before the essence comes into focus. Developing an idea is iterative: many passes, not one flash of insight. IdiamPro is built for that work.
+          </p>
+        </div>
+
+        {/* Three-step flow */}
+        <div className="flex flex-col lg:flex-row items-stretch justify-center gap-4 lg:gap-2">
+          {/* Card 1 — Many inputs */}
+          <div className="flex-1 rounded-2xl border border-white/10 bg-white/5 p-6 md:p-8">
+            <div className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-violet-500/15 border border-violet-500/25 mb-4">
+              <FileUp className="w-5 h-5 text-violet-300" />
+            </div>
+            <h3 className="text-lg font-bold text-white mb-3">Many inputs</h3>
+            <ul className="space-y-2 text-sm text-white/60">
+              <li>Type it in yourself</li>
+              <li>Articles, web pages &amp; PDFs</li>
+              <li>YouTube, audio &amp; video</li>
+              <li>Notes, docs &amp; live web</li>
+              <li className="text-white/40">…and growing</li>
+            </ul>
+          </div>
+
+          {/* Arrow */}
+          <div className="flex items-center justify-center lg:px-1 text-white/30">
+            <ArrowRight className="hidden lg:block w-6 h-6" />
+            <ChevronDown className="block lg:hidden w-6 h-6" />
+          </div>
+
+          {/* Card 2 — Merge & consolidate (emphasized) */}
+          <div className="flex-1 rounded-2xl border-2 border-violet-500/40 bg-gradient-to-br from-violet-600/15 to-indigo-600/10 p-6 md:p-8 shadow-lg shadow-violet-500/20">
+            <div className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-violet-500/25 border border-violet-500/40 mb-4">
+              <Merge className="w-5 h-5 text-violet-200" />
+            </div>
+            <h3 className="text-lg font-bold text-white mb-3">Merge &amp; consolidate</h3>
+            <ul className="space-y-2 text-sm text-white/75">
+              <li>Merge sources into one outline</li>
+              <li>Consolidate into a coherent whole</li>
+              <li>Develop &amp; refine over many passes</li>
+            </ul>
+          </div>
+
+          {/* Arrow */}
+          <div className="flex items-center justify-center lg:px-1 text-white/30">
+            <ArrowRight className="hidden lg:block w-6 h-6" />
+            <ChevronDown className="block lg:hidden w-6 h-6" />
+          </div>
+
+          {/* Card 3 — Publish everywhere */}
+          <div className="flex-1 rounded-2xl border border-white/10 bg-white/5 p-6 md:p-8">
+            <div className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-indigo-500/15 border border-indigo-500/25 mb-4">
+              <Rocket className="w-5 h-5 text-indigo-300" />
+            </div>
+            <h3 className="text-lg font-bold text-white mb-3">Publish everywhere</h3>
+            <ul className="space-y-2 text-sm text-white/60">
+              <li>Papers &amp; articles</li>
+              <li>Podcasts &amp; videos</li>
+              <li>Slides &amp; illustrations</li>
+              <li className="text-white/40">…and growing</li>
+            </ul>
+          </div>
+        </div>
+
+        <p className="text-center text-sm text-white/50 mt-10 max-w-2xl mx-auto">
+          Read widely, merge the sources into one outline, refine the essence — then publish it in any format. That&apos;s idea development, not a one-shot answer.
+        </p>
+      </div>
+    </section>
+  );
+}
+
+// One outline → many outputs — a hub-and-spoke visual. A central "One Outline"
+// node fans out to the finished formats IdiamPro actually ships. Desktop uses a
+// 3×3 grid ring with an SVG spoke layer whose endpoints land on fixed cell
+// centres (percentages of equal thirds, so they stay aligned at any width);
+// mobile stacks the hub above a 2-column card grid. Outputs listed here are all
+// shipped features — do not add anything speculative.
+function OneOutlineManyOutputs() {
+  const outputs = [
+    { icon: Video, label: 'Video' },
+    { icon: Podcast, label: 'Podcast' },
+    { icon: Globe, label: 'Website' },
+    { icon: FileText, label: 'Docs & PDF' },
+    { icon: Presentation, label: 'Presentation' },
+    { icon: Network, label: 'Mind Map' },
+    { icon: BookOpen, label: 'Book / ePub' },
+    { icon: Languages, label: 'Translations' },
+  ];
+
+  // Cell centres for the 8 surrounding cells of a 3×3 grid (equal thirds),
+  // expressed as percentages so the SVG spokes always meet the card centres.
+  const cellCenters = [
+    { x: 16.67, y: 16.67 }, { x: 50, y: 16.67 }, { x: 83.33, y: 16.67 },
+    { x: 16.67, y: 50 }, /* hub */ { x: 83.33, y: 50 },
+    { x: 16.67, y: 83.33 }, { x: 50, y: 83.33 }, { x: 83.33, y: 83.33 },
+  ];
+
+  const OutputCard = ({ icon: Icon, label }: { icon: React.ElementType; label: string }) => (
+    <div className="flex items-center justify-center gap-2 rounded-xl bg-white/5 border border-white/10 px-3 py-2.5 text-center hover:bg-white/[0.08] hover:border-violet-400/30 transition-colors">
+      <Icon className="w-4 h-4 text-violet-300 flex-shrink-0" />
+      <span className="text-sm font-medium text-white/80 leading-tight">{label}</span>
+    </div>
+  );
+
+  const Hub = () => (
+    <div className="flex flex-col items-center justify-center gap-2 rounded-2xl bg-gradient-to-br from-violet-600/40 to-indigo-600/30 border-2 border-violet-400/50 px-4 py-4 shadow-lg shadow-violet-500/30">
+      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-violet-500/40">
+        <FolderTree className="w-5 h-5 text-white" />
+      </div>
+      <span className="text-sm font-bold text-white leading-tight text-center">One Outline</span>
+    </div>
+  );
+
+  return (
+    <section className="px-6 pb-16 lg:px-12">
+      <div className="max-w-5xl mx-auto">
+        <div className="rounded-3xl border border-violet-500/20 bg-gradient-to-br from-violet-500/10 via-purple-500/5 to-indigo-500/10 p-8 md:p-12">
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/20 border border-violet-500/30 mb-6">
+              <Rocket className="w-4 h-4 text-violet-400" />
+              <span className="text-sm font-medium text-violet-300">One outline → many outputs</span>
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+              Develop it once. Publish it in every format.
+            </h2>
+            <p className="text-base md:text-lg text-white/60 leading-relaxed max-w-2xl mx-auto">
+              One developed outline becomes many finished formats — no rebuilding from scratch for each one.
+            </p>
+          </div>
+
+          {/* Desktop — 3×3 ring with SVG spokes */}
+          <div className="hidden md:block relative w-full max-w-3xl mx-auto aspect-[16/10]">
+            <svg
+              className="absolute inset-0 w-full h-full pointer-events-none"
+              viewBox="0 0 100 100"
+              preserveAspectRatio="none"
+              aria-hidden="true"
+            >
+              <defs>
+                <linearGradient id="spoke" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stopColor="rgb(167 139 250)" stopOpacity="0.6" />
+                  <stop offset="100%" stopColor="rgb(129 140 248)" stopOpacity="0.15" />
+                </linearGradient>
+              </defs>
+              {cellCenters.map((c, i) => (
+                <line
+                  key={i}
+                  x1="50"
+                  y1="50"
+                  x2={c.x}
+                  y2={c.y}
+                  stroke="url(#spoke)"
+                  strokeWidth="0.4"
+                  vectorEffect="non-scaling-stroke"
+                />
+              ))}
+            </svg>
+            <div className="relative grid grid-cols-3 grid-rows-3 h-full gap-3">
+              <div className="flex items-center justify-center"><OutputCard {...outputs[0]} /></div>
+              <div className="flex items-center justify-center"><OutputCard {...outputs[1]} /></div>
+              <div className="flex items-center justify-center"><OutputCard {...outputs[2]} /></div>
+              <div className="flex items-center justify-center"><OutputCard {...outputs[3]} /></div>
+              <div className="flex items-center justify-center"><Hub /></div>
+              <div className="flex items-center justify-center"><OutputCard {...outputs[4]} /></div>
+              <div className="flex items-center justify-center"><OutputCard {...outputs[5]} /></div>
+              <div className="flex items-center justify-center"><OutputCard {...outputs[6]} /></div>
+              <div className="flex items-center justify-center"><OutputCard {...outputs[7]} /></div>
+            </div>
+          </div>
+
+          {/* Mobile — hub above a 2-column output grid */}
+          <div className="md:hidden">
+            <div className="flex justify-center mb-5">
+              <Hub />
+            </div>
+            <div className="flex justify-center mb-5 text-violet-300/50">
+              <ChevronDown className="w-6 h-6" />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {outputs.map((o) => (
+                <OutputCard key={o.label} {...o} />
+              ))}
+            </div>
+          </div>
+
+          <p className="text-center text-sm text-white/50 mt-10 max-w-2xl mx-auto">
+            Plus Docs &amp; PDF are part of 23 export formats, and any output can ship in 21 languages.
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ============================================
 // MAIN PAGE
 // ============================================
@@ -735,6 +940,12 @@ export default function MarketingPage() {
         </div>
         </section>
 
+        {/* Thesis — moved up to lead the page: idea development is iterative */}
+        <IdeaDevelopmentBand />
+
+        {/* One outline → many outputs — hub-and-spoke visual of shipped formats */}
+        <OneOutlineManyOutputs />
+
         {/* Idea Incubator — lead concept section that frames the whole product */}
         <section className="px-6 pb-16 lg:px-12">
           <div className="max-w-5xl mx-auto">
@@ -772,7 +983,7 @@ export default function MarketingPage() {
                   {
                     icon: Globe,
                     label: 'Enrich',
-                    description: 'Refresh any part against the live web so your thinking never goes stale, and ask your own outlines questions.',
+                    description: 'Refresh any part against the live web so your thinking never goes stale — then query your evolving knowledge base and get answers from everything you\'ve captured.',
                     gradient: 'bg-gradient-to-br from-indigo-500 to-blue-500',
                   },
                   {
@@ -809,81 +1020,6 @@ export default function MarketingPage() {
                 </span>
               </p>
             </div>
-          </div>
-        </section>
-
-        {/* Idea development band — the "not a single prompt" story + three-step flow */}
-        <section className="px-6 pb-16 lg:px-12 border-t border-white/5 pt-16">
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center max-w-3xl mx-auto mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                A great idea isn&apos;t a single prompt.
-              </h2>
-              <p className="text-base md:text-lg text-white/60 leading-relaxed max-w-[660px] mx-auto">
-                It might take a hundred sources — articles, PDFs, YouTube videos, meeting notes, textbooks, even what you type yourself — read, weighed, and merged into one outline before the essence comes into focus. Developing an idea is iterative: many passes, not one flash of insight. IdiamPro is built for that work.
-              </p>
-            </div>
-
-            {/* Three-step flow */}
-            <div className="flex flex-col lg:flex-row items-stretch justify-center gap-4 lg:gap-2">
-              {/* Card 1 — Many inputs */}
-              <div className="flex-1 rounded-2xl border border-white/10 bg-white/5 p-6 md:p-8">
-                <div className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-violet-500/15 border border-violet-500/25 mb-4">
-                  <FileUp className="w-5 h-5 text-violet-300" />
-                </div>
-                <h3 className="text-lg font-bold text-white mb-3">Many inputs</h3>
-                <ul className="space-y-2 text-sm text-white/60">
-                  <li>Type it in yourself</li>
-                  <li>Articles, web pages &amp; PDFs</li>
-                  <li>YouTube, audio &amp; video</li>
-                  <li>Notes, docs &amp; live web</li>
-                  <li className="text-white/40">…and growing</li>
-                </ul>
-              </div>
-
-              {/* Arrow */}
-              <div className="flex items-center justify-center lg:px-1 text-white/30">
-                <ArrowRight className="hidden lg:block w-6 h-6" />
-                <ChevronDown className="block lg:hidden w-6 h-6" />
-              </div>
-
-              {/* Card 2 — Merge & consolidate (emphasized) */}
-              <div className="flex-1 rounded-2xl border-2 border-violet-500/40 bg-gradient-to-br from-violet-600/15 to-indigo-600/10 p-6 md:p-8 shadow-lg shadow-violet-500/20">
-                <div className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-violet-500/25 border border-violet-500/40 mb-4">
-                  <Merge className="w-5 h-5 text-violet-200" />
-                </div>
-                <h3 className="text-lg font-bold text-white mb-3">Merge &amp; consolidate</h3>
-                <ul className="space-y-2 text-sm text-white/75">
-                  <li>Merge sources into one outline</li>
-                  <li>Consolidate into a coherent whole</li>
-                  <li>Develop &amp; refine over many passes</li>
-                </ul>
-              </div>
-
-              {/* Arrow */}
-              <div className="flex items-center justify-center lg:px-1 text-white/30">
-                <ArrowRight className="hidden lg:block w-6 h-6" />
-                <ChevronDown className="block lg:hidden w-6 h-6" />
-              </div>
-
-              {/* Card 3 — Publish everywhere */}
-              <div className="flex-1 rounded-2xl border border-white/10 bg-white/5 p-6 md:p-8">
-                <div className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-indigo-500/15 border border-indigo-500/25 mb-4">
-                  <Rocket className="w-5 h-5 text-indigo-300" />
-                </div>
-                <h3 className="text-lg font-bold text-white mb-3">Publish everywhere</h3>
-                <ul className="space-y-2 text-sm text-white/60">
-                  <li>Papers &amp; articles</li>
-                  <li>Podcasts &amp; videos</li>
-                  <li>Slides &amp; illustrations</li>
-                  <li className="text-white/40">…and growing</li>
-                </ul>
-              </div>
-            </div>
-
-            <p className="text-center text-sm text-white/50 mt-10 max-w-2xl mx-auto">
-              Read widely, merge the sources into one outline, refine the essence — then publish it in any format. That&apos;s idea development, not a one-shot answer.
-            </p>
           </div>
         </section>
 
@@ -2149,7 +2285,7 @@ export default function MarketingPage() {
                       },
                       {
                         label: 'Pro superpowers',
-                        sub: 'Refresh from Web + citations, Research & Import, Transform Outline, Ask Your Outlines at scale, Podcast, Image generation, frontier cloud models',
+                        sub: 'Refresh from Web + citations, Research & Import, Transform Outline, query your evolving knowledge base at scale, Podcast, Image generation, frontier cloud models',
                         cells: ['—', '—', <Check key="c" className="w-4 h-4 text-emerald-400" />, '✓ with your key'],
                       },
                       {
