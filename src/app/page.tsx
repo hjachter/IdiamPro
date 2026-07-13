@@ -17,6 +17,7 @@ import {
   ChevronDown,
   ArrowRight,
   Check,
+  Star,
   BookOpen,
   Briefcase,
   GraduationCap,
@@ -732,6 +733,83 @@ export default function MarketingPage() {
             </div>
           </div>
         </div>
+        </section>
+
+        {/* Idea Incubator — lead concept section that frames the whole product */}
+        <section className="px-6 pb-16 lg:px-12">
+          <div className="max-w-5xl mx-auto">
+            <div className="rounded-3xl border border-violet-500/20 bg-gradient-to-br from-violet-500/10 via-purple-500/5 to-indigo-500/10 p-8 md:p-12">
+              <div className="text-center mb-10">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/20 border border-violet-500/30 mb-6">
+                  <Sparkles className="w-4 h-4 text-violet-400" />
+                  <span className="text-sm font-medium text-violet-300">The Idea Incubator</span>
+                </div>
+                <h2 className="text-3xl md:text-5xl font-bold mb-6 leading-tight">
+                  <span className="bg-gradient-to-r from-white via-white to-white/80 bg-clip-text text-transparent">
+                    An Idea Incubator is where raw thoughts grow into finished work.
+                  </span>
+                </h2>
+                <p className="text-base md:text-lg text-white/70 leading-relaxed max-w-3xl mx-auto">
+                  Most tools store your notes. An Idea Incubator does something different — it takes the scattered raw material of your thinking (half-formed thoughts, saved videos, PDFs, web pages, meeting scraps) and actively grows them into structured, usable ideas.
+                </p>
+              </div>
+
+              {/* Four stages */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
+                {[
+                  {
+                    icon: Import,
+                    label: 'Capture',
+                    description: 'Drop in anything, no matter how rough. A 2am thought, a YouTube video, a dense PDF, a voice memo.',
+                    gradient: 'bg-gradient-to-br from-violet-500 to-purple-500',
+                  },
+                  {
+                    icon: FolderTree,
+                    label: 'Structure',
+                    description: 'Watch chaos become an outline you can shape, expand, and rearrange.',
+                    gradient: 'bg-gradient-to-br from-purple-500 to-indigo-500',
+                  },
+                  {
+                    icon: Globe,
+                    label: 'Enrich',
+                    description: 'Refresh any part against the live web so your thinking never goes stale, and ask your own outlines questions.',
+                    gradient: 'bg-gradient-to-br from-indigo-500 to-blue-500',
+                  },
+                  {
+                    icon: Rocket,
+                    label: 'Hatch',
+                    description: 'When an idea is ready, generate the finished thing: a document, a script, a podcast, a content package.',
+                    gradient: 'bg-gradient-to-br from-blue-500 to-cyan-500',
+                  },
+                ].map((stage, i) => {
+                  const StageIcon = stage.icon;
+                  return (
+                    <div
+                      key={stage.label}
+                      className="relative p-6 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/[0.07] hover:border-white/20 transition-all duration-300"
+                    >
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className={`w-11 h-11 rounded-xl ${stage.gradient} flex items-center justify-center flex-shrink-0`}>
+                          <StageIcon className="w-6 h-6 text-white" />
+                        </div>
+                        <span className="text-xs font-semibold text-white/40">{`0${i + 1}`}</span>
+                      </div>
+                      <h3 className="text-lg font-bold text-white mb-2">{stage.label}</h3>
+                      <p className="text-white/60 text-sm leading-relaxed">{stage.description}</p>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Closing emphasized line */}
+              <p className="text-center text-lg md:text-2xl font-semibold text-white mt-10 max-w-3xl mx-auto leading-snug">
+                That&apos;s the difference between a filing cabinet and an incubator.{' '}
+                <span className="bg-gradient-to-r from-violet-300 to-indigo-300 bg-clip-text text-transparent">
+                  One stores your ideas. The other helps them grow up.
+                </span>
+              </p>
+            </div>
+          </div>
         </section>
 
         {/* Idea development band — the "not a single prompt" story + three-step flow */}
@@ -1814,6 +1892,123 @@ export default function MarketingPage() {
           </div>
         </section>
 
+        {/* Plan Benefits — the "why" behind each plan (complements the comparison grid's "what") */}
+        <section className="px-6 pt-24 pb-8 lg:px-12">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-14">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/20 border border-violet-500/30 mb-6">
+                <Star className="w-4 h-4 text-violet-400" />
+                <span className="text-sm font-medium text-violet-300">Why each plan wins</span>
+              </div>
+              <h2 className="text-3xl lg:text-5xl font-bold mb-4">
+                <span className="bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent">
+                  Pick the advantage that{' '}
+                </span>
+                <span className="bg-gradient-to-r from-violet-400 to-indigo-400 bg-clip-text text-transparent">
+                  matters most to you
+                </span>
+              </h2>
+              <p className="text-white/50 text-lg max-w-2xl mx-auto mt-4">
+                Every plan leads with a standout benefit. Here&apos;s the one reason each is worth it.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Own it — privacy + no subscription */}
+              <div className="relative group flex flex-col p-8 rounded-3xl bg-gradient-to-br from-emerald-500/15 via-teal-500/10 to-violet-500/10 border border-emerald-400/30 hover:border-emerald-400/50 transition-all duration-300">
+                <div className="flex items-center justify-between mb-5">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/30">
+                    <Lock className="w-7 h-7 text-white" />
+                  </div>
+                  <span className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-white/70">
+                    Coming soon
+                  </span>
+                </div>
+                <div className="text-xs font-semibold uppercase tracking-wider text-emerald-300 mb-1">
+                  Own it
+                </div>
+                <div className="flex items-baseline gap-2 mb-4">
+                  <span className="text-2xl font-bold text-white">$29.99</span>
+                  <span className="text-white/50 text-sm">once</span>
+                  <span className="inline-flex items-center rounded-full border border-emerald-400/40 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-300">
+                    $19.99 founder launch
+                  </span>
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-3 leading-tight">
+                  Buy once. Own it forever.
+                </h3>
+                <p className="text-white/70 leading-relaxed">
+                  No subscription — ever. The AI runs on your own device, so{' '}
+                  <span className="text-white font-semibold">your notes never leave it</span>. Total privacy, works fully offline, everyday AI included.
+                </p>
+              </div>
+
+              {/* Bring your own key — unlimited, free */}
+              <div className="relative group flex flex-col p-8 rounded-3xl bg-gradient-to-br from-violet-500/20 via-purple-500/10 to-indigo-500/20 border border-violet-500/40 shadow-xl shadow-violet-500/10 hover:border-violet-500/60 transition-all duration-300">
+                <div className="flex items-center justify-between mb-5">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-violet-500/30">
+                    <Zap className="w-7 h-7 text-white" />
+                  </div>
+                  <span className="px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-violet-500 to-indigo-500 text-white">
+                    Most popular
+                  </span>
+                </div>
+                <div className="text-xs font-semibold uppercase tracking-wider text-violet-300 mb-1">
+                  Bring your own key
+                </div>
+                <div className="flex items-baseline gap-2 mb-4">
+                  <span className="text-2xl font-bold text-white">Free</span>
+                  <span className="text-white/50 text-sm">forever</span>
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-3 leading-tight">
+                  Unlimited AI, free forever.
+                </h3>
+                <p className="text-white/70 leading-relaxed">
+                  Plug in your own Gemini or OpenAI key and use AI without limits — at zero cost to you.{' '}
+                  <span className="text-white font-semibold">Your provider, your account — we never see your data.</span>
+                </p>
+              </div>
+
+              {/* Pro — cloud superpowers */}
+              <div className="relative group flex flex-col p-8 rounded-3xl bg-gradient-to-br from-indigo-500/15 via-blue-500/10 to-cyan-500/10 border border-indigo-400/30 hover:border-indigo-400/50 transition-all duration-300">
+                <div className="mb-5">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                    <Rocket className="w-7 h-7 text-white" />
+                  </div>
+                </div>
+                <div className="text-xs font-semibold uppercase tracking-wider text-indigo-300 mb-1">
+                  Pro
+                </div>
+                <div className="flex items-baseline gap-2 mb-4">
+                  <span className="text-2xl font-bold text-white">$9.99</span>
+                  <span className="text-white/50 text-sm">/ month</span>
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-3 leading-tight">
+                  Cloud superpowers.
+                </h3>
+                <p className="text-white/70 leading-relaxed">
+                  The heavy features that need premium cloud AI: Refresh from Web with citations, multi-source Research &amp; Import, AI outline Transform, podcast and image generation, and answers drawn from your whole knowledge base — on frontier models with higher limits and priority.
+                </p>
+                <p className="text-white/40 text-xs mt-3">
+                  Video generation coming in v1.1.
+                </p>
+              </div>
+            </div>
+
+            {/* Free trial callout */}
+            <div className="mt-6 flex justify-center">
+              <div className="inline-flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-6 py-4 text-center">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-500 to-gray-600 flex items-center justify-center flex-shrink-0">
+                  <Play className="w-5 h-5 text-white" />
+                </div>
+                <p className="text-white/70 text-sm sm:text-base">
+                  <span className="text-white font-semibold">Try it free</span> — the full app with a taste of AI. No card required.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Pricing */}
         <section id="pricing" className="px-6 py-24 lg:px-12">
           <div className="max-w-7xl mx-auto">
@@ -1827,13 +2022,22 @@ export default function MarketingPage() {
               <p className="text-white/50 text-lg max-w-2xl mx-auto">
                 Start free, upgrade when you need more. No hidden fees.
               </p>
+              <div className="mt-6 flex justify-center">
+                <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-gradient-to-r from-violet-500/10 to-emerald-500/10 px-5 py-2.5 text-sm font-medium text-white/90">
+                  <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                  Bring your own AI key and get unlimited AI, free forever — you
+                  pay your provider directly, we take nothing.
+                </div>
+              </div>
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
               <PricingCard
                 name="Free"
                 price="$0"
-                description="For personal use — use your own AI key (BYOK), no limits."
+                highlighted={true}
+                badge="Free forever"
+                description="Unlimited AI, free forever — bring your own key. You pay your provider directly; we take nothing."
                 features={[
                   'Unlimited outlines',
                   'All core outliner features',
@@ -1877,6 +2081,119 @@ export default function MarketingPage() {
             <p className="text-center text-white/40 text-sm mt-8">
               All plans include a 14-day free trial. Cancel anytime.
             </p>
+
+            {/* Comparison grid — 4-option split */}
+            <div className="mt-20">
+              <h3 className="text-center text-2xl lg:text-3xl font-bold mb-2">
+                Compare what you get
+              </h3>
+              <p className="text-center text-white/50 text-sm mb-8">
+                Four ways to use IdiamPro. Pick the one that fits how you work.
+              </p>
+              <div className="overflow-x-auto rounded-3xl border border-white/10 bg-white/5">
+                <table className="w-full min-w-[820px] text-sm text-white/80 border-collapse">
+                  <thead>
+                    <tr className="align-top">
+                      <th className="p-4 text-left font-medium text-white/50 w-[26%]">
+                        <span className="text-xs uppercase tracking-wide">Feature</span>
+                      </th>
+                      <th className="p-4 text-left align-top border-l border-white/10">
+                        <div className="text-white font-semibold text-base">Free trial</div>
+                        <div className="text-white/50 text-xs mt-1">Try it, 25 AI uses</div>
+                        <div className="mt-2 text-white/90 font-bold">$0</div>
+                      </th>
+                      <th className="p-4 text-left align-top border-l border-white/10 bg-white/[0.03]">
+                        <div className="text-white font-semibold text-base">Own it</div>
+                        <div className="text-white/50 text-xs mt-1">Runs on your device &amp; your own key</div>
+                        <div className="mt-2 flex items-center gap-2 flex-wrap">
+                          <span className="text-white/90 font-bold">$29.99</span>
+                          <span className="inline-flex items-center rounded-full border border-emerald-400/40 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-300">
+                            $19.99 founder launch
+                          </span>
+                        </div>
+                        <span className="mt-2 inline-flex items-center rounded-full border border-white/20 bg-white/10 px-2.5 py-0.5 text-[10px] font-medium text-white/70">
+                          Coming soon
+                        </span>
+                      </th>
+                      <th className="p-4 text-left align-top border-l border-white/10 bg-gradient-to-b from-violet-500/15 to-indigo-500/10">
+                        <div className="text-white font-semibold text-base">Pro</div>
+                        <div className="text-white/50 text-xs mt-1">Premium cloud AI</div>
+                        <div className="mt-2 text-white/90 font-bold">
+                          $9.99<span className="text-white/50 font-normal text-xs">/mo</span>
+                          <span className="text-white/40 font-normal text-xs"> · $89/yr</span>
+                        </div>
+                      </th>
+                      <th className="p-4 text-left align-top border-l border-white/10">
+                        <div className="text-white font-semibold text-base">BYOK</div>
+                        <div className="text-white/50 text-xs mt-1">Your key, unlimited</div>
+                        <div className="mt-2 text-white/90 font-bold">Free</div>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/10">
+                    {[
+                      {
+                        label: 'Core outlining',
+                        sub: 'Unlimited outlines, drag-drop, tags & colors, search, export/share, backups, data protection',
+                        cells: [<Check key="c" className="w-4 h-4 text-emerald-400" />, <Check key="c" className="w-4 h-4 text-emerald-400" />, <Check key="c" className="w-4 h-4 text-emerald-400" />, <Check key="c" className="w-4 h-4 text-emerald-400" />],
+                      },
+                      {
+                        label: 'Everyday AI',
+                        sub: 'Generate from a topic, reformat, translate, suggest tags, describe images, quick commands, Help chat',
+                        cells: ['25 total', <Check key="c" className="w-4 h-4 text-emerald-400" />, <Check key="c" className="w-4 h-4 text-emerald-400" />, <Check key="c" className="w-4 h-4 text-emerald-400" />],
+                      },
+                      {
+                        label: 'On-device / private AI',
+                        sub: 'Notes never leave your device',
+                        cells: ['—', <Check key="c" className="w-4 h-4 text-emerald-400" />, <Check key="c" className="w-4 h-4 text-emerald-400" />, <Check key="c" className="w-4 h-4 text-emerald-400" />],
+                      },
+                      {
+                        label: 'Pro superpowers',
+                        sub: 'Refresh from Web + citations, Research & Import, Transform Outline, Ask Your Outlines at scale, Podcast, Image generation, frontier cloud models',
+                        cells: ['—', '—', <Check key="c" className="w-4 h-4 text-emerald-400" />, '✓ with your key'],
+                      },
+                      {
+                        label: 'Video / YouTube package',
+                        sub: 'Turn outlines into video scripts and clips',
+                        cells: ['—', '—', 'Coming soon (v1.1)', 'Coming soon'],
+                      },
+                      {
+                        label: 'Generation caps / priority',
+                        sub: 'How much AI you can run',
+                        cells: ['25 total', 'Local / your key', 'High / unlimited + priority', 'Unlimited (your key)'],
+                      },
+                      {
+                        label: 'Privacy',
+                        sub: 'Where your data goes',
+                        cells: ['Cloud trial', 'Stays on your device', 'Premium cloud, not trained on your data', 'Your provider, we never see it'],
+                      },
+                    ].map((row, ri) => (
+                      <tr key={ri} className="align-top">
+                        <td className="p-4 min-h-[44px]">
+                          <div className="text-white font-medium">{row.label}</div>
+                          <div className="text-white/40 text-xs mt-1 leading-relaxed">{row.sub}</div>
+                        </td>
+                        {row.cells.map((cell, ci) => (
+                          <td
+                            key={ci}
+                            className={`p-4 border-l border-white/10 align-middle ${ci === 1 ? 'bg-white/[0.03]' : ''} ${ci === 2 ? 'bg-violet-500/[0.06]' : ''}`}
+                          >
+                            {typeof cell === 'string' ? (
+                              <span className={cell === '—' ? 'text-white/30' : 'text-white/80'}>{cell}</span>
+                            ) : (
+                              cell
+                            )}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <p className="text-center text-white/40 text-xs mt-4">
+                &ldquo;Own it&rdquo; one-time purchase is coming soon — join the free trial or Pro today.
+              </p>
+            </div>
 
             {/* Academic & Student Pricing Callout */}
             <div className="mt-12 p-8 rounded-3xl bg-gradient-to-r from-indigo-500/10 via-violet-500/10 to-purple-500/10 border border-indigo-500/20">

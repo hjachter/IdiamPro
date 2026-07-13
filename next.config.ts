@@ -11,6 +11,13 @@ const nextConfig: NextConfig = {
       bodySizeLimit: '10mb',
     },
   },
+  async redirects() {
+    return [
+      // The standalone /marketing landing page was retired and consolidated
+      // into the homepage. Keep old bookmarks / search hits landing on /.
+      { source: '/marketing', destination: '/', permanent: true },
+    ];
+  },
   typescript: {
     ignoreBuildErrors: true,
   },
