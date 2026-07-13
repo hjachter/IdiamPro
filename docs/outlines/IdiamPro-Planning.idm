@@ -505,7 +505,8 @@
         "revenue-model",
         "cost-structure",
         "profitability-timeline",
-        "financial-scenarios"
+        "financial-scenarios",
+        "pricing-margin-policy"
       ],
       "isCollapsed": false,
       "prefix": "8"
@@ -824,6 +825,94 @@
       "childrenIds": [],
       "isCollapsed": false,
       "prefix": "12.7"
+    },
+    "pricing-margin-policy": {
+      "id": "pricing-margin-policy",
+      "name": "Pricing & Margin Policy",
+      "content": "<p><strong>Official pricing &amp; margin policy.</strong> How every paid item in IdiamPro is priced so that each sale is genuinely profitable and cash-positive. Six principles below, followed by worked examples.</p>",
+      "type": "document",
+      "parentId": "financials",
+      "childrenIds": [
+        "pmp-p1",
+        "pmp-p2",
+        "pmp-p3",
+        "pmp-p4",
+        "pmp-p5",
+        "pmp-p6",
+        "pmp-examples"
+      ],
+      "isCollapsed": false,
+      "prefix": "8.5"
+    },
+    "pmp-p1": {
+      "id": "pmp-p1",
+      "name": "1. True Margin, Not Markup",
+      "content": "<p><strong>True margin, not markup.</strong></p><p>Margin is measured as a share of the <strong>sale price</strong> (a true margin, e.g. 20% of what the customer pays), <strong>not</strong> as a markup on cost. A 20% true margin means 20% of the sale price is profit.</p>",
+      "type": "document",
+      "parentId": "pricing-margin-policy",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "8.5.1"
+    },
+    "pmp-p2": {
+      "id": "pmp-p2",
+      "name": "2. Margin Over Fully-Loaded Cost",
+      "content": "<p><strong>Margin over fully-loaded cost.</strong></p><p>The margin is taken over the <strong>fully-loaded cost</strong>, so the margin is real profit. Fully-loaded cost = AI/vendor fee + payment/platform commission (Apple's 15-30% in-app-purchase cut on iPhone; ~3% card processing on web) + allocated overhead.</p>",
+      "type": "document",
+      "parentId": "pricing-margin-policy",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "8.5.2"
+    },
+    "pmp-p3": {
+      "id": "pmp-p3",
+      "name": "3. Floor Price for Near-Zero-Cost Items",
+      "content": "<p><strong>Floor price for near-zero-cost items.</strong></p><p>For items that cost almost nothing to deliver, charge the <strong>greater of</strong> (fully-loaded cost + target margin) <strong>or</strong> a sensible minimum floor price. This prevents pricing cheap-to-deliver items at essentially zero.</p>",
+      "type": "document",
+      "parentId": "pricing-margin-policy",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "8.5.3"
+    },
+    "pmp-p4": {
+      "id": "pmp-p4",
+      "name": "4. Target Margin Is a Floor, Not a Ceiling",
+      "content": "<p><strong>Target margin is a floor, not a ceiling.</strong></p><p>The target margin is the <strong>minimum</strong>, not a cap. Cheap-to-deliver and high-value items are priced above it. As a result the blended margin across the catalog runs higher than the target.</p>",
+      "type": "document",
+      "parentId": "pricing-margin-policy",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "8.5.4"
+    },
+    "pmp-p5": {
+      "id": "pmp-p5",
+      "name": "5. Never Below Cost; Metered Usage",
+      "content": "<p><strong>Never below cost; metered so nobody overspends what they paid.</strong></p><p>We never sell below cost. Usage is <strong>metered with a server-side lock</strong> so no customer can consume more than they paid for. We never front money — every sale is cash-positive.</p>",
+      "type": "document",
+      "parentId": "pricing-margin-policy",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "8.5.5"
+    },
+    "pmp-p6": {
+      "id": "pmp-p6",
+      "name": "6. Projections Fall Out Automatically",
+      "content": "<p><strong>Projections fall out automatically.</strong></p><p>Because each price = known cost + target margin, revenue, cost and profit compute directly from the price list. Financial projections are a direct consequence of the policy, not a separate estimate.</p>",
+      "type": "document",
+      "parentId": "pricing-margin-policy",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "8.5.6"
+    },
+    "pmp-examples": {
+      "id": "pmp-examples",
+      "name": "Worked Examples",
+      "content": "<p><strong>Worked Examples</strong></p><p><em>Illustrative only — real numbers are set once the company account exists.</em></p><p><strong>Baseline cost.</strong> Fully-loaded cost of one premium-voice podcast is about $0.50.</p><p><strong>Web at 20% margin.</strong> Price about $0.65; you keep about $0.13.</p><p><strong>iPhone (Apple ~30% cut, same 20% margin).</strong> Price $1.00 &rarr; Apple takes $0.30, you net $0.70, cost is $0.50, you keep $0.20.</p><p><strong>Floor price.</strong> Basic on-device-voice generation costs about $0.00, so we charge a floor, e.g. $0.99 (near-100% margin) &mdash; \"floor, not ceiling.\"</p><p><strong>Never-below-cost + metered.</strong> A $0.50-cost podcast is never sold under $0.50, and a plan is capped so a customer can't generate $5.00 of podcasts on a $1.00 purchase.</p><p><strong>Projection example.</strong> 1,000 iPhone premium podcasts/month at $1.00 = $1,000 revenue &minus; $300 Apple &minus; $500 cost = $200 profit.</p>",
+      "type": "document",
+      "parentId": "pricing-margin-policy",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "8.5.7"
     }
   },
   "lastModified": "2026-07-03T03:47:16.442101"
