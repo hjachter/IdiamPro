@@ -28,6 +28,8 @@ import { exportOutline, hasExporter } from '@/lib/export/index';
 import { useToast } from '@/hooks/use-toast';
 import WebsiteExportDialog from './website-export-dialog';
 import PodcastDialog from './podcast-dialog';
+import ShareLinkDialog from './share-link-dialog';
+import { Link2 } from 'lucide-react';
 
 interface ExportDialogProps {
   open: boolean;
@@ -53,6 +55,7 @@ export default function ExportDialog({
   const [searchQuery, setSearchQuery] = useState('');
   const [showWebsiteDialog, setShowWebsiteDialog] = useState(false);
   const [showPodcastDialog, setShowPodcastDialog] = useState(false);
+  const [showShareDialog, setShowShareDialog] = useState(false);
 
   const displayName = nodeName || (rootNodeId ? outline.nodes[rootNodeId]?.name : null) || outline.name;
 
@@ -183,7 +186,7 @@ export default function ExportDialog({
 
   return (
     <>
-    <Dialog open={open && !showWebsiteDialog && !showPodcastDialog} onOpenChange={onOpenChange}>
+    <Dialog open={open && !showWebsiteDialog && !showPodcastDialog && !showShareDialog} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Share Branch As...</DialogTitle>
@@ -301,7 +304,16 @@ export default function ExportDialog({
           )}
         </div>
 
-        <DialogFooter className="mt-4 flex-shrink-0">
+        <DialogFooter className="mt-4 flex-shrink-0 sm:justify-between">
+          <Button
+            variant="outline"
+            onClick={() => setShowShareDialog(true)}
+            title="Publish this to a view-only link on our site that anyone can open"
+          >
+            <Link2 className="mr-2 h-4 w-4" />
+            Share Link
+          </Button>
+          <div className="flex gap-2">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
@@ -318,6 +330,7 @@ export default function ExportDialog({
               'Export'
             )}
           </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -339,6 +352,14 @@ export default function ExportDialog({
         nodes={outline.nodes}
       />
     )}
+
+    <ShareLinkDialog
+      open={showShareDialog}
+      onOpenChange={setShowShareDialog}
+      outline={outline}
+      rootNodeId={rootNodeId}
+      nodeName={nodeName}
+    />
     </>
   );
 }

@@ -63,6 +63,11 @@ const PROTECTED_PATTERNS: RegExp[] = [
   // webhook is excluded below since it is machine-to-machine.
   /^\/api\/billing\/checkout(\/|$)/,
   /^\/api\/billing\/portal(\/|$)/,
+  // Publishing/managing shareable links needs user identity. The public
+  // read-only view route (/s/<id>) is intentionally NOT protected.
+  /^\/api\/share\/publish(\/|$)/,
+  /^\/api\/share\/unpublish(\/|$)/,
+  /^\/api\/share\/list(\/|$)/,
 ];
 
 /** Routes that look like protected /api/* but are actually public. */
