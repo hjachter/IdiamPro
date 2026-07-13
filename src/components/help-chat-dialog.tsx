@@ -4,7 +4,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
-import { ScrollArea } from './ui/scroll-area';
 import { CircleHelp, Send, Sparkles, User, Loader2, Mic, TriangleAlert } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useSpeechToText } from '@/hooks/use-speech-to-text';
@@ -281,13 +280,32 @@ export default function HelpChatDialog({ open, onOpenChange }: HelpChatDialogPro
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  // Track whether the user is parked at (or near) the bottom of the chat.
+  // When true, new content snaps into view; when the user has scrolled UP to
+  // re-read history, we leave them where they are and don't yank them down.
+  const isNearBottomRef = useRef(true);
 
-  // Auto-scroll to bottom when new messages arrive
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+  const handleScroll = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    isNearBottomRef.current = distanceFromBottom < 80;
+  };
+
+  const scrollToBottom = (force = false) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    if (force || isNearBottomRef.current) {
+      el.scrollTop = el.scrollHeight;
     }
-  }, [messages]);
+  };
+
+  // Auto-scroll to bottom when new content arrives (a new message, or the
+  // Thinking indicator) — but only if the user is already near the bottom.
+  useEffect(() => {
+    scrollToBottom();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messages, isLoading]);
 
   // Focus input when dialog opens
   useEffect(() => {
@@ -362,6 +380,9 @@ export default function HelpChatDialog({ open, onOpenChange }: HelpChatDialogPro
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
+    // The user just sent a message — always snap them to the bottom to see it
+    // and the reply, even if they had scrolled up a moment ago.
+    isNearBottomRef.current = true;
 
     try {
       // Honor the user's AI Provider setting (Cloud / Local / Auto) and tell
@@ -441,7 +462,11 @@ export default function HelpChatDialog({ open, onOpenChange }: HelpChatDialogPro
         </DialogHeader>
 
         {/* Chat Messages */}
-        <ScrollArea className="flex-1 px-6 py-4" ref={scrollRef}>
+        <div
+          className="flex-1 overflow-y-auto px-6 py-4"
+          ref={scrollRef}
+          onScroll={handleScroll}
+        >
           <div className="space-y-4">
             {messages.map((message) => (
               <div
@@ -493,7 +518,7 @@ export default function HelpChatDialog({ open, onOpenChange }: HelpChatDialogPro
               </div>
             )}
           </div>
-        </ScrollArea>
+        </div>
 
         {/* Input Area */}
         <div className="px-6 py-4 border-t">

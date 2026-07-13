@@ -59,6 +59,17 @@ export default function KnowledgeChatDialog({
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const streamingContentLength = useRef(0);
+  // Track whether the user is parked near the bottom. When they've scrolled UP
+  // to re-read an earlier answer, we don't yank them back down as new tokens
+  // stream in.
+  const isNearBottomRef = useRef(true);
+
+  const handleScroll = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    isNearBottomRef.current = distanceFromBottom < 80;
+  };
 
   const currentOutline = outlines.find(o => o.id === currentOutlineId);
 
@@ -155,10 +166,13 @@ export default function KnowledgeChatDialog({
     }
   }, [open]);
 
-  // Auto-scroll to bottom when new messages arrive or streaming content updates
-  const scrollToBottom = useCallback(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
+  // Auto-scroll to bottom when new messages arrive or streaming content updates —
+  // but only when the user is already near the bottom (or just sent a message).
+  const scrollToBottom = useCallback((force = false) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    if (force || isNearBottomRef.current) {
+      el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
     }
   }, []);
 
@@ -191,6 +205,8 @@ export default function KnowledgeChatDialog({
     setInput('');
     setIsLoading(true);
     streamingContentLength.current = 0;
+    // The user just sent a message — always snap them to the bottom.
+    isNearBottomRef.current = true;
 
     try {
       const response = await fetch('/api/knowledge-chat', {
@@ -452,7 +468,7 @@ export default function KnowledgeChatDialog({
         )}
 
         {/* Chat Messages */}
-        <div className="flex-1 overflow-y-auto px-6 py-4" ref={scrollRef}>
+        <div className="flex-1 overflow-y-auto px-6 py-4" ref={scrollRef} onScroll={handleScroll}>
           <div className="space-y-4">
             {messages.map((message) => {
               // Hide empty streaming placeholder — Thinking spinner shows instead
