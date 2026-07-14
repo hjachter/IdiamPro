@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, useRef, startTransition } from 'react';
-import { flushSync, createPortal } from 'react-dom';
+import { createPortal } from 'react-dom';
 import DOMPurify from 'dompurify';
 import { v4 as uuidv4 } from 'uuid';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
