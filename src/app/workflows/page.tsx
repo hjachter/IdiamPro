@@ -33,12 +33,13 @@ export default function WorkflowsPage() {
         {/* heading */}
         <div className="mt-14 text-center">
           <h1 className="bg-gradient-to-b from-white to-white/70 bg-clip-text text-4xl font-extrabold tracking-tight text-transparent sm:text-5xl">
-            Write an entire book in minutes
+            Write an entire book — and make it your own
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-base text-white/60 sm:text-lg">
-            Watch a single node grow into a complete, deeply structured book — its table of contents,
-            every chapter, and finished formats like video, podcast, and PDF — all from one outline.
-            It comes together dramatically faster than writing from scratch: hours, not months.
+            Watch one idea become a complete, deeply structured book you fully control — a rich
+            content canvas with diagrams, an outline you can reshape with a single plain-English
+            instruction, and finished work you can export more than 30 ways. Your creative work,
+            amplified — never automated.
           </p>
         </div>
 
@@ -52,7 +53,7 @@ export default function WorkflowsPage() {
               controls
               playsInline
               preload="metadata"
-              aria-label="Write an entire book in minutes — a workflow produced by IdiamPro"
+              aria-label="Write an entire book — and make it your own — a workflow produced by IdiamPro"
             />
           </div>
           <p className="mt-3 flex items-center justify-center gap-1.5 text-sm text-white/50">
