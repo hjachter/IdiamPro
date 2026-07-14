@@ -36,8 +36,9 @@ export default function WorkflowsPage() {
             Write an entire book in minutes
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-base text-white/60 sm:text-lg">
-            Watch one idea become a complete, deeply structured book — its table of contents,
-            every chapter, and finished formats like video, podcast, and PDF — all from a single outline.
+            Watch a single node grow into a complete, deeply structured book — its table of contents,
+            every chapter, and finished formats like video, podcast, and PDF — all from one outline.
+            It comes together dramatically faster than writing from scratch: hours, not months.
           </p>
         </div>
 
