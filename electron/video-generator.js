@@ -467,27 +467,34 @@ async function fetchSlideClip(query, workDir, ctx) {
 // (IdiamPro wordmark + slide number), and AUTO-FIT: an inline script shrinks the
 // content until it fits the safe area, so dense real-outline text never overflows.
 // Brand accent is IdiamPro's iOS blue (bright variant for dark-bg readability).
-function slideHtml(slide, index, total, style, mindmapSvg, photoUrl, videoClip) {
+function slideHtml(slide, index, total, style, mindmapSvg, photoUrl, videoClip, screenshotUrl) {
   const isCover = slide && slide.kind === 'cover';
   const title = escapeHtml(slide.title || '');
   const bullets = (Array.isArray(slide.bullets) ? slide.bullets : []).filter(Boolean);
   const num = `${(index || 0) + 1} / ${total || 1}`;
+  // A slide can carry a real PRODUCT SCREENSHOT (a local image) as its hero
+  // visual. It is framed like an app window on the branded slide — NOT full-bleed
+  // behind the text — so the actual UI stays crisp and legible. On a content
+  // slide it sits in the visual card of the split layout (title + bullets on the
+  // left, the screenshot on the right); on the cover it sits framed below the
+  // title. Screenshots win over mind maps / photos / clips when present.
+  const hasScreenshot = typeof screenshotUrl === 'string' && screenshotUrl.length > 4;
   // A section slide can carry a rendered mind-map SVG. When present (and this is
   // not the cover), we compose a split layout: text on the left, the mind map as
   // the hero visual on the right. If it's absent (leaf slide, or the diagram
   // failed to render), we fall back to the original text-only layout.
-  const hasMindmap = !isCover && typeof mindmapSvg === 'string' && mindmapSvg.length > 40;
+  const hasMindmap = !isCover && !hasScreenshot && typeof mindmapSvg === 'string' && mindmapSvg.length > 40;
   // A slide can carry a stock photo (Phase B). Mind maps win over photos on the
   // same slide (they never both apply in Auto mode). When a photo is present we
   // compose a cinematic full-bleed layout: the photo fills the frame under a
   // strong dark scrim, with the text on top — legible over ANY image. If the
   // fetch failed, photoUrl is empty and we fall back to mind-map/text layouts.
-  const hasPhoto = !hasMindmap && typeof photoUrl === 'string' && photoUrl.length > 4;
+  const hasPhoto = !hasMindmap && !hasScreenshot && typeof photoUrl === 'string' && photoUrl.length > 4;
   // A slide can instead sit over a MOVING public-domain clip (Phase C). The clip
   // itself is composited by ffmpeg BEHIND this PNG; here we render the text +
   // scrim + footer on a TRANSPARENT page so the clip shows through. It reuses the
   // photo layout's scrim + light-text treatment for legibility over any footage.
-  const hasVideoBg = !hasMindmap && !hasPhoto && videoClip === true;
+  const hasVideoBg = !hasMindmap && !hasPhoto && !hasScreenshot && videoClip === true;
   // Text that sits over imagery (photo OR clip) gets the light, shadowed
   // treatment via the .on-photo class so it stays legible on any background.
   const overImagery = hasPhoto || hasVideoBg;
@@ -610,14 +617,35 @@ function slideHtml(slide, index, total, style, mindmapSvg, photoUrl, videoClip) 
     const eyebrow = brandLabel
       ? `<div class="eyebrow">${escapeHtml(brandLabel.toUpperCase())}</div>`
       : '';
+    const coverShot = hasScreenshot
+      ? `<div class="cover-shot"><img class="shot" src="${screenshotUrl}" alt="" /></div>`
+      : '';
     body = `
       <div class="${stageClass}">
         ${photoLayer}
-        <div id="fit" class="cover">
+        <div id="fit" class="cover${hasScreenshot ? ' cover-withshot' : ''}">
           ${eyebrow}
           <h1>${title}</h1>
           <div class="accent-rule cover-rule"></div>
-          ${agenda}
+          ${coverShot || agenda}
+        </div>
+        ${footerHtml}
+      </div>`;
+  } else if (hasScreenshot) {
+    // Split layout with a real product screenshot as the hero visual: title +
+    // bullets on the left, the framed app window on the right.
+    const bulletsBlock = bullets.length ? `<ul>${bulletHtml}</ul>` : '';
+    body = `
+      <div class="stage">
+        <div id="fit" class="split">
+          <div class="head">
+            <div class="accent-rule"></div>
+            <h1>${title}</h1>
+          </div>
+          <div class="cols">
+            <div class="textcol">${bulletsBlock}</div>
+            <div class="mapcol shotcol"><img class="shot" src="${screenshotUrl}" alt="" /></div>
+          </div>
         </div>
         ${footerHtml}
       </div>`;
@@ -685,6 +713,18 @@ function slideHtml(slide, index, total, style, mindmapSvg, photoUrl, videoClip) 
       background: ${cardBg}; border: 1px solid ${cardBorder}; border-radius: 26px; padding: 36px; }
     .split .mm { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
     .split .mm svg { width: 100%; height: auto; max-height: 100%; display: block; margin: auto; }
+    /* --- Product screenshot (framed app window) --- */
+    .split .shotcol { padding: 0; background: transparent; border: none; overflow: hidden; }
+    .shot { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain;
+      border-radius: 20px; border: 1px solid ${cardBorder};
+      box-shadow: 0 34px 90px rgba(2,6,16,0.55), 0 0 0 1px rgba(255,255,255,0.03) inset; display: block; }
+    .cover-withshot { justify-content: center; }
+    .cover-withshot h1 { font-size: 78px; }
+    .cover-withshot .eyebrow { margin-bottom: 26px; }
+    .cover-withshot .cover-rule { margin: 34px auto 0; }
+    .cover .cover-shot { margin-top: 62px; width: 100%; display: flex; justify-content: center;
+      min-height: 0; flex: 0 1 auto; align-items: center; overflow: hidden; }
+    .cover .cover-shot .shot { max-height: 500px; max-width: 76%; }
     /* --- Cover layout --- */
     .cover { position: absolute; left: 150px; right: 150px; top: 150px; bottom: 170px;
       display: flex; flex-direction: column; justify-content: center; align-items: center;
@@ -860,6 +900,7 @@ async function renderMermaidSvg(mermaidDef, theme, workDir, tag) {
 async function renderSlidePng(slide, outPath, index, total, style, mindmapSvg, photoUrl, renderOpts) {
   const opts = renderOpts || {};
   const videoClip = opts.videoClip === true;
+  const screenshotUrl = typeof opts.screenshotUrl === 'string' ? opts.screenshotUrl : '';
   // For a video-clip slide we capture the text/scrim on a TRANSPARENT page so the
   // clip (composited behind by ffmpeg) shows through. An offscreen window renders
   // transparent when created with transparent:true + a fully-transparent bg color,
@@ -891,7 +932,7 @@ async function renderSlidePng(slide, outPath, index, total, style, mindmapSvg, p
   try {
     win.webContents.on('paint', onPaint);
     win.webContents.setFrameRate(30);
-    const html = slideHtml(slide, index, total, style, mindmapSvg, photoUrl, videoClip);
+    const html = slideHtml(slide, index, total, style, mindmapSvg, photoUrl, videoClip, screenshotUrl);
     fs.writeFileSync(htmlPath, html);
     await win.loadURL(pathToFileURL(htmlPath).href);
     // Let webfonts + layout settle so the title/bullets are actually drawn before
@@ -1285,6 +1326,19 @@ async function generateSlideshowVideo(opts) {
       const isCover = slide && slide.kind === 'cover';
       const isSection = !!(slide && slide.mindmapMermaid);
 
+      // A slide may pin a REAL product screenshot (a local image file) as its
+      // hero visual. When present it wins over every generated/fetched visual
+      // (mind map / photo / clip are all skipped) and is framed like an app
+      // window on the branded slide. A missing/unreadable file falls back to the
+      // normal visual pipeline, so it can never break the render.
+      let screenshotUrl = null;
+      if (slide && typeof slide.imageFile === 'string' && slide.imageFile.trim()) {
+        try {
+          const p = slide.imageFile.trim();
+          if (fs.existsSync(p)) screenshotUrl = pathToFileURL(p).href;
+        } catch { /* fall back to the normal visual pipeline */ }
+      }
+
       // Combinable per-slide rules:
       //   • section slide (has children) → a mind map, if Mind maps is on
       //   • detail/leaf slide (or a section with Mind maps off) → a video clip if
@@ -1295,7 +1349,9 @@ async function generateSlideshowVideo(opts) {
       let wantMindmap = false;
       let wantPhoto = false;
       let wantClip = false;
-      if (!isCover) {
+      if (screenshotUrl) {
+        // A pinned screenshot is the visual — skip all generated/fetched visuals.
+      } else if (!isCover) {
         if (isSection && vis.mindmap) {
           wantMindmap = true;
         } else {
@@ -1340,7 +1396,9 @@ async function generateSlideshowVideo(opts) {
       const isVideoSlide = !!clipPath;
       await renderSlidePng(
         slide, pngPath, i, slides.length, style, mindmapSvg, photoUrl,
-        isVideoSlide ? { videoClip: true, transparent: true } : undefined,
+        isVideoSlide
+          ? { videoClip: true, transparent: true }
+          : (screenshotUrl ? { screenshotUrl } : undefined),
       );
 
       // 2. Narration audio. Fallback chain so a video is NEVER silent:
@@ -1350,7 +1408,19 @@ async function generateSlideshowVideo(opts) {
       const narration = (slide.narration || slide.title || '').trim();
       let gotAudio = false;
       let audioFile = audioPath;
-      if (narration && (apiKey || process.platform === 'darwin')) {
+      // A slide may supply a PRE-EXISTING narration audio file (e.g. reusing
+      // already-synthesized/paid TTS). When present and readable, we use it
+      // verbatim and skip TTS entirely — no new synthesis, no cost.
+      if (!gotAudio && slide && typeof slide.audioFile === 'string' && slide.audioFile.trim()) {
+        try {
+          const ap = slide.audioFile.trim();
+          if (fs.existsSync(ap) && fs.statSync(ap).size > 1000) {
+            audioFile = ap;
+            gotAudio = true;
+          }
+        } catch { /* fall through to synthesis */ }
+      }
+      if (!gotAudio && narration && (apiKey || process.platform === 'darwin')) {
         // Same step (bar doesn't jump back) — just a friendlier label while the
         // voiceover work runs, which is the slow part of a slide.
         report({
@@ -1358,7 +1428,7 @@ async function generateSlideshowVideo(opts) {
           completed: i, totalSteps, label: `Adding voiceover (${i + 1} of ${slides.length})`,
         });
       }
-      if (apiKey && narration) {
+      if (!gotAudio && apiKey && narration) {
         try {
           await synthesizeTts(narration, voice, apiKey, audioPath);
           usedTts = true;
