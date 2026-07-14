@@ -1073,7 +1073,11 @@ async function encodeSegment(pngPath, audioPath, outPath, durationSeconds) {
     '-c:a', 'aac',
     '-b:a', '192k',
     '-ar', '44100',
-    '-shortest',
+    // NOTE: no `-shortest`. `-t dur` already bounds the segment to the narration
+    // length, and `-shortest` combined with `-loop 1` (an infinite image input)
+    // was silently dropping the AUDIO for OpenAI TTS mp3s (24 kHz mono) — every
+    // premium-voice render came out silent. Removing it keeps the audio; the
+    // duration is unchanged because `-t` still caps the output.
     outPath,
   ]);
 }
@@ -1117,7 +1121,8 @@ async function encodeVideoSegment(clipPath, overlayPngPath, audioPath, outPath, 
     '-c:a', 'aac',
     '-b:a', '192k',
     '-ar', '44100',
-    '-shortest',
+    // No `-shortest` (see encodeSegment): `-t dur` bounds length, and `-shortest`
+    // with looped/infinite video inputs was dropping the narration audio.
     outPath,
   ]);
 }
