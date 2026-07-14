@@ -316,6 +316,48 @@ export default function OutlinePane({
   const showTier3Inline = actionToolbarWidth >= 600;
   const showActionOverflow = !showTier2Inline || !showTier3Inline;
 
+  // Header/title-row responsive overflow (2026-07-14 fix).
+  // The prior overflow fix (above) only covered the lower ACTION toolbar. The
+  // TOP title row (sidebar toggle, title, Quick Command, Import, Export,
+  // Backup, Report Issue, avatar) still collapsed on Tailwind VIEWPORT
+  // breakpoints (`sm:inline-flex` / `lg:hidden`), which don't reflect how
+  // narrow the outline PANE actually is. So on a wide desktop with a
+  // compressed pane — or any narrow window — the Import/Export/Backup/Report
+  // icons clipped off the edge because their "More" fallback was hidden at
+  // desktop viewport widths.
+  //
+  // We measure the outline PANE's own width (the root container always fills
+  // the resizable panel, so its width is the true available room) and drive
+  // the header row's collapse off that. At ANY pane/window width nothing is
+  // ever clipped: lower-priority controls fold into the "More" (⋯) menu.
+  const paneRef = useRef<HTMLDivElement>(null);
+  const [paneWidth, setPaneWidth] = useState<number>(Number.POSITIVE_INFINITY);
+  useEffect(() => {
+    const el = paneRef.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        setPaneWidth(entry.contentRect.width);
+      }
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  // Show Import / Export / Backup / Report-Issue inline only when the pane is
+  // wide enough to fit them alongside the sidebar toggle, title, Quick Command
+  // and avatar. Below that they fold into the "More" (⋯) menu, which becomes
+  // visible whenever anything is collapsed OR on mobile.
+  //
+  // We take the MINIMUM of two independent width signals — the pane root and
+  // the lower action toolbar (which shrinks/wraps and measures the true
+  // usable column width very reliably). If EITHER says the column is narrow,
+  // we collapse. This is deliberately conservative: it guarantees icons never
+  // clip even if one measurement lags or over-reports. Threshold chosen so a
+  // typical narrow 3-pane middle column (~150-360px) always collapses.
+  const effectiveHeaderWidth = Math.min(paneWidth, actionToolbarWidth);
+  const showHeaderButtonsInline = effectiveHeaderWidth >= 620;
+  const showHeaderOverflow = !showHeaderButtonsInline || isMobile;
+
   // Search state
   const [isSearchOpenInternal, setIsSearchOpenInternal] = useState(false);
   const [searchMatches, setSearchMatches] = useState<SearchMatch[]>([]);
@@ -892,8 +934,8 @@ export default function OutlinePane({
   const isSelectedNodeRoot = selectedNode?.type === 'root';
 
   return (
-    <div data-testid="outline-pane" className="flex flex-col h-full bg-card p-3 space-y-3" style={{ paddingTop: 'max(0.75rem, env(safe-area-inset-top))' }}>
-      <div className="flex-shrink-0 flex items-center space-x-2 px-2">
+    <div ref={paneRef} data-testid="outline-pane" className="flex flex-col h-full bg-card p-3 space-y-3" style={{ paddingTop: 'max(0.75rem, env(safe-area-inset-top))' }}>
+      <div data-testid="outline-header-row" className="flex-shrink-0 flex flex-wrap items-center gap-2 px-2 min-w-0">
         {/* Sidebar toggle button (desktop) */}
         {onToggleSidebar && (
           <TooltipProvider>
@@ -980,7 +1022,7 @@ export default function OutlinePane({
                             <Button
                                 variant="outline"
                                 size="icon"
-                                className="shrink-0 active:scale-95 active:bg-accent/30 hidden sm:inline-flex min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
+                                className={cn("shrink-0 active:scale-95 active:bg-accent/30 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0", showHeaderButtonsInline ? "inline-flex" : "hidden")}
                                 aria-label="Import — bring in content from YouTube, PDFs, web pages, and notes"
                             >
                                 <BookDown className="h-4 w-4" />
@@ -1046,7 +1088,7 @@ export default function OutlinePane({
                             <Button
                                 variant="outline"
                                 size="icon"
-                                className="shrink-0 active:scale-95 active:bg-accent/30 hidden sm:inline-flex min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
+                                className={cn("shrink-0 active:scale-95 active:bg-accent/30 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0", showHeaderButtonsInline ? "inline-flex" : "hidden")}
                                 aria-label="Export — turn this into a video, podcast, website, or 20+ formats"
                             >
                                 <BookUp className="h-4 w-4" />
@@ -1130,7 +1172,7 @@ export default function OutlinePane({
                             <Button
                                 variant="outline"
                                 size="icon"
-                                className="shrink-0 active:scale-95 active:bg-accent/30 inline-flex lg:hidden min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
+                                className={cn("shrink-0 active:scale-95 active:bg-accent/30 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0", showHeaderOverflow ? "inline-flex" : "hidden")}
                                 aria-label="More tools"
                             >
                                 <MoreHorizontal className="h-4 w-4" />
@@ -1142,8 +1184,9 @@ export default function OutlinePane({
                 <DropdownMenuContent align="end" className="w-60 p-0.5">
                     <DropdownMenuLabel className="py-1 text-xs uppercase tracking-wide text-muted-foreground">More tools</DropdownMenuLabel>
 
-                    {/* Tier 2 — surfaced on phone (hidden inline below sm) */}
-                    <div className="sm:hidden">
+                    {/* Tier 2 — surfaced whenever the header buttons are collapsed
+                        (narrow pane / narrow window / phone). */}
+                    <div className={cn(showHeaderButtonsInline ? "hidden" : "block")}>
                         {onOpenBulkResearch && (
                             <DropdownMenuItem onSelect={onOpenBulkResearch} className="cursor-pointer py-1">
                                 <Library className="mr-2 h-4 w-4" /> Research & Import
@@ -1278,8 +1321,11 @@ export default function OutlinePane({
 
         {/* Report Issue — opens a dialog where beta users can send Howard a
             quick bug/issue report from inside the app. Sits right next to the
-            account avatar (anchor on the right edge), visually subordinate. */}
-        <div className="ml-1 flex shrink-0 items-center">
+            account avatar (anchor on the right edge), visually subordinate.
+            This is a WIDE text button, so on a narrow pane it folds into the
+            "More" (⋯) menu (which carries its own Report Issue item) rather
+            than clipping off the pane's right edge. */}
+        <div className={cn("ml-1 shrink-0 items-center", showHeaderButtonsInline ? "flex" : "hidden")}>
             <ReportIssueButton currentOutlineName={currentOutline?.name ?? null} />
         </div>
 
@@ -1345,7 +1391,7 @@ export default function OutlinePane({
       })()}
 
       <TooltipProvider delayDuration={300}>
-        <div ref={actionToolbarRef} data-testid="outline-action-toolbar" className="flex-shrink-0 flex items-center justify-center gap-1.5 px-2 py-1.5 bg-[hsl(var(--toolbar-bg))] rounded-xl border border-border/30 min-w-0">
+        <div ref={actionToolbarRef} data-testid="outline-action-toolbar" className="flex-shrink-0 flex flex-wrap items-center justify-center gap-1.5 px-2 py-1.5 bg-[hsl(var(--toolbar-bg))] rounded-xl border border-border/30 min-w-0">
           <Tooltip>
             <TooltipTrigger asChild>
               <span tabIndex={-1} className="inline-flex">
