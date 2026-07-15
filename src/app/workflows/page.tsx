@@ -16,7 +16,7 @@ import { Video, ArrowLeft, Sparkles, GraduationCap } from 'lucide-react';
 // house style. Additive page: does not touch the homepage or any route.
 export default function WorkflowsPage() {
   return (
-    <main className="min-h-screen bg-[#0a0f1c] text-white">
+    <main className="fixed inset-0 overflow-x-hidden overflow-y-auto bg-[#0a0f1c] text-white">
       {/* ambient glow */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
         <div className="absolute -top-40 left-1/2 h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-violet-600/10 blur-[120px]" />
