@@ -303,7 +303,7 @@ export default function StressTestPage() {
           className="inline-flex items-center gap-1.5 text-sm text-white/70 hover:text-white transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back to IdiamPro
+          Back to IDMPro
         </a>
         <a
           href="/"
@@ -314,7 +314,7 @@ export default function StressTestPage() {
         </a>
       </div>
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-2">IdiamPro Stress Test</h1>
+        <h1 className="text-3xl font-bold mb-2">IDMPro Stress Test</h1>
         <p className="text-white/60 mb-8">
           Testing node capacity limits across different scales
         </p>

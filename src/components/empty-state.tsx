@@ -27,7 +27,7 @@ export default function EmptyState({
             <Sparkles className="h-12 w-12 text-primary" />
           </div>
         </div>
-        <h1 className="text-3xl font-bold tracking-tight">Welcome to IdiamPro</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Welcome to IDMPro</h1>
         <p className="text-muted-foreground text-lg leading-relaxed">
           Organize your ideas into outlines — then let AI turn them into videos,
           podcasts, and websites, or pull in research from YouTube, PDFs, and the web.

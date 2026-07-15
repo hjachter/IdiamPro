@@ -67,7 +67,7 @@ function NotShared() {
           fontWeight: 500,
         }}
       >
-        Learn about IdiamPro →
+        Learn about IDMPro →
       </a>
     </div>
   );

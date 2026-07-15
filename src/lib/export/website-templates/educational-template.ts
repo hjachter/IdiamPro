@@ -179,7 +179,7 @@ ${sections.map((section, i) => this.renderModule(section, i, options)).join('\n'
 
   <footer>
     <div class="footer-container">
-      <p>© ${new Date().getFullYear()} ${this.escapeHtml(options.title)}. Generated with <a href="https://idiampro.com">IdiamPro</a>.</p>
+      <p>© ${new Date().getFullYear()} ${this.escapeHtml(options.title)}. Generated with <a href="https://idiampro.com">IDMPro</a>.</p>
     </div>
   </footer>`;
 

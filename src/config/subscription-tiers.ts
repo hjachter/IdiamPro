@@ -33,7 +33,7 @@ export interface TierEntitlements {
   aiProvider: 'local' | 'cloud' | 'byok';
   /** Bring-your-own-key allowed (user supplies their own Gemini/OpenAI key). */
   byok: boolean;
-  /** Access to premium MCP server tools (see IdiamPro-MCP-Plan.idm). */
+  /** Access to premium MCP server tools (see IDMPro-MCP-Plan.idm). */
   mcpPremiumTools: boolean;
   /** Premium AI features: subtree summaries, teach mode, consistency checks (AIFeatureFlags). */
   premiumAIFeatures: boolean;

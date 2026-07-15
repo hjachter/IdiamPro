@@ -59,7 +59,7 @@ export function renderApplicantNotification(
 
   const bodyHtml = `
 <h1 style="margin:0 0 16px;font-size:22px;line-height:1.3;font-weight:700;">New beta applicant</h1>
-<p style="margin:0 0 24px;">Someone just applied to try IdiamPro. Review them in the admin dashboard.</p>
+<p style="margin:0 0 24px;">Someone just applied to try IDMPro. Review them in the admin dashboard.</p>
 <ul style="margin:0 0 24px;padding-left:20px;list-style:none;">
   <li style="margin-bottom:4px;"><strong>Name:</strong> ${escapeHtml(props.name)}</li>
   <li style="margin-bottom:4px;"><strong>Email:</strong> ${escapeHtml(props.email)}</li>
@@ -73,7 +73,7 @@ ${reasonBlock}
 </p>
 `;
 
-  const bodyText = `New beta applicant for IdiamPro.
+  const bodyText = `New beta applicant for IDMPro.
 
 Name: ${props.name}
 Email: ${props.email}

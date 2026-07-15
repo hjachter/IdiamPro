@@ -8,7 +8,7 @@
  * speech-service API keys that ship with the real Chrome browser. The
  * SpeechRecognition object throws "network" on every call. This flow replaces
  * it with a MediaRecorder + Gemini multimodal pipeline that works on every
- * platform IdiamPro ships to (Electron, web, iOS via Capacitor).
+ * platform IDMPro ships to (Electron, web, iOS via Capacitor).
  *
  * Pattern: client records audio with MediaRecorder, base64-encodes the blob,
  * sends it here; we call Gemini with an inline audio part and a single-line

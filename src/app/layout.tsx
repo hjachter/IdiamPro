@@ -19,17 +19,17 @@ import BackupHealthWatcher from '@/components/backup-health-watcher';
 export const metadata: Metadata = {
   metadataBase: new URL('https://2ndbrainware.com'),
   title: {
-    default: 'IdiamPro — AI-native outliner for thinkers and researchers',
-    template: '%s | IdiamPro',
+    default: 'IDMPro — AI-native outliner for thinkers and researchers',
+    template: '%s | IDMPro',
   },
   description:
-    'IdiamPro is an AI-native outliner that helps you think, research, and write. Local-first, BYOK, cross-platform — the outline editor your second brain deserves.',
+    'IDMPro is an AI-native outliner that helps you think, research, and write. Local-first, BYOK, cross-platform — the outline editor your second brain deserves.',
   manifest: '/manifest.json',
-  applicationName: 'IdiamPro',
+  applicationName: 'IDMPro',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'IdiamPro',
+    title: 'IDMPro',
   },
   icons: {
     icon: [
@@ -46,8 +46,8 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: 'https://2ndbrainware.com',
-    siteName: 'IdiamPro',
-    title: 'IdiamPro — AI-native outliner for thinkers and researchers',
+    siteName: 'IDMPro',
+    title: 'IDMPro — AI-native outliner for thinkers and researchers',
     description:
       'An AI-native outliner that helps you think, research, and write. Local-first, BYOK, cross-platform.',
     images: [
@@ -56,13 +56,13 @@ export const metadata: Metadata = {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'IdiamPro — AI-native outliner',
+        alt: 'IDMPro — AI-native outliner',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'IdiamPro — AI-native outliner for thinkers and researchers',
+    title: 'IDMPro — AI-native outliner for thinkers and researchers',
     description:
       'An AI-native outliner that helps you think, research, and write. Local-first, BYOK, cross-platform.',
     images: ['/og-image.png'],

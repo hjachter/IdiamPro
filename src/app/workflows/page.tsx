@@ -5,14 +5,14 @@ import Link from 'next/link';
 import { Video, ArrowLeft, Sparkles, GraduationCap } from 'lucide-react';
 
 // Workflow library. LEAD film ("Dinesh designs his future"): an adult recent
-// grad — rent due, a partner, a real fear about A.I. — uses IdiamPro to build a
+// grad — rent due, a partner, a real fear about A.I. — uses IDMPro to build a
 // LIVING career plan, reshape it when reality moves, and turn it into every form
 // a job search needs. Built for the professional / capable-non-professional
 // market, from REAL app captures (real Smart Tools + Transform menus, real
 // dialogs, the real one-keypress Expand bloom, the real multi-format export) so
 // prospects see exactly how the tool works — no staged "magic transforms".
 // The earlier Sam film (an 11-year-old + the science fair) is retained below as
-// the education-track video. Produced by IdiamPro, in the branded app-window
+// the education-track video. Produced by IDMPro, in the branded app-window
 // house style. Additive page: does not touch the homepage or any route.
 export default function WorkflowsPage() {
   return (
@@ -28,7 +28,7 @@ export default function WorkflowsPage() {
         <div className="flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 text-sm text-white/70 transition hover:text-white">
             <ArrowLeft className="h-4 w-4" />
-            IdiamPro
+            IDMPro
           </Link>
           <div className="inline-flex items-center gap-2 rounded-full border border-violet-500/30 bg-violet-500/10 px-3 py-1 text-xs text-violet-200">
             <Sparkles className="h-3.5 w-3.5" />
@@ -43,7 +43,7 @@ export default function WorkflowsPage() {
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-base text-white/60 sm:text-lg">
             Dinesh is a year out of college with rent due, a future to build, and one quiet fear:
-            will A.I. leave a career for him? Watch him use IdiamPro to build a <em>living</em> career
+            will A.I. leave a career for him? Watch him use IDMPro to build a <em>living</em> career
             plan — explore real paths, research how A.I. is changing each field, and when the ground
             shifts, reshape the plan instead of starting over. His answer to the fear turns out to be
             in his own hands: don&rsquo;t run from the wave — learn to surf it. One plan becomes a
@@ -61,12 +61,12 @@ export default function WorkflowsPage() {
               controls
               playsInline
               preload="metadata"
-              aria-label="A degree and no idea what's next — a recent grad uses IdiamPro to design an A.I.-resilient career plan, a workflow film produced by IdiamPro"
+              aria-label="A degree and no idea what's next — a recent grad uses IDMPro to design an A.I.-resilient career plan, a workflow film produced by IDMPro"
             />
           </div>
           <p className="mt-3 flex items-center justify-center gap-1.5 text-sm text-white/50">
             <Video className="h-3.5 w-3.5 text-violet-400" />
-            Produced by IdiamPro
+            Produced by IDMPro
           </p>
         </div>
 
@@ -96,12 +96,12 @@ export default function WorkflowsPage() {
                 controls
                 playsInline
                 preload="metadata"
-                aria-label="How Sam took on the impossible — an 11-year-old chases cold fusion for the science fair, a workflow film produced by IdiamPro"
+                aria-label="How Sam took on the impossible — an 11-year-old chases cold fusion for the science fair, a workflow film produced by IDMPro"
               />
             </div>
             <p className="mt-3 flex items-center justify-center gap-1.5 text-sm text-white/50">
               <Video className="h-3.5 w-3.5 text-blue-400" />
-              Produced by IdiamPro
+              Produced by IDMPro
             </p>
           </div>
         </div>
@@ -109,7 +109,7 @@ export default function WorkflowsPage() {
         {/* library framing */}
         <div className="mt-16 rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-center">
           <p className="text-sm text-white/50">
-            A growing library of IdiamPro workflows — real, end-to-end ways to turn an idea into
+            A growing library of IDMPro workflows — real, end-to-end ways to turn an idea into
             finished work. More coming soon.
           </p>
         </div>

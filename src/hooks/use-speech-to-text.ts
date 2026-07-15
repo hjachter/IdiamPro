@@ -13,7 +13,7 @@ import { getMicPermissionHelp } from '@/lib/platform-help';
  *   service via API keys that ship with the real Chrome browser. Electron's
  *   bundled Chromium lacks those keys, so SpeechRecognition fails with
  *   "network" on every call. MediaRecorder + Gemini works on every platform
- *   IdiamPro ships to (Electron, web, iOS via Capacitor) using the user's
+ *   IDMPro ships to (Electron, web, iOS via Capacitor) using the user's
  *   existing BYOK Gemini key.
  *
  * Interface contract:

@@ -119,7 +119,7 @@ export function canUseFeature(
 
 /**
  * Monthly hosted cloud-AI quotas, per the advertised pricing page
- * (docs/outlines/IdiamPro-Marketing.idm). -1 = unlimited.
+ * (docs/outlines/IDMPro-Marketing.idm). -1 = unlimited.
  *
  *  FREE  : 10 outline generations / mo,  25 content expansions / mo
  *  PRO   : 100 outline generations / mo, unlimited expansions

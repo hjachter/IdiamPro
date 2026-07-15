@@ -100,7 +100,7 @@ export async function POST(request: NextRequest) {
   const overallStars = Number(body.overallStars);
   if (!Number.isFinite(nps) || nps < 0 || nps > 10) {
     return NextResponse.json(
-      { ok: false, error: 'How likely you are to recommend IdiamPro is required (0-10).' },
+      { ok: false, error: 'How likely you are to recommend IDMPro is required (0-10).' },
       { status: 400 },
     );
   }

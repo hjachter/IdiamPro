@@ -161,7 +161,7 @@ ${sections.map((section, i) => this.renderExploreCard(section, i, options)).join
         <a href="#explore">Explore</a>
       </div>
       <div class="footer-bottom">
-        <p>© ${new Date().getFullYear()} ${this.escapeHtml(options.title)}. Generated with <a href="https://idiampro.com">IdiamPro</a>.</p>
+        <p>© ${new Date().getFullYear()} ${this.escapeHtml(options.title)}. Generated with <a href="https://idiampro.com">IDMPro</a>.</p>
       </div>
     </div>
   </footer>`;

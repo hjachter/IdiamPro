@@ -1,4 +1,4 @@
-// Service Worker for IdiamPro PWA
+// Service Worker for IDMPro PWA
 const CACHE_NAME = 'idiampro-v3';
 
 // Install event - activate immediately

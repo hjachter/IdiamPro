@@ -89,7 +89,7 @@ function UpgradeSuccessInner() {
 
         <div className="mt-8 flex flex-col gap-2 sm:flex-row">
           <Button asChild size="lg" className="min-w-[200px]">
-            <Link href="/">Open IdiamPro</Link>
+            <Link href="/">Open IDMPro</Link>
           </Button>
         </div>
 

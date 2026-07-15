@@ -50,7 +50,7 @@ ${this.getStyles()}
 ${bodyContent}
     </main>
     <footer>
-      <p>Exported from IdiamPro</p>
+      <p>Exported from IDMPro</p>
     </footer>
   </div>
   <script>

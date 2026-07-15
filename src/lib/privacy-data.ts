@@ -3,7 +3,7 @@
 /**
  * Privacy & Data — GDPR/CCPA-compliant export and delete flows.
  *
- * Today, IdiamPro/SecondBrainWare stores all user data locally on the
+ * Today, IDMPro/SecondBrainWare stores all user data locally on the
  * user's device. There is no server-side account, so "all my data"
  * means everything in the app's local scope: outlines, localStorage
  * keys, AI consent state, settings, API keys, etc.
@@ -42,7 +42,7 @@ function isCapacitorNative(): boolean {
 // --- localStorage keys ---------------------------------------------------
 
 /**
- * Known IdiamPro localStorage keys. Anything not in this list is
+ * Known IDMPro localStorage keys. Anything not in this list is
  * preserved on delete and exported under "unknown_keys" so we don't
  * accidentally touch keys owned by other apps on the same origin.
  */
@@ -76,7 +76,7 @@ const KNOWN_LOCAL_STORAGE_KEYS: readonly string[] = [
 
 /**
  * Prefixes for keys whose exact name we can't predict but that
- * belong to IdiamPro (e.g. per-provider API keys).
+ * belong to IDMPro (e.g. per-provider API keys).
  */
 const KNOWN_LOCAL_STORAGE_PREFIXES: readonly string[] = [
   'apiKey_', // per-provider AI keys
@@ -213,7 +213,7 @@ async function buildExportZip(): Promise<{ blob: Blob; filename: string }> {
         app_keys: known,
         other_keys: unknown,
         note:
-          'app_keys are IdiamPro/SecondBrainWare keys. other_keys are unrelated keys present on the same origin and are included for completeness only.',
+          'app_keys are IDMPro/SecondBrainWare keys. other_keys are unrelated keys present on the same origin and are included for completeness only.',
       },
       null,
       2
@@ -239,7 +239,7 @@ async function buildExportZip(): Promise<{ blob: Blob; filename: string }> {
   // 4. Manifest
   const manifest: ExportManifest = {
     exportedAt: new Date().toISOString(),
-    app: 'IdiamPro / SecondBrainWare',
+    app: 'IDMPro / SecondBrainWare',
     schemaVersion: 1,
     platform: {
       electron: isElectron(),
@@ -249,7 +249,7 @@ async function buildExportZip(): Promise<{ blob: Blob; filename: string }> {
     outlineCount: outlines.length,
     localStorageKeyCount: Object.keys(known).length,
     notes:
-      'This archive contains all data IdiamPro stores locally on your device. There is no server-side account today, so this is a complete export. Outlines are in outlines/*.idm (JSON). Settings and AI consent are in settings/.',
+      'This archive contains all data IDMPro stores locally on your device. There is no server-side account today, so this is a complete export. Outlines are in outlines/*.idm (JSON). Settings and AI consent are in settings/.',
   };
   zip.file('manifest.json', JSON.stringify(manifest, null, 2));
 
@@ -257,7 +257,7 @@ async function buildExportZip(): Promise<{ blob: Blob; filename: string }> {
   zip.file(
     'README.txt',
     [
-      'IdiamPro / SecondBrainWare — Personal Data Export',
+      'IDMPro / SecondBrainWare — Personal Data Export',
       '',
       `Generated: ${manifest.exportedAt}`,
       `Outlines: ${manifest.outlineCount}`,
@@ -272,7 +272,7 @@ async function buildExportZip(): Promise<{ blob: Blob; filename: string }> {
       'You own this data. Keep it safe — the API keys inside are plaintext',
       'and grant access to your paid AI accounts.',
       '',
-      'To restore: open IdiamPro and use the admin menu > "Restore All',
+      'To restore: open IDMPro and use the admin menu > "Restore All',
       'Outlines" with an unzipped folder, or import individual .idm files.',
     ].join('\n')
   );
@@ -298,7 +298,7 @@ async function saveExportZip(blob: Blob, filename: string): Promise<'saved' | 'c
     const api = (window as any).electronAPI;
     if (api?.saveFileDialog && api?.writeFile) {
       const filePath = await api.saveFileDialog({
-        title: 'Export IdiamPro Data',
+        title: 'Export IDMPro Data',
         defaultPath: filename,
         filters: [{ name: 'Zip Archive', extensions: ['zip'] }],
       });
@@ -344,10 +344,10 @@ async function saveExportZip(blob: Blob, filename: string): Promise<'saved' | 'c
     });
 
     await Share.share({
-      title: 'IdiamPro Data Export',
-      text: 'Your IdiamPro data archive',
+      title: 'IDMPro Data Export',
+      text: 'Your IDMPro data archive',
       url: written.uri,
-      dialogTitle: 'Save your IdiamPro export',
+      dialogTitle: 'Save your IDMPro export',
     });
 
     return 'saved';
@@ -444,7 +444,7 @@ async function deleteAllOutlinesFromStorage(): Promise<number> {
 }
 
 /**
- * Remove every IdiamPro-owned localStorage key. Unknown keys are left
+ * Remove every IDMPro-owned localStorage key. Unknown keys are left
  * untouched so we don't trample on anything outside the app's scope.
  */
 function clearAppLocalStorage(): number {

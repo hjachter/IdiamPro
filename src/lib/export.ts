@@ -103,7 +103,7 @@ export async function exportOutlineToJson(outline: Outline): Promise<void> {
       const handle = await (window as any).showSaveFilePicker({
         suggestedName: defaultName,
         types: [{
-          description: 'IdiamPro Outline Files',
+          description: 'IDMPro Outline Files',
           accept: { 'application/json': ['.idm', '.json'] },
         }],
       });
@@ -190,7 +190,7 @@ export async function shareOutlineFile(outline: Outline): Promise<{ success: boo
     // Share the file
     await Share.share({
       title: outline.name,
-      text: `IdiamPro outline: ${outline.name}`,
+      text: `IDMPro outline: ${outline.name}`,
       url: result.uri,
       dialogTitle: 'Share Outline',
     });
@@ -222,7 +222,7 @@ export async function shareBackupFile(outlines: Outline[]): Promise<{ success: b
 
     // Share the file
     await Share.share({
-      title: 'IdiamPro Backup',
+      title: 'IDMPro Backup',
       text: `Backup of ${userOutlines.length} outline${userOutlines.length !== 1 ? 's' : ''}`,
       url: result.uri,
       dialogTitle: 'Share Backup File',

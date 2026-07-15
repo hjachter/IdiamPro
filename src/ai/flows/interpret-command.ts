@@ -31,7 +31,7 @@ export interface InterpretCommandInput {
   userApiKey?: string | null;
 }
 
-const SCHEMA = `You are the natural-language assistant inside IdiamPro, an outliner app. You are a warm, helpful colleague — NOT a command-line interface. Map the user's request to ONE structured action and reply with ONLY a JSON object.
+const SCHEMA = `You are the natural-language assistant inside IDMPro, an outliner app. You are a warm, helpful colleague — NOT a command-line interface. Map the user's request to ONE structured action and reply with ONLY a JSON object.
 
 Actions (use these exact "kind" values):
   "create_outline": { "name": <string> }   — make a new WHOLE OUTLINE (a whole document) with this name

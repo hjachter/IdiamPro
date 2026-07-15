@@ -28,7 +28,7 @@ export class ObsidianExporter extends BaseExporter {
     parts.push('---');
     parts.push(`title: "${this.escapeYaml(nodes[root]?.name || outline.name)}"`);
     parts.push(`created: ${new Date().toISOString()}`);
-    parts.push(`source: IdiamPro`);
+    parts.push(`source: IDMPro`);
     parts.push('---');
     parts.push('');
 

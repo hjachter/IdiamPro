@@ -70,14 +70,14 @@ export default async function UnsubscribePage({ searchParams }: PageProps) {
         }}
       >
         <div style={{ color: '#007AFF', fontWeight: 700, fontSize: '20px', marginBottom: '16px' }}>
-          IdiamPro
+          IDMPro
         </div>
 
         {result.kind === 'success' && !result.alreadyUnsubbed && (
           <>
             <h1 style={{ fontSize: '22px', margin: '0 0 12px' }}>You&rsquo;re unsubscribed</h1>
             <p style={{ margin: 0, color: '#374151', lineHeight: 1.6 }}>
-              We won&rsquo;t send you any more onboarding emails. You can keep using IdiamPro the same as
+              We won&rsquo;t send you any more onboarding emails. You can keep using IDMPro the same as
               before &mdash; this only affects the welcome series.
             </p>
           </>
@@ -98,7 +98,7 @@ export default async function UnsubscribePage({ searchParams }: PageProps) {
             <p style={{ margin: 0, color: '#374151', lineHeight: 1.6 }}>
               The unsubscribe link looks like it&rsquo;s been edited or has expired. Try opening the
               original link from the email again. If that still doesn&rsquo;t work, reply to any
-              IdiamPro email and we&rsquo;ll take you off the list by hand.
+              IDMPro email and we&rsquo;ll take you off the list by hand.
             </p>
           </>
         )}

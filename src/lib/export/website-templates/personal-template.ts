@@ -157,7 +157,7 @@ ${sections.slice(0, 8).map((section, i) => this.renderSkillCard(section, i, opti
 
   <footer>
     <div class="footer-container">
-      <p>© ${new Date().getFullYear()} ${this.escapeHtml(options.title)}. Generated with <a href="https://idiampro.com">IdiamPro</a>.</p>
+      <p>© ${new Date().getFullYear()} ${this.escapeHtml(options.title)}. Generated with <a href="https://idiampro.com">IDMPro</a>.</p>
     </div>
   </footer>`;
 

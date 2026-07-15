@@ -94,7 +94,7 @@ export class XMindExporter extends BaseExporter {
       {
         name: 'metadata.json',
         content: encoder.encode(JSON.stringify({
-          creator: { name: 'IdiamPro', version: '1.0.0' },
+          creator: { name: 'IDMPro', version: '1.0.0' },
         })),
       },
       {

@@ -2,7 +2,7 @@
   "name": "idiampro",
   "version": "1.0.0",
   "description": "Professional outlining with AI-powered assistance",
-  "author": "IdiamPro",
+  "author": "IDMPro",
   "license": "UNLICENSED",
   "private": true,
   "main": "electron/main.js",
@@ -179,7 +179,7 @@
   },
   "build": {
     "appId": "com.idiampro.app",
-    "productName": "IdiamPro Desktop",
+    "productName": "IDMPro Desktop",
     "directories": {
       "output": "dist"
     },
@@ -217,8 +217,8 @@
       "entitlements": "electron/entitlements.mac.plist",
       "entitlementsInherit": "electron/entitlements.mac.plist",
       "extendInfo": {
-        "NSMicrophoneUsageDescription": "IdiamPro uses the microphone for voice input in the AI command bar and Help chat.",
-        "NSSpeechRecognitionUsageDescription": "IdiamPro uses speech recognition to transcribe your voice into text in the AI command bar and Help chat."
+        "NSMicrophoneUsageDescription": "IDMPro uses the microphone for voice input in the AI command bar and Help chat.",
+        "NSSpeechRecognitionUsageDescription": "IDMPro uses speech recognition to transcribe your voice into text in the AI command bar and Help chat."
       }
     },
     "win": {

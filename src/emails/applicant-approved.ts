@@ -5,7 +5,7 @@
  * they applied (when they provided one), concrete next steps, and a
  * standing offer to reply directly.
  *
- * From: Howard at IdiamPro <howard@2ndbrainware.com>
+ * From: Howard at IDMPro <howard@2ndbrainware.com>
  * Reply-To: howard@2ndbrainware.com — clicking Reply lands in Howard's
  * inbox, not the noreply alias.
  *
@@ -21,10 +21,10 @@ import { escapeHtml, wrapEmail, type RenderedEmail } from './_layout';
 export interface ApplicantApprovedProps {
   firstName?: string | null;
   unsubscribeUrl: string;
-  /** Optional sign-in URL — defaults to the IdiamPro sign-in page. */
+  /** Optional sign-in URL — defaults to the IDMPro sign-in page. */
   signInUrl?: string;
   /**
-   * Optional: the "What brings you to IdiamPro?" answer the applicant
+   * Optional: the "What brings you to IDMPro?" answer the applicant
    * supplied. When present and non-trivial we include a one-sentence
    * acknowledgement so the email reads as genuinely personalised rather
    * than mail-merged.
@@ -63,15 +63,15 @@ export function renderApplicantApprovedEmail(
   const reason = trimmedReason(props.reason);
 
   const subject = firstName.length > 0
-    ? `You're in, ${firstName} — welcome to IdiamPro`
-    : "You're in — welcome to IdiamPro";
+    ? `You're in, ${firstName} — welcome to IDMPro`
+    : "You're in — welcome to IDMPro";
 
   // ---- HTML body --------------------------------------------------------
   const greetingLine =
     `<p style="margin:0 0 16px;">${escapeHtml(hi)},</p>`;
 
   const introLine =
-    `<p style="margin:0 0 16px;">Howard here — thanks for applying to the IdiamPro beta. You're approved.</p>`;
+    `<p style="margin:0 0 16px;">Howard here — thanks for applying to the IDMPro beta. You're approved.</p>`;
 
   const reasonLineHtml = reason
     ? `<p style="margin:0 0 16px;">You mentioned: &ldquo;${escapeHtml(reason)}&rdquo; — that's exactly the kind of thing I built this for, and I'd love to hear how it lands once you've had a play. If it doesn't do what you need yet, write back and tell me what's missing.</p>`
@@ -88,7 +88,7 @@ export function renderApplicantApprovedEmail(
 
   const signoff = `<p style="margin:0 0 4px;">Thanks for trying it,</p>
 <p style="margin:0 0 2px;">Howard</p>
-<p style="margin:0;color:#6B7280;font-size:14px;">Founder, IdiamPro</p>`;
+<p style="margin:0;color:#6B7280;font-size:14px;">Founder, IDMPro</p>`;
 
   const bodyHtml = `${greetingLine}${introLine}${reasonLineHtml}${nextStepLine}${noteList}${signoff}`;
 
@@ -99,7 +99,7 @@ export function renderApplicantApprovedEmail(
 
   const bodyText = `${hi},
 
-Howard here — thanks for applying to the IdiamPro beta. You're approved.
+Howard here — thanks for applying to the IDMPro beta. You're approved.
 ${reasonLineText}
 Whenever you're ready, sign in at ${signInUrl} with the email you applied with. Your account will load straight into a starter outline.
 
@@ -110,11 +110,11 @@ A few things to know:
 
 Thanks for trying it,
 Howard
-Founder, IdiamPro`;
+Founder, IDMPro`;
 
   return wrapEmail({
     subject,
-    preheader: "You're approved for the IdiamPro beta — a quick note from Howard.",
+    preheader: "You're approved for the IDMPro beta — a quick note from Howard.",
     bodyHtml,
     bodyText,
     unsubscribe: { url: props.unsubscribeUrl },

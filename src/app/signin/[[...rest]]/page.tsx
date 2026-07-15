@@ -2,7 +2,7 @@
  * Sign-in page (catch-all so Clerk can drive multi-step flows like
  * SSO callbacks / factor verification under /signin/*).
  *
- * Renders Clerk's prebuilt SignIn component inside an IdiamPro-branded
+ * Renders Clerk's prebuilt SignIn component inside an IDMPro-branded
  * wrapper. When Clerk's publishable key is not set the wrapper instead
  * shows a "sign-in is being set up" message — local dev keeps working
  * because the middleware also lets everyone through in stub mode.
@@ -50,7 +50,7 @@ function StubNotice() {
         Sign-in is being set up. Check back soon.
       </p>
       <p className="mt-3 text-sm text-white/50">
-        In the meantime you can keep using IdiamPro from the homepage.
+        In the meantime you can keep using IDMPro from the homepage.
       </p>
     </div>
   );
@@ -66,7 +66,7 @@ export default function SignInPage() {
             <Layers className="h-6 w-6 text-white" />
           </div>
           <span className="bg-gradient-to-r from-white to-white/70 bg-clip-text text-2xl font-bold text-transparent">
-            IdiamPro
+            IDMPro
           </span>
         </div>
         <h1 className="mb-2 text-2xl font-semibold text-white">Welcome back</h1>

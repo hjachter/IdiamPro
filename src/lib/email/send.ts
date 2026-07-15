@@ -67,14 +67,14 @@ import {
   type DependencyHealthAlertProps,
 } from '@/emails/dependency-health-alert';
 
-const DEFAULT_FROM = 'IdiamPro <welcome@2ndbrainware.com>';
+const DEFAULT_FROM = 'IDMPro <welcome@2ndbrainware.com>';
 
 /**
  * The email address Howard's beta-applicant approval notes are sent from.
  * Configurable so we can switch to a service mailbox later without code
  * changes. Defaults to Howard's personal address.
  */
-const HOWARD_FROM = 'Howard at IdiamPro <howard@2ndbrainware.com>';
+const HOWARD_FROM = 'Howard at IDMPro <howard@2ndbrainware.com>';
 
 /** Address that receives "new applicant" notifications. */
 const HOWARD_NOTIFY = 'howard@2ndbrainware.com';
@@ -271,11 +271,11 @@ export async function sendApplicantNotification(
 }
 
 interface SendApplicantApprovedArgs extends SendArgsBase {
-  /** Optional override; defaults to the IdiamPro sign-in page. */
+  /** Optional override; defaults to the IDMPro sign-in page. */
   signInUrl?: string;
   /**
    * Optional: the applicant's free-form answer to "What brings you to
-   * IdiamPro?" — used to personalise the welcome with a one-sentence
+   * IDMPro?" — used to personalise the welcome with a one-sentence
    * acknowledgement. Pass it straight through from the applicant record.
    */
   reason?: string | null;

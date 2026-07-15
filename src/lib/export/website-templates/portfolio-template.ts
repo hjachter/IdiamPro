@@ -171,7 +171,7 @@ ${projects.map((project, i) => this.renderProjectCard(project, i, options, secti
   <footer>
     <div class="footer-container">
       <div class="footer-content">
-        <p>© ${new Date().getFullYear()} ${this.escapeHtml(options.title)}. Generated with <a href="https://idiampro.com">IdiamPro</a>.</p>
+        <p>© ${new Date().getFullYear()} ${this.escapeHtml(options.title)}. Generated with <a href="https://idiampro.com">IDMPro</a>.</p>
       </div>
     </div>
   </footer>`;
