@@ -840,7 +840,7 @@ export default function NodeItem({
             {onExportSubtree && (
               <ContextMenuItem onClick={(e) => { e.stopPropagation(); onExportSubtree(node.id); }}>
                 <Share className="mr-2 h-4 w-4" />
-                Share Branch As...
+                Share Suboutline As...
               </ContextMenuItem>
             )}
 
@@ -855,14 +855,14 @@ export default function NodeItem({
             {onCopySubtree && (
               <ContextMenuItem onClick={(e) => { e.stopPropagation(); onCopySubtree(node.id); }}>
                 <Copy className="mr-2 h-4 w-4" />
-                Copy Branch
+                Copy Suboutline
                 <ContextMenuShortcut>⌘C</ContextMenuShortcut>
               </ContextMenuItem>
             )}
             {!isRoot && onCutSubtree && (
               <ContextMenuItem onClick={(e) => { e.stopPropagation(); onCutSubtree(node.id); }}>
                 <Scissors className="mr-2 h-4 w-4" />
-                Move Branch
+                Move Suboutline
                 <ContextMenuShortcut>⌘X</ContextMenuShortcut>
               </ContextMenuItem>
             )}
@@ -870,7 +870,7 @@ export default function NodeItem({
             {onPasteSubtree && hasClipboard && (
               <ContextMenuItem onClick={(e) => { e.stopPropagation(); onPasteSubtree(node.id); }}>
                 <ClipboardPaste className="mr-2 h-4 w-4" />
-                Paste Branch
+                Paste Suboutline
                 <ContextMenuShortcut>⌘V</ContextMenuShortcut>
               </ContextMenuItem>
             )}

@@ -133,7 +133,7 @@ function NodeTreeEditor({
                 size="sm"
                 className="h-7 px-2 text-xs opacity-0 group-hover:opacity-100"
                 onClick={() => onDelete(childPath)}
-                title="Remove this branch"
+                title="Remove this suboutline"
               >
                 Remove
               </Button>

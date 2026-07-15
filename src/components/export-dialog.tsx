@@ -189,10 +189,10 @@ export default function ExportDialog({
     <Dialog open={open && !showWebsiteDialog && !showPodcastDialog && !showShareDialog} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle>Share Branch As...</DialogTitle>
+          <DialogTitle>Share Suboutline As...</DialogTitle>
           <DialogDescription>
             Exporting: &ldquo;{displayName}&rdquo;
-            {rootNodeId && rootNodeId !== outline.rootNodeId && ' (branch)'}
+            {rootNodeId && rootNodeId !== outline.rootNodeId && ' (suboutline)'}
           </DialogDescription>
         </DialogHeader>
 

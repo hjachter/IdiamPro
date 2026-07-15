@@ -1113,7 +1113,7 @@ export default function OutlinePane({
                         className="cursor-pointer py-1"
                         title={selectedNodeId ? undefined : 'Select an item first'}
                     >
-                        <Share2 className="mr-2 h-4 w-4" /> Share Branch as&hellip;
+                        <Share2 className="mr-2 h-4 w-4" /> Share Suboutline as&hellip;
                     </DropdownMenuItem>
                     {onOpenYoutubePackage && (
                         <DropdownMenuItem
@@ -1257,7 +1257,7 @@ export default function OutlinePane({
                             disabled={!selectedNodeId}
                             className="cursor-pointer py-1"
                         >
-                            <Share2 className="mr-2 h-4 w-4" /> Share Branch…
+                            <Share2 className="mr-2 h-4 w-4" /> Share Suboutline…
                         </DropdownMenuItem>
                         <DropdownMenuItem onSelect={() => onOpenCommandPalette?.()} className="cursor-pointer py-1">
                             <Command className="mr-2 h-4 w-4" /> Command Palette
@@ -1576,7 +1576,7 @@ export default function OutlinePane({
                   disabled={!selectedNodeId}
                   onClick={() => selectedNodeId && onExportSubtree?.(selectedNodeId)}
                   className="hover:bg-accent/20 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
-                  aria-label="Share branch"
+                  aria-label="Share suboutline"
                 >
                   <svg className="h-4 w-4 text-blue-600 dark:text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     <path d="M12 3v12" />
@@ -1586,7 +1586,7 @@ export default function OutlinePane({
                 </Button>
               </span>
             </TooltipTrigger>
-            <TooltipContent>{selectedNodeId ? 'Share branch as...' : 'Share branch — select an item first'}</TooltipContent>
+            <TooltipContent>{selectedNodeId ? 'Share suboutline as...' : 'Share suboutline — select an item first'}</TooltipContent>
           </Tooltip>
 
           {/* Command palette tree-toolbar entry removed 2026-06-08 — the title-row
@@ -1796,7 +1796,7 @@ export default function OutlinePane({
                       disabled={!selectedNodeId}
                       className="cursor-pointer py-1"
                     >
-                      <Share2 className="mr-2 h-4 w-4" /> Share Branch…
+                      <Share2 className="mr-2 h-4 w-4" /> Share Suboutline…
                     </DropdownMenuItem>
 
                     {/* Second Brain — full menu preserved as a submenu. */}

@@ -1295,6 +1295,10 @@ export default function OutlinePro() {
     }
 
     setSelectedNodeId(nodeId);
+    // Remember this node as the range-select anchor so a following Shift+Click
+    // selects the contiguous range from here (standard range-select). Without
+    // this, a plain click → Shift+Click had no anchor and selected nothing.
+    setLastSelectedNodeId(nodeId);
     // Only navigate to full content if explicitly requested (e.g., tap on already-selected node)
     if (isMobile && navigate) {
       setMobileView('content');
@@ -2884,14 +2888,14 @@ export default function OutlinePro() {
       });
 
       toast({
-        title: "Branch Generated",
-        description: `AI-generated branch for "${topic}" added under the selected item.`,
+        title: "Suboutline Generated",
+        description: `AI-generated suboutline for "${topic}" added under the selected item.`,
       });
     } catch (e) {
       toast({
         variant: "destructive",
         title: "Couldn't generate that",
-        description: (e as Error).message || "Could not generate branch.",
+        description: (e as Error).message || "Could not generate suboutline.",
       });
     } finally {
       setIsLoadingAI(false);
@@ -3164,7 +3168,7 @@ export default function OutlinePro() {
       if (isPremium) {
         toast({
           title: "Content Generated",
-          description: `Successfully created content for ${successCount} descendant${successCount > 1 ? 's' : ''}, with branch diagram.`,
+          description: `Successfully created content for ${successCount} descendant${successCount > 1 ? 's' : ''}, with suboutline diagram.`,
         });
       } else {
         // Show premium upsell for free users
@@ -3869,7 +3873,7 @@ export default function OutlinePro() {
     });
 
     toast({
-      title: "Branch Copied",
+      title: "Suboutline Copied",
       description: `"${outline.nodes[nodeId].name}" and its children copied to clipboard.`,
     });
   }, [currentOutlineId, outlines, collectSubtree, toast]);
@@ -3888,7 +3892,7 @@ export default function OutlinePro() {
     });
 
     toast({
-      title: "Branch Cut",
+      title: "Suboutline Cut",
       description: `"${outline.nodes[nodeId].name}" ready to move. Select a target item and paste.`,
     });
   }, [currentOutlineId, outlines, collectSubtree, toast]);
@@ -4031,7 +4035,7 @@ export default function OutlinePro() {
       setTimeout(() => {
         setSelectedNodeId(newRootId);
         toast({
-          title: subtreeClipboard.isCut ? "Branch Moved" : "Branch Pasted",
+          title: subtreeClipboard.isCut ? "Suboutline Moved" : "Suboutline Pasted",
           description: `"${clipboardRoot.name}" has been ${subtreeClipboard.isCut ? 'moved' : 'pasted'}.`,
         });
         if (subtreeClipboard.isCut) {
@@ -4066,6 +4070,9 @@ export default function OutlinePro() {
 
   const handleRangeSelect = useCallback((nodeId: string) => {
     if (!currentOutline || !lastSelectedNodeId) return;
+    // Entering a range selection clears any single selection so the whole
+    // range shows the multi-select styling (mirrors Ctrl/Cmd+Click behavior).
+    setSelectedNodeId(null);
 
     // Get all visible node IDs in order
     const allNodeIds: string[] = [];

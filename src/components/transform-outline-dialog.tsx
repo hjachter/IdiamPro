@@ -286,8 +286,8 @@ export default function TransformOutlineDialog({
             {isLargeScope && (
               <div className="rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-sm">
                 <AlertTriangle className="inline h-4 w-4 mr-1 text-amber-600" />
-                This is a big branch — {subtreeCount.toLocaleString()} nodes. Transformations on
-                very large branches can be unreliable. You can still proceed, but selecting a
+                This is a big suboutline — {subtreeCount.toLocaleString()} nodes. Transformations on
+                very large suboutlines can be unreliable. You can still proceed, but selecting a
                 smaller scope first usually gives a better result.
               </div>
             )}

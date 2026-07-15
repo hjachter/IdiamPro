@@ -819,7 +819,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
               />
             </div>
             <p className="text-xs text-muted-foreground">
-              Show confirmation dialog when deleting items or branches
+              Show confirmation dialog when deleting items or suboutlines
             </p>
 
             {/* Reset confirmation prompts (2026-06-10). Clears every per-prompt

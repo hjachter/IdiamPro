@@ -1225,7 +1225,7 @@ export default function ContentPane({
 
     toast({
       title: `${type === 'mindmap' ? 'Mind Map' : 'Flowchart'} Generated`,
-      description: `Diagram of "${node.name}" branch added to content.`,
+      description: `Diagram of "${node.name}" suboutline added to content.`,
     });
   }, [node, nodes, editor, generateMindmap, generateFlowchart, toast]);
 
@@ -2912,11 +2912,11 @@ export default function ContentPane({
                     </Button>
                   </DropdownMenuTrigger>
                 </TooltipTrigger>
-                <TooltipContent>Generate diagram of this branch</TooltipContent>
+                <TooltipContent>Generate diagram of this suboutline</TooltipContent>
               </Tooltip>
               <DropdownMenuContent align="start" className="w-48">
                 <DropdownMenuLabel className="text-xs text-muted-foreground">
-                  Generate Branch Diagram
+                  Generate Suboutline Diagram
                 </DropdownMenuLabel>
                 <DropdownMenuItem onClick={() => handleGenerateSubtreeDiagram('mindmap')}>
                   <GitBranch className="h-4 w-4 mr-2" />
