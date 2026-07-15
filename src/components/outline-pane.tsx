@@ -800,11 +800,19 @@ export default function OutlinePane({
 
         e.preventDefault();
 
-        const confirmDelete = localStorage.getItem('confirmDelete') !== 'false';
-        if (confirmDelete) {
-          setShowDeleteDialog(true);
-        } else {
+        // Two-tier bypass — MUST mirror the toolbar Delete button (below) so the
+        // "Don't ask again" opt-out and Professional mode work no matter how the
+        // user triggers a delete:
+        //   1. Professional mode — global suppress all confirms.
+        //   2. Per-prompt "Don't ask again" — localStorage SUPPRESS_KEY.
+        //   3. Legacy "Confirm before deleting" Setting toggle.
+        const legacyConfirmDelete = localStorage.getItem('confirmDelete') !== 'false';
+        const perPromptSuppressed = localStorage.getItem(SUPPRESS_KEY) === 'true';
+        if (isProfessional || perPromptSuppressed || !legacyConfirmDelete) {
           onDeleteNode(selectedNodeId);
+        } else {
+          setDeleteDontAskAgain(false);
+          setShowDeleteDialog(true);
         }
         return;
       }
@@ -844,7 +852,7 @@ export default function OutlinePane({
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [selectedNodeId, currentOutline, handleIndent, handleOutdent, hasClipboard, onCopySubtree, onCutSubtree, onPasteSubtree, onDuplicateNode, justCreatedNodeId, onTriggerEdit, getVisibleNodeIds, onSelectNode]);
+  }, [selectedNodeId, currentOutline, handleIndent, handleOutdent, hasClipboard, onCopySubtree, onCutSubtree, onPasteSubtree, onDuplicateNode, justCreatedNodeId, onTriggerEdit, getVisibleNodeIds, onSelectNode, isProfessional, onDeleteNode]);
 
   const handleImportClick = () => {
     setImportDialogOpen(true);
