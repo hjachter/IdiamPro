@@ -12,6 +12,13 @@ export default function PrivacyPolicyPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="max-w-3xl mx-auto px-6 py-12">
+        <a
+          href="/"
+          aria-label="IdiamPro home"
+          className="inline-block mb-8 text-xl font-bold text-primary hover:opacity-80 transition-opacity cursor-pointer"
+        >
+          IdiamPro
+        </a>
         <h1 className="text-3xl font-bold mb-2">Privacy Policy</h1>
         <p className="text-sm text-muted-foreground mb-8">Last updated: March 22, 2026</p>
 

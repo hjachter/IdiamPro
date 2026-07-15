@@ -69,9 +69,9 @@ export default async function UnsubscribePage({ searchParams }: PageProps) {
           textAlign: 'center',
         }}
       >
-        <div style={{ color: '#007AFF', fontWeight: 700, fontSize: '20px', marginBottom: '16px' }}>
+        <a href="/" aria-label="IdiamPro home" style={{ display: 'inline-block', color: '#007AFF', fontWeight: 700, fontSize: '20px', marginBottom: '16px', textDecoration: 'none', cursor: 'pointer' }}>
           IdiamPro
-        </div>
+        </a>
 
         {result.kind === 'success' && !result.alreadyUnsubbed && (
           <>

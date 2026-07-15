@@ -261,6 +261,13 @@ function FeedbackPageInner() {
   return (
     <div className="min-h-screen bg-background py-12 px-6">
       <div className="max-w-3xl mx-auto">
+        <a
+          href="/"
+          aria-label="IdiamPro home"
+          className="inline-block mb-6 text-xl font-bold text-foreground hover:opacity-80 transition-opacity cursor-pointer"
+        >
+          IdiamPro
+        </a>
         <header className="mb-8 text-center">
           <div className="inline-flex h-12 w-12 rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 items-center justify-center mb-4">
             <Sparkles className="h-6 w-6 text-white" />
