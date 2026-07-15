@@ -1064,6 +1064,26 @@ export default function MarketingPage() {
           </div>
         </section>
 
+        {/* A plan that's alive — differentiator vs. traditional project management */}
+        <section className="px-6 pb-16 lg:px-12">
+          <div className="max-w-4xl mx-auto">
+            <div className="rounded-2xl border border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 via-teal-500/5 to-cyan-500/5 p-8 md:p-10">
+              <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
+                A plan that&rsquo;s <span className="text-emerald-300">alive</span>.
+              </h2>
+              <p className="text-base md:text-lg text-white/70 leading-relaxed mb-4">
+                Most plans die the moment reality moves. Traditional project management builds a beautiful, rigid structure &mdash; the chart, the fixed timeline &mdash; and then life shifts, the plan shatters, and it ends up stale in a drawer. It assumes a world that holds still. <span className="text-white font-semibold">The world never holds still.</span>
+              </p>
+              <p className="text-base md:text-lg text-white/70 leading-relaxed mb-4">
+                IdiamPro&rsquo;s plan is <span className="text-emerald-300 font-semibold">alive</span>. Because it&rsquo;s completely yours to shape, it bends and re-forms as your life unfolds &mdash; new information reshapes a branch, a closed door becomes a new route, an opening becomes your next move. It doesn&rsquo;t just plan your life; it keeps up with it.
+              </p>
+              <p className="text-base md:text-lg text-white/70 leading-relaxed">
+                That&rsquo;s the difference between a plan and a <span className="text-emerald-300 font-semibold">living</span> plan: one is a snapshot of a moment already gone &mdash; the other grows with you. IdiamPro is the living kind.
+              </p>
+            </div>
+          </div>
+        </section>
+
         {/* Written AND multimedia — dual-output positioning */}
         <section className="px-6 pb-16 lg:px-12">
           <div className="max-w-4xl mx-auto">
