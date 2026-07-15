@@ -59,7 +59,7 @@ const PLANS: PlanCard[] = [
       'All export formats',
       'Mac, iPhone, web',
     ],
-    cta: 'Use IDMPro Free',
+    cta: 'Use IdiamPro Free',
   },
   {
     id: 'student',
@@ -168,7 +168,7 @@ export default function UpgradePage() {
             href="/"
             className="text-sm text-muted-foreground hover:text-foreground"
           >
-            &larr; Back to IDMPro
+            &larr; Back to IdiamPro
           </Link>
           <h1 className="mt-4 text-3xl font-bold lg:text-5xl">
             Pick the plan that fits.
@@ -435,7 +435,7 @@ export default function UpgradePage() {
             <Sparkles className="h-5 w-5 text-amber-500" />
             <strong className="text-foreground">Web + iOS + Mac</strong>
             <span>
-              One subscription unlocks IDMPro everywhere you use it.
+              One subscription unlocks IdiamPro everywhere you use it.
             </span>
           </div>
         </div>
@@ -443,7 +443,7 @@ export default function UpgradePage() {
         {/* iOS-only note */}
         {isIOSCapacitor && (
           <div className="mt-8 rounded-xl border border-blue-500/30 bg-blue-500/5 p-4 text-sm">
-            <strong>On iPhone or iPad?</strong> IDMPro is free on iOS — bring
+            <strong>On iPhone or iPad?</strong> IdiamPro is free on iOS — bring
             your own AI key for unlimited AI at no cost. Paid plans (Student and
             Pro) are available on the web and Mac apps for now.
           </div>

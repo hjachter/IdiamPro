@@ -50,7 +50,7 @@ export class RevealjsExporter extends BaseExporter {
     <div class="slides">
       <section class="title-slide">
         <h1>${this.escapeHtml(title)}</h1>
-        <p>Exported from IDMPro</p>
+        <p>Exported from IdiamPro</p>
       </section>
 ${slides}
     </div>

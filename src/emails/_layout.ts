@@ -11,7 +11,7 @@
  * worth a new dependency, and a hand-rolled table-free layout is
  * trivially mobile-responsive in 2026-era email clients.
  *
- * Brand color: IDMPro's primary is iOS blue (#007AFF) — see globals.css.
+ * Brand color: IdiamPro's primary is iOS blue (#007AFF) — see globals.css.
  * Body font stack mirrors the app's UI: system font, no remote fonts (some
  * email clients block Google Fonts and we don't want a layout shift).
  */
@@ -56,7 +56,7 @@ export function ctaButton(label: string, href: string): string {
 }
 
 /**
- * Wrap body content in the standard IDMPro email shell.
+ * Wrap body content in the standard IdiamPro email shell.
  */
 export function wrapEmail(input: EmailLayoutInput): RenderedEmail {
   const { subject, preheader, bodyHtml, bodyText, unsubscribe } = input;
@@ -73,15 +73,15 @@ export function wrapEmail(input: EmailLayoutInput): RenderedEmail {
 <div style="display:none;font-size:1px;color:${BG_PAGE};line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">${escapeHtml(preheader)}</div>
 <div style="max-width:560px;margin:0 auto;padding:32px 16px;">
   <div style="text-align:center;padding-bottom:24px;">
-    <div style="font-size:22px;font-weight:700;letter-spacing:-0.01em;color:${BRAND_PRIMARY};">IDMPro</div>
+    <div style="font-size:22px;font-weight:700;letter-spacing:-0.01em;color:${BRAND_PRIMARY};">IdiamPro</div>
   </div>
   <div style="background:${BG_CARD};border:1px solid ${BORDER};border-radius:12px;padding:32px;font-size:16px;line-height:1.55;">
     ${bodyHtml}
   </div>
   <div style="text-align:center;padding-top:24px;font-size:12px;line-height:1.6;color:${TEXT_MUTED};">
-    <div>IDMPro &mdash; the premier idea developer.</div>
+    <div>IdiamPro &mdash; the premier idea developer.</div>
     <div style="padding-top:8px;">
-      You're getting this because you signed up for IDMPro.
+      You're getting this because you signed up for IdiamPro.
       <a href="${escapeAttr(unsubscribe.url)}" style="color:${TEXT_MUTED};text-decoration:underline;">Unsubscribe</a>.
     </div>
   </div>
@@ -92,9 +92,9 @@ export function wrapEmail(input: EmailLayoutInput): RenderedEmail {
   const text = `${bodyText}
 
 ---
-IDMPro — the premier idea developer.
+IdiamPro — the premier idea developer.
 
-You're getting this because you signed up for IDMPro.
+You're getting this because you signed up for IdiamPro.
 To stop receiving these emails, open: ${unsubscribe.url}`;
 
   return { subject, html, text };

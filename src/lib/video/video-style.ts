@@ -20,14 +20,14 @@ export interface VideoStyle {
 export const DEFAULT_VIDEO_STYLE: VideoStyle = {
   theme: 'dark',
   accent: '#3898ff',
-  brandLabel: 'IDMPro',
+  brandLabel: 'IdiamPro',
   logoDataUrl: '',
   voice: 'nova',
 };
 
 // Curated accent presets shown as swatches in the Style section.
 export const ACCENT_PRESETS: { name: string; hex: string }[] = [
-  { name: 'IDMPro Blue', hex: '#3898ff' },
+  { name: 'IdiamPro Blue', hex: '#3898ff' },
   { name: 'Indigo', hex: '#6366f1' },
   { name: 'Emerald', hex: '#10b981' },
   { name: 'Rose', hex: '#f43f5e' },

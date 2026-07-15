@@ -21,7 +21,7 @@ export default function UpgradeCancelPage() {
         <h1 className="text-3xl font-bold lg:text-4xl">No charge made.</h1>
         <p className="mt-3 text-base text-muted-foreground lg:text-lg">
           You closed the checkout before completing payment. Nothing was
-          charged — keep using IDMPro free as long as you like.
+          charged — keep using IdiamPro free as long as you like.
         </p>
 
         <div className="mt-8 max-w-md rounded-2xl border bg-card p-5 text-left">
@@ -53,7 +53,7 @@ export default function UpgradeCancelPage() {
           <Button asChild variant="outline" size="lg">
             <Link href="/">
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to IDMPro
+              Back to IdiamPro
             </Link>
           </Button>
           <Button asChild size="lg">

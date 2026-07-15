@@ -93,7 +93,7 @@ export default function BetaSignupPage() {
     setIsSubmitting(true);
 
     // For now, open email with pre-filled content
-    const subject = encodeURIComponent('Beta Tester Application - IDMPro');
+    const subject = encodeURIComponent('Beta Tester Application - IdiamPro');
     const body = encodeURIComponent(`
 Name: ${formData.name}
 Email: ${formData.email}
@@ -101,7 +101,7 @@ Role: ${formData.role}
 Primary Use Case: ${formData.useCase}
 How did you hear about us: ${formData.referral}
 
-I would like to join the IDMPro beta program.
+I would like to join the IdiamPro beta program.
     `);
 
     window.location.href = `mailto:beta@idiampro.com?subject=${subject}&body=${body}`;
@@ -163,7 +163,7 @@ I would like to join the IDMPro beta program.
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
               <Brain className="w-4 h-4 text-white" />
             </div>
-            <span className="font-bold">IDMPro</span>
+            <span className="font-bold">IdiamPro</span>
           </div>
         </div>
       </header>
@@ -189,7 +189,7 @@ I would like to join the IDMPro beta program.
             </h1>
 
             <p className="text-xl text-white/60 max-w-2xl mx-auto mb-8">
-              Be among the first to experience IDMPro&apos;s intelligence amplification platform.
+              Be among the first to experience IdiamPro&apos;s intelligence amplification platform.
               Help us build the ultimate second brain for professional researchers.
             </p>
 
@@ -259,7 +259,7 @@ I would like to join the IDMPro beta program.
                   </div>
                   <h3 className="text-2xl font-bold text-white mb-4">Application Submitted!</h3>
                   <p className="text-white/60 mb-6">
-                    Thank you for your interest in IDMPro. We&apos;ll review your application and
+                    Thank you for your interest in IdiamPro. We&apos;ll review your application and
                     get back to you within 48 hours.
                   </p>
                   <p className="text-white/40 text-sm">
@@ -371,7 +371,7 @@ I would like to join the IDMPro beta program.
                     </Button>
 
                     <p className="text-center text-white/30 text-xs">
-                      By applying, you agree to provide feedback and help us improve IDMPro.
+                      By applying, you agree to provide feedback and help us improve IdiamPro.
                     </p>
                   </div>
                 </form>
@@ -385,7 +385,7 @@ I would like to join the IDMPro beta program.
       <footer className="relative z-10 px-6 py-8 border-t border-white/10 mt-16">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-white/30 text-sm">
-            © 2026 IDMPro. Your Intelligence Amplifier.
+            © 2026 IdiamPro. Your Intelligence Amplifier.
           </p>
           <div className="flex items-center gap-6">
             <a href="/" className="text-white/30 hover:text-white text-sm transition-colors">Home</a>

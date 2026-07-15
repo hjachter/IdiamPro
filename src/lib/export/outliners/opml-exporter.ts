@@ -33,7 +33,7 @@ export class OpmlExporter extends BaseExporter {
   <head>
     <title>${this.escapeXml(title)}</title>
     <dateCreated>${dateCreated}</dateCreated>
-    <ownerName>IDMPro</ownerName>
+    <ownerName>IdiamPro</ownerName>
   </head>
   <body>
 ${body}

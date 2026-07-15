@@ -23,9 +23,9 @@ function createWelcomeNodes(): { rootNodeId: string, nodes: NodeMap } {
   const nodes: NodeMap = {};
 
   const rootId = 'welcome-root';
-  createNode(nodes, rootId, null, "Welcome to IDMPro!", `<p><strong>Congratulations!</strong> You've just unlocked a powerful tool for organizing your thoughts, research, and knowledge.</p>
+  createNode(nodes, rootId, null, "Welcome to IdiamPro!", `<p><strong>Congratulations!</strong> You've just unlocked a powerful tool for organizing your thoughts, research, and knowledge.</p>
 
-<p>IDMPro is your <strong>Second Brain</strong> — an intelligence amplifier that helps you capture, connect, and recall everything you learn.</p>
+<p>IdiamPro is your <strong>Second Brain</strong> — an intelligence amplifier that helps you capture, connect, and recall everything you learn.</p>
 
 <p><em>This quick tour will get you started in under 5 minutes.</em></p>`);
 
@@ -63,7 +63,7 @@ function createWelcomeNodes(): { rootNodeId: string, nodes: NodeMap } {
   <li><strong>Drag to the left edge</strong> to move it up a level</li>
 </ul>
 
-<p>Your outline can be as deep or as flat as you need. IDMPro handles <strong>over 1 million nodes</strong> with ease!</p>`);
+<p>Your outline can be as deep or as flat as you need. IdiamPro handles <strong>over 1 million nodes</strong> with ease!</p>`);
 
   // Step 4: Import Content
   const step4Id = 'welcome-step4';
@@ -80,7 +80,7 @@ function createWelcomeNodes(): { rootNodeId: string, nodes: NodeMap } {
 
   // Step 5: AI Features
   const step5Id = 'welcome-step5';
-  createNode(nodes, step5Id, rootId, "Step 5: Supercharge with AI", `<p>IDMPro's AI features help you work smarter:</p>
+  createNode(nodes, step5Id, rootId, "Step 5: Supercharge with AI", `<p>IdiamPro's AI features help you work smarter:</p>
 <ul>
   <li><strong>AI Generate</strong> — Create content, expand ideas, summarize</li>
   <li><strong>Ask Your Outlines</strong> — Ask questions about your outline</li>
@@ -98,7 +98,7 @@ function createWelcomeNodes(): { rootNodeId: string, nodes: NodeMap } {
   <li>📚 Check out the <strong>User Guide</strong> for advanced features</li>
 </ul>
 
-<p><strong>Need help?</strong> Click the <strong>?</strong> button for Help Chat — our AI assistant knows everything about IDMPro.</p>
+<p><strong>Need help?</strong> Click the <strong>?</strong> button for Help Chat — our AI assistant knows everything about IdiamPro.</p>
 
 <p><em>Happy outlining!</em> 🎉</p>`);
 
@@ -115,7 +115,7 @@ export function getWelcomeOutline(): Outline {
 
   return {
     id: 'welcome-outline-' + uuidv4(),
-    name: 'Welcome to IDMPro!',
+    name: 'Welcome to IdiamPro!',
     rootNodeId,
     nodes,
     isGuide: false, // Not a guide, just a regular outline they can delete

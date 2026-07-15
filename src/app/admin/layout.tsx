@@ -4,8 +4,8 @@ import { ShieldAlert } from 'lucide-react';
 import { isAdminUser } from '@/lib/access/admin';
 
 export const metadata: Metadata = {
-  title: 'Admin — IDMPro',
-  description: 'Internal admin tools for IDMPro.',
+  title: 'Admin — IdiamPro',
+  description: 'Internal admin tools for IdiamPro.',
   robots: { index: false, follow: false },
 };
 

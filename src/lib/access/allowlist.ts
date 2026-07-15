@@ -1,7 +1,7 @@
 /**
  * Invite allowlist — gates signup to a Howard-curated list of emails.
  *
- * IDMPro is in invite-only beta. Only emails Howard has explicitly
+ * IdiamPro is in invite-only beta. Only emails Howard has explicitly
  * approved may complete signup. This module is the single source of
  * truth for "is this email allowed to sign up?", used by both the
  * pre-signup UX check (server action) and the post-signup Clerk webhook
@@ -25,7 +25,7 @@
  *
  * Stub-safe: if INVITE_ALLOWLIST is unset AND there are no approved
  * applicants, the allowlist check is bypassed (everyone is allowed).
- * This matches the rest of IDMPro's env-gated layers (Sentry, Clerk,
+ * This matches the rest of IdiamPro's env-gated layers (Sentry, Clerk,
  * Stripe, Resend) — zero runtime overhead and identical-to-today
  * behavior until Howard sets the env var or approves anyone.
  *
@@ -87,14 +87,14 @@ export function isEmailAllowed(email: string): boolean {
 /**
  * Conversational gating message shown to users whose email isn't on the
  * list. Conventional UX (helpful) wins over conventional security (vague)
- * here: IDMPro is in friend-and-family beta, the cost of confirming
+ * here: IdiamPro is in friend-and-family beta, the cost of confirming
  * "your email isn't on the list" is low, and the contact email gives the
  * user a clear next step. If we ever want to harden this (e.g. against
  * email-enumeration attacks once the beta is wider), swap the message in
  * one place.
  */
 export const GATE_MESSAGE =
-  "IDMPro is in invite-only beta right now. Your email isn't on the invite list yet — drop us a note at hello@2ndbrainware.com and we'll get you in.";
+  "IdiamPro is in invite-only beta right now. Your email isn't on the invite list yet — drop us a note at hello@2ndbrainware.com and we'll get you in.";
 
 /**
  * Async variant of getAllowedEmails: env-var list PLUS approved applicants

@@ -195,7 +195,7 @@ export const FORMAT_REGISTRY: Record<string, FormatDefinition> = {
   json: {
     id: 'json',
     name: 'JSON',
-    description: 'IDMPro native format',
+    description: 'IdiamPro native format',
     category: 'outliners',
     extensions: ['.idm', '.json'],
     mimeTypes: ['application/json'],

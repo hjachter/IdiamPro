@@ -76,7 +76,7 @@ import {
 // ============================================
 
 // Sign-up URL — the public entry point for new users. The home page no
-// longer links directly to /app: anyone who wants to try IDMPro applies
+// longer links directly to /app: anyone who wants to try IdiamPro applies
 // for the invite-only beta first, and Howard approves each one personally.
 // The /app route is still reachable for already-approved users (via the
 // hero CTA's SignedIn branch and via deep links once they're authed); the
@@ -364,7 +364,7 @@ function IdeaDevelopmentBand() {
             A great idea isn&apos;t a single prompt.
           </h2>
           <p className="text-base md:text-lg text-white/60 leading-relaxed max-w-[660px] mx-auto">
-            It might take a hundred sources — articles, PDFs, YouTube videos, meeting notes, textbooks, even what you type yourself — read, weighed, and merged into one outline before the essence comes into focus. Developing an idea is iterative: many passes, not one flash of insight. IDMPro is built for that work.
+            It might take a hundred sources — articles, PDFs, YouTube videos, meeting notes, textbooks, even what you type yourself — read, weighed, and merged into one outline before the essence comes into focus. Developing an idea is iterative: many passes, not one flash of insight. IdiamPro is built for that work.
           </p>
         </div>
 
@@ -434,7 +434,7 @@ function IdeaDevelopmentBand() {
 }
 
 // One outline → many outputs — a hub-and-spoke visual. A central "One Outline"
-// node fans out to the finished formats IDMPro actually ships. Desktop uses a
+// node fans out to the finished formats IdiamPro actually ships. Desktop uses a
 // 3×3 grid ring with an SVG spoke layer whose endpoints land on fixed cell
 // centres (percentages of equal thirds, so they stay aligned at any width);
 // mobile stacks the hub above a 2-column card grid. Outputs listed here are all
@@ -578,7 +578,7 @@ function WhoItsFor({ useCases }: { useCases: UseCase[] }) {
   return (
     <div>
       {/* Persona pills */}
-      <div role="tablist" aria-label="Who IDMPro is for" className="flex flex-wrap justify-center gap-2 md:gap-3 mb-10">
+      <div role="tablist" aria-label="Who IdiamPro is for" className="flex flex-wrap justify-center gap-2 md:gap-3 mb-10">
         {useCases.map((uc, i) => {
           const selected = i === active;
           const PillIcon = uc.icon;
@@ -661,7 +661,7 @@ export default function MarketingPage() {
       icon: Scale,
       title: 'Trial Prep',
       subtitle: 'Attorneys & Paralegals',
-      description: 'Upload 200 pages of medical records, expert reports, and prior testimony. IDMPro builds a chronological timeline, flags contradictions between sources, and produces a one-page list of questions to ask the witness. Three days of paralegal work — done in twenty minutes.',
+      description: 'Upload 200 pages of medical records, expert reports, and prior testimony. IdiamPro builds a chronological timeline, flags contradictions between sources, and produces a one-page list of questions to ask the witness. Three days of paralegal work — done in twenty minutes.',
       gradient: 'bg-gradient-to-br from-slate-500 to-gray-600',
       examples: [
         { text: 'Drop in a 90-minute deposition recording — it transcribes the whole thing and labels who said what, so you can read the exchange instead of scrubbing audio.' },
@@ -675,7 +675,7 @@ export default function MarketingPage() {
       icon: Microscope,
       title: 'Literature Reviews',
       subtitle: 'Researchers & PhD Students',
-      description: 'Drop fifty research papers into one outline. IDMPro groups them by methodology, summarizes each finding in plain English, and shows where the field agrees and where it\'s still fighting. You arrive at the writing stage already knowing the structure of your argument.',
+      description: 'Drop fifty research papers into one outline. IdiamPro groups them by methodology, summarizes each finding in plain English, and shows where the field agrees and where it\'s still fighting. You arrive at the writing stage already knowing the structure of your argument.',
       gradient: 'bg-gradient-to-br from-blue-500 to-cyan-600',
       examples: [
         { text: 'Import 50 PDFs at once and get each paper summarized in plain English, grouped by method — no more reading abstracts one tab at a time.' },
@@ -689,7 +689,7 @@ export default function MarketingPage() {
       icon: BookMarked,
       title: 'Writing Non-Fiction',
       subtitle: 'Authors & Writers',
-      description: 'Import interview transcripts, archival research, and your own notes. IDMPro drafts chapter outlines from your source material, suggests where each anecdote fits the narrative, and flags chapters where you\'re thin on evidence — so you know what to research next.',
+      description: 'Import interview transcripts, archival research, and your own notes. IdiamPro drafts chapter outlines from your source material, suggests where each anecdote fits the narrative, and flags chapters where you\'re thin on evidence — so you know what to research next.',
       gradient: 'bg-gradient-to-br from-amber-500 to-orange-600',
       examples: [
         { text: 'Give it your premise in one sentence and get a full chapter-by-chapter book outline to react to instead of staring at page one.' },
@@ -703,7 +703,7 @@ export default function MarketingPage() {
       icon: Lightbulb,
       title: 'Client Engagements',
       subtitle: 'Consultants & Analysts',
-      description: 'Combine client emails, stakeholder interviews, and competitive research into one outline. IDMPro produces a slide-deck outline organized by client priority, with every claim traceable back to the email, transcript, or report that supports it.',
+      description: 'Combine client emails, stakeholder interviews, and competitive research into one outline. IdiamPro produces a slide-deck outline organized by client priority, with every claim traceable back to the email, transcript, or report that supports it.',
       gradient: 'bg-gradient-to-br from-emerald-500 to-teal-600',
       examples: [
         { text: 'Import the client\'s data room — PDFs, spreadsheets, Google Docs and Slides — and have it organized into one working outline by lunch.' },
@@ -717,7 +717,7 @@ export default function MarketingPage() {
       icon: Video,
       title: 'Learning from Video',
       subtitle: 'Students & Learners',
-      description: 'Paste a link to a 90-minute lecture. IDMPro transcribes it, organizes the content by topic with timestamps, and turns it into a study guide. Then ask follow-up questions and get answers from the lecture itself — not generic web search.',
+      description: 'Paste a link to a 90-minute lecture. IdiamPro transcribes it, organizes the content by topic with timestamps, and turns it into a study guide. Then ask follow-up questions and get answers from the lecture itself — not generic web search.',
       gradient: 'bg-gradient-to-br from-red-500 to-rose-600',
       examples: [
         { text: 'Paste a YouTube lecture link and get a topic-organized study guide with timestamps — go straight to the five minutes you actually missed.' },
@@ -731,7 +731,7 @@ export default function MarketingPage() {
       icon: Newspaper,
       title: 'Investigative Reporting',
       subtitle: 'Journalists & Reporters',
-      description: 'Import court records, leaked documents, and source interviews into a single secure outline. IDMPro cross-references names, dates, and locations across sources to surface a coherent timeline. Every claim in your final story carries a click-through to the exact page that supports it.',
+      description: 'Import court records, leaked documents, and source interviews into a single secure outline. IdiamPro cross-references names, dates, and locations across sources to surface a coherent timeline. Every claim in your final story carries a click-through to the exact page that supports it.',
       gradient: 'bg-gradient-to-br from-violet-500 to-purple-600',
       examples: [
         { text: 'Record a source interview and get it transcribed with each speaker identified — the exact quote, attributed, without a second listen.' },
@@ -745,16 +745,16 @@ export default function MarketingPage() {
 
   const faqs = [
     {
-      question: 'How is IDMPro different from Notion or Obsidian?',
-      answer: 'IDMPro is purpose-built for research synthesis and content creation. Unlike general note-taking apps, we focus on importing multiple sources (YouTube, PDFs, audio) and using AI to synthesize them into structured outlines. Our multi-source analysis and speaker diarization features are unique to IDMPro.'
+      question: 'How is IdiamPro different from Notion or Obsidian?',
+      answer: 'IdiamPro is purpose-built for research synthesis and content creation. Unlike general note-taking apps, we focus on importing multiple sources (YouTube, PDFs, audio) and using AI to synthesize them into structured outlines. Our multi-source analysis and speaker diarization features are unique to IdiamPro.'
     },
     {
       question: 'Can I import my existing notes?',
-      answer: 'Yes! IDMPro supports importing from Markdown, OPML, plain text, and JSON formats. You can also import content from PDFs, Word documents, web pages, and even YouTube videos with automatic transcription.'
+      answer: 'Yes! IdiamPro supports importing from Markdown, OPML, plain text, and JSON formats. You can also import content from PDFs, Word documents, web pages, and even YouTube videos with automatic transcription.'
     },
     {
       question: 'Is my data private and secure?',
-      answer: 'Absolutely. IDMPro uses a local-first architecture—your outlines are stored on your device by default. When you use AI features, your content is sent securely to process but is never used to train AI models. We never sell your data.'
+      answer: 'Absolutely. IdiamPro uses a local-first architecture—your outlines are stored on your device by default. When you use AI features, your content is sent securely to process but is never used to train AI models. We never sell your data.'
     },
     {
       question: 'What AI models do you use?',
@@ -766,7 +766,7 @@ export default function MarketingPage() {
     },
     {
       question: 'Can I export my work?',
-      answer: 'IDMPro offers 23 export formats: PDF, Markdown, HTML (collapsible website), Word, LaTeX, EPUB, Plain Text, OPML, Obsidian (with wiki-links), Notion, CSV, JSON Tree, and more. Your data is never locked in.'
+      answer: 'IdiamPro offers 23 export formats: PDF, Markdown, HTML (collapsible website), Word, LaTeX, EPUB, Plain Text, OPML, Obsidian (with wiki-links), Notion, CSV, JSON Tree, and more. Your data is never locked in.'
     }
   ];
 
@@ -788,8 +788,11 @@ export default function MarketingPage() {
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-violet-500/20">
                 <Layers className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">
-                IDMPro
+              <span className="flex flex-col leading-none">
+                <span className="text-xl font-bold bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">
+                  IdiamPro
+                </span>
+                <span className="text-[10px] text-white/40 tracking-wide mt-0.5">say it &ldquo;I-D-M Pro&rdquo;</span>
               </span>
             </div>
 
@@ -816,7 +819,7 @@ export default function MarketingPage() {
                   onClick={() => { window.location.href = '/app'; }}
                   className="hidden md:inline-flex bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-lg shadow-violet-500/25"
                 >
-                  Open IDMPro
+                  Open IdiamPro
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </SignedIn>
@@ -852,7 +855,7 @@ export default function MarketingPage() {
                     onClick={() => { window.location.href = '/app'; }}
                     className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white w-full mt-2"
                   >
-                    Open IDMPro
+                    Open IdiamPro
                   </Button>
                 </SignedIn>
               </div>
@@ -882,7 +885,7 @@ export default function MarketingPage() {
                   — a single idea, a complex concept, or a whole narrative — refined over many passes, then published in whatever format you need.
                 </p>
 
-                {/* Output strip — provable formats IDMPro produces */}
+                {/* Output strip — provable formats IdiamPro produces */}
                 <div className="flex flex-wrap justify-center gap-2 mb-8 max-w-2xl mx-auto">
                   {['Research papers', 'Podcasts', 'Videos', 'Websites', 'Presentations', 'Illustrations', '21 languages', '…and more'].map((label) => (
                     <span
@@ -902,7 +905,7 @@ export default function MarketingPage() {
                       size="lg"
                       className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white px-8 py-6 text-base shadow-lg shadow-violet-500/30"
                     >
-                      Sign up to try IDMPro free
+                      Sign up to try IdiamPro free
                       <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>
                     <button
@@ -919,7 +922,7 @@ export default function MarketingPage() {
                       size="lg"
                       className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white px-8 py-6 text-base shadow-lg shadow-violet-500/30"
                     >
-                      Open IDMPro
+                      Open IdiamPro
                       <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>
                   </SignedIn>
@@ -936,8 +939,8 @@ export default function MarketingPage() {
         </div>
         </section>
 
-        {/* Our Story — the self-referential founder film. The founder uses IDMPro
-            to plan IDMPro's own launch: it proves the tool on the hardest founder
+        {/* Our Story — the self-referential founder film. The founder uses IdiamPro
+            to plan IdiamPro's own launch: it proves the tool on the hardest founder
             problem AND tells the audience who we are. Additive to the existing intro
             video below (Howard decides later whether this becomes the main hero). */}
         <section className="px-6 pb-16 lg:px-12">
@@ -945,7 +948,7 @@ export default function MarketingPage() {
             <div className="text-center mb-8">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/20 border border-violet-500/30 mb-6">
                 <Sparkles className="w-4 h-4 text-violet-400" />
-                <span className="text-sm font-medium text-violet-300">Our Story · Why IDMPro</span>
+                <span className="text-sm font-medium text-violet-300">Our Story · Why IdiamPro</span>
               </div>
               <h2 className="text-3xl md:text-5xl font-bold mb-5 leading-tight">
                 <span className="bg-gradient-to-r from-white via-white to-white/80 bg-clip-text text-transparent">
@@ -953,7 +956,7 @@ export default function MarketingPage() {
                 </span>
               </h2>
               <p className="text-base md:text-lg text-white/70 leading-relaxed max-w-3xl mx-auto">
-                A tool I&apos;d envisioned for decades — finally possible now. So I did the most honest test I could think of: I used IDMPro to plan its own launch. The plan you&apos;ll watch build itself is the real one.
+                A tool I&apos;d envisioned for decades — finally possible now. So I did the most honest test I could think of: I used IdiamPro to plan its own launch. The plan you&apos;ll watch build itself is the real one.
               </p>
             </div>
             <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-2xl shadow-violet-500/10 backdrop-blur-sm">
@@ -964,18 +967,18 @@ export default function MarketingPage() {
                 controls
                 playsInline
                 preload="metadata"
-                aria-label="Our Story — a founder uses IDMPro to plan IDMPro's own launch. Produced by IDMPro."
+                aria-label="Our Story — a founder uses IdiamPro to plan IdiamPro's own launch. Produced by IdiamPro."
               />
             </div>
             <p className="mt-3 flex items-center justify-center gap-1.5 text-sm text-white/50">
               <Video className="h-3.5 w-3.5 text-violet-400" />
-              Produced by IDMPro
+              Produced by IdiamPro
             </p>
           </div>
         </section>
 
-        {/* Intro video — itself generated by IDMPro's own Generate Video feature.
-            The "Produced by IDMPro" caption is the point: the demo IS proof the
+        {/* Intro video — itself generated by IdiamPro's own Generate Video feature.
+            The "Produced by IdiamPro" caption is the point: the demo IS proof the
             product made it (outline → narrated slideshow → MP4). */}
         <section className="px-6 pb-16 lg:px-12">
           <div className="mx-auto w-full max-w-4xl">
@@ -987,12 +990,12 @@ export default function MarketingPage() {
                 controls
                 playsInline
                 preload="metadata"
-                aria-label="IDMPro introduction video, produced by IDMPro"
+                aria-label="IdiamPro introduction video, produced by IdiamPro"
               />
             </div>
             <p className="mt-3 flex items-center justify-center gap-1.5 text-sm text-white/50">
               <Video className="h-3.5 w-3.5 text-violet-400" />
-              Produced by IDMPro
+              Produced by IdiamPro
             </p>
           </div>
         </section>
@@ -1088,7 +1091,7 @@ export default function MarketingPage() {
                 Built for people who think for a living.
               </h2>
               <p className="text-base md:text-lg text-white/70 leading-relaxed mb-5">
-                However you earn your living, you earn it by thinking — researching, structuring, connecting ideas, and turning them into something real. IDMPro is where that thinking takes shape: it pulls in your research, organizes it the way you reason, and helps you ship the result — a report, a strategy, a manuscript, a talk, a video.
+                However you earn your living, you earn it by thinking — researching, structuring, connecting ideas, and turning them into something real. IdiamPro is where that thinking takes shape: it pulls in your research, organizes it the way you reason, and helps you ship the result — a report, a strategy, a manuscript, a talk, a video.
               </p>
               <div className="flex flex-wrap gap-2">
                 <span className="px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/20 text-amber-200 text-xs">Researchers</span>
@@ -1113,10 +1116,10 @@ export default function MarketingPage() {
                 Most plans die the moment reality moves. Traditional project management builds a beautiful, rigid structure &mdash; the chart, the fixed timeline &mdash; and then life shifts, the plan shatters, and it ends up stale in a drawer. It assumes a world that holds still. <span className="text-white font-semibold">The world never holds still.</span>
               </p>
               <p className="text-base md:text-lg text-white/70 leading-relaxed mb-4">
-                IDMPro&rsquo;s plan is <span className="text-emerald-300 font-semibold">alive</span>. Because it&rsquo;s completely yours to shape, it bends and re-forms as your life unfolds &mdash; new information reshapes a branch, a closed door becomes a new route, an opening becomes your next move. It doesn&rsquo;t just plan your life; it keeps up with it.
+                IdiamPro&rsquo;s plan is <span className="text-emerald-300 font-semibold">alive</span>. Because it&rsquo;s completely yours to shape, it bends and re-forms as your life unfolds &mdash; new information reshapes a branch, a closed door becomes a new route, an opening becomes your next move. It doesn&rsquo;t just plan your life; it keeps up with it.
               </p>
               <p className="text-base md:text-lg text-white/70 leading-relaxed">
-                That&rsquo;s the difference between a plan and a <span className="text-emerald-300 font-semibold">living</span> plan: one is a snapshot of a moment already gone &mdash; the other grows with you. IDMPro is the living kind.
+                That&rsquo;s the difference between a plan and a <span className="text-emerald-300 font-semibold">living</span> plan: one is a snapshot of a moment already gone &mdash; the other grows with you. IdiamPro is the living kind.
               </p>
             </div>
           </div>
@@ -1130,7 +1133,7 @@ export default function MarketingPage() {
                 Written work and multimedia, from one outline.
               </h2>
               <p className="text-base md:text-lg text-white/70 leading-relaxed mb-4">
-                IDMPro is the idea developer for both written content and multimedia. Snap a whiteboard photo and watch it become a structured outline. Pick a branch and IDMPro produces a complete YouTube content package — script, chapters, description, SEO, B-roll prompts. Multimedia in, multimedia out.
+                IdiamPro is the idea developer for both written content and multimedia. Snap a whiteboard photo and watch it become a structured outline. Pick a branch and IdiamPro produces a complete YouTube content package — script, chapters, description, SEO, B-roll prompts. Multimedia in, multimedia out.
               </p>
               <div className="flex flex-wrap gap-2">
                 <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/70 text-xs">Books &amp; long-form</span>
@@ -1178,7 +1181,7 @@ export default function MarketingPage() {
                 </span>
               </h2>
               <p className="text-xl text-white/60 max-w-3xl mx-auto leading-relaxed">
-                IDMPro is a true intelligence amplifier—it doesn&apos;t just store information, it enhances
+                IdiamPro is a true intelligence amplifier—it doesn&apos;t just store information, it enhances
                 your cognitive capabilities. Build a knowledge repository that grows with you, surfaces hidden
                 connections, and accelerates your thinking.
               </p>
@@ -1195,7 +1198,7 @@ export default function MarketingPage() {
                   </div>
                   <h3 className="text-2xl font-bold text-white mb-4">Expanded Knowledge Scope</h3>
                   <p className="text-white/60 leading-relaxed mb-4">
-                    Your brain can only hold so much. IDMPro becomes your external memory—capturing every source,
+                    Your brain can only hold so much. IdiamPro becomes your external memory—capturing every source,
                     every insight, every connection you&apos;ve ever encountered. Access decades of accumulated
                     knowledge instantly.
                   </p>
@@ -1253,7 +1256,7 @@ export default function MarketingPage() {
               <Quote className="w-12 h-12 text-violet-400/50 mx-auto mb-6" />
               <blockquote className="text-2xl lg:text-3xl font-light text-white/90 italic max-w-4xl mx-auto leading-relaxed">
                 &ldquo;The difference between experts and novices isn&apos;t just what they know—it&apos;s how quickly
-                they can access and connect that knowledge. IDMPro gives everyone an expert&apos;s cognitive edge.&rdquo;
+                they can access and connect that knowledge. IdiamPro gives everyone an expert&apos;s cognitive edge.&rdquo;
               </blockquote>
               <div className="mt-6 text-white/40">
                 — The Cognitive Enhancement Philosophy
@@ -1436,7 +1439,7 @@ export default function MarketingPage() {
                 Real screenshots, real product.
               </h2>
               <p className="text-base md:text-lg text-white/60 leading-relaxed max-w-2xl mx-auto">
-                No mockups. This is IDMPro today — from the writing workspace to the finished outputs it produces.
+                No mockups. This is IdiamPro today — from the writing workspace to the finished outputs it produces.
               </p>
             </div>
 
@@ -1522,7 +1525,7 @@ export default function MarketingPage() {
         <section id="features" className="px-6 py-24 lg:px-12">
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-16">
-              <p className="text-violet-400 font-medium mb-2">Why Professionals Choose IDMPro</p>
+              <p className="text-violet-400 font-medium mb-2">Why Professionals Choose IdiamPro</p>
               <h2 className="text-3xl lg:text-5xl font-bold mb-4">
                 Built for{' '}
                 <span className="bg-gradient-to-r from-violet-400 to-indigo-400 bg-clip-text text-transparent">
@@ -1530,7 +1533,7 @@ export default function MarketingPage() {
                 </span>
               </h2>
               <p className="text-white/50 text-lg max-w-2xl mx-auto">
-                Consumer note-taking apps weren't designed for professional research. IDMPro was built from the ground up for serious knowledge synthesis.
+                Consumer note-taking apps weren't designed for professional research. IdiamPro was built from the ground up for serious knowledge synthesis.
               </p>
             </div>
 
@@ -1570,7 +1573,7 @@ export default function MarketingPage() {
               <div className="p-8 rounded-3xl bg-gradient-to-br from-violet-500/10 to-indigo-500/10 border border-violet-500/30">
                 <h3 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
                   <span className="w-6 h-6 rounded-full bg-violet-500 flex items-center justify-center text-xs">✓</span>
-                  What IDMPro does differently
+                  What IdiamPro does differently
                 </h3>
                 <ul className="space-y-4">
                   <li className="flex items-start gap-3 text-white/80">
@@ -1604,7 +1607,7 @@ export default function MarketingPage() {
                   <tr className="border-b border-white/10">
                     <th className="text-left py-4 px-4 text-white font-semibold">Feature</th>
                     <th className="text-center py-4 px-4">
-                      <span className="text-violet-400 font-bold">IDMPro</span>
+                      <span className="text-violet-400 font-bold">IdiamPro</span>
                     </th>
                     <th className="text-center py-4 px-4 text-white/50">Notion</th>
                     <th className="text-center py-4 px-4 text-white/50">Obsidian</th>
@@ -1767,7 +1770,7 @@ export default function MarketingPage() {
                   </span>
                 </h2>
                 <p className="text-white/60 text-lg mb-8">
-                  Unlike cloud-first apps that hold your data hostage, IDMPro is built local-first.
+                  Unlike cloud-first apps that hold your data hostage, IdiamPro is built local-first.
                   Your outlines live on your device. You're always in control.
                 </p>
 
@@ -1866,7 +1869,7 @@ export default function MarketingPage() {
                 </span>
               </h2>
               <p className="text-white/50 text-lg max-w-2xl mx-auto">
-                Pick the work you do and see exactly how IDMPro fits it — from PhD dissertations to investigative journalism.
+                Pick the work you do and see exactly how IdiamPro fits it — from PhD dissertations to investigative journalism.
               </p>
             </div>
 
@@ -1880,7 +1883,7 @@ export default function MarketingPage() {
                   <div className="text-3xl font-bold text-blue-400 mb-2">47 → 1</div>
                   <h4 className="text-white font-semibold mb-2">Literature Review Synthesis</h4>
                   <p className="text-white/50 text-sm mb-4">
-                    Imagine importing 47 research papers on computational biology — IDMPro synthesizes them into a coherent literature review organized by methodology, findings, and gaps.
+                    Imagine importing 47 research papers on computational biology — IdiamPro synthesizes them into a coherent literature review organized by methodology, findings, and gaps.
                   </p>
                   <div className="text-blue-400 text-xs font-medium">Example scenario • Computational Biology</div>
                 </div>
@@ -1889,7 +1892,7 @@ export default function MarketingPage() {
                   <div className="text-3xl font-bold text-amber-400 mb-2">12 hrs → 30 min</div>
                   <h4 className="text-white font-semibold mb-2">Field Interview Analysis</h4>
                   <p className="text-white/50 text-sm mb-4">
-                    Imagine an R&D team recording 12 hours of stakeholder interviews across 3 sites — IDMPro transcribes with speaker diarization and organizes insights by theme.
+                    Imagine an R&D team recording 12 hours of stakeholder interviews across 3 sites — IdiamPro transcribes with speaker diarization and organizes insights by theme.
                   </p>
                   <div className="text-amber-400 text-xs font-medium">Example scenario • Industrial R&D</div>
                 </div>
@@ -1898,7 +1901,7 @@ export default function MarketingPage() {
                   <div className="text-3xl font-bold text-emerald-400 mb-2">2,400 docs</div>
                   <h4 className="text-white font-semibold mb-2">Legal Discovery</h4>
                   <p className="text-white/50 text-sm mb-4">
-                    Imagine a litigation team processing 2,400 discovery documents including depositions, contracts, and communications — IDMPro organizes evidence by timeline and relevance.
+                    Imagine a litigation team processing 2,400 discovery documents including depositions, contracts, and communications — IdiamPro organizes evidence by timeline and relevance.
                   </p>
                   <div className="text-emerald-400 text-xs font-medium">Example scenario • Legal Discovery</div>
                 </div>
@@ -2188,7 +2191,7 @@ export default function MarketingPage() {
                 Compare what you get
               </h3>
               <p className="text-center text-white/50 text-sm mb-8">
-                Four ways to use IDMPro. Pick the one that fits how you work.
+                Four ways to use IdiamPro. Pick the one that fits how you work.
               </p>
               <div className="overflow-x-auto rounded-3xl border border-white/10 bg-white/5">
                 <table className="w-full min-w-[820px] text-sm text-white/80 border-collapse">
@@ -2341,7 +2344,7 @@ export default function MarketingPage() {
                     </div>
                     <h3 className="text-2xl font-bold text-white mb-2">Join Our Beta Program</h3>
                     <p className="text-white/60 max-w-xl">
-                      Be among the first to experience IDMPro. Beta testers get <span className="text-emerald-400 font-semibold">free lifetime access to Pro features</span>,
+                      Be among the first to experience IdiamPro. Beta testers get <span className="text-emerald-400 font-semibold">free lifetime access to Pro features</span>,
                       direct input into our roadmap, and priority support. Help us build the ultimate cognitive enhancement platform.
                     </p>
                     <div className="flex flex-wrap gap-3 mt-4">
@@ -2398,14 +2401,14 @@ export default function MarketingPage() {
               </span>
             </h2>
             <p className="text-white/50 text-lg mb-8 max-w-2xl mx-auto">
-              Join researchers, authors, and professionals who've upgraded their workflow with IDMPro.
+              Join researchers, authors, and professionals who've upgraded their workflow with IdiamPro.
             </p>
             <Button
               onClick={launchApp}
               size="lg"
               className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-lg px-10 py-6 shadow-xl shadow-violet-500/25 hover:shadow-violet-500/40 transition-all duration-300"
             >
-              Sign up to try IDMPro
+              Sign up to try IdiamPro
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
             <p className="text-white/30 text-sm mt-4">
@@ -2451,7 +2454,7 @@ export default function MarketingPage() {
                   <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center">
                     <Brain className="w-4 h-4 text-white" />
                   </div>
-                  <span className="font-bold text-white">IDMPro</span>
+                  <span className="font-bold text-white">IdiamPro</span>
                 </div>
                 <p className="text-white/40 text-sm mb-2">
                   Your Intelligence Amplifier.

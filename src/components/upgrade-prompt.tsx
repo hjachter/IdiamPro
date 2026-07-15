@@ -186,7 +186,7 @@ export function UpgradePromptProvider({
                   <Button
                     variant="outline"
                     className="border-emerald-500/40 text-emerald-700 hover:bg-emerald-500/10 dark:text-emerald-300"
-                    aria-label="Get unlimited AI free — plug in your own Gemini or OpenAI key. You pay your provider directly; IDMPro takes nothing."
+                    aria-label="Get unlimited AI free — plug in your own Gemini or OpenAI key. You pay your provider directly; IdiamPro takes nothing."
                     onClick={() => {
                       if (typeof window !== 'undefined') {
                         window.dispatchEvent(
@@ -202,7 +202,7 @@ export function UpgradePromptProvider({
                 </TooltipTrigger>
                 <TooltipContent className="max-w-xs">
                   Get unlimited AI free — plug in your own Gemini or OpenAI key.
-                  You pay your provider directly; IDMPro takes nothing.
+                  You pay your provider directly; IdiamPro takes nothing.
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>

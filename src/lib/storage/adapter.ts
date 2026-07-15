@@ -2,7 +2,7 @@
  * Storage adapter — thin key/value layer that picks its backend at runtime.
  *
  * Why this exists:
- *   IDMPro's server-side JSON stores (applicants, feedback, beta-pro grants,
+ *   IdiamPro's server-side JSON stores (applicants, feedback, beta-pro grants,
  *   unsubscribe tokens) were originally written to `.idiampro/*.json` under
  *   `process.cwd()`. That works in Electron (writable repo root) but FAILS on
  *   Vercel serverless — `process.cwd()` resolves to `/var/task` which is

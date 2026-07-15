@@ -49,7 +49,9 @@
       "Bash(chmod +x ~/.claude/resource-watch.sh)",
       "Bash(rm -f /Users/howardjachter/Developer/IdiamPro/.claude/settings.json /Users/howardjachter/Developer/IdiamPro/scripts/resource-watch.sh)",
       "Read(//Users/howardjachter/.claude/**)",
-      "Bash(git -C /Users/howardjachter/Developer/IdiamPro status --short .claude/ scripts/)"
+      "Bash(git -C /Users/howardjachter/Developer/IdiamPro status --short .claude/ scripts/)",
+      "mcp__claude_ai_Gmail__search_threads",
+      "Artifact"
     ]
   },
   "mcpServers": {

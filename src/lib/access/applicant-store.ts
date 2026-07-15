@@ -1,7 +1,7 @@
 /**
  * Applicant store — durable record of every beta applicant.
  *
- * IDMPro's beta is invite-only: prospective users submit an application
+ * IdiamPro's beta is invite-only: prospective users submit an application
  * at /signup, Howard reviews each one in the /admin/applicants dashboard,
  * and the act of clicking "Approve" both adds the email to the allowlist
  * AND triggers a welcome email. This module is the durable storage layer.
@@ -36,7 +36,7 @@ export interface ApplicantRecord {
   /** ISO 8601 string. */
   signupDate: string;
   status: ApplicantStatus;
-  /** Optional: what brings you to IDMPro? Free-form text. */
+  /** Optional: what brings you to IdiamPro? Free-form text. */
   reason?: string;
   /** Best-effort: caller's IP (from x-forwarded-for / x-real-ip). */
   ip?: string;

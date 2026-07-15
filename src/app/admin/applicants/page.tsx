@@ -272,7 +272,7 @@ export default function AdminApplicantsPage() {
                 Beta applicants
               </h1>
               <p className="text-muted-foreground mt-1">
-                Approve the people who get into the IDMPro beta. Every
+                Approve the people who get into the IdiamPro beta. Every
                 application lands here.
               </p>
             </div>
@@ -501,7 +501,7 @@ export default function AdminApplicantsPage() {
                             variant="outline"
                             onClick={() => {
                               const subject = encodeURIComponent(
-                                'Checking in from IDMPro',
+                                'Checking in from IdiamPro',
                               );
                               window.location.href = `mailto:${a.email}?subject=${subject}`;
                             }}

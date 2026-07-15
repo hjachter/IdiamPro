@@ -6,7 +6,7 @@
  *
  *   1. If Clerk auth is disabled (no NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY),
  *      render children unchanged. Same stub-safe behavior as the rest
- *      of IDMPro: with no auth keys, every visitor is dev / local.
+ *      of IdiamPro: with no auth keys, every visitor is dev / local.
  *
  *   2. If the user is signed in, hit /api/applicants/me?email=... once
  *      to find out whether they're on the allowlist. If yes, render

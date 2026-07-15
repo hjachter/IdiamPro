@@ -72,7 +72,7 @@ export default function AdminInvitesPage() {
             </ol>
             <p>
               Leaving the variable blank disables the gate entirely (everyone
-              allowed). This matches the rest of IDMPro&apos;s stub-safe env
+              allowed). This matches the rest of IdiamPro&apos;s stub-safe env
               pattern.
             </p>
           </CardContent>

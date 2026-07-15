@@ -114,7 +114,7 @@ ${this.getStyles()}
       </div>
       <nav id="tree-container" class="tree-container"></nav>
       <div class="sidebar-footer">
-        <span>Exported from <strong>IDMPro</strong></span>
+        <span>Exported from <strong>IdiamPro</strong></span>
       </div>
     </aside>
 

@@ -327,7 +327,7 @@ function FeedbackPageInner() {
           <CardContent className="space-y-6">
             <div>
               <label className="text-sm font-medium block mb-2">
-                How likely are you to recommend IDMPro to a friend or colleague?
+                How likely are you to recommend IdiamPro to a friend or colleague?
               </label>
               <input
                 type="range"
@@ -423,7 +423,7 @@ function FeedbackPageInner() {
           <CardContent className="space-y-4">
             <div>
               <label className="text-sm font-medium block mb-1" htmlFor="fb-best">
-                What's the single best thing about IDMPro for you?
+                What's the single best thing about IdiamPro for you?
               </label>
               <textarea
                 id="fb-best"
@@ -446,7 +446,7 @@ function FeedbackPageInner() {
                 value={form.biggestWish}
                 onChange={(e) => setForm((s) => ({ ...s, biggestWish: e.target.value }))}
                 className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400/40"
-                placeholder="Where IDMPro got in your way, or didn't show up."
+                placeholder="Where IdiamPro got in your way, or didn't show up."
               />
             </div>
           </CardContent>
@@ -461,7 +461,7 @@ function FeedbackPageInner() {
           <CardContent className="space-y-4">
             <div>
               <label className="text-sm font-medium block mb-1" htmlFor="fb-before">
-                What were you using for outlining or note-taking before IDMPro?
+                What were you using for outlining or note-taking before IdiamPro?
               </label>
               <input
                 id="fb-before"
@@ -489,7 +489,7 @@ function FeedbackPageInner() {
             </div>
             <div>
               <label className="text-sm font-medium block mb-1" htmlFor="fb-usage">
-                How often have you opened IDMPro this week?
+                How often have you opened IdiamPro this week?
               </label>
               <select
                 id="fb-usage"
@@ -523,7 +523,7 @@ function FeedbackPageInner() {
           <CardContent className="space-y-4">
             <div>
               <label className="text-sm font-medium block mb-2">
-                Can we quote you on the IDMPro website?
+                Can we quote you on the IdiamPro website?
               </label>
               <div className="flex gap-3">
                 <Button

@@ -18,7 +18,7 @@
  *
  * Free "taste" tier (2026-07): non-Pro users get FREE_VIDEO_LIMIT (10)
  * LIFETIME free renders. Those free videos render normally but carry a
- * subtle "Made with IDMPro" watermark. After the allowance is spent, the
+ * subtle "Made with IdiamPro" watermark. After the allowance is spent, the
  * render is blocked and the shared upgrade prompt is shown. Pro users are
  * unlimited AND unmarked (their videos stay fully white-labeled). The
  * lifetime counter lives in src/lib/video/video-free-quota.ts.
@@ -450,7 +450,7 @@ export default function GenerateVideoDialog({
               <div>
                 <p className="font-medium">Available in the desktop app</p>
                 <p className="text-muted-foreground mt-1">
-                  Video rendering runs on your Mac using the IDMPro desktop app. Open this
+                  Video rendering runs on your Mac using the IdiamPro desktop app. Open this
                   outline there to generate the video.
                 </p>
               </div>
@@ -484,7 +484,7 @@ export default function GenerateVideoDialog({
                   <p>
                     <span className="font-medium">Free preview — {freeUsed} of {FREE_VIDEO_LIMIT} videos used.</span>{' '}
                     <span className="text-muted-foreground">
-                      Free videos carry a small &ldquo;Made with IDMPro&rdquo; mark. Upgrade to Pro for unlimited, unmarked videos.
+                      Free videos carry a small &ldquo;Made with IdiamPro&rdquo; mark. Upgrade to Pro for unlimited, unmarked videos.
                     </span>
                   </p>
                 ) : (
@@ -757,7 +757,7 @@ export default function GenerateVideoDialog({
             <CheckCircle2 className="h-10 w-10 text-emerald-500" />
             <p className="text-sm font-medium">Your video is ready</p>
             <p className="text-xs text-muted-foreground">
-              Saved to your Documents · IDMPro Videos folder
+              Saved to your Documents · IdiamPro Videos folder
               {resultInfo?.durationSeconds ? ` · ${formatDuration(resultInfo.durationSeconds)} long` : ''}
               {resultInfo && resultInfo.usedTts === false ? ' · silent (no voiceover available)' : ''}
             </p>

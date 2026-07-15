@@ -44,7 +44,7 @@ export class ErrorBoundary extends Component<Props, State> {
             <AlertCircle className="mx-auto h-12 w-12 text-destructive" />
             <h1 className="text-2xl font-bold">Something went wrong</h1>
             <p className="text-muted-foreground">
-              IDMPro hit an unexpected error. Your outlines are saved locally and aren&apos;t affected. Try again, or reload the page to recover.
+              IdiamPro hit an unexpected error. Your outlines are saved locally and aren&apos;t affected. Try again, or reload the page to recover.
             </p>
             <div className="flex gap-2 justify-center">
               <Button onClick={this.handleReset}>Try again</Button>

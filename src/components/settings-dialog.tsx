@@ -731,7 +731,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
         <DialogHeader>
           <DialogTitle>Settings</DialogTitle>
           <DialogDescription>
-            Configure IDMPro application settings
+            Configure IdiamPro application settings
           </DialogDescription>
         </DialogHeader>
 
@@ -951,7 +951,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
                 <strong className="text-foreground">On-device AI (Local / Gemma):</strong> fully private — your notes never leave your device.
               </li>
               <li>
-                <strong className="text-foreground">Your own key (BYOK):</strong> your content goes to your chosen provider under your own account. IDMPro never sees it.
+                <strong className="text-foreground">Your own key (BYOK):</strong> your content goes to your chosen provider under your own account. IdiamPro never sees it.
               </li>
               <li>
                 <strong className="text-foreground">Our cloud AI (Gemini, OpenAI, AssemblyAI for audio):</strong> your content is sent to the provider only to handle your request — never stored, and on paid tiers never used for training.
@@ -977,7 +977,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
               Export or Delete Your Data
             </h3>
             <p className="text-xs text-muted-foreground">
-              IDMPro stores all your data locally on this device. Use these
+              IdiamPro stores all your data locally on this device. Use these
               tools to export everything we hold or to delete it permanently.
             </p>
 
@@ -1211,7 +1211,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
                 </Label>
                 <p className="mt-0.5 text-xs text-muted-foreground">
                   Preview the free experience everywhere: the video free counter,
-                  the &ldquo;Made with IDMPro&rdquo; watermark, and Pro upgrade prompts.
+                  the &ldquo;Made with IdiamPro&rdquo; watermark, and Pro upgrade prompts.
                 </p>
               </div>
               <Switch
@@ -1231,7 +1231,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
           {/* About Section */}
           <div className="space-y-4">
             <div className="space-y-1">
-              <h3 className="text-base font-semibold">IDMPro</h3>
+              <h3 className="text-base font-semibold">IdiamPro</h3>
               <p className="text-xs text-muted-foreground">Version {APP_VERSION}</p>
             </div>
             <p className="text-xs text-muted-foreground">
@@ -1374,7 +1374,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
             </h3>
             <p className="text-xs text-muted-foreground">
               Add your own key for unlimited AI, free forever — you pay your
-              provider directly, IDMPro takes nothing.
+              provider directly, IdiamPro takes nothing.
             </p>
 
             {/* Quick start recommendation */}
@@ -1384,7 +1384,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
                   Quick Start — Set up in 2 minutes
                 </p>
                 <p className="text-xs text-muted-foreground mb-2">
-                  Google Gemini is free and powers most IDMPro AI features. No credit card required.
+                  Google Gemini is free and powers most IdiamPro AI features. No credit card required.
                 </p>
                 <Button
                   variant="outline"
@@ -1649,12 +1649,12 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-destructive" />
-              Delete all your IDMPro data?
+              Delete all your IdiamPro data?
             </AlertDialogTitle>
             <AlertDialogDescription asChild>
               <div className="space-y-2 text-sm">
                 <p>
-                  This will permanently remove everything IDMPro stores on
+                  This will permanently remove everything IdiamPro stores on
                   this device:
                 </p>
                 <ul className="list-disc list-inside text-xs space-y-1">
@@ -1695,7 +1695,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
             <AlertDialogDescription asChild>
               <div className="space-y-3 text-sm">
                 <p>
-                  This will permanently erase all your IDMPro data on this
+                  This will permanently erase all your IdiamPro data on this
                   device. Type <strong>DELETE</strong> in the box below to
                   confirm.
                 </p>

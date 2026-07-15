@@ -6,7 +6,7 @@
  *
  *   1. Application form. Most new users are NOT yet on the invite
  *      allowlist. The form collects name, email, and an optional "What
- *      brings you to IDMPro?" textarea. Submitting POSTs to
+ *      brings you to IdiamPro?" textarea. Submitting POSTs to
  *      /api/applicants/apply, which persists the applicant record and
  *      emails Howard. The user lands on a "Thanks — Howard reviews every
  *      beta application personally" confirmation screen.
@@ -69,7 +69,7 @@ function StubNotice() {
         Sign-up is being set up. Check back soon.
       </p>
       <p className="mt-3 text-sm text-white/50">
-        In the meantime you can keep exploring IDMPro from the homepage.
+        In the meantime you can keep exploring IdiamPro from the homepage.
       </p>
     </div>
   );
@@ -250,7 +250,7 @@ function ApplicationGate({
         </label>
         <label className="block">
           <span className="text-sm text-white/70">
-            What brings you to IDMPro?{' '}
+            What brings you to IdiamPro?{' '}
             <span className="text-white/40">(optional)</span>
           </span>
           <textarea
@@ -262,7 +262,7 @@ function ApplicationGate({
             rows={3}
             placeholder="A sentence or two about what you'd use it for — helps us prioritize."
             className="mt-1 w-full rounded-lg border border-white/15 bg-gray-900/60 px-3 py-2 text-base text-white placeholder-white/30 focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-500/40 resize-none"
-            aria-label="What brings you to IDMPro"
+            aria-label="What brings you to IdiamPro"
           />
         </label>
         <button
@@ -281,7 +281,7 @@ function ApplicationGate({
           </div>
         )}
         <p className="text-xs text-white/50">
-          IDMPro is in invite-only beta. Howard reviews every application
+          IdiamPro is in invite-only beta. Howard reviews every application
           personally — usually within a day or two.
         </p>
       </form>
@@ -299,11 +299,11 @@ export default function SignUpPage() {
             <Layers className="h-6 w-6 text-white" />
           </div>
           <span className="bg-gradient-to-r from-white to-white/70 bg-clip-text text-2xl font-bold text-transparent">
-            IDMPro
+            IdiamPro
           </span>
         </div>
         <h1 className="mb-2 text-2xl font-semibold text-white">
-          Apply for the IDMPro beta
+          Apply for the IdiamPro beta
         </h1>
         <p className="mb-8 text-sm text-white/60 text-center">
           No credit card. Howard reviews every application personally.

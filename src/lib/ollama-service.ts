@@ -134,7 +134,7 @@ function getAvailableMemoryGB(): number {
  * IMPORTANT — RAM headroom rule (fixed 2026-05-22 after the Howard / 16-GB-Mac
  * incident): each bracket requires the user's machine to have AT LEAST ~2× the
  * preferred model's RAM footprint. Picking a 16-GB model on a 16-GB machine
- * leaves zero room for the OS / browser / IDMPro itself, which on Apple
+ * leaves zero room for the OS / browser / IdiamPro itself, which on Apple
  * Silicon triggers macOS's memory-pressure killer to SIGKILL Ollama, sending
  * it into a respawn loop that bogs the whole system. Never advance a tier
  * unless the headroom is real.

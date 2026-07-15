@@ -101,7 +101,7 @@ export function renderFeedbackNotification(
   sections.push(`<h2 style="font-size:18px;margin:24px 0 8px;">Feature ratings</h2>${featureTable}`);
 
   if (f.bestThing) {
-    sections.push(`<h2 style="font-size:18px;margin:24px 0 8px;">Best thing about IDMPro</h2><blockquote style="margin:0 0 16px;padding:8px 12px;border-left:3px solid #007AFF;color:#374151;">${escapeHtml(f.bestThing)}</blockquote>`);
+    sections.push(`<h2 style="font-size:18px;margin:24px 0 8px;">Best thing about IdiamPro</h2><blockquote style="margin:0 0 16px;padding:8px 12px;border-left:3px solid #007AFF;color:#374151;">${escapeHtml(f.bestThing)}</blockquote>`);
   }
   if (f.biggestWish) {
     sections.push(`<h2 style="font-size:18px;margin:24px 0 8px;">Biggest wish for change</h2><blockquote style="margin:0 0 16px;padding:8px 12px;border-left:3px solid #F59E0B;color:#374151;">${escapeHtml(f.biggestWish)}</blockquote>`);
@@ -156,7 +156,7 @@ export function renderFeedbackNotification(
   if (f.bestThing) txt.push('', 'BEST THING', f.bestThing);
   if (f.biggestWish) txt.push('', 'BIGGEST WISH', f.biggestWish);
   if (f.frictionNotes) txt.push('', 'FRICTION / BROKEN', f.frictionNotes);
-  if (f.toolsBeforeIdiampro) txt.push('', `Tools before IDMPro: ${f.toolsBeforeIdiampro}`);
+  if (f.toolsBeforeIdiampro) txt.push('', `Tools before IdiamPro: ${f.toolsBeforeIdiampro}`);
   if (f.workType) txt.push(`Work type: ${f.workType}`);
   if (f.testimonialConsent) {
     txt.push('', 'TESTIMONIAL CONSENT: yes');

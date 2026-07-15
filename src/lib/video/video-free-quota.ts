@@ -2,7 +2,7 @@
  * Free-tier "taste" quota for Generate Video.
  *
  * Non-Pro users get a LIFETIME allowance of FREE_VIDEO_LIMIT video renders.
- * During those renders the video carries a subtle "Made with IDMPro"
+ * During those renders the video carries a subtle "Made with IdiamPro"
  * watermark. After the allowance is spent, the render is blocked and the
  * shared upgrade prompt is shown. Pro users are unlimited and unmarked and
  * never touch this counter.

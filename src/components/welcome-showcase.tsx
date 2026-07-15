@@ -172,7 +172,7 @@ export function WelcomeShowcase() {
             What you can make here
           </DialogTitle>
           <DialogDescription className="text-base leading-relaxed">
-            Your outlines are the starting point. Here&rsquo;s what IDMPro
+            Your outlines are the starting point. Here&rsquo;s what IdiamPro
             can turn them into — and where to bring content in.
           </DialogDescription>
         </DialogHeader>
