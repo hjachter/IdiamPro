@@ -4,10 +4,12 @@ import React from 'react';
 import Link from 'next/link';
 import { Video, ArrowLeft, Sparkles } from 'lucide-react';
 
-// Workflow library — first page. A single flagship workflow video ("Write an
-// entire book in minutes"), produced by IdiamPro itself, matched to the homepage
-// intro-video style (dark, blue/violet accent, app-window framed screenshot).
-// Additive page: does not touch the homepage or any existing route.
+// Workflow library — first page. A single flagship workflow film ("How Sam took
+// on the impossible"): an 11-year-old chases cold fusion for his science-fair
+// scholarship, and a single idea grows into a deep, structured project he fully
+// controls, then becomes everything he needs to win. Produced by IdiamPro itself,
+// matched to the homepage intro-video style (dark, blue/violet accent, app-window
+// framed screenshots). Additive page: does not touch the homepage or any route.
 export default function WorkflowsPage() {
   return (
     <main className="min-h-screen bg-[#0a0f1c] text-white">
@@ -33,13 +35,15 @@ export default function WorkflowsPage() {
         {/* heading */}
         <div className="mt-14 text-center">
           <h1 className="bg-gradient-to-b from-white to-white/70 bg-clip-text text-4xl font-extrabold tracking-tight text-transparent sm:text-5xl">
-            Write an entire book — and make it your own
+            How Sam took on the impossible — and won
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-base text-white/60 sm:text-lg">
-            Watch one idea become a complete, deeply structured book you fully control — a rich
-            content canvas with diagrams, an outline you can reshape with a single plain-English
-            instruction, and finished work you can export more than 30 ways. Your creative work,
-            amplified — never automated.
+            An 11-year-old sets out to understand one of science&rsquo;s boldest mysteries —
+            cold fusion — with a science-fair scholarship on the line. Watch a single idea grow
+            into a deep, structured project he fully controls, reshape the whole thing with one
+            plain-English instruction, and turn it into everything he needs to win: a report, a
+            poster and talk, a website, even a video. Your creative work, amplified — and always
+            your own.
           </p>
         </div>
 
@@ -53,7 +57,7 @@ export default function WorkflowsPage() {
               controls
               playsInline
               preload="metadata"
-              aria-label="Write an entire book — and make it your own — a workflow produced by IdiamPro"
+              aria-label="How Sam took on the impossible — an 11-year-old chases cold fusion for the science fair, a workflow film produced by IdiamPro"
             />
           </div>
           <p className="mt-3 flex items-center justify-center gap-1.5 text-sm text-white/50">
