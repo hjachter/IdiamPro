@@ -9,6 +9,18 @@ export function PWAInstaller() {
 
   useEffect(() => {
     if ('serviceWorker' in navigator) {
+      // In development a service worker only causes trouble — stale caches and
+      // "Failed to update a ServiceWorker" errors when the dev server restarts
+      // and /sw.js is briefly unavailable. Skip registering it in dev, and clean
+      // up any worker left registered from a previous production-like session.
+      if (process.env.NODE_ENV !== 'production') {
+        navigator.serviceWorker
+          .getRegistrations()
+          .then((regs) => regs.forEach((r) => r.unregister()))
+          .catch(() => {});
+        return;
+      }
+
       window.addEventListener('load', () => {
         navigator.serviceWorker
           .register('/sw.js')
