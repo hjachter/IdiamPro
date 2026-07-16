@@ -162,7 +162,7 @@ export default function PricingPage() {
         <MarketingHeader />
         <main className="pt-28 lg:pt-32">
           <div className="px-6 lg:px-12 max-w-7xl mx-auto">
-            <Link href="/" className="inline-flex items-center gap-1.5 text-sm text-teal-600 hover:text-teal-700 transition-colors">
+            <Link href="/" className="inline-flex items-center gap-1.5 rounded-full border border-teal-600/30 px-4 py-1.5 text-sm text-teal-600 hover:bg-teal-600/10 hover:border-teal-600/50 transition-colors">
               <ArrowLeft className="w-4 h-4" /> Back to home
             </Link>
           </div>

@@ -15,6 +15,7 @@ import {
   ChevronRight,
   ChevronDown,
   ArrowRight,
+  LogIn,
   Check,
   Star,
   BookOpen,
@@ -325,8 +326,9 @@ export default function MarketingPage() {
                     <button
                       type="button"
                       onClick={() => { window.location.href = '/signin'; }}
-                      className="text-sm text-[#22312f] hover:text-[#0c2224] underline-offset-4 hover:underline"
+                      className="inline-flex items-center gap-2 rounded-full border border-teal-600/40 bg-white px-5 py-3 text-sm font-semibold text-[#0c5c5b] hover:bg-teal-600/10 hover:border-teal-600/60 transition-colors shadow-sm"
                     >
+                      <LogIn className="w-4 h-4" />
                       I already have an account
                     </button>
                   </SignedOut>

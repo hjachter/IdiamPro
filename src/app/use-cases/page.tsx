@@ -97,6 +97,17 @@ function WhoItsFor({ useCases }: { useCases: UseCase[] }) {
   const [active, setActive] = useState(0);
   const current = useCases[active];
   const Icon = current.icon;
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  // Selecting a persona swaps the detail card below. Because that card sits
+  // lower on the page, a click can feel like "nothing happened" — so we gently
+  // scroll the card into view, giving the user immediate, visible feedback.
+  const selectPersona = (i: number) => {
+    setActive(i);
+    requestAnimationFrame(() => {
+      panelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+  };
 
   return (
     <div>
@@ -111,7 +122,7 @@ function WhoItsFor({ useCases }: { useCases: UseCase[] }) {
               role="tab"
               type="button"
               aria-selected={selected}
-              onClick={() => setActive(i)}
+              onClick={() => selectPersona(i)}
               className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-all duration-200
                 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-600/60
                 ${selected
@@ -125,9 +136,16 @@ function WhoItsFor({ useCases }: { useCases: UseCase[] }) {
         })}
       </div>
 
-      {/* Selected persona panel */}
-      <div className="rounded-3xl border border-[#d3e6e4] bg-[#f4faf9] p-8 md:p-10">
-        <div className="flex flex-col md:flex-row md:items-start gap-6 md:gap-8">
+      {/* Selected persona panel. `key={active}` remounts on every switch so the
+          card visibly fades/slides in — reinforcing that the pill click worked. */}
+      <div
+        ref={panelRef}
+        className="rounded-3xl border border-[#d3e6e4] bg-[#f4faf9] p-8 md:p-10 scroll-mt-28 ring-1 ring-transparent transition-shadow"
+      >
+        <div
+          key={active}
+          className="flex flex-col md:flex-row md:items-start gap-6 md:gap-8 animate-in fade-in slide-in-from-bottom-2 duration-300"
+        >
           <div className="md:w-2/5">
             <div className={`w-14 h-14 rounded-2xl ${current.gradient} flex items-center justify-center mb-4 shadow-lg`}>
               <Icon className="w-7 h-7 text-white" />
@@ -262,7 +280,7 @@ export default function UseCasesPage() {
         <MarketingHeader />
         <main className="pt-28 lg:pt-32">
           <div className="px-6 lg:px-12 max-w-7xl mx-auto">
-            <Link href="/" className="inline-flex items-center gap-1.5 text-sm text-teal-600 hover:text-teal-700 transition-colors">
+            <Link href="/" className="inline-flex items-center gap-1.5 rounded-full border border-teal-600/30 px-4 py-1.5 text-sm text-teal-600 hover:bg-teal-600/10 hover:border-teal-600/50 transition-colors">
               <ArrowLeft className="w-4 h-4" /> Back to home
             </Link>
           </div>
