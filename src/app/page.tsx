@@ -603,14 +603,26 @@ export default function MarketingPage() {
             <p className="text-[#6b7d7e] text-lg mb-8 max-w-2xl mx-auto">
               Join researchers, authors, and professionals who've upgraded their workflow with IdiamPro.
             </p>
-            <Button
-              onClick={launchApp}
-              size="lg"
-              className="bg-gradient-to-r from-[#0E7C7B] to-[#0E7C7B] hover:from-[#0c5c5b] hover:to-[#0c5c5b] text-white font-semibold text-lg px-10 py-6 shadow-xl shadow-teal-600/25 hover:shadow-teal-600/40 transition-all duration-300"
-            >
-              Sign up to try IdiamPro
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
+            <SignedOut>
+              <Button
+                onClick={() => { window.location.href = '/signup'; }}
+                size="lg"
+                className="bg-gradient-to-r from-[#0E7C7B] to-[#0E7C7B] hover:from-[#0c5c5b] hover:to-[#0c5c5b] text-white font-semibold text-lg px-10 py-6 shadow-xl shadow-teal-600/25 hover:shadow-teal-600/40 transition-all duration-300"
+              >
+                Sign up to try IdiamPro
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
+            </SignedOut>
+            <SignedIn>
+              <Button
+                onClick={launchApp}
+                size="lg"
+                className="bg-gradient-to-r from-[#0E7C7B] to-[#0E7C7B] hover:from-[#0c5c5b] hover:to-[#0c5c5b] text-white font-semibold text-lg px-10 py-6 shadow-xl shadow-teal-600/25 hover:shadow-teal-600/40 transition-all duration-300"
+              >
+                Open IdiamPro
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
+            </SignedIn>
             <p className="text-[#8b9a9b] text-sm mt-4">
               No credit card required. Free tier forever.
             </p>
