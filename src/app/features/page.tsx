@@ -1183,9 +1183,24 @@ export default function FeaturesPage() {
 
         <section className="px-6 py-20 lg:px-12">
           <div className="max-w-4xl mx-auto text-center">
-            <Link href="/" className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#0E7C7B] to-[#0E7C7B] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-teal-600/25 hover:from-[#0c5c5b] hover:to-[#0c5c5b] transition-colors">
-              <ArrowLeft className="w-4 h-4" /> Back to home
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+              Ready to think bigger?
+            </h2>
+            <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+              Start turning your ideas into structured, living outlines today. It's free to begin — no credit card required.
+            </p>
+            <Link
+              href="/signup"
+              className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#0E7C7B] to-[#0c5c5b] px-8 py-4 text-base font-semibold text-white shadow-lg shadow-teal-600/30 hover:shadow-xl hover:shadow-teal-600/40 hover:-translate-y-0.5 transition-all"
+            >
+              <Rocket className="w-5 h-5" /> Sign up free
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Link>
+            <div className="mt-10">
+              <Link href="/" className="inline-flex items-center gap-2 text-sm font-medium text-teal-700 hover:text-teal-900 transition-colors">
+                <ArrowLeft className="w-4 h-4" /> Back to home
+              </Link>
+            </div>
           </div>
         </section>
         </main>

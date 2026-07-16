@@ -120,7 +120,7 @@ export async function callOpenRouter(
       Authorization: `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
       // Optional attribution headers OpenRouter recommends; harmless if ignored.
-      'HTTP-Referer': 'https://idiampro.com',
+      'HTTP-Referer': 'https://2ndbrainware.com',
       'X-Title': 'IdiamPro',
     },
     body: JSON.stringify({

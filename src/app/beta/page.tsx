@@ -104,7 +104,7 @@ How did you hear about us: ${formData.referral}
 I would like to join the IdiamPro beta program.
     `);
 
-    window.location.href = `mailto:beta@idiampro.com?subject=${subject}&body=${body}`;
+    window.location.href = `mailto:beta@2ndbrainware.com?subject=${subject}&body=${body}`;
 
     setTimeout(() => {
       setIsSubmitted(true);
@@ -390,7 +390,7 @@ I would like to join the IdiamPro beta program.
           <div className="flex items-center gap-6">
             <a href="/" className="text-white/30 hover:text-white text-sm transition-colors">Home</a>
             <a href="/signup" className="text-white/30 hover:text-white text-sm transition-colors">Apply for Beta</a>
-            <a href="mailto:beta@idiampro.com" className="text-white/30 hover:text-white text-sm transition-colors">Contact</a>
+            <a href="mailto:beta@2ndbrainware.com" className="text-white/30 hover:text-white text-sm transition-colors">Contact</a>
           </div>
         </div>
       </footer>

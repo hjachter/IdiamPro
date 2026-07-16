@@ -112,7 +112,7 @@ ${this.renderContentTree(sections, 0, options)}
                 <span>${sections.length} chapters · ${totalTopics}+ topics</span>
               </div>
             </div>
-            <p class="footer-credit">Generated with <a href="https://idiampro.com">IdiamPro</a></p>
+            <p class="footer-credit">Generated with <a href="https://2ndbrainware.com">IdiamPro</a></p>
           </footer>
         </article>
 

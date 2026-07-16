@@ -183,7 +183,7 @@ ${speakerSection.map((section, i) => this.renderSpeakerCard(section, i, options)
           <a href="#schedule">Schedule</a>
           <a href="#register">Register</a>
         </div>
-        <p class="footer-credit">© ${new Date().getFullYear()} ${this.escapeHtml(options.title)}. Generated with <a href="https://idiampro.com">IdiamPro</a>.</p>
+        <p class="footer-credit">© ${new Date().getFullYear()} ${this.escapeHtml(options.title)}. Generated with <a href="https://2ndbrainware.com">IdiamPro</a>.</p>
       </div>
     </div>
   </footer>`;
