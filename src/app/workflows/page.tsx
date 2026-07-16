@@ -149,7 +149,7 @@ export default function WorkflowsPage() {
         <MarketingHeader />
         <main className="pt-28 lg:pt-32">
           {/* Back link */}
-          <div className="mx-auto w-full max-w-6xl px-6 lg:px-12">
+          <div className="mx-auto w-full max-w-[1600px] px-6 lg:px-12">
             <Link
               href="/"
               className="inline-flex items-center gap-1.5 text-sm text-teal-600 transition-colors hover:text-teal-700"
@@ -172,45 +172,33 @@ export default function WorkflowsPage() {
             </p>
           </section>
 
-          {/* Gallery */}
+          {/* Gallery — each profile is a compact character band (header + ache +
+              remedy) sitting ABOVE its film, which then spans the full section
+              width (up to ~1600px) so it reads large and reaches the margins,
+              matching the homepage. */}
           <section className="px-6 pb-8 lg:px-12">
-            <div className="mx-auto flex max-w-6xl flex-col gap-16 md:gap-24">
-              {PROFILES.map((p, i) => {
-                const filmFirst = i % 2 === 1; // alternate sides on desktop
-                return (
-                  <article
-                    key={p.index}
-                    className="grid items-center gap-8 md:grid-cols-2 md:gap-12"
-                  >
-                    {/* Film */}
-                    <div className={filmFirst ? 'md:order-1' : 'md:order-2'}>
-                      <ProfileFilm
-                        videoSrc={p.videoSrc}
-                        posterSrc={p.posterSrc}
-                        ariaLabel={p.ariaLabel}
-                        pending={p.pending}
-                      />
-                      <p className="mt-3 flex items-center justify-center gap-1.5 text-sm text-[#6b7d7e]">
-                        <Video className="h-3.5 w-3.5 text-teal-600" />
-                        Produced by IdiamPro
-                      </p>
+            <div className="mx-auto flex max-w-[1600px] flex-col gap-20 md:gap-28">
+              {PROFILES.map((p) => (
+                <article key={p.index}>
+                  {/* Character band — the header + ache + remedy, kept to a
+                      readable line length above the wide film. */}
+                  <div className="mb-6 md:mb-8">
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm font-bold text-teal-600/70">{p.index}</span>
+                      <span className="text-xs font-medium uppercase tracking-wider text-teal-600">
+                        {p.segment}
+                      </span>
                     </div>
+                    <h2 className="mt-2 text-3xl font-bold tracking-tight text-[#0c2224] md:text-4xl">
+                      {p.name}
+                    </h2>
+                    <div className="mt-1 text-sm text-[#6b7d7e]">{p.role}</div>
 
-                    {/* Profile text */}
-                    <div className={filmFirst ? 'md:order-2' : 'md:order-1'}>
-                      <div className="flex items-center gap-3">
-                        <span className="text-sm font-bold text-teal-600/70">{p.index}</span>
-                        <span className="text-xs font-medium uppercase tracking-wider text-teal-600">
-                          {p.segment}
-                        </span>
-                      </div>
-                      <h2 className="mt-2 text-3xl font-bold tracking-tight text-[#0c2224] md:text-4xl">
-                        {p.name}
-                      </h2>
-                      <div className="mt-1 text-sm text-[#6b7d7e]">{p.role}</div>
-
+                    {/* Ache + remedy side by side on desktop, each at a readable
+                        line length; stacks on mobile. */}
+                    <div className="mt-6 grid gap-4 md:grid-cols-2">
                       {/* The ache */}
-                      <div className="mt-6 rounded-2xl border border-[#e6d7d3] bg-[#fbf6f4] p-5">
+                      <div className="rounded-2xl border border-[#e6d7d3] bg-[#fbf6f4] p-5">
                         <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#b06a52]">
                           The ache
                         </div>
@@ -218,16 +206,30 @@ export default function WorkflowsPage() {
                       </div>
 
                       {/* The remedy */}
-                      <div className="mt-4 rounded-2xl border border-[#d3e6e4] bg-[#f4faf9] p-5">
+                      <div className="rounded-2xl border border-[#d3e6e4] bg-[#f4faf9] p-5">
                         <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-teal-600">
                           The remedy
                         </div>
                         <p className="text-[15px] leading-relaxed text-[#47585a]">{p.remedy}</p>
                       </div>
                     </div>
-                  </article>
-                );
-              })}
+                  </div>
+
+                  {/* Film — full section width, reaching the page margins. */}
+                  <div>
+                    <ProfileFilm
+                      videoSrc={p.videoSrc}
+                      posterSrc={p.posterSrc}
+                      ariaLabel={p.ariaLabel}
+                      pending={p.pending}
+                    />
+                    <p className="mt-3 flex items-center justify-center gap-1.5 text-sm text-[#6b7d7e]">
+                      <Video className="h-3.5 w-3.5 text-teal-600" />
+                      Produced by IdiamPro
+                    </p>
+                  </div>
+                </article>
+              ))}
             </div>
           </section>
 
