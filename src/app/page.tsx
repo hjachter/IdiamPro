@@ -167,7 +167,7 @@ function IdeaDevelopmentBand() {
             passes into finished formats. Full section width so the app UI/text read
             clearly (the film shows real interface, not stock footage). */}
         <div className="mb-14">
-          <div className="overflow-hidden rounded-2xl border border-[#c2dbd9] bg-[#f4faf9] shadow-2xl shadow-teal-600/15 ring-1 ring-teal-600/10">
+          <div className="overflow-hidden -mx-6 sm:mx-0 rounded-none sm:rounded-2xl border-y sm:border border-[#c2dbd9] bg-[#f4faf9] shadow-2xl shadow-teal-600/15 ring-1 ring-teal-600/10">
             <video
               className="block h-auto w-full"
               src="/home-hero.mp4"
@@ -374,7 +374,7 @@ export default function MarketingPage() {
                 A tool I&apos;d envisioned for decades — finally possible now. So I did the most honest test I could think of: I used IdiamPro to plan its own launch. The plan you&apos;ll watch build itself is the real one.
               </p>
             </div>
-            <div className="overflow-hidden rounded-2xl border border-[#c2dbd9] bg-[#f4faf9] shadow-2xl shadow-teal-600/10 backdrop-blur-sm">
+            <div className="overflow-hidden -mx-6 sm:mx-0 rounded-none sm:rounded-2xl border-y sm:border border-[#c2dbd9] bg-[#f4faf9] shadow-2xl shadow-teal-600/10 backdrop-blur-sm">
               <video
                 className="block h-auto w-full"
                 src="/idiampro-story.mp4"

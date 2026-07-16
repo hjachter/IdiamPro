@@ -34,7 +34,7 @@ function ProfileFilm({
   const [posterLoaded, setPosterLoaded] = useState(false);
 
   return (
-    <div className="relative overflow-hidden rounded-3xl border border-[#d3e6e4] bg-[#f4faf9] shadow-xl shadow-teal-600/10">
+    <div className="relative overflow-hidden -mx-6 sm:mx-0 rounded-none sm:rounded-3xl border-y sm:border border-[#d3e6e4] bg-[#f4faf9] shadow-xl shadow-teal-600/10">
       {playing ? (
         <video
           className="block h-auto w-full bg-black"
