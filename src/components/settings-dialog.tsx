@@ -27,6 +27,7 @@ import { Badge } from '@/components/ui/badge';
 import { useAI } from '@/contexts/ai-context';
 import { useToast } from '@/hooks/use-toast';
 import { useDiscovery, fireDiscovery } from '@/hooks/use-discovery';
+import { openDataProtectionNotice } from './data-protection-notice';
 import { resetAllConfirmSuppressions } from '@/hooks/use-confirm-dialog';
 import { storeDirectoryHandle, getDirectoryHandle, verifyDirectoryPermission } from '@/lib/file-storage';
 import { isElectron, electronSelectDirectory, electronGetStoredDirectoryPath, checkOllamaInstallation, startOllama } from '@/lib/electron-storage';
@@ -1170,6 +1171,20 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
             <p className="text-xs text-muted-foreground pt-1">
               Backups live in your IDM Outlines folder. The 20 most recent snapshots per outline are kept; older ones are deleted automatically.
             </p>
+            <div className="pt-1">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => openDataProtectionNotice()}
+                data-testid="open-data-protection-notice"
+              >
+                <AlertTriangle className="h-4 w-4 mr-1 text-red-600 dark:text-red-400" />
+                Data safety &amp; backup
+              </Button>
+              <p className="text-xs text-muted-foreground pt-1.5">
+                Re-open the guidance on keeping your work safe with your own off-device backup.
+              </p>
+            </div>
             {isElectron() && (
               <Button
                 variant="outline"

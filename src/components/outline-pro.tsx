@@ -38,6 +38,7 @@ import { loadStorageData, saveAllOutlines, migrateToFileSystem, deleteOutline, l
 import CommandPalette from './command-palette';
 import EmptyState from './empty-state';
 import { WelcomeShowcase } from './welcome-showcase';
+import { DataProtectionNotice } from './data-protection-notice';
 import TemplatesDialog from './templates-dialog';
 import SidebarPane from './sidebar-pane';
 import MobileSidebarSheet from './mobile-sidebar-sheet';
@@ -4685,6 +4686,7 @@ export default function OutlinePro() {
     return (
       <div className="h-screen w-full">
         {progressIndicator}
+        <DataProtectionNotice />
         <WelcomeShowcase />
         <EmptyState
           onCreateBlankOutline={handleCreateOutline}
@@ -4698,6 +4700,7 @@ export default function OutlinePro() {
   if (isMobile) {
     return (
       <div className="h-screen bg-background">
+        <DataProtectionNotice />
         <WelcomeShowcase />
         {/* Hidden file input for import */}
         <input
@@ -5206,6 +5209,7 @@ export default function OutlinePro() {
 
   return (
     <div className="flex h-screen w-full">
+      <DataProtectionNotice />
       <WelcomeShowcase />
       {/* Collapsible Sidebar */}
       {isSidebarOpen && (

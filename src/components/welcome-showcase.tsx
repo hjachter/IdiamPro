@@ -32,6 +32,10 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useDiscovery } from '@/hooks/use-discovery';
 import {
+  hasSeenDataProtection,
+  DATA_PROTECTION_CLOSE_EVENT,
+} from './data-protection-notice';
+import {
   Video,
   Mic,
   Globe,
@@ -125,8 +129,16 @@ export function WelcomeShowcase() {
 
   React.useEffect(() => {
     setReady(true);
-    if (!hasSeenShowcase()) {
+    if (hasSeenShowcase()) return;
+    // The first-run data-protection notice (a liability disclaimer) takes
+    // precedence. If it hasn't been acknowledged yet, hold this showcase and
+    // open it only once that notice closes, so the two never stack.
+    if (hasSeenDataProtection()) {
       setOpen(true);
+    } else {
+      const onDpClose = () => setOpen(true);
+      window.addEventListener(DATA_PROTECTION_CLOSE_EVENT, onDpClose, { once: true });
+      return () => window.removeEventListener(DATA_PROTECTION_CLOSE_EVENT, onDpClose);
     }
   }, []);
 
