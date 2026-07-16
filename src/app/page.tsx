@@ -133,7 +133,7 @@ function ParticlesBackground() {
       {particles.map((p, i) => (
         <div
           key={i}
-          className="absolute w-1 h-1 bg-teal-500/30 rounded-full animate-float"
+          className="absolute w-1 h-1 bg-teal-600/40 rounded-full animate-float"
           style={{
             left: `${p.left}%`,
             top: `${p.top}%`,
@@ -151,13 +151,13 @@ function ParticlesBackground() {
 // under the hero) without duplicating markup.
 function IdeaDevelopmentBand() {
   return (
-    <section className="px-6 pb-16 lg:px-12 border-t border-[#d3e6e4] pt-16">
+    <section className="px-6 pb-16 lg:px-12 border-t border-[#c2dbd9] pt-16">
       <div className="max-w-6xl mx-auto">
         <div className="text-center max-w-3xl mx-auto mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-[#0c2224] mb-4">
+          <h2 className="text-4xl md:text-5xl font-extrabold text-[#0c2224] mb-4 tracking-tight">
             A great idea isn&apos;t a single prompt.
           </h2>
-          <p className="text-base md:text-lg text-[#47585a] leading-relaxed max-w-[660px] mx-auto">
+          <p className="text-lg md:text-xl text-[#22312f] leading-relaxed max-w-[660px] mx-auto">
             It might take a hundred sources — articles, PDFs, YouTube videos, meeting notes, textbooks, even what you type yourself — read, weighed, and merged into one outline before the essence comes into focus. Developing an idea is iterative: many passes, not one flash of insight. IdiamPro is built for that work.
           </p>
         </div>
@@ -166,7 +166,7 @@ function IdeaDevelopmentBand() {
             under the explanatory text: one idea, many sources, developed over many
             passes into finished formats. */}
         <div className="max-w-4xl mx-auto mb-14">
-          <div className="overflow-hidden rounded-2xl border border-[#d3e6e4] bg-[#f4faf9] shadow-2xl shadow-teal-600/15 ring-1 ring-teal-600/10">
+          <div className="overflow-hidden rounded-2xl border border-[#c2dbd9] bg-[#f4faf9] shadow-2xl shadow-teal-600/15 ring-1 ring-teal-600/10">
             <video
               className="block h-auto w-full"
               src="/home-hero.mp4"
@@ -177,7 +177,7 @@ function IdeaDevelopmentBand() {
               aria-label="Watch IdiamPro turn one idea into finished work — produced by IdiamPro"
             />
           </div>
-          <p className="mt-3 flex items-center justify-center gap-1.5 text-sm text-teal-600">
+          <p className="mt-3 flex items-center justify-center gap-1.5 text-sm font-semibold text-[#0c5c5b]">
             <Video className="h-3.5 w-3.5" />
             Watch IdiamPro turn one idea into finished work
           </p>
@@ -186,22 +186,22 @@ function IdeaDevelopmentBand() {
         {/* Three-step flow */}
         <div className="flex flex-col lg:flex-row items-stretch justify-center gap-4 lg:gap-2">
           {/* Card 1 — Many inputs */}
-          <div className="flex-1 rounded-2xl border border-[#d3e6e4] bg-[#f4faf9] p-6 md:p-8">
+          <div className="flex-1 rounded-2xl border border-[#c2dbd9] bg-[#f4faf9] p-6 md:p-8">
             <div className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-teal-600/15 border border-teal-600/25 mb-4">
               <FileUp className="w-5 h-5 text-teal-600" />
             </div>
             <h3 className="text-lg font-bold text-[#0c2224] mb-3">Many inputs</h3>
-            <ul className="space-y-2 text-sm text-[#47585a]">
+            <ul className="space-y-2 text-sm text-[#22312f]">
               <li>Type it in yourself</li>
               <li>Articles, web pages &amp; PDFs</li>
               <li>YouTube, audio &amp; video</li>
               <li>Notes, docs &amp; live web</li>
-              <li className="text-[#6b7d7e]">…and growing</li>
+              <li className="text-[#42504f]">…and growing</li>
             </ul>
           </div>
 
           {/* Arrow */}
-          <div className="flex items-center justify-center lg:px-1 text-[#8b9a9b]">
+          <div className="flex items-center justify-center lg:px-1 text-[#5a6a69]">
             <ArrowRight className="hidden lg:block w-6 h-6" />
             <ChevronDown className="block lg:hidden w-6 h-6" />
           </div>
@@ -212,7 +212,7 @@ function IdeaDevelopmentBand() {
               <Merge className="w-5 h-5 text-teal-500" />
             </div>
             <h3 className="text-lg font-bold text-[#0c2224] mb-3">Merge &amp; consolidate</h3>
-            <ul className="space-y-2 text-sm text-[#47585a]">
+            <ul className="space-y-2 text-sm text-[#22312f]">
               <li>Merge sources into one outline</li>
               <li>Consolidate into a coherent whole</li>
               <li>Develop &amp; refine over many passes</li>
@@ -220,27 +220,27 @@ function IdeaDevelopmentBand() {
           </div>
 
           {/* Arrow */}
-          <div className="flex items-center justify-center lg:px-1 text-[#8b9a9b]">
+          <div className="flex items-center justify-center lg:px-1 text-[#5a6a69]">
             <ArrowRight className="hidden lg:block w-6 h-6" />
             <ChevronDown className="block lg:hidden w-6 h-6" />
           </div>
 
           {/* Card 3 — Publish everywhere */}
-          <div className="flex-1 rounded-2xl border border-[#d3e6e4] bg-[#f4faf9] p-6 md:p-8">
+          <div className="flex-1 rounded-2xl border border-[#c2dbd9] bg-[#f4faf9] p-6 md:p-8">
             <div className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-teal-600/15 border border-teal-600/25 mb-4">
               <Rocket className="w-5 h-5 text-teal-600" />
             </div>
             <h3 className="text-lg font-bold text-[#0c2224] mb-3">Publish everywhere</h3>
-            <ul className="space-y-2 text-sm text-[#47585a]">
+            <ul className="space-y-2 text-sm text-[#22312f]">
               <li>Papers &amp; articles</li>
               <li>Podcasts &amp; videos</li>
               <li>Slides &amp; illustrations</li>
-              <li className="text-[#6b7d7e]">…and growing</li>
+              <li className="text-[#42504f]">…and growing</li>
             </ul>
           </div>
         </div>
 
-        <p className="text-center text-sm text-[#6b7d7e] mt-10 max-w-2xl mx-auto">
+        <p className="text-center text-sm text-[#42504f] mt-10 max-w-2xl mx-auto">
           Read widely, merge the sources into one outline, refine the essence — then publish it in any format. That&apos;s idea development, not a one-shot answer.
         </p>
       </div>
@@ -280,20 +280,20 @@ export default function MarketingPage() {
           <div className="max-w-7xl mx-auto">
             <div className="text-center max-w-4xl mx-auto">
               <div className={`${mounted ? 'animate-fade-in-up' : 'opacity-0'}`}>
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-teal-600/20 border border-teal-600/30 mb-6">
-                  <Brain className="w-4 h-4 text-teal-600" />
-                  <span className="text-sm text-teal-600">Develop it. Publish everywhere.</span>
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-teal-600/15 border border-teal-600/40 mb-6">
+                  <Brain className="w-4 h-4 text-[#0c5c5b]" />
+                  <span className="text-sm font-semibold text-[#0c5c5b]">Develop it. Publish everywhere.</span>
                 </div>
-                <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+                <h1 className="text-5xl md:text-8xl font-extrabold mb-6 leading-[1.05] tracking-tight">
                   <span className="block text-[#0c2224]">The Premier</span>
                   <span className="block bg-gradient-to-r from-teal-500 via-teal-600 to-teal-600 bg-clip-text text-transparent">Idea Developer.</span>
                 </h1>
-                <p className="text-xl md:text-2xl text-[#0c2224] mb-4 max-w-3xl mx-auto">
+                <p className="text-xl md:text-2xl font-semibold text-[#0c2224] mb-4 max-w-3xl mx-auto">
                   Capture, consolidate, and develop your ideas with AI — then turn them into articles, podcasts, videos, websites, and more, in a click.
                 </p>
-                <p className="text-base md:text-lg text-[#47585a] mb-8 max-w-3xl mx-auto leading-relaxed">
+                <p className="text-lg md:text-xl text-[#22312f] mb-8 max-w-3xl mx-auto leading-relaxed">
                   Not a chat that forgets — a thinking machine that helps you{' '}
-                  <span className="text-teal-600">consolidate many sources into coherent, developed thinking</span>{' '}
+                  <span className="text-[#0c5c5b] font-semibold">consolidate many sources into coherent, developed thinking</span>{' '}
                   — a single idea, a complex concept, or a whole narrative — refined over many passes, then published in whatever format you need.
                 </p>
 
@@ -302,7 +302,7 @@ export default function MarketingPage() {
                   {['Research papers', 'Podcasts', 'Videos', 'Websites', 'Presentations', 'Illustrations', '21 languages', '…and more'].map((label) => (
                     <span
                       key={label}
-                      className={`px-3 py-1.5 rounded-full bg-[#f4faf9] border border-[#d3e6e4] text-sm ${label === '…and more' ? 'text-[#6b7d7e] italic' : 'text-[#47585a]'}`}
+                      className={`px-3 py-1.5 rounded-full bg-[#eef6f5] border border-[#b3d3d0] text-sm font-medium ${label === '…and more' ? 'text-[#42504f] italic' : 'text-[#0f2b29]'}`}
                     >
                       {label}
                     </span>
@@ -315,7 +315,7 @@ export default function MarketingPage() {
                     <Button
                       onClick={() => { window.location.href = '/signup'; }}
                       size="lg"
-                      className="bg-gradient-to-r from-[#0E7C7B] to-[#0E7C7B] hover:from-[#0c5c5b] hover:to-[#0c5c5b] text-white font-semibold px-8 py-6 text-base shadow-lg shadow-teal-600/30"
+                      className="bg-gradient-to-br from-[#0E7C7B] to-[#0c5c5b] hover:from-[#0c5c5b] hover:to-[#093f3e] text-white font-bold px-8 py-6 text-base shadow-xl shadow-teal-700/35"
                     >
                       Sign up to try IdiamPro free
                       <ArrowRight className="w-4 h-4 ml-2" />
@@ -323,7 +323,7 @@ export default function MarketingPage() {
                     <button
                       type="button"
                       onClick={() => { window.location.href = '/signin'; }}
-                      className="text-sm text-[#47585a] hover:text-[#0c2224] underline-offset-4 hover:underline"
+                      className="text-sm text-[#22312f] hover:text-[#0c2224] underline-offset-4 hover:underline"
                     >
                       I already have an account
                     </button>
@@ -332,7 +332,7 @@ export default function MarketingPage() {
                     <Button
                       onClick={launchApp}
                       size="lg"
-                      className="bg-gradient-to-r from-[#0E7C7B] to-[#0E7C7B] hover:from-[#0c5c5b] hover:to-[#0c5c5b] text-white font-semibold px-8 py-6 text-base shadow-lg shadow-teal-600/30"
+                      className="bg-gradient-to-br from-[#0E7C7B] to-[#0c5c5b] hover:from-[#0c5c5b] hover:to-[#093f3e] text-white font-bold px-8 py-6 text-base shadow-xl shadow-teal-700/35"
                     >
                       Open IdiamPro
                       <ArrowRight className="w-4 h-4 ml-2" />
@@ -359,20 +359,18 @@ export default function MarketingPage() {
         <section className="px-6 pb-16 lg:px-12">
           <div className="mx-auto w-full max-w-4xl">
             <div className="text-center mb-8">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-teal-600/20 border border-teal-600/30 mb-6">
-                <Sparkles className="w-4 h-4 text-teal-600" />
-                <span className="text-sm font-medium text-teal-600">Our Story · Why IdiamPro</span>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-teal-600/15 border border-teal-600/40 mb-6">
+                <Sparkles className="w-4 h-4 text-[#0c5c5b]" />
+                <span className="text-sm font-semibold text-[#0c5c5b]">Our Story · Why IdiamPro</span>
               </div>
-              <h2 className="text-3xl md:text-5xl font-bold mb-5 leading-tight">
-                <span className="bg-gradient-to-r from-[#0c2224] via-[#0c2224] to-[#0c2224] bg-clip-text text-transparent">
-                  The idea was only half the battle.
-                </span>
+              <h2 className="text-4xl md:text-6xl font-extrabold mb-5 leading-[1.08] tracking-tight text-[#0c2224]">
+                The idea was only half the battle.
               </h2>
-              <p className="text-base md:text-lg text-[#47585a] leading-relaxed max-w-3xl mx-auto">
+              <p className="text-lg md:text-xl text-[#22312f] leading-relaxed max-w-3xl mx-auto">
                 A tool I&apos;d envisioned for decades — finally possible now. So I did the most honest test I could think of: I used IdiamPro to plan its own launch. The plan you&apos;ll watch build itself is the real one.
               </p>
             </div>
-            <div className="overflow-hidden rounded-2xl border border-[#d3e6e4] bg-[#f4faf9] shadow-2xl shadow-teal-600/10 backdrop-blur-sm">
+            <div className="overflow-hidden rounded-2xl border border-[#c2dbd9] bg-[#f4faf9] shadow-2xl shadow-teal-600/10 backdrop-blur-sm">
               <video
                 className="block h-auto w-full"
                 src="/idiampro-story.mp4"
@@ -383,7 +381,7 @@ export default function MarketingPage() {
                 aria-label="Our Story — a founder uses IdiamPro to plan IdiamPro's own launch. Produced by IdiamPro."
               />
             </div>
-            <p className="mt-3 flex items-center justify-center gap-1.5 text-sm text-[#6b7d7e]">
+            <p className="mt-3 flex items-center justify-center gap-1.5 text-sm text-[#42504f]">
               <Video className="h-3.5 w-3.5 text-teal-600" />
               Produced by IdiamPro
             </p>
@@ -393,19 +391,20 @@ export default function MarketingPage() {
         {/* Thesis — moved up to lead the page: idea development is iterative */}
         <IdeaDevelopmentBand />
 
-        {/* A different kind of tool — competitor contrast grid (Amplifier palette) */}
-        <section className="px-6 pb-16 lg:px-12">
+        {/* A different kind of tool — competitor contrast grid, on a dramatic
+            full-bleed dark-ink/teal band to break the white wash */}
+        <section className="px-6 py-24 lg:px-12 bg-gradient-to-br from-[#0a3d3c] via-[#0c2224] to-[#0c2224]">
           <div className="max-w-6xl mx-auto">
             <div className="text-center max-w-3xl mx-auto mb-12">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-teal-600/10 border border-teal-600/20 mb-6">
-                <Zap className="w-4 h-4 text-teal-600" />
-                <span className="text-sm font-medium text-teal-600">A different kind of tool</span>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-teal-400/15 border border-teal-300/30 mb-6">
+                <Zap className="w-4 h-4 text-teal-300" />
+                <span className="text-sm font-semibold text-teal-300">A different kind of tool</span>
               </div>
-              <h2 className="text-3xl md:text-4xl font-bold text-[#0c2224] mb-4">
+              <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4 tracking-tight">
                 Not a filing cabinet. Not a vending machine.
               </h2>
-              <p className="text-base md:text-lg text-[#47585a] leading-relaxed max-w-[720px] mx-auto">
-                Everyone else either stores the thinking you already did, or vends you a one-shot output. We&apos;re the only one that does the thinking <span className="text-teal-600 font-semibold">with</span> you — and hands back finished work, iteratively, in your voice.
+              <p className="text-lg md:text-xl text-white/80 leading-relaxed max-w-[720px] mx-auto">
+                Everyone else either stores the thinking you already did, or vends you a one-shot output. We&apos;re the only one that does the thinking <span className="text-teal-300 font-bold">with</span> you — and hands back finished work, iteratively, in your voice.
               </p>
             </div>
 
@@ -444,16 +443,16 @@ export default function MarketingPage() {
               ].map((c) => (
                 <div
                   key={c.name}
-                  className="flex flex-col rounded-2xl border border-[#d3e6e4] bg-white p-6 hover:border-teal-600/30 transition-colors"
+                  className="flex flex-col rounded-2xl border border-white/10 bg-white/[0.05] p-6 hover:border-teal-300/40 hover:bg-white/[0.08] transition-colors"
                 >
-                  <h3 className="text-base font-bold text-[#0c2224] mb-4">{c.name}</h3>
+                  <h3 className="text-base font-bold text-white mb-4">{c.name}</h3>
                   <div className="mb-4">
-                    <div className="text-[11px] font-semibold uppercase tracking-wider text-[#8b9a9b] mb-1.5">They</div>
-                    <p className="text-sm text-[#6b7d7e] leading-relaxed">{c.they}</p>
+                    <div className="text-[11px] font-bold uppercase tracking-wider text-white/50 mb-1.5">They</div>
+                    <p className="text-sm text-white/75 leading-relaxed">{c.they}</p>
                   </div>
-                  <div className="mt-auto pt-4 border-t border-[#d3e6e4]">
-                    <div className="text-[11px] font-semibold uppercase tracking-wider text-teal-600 mb-1.5">We</div>
-                    <p className="text-sm text-teal-700/90 leading-relaxed">{c.we}</p>
+                  <div className="mt-auto pt-4 border-t border-white/10">
+                    <div className="text-[11px] font-bold uppercase tracking-wider text-teal-300 mb-1.5">We</div>
+                    <p className="text-sm text-teal-100/90 leading-relaxed">{c.we}</p>
                   </div>
                 </div>
               ))}
@@ -462,17 +461,17 @@ export default function MarketingPage() {
         </section>
 
         {/* Workflows showcase — previews that link out to /workflows (no inline video) */}
-        <section className="px-6 py-20 lg:px-12">
+        <section className="px-6 py-24 lg:px-12 bg-[#eef6f5] border-y border-[#c2dbd9]">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-teal-600/20 border border-teal-600/30 mb-6">
-                <Play className="w-4 h-4 text-teal-600" />
-                <span className="text-sm font-medium text-teal-600">Workflows</span>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-teal-600/15 border border-teal-600/40 mb-6">
+                <Play className="w-4 h-4 text-[#0c5c5b]" />
+                <span className="text-sm font-semibold text-[#0c5c5b]">Workflows</span>
               </div>
-              <h2 className="text-3xl md:text-4xl font-bold text-[#0c2224] mb-4">
+              <h2 className="text-4xl md:text-5xl font-extrabold text-[#0c2224] mb-4 tracking-tight">
                 Real stories, start to finish.
               </h2>
-              <p className="text-base md:text-lg text-[#47585a] leading-relaxed max-w-2xl mx-auto">
+              <p className="text-lg md:text-xl text-[#22312f] leading-relaxed max-w-2xl mx-auto">
                 Watch a single idea grow into finished work — real end-to-end journeys, captured from the first capture to the last export.
               </p>
             </div>
@@ -495,9 +494,9 @@ export default function MarketingPage() {
                 <a
                   key={wf.title}
                   href="/workflows"
-                  className="group block rounded-2xl border border-[#d3e6e4] bg-white overflow-hidden shadow-[0_1px_3px_rgba(12,34,36,0.06),0_8px_24px_rgba(12,34,36,0.05)] hover:border-teal-600/40 hover:shadow-[0_2px_6px_rgba(12,34,36,0.08),0_16px_40px_rgba(12,34,36,0.10)] transition-all"
+                  className="group block rounded-2xl border border-[#c2dbd9] bg-white overflow-hidden shadow-[0_1px_3px_rgba(12,34,36,0.06),0_8px_24px_rgba(12,34,36,0.05)] hover:border-teal-600/40 hover:shadow-[0_2px_6px_rgba(12,34,36,0.08),0_16px_40px_rgba(12,34,36,0.10)] transition-all"
                 >
-                  <div className="relative aspect-video overflow-hidden bg-[#f4faf9] border-b border-[#d3e6e4]">
+                  <div className="relative aspect-video overflow-hidden bg-[#f4faf9] border-b border-[#c2dbd9]">
                     <img
                       src={wf.poster}
                       alt={wf.title}
@@ -511,10 +510,10 @@ export default function MarketingPage() {
                     </div>
                   </div>
                   <div className="p-5 md:p-6">
-                    <div className="text-xs text-teal-600 font-medium uppercase tracking-wider mb-1">{wf.label}</div>
+                    <div className="text-xs text-[#0c5c5b] font-bold uppercase tracking-wider mb-1">{wf.label}</div>
                     <h3 className="text-lg font-semibold text-[#0c2224] mb-1">{wf.title}</h3>
-                    <p className="text-[#6b7d7e] text-sm leading-relaxed mb-3">{wf.desc}</p>
-                    <span className="inline-flex items-center gap-1 text-sm font-medium text-teal-600 group-hover:gap-2 transition-all">
+                    <p className="text-[#42504f] text-sm leading-relaxed mb-3">{wf.desc}</p>
+                    <span className="inline-flex items-center gap-1 text-sm font-semibold text-[#0c5c5b] group-hover:gap-2 transition-all">
                       Watch <ArrowRight className="w-4 h-4" />
                     </span>
                   </div>
@@ -525,7 +524,7 @@ export default function MarketingPage() {
             <div className="text-center mt-8">
               <a
                 href="/workflows"
-                className="inline-flex items-center gap-2 rounded-full border border-teal-600/40 px-6 py-3 text-sm font-medium text-teal-600 hover:bg-teal-600/10 transition-colors"
+                className="inline-flex items-center gap-2 rounded-full border border-teal-600/40 px-6 py-3 text-sm font-semibold text-[#0c5c5b] hover:bg-teal-600/10 transition-colors"
               >
                 See all workflows
                 <ArrowRight className="w-4 h-4" />
@@ -540,8 +539,8 @@ export default function MarketingPage() {
         <section className="px-6 py-20 lg:px-12">
           <div className="max-w-6xl mx-auto">
             <div className="text-center max-w-3xl mx-auto mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-[#0c2224] mb-4">Explore IdiamPro</h2>
-              <p className="text-base md:text-lg text-[#47585a] leading-relaxed">
+              <h2 className="text-4xl md:text-5xl font-extrabold text-[#0c2224] mb-4 tracking-tight">Explore IdiamPro</h2>
+              <p className="text-lg md:text-xl text-[#22312f] leading-relaxed">
                 Go deeper into what IdiamPro does, who it&apos;s for, and how it&apos;s priced.
               </p>
             </div>
@@ -554,13 +553,13 @@ export default function MarketingPage() {
               ].map((t) => {
                 const TIcon = t.icon;
                 return (
-                  <Link key={t.href} href={t.href} className="group flex flex-col rounded-2xl border border-[#d3e6e4] bg-[#f4faf9] p-6 hover:border-teal-600/40 hover:bg-[#eef6f5] transition-all">
+                  <Link key={t.href} href={t.href} className="group flex flex-col rounded-2xl border border-[#c2dbd9] bg-[#f4faf9] p-6 hover:border-teal-600/40 hover:bg-[#eef6f5] transition-all">
                     <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-teal-600 to-teal-700 flex items-center justify-center mb-4 shadow-lg shadow-teal-600/20">
                       <TIcon className="w-5 h-5 text-white" />
                     </div>
                     <h3 className="text-lg font-bold text-[#0c2224] mb-2">{t.title}</h3>
-                    <p className="text-sm text-[#47585a] leading-relaxed mb-4 flex-1">{t.blurb}</p>
-                    <span className="inline-flex items-center gap-1 text-sm font-medium text-teal-600 group-hover:gap-2 transition-all">
+                    <p className="text-sm text-[#22312f] leading-relaxed mb-4 flex-1">{t.blurb}</p>
+                    <span className="inline-flex items-center gap-1 text-sm font-semibold text-[#0c5c5b] group-hover:gap-2 transition-all">
                       {t.cta} <ArrowRight className="w-4 h-4" />
                     </span>
                   </Link>
@@ -569,23 +568,23 @@ export default function MarketingPage() {
             </div>
           </div>
         </section>
-        {/* Final CTA */}
-        <section className="px-6 py-24 lg:px-12">
+        {/* Final CTA — dramatic deep-teal contrast band */}
+        <section className="px-6 py-28 lg:px-12 bg-gradient-to-br from-[#0E7C7B] via-[#0c5c5b] to-[#0a3d3c]">
           <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl lg:text-5xl font-bold mb-6">
+            <h2 className="text-4xl lg:text-6xl font-extrabold mb-6 tracking-tight text-white leading-[1.08]">
               Ready to transform how you{' '}
-              <span className="bg-gradient-to-r from-teal-600 to-teal-600 bg-clip-text text-transparent">
+              <span className="text-teal-200">
                 think and create?
               </span>
             </h2>
-            <p className="text-[#6b7d7e] text-lg mb-8 max-w-2xl mx-auto">
+            <p className="text-white/80 text-lg md:text-xl mb-10 max-w-2xl mx-auto">
               Join researchers, authors, and professionals who've upgraded their workflow with IdiamPro.
             </p>
             <SignedOut>
               <Button
                 onClick={() => { window.location.href = '/signup'; }}
                 size="lg"
-                className="bg-gradient-to-r from-[#0E7C7B] to-[#0E7C7B] hover:from-[#0c5c5b] hover:to-[#0c5c5b] text-white font-semibold text-lg px-10 py-6 shadow-xl shadow-teal-600/25 hover:shadow-teal-600/40 transition-all duration-300"
+                className="bg-white hover:bg-teal-50 text-[#0c5c5b] font-bold text-lg px-10 py-6 shadow-2xl shadow-black/25 transition-all duration-300"
               >
                 Sign up to try IdiamPro
                 <ArrowRight className="w-5 h-5 ml-2" />
@@ -595,13 +594,13 @@ export default function MarketingPage() {
               <Button
                 onClick={launchApp}
                 size="lg"
-                className="bg-gradient-to-r from-[#0E7C7B] to-[#0E7C7B] hover:from-[#0c5c5b] hover:to-[#0c5c5b] text-white font-semibold text-lg px-10 py-6 shadow-xl shadow-teal-600/25 hover:shadow-teal-600/40 transition-all duration-300"
+                className="bg-white hover:bg-teal-50 text-[#0c5c5b] font-bold text-lg px-10 py-6 shadow-2xl shadow-black/25 transition-all duration-300"
               >
                 Open IdiamPro
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </SignedIn>
-            <p className="text-[#8b9a9b] text-sm mt-4">
+            <p className="text-white/60 text-sm mt-4">
               No credit card required. Free tier forever.
             </p>
           </div>
@@ -610,16 +609,16 @@ export default function MarketingPage() {
         {/* Footnotes */}
         <section className="px-6 py-8 lg:px-12">
           <div className="max-w-4xl mx-auto">
-            <div className="border-t border-[#d3e6e4] pt-8">
-              <h4 className="text-[#6b7d7e] text-xs uppercase tracking-wider mb-4">Performance Notes</h4>
-              <div className="text-[#8b9a9b] text-xs space-y-2">
+            <div className="border-t border-[#c2dbd9] pt-8">
+              <h4 className="text-[#42504f] text-xs uppercase tracking-wider mb-4">Performance Notes</h4>
+              <div className="text-[#5a6a69] text-xs space-y-2">
                 <p>
-                  <strong className="text-[#6b7d7e]">*Node Capacity Testing:</strong> 1,000,000+ nodes tested on Apple M4 MacBook Air
+                  <strong className="text-[#42504f]">*Node Capacity Testing:</strong> 1,000,000+ nodes tested on Apple M4 MacBook Air
                   (16GB RAM, 512GB SSD) running macOS. Generation time: 4.2s, save time: 1.8s, load time: 1.3s,
                   file size: 98MB. Performance varies by hardware configuration.
                 </p>
                 <p>
-                  <strong className="text-[#6b7d7e]">Platform Considerations:</strong>
+                  <strong className="text-[#42504f]">Platform Considerations:</strong>
                 </p>
                 <ul className="list-disc list-inside ml-4 space-y-1">
                   <li><strong>Desktop (macOS/Windows/Linux):</strong> Full system RAM available. Recommended for outlines exceeding 100,000 nodes.</li>
@@ -627,7 +626,7 @@ export default function MarketingPage() {
                   <li><strong>Mobile (iOS/Android):</strong> More constrained memory. For optimal performance, keep outlines under 50,000 nodes.</li>
                 </ul>
                 <p>
-                  <strong className="text-[#6b7d7e]">Storage:</strong> Outline files (.idm) are JSON-based. A 100,000-node outline is approximately 20MB.
+                  <strong className="text-[#42504f]">Storage:</strong> Outline files (.idm) are JSON-based. A 100,000-node outline is approximately 20MB.
                   Local storage has no practical limit; web browser IndexedDB supports gigabytes of storage.
                 </p>
               </div>
@@ -636,7 +635,7 @@ export default function MarketingPage() {
         </section>
 
         {/* Footer */}
-        <footer className="px-6 py-12 lg:px-12 border-t border-[#d3e6e4]">
+        <footer className="px-6 py-12 lg:px-12 border-t border-[#c2dbd9]">
           <div className="max-w-7xl mx-auto">
             <div className="grid md:grid-cols-3 gap-8 mb-12">
               <div>
@@ -646,10 +645,10 @@ export default function MarketingPage() {
                   </div>
                   <span className="font-bold text-[#0c2224]">IdiamPro</span>
                 </div>
-                <p className="text-[#6b7d7e] text-sm mb-2">
+                <p className="text-[#42504f] text-sm mb-2">
                   Your Intelligence Amplifier.
                 </p>
-                <p className="text-[#8b9a9b] text-xs">
+                <p className="text-[#5a6a69] text-xs">
                   Build your second brain. Expand your knowledge. See what others miss.
                 </p>
               </div>
@@ -657,23 +656,23 @@ export default function MarketingPage() {
               <div>
                 <h4 className="text-[#0c2224] font-semibold mb-4">Product</h4>
                 <ul className="space-y-2">
-                  <li><a href="/features" className="text-[#6b7d7e] hover:text-[#0c2224] text-sm transition-colors">Features</a></li>
-                  <li><a href="/pricing" className="text-[#6b7d7e] hover:text-[#0c2224] text-sm transition-colors">Pricing</a></li>
-                  <li><a href="/use-cases" className="text-[#6b7d7e] hover:text-[#0c2224] text-sm transition-colors">Use Cases</a></li>
-                  <li><a href="/faq" className="text-[#6b7d7e] hover:text-[#0c2224] text-sm transition-colors">FAQ</a></li>
+                  <li><a href="/features" className="text-[#42504f] hover:text-[#0c2224] text-sm transition-colors">Features</a></li>
+                  <li><a href="/pricing" className="text-[#42504f] hover:text-[#0c2224] text-sm transition-colors">Pricing</a></li>
+                  <li><a href="/use-cases" className="text-[#42504f] hover:text-[#0c2224] text-sm transition-colors">Use Cases</a></li>
+                  <li><a href="/faq" className="text-[#42504f] hover:text-[#0c2224] text-sm transition-colors">FAQ</a></li>
                 </ul>
               </div>
 
               <div>
                 <h4 className="text-[#0c2224] font-semibold mb-4">Legal</h4>
                 <ul className="space-y-2">
-                  <li><a href="/privacy" className="text-[#6b7d7e] hover:text-[#0c2224] text-sm transition-colors">Privacy</a></li>
+                  <li><a href="/privacy" className="text-[#42504f] hover:text-[#0c2224] text-sm transition-colors">Privacy</a></li>
                 </ul>
               </div>
             </div>
 
-            <div className="pt-8 border-t border-[#d3e6e4]">
-              <p className="text-[#8b9a9b] text-sm">
+            <div className="pt-8 border-t border-[#c2dbd9]">
+              <p className="text-[#5a6a69] text-sm">
                 © 2026 SecondBrainWare. All rights reserved.
               </p>
             </div>
