@@ -378,8 +378,8 @@ export default function MarketingPage() {
             <div className="overflow-hidden -mx-6 sm:mx-0 rounded-none sm:rounded-2xl border-y sm:border border-[#c2dbd9] bg-[#f4faf9] shadow-2xl shadow-teal-600/10 backdrop-blur-sm">
               <video
                 className="block h-auto w-full"
-                src="/idiampro-story.mp4"
-                poster="/idiampro-story-poster.jpg"
+                src="/idiampro-story.mp4?v=onyx"
+                poster="/idiampro-story-poster.jpg?v=onyx"
                 controls
                 playsInline
                 preload="metadata"
