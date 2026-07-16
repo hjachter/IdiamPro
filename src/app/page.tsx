@@ -152,7 +152,7 @@ function ParticlesBackground() {
 function IdeaDevelopmentBand() {
   return (
     <section className="px-6 pb-16 lg:px-12 border-t border-[#c2dbd9] pt-16">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-[1600px] mx-auto">
         <div className="text-center max-w-3xl mx-auto mb-12">
           <h2 className="text-4xl md:text-5xl font-extrabold text-[#0c2224] mb-4 tracking-tight">
             A great idea isn&apos;t a single prompt.
@@ -166,7 +166,7 @@ function IdeaDevelopmentBand() {
             under the explanatory text: one idea, many sources, developed over many
             passes into finished formats. Full section width so the app UI/text read
             clearly (the film shows real interface, not stock footage). */}
-        <div className="max-w-6xl mx-auto mb-14">
+        <div className="mb-14">
           <div className="overflow-hidden rounded-2xl border border-[#c2dbd9] bg-[#f4faf9] shadow-2xl shadow-teal-600/15 ring-1 ring-teal-600/10">
             <video
               className="block h-auto w-full"
@@ -278,7 +278,7 @@ export default function MarketingPage() {
 
         {/* Hero Section */}
         <section className="px-6 pt-32 pb-16 lg:px-12 lg:pt-40">
-          <div className="max-w-7xl mx-auto">
+          <div className="max-w-[1600px] mx-auto">
             <div className="text-center max-w-4xl mx-auto">
               <div className={`${mounted ? 'animate-fade-in-up' : 'opacity-0'}`}>
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-teal-600/15 border border-teal-600/40 mb-6">
@@ -358,7 +358,7 @@ export default function MarketingPage() {
             problem AND tells the audience who we are. Additive to the existing intro
             video below (Howard decides later whether this becomes the main hero). */}
         <section className="px-6 pb-16 lg:px-12">
-          <div className="mx-auto w-full max-w-6xl">
+          <div className="mx-auto w-full max-w-[1600px]">
             <div className="text-center mb-8">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-teal-600/15 border border-teal-600/40 mb-6">
                 <Sparkles className="w-4 h-4 text-[#0c5c5b]" />
@@ -395,7 +395,7 @@ export default function MarketingPage() {
         {/* A different kind of tool — competitor contrast grid, on a dramatic
             full-bleed dark-ink/teal band to break the white wash */}
         <section className="px-6 py-24 lg:px-12 bg-gradient-to-br from-[#0a3d3c] via-[#0c2224] to-[#0c2224]">
-          <div className="max-w-6xl mx-auto">
+          <div className="max-w-[1600px] mx-auto">
             <div className="text-center max-w-3xl mx-auto mb-12">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-teal-400/15 border border-teal-300/30 mb-6">
                 <Zap className="w-4 h-4 text-teal-300" />
@@ -463,7 +463,7 @@ export default function MarketingPage() {
 
         {/* Workflows showcase — previews that link out to /workflows (no inline video) */}
         <section className="px-6 py-24 lg:px-12 bg-[#eef6f5] border-y border-[#c2dbd9]">
-          <div className="max-w-6xl mx-auto">
+          <div className="max-w-[1600px] mx-auto">
             <div className="text-center mb-12">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-teal-600/15 border border-teal-600/40 mb-6">
                 <Play className="w-4 h-4 text-[#0c5c5b]" />
@@ -538,7 +538,7 @@ export default function MarketingPage() {
             depth lives on /features, /use-cases, /pricing and /faq; the homepage
             stays lean. */}
         <section className="px-6 py-20 lg:px-12">
-          <div className="max-w-6xl mx-auto">
+          <div className="max-w-[1600px] mx-auto">
             <div className="text-center max-w-3xl mx-auto mb-12">
               <h2 className="text-4xl md:text-5xl font-extrabold text-[#0c2224] mb-4 tracking-tight">Explore IdiamPro</h2>
               <p className="text-lg md:text-xl text-[#22312f] leading-relaxed">
@@ -571,8 +571,8 @@ export default function MarketingPage() {
         </section>
         {/* Final CTA — dramatic deep-teal contrast band */}
         <section className="px-6 py-28 lg:px-12 bg-gradient-to-br from-[#0E7C7B] via-[#0c5c5b] to-[#0a3d3c]">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-4xl lg:text-6xl font-extrabold mb-6 tracking-tight text-white leading-[1.08]">
+          <div className="max-w-[1600px] mx-auto text-center">
+            <h2 className="text-4xl lg:text-6xl font-extrabold mb-6 tracking-tight text-white leading-[1.08] max-w-4xl mx-auto">
               Ready to transform how you{' '}
               <span className="text-teal-200">
                 think and create?
@@ -637,7 +637,7 @@ export default function MarketingPage() {
 
         {/* Footer */}
         <footer className="px-6 py-12 lg:px-12 border-t border-[#c2dbd9]">
-          <div className="max-w-7xl mx-auto">
+          <div className="max-w-[1600px] mx-auto">
             <div className="grid md:grid-cols-3 gap-8 mb-12">
               <div>
                 <div className="flex items-center gap-2 mb-4">

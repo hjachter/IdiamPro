@@ -116,9 +116,46 @@ This upgrades the "/workflows re-skin" job into a REBUILD: /workflows becomes a 
 of character profiles (segment <-> character <-> workflow film), each card a recognizable person,
 each opening into their pain-and-remedy film, with "see yourself here" framing. Ties to the
 motivating-need marketing doctrine (memory: project-marketing-open-with-motivating-need).
-   - Students/researchers, Writers/authors, Founders/builders, Everyday thinkers: drafts pending
-     Howard's comments. NOTE overlap: "authors" now appears under Creators — decide whether to
-     keep Writers/authors as the long-form/book lane or fold together.
+
+TUTORIALS SERVE BOTH AUDIENCES AT DIFFERENT LEVELS (Howard 2026-07-15): the SAME tutorial clips
+serve prospects AND customers, but with different mindsets — build ONE library with TWO doors:
+- PROSPECT (non-customer, on the marketing site): watches to DECIDE — "can it do what I need?" —
+  framed as DISCOVERY / proof; lowers the barrier to sign up.
+- CUSTOMER (signed-in, in-app help): watches to MASTER — "how do I do this well?" — framed as
+  ONBOARDING / how-to; deepens engagement, cuts support load.
+One asset, two jobs, two entry points. (The homepage is the front door for BOTH — so every CTA/
+surface must behave correctly signed-in AND signed-out; cf. the auth-aware CTA fix.)
+   - **Students / researchers** (BLESSED — Howard's crystallization: "they have notes but no
+     education"): "You have the notes — but do you have an education? Years of courses, a mountain
+     of notes, and no real sense of how any of it connects, or how to find it the day you're a
+     professional who actually needs it. IdiamPro turns scattered notes into understanding you own —
+     because the connecting is where the learning happens." (Last clause = the consolidation bridge:
+     restructuring = consolidation = learning.)
+   - **Writers & authors** (BLESSED — long-form/book lane, distinct from the deadline creators):
+     "You've got a hundred fragments: notes, research, half-chapters scattered everywhere. But do you
+     have a book? IdiamPro is where the pieces become a whole, and the whole becomes finished."
+   - **Founders & builders** (BLESSED): "You have the vision, a dozen docs, and the plan living in
+     your head. But is there one place that actually holds it — and reshapes the moment reality
+     moves? IdiamPro turns the scatter into a strategy that stays alive."
+   - **Everyday thinkers** (BLESSED, final — features the SECOND BRAIN MENU; Howard: "that IS what
+     the company name is all about" = SecondBrainWare): "And honestly, that's all of us: the best
+     ideas arrive at random — in the shower, on a walk, mid-conversation — and vanish just as fast.
+     The Second Brain menu lets you catch each one the instant it strikes and catalog it — organize
+     it on the spot, or come back later to pull the scatter together and consolidate it into a real
+     plan for your life. Not just somewhere to remember — a way to finally act."
+     NOTE: Second Brain = the company's literal NAMESAKE (SecondBrainWare) — this is the company
+     thesis, so feature Second Brain PROMINENTLY site-wide (priority, not a nicety).
+     APPARENT-INTELLIGENCE / WISDOM ANGLE (Howard 2026-07-15, strong copy): organizing your random
+     facts increases your APPARENT INTELLIGENCE — even wisdom. "If someone remembers everything and
+     knows how to use everything, it sounds like wisdom." Reframes the product from a chore
+     (organization) to an identity (wisdom). Keeper lines: **"Remember everything. Know how to use
+     it. That's what wisdom looks like."** / "Organize what you know and you don't just get organized
+     — you get smarter." Use PROMINENTLY in the Second Brain section + the Story/philosophy page. The
+     aspirational top of the ladder: capture -> organize -> consolidate -> WISDOM.
+   ALL SIX SEGMENTS NOW LOCKED. Order: AI power users -> students -> writers -> founders -> creators ->
+   everyday thinkers. READY TO BUILD hero v2: each segment expands to reveal its pain-point sub-bullets,
+   synced to narration. SEPARATE QUEUED TASK: give the SECOND BRAIN facility far more copy/attention
+   site-wide (Howard: it's a real differentiator we've been underselling).
 3. **Messy → organized, shown TWO ways (the core duality):**
    - **(a) MANUAL / by hand — THE SOUL BEAT:** start from a visibly SCATTERED jumble of
      seemingly UNRELATED items; the user sculpts them by hand — **indent, outdent, drag
