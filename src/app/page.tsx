@@ -569,6 +569,283 @@ export default function MarketingPage() {
             </div>
           </div>
         </section>
+        {/* Ready to get started — closing "how to start + the offer" section:
+            3 steps, the getting-started film, and the membership tiers. Prices
+            are intentional PLACEHOLDERS — Howard sets the real numbers at launch. */}
+        <section className="px-6 py-24 lg:px-12 border-t border-[#c2dbd9] bg-gradient-to-b from-white to-[#eef7f6]">
+          <div className="max-w-[1600px] mx-auto">
+            {/* Heading */}
+            <div className="text-center max-w-3xl mx-auto mb-14">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-teal-600/15 border border-teal-600/40 mb-6">
+                <Rocket className="w-4 h-4 text-[#0c5c5b]" />
+                <span className="text-sm font-semibold text-[#0c5c5b]">Ready to get started?</span>
+              </div>
+              <h2 className="text-4xl md:text-6xl font-extrabold mb-5 leading-[1.08] tracking-tight text-[#0c2224]">
+                Ready to get started?
+              </h2>
+              <p className="text-lg md:text-xl text-[#22312f] leading-relaxed">
+                You&apos;re three quick steps from thinking bigger. Get the app, turn on free on-device AI, and start building — no credit card, no setup headaches.
+              </p>
+            </div>
+
+            {/* Getting-started steps */}
+            <div className="grid md:grid-cols-3 gap-6 mb-20">
+              {[
+                {
+                  n: '1',
+                  icon: Download,
+                  title: 'Download IdiamPro',
+                  body: 'Get it on Mac, iPhone & iPad, or run it right in your web browser. Your work syncs with you.',
+                  chips: ['Mac', 'iPhone · iPad', 'Web'],
+                },
+                {
+                  n: '2',
+                  icon: Brain,
+                  title: 'Add Google Gemma',
+                  body: 'Turn on free on-device AI — no API key, no cost, and your notes never leave your device. Want premium cloud AI? Bring your own key anytime.',
+                  chips: ['Free', 'No API key', 'Private'],
+                },
+                {
+                  n: '3',
+                  icon: Sparkles,
+                  title: 'Start creating',
+                  body: 'Capture ideas, organize them, consolidate the best thinking, and publish — outlines, videos, podcasts, and more.',
+                  chips: ['Capture', 'Organize', 'Consolidate', 'Publish'],
+                },
+              ].map((s) => {
+                const Icon = s.icon;
+                return (
+                  <div
+                    key={s.n}
+                    className="relative flex flex-col rounded-2xl border border-[#c2dbd9] bg-[#f4faf9] p-7 shadow-lg shadow-teal-600/5"
+                  >
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-teal-600 to-[#0c5c5b] text-white shadow-md shadow-teal-600/25">
+                        <Icon className="h-5 w-5" />
+                      </div>
+                      <span className="text-4xl font-extrabold text-[#c2dbd9]">{s.n}</span>
+                    </div>
+                    <h3 className="text-xl font-bold text-[#0c2224] mb-2">{s.title}</h3>
+                    <p className="text-sm text-[#22312f] leading-relaxed mb-5 flex-1">{s.body}</p>
+                    <div className="flex flex-wrap gap-2">
+                      {s.chips.map((c) => (
+                        <span
+                          key={c}
+                          className="inline-flex items-center rounded-full bg-teal-600/10 border border-teal-600/25 px-3 py-1 text-xs font-semibold text-[#0c5c5b]"
+                        >
+                          {c}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Platform reassurance — nobody is blocked. Apple gets native apps
+                today; every other platform is fully usable right now via the web.
+                Honest per real status: do NOT claim native Windows/Linux/Android. */}
+            <div className="mb-20">
+              <div className="text-center max-w-3xl mx-auto mb-8">
+                <h3 className="text-3xl md:text-4xl font-extrabold text-[#0c2224] tracking-tight mb-3">
+                  Start now, on any device
+                </h3>
+                <p className="text-lg text-[#22312f]">
+                  Native apps on Apple. Everywhere else, the free web version runs instantly — nothing to install.
+                </p>
+              </div>
+              <div className="grid sm:grid-cols-2 gap-6">
+                {/* Apple native */}
+                <div className="rounded-2xl border border-[#c2dbd9] bg-[#f4faf9] p-7 shadow-lg shadow-teal-600/5">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-teal-600 to-[#0c5c5b] text-white">
+                      <Laptop className="h-4 w-4" />
+                    </div>
+                    <h4 className="text-lg font-bold text-[#0c2224]">Apple — native apps</h4>
+                  </div>
+                  <p className="text-sm text-[#22312f] leading-relaxed mb-5">
+                    The full native experience, downloaded and installed on your Apple devices.
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      { icon: Laptop, label: 'Mac' },
+                      { icon: Smartphone, label: 'iPhone' },
+                      { icon: Smartphone, label: 'iPad' },
+                    ].map((p, i) => {
+                      const Icon = p.icon;
+                      return (
+                        <span key={i} className="inline-flex items-center gap-1.5 rounded-full bg-teal-600/10 border border-teal-600/25 px-3 py-1.5 text-xs font-semibold text-[#0c5c5b]">
+                          <Icon className="h-3.5 w-3.5" />
+                          {p.label}
+                        </span>
+                      );
+                    })}
+                  </div>
+                </div>
+                {/* Web — any device */}
+                <div className="rounded-2xl border border-[#c2dbd9] bg-[#f4faf9] p-7 shadow-lg shadow-teal-600/5">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-teal-600 to-[#0c5c5b] text-white">
+                      <Globe className="h-4 w-4" />
+                    </div>
+                    <h4 className="text-lg font-bold text-[#0c2224]">Web — any device</h4>
+                  </div>
+                  <p className="text-sm text-[#22312f] leading-relaxed mb-5">
+                    Nothing to install. Open it in any modern browser and start right now — the free web version runs instantly, everywhere.
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {['Windows', 'Linux', 'Chromebook', 'Android', 'Any browser'].map((p) => (
+                      <span key={p} className="inline-flex items-center gap-1.5 rounded-full bg-teal-600/10 border border-teal-600/25 px-3 py-1.5 text-xs font-semibold text-[#0c5c5b]">
+                        <Monitor className="h-3.5 w-3.5" />
+                        {p}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Getting-started video — full-bleed on mobile, framed on desktop.
+                The film is produced in parallel; if the mp4/poster aren't on disk
+                yet, the teal gradient frame shows gracefully instead of failing. */}
+            <div className="mb-20">
+              <div className="text-center mb-8">
+                <h3 className="text-3xl md:text-4xl font-extrabold text-[#0c2224] tracking-tight mb-3">
+                  Watch it come together
+                </h3>
+                <p className="text-lg text-[#22312f] max-w-2xl mx-auto">
+                  A two-minute walkthrough — from a blank page to a published idea.
+                </p>
+              </div>
+              <div className="overflow-hidden -mx-6 sm:mx-0 rounded-none sm:rounded-2xl border-y sm:border border-[#c2dbd9] bg-gradient-to-br from-[#0E7C7B] via-[#0c5c5b] to-[#0a3d3c] shadow-2xl shadow-teal-600/15 ring-1 ring-teal-600/10">
+                <video
+                  className="block h-auto w-full aspect-video object-cover"
+                  src="/getting-started.mp4"
+                  poster="/getting-started-poster.jpg"
+                  controls
+                  playsInline
+                  preload="metadata"
+                  aria-label="Getting Started with IdiamPro — a two-minute walkthrough from blank page to published idea."
+                />
+              </div>
+              <p className="mt-3 flex items-center justify-center gap-1.5 text-sm text-[#42504f]">
+                <Video className="h-3.5 w-3.5 text-teal-600" />
+                Getting Started walkthrough
+              </p>
+            </div>
+
+            {/* Membership tiers */}
+            <div className="text-center max-w-3xl mx-auto mb-12">
+              <h3 className="text-3xl md:text-5xl font-extrabold text-[#0c2224] tracking-tight mb-4">
+                Choose your plan
+              </h3>
+              <p className="text-lg text-[#22312f]">
+                Start free forever. Upgrade whenever you want more power.
+              </p>
+            </div>
+            <div className="grid md:grid-cols-3 gap-6 items-stretch">
+              {/* Free */}
+              <div className="flex flex-col rounded-2xl border border-[#c2dbd9] bg-[#f4faf9] p-8 shadow-lg shadow-teal-600/5">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-600/15 text-[#0c5c5b]">
+                    <Star className="h-4 w-4" />
+                  </div>
+                  <h4 className="text-xl font-bold text-[#0c2224]">Free</h4>
+                </div>
+                <div className="mb-6">
+                  <span className="inline-flex items-center rounded-full bg-[#e3efee] border border-dashed border-[#8fbfbd] px-4 py-1.5 text-sm font-bold uppercase tracking-wide text-[#0c5c5b]">
+                    Free forever
+                  </span>
+                  <p className="mt-2 text-xs text-[#5a6a69]">No credit card required</p>
+                </div>
+                <ul className="space-y-3 mb-8 flex-1">
+                  {['On-device AI with Google Gemma', 'Full outlining & Second Brain', 'Capture, organize & consolidate', 'Your data stays on your device'].map((f) => (
+                    <li key={f} className="flex items-start gap-2 text-sm text-[#22312f]">
+                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-teal-600" />
+                      <span>{f}</span>
+                    </li>
+                  ))}
+                </ul>
+                <Button
+                  onClick={() => { window.location.href = '/signup'; }}
+                  variant="outline"
+                  size="lg"
+                  className="w-full border-[#0c5c5b] text-[#0c5c5b] hover:bg-teal-50 font-semibold"
+                >
+                  Get started free
+                </Button>
+              </div>
+
+              {/* Professional — highlighted */}
+              <div className="relative flex flex-col rounded-2xl border-2 border-teal-600 bg-white p-8 shadow-2xl shadow-teal-600/20 md:-mt-3">
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-teal-600 to-[#0c5c5b] px-4 py-1 text-xs font-bold uppercase tracking-wider text-white shadow-md">
+                  Most popular
+                </span>
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-teal-600 to-[#0c5c5b] text-white">
+                    <Briefcase className="h-4 w-4" />
+                  </div>
+                  <h4 className="text-xl font-bold text-[#0c2224]">Professional</h4>
+                </div>
+                <div className="mb-6">
+                  <span className="inline-flex items-center rounded-full bg-[#e3efee] border border-dashed border-[#8fbfbd] px-4 py-1.5 text-sm font-bold uppercase tracking-wide text-[#0c5c5b]">
+                    Pricing at launch
+                  </span>
+                  <p className="mt-2 text-xs text-[#5a6a69]">Your price here — set before launch</p>
+                </div>
+                <ul className="space-y-3 mb-8 flex-1">
+                  {['Everything in Free, plus:', 'Premium cloud AI models', 'Video & podcast generation', 'All export formats', 'Priority support'].map((f) => (
+                    <li key={f} className="flex items-start gap-2 text-sm text-[#22312f]">
+                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-teal-600" />
+                      <span>{f}</span>
+                    </li>
+                  ))}
+                </ul>
+                <Button
+                  onClick={() => { window.location.href = '/signup'; }}
+                  size="lg"
+                  className="w-full bg-gradient-to-r from-teal-600 to-[#0c5c5b] hover:from-teal-700 hover:to-[#0a4a49] text-white font-bold shadow-lg shadow-teal-600/25"
+                >
+                  Start Professional
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </div>
+
+              {/* Student */}
+              <div className="flex flex-col rounded-2xl border border-[#c2dbd9] bg-[#f4faf9] p-8 shadow-lg shadow-teal-600/5">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-600/15 text-[#0c5c5b]">
+                    <GraduationCap className="h-4 w-4" />
+                  </div>
+                  <h4 className="text-xl font-bold text-[#0c2224]">Student</h4>
+                </div>
+                <div className="mb-6">
+                  <span className="inline-flex items-center rounded-full bg-[#e3efee] border border-dashed border-[#8fbfbd] px-4 py-1.5 text-sm font-bold uppercase tracking-wide text-[#0c5c5b]">
+                    Student price at launch
+                  </span>
+                  <p className="mt-2 text-xs text-[#5a6a69]">Discount set before launch · verify with a .edu email</p>
+                </div>
+                <ul className="space-y-3 mb-8 flex-1">
+                  {['Everything in Professional', 'Special student discount', 'Verify with your .edu email', 'Built for coursework & research'].map((f) => (
+                    <li key={f} className="flex items-start gap-2 text-sm text-[#22312f]">
+                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-teal-600" />
+                      <span>{f}</span>
+                    </li>
+                  ))}
+                </ul>
+                <Button
+                  onClick={() => { window.location.href = '/signup'; }}
+                  variant="outline"
+                  size="lg"
+                  className="w-full border-[#0c5c5b] text-[#0c5c5b] hover:bg-teal-50 font-semibold"
+                >
+                  Get student pricing
+                </Button>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Final CTA — dramatic deep-teal contrast band */}
         <section className="px-6 py-28 lg:px-12 bg-gradient-to-br from-[#0E7C7B] via-[#0c5c5b] to-[#0a3d3c]">
           <div className="max-w-[1600px] mx-auto text-center">
