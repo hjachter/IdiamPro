@@ -70,7 +70,8 @@ import {
   SpeakerIcon,
   Volume2,
   BarChart3,
-  Languages
+  Languages,
+  AlertTriangle
 } from 'lucide-react';
 
 // ============================================
@@ -753,6 +754,78 @@ export default function MarketingPage() {
                   </div>
                 );
               })}
+            </div>
+
+            {/* Keep your work safe — DELIBERATE RED LIABILITY-DISCLAIMER treatment
+                (Howard 2026-07-16: red, bold, bordered — a warning, not a tip).
+                Local-first: files live on the user's device (desktop) or in the
+                browser's storage (web), so off-device backup is the user's
+                responsibility. Covers BOTH the native-file case and the more
+                fragile browser-storage case. No literal flashing — a professional
+                tool doesn't blink, and it breaks screen readers. */}
+            <div className="mb-20">
+              <div className="relative overflow-hidden rounded-2xl border-2 border-red-500 bg-red-50 p-7 sm:p-9 shadow-lg shadow-red-500/15">
+                <div className="flex flex-col sm:flex-row sm:items-start gap-5">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-red-600 to-red-700 text-white shadow-md shadow-red-600/25">
+                    <AlertTriangle className="h-6 w-6" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                      <span className="inline-flex items-center rounded-full bg-red-600 px-3 py-1 text-xs font-bold uppercase tracking-wider text-white">
+                        Important — please read
+                      </span>
+                    </div>
+                    <h3 className="text-2xl md:text-3xl font-extrabold text-red-700 tracking-tight mb-3">
+                      Keep your work safe — back it up
+                    </h3>
+                    <p className="text-base leading-relaxed mb-3">
+                      <span className="font-bold text-red-700">Your work lives on your own device, and keeping it safe is ultimately your responsibility. Store your IdiamPro files in a location that&apos;s automatically backed up.</span>
+                      <span className="text-[#22312f]"> The method is your choice — iCloud Drive, Dropbox, Google Drive, OneDrive, a Time Machine disk, or any backup you trust. IdiamPro keeps automatic local snapshots as a safety net, but they are </span>
+                      <span className="font-bold text-red-700">not a substitute for your own off-device backup.</span>
+                    </p>
+                    <p className="text-base leading-relaxed mb-4">
+                      <span className="font-bold text-red-700">Using the free web version in a browser? Your work is saved inside that browser, on that device — and it can be lost if you clear your browser data, use private/incognito mode, or switch browsers.</span>
+                      <span className="text-[#22312f]"> Export your outlines regularly and keep the copies in a backed-up location.</span>
+                    </p>
+                    <div className="flex flex-wrap gap-2 mb-5">
+                      {['iCloud Drive', 'Dropbox', 'Google Drive', 'OneDrive', 'Time Machine', 'Your choice'].map((c) => (
+                        <span
+                          key={c}
+                          className="inline-flex items-center rounded-full bg-white border border-red-300 px-3 py-1 text-xs font-semibold text-red-700"
+                        >
+                          {c}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="mb-5 rounded-xl border border-red-200 bg-white/60 p-4">
+                      <div className="mb-2 text-xs font-bold uppercase tracking-wider text-red-700">
+                        More ways to protect your work
+                      </div>
+                      <ul className="grid gap-2 text-sm text-[#22312f] sm:grid-cols-2">
+                        {[
+                          'Keep more than one copy — the 3-2-1 rule: 3 copies, on 2 kinds of storage, 1 kept off-site.',
+                          'Use a backup that keeps version history (Time Machine, iCloud, Dropbox) so you can roll back a bad change or a corrupted file.',
+                          'Export important outlines before any big reorganization or deletion — an extra copy costs nothing.',
+                          'Occasionally test that you can actually restore a file — an untested backup isn’t a backup.',
+                          'Protect the device itself: turn on disk encryption (FileVault on Mac) and a passcode/login.',
+                          'Turn on two-factor authentication for your cloud/backup account so the backup itself stays secure.',
+                        ].map((m) => (
+                          <li key={m} className="flex items-start gap-2">
+                            <Check className="mt-0.5 h-4 w-4 shrink-0 text-red-600" />
+                            <span>{m}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div className="inline-flex items-center gap-2 rounded-xl bg-red-100 border border-red-300 px-4 py-2.5">
+                      <MessagesSquare className="h-4 w-4 shrink-0 text-red-700" />
+                      <span className="text-sm font-medium text-[#0c2224]">
+                        Not sure what to pick? Ask <span className="font-bold">IdiamPro Help</span> and we&apos;ll walk you through it.
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Platform reassurance — nobody is blocked. Apple gets native apps

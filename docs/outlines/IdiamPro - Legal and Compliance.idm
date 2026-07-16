@@ -18,7 +18,8 @@
         "intellectual-property",
         "insurance",
         "additional-compliance",
-        "timeline"
+        "timeline",
+        "f763b764-8dfd-4d33-b364-815c674e82c6"
       ],
       "isCollapsed": false,
       "prefix": ""
@@ -1217,16 +1218,101 @@
     "ai-consent-compliance": {
       "id": "ai-consent-compliance",
       "name": "AI Data Consent (Apple Guideline 5.1.2(i))",
-      "content": "<p><strong>Status: IMPLEMENTED</strong></p><p></p><p>Apple requires apps to obtain consent before sending user data to third-party services. Implementation:</p><ul><li><p>Consent dialog appears on first AI feature use</p></li><li><p>Names all three AI providers and what data is sent</p></li><li><p>Two-step decline: warning lists disabled features before confirming</p></li><li><p>Settings \u2192 Data &amp; Privacy toggle to revoke/grant</p></li><li><p>All AI operations gated by consent check</p></li><li><p>Privacy policy linked from consent dialog</p></li></ul>",
+      "content": "<p><strong>Status: IMPLEMENTED</strong></p><p></p><p>Apple requires apps to obtain consent before sending user data to third-party services. Implementation:</p><ul><li><p>Consent dialog appears on first AI feature use</p></li><li><p>Names all three AI providers and what data is sent</p></li><li><p>Two-step decline: warning lists disabled features before confirming</p></li><li><p>Settings → Data &amp; Privacy toggle to revoke/grant</p></li><li><p>All AI operations gated by consent check</p></li><li><p>Privacy policy linked from consent dialog</p></li></ul>",
       "childrenIds": [],
-      "isExpanded": false
+      "isExpanded": false,
+      "prefix": ""
+    },
+    "f763b764-8dfd-4d33-b364-815c674e82c6": {
+      "id": "f763b764-8dfd-4d33-b364-815c674e82c6",
+      "name": "Data Storage & Backup — User Responsibility (Disclaimer of Liability)",
+      "content": "IMPORTANT liability disclaimer. Must be surfaced to users IMMEDIATELY at first-run/setup, shown in the website setup section, taught to Help, and included in the Terms of Service. IdiamPro is local-first: user data lives on the user's own device.",
+      "type": "note",
+      "parentId": "root-legal",
+      "childrenIds": [
+        "23f127a1-7484-46df-9ff1-0464e8559e9f",
+        "85f69864-e968-4e1e-bc79-b49d9140fcd8",
+        "c9a7c6b3-98b3-4df4-b675-a64eb6822fac",
+        "06e3c468-f904-4b6b-8a58-325622c6c297",
+        "2df6e4be-c2e6-4aea-829b-0ff26cdf80b8"
+      ],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1784189432545,
+        "updatedAt": 1784189432545
+      }
+    },
+    "23f127a1-7484-46df-9ff1-0464e8559e9f": {
+      "id": "23f127a1-7484-46df-9ff1-0464e8559e9f",
+      "name": "Statement (for Terms of Service)",
+      "content": "IdiamPro is a local-first application: your outlines and data files are stored on your own device, in locations you control. You retain full ownership and control of your data.\n\nBecause your data resides on your own machine, YOU are solely responsible for the security, storage, and backup of your files. We strongly recommend that you store your IdiamPro data files in a location that is automatically and regularly backed up.\n\nIdiamPro provides an automatic local snapshot / backup-health feature as a convenience and safety net; however, this is NOT a substitute for your own independent, off-device backup, and it does not protect against device loss, theft, hardware failure, or file deletion outside the app.\n\nTo the maximum extent permitted by law, SecondBrainWare LLC and IdiamPro disclaim all liability for any loss, corruption, or unavailability of data stored on your device. Ensuring your files are stored securely and backed up is your responsibility.\n\nIf you would like guidance choosing or configuring a backup method, contact IdiamPro Help.",
+      "type": "note",
+      "parentId": "f763b764-8dfd-4d33-b364-815c674e82c6",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1784189432545,
+        "updatedAt": 1784189432545
+      }
+    },
+    "85f69864-e968-4e1e-bc79-b49d9140fcd8": {
+      "id": "85f69864-e968-4e1e-bc79-b49d9140fcd8",
+      "name": "Backup options we present to users",
+      "content": "Concrete options to name (the choice is theirs): iCloud Drive, Dropbox, Google Drive, Microsoft OneDrive, an external Time Machine disk, or any other trusted backup solution. Guidance: keep your IdiamPro data files inside one of these automatically-backed-up folders.",
+      "type": "note",
+      "parentId": "f763b764-8dfd-4d33-b364-815c674e82c6",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1784189432545,
+        "updatedAt": 1784189432545
+      }
+    },
+    "c9a7c6b3-98b3-4df4-b675-a64eb6822fac": {
+      "id": "c9a7c6b3-98b3-4df4-b675-a64eb6822fac",
+      "name": "Where this must appear",
+      "content": "1) IMMEDIATELY at first-run / in the setup plan inside the app (a one-time notice, not buried).\n2) The website 'Ready to get started?' setup section (backup as an explicit setup step).\n3) Help assistant context (so 'how do I back up?' gets a real answer).\n4) User Guide.\n5) The Terms of Service (formal disclaimer of liability).\nRationale (Howard, 2026-07-16): intentional redundancy — this is a disclaimer of liability and is very important to us.",
+      "type": "note",
+      "parentId": "f763b764-8dfd-4d33-b364-815c674e82c6",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1784189432545,
+        "updatedAt": 1784189432545
+      }
+    },
+    "06e3c468-f904-4b6b-8a58-325622c6c297": {
+      "id": "06e3c468-f904-4b6b-8a58-325622c6c297",
+      "name": "Web (browser) users — additional warning (data lives in the browser)",
+      "content": "If you use the free WEB version of IdiamPro in a browser, your outlines are stored in your browser's local storage area — on your device, inside that one specific browser.\n\nThis means:\n- Your data is tied to that browser on that device. It does NOT automatically follow you to another browser, computer, or device.\n- Your data can be LOST if you clear your browser's cache / history / site data, use private/incognito mode, or if the browser evicts stored data to free up space.\n\nHow to protect it:\n- Regularly EXPORT / download your outlines and keep those exported files in an automatically-backed-up location (iCloud Drive, Dropbox, Google Drive, OneDrive, etc.).\n- Do not clear your browser's site data for IdiamPro unless you have exported your work first.\n- For the strongest protection, use the native app (Mac / iPhone / iPad), where your work is real files you can keep in a backed-up folder.\n\nAs with all IdiamPro data, protecting and backing up your data is your responsibility. Ask IdiamPro Help for guidance. This must be surfaced to web users IMMEDIATELY at first use.",
+      "type": "note",
+      "parentId": "f763b764-8dfd-4d33-b364-815c674e82c6",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1784189483873,
+        "updatedAt": 1784189483873
+      }
+    },
+    "2df6e4be-c2e6-4aea-829b-0ff26cdf80b8": {
+      "id": "2df6e4be-c2e6-4aea-829b-0ff26cdf80b8",
+      "name": "Additional protection measures (best practices we recommend)",
+      "content": "Beyond storing files in an automatically-backed-up location, we recommend users also:\n- Keep more than one copy — the 3-2-1 rule: 3 copies, on 2 different kinds of storage, with 1 kept off-site (e.g. in the cloud).\n- Use a backup that keeps VERSION HISTORY (Time Machine, iCloud, Dropbox, Google Drive), so you can roll back a bad change or a corrupted file — not just mirror the latest state.\n- Export important outlines before any big reorganization or deletion; an extra copy costs nothing.\n- Occasionally TEST that you can actually restore a file — an untested backup isn't a backup.\n- Protect the device itself: turn on disk encryption (FileVault on Mac / device encryption elsewhere) and a passcode/login.\n- Turn on two-factor authentication on the cloud/backup account so the backup itself stays secure.\n- Web users especially: export before clearing browser data, switching browsers, or uninstalling.",
+      "type": "note",
+      "parentId": "f763b764-8dfd-4d33-b364-815c674e82c6",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1784189826295,
+        "updatedAt": 1784189826295
+      }
     }
   },
   "createdAt": "2025-01-14T00:00:00.000Z",
   "updatedAt": "2025-01-14T00:00:00.000Z",
   "isGuide": false,
-  "_fileSize": 42326,
+  "_fileSize": 43337,
   "_fileName": "IdiamPro - Legal and Compliance.idm",
   "_isLazyLoaded": false,
-  "lastModified": 1769860111864
+  "lastModified": 1784189826295
 }
