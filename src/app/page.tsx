@@ -392,6 +392,117 @@ export default function MarketingPage() {
           </div>
         </section>
 
+        {/* Three categories — the crisp crystallization of IdiamPro's category:
+            query box ANSWERS, outliner STORES, IdiamPro DEVELOPS. Light Clarity
+            band; leads into the dark tool-by-tool grid below as the deeper dive. */}
+        <section className="px-6 py-24 lg:px-12 border-t border-[#c2dbd9]">
+          <div className="max-w-[1600px] mx-auto">
+            <div className="text-center max-w-3xl mx-auto mb-14">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-teal-600/15 border border-teal-600/40 mb-6">
+                <Layers className="w-4 h-4 text-[#0c5c5b]" />
+                <span className="text-sm font-semibold text-[#0c5c5b]">Where IdiamPro fits</span>
+              </div>
+              <h2 className="text-4xl md:text-5xl font-extrabold text-[#0c2224] mb-4 tracking-tight">
+                Three kinds of tools. Only one thinks <span className="text-[#0c5c5b]">with</span> you.
+              </h2>
+              <p className="text-lg md:text-xl text-[#22312f] leading-relaxed max-w-[720px] mx-auto">
+                A query box answers. A filing cabinet stores. IdiamPro develops — the difference between a moment and a process.
+              </p>
+            </div>
+
+            {/* Three columns — first two muted, IdiamPro the highlighted culmination */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5 items-stretch">
+              {/* 1 — The query box */}
+              <div className="flex flex-col rounded-2xl border border-[#c2dbd9] bg-[#f4faf9] p-7">
+                <div className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-[#e3efee] border border-[#c2dbd9] mb-5">
+                  <MessagesSquare className="w-5 h-5 text-[#5a6a69]" />
+                </div>
+                <div className="text-xs font-bold uppercase tracking-wider text-[#5a6a69] mb-1">The query box</div>
+                <div className="text-sm text-[#5a6a69] mb-4">ChatGPT · Gemini · Claude chat</div>
+                <div className="text-3xl md:text-4xl font-extrabold text-[#42504f] mb-4 tracking-tight">Answers.</div>
+                <p className="text-sm text-[#42504f] leading-relaxed">
+                  You ask, it answers — then the thinking evaporates. Brilliant for one reply, but there&apos;s no structure, no growing memory, no body of work. A moment, not a process.
+                </p>
+              </div>
+
+              {/* 2 — The outliner / vault */}
+              <div className="flex flex-col rounded-2xl border border-[#c2dbd9] bg-[#f4faf9] p-7">
+                <div className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-[#e3efee] border border-[#c2dbd9] mb-5">
+                  <FolderTree className="w-5 h-5 text-[#5a6a69]" />
+                </div>
+                <div className="text-xs font-bold uppercase tracking-wider text-[#5a6a69] mb-1">The outliner / vault</div>
+                <div className="text-sm text-[#5a6a69] mb-4">Obsidian · Notion · Roam</div>
+                <div className="text-3xl md:text-4xl font-extrabold text-[#42504f] mb-4 tracking-tight">Stores.</div>
+                <p className="text-sm text-[#42504f] leading-relaxed">
+                  A place to store what you already figured out. Passive: it holds your notes, but it won&apos;t help you develop them, connect them, or turn them into anything.
+                </p>
+              </div>
+
+              {/* 3 — IdiamPro (highlighted culmination) */}
+              <div className="relative flex flex-col rounded-2xl border-2 border-teal-600 bg-gradient-to-br from-teal-700/12 to-teal-700/[0.06] p-7 shadow-2xl shadow-teal-600/20 md:-mt-3">
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-teal-600 to-[#0c5c5b] px-4 py-1 text-xs font-bold uppercase tracking-wider text-white shadow-md whitespace-nowrap">
+                  A different category
+                </span>
+                <div className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-teal-600/25 border border-teal-600/40 mb-5">
+                  <Brain className="w-5 h-5 text-[#0c5c5b]" />
+                </div>
+                <div className="text-xs font-bold uppercase tracking-wider text-[#0c5c5b] mb-1">IdiamPro</div>
+                <div className="text-sm text-[#0c5c5b] mb-4">The idea-development engine</div>
+                <div className="text-3xl md:text-4xl font-extrabold text-[#0c5c5b] mb-4 tracking-tight">Develops.</div>
+                <p className="text-sm text-[#22312f] leading-relaxed mb-4">
+                  The only one that works <span className="font-bold text-[#0c5c5b]">with</span> you to develop an idea over time: capture, structure, enrich from the web and AI, <span className="font-bold text-[#0c5c5b]">consolidate</span> it into real understanding — then produce finished work.
+                </p>
+                <div className="mt-auto flex flex-wrap gap-1.5">
+                  {['Documents', 'Videos', 'Podcasts', 'Sites', '21 languages'].map((f) => (
+                    <span key={f} className="inline-flex items-center rounded-full bg-teal-600/12 border border-teal-600/25 px-2.5 py-1 text-xs font-semibold text-[#0c5c5b]">
+                      {f}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Kicker — the consolidation → wisdom thesis */}
+            <p className="text-center text-base md:text-lg text-[#22312f] leading-relaxed mt-12 max-w-[760px] mx-auto">
+              <span className="font-bold text-[#0c2224]">Reorganizing your thinking is understanding it.</span> That consolidation — everything you know, connected and reusable — is what a query box and a filing cabinet can never give you. Querying is a moment; developing is a process.
+            </p>
+
+            {/* Capability matrix — scannable check/✗ across the three */}
+            <div className="mt-14 max-w-[900px] mx-auto rounded-2xl border border-[#c2dbd9] bg-white overflow-hidden shadow-[0_1px_3px_rgba(12,34,36,0.06),0_8px_24px_rgba(12,34,36,0.05)]">
+              {/* Header row */}
+              <div className="grid grid-cols-[1.7fr_1fr_1fr_1fr] bg-[#f4faf9] border-b border-[#c2dbd9]">
+                <div className="p-3 md:p-4" />
+                <div className="p-3 md:p-4 text-center text-[11px] md:text-xs font-bold text-[#5a6a69] leading-tight">Query<br className="sm:hidden" /> box</div>
+                <div className="p-3 md:p-4 text-center text-[11px] md:text-xs font-bold text-[#5a6a69] leading-tight">Outliner<br className="sm:hidden" /> / vault</div>
+                <div className="p-3 md:p-4 text-center text-[11px] md:text-xs font-extrabold text-[#0c5c5b] leading-tight bg-teal-600/10">IdiamPro</div>
+              </div>
+              {[
+                { row: 'Memory that grows over time', a: false, b: 'partial', c: true },
+                { row: 'Turns thinking into finished work', a: 'partial', b: false, c: true },
+                { row: 'Consolidates across everything you know', a: false, b: false, c: true },
+                { row: 'Works WITH you, not one-shot', a: false, b: false, c: true },
+              ].map((m, i) => {
+                const cell = (v: boolean | string, highlight = false) => {
+                  if (v === true) return <Check className={`h-4 w-4 md:h-5 md:w-5 ${highlight ? 'text-teal-600' : 'text-teal-600'}`} strokeWidth={3} />;
+                  if (v === 'partial') return <span className="text-[#8a9a99] font-bold text-base md:text-lg leading-none">~</span>;
+                  return <X className="h-4 w-4 md:h-5 md:w-5 text-[#c2cfce]" strokeWidth={2.5} />;
+                };
+                return (
+                  <div
+                    key={m.row}
+                    className={`grid grid-cols-[1.7fr_1fr_1fr_1fr] items-center ${i > 0 ? 'border-t border-[#e0edeb]' : ''}`}
+                  >
+                    <div className="p-3 md:p-4 text-xs md:text-sm font-medium text-[#22312f] leading-snug">{m.row}</div>
+                    <div className="p-3 md:p-4 flex justify-center">{cell(m.a)}</div>
+                    <div className="p-3 md:p-4 flex justify-center">{cell(m.b)}</div>
+                    <div className="p-3 md:p-4 flex justify-center bg-teal-600/[0.06]">{cell(m.c, true)}</div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
         {/* A different kind of tool — competitor contrast grid, on a dramatic
             full-bleed dark-ink/teal band to break the white wash */}
         <section className="px-6 py-24 lg:px-12 bg-gradient-to-br from-[#0a3d3c] via-[#0c2224] to-[#0c2224]">
@@ -571,7 +682,9 @@ export default function MarketingPage() {
         </section>
         {/* Ready to get started — closing "how to start + the offer" section:
             3 steps, the getting-started film, and the membership tiers. Prices
-            are intentional PLACEHOLDERS — Howard sets the real numbers at launch. */}
+            CONFIRMED by Howard 2026-07-16 (see docs/pricing-cost-analysis.md):
+            Free $0, Professional $19.99/mo, Student $9.99/mo — web/Mac headline
+            prices; iPhone/iPad billed via the App Store (Apple's cut). */}
         <section className="px-6 py-24 lg:px-12 border-t border-[#c2dbd9] bg-gradient-to-b from-white to-[#eef7f6]">
           <div className="max-w-[1600px] mx-auto">
             {/* Heading */}
@@ -753,9 +866,10 @@ export default function MarketingPage() {
                   <h4 className="text-xl font-bold text-[#0c2224]">Free</h4>
                 </div>
                 <div className="mb-6">
-                  <span className="inline-flex items-center rounded-full bg-[#e3efee] border border-dashed border-[#8fbfbd] px-4 py-1.5 text-sm font-bold uppercase tracking-wide text-[#0c5c5b]">
-                    Free forever
-                  </span>
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="text-4xl font-extrabold text-[#0c2224]">$0</span>
+                    <span className="text-sm font-medium text-[#5a6a69]">forever</span>
+                  </div>
                   <p className="mt-2 text-xs text-[#5a6a69]">No credit card required</p>
                 </div>
                 <ul className="space-y-3 mb-8 flex-1">
@@ -788,10 +902,11 @@ export default function MarketingPage() {
                   <h4 className="text-xl font-bold text-[#0c2224]">Professional</h4>
                 </div>
                 <div className="mb-6">
-                  <span className="inline-flex items-center rounded-full bg-[#e3efee] border border-dashed border-[#8fbfbd] px-4 py-1.5 text-sm font-bold uppercase tracking-wide text-[#0c5c5b]">
-                    Pricing at launch
-                  </span>
-                  <p className="mt-2 text-xs text-[#5a6a69]">Your price here — set before launch</p>
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="text-4xl font-extrabold text-[#0c2224]">$19.99</span>
+                    <span className="text-sm font-medium text-[#5a6a69]">/month</span>
+                  </div>
+                  <p className="mt-2 text-xs text-[#5a6a69]">First month free · on web &amp; Mac. iPhone &amp; iPad via the App Store.</p>
                 </div>
                 <ul className="space-y-3 mb-8 flex-1">
                   {['Everything in Free, plus:', 'Premium cloud AI models', 'Video & podcast generation', 'All export formats', 'Priority support'].map((f) => (
@@ -820,10 +935,11 @@ export default function MarketingPage() {
                   <h4 className="text-xl font-bold text-[#0c2224]">Student</h4>
                 </div>
                 <div className="mb-6">
-                  <span className="inline-flex items-center rounded-full bg-[#e3efee] border border-dashed border-[#8fbfbd] px-4 py-1.5 text-sm font-bold uppercase tracking-wide text-[#0c5c5b]">
-                    Student price at launch
-                  </span>
-                  <p className="mt-2 text-xs text-[#5a6a69]">Discount set before launch · verify with a .edu email</p>
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="text-4xl font-extrabold text-[#0c2224]">$9.99</span>
+                    <span className="text-sm font-medium text-[#5a6a69]">/month</span>
+                  </div>
+                  <p className="mt-2 text-xs text-[#5a6a69]">Half price · verify with your .edu email. iPhone &amp; iPad via the App Store.</p>
                 </div>
                 <ul className="space-y-3 mb-8 flex-1">
                   {['Everything in Professional', 'Special student discount', 'Verify with your .edu email', 'Built for coursework & research'].map((f) => (

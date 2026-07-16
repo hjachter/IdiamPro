@@ -1,8 +1,10 @@
-# IdiamPro — Pricing & Cost Analysis
+# IdiamPro - Pricing & Cost Analysis
 
-**Status:** PROPOSED (2026-07-16). Working model, pending Howard's final lock. Real vendor
-dollars get plugged in once the funded company account is live; where exact figures aren't
-known yet, this uses **industry-standard costs and best practices** (per Howard's direction).
+**Status:** ✅ CONFIRMED by Howard (2026-07-16) — prices approved and going live in the
+marketing site's membership cards. Real vendor dollars still get reconciled once the funded
+company account is live and true usage is measured; where exact figures aren't known yet, this
+uses **industry-standard costs and best practices** (per Howard's direction). The tier prices
+below are the approved launch numbers; the underlying cost estimates remain to be trued-up.
 
 ## Method (from the official Pricing & Margin Policy)
 

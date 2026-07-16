@@ -26,7 +26,8 @@
         "24012bb0-25b8-4c07-ad1c-cec65f144740",
         "unrealized-todo-20260513",
         "video-generation-feasibility-2026-06-04",
-        "tech-stack-bootstrap-note-2026-06-06"
+        "tech-stack-bootstrap-note-2026-06-06",
+        "14d2a7be-30b4-4bdb-bbdd-95e79b91ac44"
       ],
       "isCollapsed": false,
       "prefix": ""
@@ -1087,11 +1088,81 @@
       "childrenIds": [],
       "isCollapsed": false,
       "prefix": "2.6.1"
+    },
+    "14d2a7be-30b4-4bdb-bbdd-95e79b91ac44": {
+      "id": "14d2a7be-30b4-4bdb-bbdd-95e79b91ac44",
+      "name": "Pricing & Cost Analysis (confirmed 2026-07-16)",
+      "content": "Confirmed launch pricing + the cost model behind it. Full write-up: standalone outline \"IdiamPro - Pricing & Cost Analysis\" and docs/pricing-cost-analysis.md.",
+      "type": "note",
+      "parentId": "root-bootstrap",
+      "childrenIds": [
+        "ea5fea57-5361-44cf-a92a-a2a04d3c6792",
+        "e9278a4e-6544-4165-a3ed-5fce362ad5b3",
+        "520780e4-1b02-4241-834d-a28552adcbcc",
+        "d0b1107d-c657-4670-8e8e-76765b93eeac"
+      ],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1784189095629,
+        "updatedAt": 1784189095629
+      }
+    },
+    "ea5fea57-5361-44cf-a92a-a2a04d3c6792": {
+      "id": "ea5fea57-5361-44cf-a92a-a2a04d3c6792",
+      "name": "Confirmed tiers",
+      "content": "Free: $0 forever (core app + on-device Google Gemma AI).\nProfessional: $19.99/mo on web & Mac ($29.99/mo on iPhone/iPad, via the App Store, to cover Apple's cut). First month free.\nStudent: $9.99/mo (half price) on web & Mac ($14.99 iPhone/iPad); verify with a .edu email; lighter premium allowance so the discount stays cash-positive.",
+      "type": "note",
+      "parentId": "14d2a7be-30b4-4bdb-bbdd-95e79b91ac44",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1784189095629,
+        "updatedAt": 1784189095629
+      }
+    },
+    "e9278a4e-6544-4165-a3ed-5fce362ad5b3": {
+      "id": "e9278a4e-6544-4165-a3ed-5fce362ad5b3",
+      "name": "Method — 20% margin, calculated backwards",
+      "content": "Margin = 20% share of the SALE PRICE, over FULLY-LOADED cost (AI allowance + infra/overhead + payment fee). Price = cost / (1 - margin - payment-fee rate). Web fee ~3% (Stripe); iPhone 15-30% (Apple IAP). Never below cost; usage metered so cost can't run away. Uses industry-standard cost inputs until real vendor figures are known.",
+      "type": "note",
+      "parentId": "14d2a7be-30b4-4bdb-bbdd-95e79b91ac44",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1784189095629,
+        "updatedAt": 1784189095629
+      }
+    },
+    "520780e4-1b02-4241-834d-a28552adcbcc": {
+      "id": "520780e4-1b02-4241-834d-a28552adcbcc",
+      "name": "The value anchor",
+      "content": "$20/month is the floor for any serious LLM subscription (ChatGPT Plus, Claude Pro, Gemini Advanced are all $20). IdiamPro Professional at $19.99 = the price of one bare chatbot, with the whole thinking system on top (outlining, consolidation, Second Brain, and every finished output). A genuine deal for the customer; cash-positive for us.",
+      "type": "note",
+      "parentId": "14d2a7be-30b4-4bdb-bbdd-95e79b91ac44",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1784189095629,
+        "updatedAt": 1784189095629
+      }
+    },
+    "d0b1107d-c657-4670-8e8e-76765b93eeac": {
+      "id": "d0b1107d-c657-4670-8e8e-76765b93eeac",
+      "name": "Optional add-on revenue lines",
+      "content": "All priced at the same 20% margin: overage top-up packs (when the monthly allowance runs out), premium-voice upgrade, BYOK discount path (bring your own key = lower price), annual billing (~2 months free).",
+      "type": "note",
+      "parentId": "14d2a7be-30b4-4bdb-bbdd-95e79b91ac44",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1784189095629,
+        "updatedAt": 1784189095629
+      }
     }
   },
   "isGuide": false,
-  "lastModified": "2026-07-08T12:00:00.000000",
+  "lastModified": 1784189095629,
   "_fileName": "IdiamPro - Bootstrap Plan.idm",
   "_isLazyLoaded": false,
-  "_fileSize": 175136
+  "_fileSize": 161402
 }
