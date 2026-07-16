@@ -164,8 +164,9 @@ function IdeaDevelopmentBand() {
 
         {/* Featured hero film — the demonstration of the thesis, sitting directly
             under the explanatory text: one idea, many sources, developed over many
-            passes into finished formats. */}
-        <div className="max-w-4xl mx-auto mb-14">
+            passes into finished formats. Full section width so the app UI/text read
+            clearly (the film shows real interface, not stock footage). */}
+        <div className="max-w-6xl mx-auto mb-14">
           <div className="overflow-hidden rounded-2xl border border-[#c2dbd9] bg-[#f4faf9] shadow-2xl shadow-teal-600/15 ring-1 ring-teal-600/10">
             <video
               className="block h-auto w-full"
@@ -357,7 +358,7 @@ export default function MarketingPage() {
             problem AND tells the audience who we are. Additive to the existing intro
             video below (Howard decides later whether this becomes the main hero). */}
         <section className="px-6 pb-16 lg:px-12">
-          <div className="mx-auto w-full max-w-4xl">
+          <div className="mx-auto w-full max-w-6xl">
             <div className="text-center mb-8">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-teal-600/15 border border-teal-600/40 mb-6">
                 <Sparkles className="w-4 h-4 text-[#0c5c5b]" />
