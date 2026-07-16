@@ -60,6 +60,65 @@ longer for paragraphs/filled panes. When in doubt, hold LONGER — err slow, nev
    creators → everyday thinkers. AI-power-users statement is blessed + enriched
    ("conversations, insights, AND resources … where does it all live?"); the other five
    drafts await Howard's per-segment comments. Each synced with generous read-time.
+
+   LOCKED SEGMENT NEED-STATEMENTS (updating as Howard comments):
+   - **AI power users** (BLESSED, leads): "You've got brilliant answers scattered across
+     ChatGPT, Claude, and Gemini — conversations, insights, and resources — gone the moment
+     the tab closes. Where does it all actually live? IdiamPro gives it a home that grows
+     instead of scrolling away." (Howard's own origin story for adding AI to Idiam.)
+   - **Content creators** (BLESSED, per Howard's wife — a screenwriter; holds BOTH faces of the
+     pain — blank page AND idea-overload): "Content creators — podcasters, authors, scriptwriters,
+     video makers: some days the page is blank. Other days you're drowning in ideas and just need
+     to shape them into something finished. Either way it's due — and you needed it yesterday. We
+     can't give you yesterday. But we'll turn the chaos into a finished script, episode, or chapter
+     — today, and fast." (Name podcasters first. Keeper line: "We can't give it to you yesterday,
+     but we can give it to you today — and fast." Optional tighter cut: lead with the idea-overload
+     version + keep the "yesterday" button.)
+     DECISION (Claude, per Howard's delegation 2026-07-15): do NOT add the audience-commitment
+     checklist to the HERO — it's rich enough, and a background detail most viewers won't notice
+     isn't worth the clutter. KEEP it instead as a standalone TUTORIAL clip: "Track what you
+     promised your audience" — a to-do/checklist inside a creator's outline logging commitments
+     made live to their audience (deferring some ideas, ticking off delivered ones). Explicit and
+     genuinely useful there; out of the hero.
+     FLAGSHIP (Howard 2026-07-15): servicing content creators (podcasters / authors / scriptwriters /
+     video makers) is a CORE COMPETENCY & competitive differentiator — the creator's whole job is
+     "finished content out, on deadline, repeatedly," the exact end-to-end arc IdiamPro owns (scattered
+     ideas -> consolidate -> finish fast -> publish in every format), where rivals give only a blank page
+     or a generic generator. Build a FLAGSHIP creator tutorial / short mini-series (deadline rescue;
+     idea-overload-to-finished; the commitment tracker). Doubles as outreach material for the
+     creator/evangelist pipeline (podcasters/authors/YouTubers) — one asset, two jobs.
+
+   CREATOR FLAGSHIP FILM — "The Surfer Podcaster" commercial (from Howard's wife, a screenwriter,
+   2026-07-15) — ready-to-shoot, belongs on /workflows next to Dinesh & Sam:
+   > A surf-shop owner has a podcast he's owed his subscribers forever but is too busy for. "I know
+   > — I'll use IdiamPro." He types a topic outline: "Surfing in Hawaii vs Australia — contrast
+   > beaches & waves; contrast dangerous sea animals; contrast nearby amenities & prices." Presses
+   > the button. "Done!" "Thank God for IdiamPro — I got this done in 15 minutes: a half-hour
+   > podcast. I could put up 20 of these a day now." He grabs his surfboard: "Now I've got all the
+   > time in the world to do what I love — surfing."
+   Textbook motivating-need spine (relatable protagonist + real ache -> tool -> a LIFE-back payoff,
+   not a software payoff). Surf shop = deliberately not a tech guy = "for real people with real
+   businesses." PRODUCTION NOTE: keep claims plausible/honest — "15 min / 20 a day" reads as the
+   character's exuberance, NOT a literal guarantee (don't over-promise). Produce when Howard says go.
+
+## /WORKFLOWS = CHARACTER-PROFILE GALLERY (Howard 2026-07-15) — architecture + doctrine
+
+Each workflow IS a character profile tied to a market segment. Click a workflow -> meet the
+illustrative character -> the visitor "sees themselves" in that profile (self-recognition = the
+conversion engine). Roster: Dinesh = career-changer, Sam = student, the Surfer = content creator,
+with student / writer / founder / everyday-thinker profiles to come (one per segment).
+
+THE FORMULA (spine of ALL our marketing — Howard's words): **"We localize the pain and provide
+the remedy."** Every character film is just two beats: LOCALIZE the pain (make the ache specific &
+relatable — a real person, a real bind), then REMEDY it (IdiamPro, almost instantly).
+
+This upgrades the "/workflows re-skin" job into a REBUILD: /workflows becomes a Clarity-teal GALLERY
+of character profiles (segment <-> character <-> workflow film), each card a recognizable person,
+each opening into their pain-and-remedy film, with "see yourself here" framing. Ties to the
+motivating-need marketing doctrine (memory: project-marketing-open-with-motivating-need).
+   - Students/researchers, Writers/authors, Founders/builders, Everyday thinkers: drafts pending
+     Howard's comments. NOTE overlap: "authors" now appears under Creators — decide whether to
+     keep Writers/authors as the long-form/book lane or fold together.
 3. **Messy → organized, shown TWO ways (the core duality):**
    - **(a) MANUAL / by hand — THE SOUL BEAT:** start from a visibly SCATTERED jumble of
      seemingly UNRELATED items; the user sculpts them by hand — **indent, outdent, drag
