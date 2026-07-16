@@ -1,0 +1,135 @@
+{
+  "id": "771e36fa-58dc-481d-85e6-c6c78eea2dd0",
+  "name": "IP Protection Prep — IdiamPro / SecondBrainWare",
+  "rootNodeId": "65ea3e74-3e69-4d85-b41c-e8ad813c6a76",
+  "nodes": {
+    "65ea3e74-3e69-4d85-b41c-e8ad813c6a76": {
+      "id": "65ea3e74-3e69-4d85-b41c-e8ad813c6a76",
+      "name": "IP Protection Prep — IdiamPro / SecondBrainWare",
+      "content": "",
+      "type": "root",
+      "parentId": null,
+      "childrenIds": [
+        "4bab895d-d49d-4fbe-879c-0bb0fe053d62",
+        "174a435c-c104-46d5-98ad-de51468017fa",
+        "01a09aec-974a-4c49-8206-9ecbcbfb07e2",
+        "50146288-fe4e-46e0-b4aa-14751b58a6fc"
+      ],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1784182991304,
+        "updatedAt": 1784182991304
+      }
+    },
+    "4bab895d-d49d-4fbe-879c-0bb0fe053d62": {
+      "id": "4bab895d-d49d-4fbe-879c-0bb0fe053d62",
+      "name": "1. Trademarks",
+      "content": "**Owner of record for all marks:** SecondBrainWare LLC.\n\n**The \"Idiam\" prefix is the core asset.** \"Idiam\" is a coined, arbitrary term (from \"IDea AMplifier\") with no dictionary meaning — that makes it inherently **distinctive and strong** on the trademark spectrum (arbitrary/fanciful marks get the broadest protection and are easiest to register and enforce). The whole product family deliberately shares this prefix, which reinforces a protectable \"house of marks.\"\n\n**Marks to clear and file:**\n\n| Mark | Product | Priority | Likely goods/services |\n|---|---|---|---|\n| **IdiamPro** | Flagship app (shipping first) | **File first** | Downloadable + cloud software |\n| **SecondBrainWare** | Company / house brand | High | Software company / SaaS |\n| **IdiamTeam** | Team collaboration product (next build) | Medium (intent-to-use) | Collaboration SaaS |\n| **IdiamProject** | Living project manager (future) | Lower (intent-to-use) | Project-management SaaS |\n\n**Likely Nice classification (confirm with counsel):**\n- **Class 9** — downloadable software (the Mac/iOS/desktop apps).\n- **Class 42** — SaaS / \"software as a service,\" cloud-hosted features, AI processing. Most modern software brands file **both 9 and 42**; each class carries its own fee.\n- IdiamTeam/IdiamProject may add **Class 42** collaboration/PM service language. Enterprise/GDSS angle stays within 42.\n\n**Filing basis:** IdiamPro is in use (or imminently) → likely \"use in commerce\" (§1(a)). IdiamTeam and IdiamProject are not built → file **\"intent to use\" (§1(b))** now to lock in an early priority date while paying only the application fee up front.\n\n**🟠 \"IDM\" is crowded — do NOT revive it.** The brand was briefly reworked to \"IDMPro\" and reverted on 2026-07-15 after a preliminary screen came back **medium-high risk**: \"IDM\"/\"IDM Pro\" collides with **Internet Download Manager** (well-known software, same lane) and \"IDM\" is a crowded three-letter term generally. This is exactly why \"Idiam\" was coined originally. Keep all public marks on the \"Idiam\" prefix. (Pronunciation \"I-D-M Pro\" is handled in copy/narration, never in the registered spelling.)\n\n**DIY knockout search (do before paying an attorney to file):**\n1. **USPTO trademark search** (the current trademark search tool at uspto.gov, successor to TESS) — search each exact mark, plus close variants (\"Idiam,\" \"Idiom Pro,\" \"Idiam Team,\" \"2nd Brainware,\" \"Second Brain Ware\"). Note any live marks in Classes 9 and 42.\n2. **Common-law web search** — Google, App Store / Google Play, GitHub, domain registrars, social handles. Unregistered (\"common-law\") users can still block you in their territory, so look beyond the USPTO register.\n3. **Domain check** — confirm the .com and key variants; secondbrainware.com is already held.\n4. Record hits and hand the list to counsel; a clean knockout on your side saves attorney search hours.\n\n**Rough trademark cost (verify current):** USPTO application fee is on the order of **~$250–$350 per class per mark** (the current base electronic filing fee). Attorney prep/filing typically adds **~$300–$700 per mark**. Registration takes roughly **8–14 months** if unopposed. An intent-to-use filing later needs a Statement of Use (extra small fee) once the product ships.\n\n---",
+      "type": "note",
+      "parentId": "65ea3e74-3e69-4d85-b41c-e8ad813c6a76",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1784182991304,
+        "updatedAt": 1784182991304
+      }
+    },
+    "174a435c-c104-46d5-98ad-de51468017fa": {
+      "id": "174a435c-c104-46d5-98ad-de51468017fa",
+      "name": "2. Patent candidates (provisional seeds)",
+      "content": "Below, each candidate is written as a plain-language seed you can drop into a **provisional patent application** — a fast, low-cost filing that stamps a priority date and buys **12 months** to decide on the full (non-provisional) patent. Ranked by defensibility/novelty. **Prior-art note applies to all:** outliners, Gantt tools, CRDT editors, and LLM generators each exist separately — novelty lives in the *specific combination and the adaptive/generative mechanism*, so claims must be drafted narrowly around the mechanism, not the general idea.",
+      "type": "note",
+      "parentId": "65ea3e74-3e69-4d85-b41c-e8ad813c6a76",
+      "childrenIds": [
+        "3efed8c5-a101-425e-8634-106473918192",
+        "7d482130-6797-45df-836d-dead5da4e248",
+        "6c98400a-e415-4cb6-822c-1111f40892e3",
+        "2f609925-5b98-46ea-be34-885298c60ac8"
+      ],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1784182991304,
+        "updatedAt": 1784182991304
+      }
+    },
+    "3efed8c5-a101-425e-8634-106473918192": {
+      "id": "3efed8c5-a101-425e-8634-106473918192",
+      "name": "Candidate A — Living outline as single source of truth with generated, auto-readapting project views *(strongest)*",
+      "content": "**Problem:** Every project-management tool stores the plan as a rigid Gantt/PERT artifact. When something changes, updating dates, dependencies, the critical path, and downstream resources is manual, slow, and the *impact* of a proposed change is opaque — the dreaded \"if this slips two weeks, what happens to the launch?\" question is agony.\n**What's novel:** Treating a **structured outline as the canonical model** and rendering Gantt, PERT, and timeline representations as **disposable generated VIEWS** — then, on any single edit to the outline, **automatically recomputing every view** (dates, dependencies, critical path, resource leveling) in real time, enabling **what-if / change-impact analysis** where the user sees the ripple *before* committing.\n**How it works:** A scheduling/dependency engine (CPM-style) is bound to the outline model; edits propagate through a dependency graph; views subscribe and re-render. The inventive step is the one-way \"model → many live views\" binding plus the pre-commit impact simulation. This is the seed for the future **IdiamProject** product; file the provisional early because the concept is disclosed in planning docs and is the sharpest, most defensible mechanism.\n**Prior-art risk:** Medium. Scheduling engines and Gantt generators exist; frame claims around the *outline-as-source-of-truth + instantaneous multi-view readaptation + pre-commit impact preview* as a unit.",
+      "type": "note",
+      "parentId": "174a435c-c104-46d5-98ad-de51468017fa",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1784182991304,
+        "updatedAt": 1784182991304
+      }
+    },
+    "7d482130-6797-45df-836d-dead5da4e248": {
+      "id": "7d482130-6797-45df-836d-dead5da4e248",
+      "name": "Candidate B — Multilingual collaboration board: contribute-in-any-language, auto-woven shared outline *(strong)*",
+      "content": "**Problem:** Group decision / brainstorming tools (the GroupSystems / GDSS lineage) are effectively monolingual. Multinational teams can't truly think together when everyone must converge on one language, and foreign-language source documents sit outside the shared record.\n**What's novel:** A **single shared structured outline** in which each participant **brainstorms, comments, reads, and votes in their own language**, contributions and foreign-language source documents are **auto-translated and woven in place into the same node tree**, and every participant sees the whole shared body of knowledge rendered in *their* language — over a real-time collaborative substrate.\n**How it works:** Combines a translation engine + a live CRDT-synced shared outline + a \"transform/weave\" step that inserts translated contributions as first-class nodes with language metadata, so the group owns one structured artifact regardless of languages spoken. Seed for **IdiamTeam**.\n**Prior-art risk:** Medium. Real-time co-editing (CRDT) and machine translation each exist; novelty is the *per-participant-language shared structured outline with in-place weaving and structured GDSS operations (anonymous parallel input, voting) on top*.",
+      "type": "note",
+      "parentId": "174a435c-c104-46d5-98ad-de51468017fa",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1784182991304,
+        "updatedAt": 1784182991304
+      }
+    },
+    "6c98400a-e415-4cb6-822c-1111f40892e3": {
+      "id": "6c98400a-e415-4cb6-822c-1111f40892e3",
+      "name": "Candidate C — Capture → reorganize → consolidate \"second brain\" pipeline across many heterogeneous inputs *(moderate–strong)*",
+      "content": "**Problem:** Knowledge tools store what you capture but don't help you *understand* it. Understanding comes from **restructuring** scattered inputs into a coherent hierarchy — a step today's note apps leave entirely manual.\n**What's novel:** A pipeline that ingests **many heterogeneous sources** (typed notes, web pages, PDFs, YouTube transcripts, audio/video transcription, image OCR, Office docs, outline files, live-web refresh) and drives a **capture → reorganize → merge/consolidate** flow where AI *assists* restructuring into one developed outline while the human retains authorship and control — with an explicit **merge/consolidation** operation as the core act.\n**How it works:** Normalizers convert each input type into outline nodes; a consolidation engine proposes structure/merges; the user edits. The inventive framing is the AI-assisted *consolidation/merge as the central operation* over a many-source ingest funnel.\n**Prior-art risk:** Higher — \"second brain\" apps, import pipelines, and AI summarizers are crowded. Narrow claims to the specific merge/consolidation mechanism and multi-source normalization-into-one-adaptive-outline; treat as a secondary filing.",
+      "type": "note",
+      "parentId": "174a435c-c104-46d5-98ad-de51468017fa",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1784182991304,
+        "updatedAt": 1784182991304
+      }
+    },
+    "2f609925-5b98-46ea-be34-885298c60ac8": {
+      "id": "2f609925-5b98-46ea-be34-885298c60ac8",
+      "name": "Candidate D — One outline → many finished formats (multilingual · multilevel · multimedia) generation *(moderate)*",
+      "content": "**Problem:** Turning one body of ideas into a video, a podcast, a website, slides, and documents means re-authoring for each format and each audience — hugely labor-intensive.\n**What's novel:** A **single structured outline that generates multiple finished output formats** (video slideshow + AI voiceover, podcast, presentation, illustrations, translated editions across ~21 languages, ~25 export formats) **and adapts the same content across audience sophistication levels** (e.g., a grade-6 and a professional edition of the same idea) from one source.\n**How it works:** The outline model feeds format-specific renderers (slide/voiceover pipeline, TTS podcast, deck generator, translation, diagram generation) plus an audience-level adaptation pass. Inventive framing: outline-driven multi-format, multi-level, multilingual publishing from one canonical structure.\n**Prior-art risk:** Higher — AI content/video generators are a fast-moving crowded field. Best positioned as a defensive/secondary filing or folded into A/C claims; hardest to defend standalone.\n\n**Suggested patent priority:** A first (sharpest, most defensible, future flagship), then B (strong differentiator, category-claiming), then C and D as budget allows or as defensive provisionals.\n\n---",
+      "type": "note",
+      "parentId": "174a435c-c104-46d5-98ad-de51468017fa",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1784182991304,
+        "updatedAt": 1784182991304
+      }
+    },
+    "01a09aec-974a-4c49-8206-9ecbcbfb07e2": {
+      "id": "01a09aec-974a-4c49-8206-9ecbcbfb07e2",
+      "name": "3. Copyright & trade secret",
+      "content": "**Copyright (automatic on creation; registration adds enforcement teeth):**\n- **Source code** — the app codebase. Copyright exists automatically; consider registering key releases if litigation risk warrants (registration is a prerequisite to suing and unlocks statutory damages).\n- **Marketing content** — website copy, the founder/origin narrative, taglines' expression (note: short taglines/names are *not* copyrightable — those are trademark territory), and the outline documents.\n- **Produced media** — the generated marketing videos, podcasts, and imagery you author. Watch third-party inputs: AI-generated components, stock assets, and voices each carry their own license terms; keep a rights ledger so every produced asset is clean.\n- Add a **© SecondBrainWare LLC [year]** notice to the site, app, and videos. Ownership sits with the LLC — ensure any contractor work is assigned to the company in writing (work-made-for-hire / IP assignment clauses).\n\n**Trade secret (protect the unfiled, the roadmap, and the internals):**\n- The **unfiled patent concepts** (especially IdiamProject and IdiamTeam mechanisms) are trade secrets *until* a provisional is filed — limit disclosure until then.\n- **🟠 Keep in-development work private — including NOT letting the site get indexed yet.** Public disclosure can start patent clocks and hand competitors the roadmap. Keep pre-launch pages behind noindex/robots exclusion or auth until you're deliberately public.\n- **NDAs** for beta creators, evaluators, and prospective partners *before* showing them non-public mechanisms — particularly anyone seeing the Team/Project concepts or internal architecture. The OpenAI / AI-video partnership conversations especially warrant an NDA before sharing specifics.\n- Standard hygiene: confidentiality clauses in contractor agreements, access controls on the repo and internal outlines, and a clear internal \"what's public vs. confidential\" line.\n\n---",
+      "type": "note",
+      "parentId": "65ea3e74-3e69-4d85-b41c-e8ad813c6a76",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1784182991304,
+        "updatedAt": 1784182991304
+      }
+    },
+    "50146288-fe4e-46e0-b4aa-14751b58a6fc": {
+      "id": "50146288-fe4e-46e0-b4aa-14751b58a6fc",
+      "name": "4. Filing plan, rough costs & recommended sequence",
+      "content": "**Provisional patent (the cheap priority stamp):**\n- A **provisional application** establishes a priority date and gives **12 months** to file the full non-provisional (or let it lapse). It's never examined and never becomes a patent by itself — it's a placeholder that lets you say \"patent pending.\"\n- **USPTO fee (verify current):** roughly **~$130 small-entity / ~$65 micro-entity** for the provisional filing fee. SecondBrainWare likely qualifies as a **micro-entity** (very low gross income, few prior filings) or at least **small entity** — confirm eligibility; it roughly halves/quarters fees.\n- **DIY vs. attorney:** you *can* self-file a provisional cheaply, but a mechanism this nuanced benefits from an attorney shaping the written description so it actually supports strong claims later. Attorney-drafted provisional: **~$2,000–$5,000+ each**. The full non-provisional at the 12-month mark is the big spend (**~$8,000–$15,000+ with attorney**, plus USPTO fees) — budget for that decision, don't sleepwalk into the deadline.\n- **Timeline:** provisional filed in days; non-provisional due within 12 months; patents take **2–4+ years** to grant.\n\n**Trademark (see §1 for per-mark detail):** ~$250–$350/class USPTO + ~$300–$700 attorney per mark; ~8–14 months to registration; intent-to-use available for the unbuilt products.\n\n**🟠 Recommended priority order for a bootstrap budget:**\n1. **File the IdiamPro + SecondBrainWare trademarks first.** Cheapest, protects the names you're about to market publicly, and the brand is the asset customers will actually recognize. Do the DIY knockout search first to keep attorney cost down.\n2. **File a provisional patent on Candidate A** (living outline → auto-readapting project views). It's the sharpest, most defensible mechanism, it's already partially disclosed in planning docs, and the provisional is cheap insurance that starts the clock on your terms.\n3. **File a provisional on Candidate B** (multilingual collaboration board) — the category-claiming differentiator for IdiamTeam — as budget allows.\n4. **Intent-to-use trademarks for IdiamTeam and IdiamProject** to lock the family's priority dates cheaply, well before those products ship.\n5. Candidates C and D as defensive provisionals if/when budget permits.\n\n**Before the attorney meeting, have ready:** this document, the entity details (LLC/UBI/EIN above), the DIY knockout-search results, a one-paragraph description of each product, and a list of anything already publicly disclosed (site pages, videos, demos) with dates — disclosure dates drive patent deadlines.\n\n---\n\n> ⚠️ **Reminder: this is preparation, not legal advice.** Confirm every classification, strategy, deadline, and fee with a qualified IP attorney before filing. Government fees and rules change — verify current USPTO amounts at filing time.",
+      "type": "chapter",
+      "parentId": "65ea3e74-3e69-4d85-b41c-e8ad813c6a76",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1784182991304,
+        "updatedAt": 1784182991304
+      }
+    }
+  },
+  "lastModified": 1784182991304
+}
