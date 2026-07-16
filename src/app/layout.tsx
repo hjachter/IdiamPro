@@ -23,9 +23,12 @@ export const metadata: Metadata = {
     template: '%s | IdiamPro',
   },
   description:
-    'IdiamPro is an AI-native outliner that helps you think, research, and write. Local-first, BYOK, cross-platform — the outline editor your second brain deserves.',
+    'IdiamPro, by SecondBrainWare, is an AI-native outliner that helps you think, research, and write. Local-first, BYOK, cross-platform — the outline editor your second brain deserves.',
   manifest: '/manifest.json',
   applicationName: 'IdiamPro',
+  creator: 'SecondBrainWare',
+  publisher: 'SecondBrainWare',
+  keywords: ['SecondBrainWare', 'Second Brain Ware', 'IdiamPro', 'AI outliner', 'second brain app', 'AI-native outliner', 'consolidate ideas'],
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
@@ -49,7 +52,7 @@ export const metadata: Metadata = {
     siteName: 'IdiamPro',
     title: 'IdiamPro — AI-native outliner for thinkers and researchers',
     description:
-      'An AI-native outliner that helps you think, research, and write. Local-first, BYOK, cross-platform.',
+      'An AI-native outliner that helps you think, research, and write. Local-first, BYOK, cross-platform. From SecondBrainWare.',
     images: [
       {
         // TODO: design and add /public/og-image.png (1200x630)
@@ -64,7 +67,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'IdiamPro — AI-native outliner for thinkers and researchers',
     description:
-      'An AI-native outliner that helps you think, research, and write. Local-first, BYOK, cross-platform.',
+      'An AI-native outliner that helps you think, research, and write. Local-first, BYOK, cross-platform. From SecondBrainWare.',
     images: ['/og-image.png'],
   },
   robots: {
@@ -86,6 +89,23 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;700&family=Source+Code+Pro&display=swap" rel="stylesheet" />
+        {/* Organization structured data — tells search engines this domain IS the
+            company SecondBrainWare (so searches for the company name find it). */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'Organization',
+              name: 'SecondBrainWare',
+              alternateName: ['Second Brain Ware', '2ndBrainWare'],
+              url: 'https://secondbrainware.com',
+              logo: 'https://secondbrainware.com/icons/icon-180.png',
+              description:
+                'SecondBrainWare builds IdiamPro, an AI-native outliner and second-brain platform that helps you capture, consolidate, and develop your ideas across every platform.',
+            }),
+          }}
+        />
       </head>
       <body className="font-body antialiased h-full overflow-hidden">
         <PWAInstaller />
