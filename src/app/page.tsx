@@ -353,10 +353,13 @@ export default function MarketingPage() {
         </div>
         </section>
 
-        {/* Our Story — the self-referential founder film. The founder uses IdiamPro
-            to plan IdiamPro's own launch: it proves the tool on the hardest founder
-            problem AND tells the audience who we are. Additive to the existing intro
-            video below (Howard decides later whether this becomes the main hero). */}
+        {/* FIRST video — the conceptual film + the "Who IdiamPro Is For" segments,
+            leading the page (audience first). Founder's story follows below. */}
+        <IdeaDevelopmentBand />
+
+        {/* SECOND video — Our Story, the self-referential founder film. Placed AFTER
+            the conceptual film on purpose: hook the visitor with what it does and who
+            it's for, THEN earn trust with who's behind it. */}
         <section className="px-6 pb-16 lg:px-12">
           <div className="mx-auto w-full max-w-[1600px]">
             <div className="text-center mb-8">
@@ -388,9 +391,6 @@ export default function MarketingPage() {
             </p>
           </div>
         </section>
-
-        {/* Thesis — moved up to lead the page: idea development is iterative */}
-        <IdeaDevelopmentBand />
 
         {/* A different kind of tool — competitor contrast grid, on a dramatic
             full-bleed dark-ink/teal band to break the white wash */}
