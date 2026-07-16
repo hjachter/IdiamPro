@@ -27,6 +27,110 @@ one-item-at-a-time crawl — the viewer should feel speed and confidence.
 
 # PART 1 — HERO (target ~75 seconds)
 
+## v2 — CONFIRMED ARC (Howard 2026-07-15) — SUPERSEDES the beats below
+
+**HARD RULE #1 — SYNC:** the cursor and every on-screen action MUST be synchronized
+to the narration — the action happens exactly as the words are spoken. Unsynchronized
+motion is "totally confusing" and unacceptable. Build BEAT-BY-BEAT: render each
+narration line, measure its audio duration, and time the on-screen action to that
+duration so word and motion land together.
+
+**HARD RULE #2 — PROGRESSIVE DISCLOSURE (Howard 2026-07-15):** every outline shown
+starts COMPRESSED to just its top-level headings (the skeleton), then EXPANDS each
+section's detail one at a time, exactly as the narration reaches it. Reveal as spoken,
+never dump all at once — skeleton first, drill in as you talk. Reads professional and
+guided; also shows off the compress/expand feature naturally.
+
+**HARD RULE #3 — READ TIME / DWELL (Howard 2026-07-15):** whenever a node or content is
+revealed, HOLD it long enough to comfortably READ before anything moves. Never flash text
+by. Rule of thumb ~0.3s/word (≈200 wpm) with a ~1.5–2s minimum even for a short heading,
+longer for paragraphs/filled panes. When in doubt, hold LONGER — err slow, never fast.
+
+**Confirmed arc:**
+1. **Cold open** — cursor types the title "Who IdiamPro Is For."
+2. **Market segments, revealed ONE AT A TIME, in sync** — each audience node appears
+   exactly as the narrator names it: writers → researchers → founders → creators →
+   AI power users → everyday thinkers. One beat each, NEVER all at once. UPGRADE (Howard 2026-07-15): each segment gets a
+   NEED-STATEMENT, not just a label — a short, provocative statement of that group's real
+   ache (having the pieces vs. owning the whole), landing on IdiamPro as the answer.
+   NEW ORDER — LEAD WITH AI POWER USERS: it's Howard's own origin story (he added AI to
+   the old Idiam tool precisely to organize the conversations, insights & resources he
+   generates across ChatGPT / Claude / Gemini) AND the most urgent, current pain. Order:
+   AI power users → students/researchers → writers/authors → founders/builders →
+   creators → everyday thinkers. AI-power-users statement is blessed + enriched
+   ("conversations, insights, AND resources … where does it all live?"); the other five
+   drafts await Howard's per-segment comments. Each synced with generous read-time.
+3. **Messy → organized, shown TWO ways (the core duality):**
+   - **(a) MANUAL / by hand — THE SOUL BEAT:** start from a visibly SCATTERED jumble of
+     seemingly UNRELATED items; the user sculpts them by hand — **indent, outdent, drag
+     up, drag down** — into something that makes TOTAL SENSE. This is the founding
+     creative act of Idiam (the decades-old capability carried into the AI version) and
+     the "real creativity" we demonstrate — chaos → coherence, shaped by a human; the AI
+     amplifies the gift, doesn't replace it. Narration conveys that MEANING (unrelated
+     fragments finally making sense, shaped by you), not just "drag to reorder." Convey
+     depth without bragging — weave the lineage into the feeling, never flaunt "35 years."
+     Cursor synced to narration.
+   - **(b) AUTOMATIC / by AI:** take the SAME random pile and organize it automatically
+     through the AI organizational interface (Transform / organize-with-AI) — same
+     clean result, one command. Also show items being *developed* automatically:
+     researched from the web + organized expertly by AI. Message: "Add and organize it
+     yourself — or let the AI do it for you."
+4. **Output breadth** — open the REAL Export menu → the full "Share Suboutline as…"
+   format picker showing the whole grid (document, PDF, website, video, podcast,
+   slides, markdown/OPML, many languages). Linger so the breadth lands.
+5. **Close** — teal card: "IdiamPro · Your partner in thinking · Start free" +
+   "Produced by IdiamPro."
+
+Everything teal / Clarity. Reuse existing narration audio where wording still fits;
+regenerate only lines that changed. The v1 beats below are kept for reference only.
+
+### CONTENT-PANE RICHNESS (Howard 2026-07-15) — the content pane must look ALIVE
+
+The content pane must NEVER show an empty "Start writing…" when a node is selected —
+that made the app look lifeless. As the hero clicks node to node, reveal a spread of
+rich content so prospects see "anything can live inside a node — it's a workspace":
+- rich formatted text + nicely-formatted **meeting notes** (headings, action-item checklist)
+- a live **spreadsheet** with real data
+- **handwritten / Apple-Pencil notes** (a drawing)
+- an **image** and a **diagram** (mind-map / flowchart)
+- an embedded **Google Doc** (best-effort — needs sign-in; skip cleanly if it won't render headless)
+- **THE WOW:** an embedded **video playing inline** in the content pane
+- **AI filling empty space with text** using the real Generate/Expand placement controls —
+  **Insert Before / Insert After** (prepend/append), and replace — so the AI writes directly
+  into the doc and the user steers exactly where it lands.
+- **Fill nodes BEFORE dragging:** in the manual reorganization beat, the nodes already hold
+  content, so dragging them shows content travels with the node — reorganizing substance,
+  not empty bullets.
+Priority order: sync + human pacing + the 5-beat arc FIRST; then a strong representative
+spread of the rich content (favor the no-auth types that capture cleanly). Never empty.
+
+### MORE PRODUCTION DIRECTIVES (Howard 2026-07-15) — apply to the hero + future renders
+
+- **Flagship automatic demo:** the centerpiece of the automatic beat = a fresh outline where
+  an AI PROMPT builds a full **table of contents**, then **every node's content fills in
+  automatically** in one pass ("Create Content for Descendants"). Prompt → whole TOC →
+  all content. The single most breathtaking moment.
+- **AI fills empty space + placement control:** show the AI writing into the content pane
+  with **Insert Before / Insert After** (prepend/append/replace) — a partner you steer.
+- **PANE-WIDTH RULE:** size the outline/content split per shot so content FILLS the panes.
+  No big empty voids — empty space looks amateurish, filled panes look premium/professional.
+- **VOICE:** male **British-accented** narrator. Current engine = OpenAI TTS (voice "fable").
+  OPTION (Howard's call, needs his ElevenLabs account + $): switch to ElevenLabs for higher
+  naturalness and/or **Howard's own cloned voice** (record a 1–3 min sample). NOTE: the voice
+  is SEPARABLE from the cut — it's a cheap re-lay over the finished synced timeline, so lock
+  the visual cut first, choose the final voice after.
+- **RUNTIME (Howard 2026-07-15, UPDATED — supersedes the earlier "keep tight" rule):**
+  NO length cap. Impact over brevity — the hero may run LONG. Include ALL the incredible
+  showcase moments and give each its full, readable, well-paced moment; never cut or rush
+  a wow beat to save time. Trim only genuine filler/dead air. Keep it human-paced, synced,
+  and with generous dwell — long-but-gripping, not long-but-slow. (Exhaustive per-feature
+  how-tos still also live in the tutorial clips.)
+- **Outline compression (flagship tutorial clip — Howard uses it daily):** take a large,
+  detailed outline and COMPRESS the detail out of it to reveal the clean high-level
+  structure/skeleton (the compress/search-shaper tool; see the 1988-lineage spec —
+  never hide siblings or gate navigation). Deserves its OWN tutorial clip so it lands;
+  optional quick hero glimpse only if it fits without bloating the hero.
+
 **Feel:** warm, human, benefit-first. IdiamPro as your *partner in thinking* — the
 place that takes the scattered pieces of your life and your half-formed ideas and
 helps them grow into finished things. Positioning is pulled straight from our live
@@ -240,9 +344,23 @@ Legend for (d): **[Free]** = no AI, no cost · **[AI]** = uses one AI generation
 
 ---
 
+## Surface I — Direct manipulation (drag & drop + gestures — NO menu)
+
+*(These are gestures, not menu items — powerful precisely because they're so simple.
+Show them prominently; also weave a quick drag-to-reshape beat into the HERO, since
+direct manipulation reinforces the "living plan you reshape by hand" theme.)*
+
+119. **Drag to reorder** — Grab an item and drag it above/below a sibling; it drops into the new spot, everything reflows. *"Grab an idea and just move it — reorder your thinking by hand."* [Free]
+120. **Drag to nest / re-parent** — Drag an item onto another; it becomes a child, nested under the new parent. *"Drag one item onto another to nest it — restructure in a second."* [Free]
+121. **Drag a whole branch** — Grab a parent with children and drag the entire subtree to a new home; the whole branch moves together. *"Move a whole branch, children and all, in one drag."* [Free]
+122. **(mobile) Long-press + drag; swipe to indent/outdent** — On iPhone/iPad, long-press to grab an item and drag to reorder; swipe right/left to indent or outdent. *"On iPhone, long-press to grab and swipe to reshape."* [Free]
+
+---
+
 ## Totals & coverage
 
-- **Total deep-dive clips: 118** (numbered 1–118; clip 112 "Move (bulk)" is flagged
+- **Total deep-dive clips: 122** (numbered 1–122, including drag-and-drop / gesture
+  clips 119–122 on new Surface I; clip 112 "Move (bulk)" is flagged
   *coming soon* — present in the UI but disabled, so it is documented but not filmed
   as a working action until it ships).
 - **Surfaces covered (8):** A) title-row toolbar · B) action toolbar · C) node
@@ -262,3 +380,8 @@ Legend for (d): **[Free]** = no AI, no cost · **[AI]** = uses one AI generation
   outline is the clickable chapter index into these clusters.
 - **Credit (standing rule):** every video — the hero and every deep-dive clip —
   ends on a **"Produced by IdiamPro"** end-card. No exceptions.
+- **Suboutline scope (Howard 2026-07-15):** in their tutorial clips, show that Generate /
+  Share / Export and the AI operations work on EITHER an individual node (a single
+  suboutline) OR the entire outline — demonstrate BOTH scopes so viewers grasp the
+  flexibility (one node → just that suboutline; whole outline → everything at once).
+  This is a tutorial-clip detail — keep it OUT of the tight hero.

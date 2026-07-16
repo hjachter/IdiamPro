@@ -319,6 +319,27 @@ export default function MarketingPage() {
                   </SignedIn>
                 </div>
 
+                {/* Featured hero film — the immediate proof beneath the headline:
+                    one idea → organized outline → rich content → published formats,
+                    all produced by IdiamPro. */}
+                <div className="mb-4 mt-2">
+                  <div className="overflow-hidden rounded-2xl border border-[#d3e6e4] bg-[#f4faf9] shadow-2xl shadow-teal-600/15 ring-1 ring-teal-600/10">
+                    <video
+                      className="block h-auto w-full"
+                      src="/home-hero.mp4"
+                      poster="/home-hero-poster.jpg"
+                      controls
+                      playsInline
+                      preload="metadata"
+                      aria-label="Watch IdiamPro turn one idea into finished work — produced by IdiamPro"
+                    />
+                  </div>
+                  <p className="mt-3 flex items-center justify-center gap-1.5 text-sm text-teal-600">
+                    <Video className="h-3.5 w-3.5" />
+                    Watch IdiamPro turn one idea into finished work
+                  </p>
+                </div>
+
               {/* Decorative elements */}
               <div className="absolute top-4 left-4 flex gap-1.5">
                 <div className="w-3 h-3 rounded-full bg-teal-600/60" />
