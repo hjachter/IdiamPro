@@ -122,7 +122,7 @@ function PricingCard({
 
       <div className="mb-6">
         <h3 className="text-xl font-bold text-[#0c2224] mb-2">{name}</h3>
-        <p className="text-[#6b7d7e] text-sm">{description}</p>
+        <p className="text-[#22312f] text-base font-medium">{description}</p>
       </div>
 
       <div className="mb-6">
@@ -132,9 +132,9 @@ function PricingCard({
 
       <ul className="space-y-3 mb-8">
         {features.map((feature, i) => (
-          <li key={i} className="flex items-start gap-3 text-sm">
+          <li key={i} className="flex items-start gap-3 text-base">
             <Check className="w-5 h-5 text-teal-600 flex-shrink-0 mt-0.5" />
-            <span className="text-[#47585a]">{feature}</span>
+            <span className="text-[#22312f]">{feature}</span>
           </li>
         ))}
       </ul>
@@ -186,7 +186,7 @@ export default function PricingPage() {
                   matters most to you
                 </span>
               </h2>
-              <p className="text-[#6b7d7e] text-lg max-w-2xl mx-auto mt-4">
+              <p className="text-[#22312f] text-lg md:text-xl font-medium max-w-2xl mx-auto mt-4">
                 Every plan leads with a standout benefit. Here&apos;s the one reason each is worth it.
               </p>
             </div>
@@ -215,7 +215,7 @@ export default function PricingPage() {
                 <h3 className="text-2xl font-bold text-[#0c2224] mb-3 leading-tight">
                   Buy once. Own it forever.
                 </h3>
-                <p className="text-[#47585a] leading-relaxed">
+                <p className="text-[#22312f] text-lg font-medium leading-relaxed">
                   No subscription — ever. The AI runs on your own device, so{' '}
                   <span className="text-[#0c2224] font-semibold">your notes never leave it</span>. Total privacy, works fully offline, everyday AI included.
                 </p>
@@ -241,7 +241,7 @@ export default function PricingPage() {
                 <h3 className="text-2xl font-bold text-[#0c2224] mb-3 leading-tight">
                   Unlimited AI, free forever.
                 </h3>
-                <p className="text-[#47585a] leading-relaxed">
+                <p className="text-[#22312f] text-lg font-medium leading-relaxed">
                   Plug in your own Gemini or OpenAI key and use AI without limits — at zero cost to you.{' '}
                   <span className="text-[#0c2224] font-semibold">Your provider, your account — we never see your data.</span>
                 </p>
@@ -264,7 +264,7 @@ export default function PricingPage() {
                 <h3 className="text-2xl font-bold text-[#0c2224] mb-3 leading-tight">
                   Cloud superpowers.
                 </h3>
-                <p className="text-[#47585a] leading-relaxed">
+                <p className="text-[#22312f] text-lg font-medium leading-relaxed">
                   The heavy features that need premium cloud AI: Refresh from Web with citations, multi-source Research &amp; Import, AI outline Transform, podcast and image generation, and answers drawn from your whole knowledge base — on frontier models with higher limits and priority.
                 </p>
                 <p className="text-[#6b7d7e] text-xs mt-3">
@@ -279,7 +279,7 @@ export default function PricingPage() {
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-600 to-teal-700 flex items-center justify-center flex-shrink-0">
                   <Play className="w-5 h-5 text-white" />
                 </div>
-                <p className="text-[#47585a] text-sm sm:text-base">
+                <p className="text-[#22312f] text-base sm:text-lg font-medium">
                   <span className="text-[#0c2224] font-semibold">Try it free</span> — the full app with a taste of AI. No card required.
                 </p>
               </div>
@@ -297,7 +297,7 @@ export default function PricingPage() {
                   pricing
                 </span>
               </h2>
-              <p className="text-[#6b7d7e] text-lg max-w-2xl mx-auto">
+              <p className="text-[#22312f] text-lg md:text-xl font-medium max-w-2xl mx-auto">
                 Start free, upgrade when you need more. No hidden fees.
               </p>
               <div className="mt-6 flex justify-center">
@@ -356,7 +356,7 @@ export default function PricingPage() {
               />
             </div>
 
-            <p className="text-center text-[#6b7d7e] text-sm mt-8">
+            <p className="text-center text-[#22312f] text-base font-medium mt-8">
               All plans include a 14-day free trial. Cancel anytime.
             </p>
 
@@ -365,7 +365,7 @@ export default function PricingPage() {
               <h3 className="text-center text-2xl lg:text-3xl font-bold mb-2">
                 Compare what you get
               </h3>
-              <p className="text-center text-[#6b7d7e] text-sm mb-8">
+              <p className="text-center text-[#22312f] text-base font-medium mb-8">
                 Four ways to use IdiamPro. Pick the one that fits how you work.
               </p>
               <div className="overflow-x-auto rounded-3xl border border-[#d3e6e4] bg-[#f4faf9]">
@@ -482,7 +482,7 @@ export default function PricingPage() {
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-[#0c2224]">Academic & Student Pricing</h3>
-                    <p className="text-[#47585a]">50% off for students and educators with valid .edu email</p>
+                    <p className="text-[#22312f] text-lg font-medium">50% off for students and educators with valid .edu email</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
@@ -518,7 +518,7 @@ export default function PricingPage() {
                       Limited Spots Available
                     </div>
                     <h3 className="text-2xl font-bold text-[#0c2224] mb-2">Join Our Beta Program</h3>
-                    <p className="text-[#47585a] max-w-xl">
+                    <p className="text-[#22312f] text-lg font-medium max-w-xl">
                       Be among the first to experience IdiamPro. Beta testers get <span className="text-teal-600 font-semibold">free lifetime access to Pro features</span>,
                       direct input into our roadmap, and priority support. Help us build the ultimate cognitive enhancement platform.
                     </p>

@@ -95,7 +95,7 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
         />
       </button>
       <div className={`overflow-hidden transition-all duration-300 ${isOpen ? 'max-h-96 pb-5' : 'max-h-0'}`}>
-        <p className="text-[#47585a] text-sm leading-relaxed">{answer}</p>
+        <p className="text-[#22312f] text-base font-medium leading-relaxed">{answer}</p>
       </div>
     </div>
   );

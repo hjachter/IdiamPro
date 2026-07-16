@@ -134,7 +134,7 @@ function WhoItsFor({ useCases }: { useCases: UseCase[] }) {
             </div>
             <div className="text-xs text-teal-600 font-medium uppercase tracking-wider mb-1">{current.subtitle}</div>
             <h3 className="text-2xl font-bold text-[#0c2224] mb-3">{current.title}</h3>
-            <p className="text-[#47585a] leading-relaxed">{current.description}</p>
+            <p className="text-lg text-[#22312f] font-medium leading-relaxed">{current.description}</p>
           </div>
 
           {current.examples && current.examples.length > 0 && (
@@ -142,7 +142,7 @@ function WhoItsFor({ useCases }: { useCases: UseCase[] }) {
               <div className="text-sm font-medium text-teal-600 mb-4">How it works</div>
               <ul className="space-y-3">
                 {current.examples.map((ex, idx) => (
-                  <li key={idx} className="flex gap-3 text-[#47585a] text-sm leading-relaxed">
+                  <li key={idx} className="flex gap-3 text-[#22312f] text-base font-medium leading-relaxed">
                     <span className="text-teal-600 mt-0.5 flex-shrink-0">›</span>
                     <span>
                       {ex.text}
@@ -277,7 +277,7 @@ export default function UseCasesPage() {
               <h2 className="text-2xl md:text-3xl font-bold text-[#0c2224] mb-3">
                 Built for people who think for a living.
               </h2>
-              <p className="text-base md:text-lg text-[#47585a] leading-relaxed mb-5">
+              <p className="text-lg md:text-xl text-[#22312f] font-medium leading-relaxed mb-5">
                 However you earn your living, you earn it by thinking — researching, structuring, connecting ideas, and turning them into something real. IdiamPro is where that thinking takes shape: it pulls in your research, organizes it the way you reason, and helps you ship the result — a report, a strategy, a manuscript, a talk, a video.
               </p>
               <div className="flex flex-wrap gap-2">
@@ -299,13 +299,13 @@ export default function UseCasesPage() {
               <h2 className="text-2xl md:text-3xl font-bold text-[#0c2224] mb-4">
                 A plan that&rsquo;s <span className="text-teal-600">alive</span>.
               </h2>
-              <p className="text-base md:text-lg text-[#47585a] leading-relaxed mb-4">
+              <p className="text-lg md:text-xl text-[#22312f] font-medium leading-relaxed mb-4">
                 Most plans die the moment reality moves. Traditional project management builds a beautiful, rigid structure &mdash; the chart, the fixed timeline &mdash; and then life shifts, the plan shatters, and it ends up stale in a drawer. It assumes a world that holds still. <span className="text-[#0c2224] font-semibold">The world never holds still.</span>
               </p>
-              <p className="text-base md:text-lg text-[#47585a] leading-relaxed mb-4">
+              <p className="text-lg md:text-xl text-[#22312f] font-medium leading-relaxed mb-4">
                 IdiamPro&rsquo;s plan is <span className="text-teal-600 font-semibold">alive</span>. Because it&rsquo;s completely yours to shape, it bends and re-forms as your life unfolds &mdash; new information reshapes a branch, a closed door becomes a new route, an opening becomes your next move. It doesn&rsquo;t just plan your life; it keeps up with it.
               </p>
-              <p className="text-base md:text-lg text-[#47585a] leading-relaxed">
+              <p className="text-lg md:text-xl text-[#22312f] font-medium leading-relaxed">
                 That&rsquo;s the difference between a plan and a <span className="text-teal-600 font-semibold">living</span> plan: one is a snapshot of a moment already gone &mdash; the other grows with you. IdiamPro is the living kind.
               </p>
             </div>
@@ -319,7 +319,7 @@ export default function UseCasesPage() {
               <h2 className="text-2xl md:text-3xl font-bold text-[#0c2224] mb-3">
                 Built for globally distributed teams.
               </h2>
-              <p className="text-base md:text-lg text-[#47585a] leading-relaxed">
+              <p className="text-lg md:text-xl text-[#22312f] font-medium leading-relaxed">
                 A research team in Boston, a partner lab in Shanghai, and a graduate student in São Paulo — all working in the same outline, each contributing in their native language. The structure stays in sync; the translations stay current; the conversation never stops.
               </p>
             </div>
@@ -337,7 +337,7 @@ export default function UseCasesPage() {
                   for
                 </span>
               </h2>
-              <p className="text-[#6b7d7e] text-lg max-w-2xl mx-auto">
+              <p className="text-[#22312f] text-lg md:text-xl font-medium max-w-2xl mx-auto">
                 Pick the work you do and see exactly how IdiamPro fits it — from PhD dissertations to investigative journalism.
               </p>
             </div>
@@ -351,7 +351,7 @@ export default function UseCasesPage() {
                 <div className="p-6 rounded-2xl bg-gradient-to-br from-teal-600/10 to-teal-600/10 border border-teal-600/20">
                   <div className="text-3xl font-bold text-teal-600 mb-2">47 → 1</div>
                   <h4 className="text-[#0c2224] font-semibold mb-2">Literature Review Synthesis</h4>
-                  <p className="text-[#6b7d7e] text-sm mb-4">
+                  <p className="text-[#22312f] text-base font-medium mb-4">
                     Imagine importing 47 research papers on computational biology — IdiamPro synthesizes them into a coherent literature review organized by methodology, findings, and gaps.
                   </p>
                   <div className="text-teal-600 text-xs font-medium">Example scenario • Computational Biology</div>
@@ -360,7 +360,7 @@ export default function UseCasesPage() {
                 <div className="p-6 rounded-2xl bg-gradient-to-br from-teal-600/10 to-teal-600/10 border border-teal-600/20">
                   <div className="text-3xl font-bold text-teal-600 mb-2">12 hrs → 30 min</div>
                   <h4 className="text-[#0c2224] font-semibold mb-2">Field Interview Analysis</h4>
-                  <p className="text-[#6b7d7e] text-sm mb-4">
+                  <p className="text-[#22312f] text-base font-medium mb-4">
                     Imagine an R&D team recording 12 hours of stakeholder interviews across 3 sites — IdiamPro transcribes with speaker diarization and organizes insights by theme.
                   </p>
                   <div className="text-teal-600 text-xs font-medium">Example scenario • Industrial R&D</div>
@@ -369,7 +369,7 @@ export default function UseCasesPage() {
                 <div className="p-6 rounded-2xl bg-gradient-to-br from-teal-600/10 to-teal-600/10 border border-teal-600/20">
                   <div className="text-3xl font-bold text-teal-600 mb-2">2,400 docs</div>
                   <h4 className="text-[#0c2224] font-semibold mb-2">Legal Discovery</h4>
-                  <p className="text-[#6b7d7e] text-sm mb-4">
+                  <p className="text-[#22312f] text-base font-medium mb-4">
                     Imagine a litigation team processing 2,400 discovery documents including depositions, contracts, and communications — IdiamPro organizes evidence by timeline and relevance.
                   </p>
                   <div className="text-teal-600 text-xs font-medium">Example scenario • Legal Discovery</div>

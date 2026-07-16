@@ -158,7 +158,7 @@ function IdeaDevelopmentBand() {
           <h2 className="text-4xl md:text-5xl font-extrabold text-[#0c2224] mb-4 tracking-tight">
             A great idea isn&apos;t a single prompt.
           </h2>
-          <p className="text-lg md:text-xl text-[#22312f] leading-relaxed max-w-[660px] mx-auto">
+          <p className="text-lg md:text-xl font-medium text-[#22312f] leading-relaxed max-w-[660px] mx-auto">
             It might take a hundred sources — articles, PDFs, YouTube videos, meeting notes, textbooks, even what you type yourself — read, weighed, and merged into one outline before the essence comes into focus. Developing an idea is iterative: many passes, not one flash of insight. IdiamPro is built for that work.
           </p>
         </div>
@@ -193,7 +193,7 @@ function IdeaDevelopmentBand() {
               <FileUp className="w-5 h-5 text-teal-600" />
             </div>
             <h3 className="text-lg font-bold text-[#0c2224] mb-3">Many inputs</h3>
-            <ul className="space-y-2 text-sm text-[#22312f]">
+            <ul className="space-y-2 text-base text-[#22312f]">
               <li>Type it in yourself</li>
               <li>Articles, web pages &amp; PDFs</li>
               <li>YouTube, audio &amp; video</li>
@@ -214,7 +214,7 @@ function IdeaDevelopmentBand() {
               <Merge className="w-5 h-5 text-teal-500" />
             </div>
             <h3 className="text-lg font-bold text-[#0c2224] mb-3">Merge &amp; consolidate</h3>
-            <ul className="space-y-2 text-sm text-[#22312f]">
+            <ul className="space-y-2 text-base text-[#22312f]">
               <li>Merge sources into one outline</li>
               <li>Consolidate into a coherent whole</li>
               <li>Develop &amp; refine over many passes</li>
@@ -233,7 +233,7 @@ function IdeaDevelopmentBand() {
               <Rocket className="w-5 h-5 text-teal-600" />
             </div>
             <h3 className="text-lg font-bold text-[#0c2224] mb-3">Publish everywhere</h3>
-            <ul className="space-y-2 text-sm text-[#22312f]">
+            <ul className="space-y-2 text-base text-[#22312f]">
               <li>Papers &amp; articles</li>
               <li>Podcasts &amp; videos</li>
               <li>Slides &amp; illustrations</li>
@@ -242,7 +242,7 @@ function IdeaDevelopmentBand() {
           </div>
         </div>
 
-        <p className="text-center text-sm text-[#42504f] mt-10 max-w-2xl mx-auto">
+        <p className="text-center text-base font-medium text-[#22312f] mt-10 max-w-2xl mx-auto">
           Read widely, merge the sources into one outline, refine the essence — then publish it in any format. That&apos;s idea development, not a one-shot answer.
         </p>
       </div>
@@ -371,7 +371,7 @@ export default function MarketingPage() {
               <h2 className="text-4xl md:text-6xl font-extrabold mb-5 leading-[1.08] tracking-tight text-[#0c2224]">
                 The idea was only half the battle.
               </h2>
-              <p className="text-lg md:text-xl text-[#22312f] leading-relaxed max-w-3xl mx-auto">
+              <p className="text-lg md:text-xl font-medium text-[#22312f] leading-relaxed max-w-3xl mx-auto">
                 A tool I&apos;d envisioned for decades — finally possible now. So I did the most honest test I could think of: I used IdiamPro to plan its own launch. The plan you&apos;ll watch build itself is the real one.
               </p>
             </div>
@@ -406,7 +406,7 @@ export default function MarketingPage() {
               <h2 className="text-4xl md:text-5xl font-extrabold text-[#0c2224] mb-4 tracking-tight">
                 Three kinds of tools. Only one thinks <span className="text-[#0c5c5b]">with</span> you.
               </h2>
-              <p className="text-lg md:text-xl text-[#22312f] leading-relaxed max-w-[720px] mx-auto">
+              <p className="text-lg md:text-xl font-medium text-[#22312f] leading-relaxed max-w-[720px] mx-auto">
                 A query box answers. A filing cabinet stores. IdiamPro develops — the difference between a moment and a process.
               </p>
             </div>
@@ -421,7 +421,7 @@ export default function MarketingPage() {
                 <div className="text-xs font-bold uppercase tracking-wider text-[#5a6a69] mb-1">The query box</div>
                 <div className="text-sm text-[#5a6a69] mb-4">ChatGPT · Gemini · Claude chat</div>
                 <div className="text-3xl md:text-4xl font-extrabold text-[#42504f] mb-4 tracking-tight">Answers.</div>
-                <p className="text-sm text-[#42504f] leading-relaxed">
+                <p className="text-base font-medium text-[#22312f] leading-relaxed">
                   You ask, it answers — then the thinking evaporates. Brilliant for one reply, but there&apos;s no structure, no growing memory, no body of work. A moment, not a process.
                 </p>
               </div>
@@ -434,7 +434,7 @@ export default function MarketingPage() {
                 <div className="text-xs font-bold uppercase tracking-wider text-[#5a6a69] mb-1">The outliner / vault</div>
                 <div className="text-sm text-[#5a6a69] mb-4">Obsidian · Notion · Roam</div>
                 <div className="text-3xl md:text-4xl font-extrabold text-[#42504f] mb-4 tracking-tight">Stores.</div>
-                <p className="text-sm text-[#42504f] leading-relaxed">
+                <p className="text-base font-medium text-[#22312f] leading-relaxed">
                   A place to store what you already figured out. Passive: it holds your notes, but it won&apos;t help you develop them, connect them, or turn them into anything.
                 </p>
               </div>
@@ -450,7 +450,7 @@ export default function MarketingPage() {
                 <div className="text-xs font-bold uppercase tracking-wider text-[#0c5c5b] mb-1">IdiamPro</div>
                 <div className="text-sm text-[#0c5c5b] mb-4">The idea-development engine</div>
                 <div className="text-3xl md:text-4xl font-extrabold text-[#0c5c5b] mb-4 tracking-tight">Develops.</div>
-                <p className="text-sm text-[#22312f] leading-relaxed mb-4">
+                <p className="text-base font-medium text-[#22312f] leading-relaxed mb-4">
                   The only one that works <span className="font-bold text-[#0c5c5b]">with</span> you to develop an idea over time: capture, structure, enrich from the web and AI, <span className="font-bold text-[#0c5c5b]">consolidate</span> it into real understanding — then produce finished work.
                 </p>
                 <div className="mt-auto flex flex-wrap gap-1.5">
@@ -464,7 +464,7 @@ export default function MarketingPage() {
             </div>
 
             {/* Kicker — the consolidation → wisdom thesis */}
-            <p className="text-center text-base md:text-lg text-[#22312f] leading-relaxed mt-12 max-w-[760px] mx-auto">
+            <p className="text-center text-lg md:text-xl font-medium text-[#22312f] leading-relaxed mt-12 max-w-[760px] mx-auto">
               <span className="font-bold text-[#0c2224]">Reorganizing your thinking is understanding it.</span> That consolidation — everything you know, connected and reusable — is what a query box and a filing cabinet can never give you. Querying is a moment; developing is a process.
             </p>
 
@@ -516,7 +516,7 @@ export default function MarketingPage() {
               <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4 tracking-tight">
                 Not a filing cabinet. Not a vending machine.
               </h2>
-              <p className="text-lg md:text-xl text-white/80 leading-relaxed max-w-[720px] mx-auto">
+              <p className="text-lg md:text-xl font-medium text-white/80 leading-relaxed max-w-[720px] mx-auto">
                 Everyone else either stores the thinking you already did, or vends you a one-shot output. We&apos;re the only one that does the thinking <span className="text-teal-300 font-bold">with</span> you — and hands back finished work, iteratively, in your voice.
               </p>
             </div>
@@ -561,11 +561,11 @@ export default function MarketingPage() {
                   <h3 className="text-base font-bold text-white mb-4">{c.name}</h3>
                   <div className="mb-4">
                     <div className="text-[11px] font-bold uppercase tracking-wider text-white/50 mb-1.5">They</div>
-                    <p className="text-sm text-white/75 leading-relaxed">{c.they}</p>
+                    <p className="text-base font-medium text-white/75 leading-relaxed">{c.they}</p>
                   </div>
                   <div className="mt-auto pt-4 border-t border-white/10">
                     <div className="text-[11px] font-bold uppercase tracking-wider text-teal-300 mb-1.5">We</div>
-                    <p className="text-sm text-teal-100/90 leading-relaxed">{c.we}</p>
+                    <p className="text-base font-medium text-teal-100/90 leading-relaxed">{c.we}</p>
                   </div>
                 </div>
               ))}
@@ -584,7 +584,7 @@ export default function MarketingPage() {
               <h2 className="text-4xl md:text-5xl font-extrabold text-[#0c2224] mb-4 tracking-tight">
                 Real stories, start to finish.
               </h2>
-              <p className="text-lg md:text-xl text-[#22312f] leading-relaxed max-w-2xl mx-auto">
+              <p className="text-lg md:text-xl font-medium text-[#22312f] leading-relaxed max-w-2xl mx-auto">
                 Watch a single idea grow into finished work — real end-to-end journeys, captured from the first capture to the last export.
               </p>
             </div>
@@ -625,7 +625,7 @@ export default function MarketingPage() {
                   <div className="p-5 md:p-6">
                     <div className="text-xs text-[#0c5c5b] font-bold uppercase tracking-wider mb-1">{wf.label}</div>
                     <h3 className="text-lg font-semibold text-[#0c2224] mb-1">{wf.title}</h3>
-                    <p className="text-[#42504f] text-sm leading-relaxed mb-3">{wf.desc}</p>
+                    <p className="text-[#22312f] text-base font-medium leading-relaxed mb-3">{wf.desc}</p>
                     <span className="inline-flex items-center gap-1 text-sm font-semibold text-[#0c5c5b] group-hover:gap-2 transition-all">
                       Watch <ArrowRight className="w-4 h-4" />
                     </span>
@@ -653,7 +653,7 @@ export default function MarketingPage() {
           <div className="max-w-[1600px] mx-auto">
             <div className="text-center max-w-3xl mx-auto mb-12">
               <h2 className="text-4xl md:text-5xl font-extrabold text-[#0c2224] mb-4 tracking-tight">Explore IdiamPro</h2>
-              <p className="text-lg md:text-xl text-[#22312f] leading-relaxed">
+              <p className="text-lg md:text-xl font-medium text-[#22312f] leading-relaxed">
                 Go deeper into what IdiamPro does, who it&apos;s for, and how it&apos;s priced.
               </p>
             </div>
@@ -671,7 +671,7 @@ export default function MarketingPage() {
                       <TIcon className="w-5 h-5 text-white" />
                     </div>
                     <h3 className="text-lg font-bold text-[#0c2224] mb-2">{t.title}</h3>
-                    <p className="text-sm text-[#22312f] leading-relaxed mb-4 flex-1">{t.blurb}</p>
+                    <p className="text-base font-medium text-[#22312f] leading-relaxed mb-4 flex-1">{t.blurb}</p>
                     <span className="inline-flex items-center gap-1 text-sm font-semibold text-[#0c5c5b] group-hover:gap-2 transition-all">
                       {t.cta} <ArrowRight className="w-4 h-4" />
                     </span>
@@ -697,7 +697,7 @@ export default function MarketingPage() {
               <h2 className="text-4xl md:text-6xl font-extrabold mb-5 leading-[1.08] tracking-tight text-[#0c2224]">
                 Ready to get started?
               </h2>
-              <p className="text-lg md:text-xl text-[#22312f] leading-relaxed">
+              <p className="text-lg md:text-xl font-medium text-[#22312f] leading-relaxed">
                 You&apos;re three quick steps from thinking bigger. Get the app, turn on free on-device AI, and start building — no credit card, no setup headaches.
               </p>
             </div>
@@ -740,7 +740,7 @@ export default function MarketingPage() {
                       <span className="text-4xl font-extrabold text-[#c2dbd9]">{s.n}</span>
                     </div>
                     <h3 className="text-xl font-bold text-[#0c2224] mb-2">{s.title}</h3>
-                    <p className="text-sm text-[#22312f] leading-relaxed mb-5 flex-1">{s.body}</p>
+                    <p className="text-base font-medium text-[#22312f] leading-relaxed mb-5 flex-1">{s.body}</p>
                     <div className="flex flex-wrap gap-2">
                       {s.chips.map((c) => (
                         <span
@@ -778,12 +778,12 @@ export default function MarketingPage() {
                     <h3 className="text-2xl md:text-3xl font-extrabold text-red-700 tracking-tight mb-3">
                       Keep your work safe — back it up
                     </h3>
-                    <p className="text-base leading-relaxed mb-3">
+                    <p className="text-lg leading-relaxed mb-3">
                       <span className="font-bold text-red-700">Your work lives on your own device, and keeping it safe is ultimately your responsibility. Store your IdiamPro files in a location that&apos;s automatically backed up.</span>
                       <span className="text-[#22312f]"> The method is your choice — iCloud Drive, Dropbox, Google Drive, OneDrive, a Time Machine disk, or any backup you trust. IdiamPro keeps automatic local snapshots as a safety net, but they are </span>
                       <span className="font-bold text-red-700">not a substitute for your own off-device backup.</span>
                     </p>
-                    <p className="text-base leading-relaxed mb-4">
+                    <p className="text-lg leading-relaxed mb-4">
                       <span className="font-bold text-red-700">Using the free web version in a browser? Your work is saved inside that browser, on that device — and it can be lost if you clear your browser data, use private/incognito mode, or switch browsers.</span>
                       <span className="text-[#22312f]"> Export your outlines regularly and keep the copies in a backed-up location.</span>
                     </p>
@@ -801,7 +801,7 @@ export default function MarketingPage() {
                       <div className="mb-2 text-xs font-bold uppercase tracking-wider text-red-700">
                         More ways to protect your work
                       </div>
-                      <ul className="grid gap-2 text-sm text-[#22312f] sm:grid-cols-2">
+                      <ul className="grid gap-2 text-base text-[#22312f] sm:grid-cols-2">
                         {[
                           'Keep more than one copy — the 3-2-1 rule: 3 copies, on 2 kinds of storage, 1 kept off-site.',
                           'Use a backup that keeps version history (Time Machine, iCloud, Dropbox) so you can roll back a bad change or a corrupted file.',
@@ -836,7 +836,7 @@ export default function MarketingPage() {
                 <h3 className="text-3xl md:text-4xl font-extrabold text-[#0c2224] tracking-tight mb-3">
                   Start now, on any device
                 </h3>
-                <p className="text-lg text-[#22312f]">
+                <p className="text-lg md:text-xl font-medium text-[#22312f]">
                   Native apps on Apple. Everywhere else, the free web version runs instantly — nothing to install.
                 </p>
               </div>
@@ -849,7 +849,7 @@ export default function MarketingPage() {
                     </div>
                     <h4 className="text-lg font-bold text-[#0c2224]">Apple — native apps</h4>
                   </div>
-                  <p className="text-sm text-[#22312f] leading-relaxed mb-5">
+                  <p className="text-base font-medium text-[#22312f] leading-relaxed mb-5">
                     The full native experience, downloaded and installed on your Apple devices.
                   </p>
                   <div className="flex flex-wrap gap-2">
@@ -876,7 +876,7 @@ export default function MarketingPage() {
                     </div>
                     <h4 className="text-lg font-bold text-[#0c2224]">Web — any device</h4>
                   </div>
-                  <p className="text-sm text-[#22312f] leading-relaxed mb-5">
+                  <p className="text-base font-medium text-[#22312f] leading-relaxed mb-5">
                     Nothing to install. Open it in any modern browser and start right now — the free web version runs instantly, everywhere.
                   </p>
                   <div className="flex flex-wrap gap-2">
@@ -899,7 +899,7 @@ export default function MarketingPage() {
                 <h3 className="text-3xl md:text-4xl font-extrabold text-[#0c2224] tracking-tight mb-3">
                   Watch it come together
                 </h3>
-                <p className="text-lg text-[#22312f] max-w-2xl mx-auto">
+                <p className="text-lg md:text-xl font-medium text-[#22312f] max-w-2xl mx-auto">
                   A two-minute walkthrough — from a blank page to a published idea.
                 </p>
               </div>
@@ -925,7 +925,7 @@ export default function MarketingPage() {
               <h3 className="text-3xl md:text-5xl font-extrabold text-[#0c2224] tracking-tight mb-4">
                 Choose your plan
               </h3>
-              <p className="text-lg text-[#22312f]">
+              <p className="text-lg md:text-xl font-medium text-[#22312f]">
                 Start free forever. Upgrade whenever you want more power.
               </p>
             </div>
@@ -947,7 +947,7 @@ export default function MarketingPage() {
                 </div>
                 <ul className="space-y-3 mb-8 flex-1">
                   {['On-device AI with Google Gemma', 'Full outlining & Second Brain', 'Capture, organize & consolidate', 'Your data stays on your device'].map((f) => (
-                    <li key={f} className="flex items-start gap-2 text-sm text-[#22312f]">
+                    <li key={f} className="flex items-start gap-2 text-base text-[#22312f]">
                       <Check className="mt-0.5 h-4 w-4 shrink-0 text-teal-600" />
                       <span>{f}</span>
                     </li>
@@ -983,7 +983,7 @@ export default function MarketingPage() {
                 </div>
                 <ul className="space-y-3 mb-8 flex-1">
                   {['Everything in Free, plus:', 'Premium cloud AI models', 'Video & podcast generation', 'All export formats', 'Priority support'].map((f) => (
-                    <li key={f} className="flex items-start gap-2 text-sm text-[#22312f]">
+                    <li key={f} className="flex items-start gap-2 text-base text-[#22312f]">
                       <Check className="mt-0.5 h-4 w-4 shrink-0 text-teal-600" />
                       <span>{f}</span>
                     </li>
@@ -1016,7 +1016,7 @@ export default function MarketingPage() {
                 </div>
                 <ul className="space-y-3 mb-8 flex-1">
                   {['Everything in Professional', 'Special student discount', 'Verify with your .edu email', 'Built for coursework & research'].map((f) => (
-                    <li key={f} className="flex items-start gap-2 text-sm text-[#22312f]">
+                    <li key={f} className="flex items-start gap-2 text-base text-[#22312f]">
                       <Check className="mt-0.5 h-4 w-4 shrink-0 text-teal-600" />
                       <span>{f}</span>
                     </li>
@@ -1044,7 +1044,7 @@ export default function MarketingPage() {
                 think and create?
               </span>
             </h2>
-            <p className="text-white/80 text-lg md:text-xl mb-10 max-w-2xl mx-auto">
+            <p className="text-white/80 text-lg md:text-xl font-medium mb-10 max-w-2xl mx-auto">
               Join researchers, authors, and professionals who've upgraded their workflow with IdiamPro.
             </p>
             <SignedOut>

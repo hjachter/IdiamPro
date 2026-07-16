@@ -173,7 +173,7 @@ function OneOutlineManyOutputs() {
             <h2 className="text-3xl md:text-4xl font-bold text-[#0c2224] mb-4">
               Develop it once. Publish it in every format.
             </h2>
-            <p className="text-base md:text-lg text-[#47585a] leading-relaxed max-w-2xl mx-auto">
+            <p className="text-lg md:text-xl text-[#22312f] font-medium leading-relaxed max-w-2xl mx-auto">
               One developed outline becomes many finished formats — no rebuilding from scratch for each one.
             </p>
           </div>
@@ -233,7 +233,7 @@ function OneOutlineManyOutputs() {
             </div>
           </div>
 
-          <p className="text-center text-sm text-[#6b7d7e] mt-10 max-w-2xl mx-auto">
+          <p className="text-center text-base text-[#22312f] mt-10 max-w-2xl mx-auto">
             Plus Docs &amp; PDF are part of 23 export formats, and any output can ship in 21 languages.
           </p>
         </div>
@@ -275,7 +275,7 @@ export default function FeaturesPage() {
                     An Idea Incubator is where raw thoughts grow into finished work.
                   </span>
                 </h2>
-                <p className="text-base md:text-lg text-[#47585a] leading-relaxed max-w-3xl mx-auto">
+                <p className="text-lg md:text-xl text-[#22312f] font-medium leading-relaxed max-w-3xl mx-auto">
                   Most tools store your notes. An Idea Incubator does something different — it takes the scattered raw material of your thinking (half-formed thoughts, saved videos, PDFs, web pages, meeting scraps) and actively grows them into structured, usable ideas.
                 </p>
               </div>
@@ -321,7 +321,7 @@ export default function FeaturesPage() {
                         <span className="text-xs font-semibold text-[#6b7d7e]">{`0${i + 1}`}</span>
                       </div>
                       <h3 className="text-lg font-bold text-[#0c2224] mb-2">{stage.label}</h3>
-                      <p className="text-[#47585a] text-sm leading-relaxed">{stage.description}</p>
+                      <p className="text-base text-[#22312f] leading-relaxed">{stage.description}</p>
                     </div>
                   );
                 })}
@@ -345,7 +345,7 @@ export default function FeaturesPage() {
               <h2 className="text-2xl md:text-3xl font-bold text-[#0c2224] mb-3">
                 Written work and multimedia, from one outline.
               </h2>
-              <p className="text-base md:text-lg text-[#47585a] leading-relaxed mb-4">
+              <p className="text-lg md:text-xl text-[#22312f] font-medium leading-relaxed mb-4">
                 IdiamPro is the idea developer for both written content and multimedia. Snap a whiteboard photo and watch it become a structured outline. Pick a branch and IdiamPro produces a complete YouTube content package — script, chapters, description, SEO, B-roll prompts. Multimedia in, multimedia out.
               </p>
               <div className="flex flex-wrap gap-2">
@@ -395,7 +395,7 @@ export default function FeaturesPage() {
                     <Globe className="w-8 h-8 text-white" />
                   </div>
                   <h3 className="text-2xl font-bold text-[#0c2224] mb-4">Expanded Knowledge Scope</h3>
-                  <p className="text-[#47585a] leading-relaxed mb-4">
+                  <p className="text-lg text-[#22312f] leading-relaxed mb-4">
                     Your brain can only hold so much. IdiamPro becomes your external memory—capturing every source,
                     every insight, every connection you&apos;ve ever encountered. Access decades of accumulated
                     knowledge instantly.
@@ -416,7 +416,7 @@ export default function FeaturesPage() {
                     <Zap className="w-8 h-8 text-white" />
                   </div>
                   <h3 className="text-2xl font-bold text-[#0c2224] mb-4">Accelerated Access</h3>
-                  <p className="text-[#47585a] leading-relaxed mb-4">
+                  <p className="text-lg text-[#22312f] leading-relaxed mb-4">
                     Find what you need in seconds, not hours. Hierarchical outlines, AI-powered search, and smart
                     organization means your knowledge is always at your fingertips—ready when you need it.
                   </p>
@@ -436,7 +436,7 @@ export default function FeaturesPage() {
                     <Network className="w-8 h-8 text-white" />
                   </div>
                   <h3 className="text-2xl font-bold text-[#0c2224] mb-4">Hidden Connections</h3>
-                  <p className="text-[#47585a] leading-relaxed mb-4">
+                  <p className="text-lg text-[#22312f] leading-relaxed mb-4">
                     See what others miss. The hierarchical structure reveals complex interrelationships between ideas,
                     surfaces creative possibilities, and helps you synthesize insights that would otherwise remain hidden.
                   </p>
@@ -477,7 +477,7 @@ export default function FeaturesPage() {
                   {' '}to published paper
                 </span>
               </h2>
-              <p className="text-[#6b7d7e] text-lg max-w-2xl mx-auto mt-4">
+              <p className="text-lg md:text-xl text-[#22312f] font-medium max-w-2xl mx-auto mt-4">
                 Every step of the professional research workflow, powered by AI.
               </p>
             </div>
@@ -501,7 +501,7 @@ export default function FeaturesPage() {
                     <h3 className="text-2xl lg:text-3xl font-bold text-[#0c2224] mb-3">
                       Literature Review in Hours, Not Months
                     </h3>
-                    <p className="text-[#47585a] text-lg mb-6 max-w-2xl">
+                    <p className="text-[#22312f] text-xl mb-6 max-w-2xl">
                       Import research papers, conference recordings, technical reports, and field notes simultaneously.
                       AI synthesizes everything into a coherent outline organized by themes and findings—the way research should be organized.
                     </p>
@@ -535,7 +535,7 @@ export default function FeaturesPage() {
                     <h3 className="text-xl lg:text-2xl font-bold text-[#0c2224] mb-2">
                       Capture Physical Meetings &amp; Interviews
                     </h3>
-                    <p className="text-[#47585a] mb-4">
+                    <p className="text-lg text-[#22312f] mb-4">
                       Record in-person meetings, focus groups, or field interviews. Upload the audio and get automatic transcription with speaker diarization—know exactly who said what.
                     </p>
                     <div className="text-teal-600 text-sm font-medium">
@@ -554,7 +554,7 @@ export default function FeaturesPage() {
                     <h3 className="text-xl lg:text-2xl font-bold text-[#0c2224] mb-2">
                       Turn Any Outline Into a Podcast
                     </h3>
-                    <p className="text-[#47585a] mb-4">
+                    <p className="text-lg text-[#22312f] mb-4">
                       Select any branch and generate a professional podcast. Choose voices, style, and length.
                     </p>
                     <div className="text-teal-600 text-sm font-medium">
@@ -574,7 +574,7 @@ export default function FeaturesPage() {
                   <h3 className="text-xl font-bold text-[#0c2224] mb-2">
                     Auto-Generate Mind Maps &amp; Flowcharts
                   </h3>
-                  <p className="text-[#47585a] text-sm mb-4">
+                  <p className="text-base text-[#22312f] mb-4">
                     Select any branch and instantly turn its structure into a mind map, flowchart, or org chart—export it or embed it right in your outline.
                   </p>
                   <div className="flex flex-wrap gap-2">
@@ -592,7 +592,7 @@ export default function FeaturesPage() {
                   <h3 className="text-xl font-bold text-[#0c2224] mb-2">
                     Ask Your Knowledge Base
                   </h3>
-                  <p className="text-[#47585a] text-sm mb-4">
+                  <p className="text-base text-[#22312f] mb-4">
                     Ask questions about one outline or across everything you’ve captured—answers come from your own sources, not a generic web guess.
                   </p>
                   <div className="text-teal-600 text-sm font-medium">
@@ -613,7 +613,7 @@ export default function FeaturesPage() {
                       Shipped
                     </span>
                   </div>
-                  <p className="text-[#47585a] text-sm mb-4">
+                  <p className="text-base text-[#22312f] mb-4">
                     Pick any branch and generate a complete YouTube package—voiceover script, chapter markers, title variants, SEO tags, thumbnail concept, and B-roll prompts.
                   </p>
                   <div className="text-teal-600 text-sm font-medium">
@@ -636,14 +636,14 @@ export default function FeaturesPage() {
               <h2 className="text-3xl md:text-4xl font-bold text-[#0c2224] mb-4">
                 Real screenshots, real product.
               </h2>
-              <p className="text-base md:text-lg text-[#47585a] leading-relaxed max-w-2xl mx-auto">
+              <p className="text-lg md:text-xl text-[#22312f] font-medium leading-relaxed max-w-2xl mx-auto">
                 No mockups. This is IdiamPro today — from the writing workspace to the finished outputs it produces.
               </p>
             </div>
 
             {/* Light & Dark — the product is beautiful either way */}
             <div className="mb-12">
-              <p className="text-center text-sm text-[#6b7d7e] mb-5">
+              <p className="text-center text-base text-[#6b7d7e] mb-5">
                 Made for light lovers and dark lovers alike — the same workspace, your way.
               </p>
               <div className="grid sm:grid-cols-2 gap-6 lg:gap-8">
@@ -723,7 +723,7 @@ export default function FeaturesPage() {
                   <figcaption className="p-5 md:p-6">
                     <div className="text-xs text-teal-600 font-medium uppercase tracking-wider mb-1">{shot.label}</div>
                     <h3 className="text-lg font-semibold text-[#0c2224] mb-1">{shot.title}</h3>
-                    <p className="text-[#6b7d7e] text-sm leading-relaxed">{shot.desc}</p>
+                    <p className="text-base text-[#22312f] leading-relaxed">{shot.desc}</p>
                   </figcaption>
                 </figure>
               ))}
@@ -770,7 +770,7 @@ export default function FeaturesPage() {
                   research-grade work
                 </span>
               </h2>
-              <p className="text-[#6b7d7e] text-lg max-w-2xl mx-auto">
+              <p className="text-lg md:text-xl text-[#22312f] font-medium max-w-2xl mx-auto">
                 Consumer note-taking apps weren't designed for professional research. IdiamPro was built from the ground up for serious knowledge synthesis.
               </p>
             </div>
@@ -784,23 +784,23 @@ export default function FeaturesPage() {
                   What other tools do
                 </h3>
                 <ul className="space-y-4">
-                  <li className="flex items-start gap-3 text-[#6b7d7e]">
+                  <li className="flex items-start gap-3 text-[#6b7d7e] text-base">
                     <span className="w-5 h-5 rounded bg-[#f4faf9] flex items-center justify-center text-xs flex-shrink-0 mt-0.5">•</span>
                     <span>Take notes and organize them manually</span>
                   </li>
-                  <li className="flex items-start gap-3 text-[#6b7d7e]">
+                  <li className="flex items-start gap-3 text-[#6b7d7e] text-base">
                     <span className="w-5 h-5 rounded bg-[#f4faf9] flex items-center justify-center text-xs flex-shrink-0 mt-0.5">•</span>
                     <span>Import one file at a time, if at all</span>
                   </li>
-                  <li className="flex items-start gap-3 text-[#6b7d7e]">
+                  <li className="flex items-start gap-3 text-[#6b7d7e] text-base">
                     <span className="w-5 h-5 rounded bg-[#f4faf9] flex items-center justify-center text-xs flex-shrink-0 mt-0.5">•</span>
                     <span>AI as an afterthought—generic chat bolted on</span>
                   </li>
-                  <li className="flex items-start gap-3 text-[#6b7d7e]">
+                  <li className="flex items-start gap-3 text-[#6b7d7e] text-base">
                     <span className="w-5 h-5 rounded bg-[#f4faf9] flex items-center justify-center text-xs flex-shrink-0 mt-0.5">•</span>
                     <span>Force you to choose: mobile OR desktop experience</span>
                   </li>
-                  <li className="flex items-start gap-3 text-[#6b7d7e]">
+                  <li className="flex items-start gap-3 text-[#6b7d7e] text-base">
                     <span className="w-5 h-5 rounded bg-[#f4faf9] flex items-center justify-center text-xs flex-shrink-0 mt-0.5">•</span>
                     <span>Lock your data in proprietary formats</span>
                   </li>
@@ -814,23 +814,23 @@ export default function FeaturesPage() {
                   What IdiamPro does differently
                 </h3>
                 <ul className="space-y-4">
-                  <li className="flex items-start gap-3 text-[#0c2224]">
+                  <li className="flex items-start gap-3 text-[#0c2224] text-base">
                     <Check className="w-5 h-5 text-teal-600 flex-shrink-0 mt-0.5" />
                     <span><strong className="text-[#0c2224]">Multi-source synthesis</strong>—import 50+ sources and let AI organize by theme</span>
                   </li>
-                  <li className="flex items-start gap-3 text-[#0c2224]">
+                  <li className="flex items-start gap-3 text-[#0c2224] text-base">
                     <Check className="w-5 h-5 text-teal-600 flex-shrink-0 mt-0.5" />
                     <span><strong className="text-[#0c2224]">10+ source types</strong>—YouTube, PDFs, audio with transcription, web pages, docs</span>
                   </li>
-                  <li className="flex items-start gap-3 text-[#0c2224]">
+                  <li className="flex items-start gap-3 text-[#0c2224] text-base">
                     <Check className="w-5 h-5 text-teal-600 flex-shrink-0 mt-0.5" />
                     <span><strong className="text-[#0c2224]">AI-native from day one</strong>—content generation, synthesis, diagrams, podcasts</span>
                   </li>
-                  <li className="flex items-start gap-3 text-[#0c2224]">
+                  <li className="flex items-start gap-3 text-[#0c2224] text-base">
                     <Check className="w-5 h-5 text-teal-600 flex-shrink-0 mt-0.5" />
                     <span><strong className="text-[#0c2224]">True cross-platform</strong>—identical experience on Mac, iPhone, iPad, and web</span>
                   </li>
-                  <li className="flex items-start gap-3 text-[#0c2224]">
+                  <li className="flex items-start gap-3 text-[#0c2224] text-base">
                     <Check className="w-5 h-5 text-teal-600 flex-shrink-0 mt-0.5" />
                     <span><strong className="text-[#0c2224]">Your data, your way</strong>—23 export formats, local-first storage, no lock-in</span>
                   </li>
@@ -928,7 +928,7 @@ export default function FeaturesPage() {
                   <AnimatedNumber value={1000000} prefix="" suffix="+" />
                 </h3>
                 <p className="text-xl text-[#0c2224] mb-2">nodes in a single outline*</p>
-                <p className="text-[#6b7d7e] max-w-xl mx-auto mb-6">
+                <p className="text-lg text-[#22312f] max-w-xl mx-auto mb-6">
                   Stress-tested with over one million nodes. No artificial limits—scale until your hardware says stop.
                   Your biggest research projects, handled with ease.
                 </p>
@@ -953,7 +953,7 @@ export default function FeaturesPage() {
                   <Sparkles className="w-7 h-7 text-white" />
                 </div>
                 <h4 className="text-lg font-bold text-[#0c2224] mb-2">AI-First</h4>
-                <p className="text-[#6b7d7e] text-sm">
+                <p className="text-base text-[#22312f]">
                   Every feature designed around AI from day one
                 </p>
               </div>
@@ -962,7 +962,7 @@ export default function FeaturesPage() {
                   <Shield className="w-7 h-7 text-white" />
                 </div>
                 <h4 className="text-lg font-bold text-[#0c2224] mb-2">Privacy-First</h4>
-                <p className="text-[#6b7d7e] text-sm">
+                <p className="text-base text-[#22312f]">
                   Local storage by default. Cloud is optional.
                 </p>
               </div>
@@ -971,7 +971,7 @@ export default function FeaturesPage() {
                   <Zap className="w-7 h-7 text-white" />
                 </div>
                 <h4 className="text-lg font-bold text-[#0c2224] mb-2">Blazing Fast</h4>
-                <p className="text-[#6b7d7e] text-sm">
+                <p className="text-base text-[#22312f]">
                   Instant response, even with massive outlines
                 </p>
               </div>
@@ -980,7 +980,7 @@ export default function FeaturesPage() {
                   <Layers className="w-7 h-7 text-white" />
                 </div>
                 <h4 className="text-lg font-bold text-[#0c2224] mb-2">19 Node Types</h4>
-                <p className="text-[#6b7d7e] text-sm">
+                <p className="text-base text-[#22312f]">
                   Tasks, code, media, spreadsheets, and more
                 </p>
               </div>
@@ -1007,7 +1007,7 @@ export default function FeaturesPage() {
                     an afterthought
                   </span>
                 </h2>
-                <p className="text-[#47585a] text-lg mb-8">
+                <p className="text-lg md:text-xl text-[#22312f] font-medium mb-8">
                   Unlike cloud-first apps that hold your data hostage, IdiamPro is built local-first.
                   Your outlines live on your device. You're always in control.
                 </p>
@@ -1019,7 +1019,7 @@ export default function FeaturesPage() {
                     </div>
                     <div>
                       <h4 className="text-[#0c2224] font-semibold mb-1">Local-First Storage</h4>
-                      <p className="text-[#6b7d7e] text-sm">Your data is stored on your device by default. No cloud required. No servers holding your thoughts.</p>
+                      <p className="text-base text-[#22312f]">Your data is stored on your device by default. No cloud required. No servers holding your thoughts.</p>
                     </div>
                   </div>
 
@@ -1029,7 +1029,7 @@ export default function FeaturesPage() {
                     </div>
                     <div>
                       <h4 className="text-[#0c2224] font-semibold mb-1">Never Sold, Never Shared</h4>
-                      <p className="text-[#6b7d7e] text-sm">We will never sell your data. Period. Your content is yours alone.</p>
+                      <p className="text-base text-[#22312f]">We will never sell your data. Period. Your content is yours alone.</p>
                     </div>
                   </div>
 
@@ -1039,7 +1039,7 @@ export default function FeaturesPage() {
                     </div>
                     <div>
                       <h4 className="text-[#0c2224] font-semibold mb-1">No AI Training on Your Data</h4>
-                      <p className="text-[#6b7d7e] text-sm">When you use AI features, your content is processed but never used to train AI models. Contractually guaranteed.</p>
+                      <p className="text-base text-[#22312f]">When you use AI features, your content is processed but never used to train AI models. Contractually guaranteed.</p>
                     </div>
                   </div>
 
@@ -1049,7 +1049,7 @@ export default function FeaturesPage() {
                     </div>
                     <div>
                       <h4 className="text-[#0c2224] font-semibold mb-1">Export Anytime, Any Format</h4>
-                      <p className="text-[#6b7d7e] text-sm">23 export formats mean you're never locked in. Leave anytime with all your data.</p>
+                      <p className="text-base text-[#22312f]">23 export formats mean you're never locked in. Leave anytime with all your data.</p>
                     </div>
                   </div>
                 </div>
@@ -1102,7 +1102,7 @@ export default function FeaturesPage() {
             <h2 className="text-3xl lg:text-5xl font-bold mb-6">
               Works everywhere you do
             </h2>
-            <p className="text-[#6b7d7e] text-lg mb-6 max-w-2xl mx-auto">
+            <p className="text-lg md:text-xl text-[#22312f] font-medium mb-6 max-w-2xl mx-auto">
               One subscription, all platforms. Your second brain syncs seamlessly across every device.
             </p>
             <p className="text-teal-600/80 text-sm mb-12 max-w-xl mx-auto">
