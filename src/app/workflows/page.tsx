@@ -12,6 +12,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { MarketingHeader } from '@/components/marketing/marketing-header';
+import { useSingleVideoPlayback } from '@/hooks/use-single-video-playback';
 import { ArrowLeft, ArrowRight, Play, Video, Film } from 'lucide-react';
 
 // A premium click-to-play film card. Shows the poster with a play overlay until
@@ -142,6 +143,7 @@ const PROFILES: Profile[] = [
 ];
 
 export default function WorkflowsPage() {
+  useSingleVideoPlayback();
   return (
     <div className="fixed inset-0 overflow-x-hidden overflow-y-auto bg-white text-[#0c2224]">
       <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-teal-600/[0.10] via-transparent to-transparent" />

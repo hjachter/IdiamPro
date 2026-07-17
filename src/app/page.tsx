@@ -4,6 +4,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { MarketingHeader } from '@/components/marketing/marketing-header';
+import { useSingleVideoPlayback } from '@/hooks/use-single-video-playback';
 import { Button } from '@/components/ui/button';
 import { SignedIn, SignedOut } from '@/lib/auth/signed-gates';
 import {
@@ -259,6 +260,8 @@ export default function MarketingPage() {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  useSingleVideoPlayback();
 
   useEffect(() => {
     setMounted(true);
