@@ -252,6 +252,186 @@ function IdeaDevelopmentBand() {
   );
 }
 
+// A single beautifully-framed product screenshot, Apple-product-page style:
+// a subtle browser/window chrome (traffic-light dots + faux URL pill), rounded
+// corners, and a soft teal-tinted shadow so the bright app screens pop off the
+// page. Reused by the showcase gallery below.
+function ProductFrame({
+  src,
+  alt,
+  priority = false,
+}: {
+  src: string;
+  alt: string;
+  priority?: boolean;
+}) {
+  return (
+    <div className="group relative rounded-2xl border border-[#dde2e5] bg-white overflow-hidden shadow-[0_2px_8px_rgba(12,34,36,0.08),0_24px_60px_rgba(12,60,60,0.16)] ring-1 ring-teal-600/10 transition-all duration-500 hover:shadow-[0_4px_12px_rgba(12,34,36,0.10),0_32px_80px_rgba(12,60,60,0.22)] hover:-translate-y-1">
+      {/* Window chrome */}
+      <div className="flex items-center gap-2 px-4 h-9 bg-[#f1f3f5] border-b border-[#e3e7ea]">
+        <div className="flex gap-1.5">
+          <span className="w-2.5 h-2.5 rounded-full bg-[#ff5f57]" />
+          <span className="w-2.5 h-2.5 rounded-full bg-[#febc2e]" />
+          <span className="w-2.5 h-2.5 rounded-full bg-[#28c840]" />
+        </div>
+        <div className="mx-auto flex items-center gap-1.5 rounded-md bg-white/70 border border-[#e3e7ea] px-3 py-0.5">
+          <Lock className="w-2.5 h-2.5 text-[#8a9a99]" />
+          <span className="text-[10px] font-medium text-[#8a9a99] tracking-tight">2ndbrainware.com</span>
+        </div>
+      </div>
+      <img
+        src={src}
+        alt={alt}
+        width={2880}
+        height={1800}
+        loading={priority ? 'eager' : 'lazy'}
+        decoding="async"
+        className="block w-full h-auto"
+      />
+    </div>
+  );
+}
+
+// One alternating showcase row: big framed screenshot on one side, a punchy
+// benefit headline + supporting line on the other. Stacks image-above-text on
+// mobile. `reverse` flips image to the right on desktop.
+function ShowcaseRow({
+  eyebrow,
+  headline,
+  support,
+  src,
+  alt,
+  reverse = false,
+  icon: Icon,
+}: {
+  eyebrow: string;
+  headline: string;
+  support: string;
+  src: string;
+  alt: string;
+  reverse?: boolean;
+  icon: React.ElementType;
+}) {
+  return (
+    <div className="grid lg:grid-cols-2 gap-8 lg:gap-14 items-center">
+      {/* Text */}
+      <div className={`${reverse ? 'lg:order-2' : ''} max-w-xl ${reverse ? 'lg:ml-auto' : ''}`}>
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-teal-600/12 border border-teal-600/30 mb-4">
+          <Icon className="w-3.5 h-3.5 text-[#0c5c5b]" />
+          <span className="text-xs font-bold uppercase tracking-wider text-[#0c5c5b]">{eyebrow}</span>
+        </div>
+        <h3 className="text-3xl md:text-4xl lg:text-[2.6rem] font-extrabold text-[#0c2224] tracking-tight leading-[1.08] mb-4">
+          {headline}
+        </h3>
+        <p className="text-lg md:text-xl font-medium text-[#22312f] leading-relaxed">
+          {support}
+        </p>
+      </div>
+      {/* Screenshot */}
+      <div className={`${reverse ? 'lg:order-1' : ''}`}>
+        <ProductFrame src={src} alt={alt} />
+      </div>
+    </div>
+  );
+}
+
+// The "Seeing is believing" gallery — Apple-style feature showcases that PROVE
+// the product with real screens. The AI-spreadsheet moment gets a standout
+// full-width treatment; the rest alternate image-left / image-right.
+function SeeItShowcase() {
+  return (
+    <section className="px-6 py-24 lg:px-12 border-t border-[#dde2e5] bg-gradient-to-b from-white via-[#f6fafa] to-white">
+      <div className="max-w-[1400px] mx-auto">
+        {/* Heading */}
+        <div className="text-center max-w-3xl mx-auto mb-16">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-teal-600/15 border border-teal-600/40 mb-6">
+            <Sparkles className="w-4 h-4 text-[#0c5c5b]" />
+            <span className="text-sm font-semibold text-[#0c5c5b]">See it in action</span>
+          </div>
+          <h2 className="text-4xl md:text-6xl font-extrabold text-[#0c2224] mb-4 tracking-tight leading-[1.05]">
+            Seeing is believing.
+          </h2>
+          <p className="text-lg md:text-xl font-medium text-[#22312f] leading-relaxed max-w-[680px] mx-auto">
+            Real screens from IdiamPro. Point it at an idea — and watch it become finished, beautiful work.
+          </p>
+        </div>
+
+        {/* Lead row — the visual plan / mind-map */}
+        <div className="mb-24 lg:mb-32">
+          <ShowcaseRow
+            icon={Network}
+            eyebrow="Think visually"
+            headline="Turn scattered thinking into a clear visual plan."
+            support="Drop in your ideas and watch them become a structured outline — complete with an AI-generated mind-map you can actually follow."
+            src="/screenshots/01-hero-strategy-mindmap.png"
+            alt="A strategy plan in IdiamPro with an AI-generated mind-map of its structure"
+          />
+        </div>
+
+        {/* STANDOUT — the killer AI-spreadsheet moment, full-width, centered */}
+        <div className="mb-24 lg:mb-32">
+          <div className="text-center max-w-3xl mx-auto mb-10">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-teal-600 to-[#0c5c5b] mb-5 shadow-md shadow-teal-600/25">
+              <BarChart3 className="w-3.5 h-3.5 text-white" />
+              <span className="text-xs font-bold uppercase tracking-wider text-white">Killer feature</span>
+            </div>
+            <h3 className="text-4xl md:text-5xl lg:text-[3.4rem] font-extrabold text-[#0c2224] tracking-tight leading-[1.05] mb-4">
+              Ask for a spreadsheet.<br className="hidden sm:block" /> Get one — filled in.
+            </h3>
+            <p className="text-lg md:text-2xl font-medium text-[#22312f] leading-relaxed max-w-[720px] mx-auto">
+              Describe the numbers you need. IdiamPro builds a real, editable spreadsheet — with the data already in the cells.
+            </p>
+          </div>
+          <div className="max-w-[1200px] mx-auto">
+            <ProductFrame
+              src="/screenshots/02-ai-spreadsheet.png"
+              alt="IdiamPro generating a real, filled-in budget spreadsheet from a request"
+            />
+          </div>
+        </div>
+
+        {/* Remaining alternating rows */}
+        <div className="space-y-24 lg:space-y-32">
+          <ShowcaseRow
+            icon={Kanban}
+            eyebrow="Track anything"
+            headline="Organize and track anything, beautifully."
+            support="Color-coded status boards keep every workstream, owner, and deadline in view — so nothing slips and progress is obvious at a glance."
+            src="/screenshots/03-status-dashboard.png"
+            alt="A colorful status board in IdiamPro tracking workstreams and progress"
+            reverse
+          />
+          <ShowcaseRow
+            icon={Sparkles}
+            eyebrow="Smart tools"
+            headline="Let AI develop, expand, and structure your ideas."
+            support="One click to generate from context, expand a single thought, or build out every branch at once — the thinking grows with you."
+            src="/screenshots/04-generate-smarttools.png"
+            alt="IdiamPro's Generate / Smart Tools menu for developing ideas with AI"
+          />
+          <ShowcaseRow
+            icon={GitBranch}
+            eyebrow="Diagrams on demand"
+            headline="Generate mind-maps, flowcharts, and diagrams on command."
+            support="Turn any branch of your outline into a diagram — instantly, from what you've already written. No drawing, no dragging boxes."
+            src="/screenshots/06-diagram-menu.png"
+            alt="IdiamPro's diagram menu offering mind-map and flowchart generation"
+            reverse
+          />
+          <ShowcaseRow
+            icon={Layers}
+            eyebrow="All in one place"
+            headline="Docs, sheets, videos, and more — together."
+            support="Embed Google Docs, Sheets, Slides, YouTube, maps and more. Your whole workspace lives inside one living outline."
+            src="/screenshots/05-integrations-menu.png"
+            alt="IdiamPro's embed menu with Google Docs, Sheets, Slides, YouTube and maps"
+          />
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ============================================
 // MAIN PAGE
 // ============================================
@@ -473,6 +653,11 @@ export default function MarketingPage() {
             </div>
           </div>
         </section>
+
+        {/* Seeing is believing — Apple-style feature showcases with real product
+            screenshots, right after the category is established. The visual proof
+            at the emotional peak: "look what it makes." */}
+        <SeeItShowcase />
 
         {/* A different kind of tool — competitor contrast grid, on a dramatic
             full-bleed dark-ink/teal band to break the white wash */}
