@@ -654,6 +654,52 @@ export default function MarketingPage() {
           </div>
         </section>
 
+        {/* Sizzle reel — a 30-second "coming attractions" trailer of the three
+            workflow stories, placed early as a fast emotional hook right before
+            the screenshot proof. Click-to-play with poster + controls (it has
+            music/dialogue, so never autoplay with sound); it flows through the
+            page-wide single-video hook so it pauses the other videos. */}
+        <section className="px-6 py-24 lg:px-12 border-t border-[#dde2e5] bg-gradient-to-b from-white via-[#f6fafa] to-white">
+          <div className="max-w-[1400px] mx-auto">
+            <div className="text-center max-w-3xl mx-auto mb-12">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-teal-600/15 border border-teal-600/40 mb-6">
+                <Play className="w-4 h-4 text-[#0c5c5b]" />
+                <span className="text-sm font-semibold text-[#0c5c5b]">The 30-second version</span>
+              </div>
+              <h2 className="text-4xl md:text-6xl font-extrabold text-[#0c2224] mb-4 tracking-tight leading-[1.05]">
+                See real people win with it.
+              </h2>
+              <p className="text-lg md:text-xl font-medium text-[#22312f] leading-relaxed max-w-[680px] mx-auto">
+                A fast trailer of three real workflows — from a first spark to finished, published work. Hit play.
+              </p>
+            </div>
+
+            {/* Framed player — full section width, full-bleed on mobile, premium
+                rounded frame + soft teal shadow to match the other films. */}
+            <div className="overflow-hidden -mx-6 sm:mx-0 rounded-none sm:rounded-2xl border-y sm:border border-[#dde2e5] bg-[#f7f8fa] shadow-2xl shadow-teal-600/15 ring-1 ring-teal-600/10">
+              <video
+                className="block h-auto w-full aspect-video object-cover"
+                src="/homepage-sizzle.mp4?v=1"
+                poster="/homepage-sizzle-poster.jpg"
+                controls
+                playsInline
+                preload="metadata"
+                aria-label="Watch the 30-second IdiamPro sizzle reel — produced by IdiamPro"
+              />
+            </div>
+
+            <div className="mt-8 text-center">
+              <Link
+                href="/workflows"
+                className="inline-flex items-center gap-2 rounded-full bg-gradient-to-br from-[#0ea5a4] to-[#0b74c4] hover:from-[#0c8f8e] hover:to-[#0960a3] px-6 py-3 text-base font-bold text-white shadow-lg shadow-teal-700/30 transition-colors"
+              >
+                Watch the full stories
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </div>
+        </section>
+
         {/* Seeing is believing — Apple-style feature showcases with real product
             screenshots, right after the category is established. The visual proof
             at the emotional peak: "look what it makes." */}
