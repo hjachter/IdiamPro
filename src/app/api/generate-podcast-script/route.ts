@@ -5,12 +5,20 @@ import { extractSubtreeContent, buildScriptPrompt, parseScriptResponse } from '@
 import { getDefaultGeminiModel } from '@/config/gemini-models';
 import { generateWithOllama } from '@/lib/ollama-service';
 import { runAIWithFailover, type AIProviderChoice } from '@/lib/ai-failover';
+import { guardSensitiveRoute } from '@/lib/access/approval-guard';
 
 /**
  * Generate only the podcast script (no TTS).
  * Accepts either a custom prompt or builds one from nodes + config.
  */
 export async function POST(request: NextRequest) {
+  // Approval + rate limit. Script generation is an AI call — approved-only.
+  const blocked = await guardSensitiveRoute(request, {
+    routeId: 'generate-podcast-script',
+    perMinute: 10,
+  });
+  if (blocked) return blocked;
+
   try {
     const body = await request.json() as {
       nodes?: NodeMap;

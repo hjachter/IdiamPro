@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isAllowedUrl } from '@/lib/security';
+import { guardSensitiveRoute } from '@/lib/access/approval-guard';
 
 // Import pdf-parse lib directly to avoid the debug test code in index.js
 // The main index.js runs a test parse when module.parent is undefined (which happens in webpack)
@@ -22,6 +23,14 @@ const FETCH_TIMEOUT_MS = 30_000;
  * - { type: 'file', data: string } - Extract from base64 data URL
  */
 export async function POST(request: NextRequest) {
+  // Approval + rate limit. PDF extraction can fetch remote URLs and feed an
+  // AI pipeline, so gate it to approved accounts.
+  const blocked = await guardSensitiveRoute(request, {
+    routeId: 'extract-pdf',
+    perMinute: 15,
+  });
+  if (blocked) return blocked;
+
   try {
     const body = await request.json();
     const { type, url, data } = body;

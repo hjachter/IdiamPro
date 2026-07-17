@@ -16,6 +16,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isAuthEnabled } from '@/lib/auth/auth-config';
 import { getServerUserId, resolveServerPlan } from '@/lib/billing/paid-feature-gate';
+import { guardSensitiveRoute } from '@/lib/access/approval-guard';
 import {
   ALLOWED_SHARE_TEMPLATES,
   FREE_SHARE_LINK_LIMIT,
@@ -44,6 +45,14 @@ function buildShareUrl(request: NextRequest, shareId: string): string {
 }
 
 export async function POST(request: NextRequest) {
+  // Approval + rate limit. Publishing a public page must be an approved
+  // account (or dev/stub); unapproved → 403.
+  const blocked = await guardSensitiveRoute(request, {
+    routeId: 'share-publish',
+    perMinute: 20,
+  });
+  if (blocked) return blocked;
+
   // Resolve the owner. Signed-in Clerk id in production; a stable local id in
   // the auth-disabled desktop/dev build so publishing still works there.
   const userId = await getServerUserId();

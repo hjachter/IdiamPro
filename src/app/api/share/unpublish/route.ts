@@ -9,11 +9,19 @@ import { NextRequest, NextResponse } from 'next/server';
 import { isAuthEnabled } from '@/lib/auth/auth-config';
 import { getServerUserId } from '@/lib/billing/paid-feature-gate';
 import { deleteShare } from '@/lib/sharing/share-store';
+import { guardSensitiveRoute } from '@/lib/access/approval-guard';
 
 // Authenticated, storage-writing endpoint — always run on demand.
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
+  // Approval + rate limit (approved accounts / dev-stub only).
+  const blocked = await guardSensitiveRoute(request, {
+    routeId: 'share-unpublish',
+    perMinute: 30,
+  });
+  if (blocked) return blocked;
+
   const userId = await getServerUserId();
   if (isAuthEnabled() && !userId) {
     return NextResponse.json({ error: 'Please sign in.' }, { status: 401 });

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import type { PodcastScriptSegment, OpenAIVoice } from '@/types';
 import { enforcePaidFeature } from '@/lib/billing/paid-feature-gate';
 import { getCompanyKey } from '@/lib/billing/company-keys';
+import { guardSensitiveRoute } from '@/lib/access/approval-guard';
 
 const SSE_HEADERS = {
   'Content-Type': 'text/event-stream',
@@ -88,6 +89,14 @@ async function synthesizeWithRetry(
  * Streams progress via SSE.
  */
 export async function POST(request: NextRequest) {
+  // Approval + rate limit. TTS synthesis spends real AI money, so gate it to
+  // approved accounts with a low per-minute cap.
+  const blocked = await guardSensitiveRoute(request, {
+    routeId: 'synthesize-podcast',
+    perMinute: 6,
+  });
+  if (blocked) return blocked;
+
   try {
     const _body = await request.json() as {
       segments: PodcastScriptSegment[];

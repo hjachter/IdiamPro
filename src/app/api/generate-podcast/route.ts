@@ -7,6 +7,7 @@ import { generateWithOllama } from '@/lib/ollama-service';
 import { runAIWithFailover, type AIProviderChoice } from '@/lib/ai-failover';
 import { enforcePaidFeature } from '@/lib/billing/paid-feature-gate';
 import { getCompanyKey } from '@/lib/billing/company-keys';
+import { guardSensitiveRoute } from '@/lib/access/approval-guard';
 
 const SSE_HEADERS = {
   'Content-Type': 'text/event-stream',
@@ -97,6 +98,14 @@ async function synthesizeWithRetry(
 }
 
 export async function POST(request: NextRequest) {
+  // Approval + rate limit. Podcast generation spends real AI money, so an
+  // unapproved account must never reach it. Low per-minute cap (expensive).
+  const blocked = await guardSensitiveRoute(request, {
+    routeId: 'generate-podcast',
+    perMinute: 6,
+  });
+  if (blocked) return blocked;
+
   try {
     const _body = await request.json() as {
       nodes: NodeMap;

@@ -3,6 +3,7 @@ import { ai } from '@/ai/genkit';
 import { getBestAvailableModel } from '@/lib/ollama-service';
 import { getDefaultGeminiModel } from '@/config/gemini-models';
 import type { AIDepth } from '@/types';
+import { guardSensitiveRoute } from '@/lib/access/approval-guard';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -246,6 +247,14 @@ const DEPTH_INSTRUCTIONS: Record<AIDepth, string> = {
 };
 
 export async function POST(request: NextRequest) {
+  // Approval + rate limit (per-IP AND per-user). Unapproved accounts can't
+  // spend the owner's AI money here.
+  const blocked = await guardSensitiveRoute(request, {
+    routeId: 'knowledge-chat',
+    perMinute: 20,
+  });
+  if (blocked) return blocked;
+
   try {
     const { messages, context, mode, depth = 'standard', aiProvider = 'auto' } = await request.json() as {
       messages: Message[];

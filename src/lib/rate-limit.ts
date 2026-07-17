@@ -47,10 +47,18 @@ function ensureCleanupRunning() {
 export interface RateLimitOptions {
   /** Window length in milliseconds. Default 60_000 (1 minute). */
   windowMs?: number;
-  /** Max requests allowed per IP per window. */
+  /** Max requests allowed per subject (IP or user) per window. */
   limit: number;
   /** Optional namespace to keep counters separate per route group. */
   namespace?: string;
+  /**
+   * When provided, bucket by this stable subject (e.g. the signed-in Clerk
+   * user id) INSTEAD of the client IP. Lets callers enforce a per-user limit
+   * that survives IP changes (mobile networks, VPNs) and can't be diluted by
+   * a single user spraying from many IPs. Callers typically enforce BOTH a
+   * per-IP limit (subjectKey omitted) AND a per-user limit (subjectKey set).
+   */
+  subjectKey?: string;
 }
 
 export interface RateLimitResult {
@@ -87,8 +95,11 @@ export function rateLimit(
   const windowMs = opts.windowMs ?? 60_000;
   const now = Date.now();
   const cutoff = now - windowMs;
-  const ip = getClientIp(request);
-  const key = opts.namespace ? `${opts.namespace}:${ip}` : ip;
+  // Bucket by an explicit subject (e.g. Clerk user id) when given, else by IP.
+  const subject = opts.subjectKey && opts.subjectKey.length > 0
+    ? `u:${opts.subjectKey}`
+    : getClientIp(request);
+  const key = opts.namespace ? `${opts.namespace}:${subject}` : subject;
 
   let bucket = buckets.get(key);
   if (!bucket) {

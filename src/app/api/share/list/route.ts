@@ -8,6 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isAuthEnabled } from '@/lib/auth/auth-config';
 import { getServerUserId, resolveServerPlan } from '@/lib/billing/paid-feature-gate';
+import { guardSensitiveRoute } from '@/lib/access/approval-guard';
 import {
   FREE_SHARE_LINK_LIMIT,
   listOwnerShares,
@@ -22,6 +23,13 @@ function buildBase(request: NextRequest): string {
 }
 
 export async function GET(request: NextRequest) {
+  // Approval + rate limit (approved accounts / dev-stub only).
+  const blocked = await guardSensitiveRoute(request, {
+    routeId: 'share-list',
+    perMinute: 60,
+  });
+  if (blocked) return blocked;
+
   const userId = await getServerUserId();
   if (isAuthEnabled() && !userId) {
     return NextResponse.json({ error: 'Please sign in.' }, { status: 401 });
