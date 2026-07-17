@@ -28,7 +28,7 @@ export function MarketingHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4 lg:px-12 backdrop-blur-xl bg-white/80 border-b border-[#d3e6e4]">
+    <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4 lg:px-12 backdrop-blur-xl bg-white/80 border-b border-[#e3e7ea]">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         {/* Logo → home. The whole mark + wordmark is one clickable link. */}
         <Link
@@ -64,7 +64,7 @@ export function MarketingHeader() {
           <SignedOut>
             <Button
               onClick={launchApp}
-              className="hidden md:inline-flex bg-gradient-to-r from-[#0E7C7B] to-[#0E7C7B] hover:from-[#0c5c5b] hover:to-[#0c5c5b] text-white font-semibold shadow-lg shadow-teal-600/25"
+              className="hidden md:inline-flex bg-gradient-to-r from-[#0ea5a4] to-[#0b74c4] hover:from-[#0c8f8e] hover:to-[#0960a3] text-white font-semibold shadow-lg shadow-teal-600/25"
             >
               Sign up free
               <ArrowRight className="w-4 h-4 ml-2" />
@@ -73,7 +73,7 @@ export function MarketingHeader() {
           <SignedIn>
             <Button
               onClick={() => { window.location.href = '/app'; }}
-              className="hidden md:inline-flex bg-gradient-to-r from-[#0E7C7B] to-[#0E7C7B] hover:from-[#0c5c5b] hover:to-[#0c5c5b] text-white font-semibold shadow-lg shadow-teal-600/25"
+              className="hidden md:inline-flex bg-gradient-to-r from-[#0ea5a4] to-[#0b74c4] hover:from-[#0c8f8e] hover:to-[#0960a3] text-white font-semibold shadow-lg shadow-teal-600/25"
             >
               Open IdiamPro
               <ArrowRight className="w-4 h-4 ml-2" />
@@ -93,7 +93,7 @@ export function MarketingHeader() {
 
       {/* Mobile menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 right-0 bg-white/95 backdrop-blur-xl border-b border-[#d3e6e4] p-6">
+        <div className="md:hidden absolute top-full left-0 right-0 bg-white/95 backdrop-blur-xl border-b border-[#e3e7ea] p-6">
           <div className="flex flex-col gap-4">
             {NAV_LINKS.map((link) => (
               <Link
@@ -108,7 +108,7 @@ export function MarketingHeader() {
             <SignedOut>
               <Button
                 onClick={launchApp}
-                className="bg-gradient-to-r from-[#0E7C7B] to-[#0E7C7B] text-white font-semibold w-full mt-2"
+                className="bg-gradient-to-r from-[#0ea5a4] to-[#0b74c4] text-white font-semibold w-full mt-2"
               >
                 Sign up free
               </Button>
@@ -116,7 +116,7 @@ export function MarketingHeader() {
             <SignedIn>
               <Button
                 onClick={() => { window.location.href = '/app'; }}
-                className="bg-gradient-to-r from-[#0E7C7B] to-[#0E7C7B] text-white font-semibold w-full mt-2"
+                className="bg-gradient-to-r from-[#0ea5a4] to-[#0b74c4] text-white font-semibold w-full mt-2"
               >
                 Open IdiamPro
               </Button>

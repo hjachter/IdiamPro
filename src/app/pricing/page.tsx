@@ -109,7 +109,7 @@ function PricingCard({
     <div className={`relative p-8 rounded-3xl border transition-all duration-300 hover:scale-[1.02]
       ${highlighted
         ? 'bg-gradient-to-b from-teal-600/20 to-teal-600/20 border-teal-600/40 shadow-xl shadow-teal-600/10'
-        : 'bg-[#f4faf9] border-[#d3e6e4] hover:border-[#d3e6e4]'
+        : 'bg-[#f7f8fa] border-[#e3e7ea] hover:border-[#e3e7ea]'
       }`}
     >
       {badge && (
@@ -142,7 +142,7 @@ function PricingCard({
       <Button
         onClick={launchApp}
         className={`w-full ${highlighted
-          ? 'bg-gradient-to-r from-[#0E7C7B] to-[#0E7C7B] hover:from-[#0c5c5b] hover:to-[#0c5c5b] text-white font-semibold shadow-lg'
+          ? 'bg-gradient-to-r from-[#0ea5a4] to-[#0b74c4] hover:from-[#0c8f8e] hover:to-[#0960a3] text-white font-semibold shadow-lg'
           : 'bg-white hover:bg-teal-600/5 text-teal-600 border border-teal-600/40 font-medium'
         }`}
       >
@@ -157,7 +157,7 @@ export default function PricingPage() {
   return (
     <div className="fixed inset-0 bg-white text-[#0c2224] overflow-x-hidden overflow-y-auto">
       <div className="fixed inset-0 bg-gradient-to-br from-white via-white to-white" />
-      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-teal-600/[0.10] via-transparent to-transparent" />
+      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-teal-600/[0.035] via-transparent to-transparent" />
       <div className="relative z-10">
         <MarketingHeader />
         <main className="pt-28 lg:pt-32">
@@ -198,7 +198,7 @@ export default function PricingPage() {
                   <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-teal-600 to-teal-700 flex items-center justify-center shadow-lg shadow-teal-600/30">
                     <Lock className="w-7 h-7 text-white" />
                   </div>
-                  <span className="inline-flex items-center rounded-full border border-[#d3e6e4] bg-[#f4faf9] px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-[#47585a]">
+                  <span className="inline-flex items-center rounded-full border border-[#e3e7ea] bg-[#f7f8fa] px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-[#47585a]">
                     Coming soon
                   </span>
                 </div>
@@ -275,7 +275,7 @@ export default function PricingPage() {
 
             {/* Free trial callout */}
             <div className="mt-6 flex justify-center">
-              <div className="inline-flex items-center gap-3 rounded-2xl border border-[#d3e6e4] bg-[#f4faf9] px-6 py-4 text-center">
+              <div className="inline-flex items-center gap-3 rounded-2xl border border-[#e3e7ea] bg-[#f7f8fa] px-6 py-4 text-center">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-600 to-teal-700 flex items-center justify-center flex-shrink-0">
                   <Play className="w-5 h-5 text-white" />
                 </div>
@@ -368,19 +368,19 @@ export default function PricingPage() {
               <p className="text-center text-[#22312f] text-base font-medium mb-8">
                 Four ways to use IdiamPro. Pick the one that fits how you work.
               </p>
-              <div className="overflow-x-auto rounded-3xl border border-[#d3e6e4] bg-[#f4faf9]">
+              <div className="overflow-x-auto rounded-3xl border border-[#e3e7ea] bg-[#f7f8fa]">
                 <table className="w-full min-w-[820px] text-sm text-[#0c2224] border-collapse">
                   <thead>
                     <tr className="align-top">
                       <th className="p-4 text-left font-medium text-[#6b7d7e] w-[26%]">
                         <span className="text-xs uppercase tracking-wide">Feature</span>
                       </th>
-                      <th className="p-4 text-left align-top border-l border-[#d3e6e4]">
+                      <th className="p-4 text-left align-top border-l border-[#e3e7ea]">
                         <div className="text-[#0c2224] font-semibold text-base">Free trial</div>
                         <div className="text-[#6b7d7e] text-xs mt-1">Try it, 25 AI uses</div>
                         <div className="mt-2 text-[#0c2224] font-bold">$0</div>
                       </th>
-                      <th className="p-4 text-left align-top border-l border-[#d3e6e4] bg-[#f4faf9]">
+                      <th className="p-4 text-left align-top border-l border-[#e3e7ea] bg-[#f7f8fa]">
                         <div className="text-[#0c2224] font-semibold text-base">Own it</div>
                         <div className="text-[#6b7d7e] text-xs mt-1">Runs on your device &amp; your own key</div>
                         <div className="mt-2 flex items-center gap-2 flex-wrap">
@@ -389,11 +389,11 @@ export default function PricingPage() {
                             $19.99 founder launch
                           </span>
                         </div>
-                        <span className="mt-2 inline-flex items-center rounded-full border border-[#d3e6e4] bg-[#f4faf9] px-2.5 py-0.5 text-[10px] font-medium text-[#47585a]">
+                        <span className="mt-2 inline-flex items-center rounded-full border border-[#e3e7ea] bg-[#f7f8fa] px-2.5 py-0.5 text-[10px] font-medium text-[#47585a]">
                           Coming soon
                         </span>
                       </th>
-                      <th className="p-4 text-left align-top border-l border-[#d3e6e4] bg-gradient-to-b from-teal-600/15 to-teal-600/10">
+                      <th className="p-4 text-left align-top border-l border-[#e3e7ea] bg-gradient-to-b from-teal-600/15 to-teal-600/10">
                         <div className="text-[#0c2224] font-semibold text-base">Pro</div>
                         <div className="text-[#6b7d7e] text-xs mt-1">Premium cloud AI</div>
                         <div className="mt-2 text-[#0c2224] font-bold">
@@ -401,14 +401,14 @@ export default function PricingPage() {
                           <span className="text-[#6b7d7e] font-normal text-xs"> · $89/yr</span>
                         </div>
                       </th>
-                      <th className="p-4 text-left align-top border-l border-[#d3e6e4]">
+                      <th className="p-4 text-left align-top border-l border-[#e3e7ea]">
                         <div className="text-[#0c2224] font-semibold text-base">BYOK</div>
                         <div className="text-[#6b7d7e] text-xs mt-1">Your key, unlimited</div>
                         <div className="mt-2 text-[#0c2224] font-bold">Free</div>
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#d3e6e4]">
+                  <tbody className="divide-y divide-[#e3e7ea]">
                     {[
                       {
                         label: 'Core outlining',
@@ -454,7 +454,7 @@ export default function PricingPage() {
                         {row.cells.map((cell, ci) => (
                           <td
                             key={ci}
-                            className={`p-4 border-l border-[#d3e6e4] align-middle ${ci === 1 ? 'bg-[#f4faf9]' : ''} ${ci === 2 ? 'bg-teal-600/[0.06]' : ''}`}
+                            className={`p-4 border-l border-[#e3e7ea] align-middle ${ci === 1 ? 'bg-[#f7f8fa]' : ''} ${ci === 2 ? 'bg-teal-600/[0.06]' : ''}`}
                           >
                             {typeof cell === 'string' ? (
                               <span className={cell === '—' ? 'text-[#8b9a9b]' : 'text-[#0c2224]'}>{cell}</span>
@@ -496,7 +496,7 @@ export default function PricingPage() {
                   </div>
                   <Button
                     onClick={launchApp}
-                    className="bg-gradient-to-r from-[#0E7C7B] to-[#0E7C7B] hover:from-[#0c5c5b] hover:to-[#0c5c5b] text-white font-semibold"
+                    className="bg-gradient-to-r from-[#0ea5a4] to-[#0b74c4] hover:from-[#0c8f8e] hover:to-[#0960a3] text-white font-semibold"
                   >
                     Verify .edu
                   </Button>
@@ -523,10 +523,10 @@ export default function PricingPage() {
                       direct input into our roadmap, and priority support. Help us build the ultimate cognitive enhancement platform.
                     </p>
                     <div className="flex flex-wrap gap-3 mt-4">
-                      <span className="px-3 py-1 rounded-full bg-[#f4faf9] text-[#47585a] text-xs">Free Pro Access</span>
-                      <span className="px-3 py-1 rounded-full bg-[#f4faf9] text-[#47585a] text-xs">Shape the Product</span>
-                      <span className="px-3 py-1 rounded-full bg-[#f4faf9] text-[#47585a] text-xs">Priority Support</span>
-                      <span className="px-3 py-1 rounded-full bg-[#f4faf9] text-[#47585a] text-xs">Early Feature Access</span>
+                      <span className="px-3 py-1 rounded-full bg-[#f7f8fa] text-[#47585a] text-xs">Free Pro Access</span>
+                      <span className="px-3 py-1 rounded-full bg-[#f7f8fa] text-[#47585a] text-xs">Shape the Product</span>
+                      <span className="px-3 py-1 rounded-full bg-[#f7f8fa] text-[#47585a] text-xs">Priority Support</span>
+                      <span className="px-3 py-1 rounded-full bg-[#f7f8fa] text-[#47585a] text-xs">Early Feature Access</span>
                     </div>
                   </div>
                 </div>
@@ -534,7 +534,7 @@ export default function PricingPage() {
                   <Button
                     onClick={() => window.location.href = 'mailto:beta@2ndbrainware.com?subject=Beta Tester Application'}
                     size="lg"
-                    className="bg-gradient-to-r from-[#0E7C7B] to-[#0E7C7B] hover:from-[#0c5c5b] hover:to-[#0c5c5b] text-white shadow-lg shadow-teal-600/25 whitespace-nowrap"
+                    className="bg-gradient-to-r from-[#0ea5a4] to-[#0b74c4] hover:from-[#0c8f8e] hover:to-[#0960a3] text-white shadow-lg shadow-teal-600/25 whitespace-nowrap"
                   >
                     Apply for Beta
                     <ArrowRight className="w-5 h-5 ml-2" />
@@ -548,7 +548,7 @@ export default function PricingPage() {
 
         <section className="px-6 py-20 lg:px-12">
           <div className="max-w-4xl mx-auto text-center">
-            <Link href="/" className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#0E7C7B] to-[#0E7C7B] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-teal-600/25 hover:from-[#0c5c5b] hover:to-[#0c5c5b] transition-colors">
+            <Link href="/" className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#0ea5a4] to-[#0b74c4] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-teal-600/25 hover:from-[#0c8f8e] hover:to-[#0960a3] transition-colors">
               <ArrowLeft className="w-4 h-4" /> Back to home
             </Link>
           </div>

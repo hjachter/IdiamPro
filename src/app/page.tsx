@@ -154,7 +154,7 @@ function ParticlesBackground() {
 // under the hero) without duplicating markup.
 function IdeaDevelopmentBand() {
   return (
-    <section className="px-6 pb-16 lg:px-12 border-t border-[#c2dbd9] pt-16">
+    <section className="px-6 pb-16 lg:px-12 border-t border-[#dde2e5] pt-16">
       <div className="max-w-[1600px] mx-auto">
         <div className="text-center max-w-3xl mx-auto mb-12">
           <h2 className="text-4xl md:text-5xl font-extrabold text-[#0c2224] mb-4 tracking-tight">
@@ -170,7 +170,7 @@ function IdeaDevelopmentBand() {
             passes into finished formats. Full section width so the app UI/text read
             clearly (the film shows real interface, not stock footage). */}
         <div className="mb-14">
-          <div className="overflow-hidden -mx-6 sm:mx-0 rounded-none sm:rounded-2xl border-y sm:border border-[#c2dbd9] bg-[#f4faf9] shadow-2xl shadow-teal-600/15 ring-1 ring-teal-600/10">
+          <div className="overflow-hidden -mx-6 sm:mx-0 rounded-none sm:rounded-2xl border-y sm:border border-[#dde2e5] bg-[#f7f8fa] shadow-2xl shadow-teal-600/15 ring-1 ring-teal-600/10">
             <video
               className="block h-auto w-full"
               src="/home-hero.mp4"
@@ -190,7 +190,7 @@ function IdeaDevelopmentBand() {
         {/* Three-step flow */}
         <div className="flex flex-col lg:flex-row items-stretch justify-center gap-4 lg:gap-2">
           {/* Card 1 — Many inputs */}
-          <div className="flex-1 rounded-2xl border border-[#c2dbd9] bg-[#f4faf9] p-6 md:p-8">
+          <div className="flex-1 rounded-2xl border border-[#dde2e5] bg-[#f7f8fa] p-6 md:p-8">
             <div className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-teal-600/15 border border-teal-600/25 mb-4">
               <FileUp className="w-5 h-5 text-teal-600" />
             </div>
@@ -230,7 +230,7 @@ function IdeaDevelopmentBand() {
           </div>
 
           {/* Card 3 — Publish everywhere */}
-          <div className="flex-1 rounded-2xl border border-[#c2dbd9] bg-[#f4faf9] p-6 md:p-8">
+          <div className="flex-1 rounded-2xl border border-[#dde2e5] bg-[#f7f8fa] p-6 md:p-8">
             <div className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-teal-600/15 border border-teal-600/25 mb-4">
               <Rocket className="w-5 h-5 text-teal-600" />
             </div>
@@ -272,8 +272,8 @@ export default function MarketingPage() {
     <div className="fixed inset-0 bg-white text-[#0c2224] overflow-x-hidden overflow-y-auto">
       {/* Background gradients */}
       <div className="fixed inset-0 bg-gradient-to-br from-white via-white to-white" />
-      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-teal-600/[0.10] via-transparent to-transparent" />
-      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-teal-600/[0.08] via-transparent to-transparent" />
+      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-teal-600/[0.035] via-transparent to-transparent" />
+      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-teal-600/[0.02] via-transparent to-transparent" />
 
       <ParticlesBackground />
 
@@ -308,7 +308,7 @@ export default function MarketingPage() {
                   {['Research papers', 'Podcasts', 'Videos', 'Websites', 'Presentations', 'Illustrations', '21 languages', '…and more'].map((label) => (
                     <span
                       key={label}
-                      className={`px-3 py-1.5 rounded-full bg-[#eef6f5] border border-[#b3d3d0] text-sm font-medium ${label === '…and more' ? 'text-[#42504f] italic' : 'text-[#0f2b29]'}`}
+                      className={`px-3 py-1.5 rounded-full bg-[#f1f3f5] border border-[#d3d9dc] text-sm font-medium ${label === '…and more' ? 'text-[#42504f] italic' : 'text-[#0f2b29]'}`}
                     >
                       {label}
                     </span>
@@ -321,7 +321,7 @@ export default function MarketingPage() {
                     <Button
                       onClick={() => { window.location.href = '/signup'; }}
                       size="lg"
-                      className="bg-gradient-to-br from-[#0E7C7B] to-[#0c5c5b] hover:from-[#0c5c5b] hover:to-[#093f3e] text-white font-bold px-8 py-6 text-base shadow-xl shadow-teal-700/35"
+                      className="bg-gradient-to-br from-[#0ea5a4] to-[#0b74c4] hover:from-[#0c8f8e] hover:to-[#0960a3] text-white font-bold px-8 py-6 text-base shadow-xl shadow-teal-700/35"
                     >
                       Sign up to try IdiamPro free
                       <ArrowRight className="w-4 h-4 ml-2" />
@@ -339,7 +339,7 @@ export default function MarketingPage() {
                     <Button
                       onClick={launchApp}
                       size="lg"
-                      className="bg-gradient-to-br from-[#0E7C7B] to-[#0c5c5b] hover:from-[#0c5c5b] hover:to-[#093f3e] text-white font-bold px-8 py-6 text-base shadow-xl shadow-teal-700/35"
+                      className="bg-gradient-to-br from-[#0ea5a4] to-[#0b74c4] hover:from-[#0c8f8e] hover:to-[#0960a3] text-white font-bold px-8 py-6 text-base shadow-xl shadow-teal-700/35"
                     >
                       Open IdiamPro
                       <ArrowRight className="w-4 h-4 ml-2" />
@@ -363,45 +363,10 @@ export default function MarketingPage() {
             leading the page (audience first). Founder's story follows below. */}
         <IdeaDevelopmentBand />
 
-        {/* SECOND video — Our Story, the self-referential founder film. Placed AFTER
-            the conceptual film on purpose: hook the visitor with what it does and who
-            it's for, THEN earn trust with who's behind it. */}
-        <section className="px-6 pb-16 lg:px-12">
-          <div className="mx-auto w-full max-w-[1600px]">
-            <div className="text-center mb-8">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-teal-600/15 border border-teal-600/40 mb-6">
-                <Sparkles className="w-4 h-4 text-[#0c5c5b]" />
-                <span className="text-sm font-semibold text-[#0c5c5b]">Our Story · Why IdiamPro</span>
-              </div>
-              <h2 className="text-4xl md:text-6xl font-extrabold mb-5 leading-[1.08] tracking-tight text-[#0c2224]">
-                The idea was only half the battle.
-              </h2>
-              <p className="text-lg md:text-xl font-medium text-[#22312f] leading-relaxed max-w-3xl mx-auto">
-                A tool I&apos;d envisioned for decades — finally possible now. So I did the most honest test I could think of: I used IdiamPro to plan its own launch. The plan you&apos;ll watch build itself is the real one.
-              </p>
-            </div>
-            <div className="overflow-hidden -mx-6 sm:mx-0 rounded-none sm:rounded-2xl border-y sm:border border-[#c2dbd9] bg-[#f4faf9] shadow-2xl shadow-teal-600/10 backdrop-blur-sm">
-              <video
-                className="block h-auto w-full"
-                src="/idiampro-story.mp4?v=story6"
-                poster="/idiampro-story-poster.jpg?v=story6"
-                controls
-                playsInline
-                preload="metadata"
-                aria-label="Our Story — a founder uses IdiamPro to plan IdiamPro's own launch. Produced by IdiamPro."
-              />
-            </div>
-            <p className="mt-3 flex items-center justify-center gap-1.5 text-sm text-[#42504f]">
-              <Video className="h-3.5 w-3.5 text-teal-600" />
-              Produced by IdiamPro
-            </p>
-          </div>
-        </section>
-
         {/* Three categories — the crisp crystallization of IdiamPro's category:
             query box ANSWERS, outliner STORES, IdiamPro DEVELOPS. Light Clarity
             band; leads into the dark tool-by-tool grid below as the deeper dive. */}
-        <section className="px-6 py-24 lg:px-12 border-t border-[#c2dbd9]">
+        <section className="px-6 py-24 lg:px-12 border-t border-[#dde2e5]">
           <div className="max-w-[1600px] mx-auto">
             <div className="text-center max-w-3xl mx-auto mb-14">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-teal-600/15 border border-teal-600/40 mb-6">
@@ -419,8 +384,8 @@ export default function MarketingPage() {
             {/* Three columns — first two muted, IdiamPro the highlighted culmination */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5 items-stretch">
               {/* 1 — The query box */}
-              <div className="flex flex-col rounded-2xl border border-[#c2dbd9] bg-[#f4faf9] p-7">
-                <div className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-[#e3efee] border border-[#c2dbd9] mb-5">
+              <div className="flex flex-col rounded-2xl border border-[#dde2e5] bg-[#f7f8fa] p-7">
+                <div className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-[#eceff1] border border-[#dde2e5] mb-5">
                   <MessagesSquare className="w-5 h-5 text-[#5a6a69]" />
                 </div>
                 <div className="text-xs font-bold uppercase tracking-wider text-[#5a6a69] mb-1">The query box</div>
@@ -432,8 +397,8 @@ export default function MarketingPage() {
               </div>
 
               {/* 2 — The outliner / vault */}
-              <div className="flex flex-col rounded-2xl border border-[#c2dbd9] bg-[#f4faf9] p-7">
-                <div className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-[#e3efee] border border-[#c2dbd9] mb-5">
+              <div className="flex flex-col rounded-2xl border border-[#dde2e5] bg-[#f7f8fa] p-7">
+                <div className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-[#eceff1] border border-[#dde2e5] mb-5">
                   <FolderTree className="w-5 h-5 text-[#5a6a69]" />
                 </div>
                 <div className="text-xs font-bold uppercase tracking-wider text-[#5a6a69] mb-1">The outliner / vault</div>
@@ -474,9 +439,9 @@ export default function MarketingPage() {
             </p>
 
             {/* Capability matrix — scannable check/✗ across the three */}
-            <div className="mt-14 max-w-[900px] mx-auto rounded-2xl border border-[#c2dbd9] bg-white overflow-hidden shadow-[0_1px_3px_rgba(12,34,36,0.06),0_8px_24px_rgba(12,34,36,0.05)]">
+            <div className="mt-14 max-w-[900px] mx-auto rounded-2xl border border-[#dde2e5] bg-white overflow-hidden shadow-[0_1px_3px_rgba(12,34,36,0.06),0_8px_24px_rgba(12,34,36,0.05)]">
               {/* Header row */}
-              <div className="grid grid-cols-[1.7fr_1fr_1fr_1fr] bg-[#f4faf9] border-b border-[#c2dbd9]">
+              <div className="grid grid-cols-[1.7fr_1fr_1fr_1fr] bg-[#f7f8fa] border-b border-[#dde2e5]">
                 <div className="p-3 md:p-4" />
                 <div className="p-3 md:p-4 text-center text-[11px] md:text-xs font-bold text-[#5a6a69] leading-tight">Query<br className="sm:hidden" /> box</div>
                 <div className="p-3 md:p-4 text-center text-[11px] md:text-xs font-bold text-[#5a6a69] leading-tight">Outliner<br className="sm:hidden" /> / vault</div>
@@ -491,12 +456,12 @@ export default function MarketingPage() {
                 const cell = (v: boolean | string, highlight = false) => {
                   if (v === true) return <Check className={`h-4 w-4 md:h-5 md:w-5 ${highlight ? 'text-teal-600' : 'text-teal-600'}`} strokeWidth={3} />;
                   if (v === 'partial') return <span className="text-[#8a9a99] font-bold text-base md:text-lg leading-none">~</span>;
-                  return <X className="h-4 w-4 md:h-5 md:w-5 text-[#c2cfce]" strokeWidth={2.5} />;
+                  return <X className="h-4 w-4 md:h-5 md:w-5 text-[#d5dadd]" strokeWidth={2.5} />;
                 };
                 return (
                   <div
                     key={m.row}
-                    className={`grid grid-cols-[1.7fr_1fr_1fr_1fr] items-center ${i > 0 ? 'border-t border-[#e0edeb]' : ''}`}
+                    className={`grid grid-cols-[1.7fr_1fr_1fr_1fr] items-center ${i > 0 ? 'border-t border-[#e8ebed]' : ''}`}
                   >
                     <div className="p-3 md:p-4 text-xs md:text-sm font-medium text-[#22312f] leading-snug">{m.row}</div>
                     <div className="p-3 md:p-4 flex justify-center">{cell(m.a)}</div>
@@ -579,7 +544,7 @@ export default function MarketingPage() {
         </section>
 
         {/* Workflows showcase — previews that link out to /workflows (no inline video) */}
-        <section className="px-6 py-24 lg:px-12 bg-[#eef6f5] border-y border-[#c2dbd9]">
+        <section className="px-6 py-24 lg:px-12 bg-[#f1f3f5] border-y border-[#dde2e5]">
           <div className="max-w-[1600px] mx-auto">
             <div className="text-center mb-12">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-teal-600/15 border border-teal-600/40 mb-6">
@@ -612,9 +577,9 @@ export default function MarketingPage() {
                 <a
                   key={wf.title}
                   href="/workflows"
-                  className="group block rounded-2xl border border-[#c2dbd9] bg-white overflow-hidden shadow-[0_1px_3px_rgba(12,34,36,0.06),0_8px_24px_rgba(12,34,36,0.05)] hover:border-teal-600/40 hover:shadow-[0_2px_6px_rgba(12,34,36,0.08),0_16px_40px_rgba(12,34,36,0.10)] transition-all"
+                  className="group block rounded-2xl border border-[#dde2e5] bg-white overflow-hidden shadow-[0_1px_3px_rgba(12,34,36,0.06),0_8px_24px_rgba(12,34,36,0.05)] hover:border-teal-600/40 hover:shadow-[0_2px_6px_rgba(12,34,36,0.08),0_16px_40px_rgba(12,34,36,0.10)] transition-all"
                 >
-                  <div className="relative aspect-video overflow-hidden bg-[#f4faf9] border-b border-[#c2dbd9]">
+                  <div className="relative aspect-video overflow-hidden bg-[#f7f8fa] border-b border-[#dde2e5]">
                     <img
                       src={wf.poster}
                       alt={wf.title}
@@ -671,7 +636,7 @@ export default function MarketingPage() {
               ].map((t) => {
                 const TIcon = t.icon;
                 return (
-                  <Link key={t.href} href={t.href} className="group flex flex-col rounded-2xl border border-[#c2dbd9] bg-[#f4faf9] p-6 hover:border-teal-600/40 hover:bg-[#eef6f5] transition-all">
+                  <Link key={t.href} href={t.href} className="group flex flex-col rounded-2xl border border-[#dde2e5] bg-[#f7f8fa] p-6 hover:border-teal-600/40 hover:bg-[#f1f3f5] transition-all">
                     <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-teal-600 to-teal-700 flex items-center justify-center mb-4 shadow-lg shadow-teal-600/20">
                       <TIcon className="w-5 h-5 text-white" />
                     </div>
@@ -691,7 +656,7 @@ export default function MarketingPage() {
             CONFIRMED by Howard 2026-07-16 (see docs/pricing-cost-analysis.md):
             Free $0, Professional $19.99/mo, Student $9.99/mo — web/Mac headline
             prices; iPhone/iPad billed via the App Store (Apple's cut). */}
-        <section className="px-6 py-24 lg:px-12 border-t border-[#c2dbd9] bg-gradient-to-b from-white to-[#eef7f6]">
+        <section className="px-6 py-24 lg:px-12 border-t border-[#dde2e5] bg-gradient-to-b from-white to-[#f1f3f5]">
           <div className="max-w-[1600px] mx-auto">
             {/* Heading */}
             <div className="text-center max-w-3xl mx-auto mb-14">
@@ -736,13 +701,13 @@ export default function MarketingPage() {
                 return (
                   <div
                     key={s.n}
-                    className="relative flex flex-col rounded-2xl border border-[#c2dbd9] bg-[#f4faf9] p-7 shadow-lg shadow-teal-600/5"
+                    className="relative flex flex-col rounded-2xl border border-[#dde2e5] bg-[#f7f8fa] p-7 shadow-lg shadow-teal-600/5"
                   >
                     <div className="flex items-center gap-3 mb-4">
                       <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-teal-600 to-[#0c5c5b] text-white shadow-md shadow-teal-600/25">
                         <Icon className="h-5 w-5" />
                       </div>
-                      <span className="text-4xl font-extrabold text-[#c2dbd9]">{s.n}</span>
+                      <span className="text-4xl font-extrabold text-[#dde2e5]">{s.n}</span>
                     </div>
                     <h3 className="text-xl font-bold text-[#0c2224] mb-2">{s.title}</h3>
                     <p className="text-base font-medium text-[#22312f] leading-relaxed mb-5 flex-1">{s.body}</p>
@@ -847,7 +812,7 @@ export default function MarketingPage() {
               </div>
               <div className="grid sm:grid-cols-2 gap-6">
                 {/* Apple native */}
-                <div className="rounded-2xl border border-[#c2dbd9] bg-[#f4faf9] p-7 shadow-lg shadow-teal-600/5">
+                <div className="rounded-2xl border border-[#dde2e5] bg-[#f7f8fa] p-7 shadow-lg shadow-teal-600/5">
                   <div className="flex items-center gap-2 mb-4">
                     <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-teal-600 to-[#0c5c5b] text-white">
                       <Laptop className="h-4 w-4" />
@@ -874,7 +839,7 @@ export default function MarketingPage() {
                   </div>
                 </div>
                 {/* Web — any device */}
-                <div className="rounded-2xl border border-[#c2dbd9] bg-[#f4faf9] p-7 shadow-lg shadow-teal-600/5">
+                <div className="rounded-2xl border border-[#dde2e5] bg-[#f7f8fa] p-7 shadow-lg shadow-teal-600/5">
                   <div className="flex items-center gap-2 mb-4">
                     <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-teal-600 to-[#0c5c5b] text-white">
                       <Globe className="h-4 w-4" />
@@ -908,7 +873,7 @@ export default function MarketingPage() {
                   A two-minute walkthrough — from a blank page to a published idea.
                 </p>
               </div>
-              <div className="overflow-hidden -mx-6 sm:mx-0 rounded-none sm:rounded-2xl border-y sm:border border-[#c2dbd9] bg-gradient-to-br from-[#0E7C7B] via-[#0c5c5b] to-[#0a3d3c] shadow-2xl shadow-teal-600/15 ring-1 ring-teal-600/10">
+              <div className="overflow-hidden -mx-6 sm:mx-0 rounded-none sm:rounded-2xl border-y sm:border border-[#dde2e5] bg-gradient-to-br from-[#0E7C7B] via-[#0c5c5b] to-[#0a3d3c] shadow-2xl shadow-teal-600/15 ring-1 ring-teal-600/10">
                 <video
                   className="block h-auto w-full aspect-video object-cover"
                   src="/getting-started.mp4"
@@ -936,7 +901,7 @@ export default function MarketingPage() {
             </div>
             <div className="grid md:grid-cols-3 gap-6 items-stretch">
               {/* Free */}
-              <div className="flex flex-col rounded-2xl border border-[#c2dbd9] bg-[#f4faf9] p-8 shadow-lg shadow-teal-600/5">
+              <div className="flex flex-col rounded-2xl border border-[#dde2e5] bg-[#f7f8fa] p-8 shadow-lg shadow-teal-600/5">
                 <div className="flex items-center gap-2 mb-4">
                   <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-600/15 text-[#0c5c5b]">
                     <Star className="h-4 w-4" />
@@ -997,7 +962,7 @@ export default function MarketingPage() {
                 <Button
                   onClick={() => { window.location.href = '/signup'; }}
                   size="lg"
-                  className="w-full bg-gradient-to-r from-teal-600 to-[#0c5c5b] hover:from-teal-700 hover:to-[#0a4a49] text-white font-bold shadow-lg shadow-teal-600/25"
+                  className="w-full bg-gradient-to-r from-[#0ea5a4] to-[#0b74c4] hover:from-[#0c8f8e] hover:to-[#0960a3] text-white font-bold shadow-lg shadow-teal-600/25"
                 >
                   Start Professional
                   <ArrowRight className="w-4 h-4 ml-2" />
@@ -1005,7 +970,7 @@ export default function MarketingPage() {
               </div>
 
               {/* Student */}
-              <div className="flex flex-col rounded-2xl border border-[#c2dbd9] bg-[#f4faf9] p-8 shadow-lg shadow-teal-600/5">
+              <div className="flex flex-col rounded-2xl border border-[#dde2e5] bg-[#f7f8fa] p-8 shadow-lg shadow-teal-600/5">
                 <div className="flex items-center gap-2 mb-4">
                   <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-600/15 text-[#0c5c5b]">
                     <GraduationCap className="h-4 w-4" />
@@ -1081,7 +1046,7 @@ export default function MarketingPage() {
         {/* Footnotes */}
         <section className="px-6 py-8 lg:px-12">
           <div className="max-w-4xl mx-auto">
-            <div className="border-t border-[#c2dbd9] pt-8">
+            <div className="border-t border-[#dde2e5] pt-8">
               <h4 className="text-[#42504f] text-xs uppercase tracking-wider mb-4">Performance Notes</h4>
               <div className="text-[#5a6a69] text-xs space-y-2">
                 <p>
@@ -1107,7 +1072,7 @@ export default function MarketingPage() {
         </section>
 
         {/* Footer */}
-        <footer className="px-6 py-12 lg:px-12 border-t border-[#c2dbd9]">
+        <footer className="px-6 py-12 lg:px-12 border-t border-[#dde2e5]">
           <div className="max-w-[1600px] mx-auto">
             <div className="grid md:grid-cols-3 gap-8 mb-12">
               <div>
@@ -1143,7 +1108,7 @@ export default function MarketingPage() {
               </div>
             </div>
 
-            <div className="pt-8 border-t border-[#c2dbd9]">
+            <div className="pt-8 border-t border-[#dde2e5]">
               <p className="text-[#5a6a69] text-sm">
                 © 2026 SecondBrainWare. All rights reserved.
               </p>

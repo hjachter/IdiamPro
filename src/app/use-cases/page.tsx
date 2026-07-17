@@ -127,7 +127,7 @@ function WhoItsFor({ useCases }: { useCases: UseCase[] }) {
                 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-600/60
                 ${selected
                   ? 'bg-[#0E7C7B] border-[#0E7C7B] text-white font-semibold shadow-lg shadow-teal-600/25'
-                  : 'bg-[#f4faf9] border-[#d3e6e4] text-[#47585a] hover:bg-[#eef6f5] hover:text-teal-600'}`}
+                  : 'bg-[#f7f8fa] border-[#e3e7ea] text-[#47585a] hover:bg-[#f1f3f5] hover:text-teal-600'}`}
             >
               <PillIcon className="w-4 h-4 flex-shrink-0" />
               <span>{uc.title}</span>
@@ -140,7 +140,7 @@ function WhoItsFor({ useCases }: { useCases: UseCase[] }) {
           card visibly fades/slides in — reinforcing that the pill click worked. */}
       <div
         ref={panelRef}
-        className="rounded-3xl border border-[#d3e6e4] bg-[#f4faf9] p-8 md:p-10 scroll-mt-28 ring-1 ring-transparent transition-shadow"
+        className="rounded-3xl border border-[#e3e7ea] bg-[#f7f8fa] p-8 md:p-10 scroll-mt-28 ring-1 ring-transparent transition-shadow"
       >
         <div
           key={active}
@@ -156,7 +156,7 @@ function WhoItsFor({ useCases }: { useCases: UseCase[] }) {
           </div>
 
           {current.examples && current.examples.length > 0 && (
-            <div className="md:w-3/5 md:border-l md:border-[#d3e6e4] md:pl-8">
+            <div className="md:w-3/5 md:border-l md:border-[#e3e7ea] md:pl-8">
               <div className="text-sm font-medium text-teal-600 mb-4">How it works</div>
               <ul className="space-y-3">
                 {current.examples.map((ex, idx) => (
@@ -275,7 +275,7 @@ export default function UseCasesPage() {
   return (
     <div className="fixed inset-0 bg-white text-[#0c2224] overflow-x-hidden overflow-y-auto">
       <div className="fixed inset-0 bg-gradient-to-br from-white via-white to-white" />
-      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-teal-600/[0.10] via-transparent to-transparent" />
+      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-teal-600/[0.035] via-transparent to-transparent" />
       <div className="relative z-10">
         <MarketingHeader />
         <main className="pt-28 lg:pt-32">
@@ -291,7 +291,7 @@ export default function UseCasesPage() {
         {/* Thinkers — primary target segment (writers are one example) */}
         <section className="px-6 pb-16 lg:px-12">
           <div className="max-w-4xl mx-auto">
-            <div className="rounded-2xl border border-[#d3e6e4] bg-gradient-to-br from-teal-600/5 to-teal-600/5 p-8 md:p-10">
+            <div className="rounded-2xl border border-[#e3e7ea] bg-gradient-to-br from-teal-600/5 to-teal-600/5 p-8 md:p-10">
               <h2 className="text-2xl md:text-3xl font-bold text-[#0c2224] mb-3">
                 Built for people who think for a living.
               </h2>
@@ -333,7 +333,7 @@ export default function UseCasesPage() {
         {/* Globally distributed teams — concrete-example block */}
         <section className="px-6 pb-16 lg:px-12">
           <div className="max-w-4xl mx-auto">
-            <div className="rounded-2xl border border-[#d3e6e4] bg-gradient-to-br from-teal-600/5 to-teal-600/5 p-8 md:p-10">
+            <div className="rounded-2xl border border-[#e3e7ea] bg-gradient-to-br from-teal-600/5 to-teal-600/5 p-8 md:p-10">
               <h2 className="text-2xl md:text-3xl font-bold text-[#0c2224] mb-3">
                 Built for globally distributed teams.
               </h2>
@@ -399,7 +399,7 @@ export default function UseCasesPage() {
 
         <section className="px-6 py-20 lg:px-12">
           <div className="max-w-4xl mx-auto text-center">
-            <Link href="/" className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#0E7C7B] to-[#0E7C7B] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-teal-600/25 hover:from-[#0c5c5b] hover:to-[#0c5c5b] transition-colors">
+            <Link href="/" className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#0ea5a4] to-[#0b74c4] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-teal-600/25 hover:from-[#0c8f8e] hover:to-[#0960a3] transition-colors">
               <ArrowLeft className="w-4 h-4" /> Back to home
             </Link>
           </div>

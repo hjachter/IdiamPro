@@ -146,7 +146,7 @@ function OneOutlineManyOutputs() {
   ];
 
   const OutputCard = ({ icon: Icon, label }: { icon: React.ElementType; label: string }) => (
-    <div className="flex items-center justify-center gap-2 rounded-xl bg-[#f4faf9] border border-[#d3e6e4] px-3 py-2.5 text-center hover:bg-[#eef6f5] hover:border-teal-600/30 transition-colors">
+    <div className="flex items-center justify-center gap-2 rounded-xl bg-[#f7f8fa] border border-[#e3e7ea] px-3 py-2.5 text-center hover:bg-[#f1f3f5] hover:border-teal-600/30 transition-colors">
       <Icon className="w-4 h-4 text-teal-600 flex-shrink-0" />
       <span className="text-sm font-medium text-[#0c2224] leading-tight">{label}</span>
     </div>
@@ -247,7 +247,7 @@ export default function FeaturesPage() {
   return (
     <div className="fixed inset-0 bg-white text-[#0c2224] overflow-x-hidden overflow-y-auto">
       <div className="fixed inset-0 bg-gradient-to-br from-white via-white to-white" />
-      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-teal-600/[0.10] via-transparent to-transparent" />
+      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-teal-600/[0.035] via-transparent to-transparent" />
       <div className="relative z-10">
         <MarketingHeader />
         <main className="pt-28 lg:pt-32">
@@ -312,7 +312,7 @@ export default function FeaturesPage() {
                   return (
                     <div
                       key={stage.label}
-                      className="relative p-6 rounded-2xl bg-[#f4faf9] backdrop-blur-sm border border-[#d3e6e4] hover:bg-[#eef6f5] hover:border-[#d3e6e4] transition-all duration-300"
+                      className="relative p-6 rounded-2xl bg-[#f7f8fa] backdrop-blur-sm border border-[#e3e7ea] hover:bg-[#f1f3f5] hover:border-[#e3e7ea] transition-all duration-300"
                     >
                       <div className="flex items-center gap-3 mb-4">
                         <div className={`w-11 h-11 rounded-xl ${stage.gradient} flex items-center justify-center flex-shrink-0`}>
@@ -349,12 +349,12 @@ export default function FeaturesPage() {
                 IdiamPro is the idea developer for both written content and multimedia. Snap a whiteboard photo and watch it become a structured outline. Pick a branch and IdiamPro produces a complete YouTube content package — script, chapters, description, SEO, B-roll prompts. Multimedia in, multimedia out.
               </p>
               <div className="flex flex-wrap gap-2">
-                <span className="px-3 py-1 rounded-full bg-[#f4faf9] border border-[#d3e6e4] text-[#47585a] text-xs">Books &amp; long-form</span>
-                <span className="px-3 py-1 rounded-full bg-[#f4faf9] border border-[#d3e6e4] text-[#47585a] text-xs">Articles &amp; reports</span>
-                <span className="px-3 py-1 rounded-full bg-[#f4faf9] border border-[#d3e6e4] text-[#47585a] text-xs">YouTube packages</span>
-                <span className="px-3 py-1 rounded-full bg-[#f4faf9] border border-[#d3e6e4] text-[#47585a] text-xs">Podcasts</span>
-                <span className="px-3 py-1 rounded-full bg-[#f4faf9] border border-[#d3e6e4] text-[#47585a] text-xs">Diagrams &amp; mind maps</span>
-                <span className="px-3 py-1 rounded-full bg-[#f4faf9] border border-[#d3e6e4] text-[#47585a] text-xs">Whiteboard capture</span>
+                <span className="px-3 py-1 rounded-full bg-[#f7f8fa] border border-[#e3e7ea] text-[#47585a] text-xs">Books &amp; long-form</span>
+                <span className="px-3 py-1 rounded-full bg-[#f7f8fa] border border-[#e3e7ea] text-[#47585a] text-xs">Articles &amp; reports</span>
+                <span className="px-3 py-1 rounded-full bg-[#f7f8fa] border border-[#e3e7ea] text-[#47585a] text-xs">YouTube packages</span>
+                <span className="px-3 py-1 rounded-full bg-[#f7f8fa] border border-[#e3e7ea] text-[#47585a] text-xs">Podcasts</span>
+                <span className="px-3 py-1 rounded-full bg-[#f7f8fa] border border-[#e3e7ea] text-[#47585a] text-xs">Diagrams &amp; mind maps</span>
+                <span className="px-3 py-1 rounded-full bg-[#f7f8fa] border border-[#e3e7ea] text-[#47585a] text-xs">Whiteboard capture</span>
               </div>
             </div>
           </div>
@@ -390,7 +390,7 @@ export default function FeaturesPage() {
               {/* Expanded Scope */}
               <div className="relative group">
                 <div className="absolute inset-0 bg-gradient-to-br from-teal-600/20 to-teal-600/10 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="relative p-8 rounded-3xl bg-[#f4faf9] border border-[#d3e6e4] hover:border-teal-600/30 transition-all duration-300 h-full">
+                <div className="relative p-8 rounded-3xl bg-[#f7f8fa] border border-[#e3e7ea] hover:border-teal-600/30 transition-all duration-300 h-full">
                   <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-teal-600 to-teal-700 flex items-center justify-center mb-6 shadow-lg shadow-teal-600/30">
                     <Globe className="w-8 h-8 text-white" />
                   </div>
@@ -411,7 +411,7 @@ export default function FeaturesPage() {
               {/* Speed of Access */}
               <div className="relative group">
                 <div className="absolute inset-0 bg-gradient-to-br from-teal-600/20 to-teal-600/10 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="relative p-8 rounded-3xl bg-[#f4faf9] border border-[#d3e6e4] hover:border-teal-600/30 transition-all duration-300 h-full">
+                <div className="relative p-8 rounded-3xl bg-[#f7f8fa] border border-[#e3e7ea] hover:border-teal-600/30 transition-all duration-300 h-full">
                   <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-teal-600 to-teal-700 flex items-center justify-center mb-6 shadow-lg shadow-teal-600/30">
                     <Zap className="w-8 h-8 text-white" />
                   </div>
@@ -431,7 +431,7 @@ export default function FeaturesPage() {
               {/* Pattern Recognition */}
               <div className="relative group">
                 <div className="absolute inset-0 bg-gradient-to-br from-teal-600/20 to-teal-600/10 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="relative p-8 rounded-3xl bg-[#f4faf9] border border-[#d3e6e4] hover:border-teal-600/30 transition-all duration-300 h-full">
+                <div className="relative p-8 rounded-3xl bg-[#f7f8fa] border border-[#e3e7ea] hover:border-teal-600/30 transition-all duration-300 h-full">
                   <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-teal-600 to-teal-700 flex items-center justify-center mb-6 shadow-lg shadow-teal-600/30">
                     <Network className="w-8 h-8 text-white" />
                   </div>
@@ -450,7 +450,7 @@ export default function FeaturesPage() {
             </div>
 
             {/* Cognitive Enhancement Quote */}
-            <div className="mt-16 p-8 lg:p-12 rounded-3xl bg-[#f4faf9] border border-[#d3e6e4] text-center">
+            <div className="mt-16 p-8 lg:p-12 rounded-3xl bg-[#f7f8fa] border border-[#e3e7ea] text-center">
               <Quote className="w-12 h-12 text-teal-600/50 mx-auto mb-6" />
               <blockquote className="text-2xl lg:text-3xl font-light text-[#0c2224] italic max-w-4xl mx-auto leading-relaxed">
                 &ldquo;The difference between experts and novices isn&apos;t just what they know—it&apos;s how quickly
@@ -506,19 +506,19 @@ export default function FeaturesPage() {
                       AI synthesizes everything into a coherent outline organized by themes and findings—the way research should be organized.
                     </p>
                     <div className="flex flex-wrap gap-3">
-                      <span className="px-3 py-1.5 rounded-lg bg-[#f4faf9] text-[#47585a] text-sm flex items-center gap-2">
+                      <span className="px-3 py-1.5 rounded-lg bg-[#f7f8fa] text-[#47585a] text-sm flex items-center gap-2">
                         <FileText className="w-4 h-4" /> Research Papers
                       </span>
-                      <span className="px-3 py-1.5 rounded-lg bg-[#f4faf9] text-[#47585a] text-sm flex items-center gap-2">
+                      <span className="px-3 py-1.5 rounded-lg bg-[#f7f8fa] text-[#47585a] text-sm flex items-center gap-2">
                         <Volume2 className="w-4 h-4" /> Conference Recordings
                       </span>
-                      <span className="px-3 py-1.5 rounded-lg bg-[#f4faf9] text-[#47585a] text-sm flex items-center gap-2">
+                      <span className="px-3 py-1.5 rounded-lg bg-[#f7f8fa] text-[#47585a] text-sm flex items-center gap-2">
                         <Youtube className="w-4 h-4" /> Video Lectures
                       </span>
-                      <span className="px-3 py-1.5 rounded-lg bg-[#f4faf9] text-[#47585a] text-sm flex items-center gap-2">
+                      <span className="px-3 py-1.5 rounded-lg bg-[#f7f8fa] text-[#47585a] text-sm flex items-center gap-2">
                         <Globe className="w-4 h-4" /> Technical Reports
                       </span>
-                      <span className="px-3 py-1.5 rounded-lg bg-[#f4faf9] text-[#47585a] text-sm flex items-center gap-2">
+                      <span className="px-3 py-1.5 rounded-lg bg-[#f7f8fa] text-[#47585a] text-sm flex items-center gap-2">
                         <FileUp className="w-4 h-4" /> Field Notes
                       </span>
                     </div>
@@ -578,9 +578,9 @@ export default function FeaturesPage() {
                     Select any branch and instantly turn its structure into a mind map, flowchart, or org chart—export it or embed it right in your outline.
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    <span className="px-3 py-1 rounded-lg bg-[#f4faf9] text-[#47585a] text-xs">Mind Maps</span>
-                    <span className="px-3 py-1 rounded-lg bg-[#f4faf9] text-[#47585a] text-xs">Flowcharts</span>
-                    <span className="px-3 py-1 rounded-lg bg-[#f4faf9] text-[#47585a] text-xs">Org Charts</span>
+                    <span className="px-3 py-1 rounded-lg bg-[#f7f8fa] text-[#47585a] text-xs">Mind Maps</span>
+                    <span className="px-3 py-1 rounded-lg bg-[#f7f8fa] text-[#47585a] text-xs">Flowcharts</span>
+                    <span className="px-3 py-1 rounded-lg bg-[#f7f8fa] text-[#47585a] text-xs">Org Charts</span>
                   </div>
                 </div>
 
@@ -648,14 +648,14 @@ export default function FeaturesPage() {
               </p>
               <div className="grid sm:grid-cols-2 gap-6 lg:gap-8">
                 {/* Light — styled placeholder until the real light-mode capture is dropped in */}
-                <figure className="rounded-2xl border border-[#d3e6e4] bg-white overflow-hidden shadow-[0_1px_3px_rgba(12,34,36,0.06),0_8px_24px_rgba(12,34,36,0.06)]">
-                  <div className="flex items-center gap-1.5 px-4 py-2.5 border-b border-[#d3e6e4] bg-[#f4faf9]">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#d3e6e4]" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#d3e6e4]" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#d3e6e4]" />
+                <figure className="rounded-2xl border border-[#e3e7ea] bg-white overflow-hidden shadow-[0_1px_3px_rgba(12,34,36,0.06),0_8px_24px_rgba(12,34,36,0.06)]">
+                  <div className="flex items-center gap-1.5 px-4 py-2.5 border-b border-[#e3e7ea] bg-[#f7f8fa]">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#e3e7ea]" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#e3e7ea]" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#e3e7ea]" />
                     <span className="ml-auto text-[11px] font-semibold uppercase tracking-wider text-teal-600">Light</span>
                   </div>
-                  <div className="aspect-[16/10] flex flex-col items-center justify-center gap-3 bg-[#f4faf9] text-center px-6">
+                  <div className="aspect-[16/10] flex flex-col items-center justify-center gap-3 bg-[#f7f8fa] text-center px-6">
                     <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#0E7C7B] to-[#0c5c5b] flex items-center justify-center">
                       <Monitor className="w-6 h-6 text-white" />
                     </div>
@@ -664,11 +664,11 @@ export default function FeaturesPage() {
                   </div>
                 </figure>
                 {/* Dark — real product capture */}
-                <figure className="rounded-2xl border border-[#d3e6e4] bg-white overflow-hidden shadow-[0_1px_3px_rgba(12,34,36,0.06),0_8px_24px_rgba(12,34,36,0.06)]">
-                  <div className="flex items-center gap-1.5 px-4 py-2.5 border-b border-[#d3e6e4] bg-[#f4faf9]">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#d3e6e4]" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#d3e6e4]" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#d3e6e4]" />
+                <figure className="rounded-2xl border border-[#e3e7ea] bg-white overflow-hidden shadow-[0_1px_3px_rgba(12,34,36,0.06),0_8px_24px_rgba(12,34,36,0.06)]">
+                  <div className="flex items-center gap-1.5 px-4 py-2.5 border-b border-[#e3e7ea] bg-[#f7f8fa]">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#e3e7ea]" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#e3e7ea]" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#e3e7ea]" />
                     <span className="ml-auto text-[11px] font-semibold uppercase tracking-wider text-teal-600">Dark</span>
                   </div>
                   <img
@@ -710,9 +710,9 @@ export default function FeaturesPage() {
               ].map((shot) => (
                 <figure
                   key={shot.src}
-                  className="group rounded-2xl border border-[#d3e6e4] bg-[#f4faf9] overflow-hidden hover:border-teal-600/30 transition-colors"
+                  className="group rounded-2xl border border-[#e3e7ea] bg-[#f7f8fa] overflow-hidden hover:border-teal-600/30 transition-colors"
                 >
-                  <div className="bg-white/60 border-b border-[#d3e6e4]">
+                  <div className="bg-white/60 border-b border-[#e3e7ea]">
                     <img
                       src={shot.src}
                       alt={shot.title}
@@ -732,7 +732,7 @@ export default function FeaturesPage() {
         </section>
 
         {/* Social Proof Bar */}
-        <section className="px-6 py-10 lg:px-12 border-y border-[#d3e6e4] bg-[#f4faf9]">
+        <section className="px-6 py-10 lg:px-12 border-y border-[#e3e7ea] bg-[#f7f8fa]">
           <div className="max-w-7xl mx-auto">
             <p className="text-center text-[#6b7d7e] text-sm mb-6">Built for professional researchers at leading institutions</p>
             <div className="flex flex-wrap justify-center items-center gap-6 lg:gap-12">
@@ -740,17 +740,17 @@ export default function FeaturesPage() {
                 <div className="text-2xl font-bold text-[#47585a]">Universities</div>
                 <div className="text-xs text-[#6b7d7e]">PhD & Postdoc</div>
               </div>
-              <div className="w-px h-8 bg-[#f4faf9] hidden sm:block" />
+              <div className="w-px h-8 bg-[#f7f8fa] hidden sm:block" />
               <div className="text-center">
                 <div className="text-2xl font-bold text-[#47585a]">Research Labs</div>
                 <div className="text-xs text-[#6b7d7e]">Academic & Industrial</div>
               </div>
-              <div className="w-px h-8 bg-[#f4faf9] hidden sm:block" />
+              <div className="w-px h-8 bg-[#f7f8fa] hidden sm:block" />
               <div className="text-center">
                 <div className="text-2xl font-bold text-[#47585a]">Consulting</div>
                 <div className="text-xs text-[#6b7d7e]">McKinsey, BCG, Bain</div>
               </div>
-              <div className="w-px h-8 bg-[#f4faf9] hidden sm:block" />
+              <div className="w-px h-8 bg-[#f7f8fa] hidden sm:block" />
               <div className="text-center">
                 <div className="text-2xl font-bold text-[#47585a]">Legal</div>
                 <div className="text-xs text-[#6b7d7e]">Law Firms & Counsel</div>
@@ -778,30 +778,30 @@ export default function FeaturesPage() {
             {/* Comparison Grid */}
             <div className="grid lg:grid-cols-2 gap-8 mb-16">
               {/* What Others Do */}
-              <div className="p-8 rounded-3xl bg-[#f4faf9] border border-[#d3e6e4]">
+              <div className="p-8 rounded-3xl bg-[#f7f8fa] border border-[#e3e7ea]">
                 <h3 className="text-lg font-semibold text-[#6b7d7e] mb-6 flex items-center gap-2">
-                  <span className="w-6 h-6 rounded-full bg-[#f4faf9] flex items-center justify-center text-xs">✗</span>
+                  <span className="w-6 h-6 rounded-full bg-[#f7f8fa] flex items-center justify-center text-xs">✗</span>
                   What other tools do
                 </h3>
                 <ul className="space-y-4">
                   <li className="flex items-start gap-3 text-[#6b7d7e] text-base">
-                    <span className="w-5 h-5 rounded bg-[#f4faf9] flex items-center justify-center text-xs flex-shrink-0 mt-0.5">•</span>
+                    <span className="w-5 h-5 rounded bg-[#f7f8fa] flex items-center justify-center text-xs flex-shrink-0 mt-0.5">•</span>
                     <span>Take notes and organize them manually</span>
                   </li>
                   <li className="flex items-start gap-3 text-[#6b7d7e] text-base">
-                    <span className="w-5 h-5 rounded bg-[#f4faf9] flex items-center justify-center text-xs flex-shrink-0 mt-0.5">•</span>
+                    <span className="w-5 h-5 rounded bg-[#f7f8fa] flex items-center justify-center text-xs flex-shrink-0 mt-0.5">•</span>
                     <span>Import one file at a time, if at all</span>
                   </li>
                   <li className="flex items-start gap-3 text-[#6b7d7e] text-base">
-                    <span className="w-5 h-5 rounded bg-[#f4faf9] flex items-center justify-center text-xs flex-shrink-0 mt-0.5">•</span>
+                    <span className="w-5 h-5 rounded bg-[#f7f8fa] flex items-center justify-center text-xs flex-shrink-0 mt-0.5">•</span>
                     <span>AI as an afterthought—generic chat bolted on</span>
                   </li>
                   <li className="flex items-start gap-3 text-[#6b7d7e] text-base">
-                    <span className="w-5 h-5 rounded bg-[#f4faf9] flex items-center justify-center text-xs flex-shrink-0 mt-0.5">•</span>
+                    <span className="w-5 h-5 rounded bg-[#f7f8fa] flex items-center justify-center text-xs flex-shrink-0 mt-0.5">•</span>
                     <span>Force you to choose: mobile OR desktop experience</span>
                   </li>
                   <li className="flex items-start gap-3 text-[#6b7d7e] text-base">
-                    <span className="w-5 h-5 rounded bg-[#f4faf9] flex items-center justify-center text-xs flex-shrink-0 mt-0.5">•</span>
+                    <span className="w-5 h-5 rounded bg-[#f7f8fa] flex items-center justify-center text-xs flex-shrink-0 mt-0.5">•</span>
                     <span>Lock your data in proprietary formats</span>
                   </li>
                 </ul>
@@ -842,7 +842,7 @@ export default function FeaturesPage() {
             <div className="mt-12 overflow-x-auto">
               <table className="w-full border-collapse">
                 <thead>
-                  <tr className="border-b border-[#d3e6e4]">
+                  <tr className="border-b border-[#e3e7ea]">
                     <th className="text-left py-4 px-4 text-[#0c2224] font-semibold">Feature</th>
                     <th className="text-center py-4 px-4">
                       <span className="text-teal-600 font-bold">IdiamPro</span>
@@ -853,56 +853,56 @@ export default function FeaturesPage() {
                   </tr>
                 </thead>
                 <tbody className="text-sm">
-                  <tr className="border-b border-[#d3e6e4]">
+                  <tr className="border-b border-[#e3e7ea]">
                     <td className="py-3 px-4 text-[#47585a]">Multi-source AI synthesis (50+ sources)</td>
                     <td className="py-3 px-4 text-center"><Check className="w-5 h-5 text-teal-600 mx-auto" /></td>
-                    <td className="py-3 px-4 text-center"><X className="w-5 h-5 text-[#b9c6c6] mx-auto" /></td>
-                    <td className="py-3 px-4 text-center"><X className="w-5 h-5 text-[#b9c6c6] mx-auto" /></td>
-                    <td className="py-3 px-4 text-center"><X className="w-5 h-5 text-[#b9c6c6] mx-auto" /></td>
+                    <td className="py-3 px-4 text-center"><X className="w-5 h-5 text-[#d0d6d8] mx-auto" /></td>
+                    <td className="py-3 px-4 text-center"><X className="w-5 h-5 text-[#d0d6d8] mx-auto" /></td>
+                    <td className="py-3 px-4 text-center"><X className="w-5 h-5 text-[#d0d6d8] mx-auto" /></td>
                   </tr>
-                  <tr className="border-b border-[#d3e6e4]">
+                  <tr className="border-b border-[#e3e7ea]">
                     <td className="py-3 px-4 text-[#47585a]">Speaker diarization (who said what)</td>
                     <td className="py-3 px-4 text-center"><Check className="w-5 h-5 text-teal-600 mx-auto" /></td>
-                    <td className="py-3 px-4 text-center"><X className="w-5 h-5 text-[#b9c6c6] mx-auto" /></td>
-                    <td className="py-3 px-4 text-center"><X className="w-5 h-5 text-[#b9c6c6] mx-auto" /></td>
-                    <td className="py-3 px-4 text-center"><X className="w-5 h-5 text-[#b9c6c6] mx-auto" /></td>
+                    <td className="py-3 px-4 text-center"><X className="w-5 h-5 text-[#d0d6d8] mx-auto" /></td>
+                    <td className="py-3 px-4 text-center"><X className="w-5 h-5 text-[#d0d6d8] mx-auto" /></td>
+                    <td className="py-3 px-4 text-center"><X className="w-5 h-5 text-[#d0d6d8] mx-auto" /></td>
                   </tr>
-                  <tr className="border-b border-[#d3e6e4]">
+                  <tr className="border-b border-[#e3e7ea]">
                     <td className="py-3 px-4 text-[#47585a]">PDF & document import with analysis</td>
                     <td className="py-3 px-4 text-center"><Check className="w-5 h-5 text-teal-600 mx-auto" /></td>
                     <td className="py-3 px-4 text-center text-[#8b9a9b]">Limited</td>
-                    <td className="py-3 px-4 text-center"><X className="w-5 h-5 text-[#b9c6c6] mx-auto" /></td>
-                    <td className="py-3 px-4 text-center"><X className="w-5 h-5 text-[#b9c6c6] mx-auto" /></td>
+                    <td className="py-3 px-4 text-center"><X className="w-5 h-5 text-[#d0d6d8] mx-auto" /></td>
+                    <td className="py-3 px-4 text-center"><X className="w-5 h-5 text-[#d0d6d8] mx-auto" /></td>
                   </tr>
-                  <tr className="border-b border-[#d3e6e4]">
+                  <tr className="border-b border-[#e3e7ea]">
                     <td className="py-3 px-4 text-[#47585a]">YouTube transcript import</td>
                     <td className="py-3 px-4 text-center"><Check className="w-5 h-5 text-teal-600 mx-auto" /></td>
-                    <td className="py-3 px-4 text-center"><X className="w-5 h-5 text-[#b9c6c6] mx-auto" /></td>
+                    <td className="py-3 px-4 text-center"><X className="w-5 h-5 text-[#d0d6d8] mx-auto" /></td>
                     <td className="py-3 px-4 text-center text-[#8b9a9b]">Plugin</td>
-                    <td className="py-3 px-4 text-center"><X className="w-5 h-5 text-[#b9c6c6] mx-auto" /></td>
+                    <td className="py-3 px-4 text-center"><X className="w-5 h-5 text-[#d0d6d8] mx-auto" /></td>
                   </tr>
-                  <tr className="border-b border-[#d3e6e4]">
+                  <tr className="border-b border-[#e3e7ea]">
                     <td className="py-3 px-4 text-[#47585a]">AI content generation</td>
                     <td className="py-3 px-4 text-center"><Check className="w-5 h-5 text-teal-600 mx-auto" /></td>
                     <td className="py-3 px-4 text-center"><Check className="w-5 h-5 text-[#6b7d7e] mx-auto" /></td>
                     <td className="py-3 px-4 text-center text-[#8b9a9b]">Plugin</td>
-                    <td className="py-3 px-4 text-center"><X className="w-5 h-5 text-[#b9c6c6] mx-auto" /></td>
+                    <td className="py-3 px-4 text-center"><X className="w-5 h-5 text-[#d0d6d8] mx-auto" /></td>
                   </tr>
-                  <tr className="border-b border-[#d3e6e4]">
+                  <tr className="border-b border-[#e3e7ea]">
                     <td className="py-3 px-4 text-[#47585a]">Podcast generation</td>
                     <td className="py-3 px-4 text-center"><Check className="w-5 h-5 text-teal-600 mx-auto" /></td>
-                    <td className="py-3 px-4 text-center"><X className="w-5 h-5 text-[#b9c6c6] mx-auto" /></td>
-                    <td className="py-3 px-4 text-center"><X className="w-5 h-5 text-[#b9c6c6] mx-auto" /></td>
-                    <td className="py-3 px-4 text-center"><X className="w-5 h-5 text-[#b9c6c6] mx-auto" /></td>
+                    <td className="py-3 px-4 text-center"><X className="w-5 h-5 text-[#d0d6d8] mx-auto" /></td>
+                    <td className="py-3 px-4 text-center"><X className="w-5 h-5 text-[#d0d6d8] mx-auto" /></td>
+                    <td className="py-3 px-4 text-center"><X className="w-5 h-5 text-[#d0d6d8] mx-auto" /></td>
                   </tr>
-                  <tr className="border-b border-[#d3e6e4]">
+                  <tr className="border-b border-[#e3e7ea]">
                     <td className="py-3 px-4 text-[#47585a]">Local-first storage</td>
                     <td className="py-3 px-4 text-center"><Check className="w-5 h-5 text-teal-600 mx-auto" /></td>
-                    <td className="py-3 px-4 text-center"><X className="w-5 h-5 text-[#b9c6c6] mx-auto" /></td>
+                    <td className="py-3 px-4 text-center"><X className="w-5 h-5 text-[#d0d6d8] mx-auto" /></td>
                     <td className="py-3 px-4 text-center"><Check className="w-5 h-5 text-[#6b7d7e] mx-auto" /></td>
-                    <td className="py-3 px-4 text-center"><X className="w-5 h-5 text-[#b9c6c6] mx-auto" /></td>
+                    <td className="py-3 px-4 text-center"><X className="w-5 h-5 text-[#d0d6d8] mx-auto" /></td>
                   </tr>
-                  <tr className="border-b border-[#d3e6e4]">
+                  <tr className="border-b border-[#e3e7ea]">
                     <td className="py-3 px-4 text-[#47585a]">Native iOS app</td>
                     <td className="py-3 px-4 text-center"><Check className="w-5 h-5 text-teal-600 mx-auto" /></td>
                     <td className="py-3 px-4 text-center"><Check className="w-5 h-5 text-[#6b7d7e] mx-auto" /></td>
@@ -948,7 +948,7 @@ export default function FeaturesPage() {
 
             {/* Key Advantages */}
             <div className="mt-12 grid md:grid-cols-4 gap-6">
-              <div className="text-center p-6 rounded-2xl bg-[#f4faf9] border border-[#d3e6e4]">
+              <div className="text-center p-6 rounded-2xl bg-[#f7f8fa] border border-[#e3e7ea]">
                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-teal-600 to-teal-700 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-teal-600/25">
                   <Sparkles className="w-7 h-7 text-white" />
                 </div>
@@ -957,7 +957,7 @@ export default function FeaturesPage() {
                   Every feature designed around AI from day one
                 </p>
               </div>
-              <div className="text-center p-6 rounded-2xl bg-[#f4faf9] border border-[#d3e6e4]">
+              <div className="text-center p-6 rounded-2xl bg-[#f7f8fa] border border-[#e3e7ea]">
                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-teal-600 to-teal-700 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-teal-600/25">
                   <Shield className="w-7 h-7 text-white" />
                 </div>
@@ -966,7 +966,7 @@ export default function FeaturesPage() {
                   Local storage by default. Cloud is optional.
                 </p>
               </div>
-              <div className="text-center p-6 rounded-2xl bg-[#f4faf9] border border-[#d3e6e4]">
+              <div className="text-center p-6 rounded-2xl bg-[#f7f8fa] border border-[#e3e7ea]">
                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-teal-600 to-teal-700 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-teal-600/25">
                   <Zap className="w-7 h-7 text-white" />
                 </div>
@@ -975,7 +975,7 @@ export default function FeaturesPage() {
                   Instant response, even with massive outlines
                 </p>
               </div>
-              <div className="text-center p-6 rounded-2xl bg-[#f4faf9] border border-[#d3e6e4]">
+              <div className="text-center p-6 rounded-2xl bg-[#f7f8fa] border border-[#e3e7ea]">
                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-teal-600 to-teal-700 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-teal-600/25">
                   <Layers className="w-7 h-7 text-white" />
                 </div>
@@ -1121,14 +1121,14 @@ export default function FeaturesPage() {
                   <div className="text-teal-600 text-xs">Available Now</div>
                 </div>
                 <div className="text-center group">
-                  <div className="w-20 h-20 rounded-2xl bg-[#f4faf9] border border-[#d3e6e4] flex items-center justify-center mx-auto mb-4 group-hover:bg-[#eef6f5] transition-all">
+                  <div className="w-20 h-20 rounded-2xl bg-[#f7f8fa] border border-[#e3e7ea] flex items-center justify-center mx-auto mb-4 group-hover:bg-[#f1f3f5] transition-all">
                     <Laptop className="w-10 h-10 text-teal-600" />
                   </div>
                   <div className="text-[#0c2224] font-medium">Windows</div>
                   <div className="text-[#6b7d7e] text-xs">Coming Soon</div>
                 </div>
                 <div className="text-center group">
-                  <div className="w-20 h-20 rounded-2xl bg-[#f4faf9] border border-[#d3e6e4] flex items-center justify-center mx-auto mb-4 group-hover:bg-[#eef6f5] transition-all">
+                  <div className="w-20 h-20 rounded-2xl bg-[#f7f8fa] border border-[#e3e7ea] flex items-center justify-center mx-auto mb-4 group-hover:bg-[#f1f3f5] transition-all">
                     <Code2 className="w-10 h-10 text-teal-600" />
                   </div>
                   <div className="text-[#0c2224] font-medium">Linux</div>
@@ -1156,7 +1156,7 @@ export default function FeaturesPage() {
                   <div className="text-teal-600 text-xs">Beta Available</div>
                 </div>
                 <div className="text-center group">
-                  <div className="w-20 h-20 rounded-2xl bg-[#f4faf9] border border-[#d3e6e4] flex items-center justify-center mx-auto mb-4 group-hover:bg-[#eef6f5] transition-all">
+                  <div className="w-20 h-20 rounded-2xl bg-[#f7f8fa] border border-[#e3e7ea] flex items-center justify-center mx-auto mb-4 group-hover:bg-[#f1f3f5] transition-all">
                     <Smartphone className="w-10 h-10 text-teal-600" />
                   </div>
                   <div className="text-[#0c2224] font-medium">Android</div>
@@ -1191,7 +1191,7 @@ export default function FeaturesPage() {
             </p>
             <Link
               href="/signup"
-              className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#0E7C7B] to-[#0c5c5b] px-8 py-4 text-base font-semibold text-white shadow-lg shadow-teal-600/30 hover:shadow-xl hover:shadow-teal-600/40 hover:-translate-y-0.5 transition-all"
+              className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#0ea5a4] to-[#0b74c4] px-8 py-4 text-base font-semibold text-white shadow-lg shadow-teal-600/30 hover:shadow-xl hover:shadow-teal-600/40 hover:-translate-y-0.5 transition-all"
             >
               <Rocket className="w-5 h-5" /> Sign up free
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />

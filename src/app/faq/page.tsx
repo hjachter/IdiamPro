@@ -84,7 +84,7 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="border-b border-[#d3e6e4] last:border-0">
+    <div className="border-b border-[#e3e7ea] last:border-0">
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="w-full py-5 flex items-center justify-between text-left"
@@ -133,7 +133,7 @@ export default function FaqPage() {
   return (
     <div className="fixed inset-0 bg-white text-[#0c2224] overflow-x-hidden overflow-y-auto">
       <div className="fixed inset-0 bg-gradient-to-br from-white via-white to-white" />
-      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-teal-600/[0.10] via-transparent to-transparent" />
+      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-teal-600/[0.035] via-transparent to-transparent" />
       <div className="relative z-10">
         <MarketingHeader />
         <main className="pt-28 lg:pt-32">
@@ -158,7 +158,7 @@ export default function FaqPage() {
               </h2>
             </div>
 
-            <div className="bg-[#f4faf9] rounded-2xl border border-[#d3e6e4] p-6 lg:p-8">
+            <div className="bg-[#f7f8fa] rounded-2xl border border-[#e3e7ea] p-6 lg:p-8">
               {faqs.map((faq, i) => (
                 <FAQItem key={i} {...faq} />
               ))}
@@ -168,7 +168,7 @@ export default function FaqPage() {
 
         <section className="px-6 py-20 lg:px-12">
           <div className="max-w-4xl mx-auto text-center">
-            <Link href="/" className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#0E7C7B] to-[#0E7C7B] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-teal-600/25 hover:from-[#0c5c5b] hover:to-[#0c5c5b] transition-colors">
+            <Link href="/" className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#0ea5a4] to-[#0b74c4] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-teal-600/25 hover:from-[#0c8f8e] hover:to-[#0960a3] transition-colors">
               <ArrowLeft className="w-4 h-4" /> Back to home
             </Link>
           </div>

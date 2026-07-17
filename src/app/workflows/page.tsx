@@ -35,7 +35,7 @@ function ProfileFilm({
   const [posterLoaded, setPosterLoaded] = useState(false);
 
   return (
-    <div className="relative overflow-hidden -mx-6 sm:mx-0 rounded-none sm:rounded-3xl border-y sm:border border-[#d3e6e4] bg-[#f4faf9] shadow-xl shadow-teal-600/10">
+    <div className="relative overflow-hidden -mx-6 sm:mx-0 rounded-none sm:rounded-3xl border-y sm:border border-[#e3e7ea] bg-[#f7f8fa] shadow-xl shadow-teal-600/10">
       {playing ? (
         <video
           className="block h-auto w-full bg-black"
@@ -52,7 +52,7 @@ function ProfileFilm({
           type="button"
           onClick={() => setPlaying(true)}
           aria-label={`Play film: ${ariaLabel}`}
-          className="group relative block w-full aspect-video overflow-hidden bg-gradient-to-br from-teal-600/15 via-[#eef6f5] to-teal-700/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-600/60"
+          className="group relative block w-full aspect-video overflow-hidden bg-gradient-to-br from-teal-600/15 via-[#f1f3f5] to-teal-700/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-600/60"
         >
           {/* Base placeholder — a teal wash with a film glyph — always sits
               behind. The poster image loads on top and only fades in once it
@@ -146,7 +146,7 @@ export default function WorkflowsPage() {
   useSingleVideoPlayback();
   return (
     <div className="fixed inset-0 overflow-x-hidden overflow-y-auto bg-white text-[#0c2224]">
-      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-teal-600/[0.10] via-transparent to-transparent" />
+      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-teal-600/[0.035] via-transparent to-transparent" />
       <div className="relative z-10">
         <MarketingHeader />
         <main className="pt-28 lg:pt-32">
@@ -208,7 +208,7 @@ export default function WorkflowsPage() {
                       </div>
 
                       {/* The remedy */}
-                      <div className="rounded-2xl border border-[#d3e6e4] bg-[#f4faf9] p-5">
+                      <div className="rounded-2xl border border-[#e3e7ea] bg-[#f7f8fa] p-5">
                         <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-teal-600">
                           The remedy
                         </div>
@@ -235,6 +235,43 @@ export default function WorkflowsPage() {
             </div>
           </section>
 
+          {/* The story behind IdiamPro — the founder film, relocated here from the
+              homepage. A tasteful "meet the maker" card that sits alongside the
+              character films: the founder used IdiamPro to plan IdiamPro's own
+              launch. Reuses the same ProfileFilm click-to-play pattern. */}
+          <section className="px-6 pt-4 pb-16 lg:px-12">
+            <div className="mx-auto max-w-[1600px]">
+              <div className="mb-6 md:mb-8">
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-bold text-teal-600/70">★</span>
+                  <span className="text-xs font-medium uppercase tracking-wider text-teal-600">
+                    The story behind IdiamPro
+                  </span>
+                </div>
+                <h2 className="mt-2 text-3xl font-bold tracking-tight text-[#0c2224] md:text-4xl">
+                  The idea was only half the battle.
+                </h2>
+                <div className="mt-1 text-sm text-[#6b7d7e]">A note from the founder</div>
+                <p className="mt-5 max-w-3xl text-[15px] leading-relaxed text-[#47585a] md:text-base">
+                  A tool I&apos;d envisioned for decades — finally possible now. So I did the most
+                  honest test I could think of: I used IdiamPro to plan its own launch. The plan
+                  you&apos;ll watch build itself is the real one.
+                </p>
+              </div>
+              <div>
+                <ProfileFilm
+                  videoSrc="/idiampro-story.mp4?v=story6"
+                  posterSrc="/idiampro-story-poster.jpg?v=story6"
+                  ariaLabel="Our Story — a founder uses IdiamPro to plan IdiamPro's own launch. Produced by IdiamPro."
+                />
+                <p className="mt-3 flex items-center justify-center gap-1.5 text-sm text-[#6b7d7e]">
+                  <Video className="h-3.5 w-3.5 text-teal-600" />
+                  Produced by IdiamPro
+                </p>
+              </div>
+            </div>
+          </section>
+
           {/* More profiles coming — subtle */}
           <section className="px-6 pb-16 lg:px-12">
             <div className="mx-auto max-w-2xl text-center">
@@ -250,7 +287,7 @@ export default function WorkflowsPage() {
             <div className="mx-auto max-w-4xl text-center">
               <Link
                 href="/signup"
-                className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#0E7C7B] to-[#0E7C7B] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-teal-600/25 transition-colors hover:from-[#0c5c5b] hover:to-[#0c5c5b]"
+                className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#0ea5a4] to-[#0b74c4] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-teal-600/25 transition-colors hover:from-[#0c8f8e] hover:to-[#0960a3]"
               >
                 Start your own <ArrowRight className="h-4 w-4" />
               </Link>
