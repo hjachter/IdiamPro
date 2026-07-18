@@ -483,15 +483,27 @@ export default function MarketingPage() {
                   — a single idea, a complex concept, or a whole narrative — refined over many passes, then published in whatever format you need.
                 </p>
 
-                {/* Output strip — provable formats IdiamPro produces */}
+                {/* Output strip — provable formats IdiamPro produces. The
+                    formats with real example galleries are clickable chips that
+                    navigate to their gallery; the rest point to the examples hub. */}
                 <div className="flex flex-wrap justify-center gap-2 mb-8 max-w-2xl mx-auto">
-                  {['Research papers', 'Podcasts', 'Videos', 'Websites', 'Presentations', 'Illustrations', '21 languages', '…and more'].map((label) => (
-                    <span
-                      key={label}
-                      className={`px-3 py-1.5 rounded-full bg-[#f1f3f5] border border-[#d3d9dc] text-sm font-medium ${label === '…and more' ? 'text-[#42504f] italic' : 'text-[#0f2b29]'}`}
+                  {[
+                    { label: 'Research papers', href: '/examples' },
+                    { label: 'Podcasts', href: '/examples/podcasts' },
+                    { label: 'Videos', href: '/examples/videos' },
+                    { label: 'Websites', href: '/examples/websites' },
+                    { label: 'Presentations', href: '/examples' },
+                    { label: 'Illustrations', href: '/examples' },
+                    { label: '21 languages', href: '/examples' },
+                    { label: '…and more', href: '/examples', muted: true },
+                  ].map((chip) => (
+                    <Link
+                      key={chip.label}
+                      href={chip.href}
+                      className={`px-3 py-1.5 rounded-full bg-[#f1f3f5] border border-[#d3d9dc] text-sm font-medium transition-colors hover:bg-teal-600/10 hover:border-teal-600/50 hover:text-[#0c5c5b] ${chip.muted ? 'text-[#42504f] italic' : 'text-[#0f2b29]'}`}
                     >
-                      {label}
-                    </span>
+                      {chip.label}
+                    </Link>
                   ))}
                 </div>
 
