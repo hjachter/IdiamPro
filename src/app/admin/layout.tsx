@@ -40,7 +40,18 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    // The root <html>/<body> are locked to `h-full overflow-hidden` for the
+    // outline editor (which manages its own scroll). Every other page must
+    // therefore supply its own scroll container, or tall content is clipped
+    // and unreachable. This admin shell is that scroll container: it fills the
+    // locked viewport (`h-full`) and scrolls vertically (`overflow-y-auto`),
+    // with momentum/touch scrolling on iOS/iPad via Capacitor. The sticky
+    // banner below sticks to THIS container, so it stays pinned while the
+    // page scrolls.
+    <div
+      className="h-full overflow-y-auto overflow-x-hidden bg-background"
+      style={{ WebkitOverflowScrolling: 'touch' }}
+    >
       {/* Persistent amber admin banner — visible on every admin page. */}
       <div className="sticky top-0 z-50 border-b border-amber-500/40 bg-amber-500 text-amber-950 shadow-sm">
         <div className="mx-auto flex max-w-6xl items-center gap-2 px-4 py-2 sm:px-6">
