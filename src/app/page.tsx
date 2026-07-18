@@ -368,6 +368,19 @@ function SeeItShowcase() {
           />
         </div>
 
+        {/* One-window proof — a single page holding many content types at once */}
+        <div className="mb-24 lg:mb-32">
+          <ShowcaseRow
+            icon={Layers}
+            eyebrow="All in one place"
+            headline="One window. Every kind of content."
+            support="Text, videos, a flowchart, and a table — all living together in a single page. No tab-hopping, no scattered files."
+            src="/screenshots/all-in-one-window-2.png"
+            alt="A single IdiamPro page holding a video, headings and text, a flowchart, a data table, and a second video all at once"
+            reverse
+          />
+        </div>
+
         {/* STANDOUT — the killer AI-spreadsheet moment, full-width, centered */}
         <div className="mb-24 lg:mb-32">
           <div className="text-center max-w-3xl mx-auto mb-10">
