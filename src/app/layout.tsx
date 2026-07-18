@@ -99,8 +99,8 @@ export default function RootLayout({
               '@type': 'Organization',
               name: 'SecondBrainWare',
               alternateName: ['Second Brain Ware', '2ndBrainWare'],
-              url: 'https://secondbrainware.com',
-              logo: 'https://secondbrainware.com/icons/icon-180.png',
+              url: 'https://2ndbrainware.com',
+              logo: 'https://2ndbrainware.com/icons/icon-180.png',
               description:
                 'SecondBrainWare builds IdiamPro, an AI-native outliner and second-brain platform that helps you capture, consolidate, and develop your ideas across every platform.',
             }),
