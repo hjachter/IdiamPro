@@ -120,10 +120,10 @@ export default function WaitingPage() {
         <p className="mt-6 text-xs text-white/40 text-center">
           Questions?{' '}
           <a
-            href="mailto:howard@2ndbrainware.com"
+            href="mailto:support@2ndbrainware.com"
             className="text-white/70 hover:underline"
           >
-            howard@2ndbrainware.com
+            support@2ndbrainware.com
           </a>
         </p>
       </div>

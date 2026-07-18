@@ -196,10 +196,10 @@ function ApplicationGate({
         <p className="text-xs text-white/50">
           Questions? Drop a note to{' '}
           <a
-            href="mailto:howard@2ndbrainware.com"
+            href="mailto:support@2ndbrainware.com"
             className="text-emerald-300 hover:underline"
           >
-            howard@2ndbrainware.com
+            support@2ndbrainware.com
           </a>
           .
         </p>

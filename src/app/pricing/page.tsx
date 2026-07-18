@@ -532,7 +532,7 @@ export default function PricingPage() {
                 </div>
                 <div className="flex flex-col items-center gap-3">
                   <Button
-                    onClick={() => window.location.href = 'mailto:beta@2ndbrainware.com?subject=Beta Tester Application'}
+                    onClick={() => window.location.href = 'mailto:support@2ndbrainware.com?subject=Beta Tester Application'}
                     size="lg"
                     className="bg-gradient-to-r from-[#0ea5a4] to-[#0b74c4] hover:from-[#0c8f8e] hover:to-[#0960a3] text-white shadow-lg shadow-teal-600/25 whitespace-nowrap"
                   >

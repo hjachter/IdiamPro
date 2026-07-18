@@ -67,16 +67,16 @@ import {
   type DependencyHealthAlertProps,
 } from '@/emails/dependency-health-alert';
 
-const DEFAULT_FROM = 'IdiamPro <welcome@2ndbrainware.com>';
+const DEFAULT_FROM = 'IdiamPro Support <support@2ndbrainware.com>';
 
 /**
- * The email address Howard's beta-applicant approval notes are sent from.
- * Configurable so we can switch to a service mailbox later without code
- * changes. Defaults to Howard's personal address.
+ * Reply-To for every outgoing app email. Replies land in the shared support
+ * desk (support@2ndbrainware.com), never in Howard's personal inbox. Override
+ * with EMAIL_REPLY_TO without a code change if the support address ever moves.
  */
-const HOWARD_FROM = 'Howard at IdiamPro <howard@2ndbrainware.com>';
+const DEFAULT_REPLY_TO = 'support@2ndbrainware.com';
 
-/** Address that receives "new applicant" notifications. */
+/** Address that receives "new applicant" / internal notifications. */
 const HOWARD_NOTIFY = 'howard@2ndbrainware.com';
 
 export interface SendOutcome {
@@ -189,6 +189,18 @@ function getFromAddress(): string {
   return DEFAULT_FROM;
 }
 
+/**
+ * Reply-To for all app mail. Defaults to the shared support desk; override
+ * via EMAIL_REPLY_TO. Safe regardless of the SMTP auth mailbox — Reply-To has
+ * no authorisation requirement, so replies route to support even while the
+ * From address is still the currently-authenticated mailbox.
+ */
+function getReplyToAddress(): string {
+  const envOverride = (process.env.EMAIL_REPLY_TO ?? '').trim();
+  if (envOverride.length > 0) return envOverride;
+  return DEFAULT_REPLY_TO;
+}
+
 function getAdminNotifyAddress(): string {
   const envOverride = (process.env.EMAIL_TO_ADMIN ?? '').trim();
   if (envOverride.length > 0) return envOverride;
@@ -235,6 +247,7 @@ export async function sendWelcomeEmail(args: SendArgsBase): Promise<SendOutcome>
     html: rendered.html,
     text: rendered.text,
     headers: { 'List-Unsubscribe': `<${pre.proceed.unsubscribeUrl}>` },
+    replyTo: getReplyToAddress(),
   });
 }
 
@@ -267,6 +280,7 @@ export async function sendApplicantNotification(
     subject: rendered.subject,
     html: rendered.html,
     text: rendered.text,
+    replyTo: getReplyToAddress(),
   });
 }
 
@@ -284,11 +298,9 @@ interface SendApplicantApprovedArgs extends SendArgsBase {
 /**
  * Send the "you're in" email to a newly-approved applicant.
  *
- * Differs from the regular welcome email in two ways:
- * 1. From: howard@2ndbrainware.com (so the conversational tone matches:
- *    "Howard reads every reply personally").
- * 2. Reply-To: howard@2ndbrainware.com (so clicking Reply lands in his
- *    inbox, not the noreply/welcome alias).
+ * From: the app's configured sender (EMAIL_FROM / the authenticated SMTP
+ * mailbox), never Howard's personal address. Reply-To: the shared support
+ * desk, so a reply reaches the support team rather than a personal inbox.
  */
 export async function sendApplicantApprovedEmail(
   args: SendApplicantApprovedArgs,
@@ -302,13 +314,13 @@ export async function sendApplicantApprovedEmail(
     reason: args.reason,
   });
   return activeTransport({
-    from: HOWARD_FROM,
+    from: getFromAddress(),
     to: args.to,
     subject: rendered.subject,
     html: rendered.html,
     text: rendered.text,
     headers: { 'List-Unsubscribe': `<${pre.proceed.unsubscribeUrl}>` },
-    replyTo: 'howard@2ndbrainware.com',
+    replyTo: getReplyToAddress(),
   });
 }
 
@@ -340,6 +352,7 @@ export async function sendStorageAlert(
     subject: rendered.subject,
     html: rendered.html,
     text: rendered.text,
+    replyTo: getReplyToAddress(),
   });
 }
 
@@ -368,6 +381,7 @@ export async function sendDependencyHealthAlert(
     subject: rendered.subject,
     html: rendered.html,
     text: rendered.text,
+    replyTo: getReplyToAddress(),
   });
 }
 
@@ -390,6 +404,7 @@ export async function sendBugNotification(
     subject: rendered.subject,
     html: rendered.html,
     text: rendered.text,
+    replyTo: getReplyToAddress(),
   });
 }
 
@@ -412,6 +427,7 @@ export async function sendFeedbackNotification(
     subject: rendered.subject,
     html: rendered.html,
     text: rendered.text,
+    replyTo: getReplyToAddress(),
   });
 }
 
@@ -421,7 +437,8 @@ interface SendFeedbackReminderArgs extends SendArgsBase {
 
 /**
  * Send the "two-week mark — fancy sharing feedback?" email to an approved
- * applicant. From Howard, reply-to Howard, so they can reply directly. Same
+ * applicant. From the app's configured sender, reply-to the support desk, so
+ * they can reply directly to the support team. Same
  * preflight as the other user-facing sends (unsubscribe respected, no-key
  * skip, etc.).
  */
@@ -436,13 +453,13 @@ export async function sendFeedbackReminderEmail(
     feedbackUrl: args.feedbackUrl,
   });
   return activeTransport({
-    from: HOWARD_FROM,
+    from: getFromAddress(),
     to: args.to,
     subject: rendered.subject,
     html: rendered.html,
     text: rendered.text,
     headers: { 'List-Unsubscribe': `<${pre.proceed.unsubscribeUrl}>` },
-    replyTo: 'howard@2ndbrainware.com',
+    replyTo: getReplyToAddress(),
   });
 }
 
@@ -468,5 +485,6 @@ export async function sendDripEmail(args: SendDripArgs): Promise<SendOutcome> {
     html: rendered.html,
     text: rendered.text,
     headers: { 'List-Unsubscribe': `<${pre.proceed.unsubscribeUrl}>` },
+    replyTo: getReplyToAddress(),
   });
 }

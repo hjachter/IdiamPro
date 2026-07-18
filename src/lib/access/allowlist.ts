@@ -94,7 +94,7 @@ export function isEmailAllowed(email: string): boolean {
  * one place.
  */
 export const GATE_MESSAGE =
-  "IdiamPro is in invite-only beta right now. Your email isn't on the invite list yet — drop us a note at hello@2ndbrainware.com and we'll get you in.";
+  "IdiamPro is in invite-only beta right now. Your email isn't on the invite list yet — drop us a note at support@2ndbrainware.com and we'll get you in.";
 
 /**
  * Async variant of getAllowedEmails: env-var list PLUS approved applicants

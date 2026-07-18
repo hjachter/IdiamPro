@@ -5,9 +5,9 @@
  * they applied (when they provided one), concrete next steps, and a
  * standing offer to reply directly.
  *
- * From: Howard at IdiamPro <howard@2ndbrainware.com>
- * Reply-To: howard@2ndbrainware.com — clicking Reply lands in Howard's
- * inbox, not the noreply alias.
+ * From: the app's configured sender (EMAIL_FROM / authenticated SMTP mailbox).
+ * Reply-To: support@2ndbrainware.com — clicking Reply lands in the shared
+ * support desk, never a personal inbox.
  *
  * Tone direction (2026-06-10): the email goes out FROM Howard
  * automatically when he hits Approve, so the body should sound like the
