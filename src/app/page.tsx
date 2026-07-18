@@ -414,8 +414,8 @@ function SeeItShowcase() {
             eyebrow="Diagrams on demand"
             headline="Generate mind-maps, flowcharts, and diagrams on command."
             support="Turn any branch of your outline into a diagram — instantly, from what you've already written. No drawing, no dragging boxes."
-            src="/screenshots/06-diagram-menu.png"
-            alt="IdiamPro's diagram menu offering mind-map and flowchart generation"
+            src="/screenshots/diagrams-all-three.png"
+            alt="A single IdiamPro page showing a mind-map, a flowchart, and a gantt timeline generated together"
             reverse
           />
           {/* All-in-one claim — proved with a PAIR of real frames: a doc with a
