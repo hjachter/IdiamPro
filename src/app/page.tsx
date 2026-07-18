@@ -161,7 +161,7 @@ function IdeaDevelopmentBand() {
             A great idea isn&apos;t a single prompt.
           </h2>
           <p className="text-lg md:text-xl font-medium text-[#22312f] leading-relaxed max-w-[660px] mx-auto">
-            It might take a hundred sources — articles, PDFs, YouTube videos, meeting notes, textbooks, even what you type yourself — read, weighed, and merged into one outline before the essence comes into focus. Developing an idea is iterative: many passes, not one flash of insight. IdiamPro is built for that work.
+            It might take a hundred sources — articles, PDFs, videos, notes, textbooks — read, weighed, and merged into one outline before the essence comes into focus. Developing an idea is iterative: many passes, not one flash. IdiamPro is built for that work.
           </p>
         </div>
 
@@ -245,7 +245,7 @@ function IdeaDevelopmentBand() {
         </div>
 
         <p className="text-center text-base font-medium text-[#22312f] mt-10 max-w-2xl mx-auto">
-          Read widely, merge the sources into one outline, refine the essence — then publish it in any format. That&apos;s idea development, not a one-shot answer.
+          Read widely, merge into one outline, refine the essence — then publish it in any format. That&apos;s idea development, not a one-shot answer.
         </p>
       </div>
     </section>
@@ -470,17 +470,23 @@ export default function MarketingPage() {
                   <Brain className="w-4 h-4 text-[#0c5c5b]" />
                   <span className="text-sm font-semibold text-[#0c5c5b]">Develop it. Publish everywhere.</span>
                 </div>
-                <h1 className="text-5xl md:text-8xl font-extrabold mb-6 leading-[1.05] tracking-tight">
-                  <span className="block text-[#0c2224]">The Premier</span>
-                  <span className="block bg-gradient-to-r from-teal-500 via-teal-600 to-teal-600 bg-clip-text text-transparent">Idea Developer.</span>
+                <h1 className="text-5xl md:text-8xl font-extrabold mb-3 leading-[1.05] tracking-tight">
+                  <span className="block text-[#0c2224]">From One Idea</span>
+                  <span className="block bg-gradient-to-r from-teal-500 via-teal-600 to-teal-600 bg-clip-text text-transparent">to Finished Work.</span>
                 </h1>
+                <p className="text-xl md:text-3xl font-bold text-[#0c5c5b] mb-5">
+                  The AI that develops ideas.
+                </p>
+                <p className="text-lg md:text-2xl font-semibold text-[#0c2224] mb-6 max-w-2xl mx-auto leading-snug">
+                  One place to develop ideas — from first thought to finished work.
+                </p>
                 <p className="text-xl md:text-2xl font-semibold text-[#0c2224] mb-4 max-w-3xl mx-auto">
                   Capture, consolidate, and develop your ideas with AI — then turn them into articles, podcasts, videos, websites, and more, in a click.
                 </p>
                 <p className="text-lg md:text-xl text-[#22312f] mb-8 max-w-3xl mx-auto leading-relaxed">
                   Not a chat that forgets — a thinking machine that helps you{' '}
                   <span className="text-[#0c5c5b] font-semibold">consolidate many sources into coherent, developed thinking</span>{' '}
-                  — a single idea, a complex concept, or a whole narrative — refined over many passes, then published in whatever format you need.
+                  — refined over many passes, then published in whatever format you need.
                 </p>
 
                 {/* Output strip — provable formats IdiamPro produces. The
@@ -582,9 +588,9 @@ export default function MarketingPage() {
                 </div>
                 <div className="text-xs font-bold uppercase tracking-wider text-[#5a6a69] mb-1">The query box</div>
                 <div className="text-sm text-[#5a6a69] mb-4">ChatGPT · Gemini · Claude chat</div>
-                <div className="text-3xl md:text-4xl font-extrabold text-[#42504f] mb-4 tracking-tight">Answers.</div>
+                <div className="text-5xl md:text-6xl font-black text-[#42504f] mb-4 tracking-tight leading-none">Answers.</div>
                 <p className="text-base font-medium text-[#22312f] leading-relaxed">
-                  You ask, it answers — then the thinking evaporates. Brilliant for one reply, but there&apos;s no structure, no growing memory, no body of work. A moment, not a process.
+                  You ask, it answers — then the thinking evaporates. No structure, no growing memory, no body of work. A moment, not a process.
                 </p>
               </div>
 
@@ -595,9 +601,9 @@ export default function MarketingPage() {
                 </div>
                 <div className="text-xs font-bold uppercase tracking-wider text-[#5a6a69] mb-1">The outliner / vault</div>
                 <div className="text-sm text-[#5a6a69] mb-4">Obsidian · Notion · Roam</div>
-                <div className="text-3xl md:text-4xl font-extrabold text-[#42504f] mb-4 tracking-tight">Stores.</div>
+                <div className="text-5xl md:text-6xl font-black text-[#42504f] mb-4 tracking-tight leading-none">Stores.</div>
                 <p className="text-base font-medium text-[#22312f] leading-relaxed">
-                  A place to store what you already figured out. Passive: it holds your notes, but it won&apos;t help you develop them, connect them, or turn them into anything.
+                  A place to store what you already figured out. It holds your notes, but won&apos;t help you develop them, connect them, or turn them into anything.
                 </p>
               </div>
 
@@ -611,7 +617,7 @@ export default function MarketingPage() {
                 </div>
                 <div className="text-xs font-bold uppercase tracking-wider text-[#0c5c5b] mb-1">IdiamPro</div>
                 <div className="text-sm text-[#0c5c5b] mb-4">The idea-development engine</div>
-                <div className="text-3xl md:text-4xl font-extrabold text-[#0c5c5b] mb-4 tracking-tight">Develops.</div>
+                <div className="text-5xl md:text-6xl font-black text-[#0c5c5b] mb-4 tracking-tight leading-none">Develops.</div>
                 <p className="text-base font-medium text-[#22312f] leading-relaxed mb-4">
                   The only one that works <span className="font-bold text-[#0c5c5b]">with</span> you to develop an idea over time: capture, structure, enrich from the web and AI, <span className="font-bold text-[#0c5c5b]">consolidate</span> it into real understanding — then produce finished work.
                 </p>
@@ -627,7 +633,7 @@ export default function MarketingPage() {
 
             {/* Kicker — the consolidation → wisdom thesis */}
             <p className="text-center text-lg md:text-xl font-medium text-[#22312f] leading-relaxed mt-12 max-w-[760px] mx-auto">
-              <span className="font-bold text-[#0c2224]">Reorganizing your thinking is understanding it.</span> That consolidation — everything you know, connected and reusable — is what a query box and a filing cabinet can never give you. Querying is a moment; developing is a process.
+              <span className="font-bold text-[#0c2224]">Reorganizing your thinking is understanding it.</span> That consolidation — everything you know, connected and reusable — is what a query box and a filing cabinet can never give you.
             </p>
 
             {/* Capability matrix — scannable check/✗ across the three */}
@@ -682,7 +688,7 @@ export default function MarketingPage() {
                 See real people win with it.
               </h2>
               <p className="text-lg md:text-xl font-medium text-[#22312f] leading-relaxed max-w-[680px] mx-auto">
-                A fast trailer of three real workflows — from a first spark to finished, published work. Hit play.
+                A fast trailer of three real workflows — from first spark to published work. Hit play.
               </p>
             </div>
 
@@ -730,7 +736,7 @@ export default function MarketingPage() {
                 Not a filing cabinet. Not a vending machine.
               </h2>
               <p className="text-lg md:text-xl font-medium text-white/80 leading-relaxed max-w-[720px] mx-auto">
-                Everyone else either stores the thinking you already did, or vends you a one-shot output. We&apos;re the only one that does the thinking <span className="text-teal-300 font-bold">with</span> you — and hands back finished work, iteratively, in your voice.
+                Everyone else stores the thinking you already did, or vends a one-shot output. We do the thinking <span className="text-teal-300 font-bold">with</span> you — and hand back finished work, iteratively, in your voice.
               </p>
             </div>
 
@@ -738,28 +744,28 @@ export default function MarketingPage() {
               {[
                 {
                   name: 'Obsidian / Logseq',
-                  they: 'A beautiful filing cabinet; you write every note and link by hand, and it never thinks with you.',
-                  we: 'An active AI partner that generates, expands, merges, and produces the finished thing.',
+                  they: 'A beautiful filing cabinet — you write every note and link by hand.',
+                  we: 'An AI partner that generates, expands, merges, and produces the finished thing.',
                 },
                 {
                   name: 'Notion',
-                  they: 'A blank container you must architect and babysit; AI is a bolt-on inside boxes you built.',
+                  they: 'A blank container you must architect and babysit; AI is a bolt-on.',
                   we: 'Start from one idea; the structure and the output grow for you.',
                 },
                 {
                   name: 'Roam / Tana',
-                  they: 'Brilliant, steep, cult-ish; great at connecting notes for people who live in it.',
+                  they: 'Brilliant, steep, cult-ish — great for people who live in it.',
                   we: 'Outline-native too, but built for doers who want a book, site, or plan out the door.',
                 },
                 {
                   name: 'Gamma / Napkin / Mem',
-                  they: 'Ask, get a one-shot output, done; you can’t deeply steer or grow it.',
-                  we: 'Iterative and author-controlled at every level, in your voice — a living document.',
+                  they: 'Ask, get a one-shot output — you can’t deeply steer or grow it.',
+                  we: 'Iterative and author-controlled, in your voice — a living document.',
                 },
                 {
                   name: 'ChatGPT / Claude (raw chat)',
                   they: 'A brilliant conversation that scrolls away; no structure, no home for your work.',
-                  we: 'The same intelligence anchored to a structure that persists, grows, and becomes real deliverables you own.',
+                  we: 'The same intelligence, anchored to a structure that persists, grows, and becomes deliverables you own.',
                 },
                 {
                   name: 'Workflowy / classic outliners',
@@ -798,7 +804,7 @@ export default function MarketingPage() {
                 Real stories, start to finish.
               </h2>
               <p className="text-lg md:text-xl font-medium text-[#22312f] leading-relaxed max-w-2xl mx-auto">
-                Watch a single idea grow into finished work — real end-to-end journeys, captured from the first capture to the last export.
+                Watch a single idea grow into finished work — real journeys, from first capture to final export.
               </p>
             </div>
 
@@ -808,13 +814,13 @@ export default function MarketingPage() {
                   poster: '/career-workflow-poster.jpg',
                   label: 'Living plan',
                   title: 'Dinesh — a living career plan',
-                  desc: 'One outline becomes a plan that keeps up with a real career as it changes.',
+                  desc: 'Dinesh finished his degree with no idea what came next — and a quiet fear that AI would leave no career for him. One outline became a living plan he could reshape as the ground shifted.',
                 },
                 {
                   poster: '/book-workflow-poster.jpg',
                   label: 'From idea to output',
                   title: 'Sam — a science project',
-                  desc: 'A curious question grows into a structured, finished project — step by step.',
+                  desc: 'Sam is eleven, taking on cold fusion for the science fair with a scholarship on the line. One question grew into a finished report, poster, talk, website, and video.',
                 },
               ].map((wf) => (
                 <a
@@ -911,7 +917,7 @@ export default function MarketingPage() {
                 Ready to get started?
               </h2>
               <p className="text-lg md:text-xl font-medium text-[#22312f] leading-relaxed">
-                You&apos;re three quick steps from thinking bigger. Get the app, turn on free on-device AI, and start building — no credit card, no setup headaches.
+                Three quick steps from thinking bigger. Get the app, turn on free on-device AI, and start building — no credit card, no setup.
               </p>
             </div>
 
