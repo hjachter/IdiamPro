@@ -418,13 +418,41 @@ function SeeItShowcase() {
             alt="IdiamPro's diagram menu offering mind-map and flowchart generation"
             reverse
           />
+          {/* All-in-one claim — proved with a PAIR of real frames: a doc with a
+              video playing inside it, and the live spreadsheet from the same
+              workspace. One picture per output type. */}
+          <div>
+            <div className="max-w-xl mb-8">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-teal-600/12 border border-teal-600/30 mb-4">
+                <Layers className="w-3.5 h-3.5 text-[#0c5c5b]" />
+                <span className="text-xs font-bold uppercase tracking-wider text-[#0c5c5b]">All in one place</span>
+              </div>
+              <h3 className="text-3xl md:text-4xl lg:text-[2.6rem] font-extrabold text-[#0c2224] tracking-tight leading-[1.08] mb-4">
+                Docs, sheets, videos, and more — together.
+              </h3>
+              <p className="text-lg md:text-xl font-medium text-[#22312f] leading-relaxed">
+                Embed Google Docs, Sheets, Slides, YouTube, maps and more. Your whole workspace lives inside one living outline.
+              </p>
+            </div>
+            <div className="grid md:grid-cols-2 gap-6 lg:gap-8">
+              <ProductFrame
+                src="/screenshots/docs-sheets-videos.png"
+                alt="A document in IdiamPro with a video playing inside it, and the outline tree showing a doc, a sheet, and a video together"
+              />
+              <ProductFrame
+                src="/screenshots/docs-sheets-videos-sheet.png"
+                alt="A live budget spreadsheet in IdiamPro from the same workspace"
+              />
+            </div>
+          </div>
           <ShowcaseRow
-            icon={Layers}
-            eyebrow="All in one place"
-            headline="Docs, sheets, videos, and more — together."
-            support="Embed Google Docs, Sheets, Slides, YouTube, maps and more. Your whole workspace lives inside one living outline."
-            src="/screenshots/05-integrations-menu.png"
-            alt="IdiamPro's embed menu with Google Docs, Sheets, Slides, YouTube and maps"
+            icon={Languages}
+            eyebrow="Any language"
+            headline="Work and publish in 21 languages."
+            support="Capture, develop, and produce finished work in the language you think in — IdiamPro speaks 21 languages, so your ideas aren't limited by where you're from."
+            src="/screenshots/languages.png"
+            alt="IdiamPro's language menu offering 21 languages"
+            reverse
           />
         </div>
       </div>
