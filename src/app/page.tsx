@@ -1313,6 +1313,7 @@ export default function MarketingPage() {
                   <li><a href="/pricing" className="text-[#475569] hover:text-[#0b1533] text-sm transition-colors">Pricing</a></li>
                   <li><a href="/use-cases" className="text-[#475569] hover:text-[#0b1533] text-sm transition-colors">Use Cases</a></li>
                   <li><a href="/faq" className="text-[#475569] hover:text-[#0b1533] text-sm transition-colors">FAQ</a></li>
+                  <li><a href="/founder" className="text-[#475569] hover:text-[#0b1533] text-sm transition-colors">About the Founder</a></li>
                 </ul>
               </div>
 
