@@ -4,6 +4,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { MarketingHeader } from '@/components/marketing/marketing-header';
+import { AmplifyMark } from '@/components/brand/amplify-mark';
 import { useSingleVideoPlayback } from '@/hooks/use-single-video-playback';
 import { Button } from '@/components/ui/button';
 import { SignedIn, SignedOut } from '@/lib/auth/signed-gates';
@@ -573,6 +574,14 @@ export default function MarketingPage() {
                       <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>
                   </SignedIn>
+                  {/* Zero-friction path — try the live outliner in-browser, no signup. */}
+                  <Link
+                    href="/try"
+                    className="inline-flex items-center gap-2 rounded-full border border-blue-600/40 bg-white px-5 py-3 text-sm font-semibold text-[#1e40af] hover:bg-blue-600/10 hover:border-blue-600/60 transition-colors shadow-sm"
+                  >
+                    <Play className="w-4 h-4" />
+                    Try it live — no signup
+                  </Link>
                 </div>
 
 
@@ -1289,9 +1298,7 @@ export default function MarketingPage() {
             <div className="grid md:grid-cols-3 gap-8 mb-12">
               <div>
                 <div className="flex items-center gap-2 mb-4">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center">
-                    <span className="text-white text-sm font-extrabold leading-none">M</span>
-                  </div>
+                  <AmplifyMark className="w-8 h-8 rounded-lg" />
                   <span className="flex flex-col leading-none">
                     <span className="text-lg font-extrabold tracking-tight leading-none">
                       <span className="text-[#0b1533]">Idea</span><span className="text-blue-600">M</span>

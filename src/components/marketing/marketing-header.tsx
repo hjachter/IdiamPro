@@ -11,6 +11,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { SignedIn, SignedOut } from '@/lib/auth/signed-gates';
 import { ArrowRight, Menu, X } from 'lucide-react';
+import { AmplifyMark } from '@/components/brand/amplify-mark';
 
 const SIGNUP_URL = '/signup';
 const launchApp = () => {
@@ -18,6 +19,7 @@ const launchApp = () => {
 };
 
 const NAV_LINKS = [
+  { href: '/try', label: 'Try it live' },
   { href: '/features', label: 'Features' },
   { href: '/use-cases', label: 'Use Cases' },
   { href: '/pricing', label: 'Pricing' },
@@ -36,9 +38,7 @@ export function MarketingHeader() {
           aria-label="IdeaM home"
           className="flex items-center gap-3 cursor-pointer group"
         >
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-lg shadow-blue-600/20 group-hover:scale-105 transition-transform">
-            <span className="text-white text-lg font-extrabold leading-none">M</span>
-          </div>
+          <AmplifyMark className="w-10 h-10 rounded-xl shadow-lg shadow-blue-600/20 group-hover:scale-105 transition-transform" />
           <span className="flex flex-col leading-none">
             <span className="text-2xl font-extrabold tracking-tight leading-none">
               <span className="text-[#0b1533]">Idea</span><span className="text-blue-600">M</span>
