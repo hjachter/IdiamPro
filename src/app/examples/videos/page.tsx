@@ -47,7 +47,7 @@ export default function VideosExamplePage() {
   return (
     <ExamplesShell
       eyebrow="Videos"
-      eyebrowIcon={<Video className="w-4 h-4 text-[#0c5c5b]" />}
+      eyebrowIcon={<Video className="w-4 h-4 text-[#1e40af]" />}
       title={<>Real videos, made from outlines.</>}
       subtitle={
         <>
@@ -60,7 +60,7 @@ export default function VideosExamplePage() {
         {VIDEOS.map((v, i) => (
           <figure
             key={v.src}
-            className={`rounded-2xl overflow-hidden border border-[#dde2e5] bg-white shadow-lg shadow-teal-900/[0.05] ${
+            className={`rounded-2xl overflow-hidden border border-[#dde5f2] bg-white shadow-lg shadow-blue-900/[0.05] ${
               i === 0 ? 'md:col-span-2' : ''
             }`}
           >
@@ -75,8 +75,8 @@ export default function VideosExamplePage() {
               </video>
             </div>
             <figcaption className="p-5">
-              <div className="text-lg font-bold text-[#0c2224]">{v.title}</div>
-              <div className="text-sm text-[#47585a] mt-1">{v.desc}</div>
+              <div className="text-lg font-bold text-[#0b1533]">{v.title}</div>
+              <div className="text-sm text-[#475569] mt-1">{v.desc}</div>
             </figcaption>
           </figure>
         ))}

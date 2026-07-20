@@ -49,8 +49,8 @@ function UpgradeSuccessInner() {
   return (
     <div className="min-h-screen bg-background overflow-y-auto">
       <div className="mx-auto flex max-w-2xl flex-col items-center px-6 py-16 text-center">
-        <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-500/10">
-          <CheckCircle2 className="h-10 w-10 text-emerald-500" />
+        <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-blue-500/10">
+          <CheckCircle2 className="h-10 w-10 text-blue-500" />
         </div>
 
         <h1 className="text-3xl font-bold lg:text-4xl">

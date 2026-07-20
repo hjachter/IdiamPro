@@ -174,7 +174,7 @@ function OutlinePreview() {
           <div className="flex gap-1.5">
             <div className="w-3 h-3 rounded-full bg-red-500/80" />
             <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
-            <div className="w-3 h-3 rounded-full bg-green-500/80" />
+            <div className="w-3 h-3 rounded-full bg-blue-500/80" />
           </div>
           <div className="flex-1 text-center">
             <span className="text-xs text-white/40 font-medium">SecondBrainWare</span>
@@ -253,14 +253,14 @@ export default function SplashPage() {
     { icon: Microscope, role: 'Researcher / Scientist', useCase: 'Literature reviews, research gaps', gradient: 'bg-gradient-to-br from-blue-500 to-cyan-600' },
     { icon: GraduationCap, role: 'PhD Student', useCase: 'Thesis structure, exam prep', gradient: 'bg-gradient-to-br from-indigo-500 to-violet-600' },
     { icon: Scale, role: 'Attorney', useCase: 'Case briefs, legal research', gradient: 'bg-gradient-to-br from-slate-500 to-gray-600' },
-    { icon: Target, role: 'Product Manager', useCase: 'PRDs, roadmaps, user stories', gradient: 'bg-gradient-to-br from-green-500 to-emerald-600' },
+    { icon: Target, role: 'Product Manager', useCase: 'PRDs, roadmaps, user stories', gradient: 'bg-gradient-to-br from-blue-500 to-blue-600' },
     { icon: Newspaper, role: 'Journalist', useCase: 'Source organization, story angles', gradient: 'bg-gradient-to-br from-red-500 to-rose-600' },
     { icon: Building2, role: 'Executive / CEO', useCase: 'Strategic plans, board decks', gradient: 'bg-gradient-to-br from-purple-500 to-violet-600' },
-    { icon: BookOpen, role: 'Teacher / Professor', useCase: 'Curricula, lecture outlines', gradient: 'bg-gradient-to-br from-teal-500 to-cyan-600' },
+    { icon: BookOpen, role: 'Teacher / Professor', useCase: 'Curricula, lecture outlines', gradient: 'bg-gradient-to-br from-blue-500 to-cyan-600' },
     { icon: Video, role: 'YouTuber / Creator', useCase: 'Scripts, content calendars', gradient: 'bg-gradient-to-br from-pink-500 to-rose-600' },
     { icon: Lightbulb, role: 'Consultant', useCase: 'Client deliverables, frameworks', gradient: 'bg-gradient-to-br from-yellow-500 to-amber-600' },
     { icon: Code2, role: 'Software Developer', useCase: 'Architecture docs, tech specs', gradient: 'bg-gradient-to-br from-sky-500 to-blue-600' },
-    { icon: Stethoscope, role: 'Medical Professional', useCase: 'CME notes, patient education', gradient: 'bg-gradient-to-br from-emerald-500 to-green-600' },
+    { icon: Stethoscope, role: 'Medical Professional', useCase: 'CME notes, patient education', gradient: 'bg-gradient-to-br from-blue-500 to-blue-600' },
     { icon: Rocket, role: 'Entrepreneur', useCase: 'Business plans, pitch prep', gradient: 'bg-gradient-to-br from-orange-500 to-red-600' },
     { icon: Kanban, role: 'Project Manager', useCase: 'WBS diagrams, risk tracking', gradient: 'bg-gradient-to-br from-violet-500 to-purple-600' },
     { icon: Brain, role: 'Knowledge Worker', useCase: 'Second brain, book summaries', gradient: 'bg-gradient-to-br from-fuchsia-500 to-pink-600' },
@@ -271,12 +271,12 @@ export default function SplashPage() {
     { icon: BookMarked, label: 'Write a Book', desc: 'Chapters, scenes, characters', gradient: 'from-amber-500 to-orange-600', bgGlow: 'group-hover:shadow-amber-500/20' },
     { icon: Search, label: 'Research', desc: 'Sources, notes, synthesis', gradient: 'from-blue-500 to-cyan-600', bgGlow: 'group-hover:shadow-blue-500/20' },
     { icon: Heart, label: 'Wellness', desc: 'Goals, habits, reflections', gradient: 'from-pink-500 to-rose-600', bgGlow: 'group-hover:shadow-pink-500/20' },
-    { icon: Kanban, label: 'Projects', desc: 'Tasks, milestones, docs', gradient: 'from-emerald-500 to-teal-600', bgGlow: 'group-hover:shadow-emerald-500/20' },
+    { icon: Kanban, label: 'Projects', desc: 'Tasks, milestones, docs', gradient: 'from-blue-500 to-blue-600', bgGlow: 'group-hover:shadow-blue-500/20' },
     { icon: MessagesSquare, label: 'Brainstorm', desc: 'Ideas, voting, decisions', gradient: 'from-violet-500 to-purple-600', bgGlow: 'group-hover:shadow-violet-500/20' },
     { icon: Rocket, label: 'Startup', desc: 'Pitch, business model', gradient: 'from-red-500 to-orange-600', bgGlow: 'group-hover:shadow-red-500/20' },
     { icon: GraduationCap, label: 'Thesis', desc: 'Literature, methodology', gradient: 'from-indigo-500 to-blue-600', bgGlow: 'group-hover:shadow-indigo-500/20' },
     { icon: Calendar, label: 'Event Planning', desc: 'Timeline, vendors, guests', gradient: 'from-fuchsia-500 to-pink-600', bgGlow: 'group-hover:shadow-fuchsia-500/20' },
-    { icon: Home, label: 'Home Projects', desc: 'Renovations, contractors', gradient: 'from-lime-500 to-green-600', bgGlow: 'group-hover:shadow-lime-500/20' },
+    { icon: Home, label: 'Home Projects', desc: 'Renovations, contractors', gradient: 'from-lime-500 to-blue-600', bgGlow: 'group-hover:shadow-lime-500/20' },
     { icon: Plane, label: 'Travel Planning', desc: 'Itinerary, bookings', gradient: 'from-sky-500 to-blue-600', bgGlow: 'group-hover:shadow-sky-500/20' },
   ];
 
@@ -431,9 +431,9 @@ export default function SplashPage() {
               </div>
 
               {/* Killer Feature 2 */}
-              <div className="p-6 rounded-2xl bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border border-emerald-500/20">
+              <div className="p-6 rounded-2xl bg-gradient-to-br from-blue-500/10 to-blue-500/10 border border-blue-500/20">
                 <div className="flex items-start gap-4">
-                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center flex-shrink-0">
+                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center flex-shrink-0">
                     <GitBranch className="w-7 h-7 text-white" />
                   </div>
                   <div>
@@ -536,7 +536,7 @@ export default function SplashPage() {
                 icon={Table}
                 title="Inline Spreadsheets"
                 description="Full Excel-like spreadsheets embedded in your outline. Formulas, formatting, multiple sheets—all saved locally."
-                gradient="bg-gradient-to-br from-emerald-500 to-teal-600"
+                gradient="bg-gradient-to-br from-blue-500 to-blue-600"
                 delay={300}
               />
               <FeatureCard

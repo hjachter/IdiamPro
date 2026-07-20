@@ -84,18 +84,18 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="border-b border-[#e3e7ea] last:border-0">
+    <div className="border-b border-[#dde5f2] last:border-0">
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="w-full py-5 flex items-center justify-between text-left"
       >
-        <span className="text-[#0c2224] font-medium pr-8">{question}</span>
-        <ChevronDown className={`w-5 h-5 text-[#6b7d7e] transition-transform duration-300 flex-shrink-0
+        <span className="text-[#0b1533] font-medium pr-8">{question}</span>
+        <ChevronDown className={`w-5 h-5 text-[#64748b] transition-transform duration-300 flex-shrink-0
           ${isOpen ? 'rotate-180' : ''}`}
         />
       </button>
       <div className={`overflow-hidden transition-all duration-300 ${isOpen ? 'max-h-96 pb-5' : 'max-h-0'}`}>
-        <p className="text-[#22312f] text-base font-medium leading-relaxed">{answer}</p>
+        <p className="text-[#2b3a5c] text-base font-medium leading-relaxed">{answer}</p>
       </div>
     </div>
   );
@@ -131,20 +131,20 @@ export default function FaqPage() {
   ];
 
   return (
-    <div className="fixed inset-0 bg-white text-[#0c2224] overflow-x-hidden overflow-y-auto">
+    <div className="fixed inset-0 bg-white text-[#0b1533] overflow-x-hidden overflow-y-auto">
       <div className="fixed inset-0 bg-gradient-to-br from-white via-white to-white" />
-      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-teal-600/[0.035] via-transparent to-transparent" />
+      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-600/[0.035] via-transparent to-transparent" />
       <div className="relative z-10">
         <MarketingHeader />
         <main className="pt-28 lg:pt-32">
           <div className="px-6 lg:px-12 max-w-7xl mx-auto">
-            <Link href="/" className="inline-flex items-center gap-1.5 rounded-full border border-teal-600/30 px-4 py-1.5 text-sm text-teal-600 hover:bg-teal-600/10 hover:border-teal-600/50 transition-colors">
+            <Link href="/" className="inline-flex items-center gap-1.5 rounded-full border border-blue-600/30 px-4 py-1.5 text-sm text-blue-600 hover:bg-blue-600/10 hover:border-blue-600/50 transition-colors">
               <ArrowLeft className="w-4 h-4" /> Back to home
             </Link>
           </div>
           <div className="text-center px-6 pt-8 pb-6 lg:px-12">
-            <div className="text-sm font-medium text-teal-600 uppercase tracking-wider mb-2">Frequently asked questions</div>
-            <h1 className="text-4xl md:text-5xl font-bold text-[#0c2224]">FAQ</h1>
+            <div className="text-sm font-medium text-blue-600 uppercase tracking-wider mb-2">Frequently asked questions</div>
+            <h1 className="text-4xl md:text-5xl font-bold text-[#0b1533]">FAQ</h1>
           </div>
         {/* FAQ */}
         <section id="faq" className="px-6 py-24 lg:px-12">
@@ -152,13 +152,13 @@ export default function FaqPage() {
             <div className="text-center mb-16">
               <h2 className="text-3xl lg:text-5xl font-bold mb-4">
                 Frequently asked{' '}
-                <span className="bg-gradient-to-r from-teal-600 to-teal-600 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-blue-600 to-blue-600 bg-clip-text text-transparent">
                   questions
                 </span>
               </h2>
             </div>
 
-            <div className="bg-[#f7f8fa] rounded-2xl border border-[#e3e7ea] p-6 lg:p-8">
+            <div className="bg-[#f7faff] rounded-2xl border border-[#dde5f2] p-6 lg:p-8">
               {faqs.map((faq, i) => (
                 <FAQItem key={i} {...faq} />
               ))}
@@ -168,7 +168,7 @@ export default function FaqPage() {
 
         <section className="px-6 py-20 lg:px-12">
           <div className="max-w-4xl mx-auto text-center">
-            <Link href="/" className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#0ea5a4] to-[#0b74c4] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-teal-600/25 hover:from-[#0c8f8e] hover:to-[#0960a3] transition-colors">
+            <Link href="/" className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#38bdf8] via-[#2563eb] to-[#4f46e5] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/25 hover:from-[#2563eb] hover:to-[#4338ca] transition-colors">
               <ArrowLeft className="w-4 h-4" /> Back to home
             </Link>
           </div>

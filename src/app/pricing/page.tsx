@@ -108,33 +108,33 @@ function PricingCard({
   return (
     <div className={`relative p-8 rounded-3xl border transition-all duration-300 hover:scale-[1.02]
       ${highlighted
-        ? 'bg-gradient-to-b from-teal-600/20 to-teal-600/20 border-teal-600/40 shadow-xl shadow-teal-600/10'
-        : 'bg-[#f7f8fa] border-[#e3e7ea] hover:border-[#e3e7ea]'
+        ? 'bg-gradient-to-b from-blue-600/20 to-blue-600/20 border-blue-600/40 shadow-xl shadow-blue-600/10'
+        : 'bg-[#f7faff] border-[#dde5f2] hover:border-[#dde5f2]'
       }`}
     >
       {badge && (
         <div className="absolute -top-3 left-1/2 -tranteal-x-1/2">
-          <span className="px-4 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-[#0E7C7B] to-[#0E7C7B] text-white font-semibold">
+          <span className="px-4 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-[#2563eb] to-[#2563eb] text-white font-semibold">
             {badge}
           </span>
         </div>
       )}
 
       <div className="mb-6">
-        <h3 className="text-xl font-bold text-[#0c2224] mb-2">{name}</h3>
-        <p className="text-[#22312f] text-base font-medium">{description}</p>
+        <h3 className="text-xl font-bold text-[#0b1533] mb-2">{name}</h3>
+        <p className="text-[#2b3a5c] text-base font-medium">{description}</p>
       </div>
 
       <div className="mb-6">
-        <span className="text-4xl font-bold text-[#0c2224]">{price}</span>
-        {period && <span className="text-[#6b7d7e] ml-1">{period}</span>}
+        <span className="text-4xl font-bold text-[#0b1533]">{price}</span>
+        {period && <span className="text-[#64748b] ml-1">{period}</span>}
       </div>
 
       <ul className="space-y-3 mb-8">
         {features.map((feature, i) => (
           <li key={i} className="flex items-start gap-3 text-base">
-            <Check className="w-5 h-5 text-teal-600 flex-shrink-0 mt-0.5" />
-            <span className="text-[#22312f]">{feature}</span>
+            <Check className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+            <span className="text-[#2b3a5c]">{feature}</span>
           </li>
         ))}
       </ul>
@@ -142,8 +142,8 @@ function PricingCard({
       <Button
         onClick={launchApp}
         className={`w-full ${highlighted
-          ? 'bg-gradient-to-r from-[#0ea5a4] to-[#0b74c4] hover:from-[#0c8f8e] hover:to-[#0960a3] text-white font-semibold shadow-lg'
-          : 'bg-white hover:bg-teal-600/5 text-teal-600 border border-teal-600/40 font-medium'
+          ? 'bg-gradient-to-r from-[#38bdf8] via-[#2563eb] to-[#4f46e5] hover:from-[#2563eb] hover:to-[#4338ca] text-white font-semibold shadow-lg'
+          : 'bg-white hover:bg-blue-600/5 text-blue-600 border border-blue-600/40 font-medium'
         }`}
       >
         {cta}
@@ -155,119 +155,119 @@ function PricingCard({
 
 export default function PricingPage() {
   return (
-    <div className="fixed inset-0 bg-white text-[#0c2224] overflow-x-hidden overflow-y-auto">
+    <div className="fixed inset-0 bg-white text-[#0b1533] overflow-x-hidden overflow-y-auto">
       <div className="fixed inset-0 bg-gradient-to-br from-white via-white to-white" />
-      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-teal-600/[0.035] via-transparent to-transparent" />
+      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-600/[0.035] via-transparent to-transparent" />
       <div className="relative z-10">
         <MarketingHeader />
         <main className="pt-28 lg:pt-32">
           <div className="px-6 lg:px-12 max-w-7xl mx-auto">
-            <Link href="/" className="inline-flex items-center gap-1.5 rounded-full border border-teal-600/30 px-4 py-1.5 text-sm text-teal-600 hover:bg-teal-600/10 hover:border-teal-600/50 transition-colors">
+            <Link href="/" className="inline-flex items-center gap-1.5 rounded-full border border-blue-600/30 px-4 py-1.5 text-sm text-blue-600 hover:bg-blue-600/10 hover:border-blue-600/50 transition-colors">
               <ArrowLeft className="w-4 h-4" /> Back to home
             </Link>
           </div>
           <div className="text-center px-6 pt-8 pb-6 lg:px-12">
-            <div className="text-sm font-medium text-teal-600 uppercase tracking-wider mb-2">Simple and transparent</div>
-            <h1 className="text-4xl md:text-5xl font-bold text-[#0c2224]">Pricing</h1>
+            <div className="text-sm font-medium text-blue-600 uppercase tracking-wider mb-2">Simple and transparent</div>
+            <h1 className="text-4xl md:text-5xl font-bold text-[#0b1533]">Pricing</h1>
           </div>
         {/* Plan Benefits — the "why" behind each plan (complements the comparison grid's "what") */}
         <section className="px-6 pt-24 pb-8 lg:px-12">
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-14">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-teal-600/20 border border-teal-600/30 mb-6">
-                <Star className="w-4 h-4 text-teal-600" />
-                <span className="text-sm font-medium text-teal-600">Why each plan wins</span>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-600/20 border border-blue-600/30 mb-6">
+                <Star className="w-4 h-4 text-blue-600" />
+                <span className="text-sm font-medium text-blue-600">Why each plan wins</span>
               </div>
               <h2 className="text-3xl lg:text-5xl font-bold mb-4">
-                <span className="bg-gradient-to-r from-[#0c2224] to-[#0c2224] bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-[#0b1533] to-[#0b1533] bg-clip-text text-transparent">
                   Pick the advantage that{' '}
                 </span>
-                <span className="bg-gradient-to-r from-teal-600 to-teal-600 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-blue-600 to-blue-600 bg-clip-text text-transparent">
                   matters most to you
                 </span>
               </h2>
-              <p className="text-[#22312f] text-lg md:text-xl font-medium max-w-2xl mx-auto mt-4">
+              <p className="text-[#2b3a5c] text-lg md:text-xl font-medium max-w-2xl mx-auto mt-4">
                 Every plan leads with a standout benefit. Here&apos;s the one reason each is worth it.
               </p>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Own it — privacy + no subscription */}
-              <div className="relative group flex flex-col p-8 rounded-3xl bg-gradient-to-br from-teal-600/15 via-teal-600/10 to-teal-600/10 border border-teal-600/30 hover:border-teal-600/50 transition-all duration-300">
+              <div className="relative group flex flex-col p-8 rounded-3xl bg-gradient-to-br from-blue-600/15 via-blue-600/10 to-blue-600/10 border border-blue-600/30 hover:border-blue-600/50 transition-all duration-300">
                 <div className="flex items-center justify-between mb-5">
-                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-teal-600 to-teal-700 flex items-center justify-center shadow-lg shadow-teal-600/30">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-lg shadow-blue-600/30">
                     <Lock className="w-7 h-7 text-white" />
                   </div>
-                  <span className="inline-flex items-center rounded-full border border-[#e3e7ea] bg-[#f7f8fa] px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-[#47585a]">
+                  <span className="inline-flex items-center rounded-full border border-[#dde5f2] bg-[#f7faff] px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-[#475569]">
                     Coming soon
                   </span>
                 </div>
-                <div className="text-xs font-semibold uppercase tracking-wider text-teal-600 mb-1">
+                <div className="text-xs font-semibold uppercase tracking-wider text-blue-600 mb-1">
                   Own it
                 </div>
                 <div className="flex items-baseline gap-2 mb-4">
-                  <span className="text-2xl font-bold text-[#0c2224]">$29.99</span>
-                  <span className="text-[#6b7d7e] text-sm">once</span>
-                  <span className="inline-flex items-center rounded-full border border-teal-600/40 bg-teal-600/10 px-2 py-0.5 text-[10px] font-medium text-teal-600">
+                  <span className="text-2xl font-bold text-[#0b1533]">$29.99</span>
+                  <span className="text-[#64748b] text-sm">once</span>
+                  <span className="inline-flex items-center rounded-full border border-blue-600/40 bg-blue-600/10 px-2 py-0.5 text-[10px] font-medium text-blue-600">
                     $19.99 founder launch
                   </span>
                 </div>
-                <h3 className="text-2xl font-bold text-[#0c2224] mb-3 leading-tight">
+                <h3 className="text-2xl font-bold text-[#0b1533] mb-3 leading-tight">
                   Buy once. Own it forever.
                 </h3>
-                <p className="text-[#22312f] text-lg font-medium leading-relaxed">
+                <p className="text-[#2b3a5c] text-lg font-medium leading-relaxed">
                   No subscription — ever. The AI runs on your own device, so{' '}
-                  <span className="text-[#0c2224] font-semibold">your notes never leave it</span>. Total privacy, works fully offline, everyday AI included.
+                  <span className="text-[#0b1533] font-semibold">your notes never leave it</span>. Total privacy, works fully offline, everyday AI included.
                 </p>
               </div>
 
               {/* Bring your own key — unlimited, free */}
-              <div className="relative group flex flex-col p-8 rounded-3xl bg-gradient-to-br from-teal-600/20 via-teal-600/10 to-teal-600/20 border border-teal-600/40 shadow-xl shadow-teal-600/10 hover:border-teal-600/60 transition-all duration-300">
+              <div className="relative group flex flex-col p-8 rounded-3xl bg-gradient-to-br from-blue-600/20 via-blue-600/10 to-blue-600/20 border border-blue-600/40 shadow-xl shadow-blue-600/10 hover:border-blue-600/60 transition-all duration-300">
                 <div className="flex items-center justify-between mb-5">
-                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-teal-600 to-teal-700 flex items-center justify-center shadow-lg shadow-teal-600/30">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-lg shadow-blue-600/30">
                     <Zap className="w-7 h-7 text-white" />
                   </div>
-                  <span className="px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-[#0E7C7B] to-[#0E7C7B] text-white font-semibold">
+                  <span className="px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-[#2563eb] to-[#2563eb] text-white font-semibold">
                     Most popular
                   </span>
                 </div>
-                <div className="text-xs font-semibold uppercase tracking-wider text-teal-600 mb-1">
+                <div className="text-xs font-semibold uppercase tracking-wider text-blue-600 mb-1">
                   Bring your own key
                 </div>
                 <div className="flex items-baseline gap-2 mb-4">
-                  <span className="text-2xl font-bold text-[#0c2224]">Free</span>
-                  <span className="text-[#6b7d7e] text-sm">forever</span>
+                  <span className="text-2xl font-bold text-[#0b1533]">Free</span>
+                  <span className="text-[#64748b] text-sm">forever</span>
                 </div>
-                <h3 className="text-2xl font-bold text-[#0c2224] mb-3 leading-tight">
+                <h3 className="text-2xl font-bold text-[#0b1533] mb-3 leading-tight">
                   Unlimited AI, free forever.
                 </h3>
-                <p className="text-[#22312f] text-lg font-medium leading-relaxed">
+                <p className="text-[#2b3a5c] text-lg font-medium leading-relaxed">
                   Plug in your own Gemini or OpenAI key and use AI without limits — at zero cost to you.{' '}
-                  <span className="text-[#0c2224] font-semibold">Your provider, your account — we never see your data.</span>
+                  <span className="text-[#0b1533] font-semibold">Your provider, your account — we never see your data.</span>
                 </p>
               </div>
 
               {/* Pro — cloud superpowers */}
-              <div className="relative group flex flex-col p-8 rounded-3xl bg-gradient-to-br from-teal-600/15 via-teal-600/10 to-teal-600/10 border border-teal-600/30 hover:border-teal-600/50 transition-all duration-300">
+              <div className="relative group flex flex-col p-8 rounded-3xl bg-gradient-to-br from-blue-600/15 via-blue-600/10 to-blue-600/10 border border-blue-600/30 hover:border-blue-600/50 transition-all duration-300">
                 <div className="mb-5">
-                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-teal-600 to-teal-700 flex items-center justify-center shadow-lg shadow-teal-600/30">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-lg shadow-blue-600/30">
                     <Rocket className="w-7 h-7 text-white" />
                   </div>
                 </div>
-                <div className="text-xs font-semibold uppercase tracking-wider text-teal-600 mb-1">
+                <div className="text-xs font-semibold uppercase tracking-wider text-blue-600 mb-1">
                   Pro
                 </div>
                 <div className="flex items-baseline gap-2 mb-4">
-                  <span className="text-2xl font-bold text-[#0c2224]">$9.99</span>
-                  <span className="text-[#6b7d7e] text-sm">/ month</span>
+                  <span className="text-2xl font-bold text-[#0b1533]">$9.99</span>
+                  <span className="text-[#64748b] text-sm">/ month</span>
                 </div>
-                <h3 className="text-2xl font-bold text-[#0c2224] mb-3 leading-tight">
+                <h3 className="text-2xl font-bold text-[#0b1533] mb-3 leading-tight">
                   Cloud superpowers.
                 </h3>
-                <p className="text-[#22312f] text-lg font-medium leading-relaxed">
+                <p className="text-[#2b3a5c] text-lg font-medium leading-relaxed">
                   The heavy features that need premium cloud AI: Refresh from Web with citations, multi-source Research &amp; Import, AI outline Transform, podcast and image generation, and answers drawn from your whole knowledge base — on frontier models with higher limits and priority.
                 </p>
-                <p className="text-[#6b7d7e] text-xs mt-3">
+                <p className="text-[#64748b] text-xs mt-3">
                   Video generation coming in v1.1.
                 </p>
               </div>
@@ -275,12 +275,12 @@ export default function PricingPage() {
 
             {/* Free trial callout */}
             <div className="mt-6 flex justify-center">
-              <div className="inline-flex items-center gap-3 rounded-2xl border border-[#e3e7ea] bg-[#f7f8fa] px-6 py-4 text-center">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-600 to-teal-700 flex items-center justify-center flex-shrink-0">
+              <div className="inline-flex items-center gap-3 rounded-2xl border border-[#dde5f2] bg-[#f7faff] px-6 py-4 text-center">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center flex-shrink-0">
                   <Play className="w-5 h-5 text-white" />
                 </div>
-                <p className="text-[#22312f] text-base sm:text-lg font-medium">
-                  <span className="text-[#0c2224] font-semibold">Try it free</span> — the full app with a taste of AI. No card required.
+                <p className="text-[#2b3a5c] text-base sm:text-lg font-medium">
+                  <span className="text-[#0b1533] font-semibold">Try it free</span> — the full app with a taste of AI. No card required.
                 </p>
               </div>
             </div>
@@ -293,16 +293,16 @@ export default function PricingPage() {
             <div className="text-center mb-16">
               <h2 className="text-3xl lg:text-5xl font-bold mb-4">
                 Simple, transparent{' '}
-                <span className="bg-gradient-to-r from-teal-600 to-teal-600 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-blue-600 to-blue-600 bg-clip-text text-transparent">
                   pricing
                 </span>
               </h2>
-              <p className="text-[#22312f] text-lg md:text-xl font-medium max-w-2xl mx-auto">
+              <p className="text-[#2b3a5c] text-lg md:text-xl font-medium max-w-2xl mx-auto">
                 Start free, upgrade when you need more. No hidden fees.
               </p>
               <div className="mt-6 flex justify-center">
-                <div className="inline-flex items-center gap-2 rounded-full border border-teal-600/30 bg-gradient-to-r from-teal-600/10 to-teal-600/10 px-5 py-2.5 text-sm font-medium text-[#0c2224]">
-                  <Check className="w-4 h-4 text-teal-600 flex-shrink-0" />
+                <div className="inline-flex items-center gap-2 rounded-full border border-blue-600/30 bg-gradient-to-r from-blue-600/10 to-blue-600/10 px-5 py-2.5 text-sm font-medium text-[#0b1533]">
+                  <Check className="w-4 h-4 text-blue-600 flex-shrink-0" />
                   Bring your own AI key and get unlimited AI, free forever — you
                   pay your provider directly, we take nothing.
                 </div>
@@ -356,7 +356,7 @@ export default function PricingPage() {
               />
             </div>
 
-            <p className="text-center text-[#22312f] text-base font-medium mt-8">
+            <p className="text-center text-[#2b3a5c] text-base font-medium mt-8">
               All plans include a 14-day free trial. Cancel anytime.
             </p>
 
@@ -365,70 +365,70 @@ export default function PricingPage() {
               <h3 className="text-center text-2xl lg:text-3xl font-bold mb-2">
                 Compare what you get
               </h3>
-              <p className="text-center text-[#22312f] text-base font-medium mb-8">
+              <p className="text-center text-[#2b3a5c] text-base font-medium mb-8">
                 Four ways to use IdiamPro. Pick the one that fits how you work.
               </p>
-              <div className="overflow-x-auto rounded-3xl border border-[#e3e7ea] bg-[#f7f8fa]">
-                <table className="w-full min-w-[820px] text-sm text-[#0c2224] border-collapse">
+              <div className="overflow-x-auto rounded-3xl border border-[#dde5f2] bg-[#f7faff]">
+                <table className="w-full min-w-[820px] text-sm text-[#0b1533] border-collapse">
                   <thead>
                     <tr className="align-top">
-                      <th className="p-4 text-left font-medium text-[#6b7d7e] w-[26%]">
+                      <th className="p-4 text-left font-medium text-[#64748b] w-[26%]">
                         <span className="text-xs uppercase tracking-wide">Feature</span>
                       </th>
-                      <th className="p-4 text-left align-top border-l border-[#e3e7ea]">
-                        <div className="text-[#0c2224] font-semibold text-base">Free trial</div>
-                        <div className="text-[#6b7d7e] text-xs mt-1">Try it, 25 AI uses</div>
-                        <div className="mt-2 text-[#0c2224] font-bold">$0</div>
+                      <th className="p-4 text-left align-top border-l border-[#dde5f2]">
+                        <div className="text-[#0b1533] font-semibold text-base">Free trial</div>
+                        <div className="text-[#64748b] text-xs mt-1">Try it, 25 AI uses</div>
+                        <div className="mt-2 text-[#0b1533] font-bold">$0</div>
                       </th>
-                      <th className="p-4 text-left align-top border-l border-[#e3e7ea] bg-[#f7f8fa]">
-                        <div className="text-[#0c2224] font-semibold text-base">Own it</div>
-                        <div className="text-[#6b7d7e] text-xs mt-1">Runs on your device &amp; your own key</div>
+                      <th className="p-4 text-left align-top border-l border-[#dde5f2] bg-[#f7faff]">
+                        <div className="text-[#0b1533] font-semibold text-base">Own it</div>
+                        <div className="text-[#64748b] text-xs mt-1">Runs on your device &amp; your own key</div>
                         <div className="mt-2 flex items-center gap-2 flex-wrap">
-                          <span className="text-[#0c2224] font-bold">$29.99</span>
-                          <span className="inline-flex items-center rounded-full border border-teal-600/40 bg-teal-600/10 px-2 py-0.5 text-[10px] font-medium text-teal-600">
+                          <span className="text-[#0b1533] font-bold">$29.99</span>
+                          <span className="inline-flex items-center rounded-full border border-blue-600/40 bg-blue-600/10 px-2 py-0.5 text-[10px] font-medium text-blue-600">
                             $19.99 founder launch
                           </span>
                         </div>
-                        <span className="mt-2 inline-flex items-center rounded-full border border-[#e3e7ea] bg-[#f7f8fa] px-2.5 py-0.5 text-[10px] font-medium text-[#47585a]">
+                        <span className="mt-2 inline-flex items-center rounded-full border border-[#dde5f2] bg-[#f7faff] px-2.5 py-0.5 text-[10px] font-medium text-[#475569]">
                           Coming soon
                         </span>
                       </th>
-                      <th className="p-4 text-left align-top border-l border-[#e3e7ea] bg-gradient-to-b from-teal-600/15 to-teal-600/10">
-                        <div className="text-[#0c2224] font-semibold text-base">Pro</div>
-                        <div className="text-[#6b7d7e] text-xs mt-1">Premium cloud AI</div>
-                        <div className="mt-2 text-[#0c2224] font-bold">
-                          $9.99<span className="text-[#6b7d7e] font-normal text-xs">/mo</span>
-                          <span className="text-[#6b7d7e] font-normal text-xs"> · $89/yr</span>
+                      <th className="p-4 text-left align-top border-l border-[#dde5f2] bg-gradient-to-b from-blue-600/15 to-blue-600/10">
+                        <div className="text-[#0b1533] font-semibold text-base">Pro</div>
+                        <div className="text-[#64748b] text-xs mt-1">Premium cloud AI</div>
+                        <div className="mt-2 text-[#0b1533] font-bold">
+                          $9.99<span className="text-[#64748b] font-normal text-xs">/mo</span>
+                          <span className="text-[#64748b] font-normal text-xs"> · $89/yr</span>
                         </div>
                       </th>
-                      <th className="p-4 text-left align-top border-l border-[#e3e7ea]">
-                        <div className="text-[#0c2224] font-semibold text-base">BYOK</div>
-                        <div className="text-[#6b7d7e] text-xs mt-1">Your key, unlimited</div>
-                        <div className="mt-2 text-[#0c2224] font-bold">Free</div>
+                      <th className="p-4 text-left align-top border-l border-[#dde5f2]">
+                        <div className="text-[#0b1533] font-semibold text-base">BYOK</div>
+                        <div className="text-[#64748b] text-xs mt-1">Your key, unlimited</div>
+                        <div className="mt-2 text-[#0b1533] font-bold">Free</div>
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#e3e7ea]">
+                  <tbody className="divide-y divide-[#dde5f2]">
                     {[
                       {
                         label: 'Core outlining',
                         sub: 'Unlimited outlines, drag-drop, tags & colors, search, export/share, backups, data protection',
-                        cells: [<Check key="c" className="w-4 h-4 text-teal-600" />, <Check key="c" className="w-4 h-4 text-teal-600" />, <Check key="c" className="w-4 h-4 text-teal-600" />, <Check key="c" className="w-4 h-4 text-teal-600" />],
+                        cells: [<Check key="c" className="w-4 h-4 text-blue-600" />, <Check key="c" className="w-4 h-4 text-blue-600" />, <Check key="c" className="w-4 h-4 text-blue-600" />, <Check key="c" className="w-4 h-4 text-blue-600" />],
                       },
                       {
                         label: 'Everyday AI',
                         sub: 'Generate from a topic, reformat, translate, suggest tags, describe images, quick commands, Help chat',
-                        cells: ['25 total', <Check key="c" className="w-4 h-4 text-teal-600" />, <Check key="c" className="w-4 h-4 text-teal-600" />, <Check key="c" className="w-4 h-4 text-teal-600" />],
+                        cells: ['25 total', <Check key="c" className="w-4 h-4 text-blue-600" />, <Check key="c" className="w-4 h-4 text-blue-600" />, <Check key="c" className="w-4 h-4 text-blue-600" />],
                       },
                       {
                         label: 'On-device / private AI',
                         sub: 'Notes never leave your device',
-                        cells: ['—', <Check key="c" className="w-4 h-4 text-teal-600" />, <Check key="c" className="w-4 h-4 text-teal-600" />, <Check key="c" className="w-4 h-4 text-teal-600" />],
+                        cells: ['—', <Check key="c" className="w-4 h-4 text-blue-600" />, <Check key="c" className="w-4 h-4 text-blue-600" />, <Check key="c" className="w-4 h-4 text-blue-600" />],
                       },
                       {
                         label: 'Pro superpowers',
                         sub: 'Refresh from Web + citations, Research & Import, Transform Outline, query your evolving knowledge base at scale, Podcast, Image generation, frontier cloud models',
-                        cells: ['—', '—', <Check key="c" className="w-4 h-4 text-teal-600" />, '✓ with your key'],
+                        cells: ['—', '—', <Check key="c" className="w-4 h-4 text-blue-600" />, '✓ with your key'],
                       },
                       {
                         label: 'Video / YouTube package',
@@ -448,16 +448,16 @@ export default function PricingPage() {
                     ].map((row, ri) => (
                       <tr key={ri} className="align-top">
                         <td className="p-4 min-h-[44px]">
-                          <div className="text-[#0c2224] font-medium">{row.label}</div>
-                          <div className="text-[#6b7d7e] text-xs mt-1 leading-relaxed">{row.sub}</div>
+                          <div className="text-[#0b1533] font-medium">{row.label}</div>
+                          <div className="text-[#64748b] text-xs mt-1 leading-relaxed">{row.sub}</div>
                         </td>
                         {row.cells.map((cell, ci) => (
                           <td
                             key={ci}
-                            className={`p-4 border-l border-[#e3e7ea] align-middle ${ci === 1 ? 'bg-[#f7f8fa]' : ''} ${ci === 2 ? 'bg-teal-600/[0.06]' : ''}`}
+                            className={`p-4 border-l border-[#dde5f2] align-middle ${ci === 1 ? 'bg-[#f7faff]' : ''} ${ci === 2 ? 'bg-blue-600/[0.06]' : ''}`}
                           >
                             {typeof cell === 'string' ? (
-                              <span className={cell === '—' ? 'text-[#8b9a9b]' : 'text-[#0c2224]'}>{cell}</span>
+                              <span className={cell === '—' ? 'text-[#94a3b8]' : 'text-[#0b1533]'}>{cell}</span>
                             ) : (
                               cell
                             )}
@@ -468,35 +468,35 @@ export default function PricingPage() {
                   </tbody>
                 </table>
               </div>
-              <p className="text-center text-[#6b7d7e] text-xs mt-4">
+              <p className="text-center text-[#64748b] text-xs mt-4">
                 &ldquo;Own it&rdquo; one-time purchase is coming soon — join the free trial or Pro today.
               </p>
             </div>
 
             {/* Academic & Student Pricing Callout */}
-            <div className="mt-12 p-8 rounded-3xl bg-gradient-to-r from-teal-600/10 via-teal-600/10 to-teal-600/10 border border-teal-600/20">
+            <div className="mt-12 p-8 rounded-3xl bg-gradient-to-r from-blue-600/10 via-blue-600/10 to-blue-600/10 border border-blue-600/20">
               <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                 <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-teal-600 to-teal-700 flex items-center justify-center shadow-lg">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-lg">
                     <GraduationCap className="w-7 h-7 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-[#0c2224]">Academic & Student Pricing</h3>
-                    <p className="text-[#22312f] text-lg font-medium">50% off for students and educators with valid .edu email</p>
+                    <h3 className="text-xl font-bold text-[#0b1533]">Academic & Student Pricing</h3>
+                    <p className="text-[#2b3a5c] text-lg font-medium">50% off for students and educators with valid .edu email</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-[#0c2224]">$4.99<span className="text-[#6b7d7e] text-sm">/mo</span></div>
-                    <div className="text-xs text-teal-600">Basic Plan</div>
+                    <div className="text-2xl font-bold text-[#0b1533]">$4.99<span className="text-[#64748b] text-sm">/mo</span></div>
+                    <div className="text-xs text-blue-600">Basic Plan</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-[#0c2224]">$14.99<span className="text-[#6b7d7e] text-sm">/mo</span></div>
-                    <div className="text-xs text-teal-600">Premium Plan</div>
+                    <div className="text-2xl font-bold text-[#0b1533]">$14.99<span className="text-[#64748b] text-sm">/mo</span></div>
+                    <div className="text-xs text-blue-600">Premium Plan</div>
                   </div>
                   <Button
                     onClick={launchApp}
-                    className="bg-gradient-to-r from-[#0ea5a4] to-[#0b74c4] hover:from-[#0c8f8e] hover:to-[#0960a3] text-white font-semibold"
+                    className="bg-gradient-to-r from-[#38bdf8] via-[#2563eb] to-[#4f46e5] hover:from-[#2563eb] hover:to-[#4338ca] text-white font-semibold"
                   >
                     Verify .edu
                   </Button>
@@ -505,28 +505,28 @@ export default function PricingPage() {
             </div>
 
             {/* Beta Testers Callout */}
-            <div className="mt-12 p-8 lg:p-10 rounded-3xl bg-gradient-to-br from-teal-600/20 via-teal-600/10 to-teal-600/20 border border-teal-600/30 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-teal-600/20 rounded-full blur-3xl -tranteal-y-1/2 tranteal-x-1/2" />
+            <div className="mt-12 p-8 lg:p-10 rounded-3xl bg-gradient-to-br from-blue-600/20 via-blue-600/10 to-blue-600/20 border border-blue-600/30 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/20 rounded-full blur-3xl -tranteal-y-1/2 tranteal-x-1/2" />
               <div className="relative flex flex-col lg:flex-row items-center justify-between gap-8">
                 <div className="flex items-start gap-5">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-teal-600 to-teal-700 flex items-center justify-center shadow-lg shadow-teal-600/30 flex-shrink-0">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-lg shadow-blue-600/30 flex-shrink-0">
                     <Rocket className="w-8 h-8 text-white" />
                   </div>
                   <div>
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-600/20 border border-teal-600/30 text-teal-600 text-xs font-medium mb-3">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-600/20 border border-blue-600/30 text-blue-600 text-xs font-medium mb-3">
                       <Sparkles className="w-3 h-3" />
                       Limited Spots Available
                     </div>
-                    <h3 className="text-2xl font-bold text-[#0c2224] mb-2">Join Our Beta Program</h3>
-                    <p className="text-[#22312f] text-lg font-medium max-w-xl">
-                      Be among the first to experience IdiamPro. Beta testers get <span className="text-teal-600 font-semibold">free lifetime access to Pro features</span>,
+                    <h3 className="text-2xl font-bold text-[#0b1533] mb-2">Join Our Beta Program</h3>
+                    <p className="text-[#2b3a5c] text-lg font-medium max-w-xl">
+                      Be among the first to experience IdiamPro. Beta testers get <span className="text-blue-600 font-semibold">free lifetime access to Pro features</span>,
                       direct input into our roadmap, and priority support. Help us build the ultimate cognitive enhancement platform.
                     </p>
                     <div className="flex flex-wrap gap-3 mt-4">
-                      <span className="px-3 py-1 rounded-full bg-[#f7f8fa] text-[#47585a] text-xs">Free Pro Access</span>
-                      <span className="px-3 py-1 rounded-full bg-[#f7f8fa] text-[#47585a] text-xs">Shape the Product</span>
-                      <span className="px-3 py-1 rounded-full bg-[#f7f8fa] text-[#47585a] text-xs">Priority Support</span>
-                      <span className="px-3 py-1 rounded-full bg-[#f7f8fa] text-[#47585a] text-xs">Early Feature Access</span>
+                      <span className="px-3 py-1 rounded-full bg-[#f7faff] text-[#475569] text-xs">Free Pro Access</span>
+                      <span className="px-3 py-1 rounded-full bg-[#f7faff] text-[#475569] text-xs">Shape the Product</span>
+                      <span className="px-3 py-1 rounded-full bg-[#f7faff] text-[#475569] text-xs">Priority Support</span>
+                      <span className="px-3 py-1 rounded-full bg-[#f7faff] text-[#475569] text-xs">Early Feature Access</span>
                     </div>
                   </div>
                 </div>
@@ -534,12 +534,12 @@ export default function PricingPage() {
                   <Button
                     onClick={() => window.location.href = 'mailto:support@2ndbrainware.com?subject=Beta Tester Application'}
                     size="lg"
-                    className="bg-gradient-to-r from-[#0ea5a4] to-[#0b74c4] hover:from-[#0c8f8e] hover:to-[#0960a3] text-white shadow-lg shadow-teal-600/25 whitespace-nowrap"
+                    className="bg-gradient-to-r from-[#38bdf8] via-[#2563eb] to-[#4f46e5] hover:from-[#2563eb] hover:to-[#4338ca] text-white shadow-lg shadow-blue-600/25 whitespace-nowrap"
                   >
                     Apply for Beta
                     <ArrowRight className="w-5 h-5 ml-2" />
                   </Button>
-                  <span className="text-[#6b7d7e] text-xs">Web version available now</span>
+                  <span className="text-[#64748b] text-xs">Web version available now</span>
                 </div>
               </div>
             </div>
@@ -548,7 +548,7 @@ export default function PricingPage() {
 
         <section className="px-6 py-20 lg:px-12">
           <div className="max-w-4xl mx-auto text-center">
-            <Link href="/" className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#0ea5a4] to-[#0b74c4] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-teal-600/25 hover:from-[#0c8f8e] hover:to-[#0960a3] transition-colors">
+            <Link href="/" className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#38bdf8] via-[#2563eb] to-[#4f46e5] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/25 hover:from-[#2563eb] hover:to-[#4338ca] transition-colors">
               <ArrowLeft className="w-4 h-4" /> Back to home
             </Link>
           </div>

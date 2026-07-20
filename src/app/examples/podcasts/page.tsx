@@ -28,7 +28,7 @@ export default function PodcastsExamplePage() {
   return (
     <ExamplesShell
       eyebrow="Podcasts"
-      eyebrowIcon={<Podcast className="w-4 h-4 text-[#0c5c5b]" />}
+      eyebrowIcon={<Podcast className="w-4 h-4 text-[#1e40af]" />}
       title={<>Turn any outline into a narrated podcast.</>}
       subtitle={
         <>
@@ -50,20 +50,20 @@ export default function PodcastsExamplePage() {
           <h2 className="text-2xl font-extrabold tracking-tight mb-4">One outline, a full episode.</h2>
           <ul className="space-y-4">
             <li className="flex gap-3">
-              <Mic className="w-5 h-5 text-[#0c5c5b] shrink-0 mt-0.5" />
-              <span className="text-[#22312f]">
+              <Mic className="w-5 h-5 text-[#1e40af] shrink-0 mt-0.5" />
+              <span className="text-[#2b3a5c]">
                 <b>Two natural voices.</b> A host and co-host trade lines like a real show — not a flat text-to-speech readout.
               </span>
             </li>
             <li className="flex gap-3">
-              <Users className="w-5 h-5 text-[#0c5c5b] shrink-0 mt-0.5" />
-              <span className="text-[#22312f]">
+              <Users className="w-5 h-5 text-[#1e40af] shrink-0 mt-0.5" />
+              <span className="text-[#2b3a5c]">
                 <b>From any section.</b> Point it at a chapter or the whole outline — IdiamPro scripts the conversation for you.
               </span>
             </li>
             <li className="flex gap-3">
-              <Podcast className="w-5 h-5 text-[#0c5c5b] shrink-0 mt-0.5" />
-              <span className="text-[#22312f]">
+              <Podcast className="w-5 h-5 text-[#1e40af] shrink-0 mt-0.5" />
+              <span className="text-[#2b3a5c]">
                 <b>Ready to share.</b> Download the audio and post it wherever your listeners are.
               </span>
             </li>
@@ -74,25 +74,25 @@ export default function PodcastsExamplePage() {
       {/* Real narration voices */}
       <div className="mt-14">
         <h2 className="text-2xl font-extrabold tracking-tight mb-2">Hear the actual voices.</h2>
-        <p className="text-[#47585a] mb-6 max-w-2xl">
+        <p className="text-[#475569] mb-6 max-w-2xl">
           These are the real narration voices your episodes are built from. Press play to listen.
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {VOICES.map((v) => (
             <div
               key={v.src}
-              className="rounded-2xl border border-[#dde2e5] bg-white p-6 shadow-lg shadow-teal-900/[0.05]"
+              className="rounded-2xl border border-[#dde5f2] bg-white p-6 shadow-lg shadow-blue-900/[0.05]"
             >
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-11 h-11 rounded-xl bg-teal-600/15 border border-teal-600/30 flex items-center justify-center">
-                  <Mic className="w-5 h-5 text-[#0c5c5b]" />
+                <div className="w-11 h-11 rounded-xl bg-blue-600/15 border border-blue-600/30 flex items-center justify-center">
+                  <Mic className="w-5 h-5 text-[#1e40af]" />
                 </div>
                 <div>
-                  <div className="text-lg font-bold text-[#0c2224]">{v.name}</div>
-                  <div className="text-xs font-semibold text-[#0c5c5b]">{v.role}</div>
+                  <div className="text-lg font-bold text-[#0b1533]">{v.name}</div>
+                  <div className="text-xs font-semibold text-[#1e40af]">{v.role}</div>
                 </div>
               </div>
-              <p className="text-sm text-[#47585a] mb-4">{v.desc}</p>
+              <p className="text-sm text-[#475569] mb-4">{v.desc}</p>
               {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
               <audio controls preload="none" className="w-full">
                 <source src={v.src} type="audio/mpeg" />

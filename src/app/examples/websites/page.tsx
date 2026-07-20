@@ -43,7 +43,7 @@ export default function WebsitesExamplePage() {
   return (
     <ExamplesShell
       eyebrow="Websites"
-      eyebrowIcon={<Globe className="w-4 h-4 text-[#0c5c5b]" />}
+      eyebrowIcon={<Globe className="w-4 h-4 text-[#1e40af]" />}
       title={<>Real websites, built from an outline.</>}
       subtitle={
         <>
@@ -59,12 +59,12 @@ export default function WebsitesExamplePage() {
             <BrowserFrame src={s.src} alt={`${s.title} website built by IdiamPro`} label={s.url} />
             <div className="mt-4 px-1">
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-lg font-bold text-[#0c2224]">{s.title}</span>
-                <span className="text-xs font-semibold text-[#0c5c5b] bg-teal-600/12 border border-teal-600/30 rounded-full px-2.5 py-0.5">
+                <span className="text-lg font-bold text-[#0b1533]">{s.title}</span>
+                <span className="text-xs font-semibold text-[#1e40af] bg-blue-600/12 border border-blue-600/30 rounded-full px-2.5 py-0.5">
                   {s.template}
                 </span>
               </div>
-              <div className="text-sm text-[#47585a] mt-1.5">{s.desc}</div>
+              <div className="text-sm text-[#475569] mt-1.5">{s.desc}</div>
             </div>
           </div>
         ))}

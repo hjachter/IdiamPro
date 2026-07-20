@@ -4,7 +4,7 @@
 // "We localize the pain and provide the remedy." Every workflow is a person a
 // visitor can see themselves in — a named character tied to a market segment,
 // their localized pain (the ache), and the remedy film that shows IdiamPro
-// solving it end to end. Clean white background, deep-teal accent (#0E7C7B),
+// solving it end to end. Clean white background, deep-teal accent (#2563eb),
 // near-black ink, the shared Clarity header. Each film is "Produced by
 // IdiamPro" (baked into the video). The films themselves are a separate job;
 // this page is the teal frame around them. Additive — touches no other route.
@@ -35,7 +35,7 @@ function ProfileFilm({
   const [posterLoaded, setPosterLoaded] = useState(false);
 
   return (
-    <div className="relative overflow-hidden -mx-6 sm:mx-0 rounded-none sm:rounded-3xl border-y sm:border border-[#e3e7ea] bg-[#f7f8fa] shadow-xl shadow-teal-600/10">
+    <div className="relative overflow-hidden -mx-6 sm:mx-0 rounded-none sm:rounded-3xl border-y sm:border border-[#dde5f2] bg-[#f7faff] shadow-xl shadow-blue-600/10">
       {playing ? (
         <video
           className="block h-auto w-full bg-black"
@@ -52,14 +52,14 @@ function ProfileFilm({
           type="button"
           onClick={() => setPlaying(true)}
           aria-label={`Play film: ${ariaLabel}`}
-          className="group relative block w-full aspect-video overflow-hidden bg-gradient-to-br from-teal-600/15 via-[#f1f3f5] to-teal-700/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-600/60"
+          className="group relative block w-full aspect-video overflow-hidden bg-gradient-to-br from-blue-600/15 via-[#f1f5f9] to-blue-700/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600/60"
         >
           {/* Base placeholder — a teal wash with a film glyph — always sits
               behind. The poster image loads on top and only fades in once it
               genuinely decodes, so a missing or half-rendered film (e.g. one
               still rendering) shows the clean placeholder, never a broken glyph. */}
           <div className="absolute inset-0 flex items-center justify-center">
-            <Film className="h-10 w-10 text-teal-600/40" />
+            <Film className="h-10 w-10 text-blue-600/40" />
           </div>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -69,14 +69,14 @@ function ProfileFilm({
             className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${posterLoaded ? 'opacity-100' : 'opacity-0'}`}
           />
           {/* soft scrim + play control */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0c2224]/35 via-transparent to-transparent transition-opacity group-hover:from-[#0c2224]/45" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0b1533]/35 via-transparent to-transparent transition-opacity group-hover:from-[#0b1533]/45" />
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white/90 shadow-lg shadow-teal-900/20 backdrop-blur transition-transform group-hover:scale-105">
-              <Play className="ml-1 h-7 w-7 text-teal-700" fill="currentColor" />
+            <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white/90 shadow-lg shadow-blue-900/20 backdrop-blur transition-transform group-hover:scale-105">
+              <Play className="ml-1 h-7 w-7 text-blue-700" fill="currentColor" />
             </span>
           </div>
           {pending && (
-            <span className="absolute left-4 top-4 rounded-full border border-teal-600/20 bg-white/90 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-teal-700 backdrop-blur">
+            <span className="absolute left-4 top-4 rounded-full border border-blue-600/20 bg-white/90 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-blue-700 backdrop-blur">
               New film · rendering
             </span>
           )}
@@ -145,8 +145,8 @@ const PROFILES: Profile[] = [
 export default function WorkflowsPage() {
   useSingleVideoPlayback();
   return (
-    <div className="fixed inset-0 overflow-x-hidden overflow-y-auto bg-white text-[#0c2224]">
-      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-teal-600/[0.035] via-transparent to-transparent" />
+    <div className="fixed inset-0 overflow-x-hidden overflow-y-auto bg-white text-[#0b1533]">
+      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-600/[0.035] via-transparent to-transparent" />
       <div className="relative z-10">
         <MarketingHeader />
         <main className="pt-28 lg:pt-32">
@@ -154,7 +154,7 @@ export default function WorkflowsPage() {
           <div className="mx-auto w-full max-w-[1600px] px-6 lg:px-12">
             <Link
               href="/"
-              className="inline-flex items-center gap-1.5 text-sm text-teal-600 transition-colors hover:text-teal-700"
+              className="inline-flex items-center gap-1.5 text-sm text-blue-600 transition-colors hover:text-blue-700"
             >
               <ArrowLeft className="h-4 w-4" /> Back to home
             </Link>
@@ -162,13 +162,13 @@ export default function WorkflowsPage() {
 
           {/* Intro */}
           <section className="px-6 pt-8 pb-14 text-center lg:px-12">
-            <div className="mb-3 text-sm font-medium uppercase tracking-wider text-teal-600">
+            <div className="mb-3 text-sm font-medium uppercase tracking-wider text-blue-600">
               Real people · real problems
             </div>
-            <h1 className="mx-auto max-w-3xl text-4xl font-bold tracking-tight text-[#0c2224] md:text-5xl">
+            <h1 className="mx-auto max-w-3xl text-4xl font-bold tracking-tight text-[#0b1533] md:text-5xl">
               See yourself here.
             </h1>
-            <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-[#47585a] md:text-lg">
+            <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-[#475569] md:text-lg">
               Every profile below is one person, one real problem, and the moment IdiamPro turned it into
               finished work — almost as fast as they could describe it. Find the one who sounds like you.
             </p>
@@ -186,15 +186,15 @@ export default function WorkflowsPage() {
                       readable line length above the wide film. */}
                   <div className="mb-6 md:mb-8">
                     <div className="flex items-center gap-3">
-                      <span className="text-sm font-bold text-teal-600/70">{p.index}</span>
-                      <span className="text-xs font-medium uppercase tracking-wider text-teal-600">
+                      <span className="text-sm font-bold text-blue-600/70">{p.index}</span>
+                      <span className="text-xs font-medium uppercase tracking-wider text-blue-600">
                         {p.segment}
                       </span>
                     </div>
-                    <h2 className="mt-2 text-3xl font-bold tracking-tight text-[#0c2224] md:text-4xl">
+                    <h2 className="mt-2 text-3xl font-bold tracking-tight text-[#0b1533] md:text-4xl">
                       {p.name}
                     </h2>
-                    <div className="mt-1 text-sm text-[#6b7d7e]">{p.role}</div>
+                    <div className="mt-1 text-sm text-[#64748b]">{p.role}</div>
 
                     {/* Ache + remedy side by side on desktop, each at a readable
                         line length; stacks on mobile. */}
@@ -208,11 +208,11 @@ export default function WorkflowsPage() {
                       </div>
 
                       {/* The remedy */}
-                      <div className="rounded-2xl border border-[#e3e7ea] bg-[#f7f8fa] p-5">
-                        <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-teal-600">
+                      <div className="rounded-2xl border border-[#dde5f2] bg-[#f7faff] p-5">
+                        <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-blue-600">
                           The remedy
                         </div>
-                        <p className="text-[15px] leading-relaxed text-[#47585a]">{p.remedy}</p>
+                        <p className="text-[15px] leading-relaxed text-[#475569]">{p.remedy}</p>
                       </div>
                     </div>
                   </div>
@@ -225,8 +225,8 @@ export default function WorkflowsPage() {
                       ariaLabel={p.ariaLabel}
                       pending={p.pending}
                     />
-                    <p className="mt-3 flex items-center justify-center gap-1.5 text-sm text-[#6b7d7e]">
-                      <Video className="h-3.5 w-3.5 text-teal-600" />
+                    <p className="mt-3 flex items-center justify-center gap-1.5 text-sm text-[#64748b]">
+                      <Video className="h-3.5 w-3.5 text-blue-600" />
                       Produced by IdiamPro
                     </p>
                   </div>
@@ -243,16 +243,16 @@ export default function WorkflowsPage() {
             <div className="mx-auto max-w-[1600px]">
               <div className="mb-6 md:mb-8">
                 <div className="flex items-center gap-3">
-                  <span className="text-sm font-bold text-teal-600/70">★</span>
-                  <span className="text-xs font-medium uppercase tracking-wider text-teal-600">
+                  <span className="text-sm font-bold text-blue-600/70">★</span>
+                  <span className="text-xs font-medium uppercase tracking-wider text-blue-600">
                     The story behind IdiamPro
                   </span>
                 </div>
-                <h2 className="mt-2 text-3xl font-bold tracking-tight text-[#0c2224] md:text-4xl">
+                <h2 className="mt-2 text-3xl font-bold tracking-tight text-[#0b1533] md:text-4xl">
                   The idea was only half the battle.
                 </h2>
-                <div className="mt-1 text-sm text-[#6b7d7e]">A note from the founder</div>
-                <p className="mt-5 max-w-3xl text-[15px] leading-relaxed text-[#47585a] md:text-base">
+                <div className="mt-1 text-sm text-[#64748b]">A note from the founder</div>
+                <p className="mt-5 max-w-3xl text-[15px] leading-relaxed text-[#475569] md:text-base">
                   A tool I&apos;d envisioned for decades — finally possible now. So I did the most
                   honest test I could think of: I used IdiamPro to plan its own launch. The plan
                   you&apos;ll watch build itself is the real one.
@@ -264,8 +264,8 @@ export default function WorkflowsPage() {
                   posterSrc="/idiampro-story-poster.jpg?v=story6"
                   ariaLabel="Our Story — a founder uses IdiamPro to plan IdiamPro's own launch. Produced by IdiamPro."
                 />
-                <p className="mt-3 flex items-center justify-center gap-1.5 text-sm text-[#6b7d7e]">
-                  <Video className="h-3.5 w-3.5 text-teal-600" />
+                <p className="mt-3 flex items-center justify-center gap-1.5 text-sm text-[#64748b]">
+                  <Video className="h-3.5 w-3.5 text-blue-600" />
                   Produced by IdiamPro
                 </p>
               </div>
@@ -275,7 +275,7 @@ export default function WorkflowsPage() {
           {/* More profiles coming — subtle */}
           <section className="px-6 pb-16 lg:px-12">
             <div className="mx-auto max-w-2xl text-center">
-              <p className="text-sm text-[#6b7d7e]">
+              <p className="text-sm text-[#64748b]">
                 More profiles on the way — the writer, the founder, the everyday thinker. If your work
                 lives in ideas, there’s a place for you here.
               </p>
@@ -287,7 +287,7 @@ export default function WorkflowsPage() {
             <div className="mx-auto max-w-4xl text-center">
               <Link
                 href="/signup"
-                className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#0ea5a4] to-[#0b74c4] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-teal-600/25 transition-colors hover:from-[#0c8f8e] hover:to-[#0960a3]"
+                className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#38bdf8] via-[#2563eb] to-[#4f46e5] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/25 transition-colors hover:from-[#2563eb] hover:to-[#4338ca]"
               >
                 Start your own <ArrowRight className="h-4 w-4" />
               </Link>

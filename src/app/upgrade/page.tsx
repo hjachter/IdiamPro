@@ -210,7 +210,7 @@ export default function UpgradePage() {
                   <GraduationCap className="h-5 w-5 text-indigo-500" />
                 )}
                 {plan.id === 'free' && (
-                  <Sparkles className="h-5 w-5 text-emerald-500" />
+                  <Sparkles className="h-5 w-5 text-blue-500" />
                 )}
                 <h2 className="text-xl font-semibold">{plan.name}</h2>
               </div>
@@ -227,7 +227,7 @@ export default function UpgradePage() {
                   </span>
                 </div>
                 {plan.annualPrice && (
-                  <div className="mt-1 text-sm text-emerald-600 dark:text-emerald-400">
+                  <div className="mt-1 text-sm text-blue-600 dark:text-blue-400">
                     or <strong>{plan.annualPrice}</strong>{' '}
                     {plan.annualPriceNote}
                   </div>
@@ -303,7 +303,7 @@ export default function UpgradePage() {
               <ul className="mt-6 space-y-2.5 text-sm">
                 {plan.features.map((f) => (
                   <li key={f} className="flex items-start gap-2">
-                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
+                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-blue-500" />
                     <span>{f}</span>
                   </li>
                 ))}
@@ -332,7 +332,7 @@ export default function UpgradePage() {
                     <div className="text-xs font-normal text-muted-foreground mt-0.5">Runs on your device &amp; your own key</div>
                     <div className="mt-1 flex items-center gap-1.5 flex-wrap">
                       <span className="text-xs font-normal">$29.99</span>
-                      <span className="inline-flex items-center rounded-full border border-emerald-500/40 bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-medium text-emerald-600 dark:text-emerald-400">
+                      <span className="inline-flex items-center rounded-full border border-blue-500/40 bg-blue-500/10 px-1.5 py-0.5 text-[10px] font-medium text-blue-600 dark:text-blue-400">
                         $19.99 founder launch
                       </span>
                     </div>
@@ -398,7 +398,7 @@ export default function UpgradePage() {
                     {row.cells.map((cell, ci) => (
                       <td key={ci} className="p-3 border-l align-middle">
                         {cell === 'check' ? (
-                          <Check className="h-4 w-4 text-emerald-500" />
+                          <Check className="h-4 w-4 text-blue-500" />
                         ) : (
                           <span className={cell === '—' ? 'text-muted-foreground' : ''}>{cell}</span>
                         )}
@@ -417,14 +417,14 @@ export default function UpgradePage() {
         {/* Trust signals */}
         <div className="mt-12 grid gap-4 text-center text-sm text-muted-foreground sm:grid-cols-3">
           <div className="flex flex-col items-center gap-2 rounded-xl border bg-card p-4">
-            <Shield className="h-5 w-5 text-emerald-500" />
+            <Shield className="h-5 w-5 text-blue-500" />
             <strong className="text-foreground">Secure checkout</strong>
             <span>
               Payments processed by Stripe. We never see your card details.
             </span>
           </div>
           <div className="flex flex-col items-center gap-2 rounded-xl border bg-card p-4">
-            <Check className="h-5 w-5 text-emerald-500" />
+            <Check className="h-5 w-5 text-blue-500" />
             <strong className="text-foreground">Cancel anytime</strong>
             <span>
               Cancel from Settings &rarr; Manage Subscription. No questions

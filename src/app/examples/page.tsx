@@ -13,21 +13,21 @@ const GALLERIES = [
     icon: Video,
     title: 'Videos',
     desc: 'Narrated slideshow videos, generated straight from an outline.',
-    tint: 'from-[#0ea5a4]/12 to-[#0b74c4]/8',
+    tint: 'from-[#3b82f6]/12 to-[#4f46e5]/8',
   },
   {
     href: '/examples/websites',
     icon: Globe,
     title: 'Websites',
     desc: 'Clean, shareable web pages built from IdiamPro’s templates.',
-    tint: 'from-teal-600/12 to-teal-700/8',
+    tint: 'from-blue-600/12 to-blue-700/8',
   },
   {
     href: '/examples/podcasts',
     icon: Podcast,
     title: 'Podcasts',
     desc: 'A natural two-host episode voiced from any section.',
-    tint: 'from-[#0b74c4]/12 to-[#0ea5a4]/8',
+    tint: 'from-[#4f46e5]/12 to-[#3b82f6]/8',
   },
 ];
 
@@ -35,7 +35,7 @@ export default function ExamplesHubPage() {
   return (
     <ExamplesShell
       eyebrow="Examples"
-      eyebrowIcon={<Sparkles className="w-4 h-4 text-[#0c5c5b]" />}
+      eyebrowIcon={<Sparkles className="w-4 h-4 text-[#1e40af]" />}
       title={<>See what IdiamPro can make.</>}
       subtitle={
         <>
@@ -51,14 +51,14 @@ export default function ExamplesHubPage() {
             <Link
               key={g.href}
               href={g.href}
-              className={`group flex flex-col rounded-2xl border border-[#dde2e5] bg-gradient-to-br ${g.tint} p-7 shadow-lg shadow-teal-900/[0.05] hover:shadow-xl hover:border-teal-600/50 transition-all`}
+              className={`group flex flex-col rounded-2xl border border-[#dde5f2] bg-gradient-to-br ${g.tint} p-7 shadow-lg shadow-blue-900/[0.05] hover:shadow-xl hover:border-blue-600/50 transition-all`}
             >
-              <div className="w-12 h-12 rounded-xl bg-white border border-[#dde2e5] flex items-center justify-center mb-5 shadow-sm group-hover:scale-105 transition-transform">
-                <Icon className="w-6 h-6 text-[#0c5c5b]" />
+              <div className="w-12 h-12 rounded-xl bg-white border border-[#dde5f2] flex items-center justify-center mb-5 shadow-sm group-hover:scale-105 transition-transform">
+                <Icon className="w-6 h-6 text-[#1e40af]" />
               </div>
-              <div className="text-xl font-extrabold text-[#0c2224] mb-2">{g.title}</div>
-              <p className="text-sm text-[#47585a] flex-1">{g.desc}</p>
-              <span className="inline-flex items-center gap-1.5 mt-5 text-sm font-semibold text-[#0c5c5b]">
+              <div className="text-xl font-extrabold text-[#0b1533] mb-2">{g.title}</div>
+              <p className="text-sm text-[#475569] flex-1">{g.desc}</p>
+              <span className="inline-flex items-center gap-1.5 mt-5 text-sm font-semibold text-[#1e40af]">
                 View gallery
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </span>

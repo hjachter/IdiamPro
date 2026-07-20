@@ -148,7 +148,7 @@ I would like to join the IdiamPro beta program.
     <div className="min-h-screen h-full bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 text-white overflow-y-auto">
       {/* Background effects */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl" />
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-violet-500/10 rounded-full blur-3xl" />
       </div>
 
@@ -160,7 +160,7 @@ I would like to join the IdiamPro beta program.
             <span>Back to Home</span>
           </a>
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
               <Brain className="w-4 h-4 text-white" />
             </div>
             <span className="font-bold">IdiamPro</span>
@@ -173,9 +173,9 @@ I would like to join the IdiamPro beta program.
         <div className="max-w-6xl mx-auto">
           {/* Hero */}
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/20 border border-emerald-500/30 mb-6">
-              <Rocket className="w-4 h-4 text-emerald-400" />
-              <span className="text-sm text-emerald-300">Limited Beta Program</span>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/20 border border-blue-500/30 mb-6">
+              <Rocket className="w-4 h-4 text-blue-400" />
+              <span className="text-sm text-blue-300">Limited Beta Program</span>
             </div>
 
             <h1 className="text-4xl lg:text-6xl font-bold mb-6">
@@ -183,7 +183,7 @@ I would like to join the IdiamPro beta program.
                 Join the Future of
               </span>
               <br />
-              <span className="bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-blue-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent">
                 Cognitive Enhancement
               </span>
             </h1>
@@ -204,7 +204,7 @@ I would like to join the IdiamPro beta program.
             {/* Stats */}
             <div className="flex flex-wrap justify-center gap-8 text-center">
               <div>
-                <div className="text-3xl font-bold text-emerald-400">50</div>
+                <div className="text-3xl font-bold text-blue-400">50</div>
                 <div className="text-white/40 text-sm">Beta Spots</div>
               </div>
               <div>
@@ -225,7 +225,7 @@ I would like to join the IdiamPro beta program.
               <div className="space-y-6">
                 {benefits.map((benefit, i) => (
                   <div key={i} className="flex gap-4 p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center flex-shrink-0">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center flex-shrink-0">
                       <benefit.icon className="w-6 h-6 text-white" />
                     </div>
                     <div>
@@ -253,9 +253,9 @@ I would like to join the IdiamPro beta program.
             {/* Signup Form */}
             <div className="lg:sticky lg:top-8">
               {isSubmitted ? (
-                <div className="p-8 rounded-3xl bg-gradient-to-br from-emerald-500/20 to-teal-500/10 border border-emerald-500/30 text-center">
-                  <div className="w-20 h-20 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto mb-6">
-                    <CheckCircle2 className="w-10 h-10 text-emerald-400" />
+                <div className="p-8 rounded-3xl bg-gradient-to-br from-blue-500/20 to-blue-500/10 border border-blue-500/30 text-center">
+                  <div className="w-20 h-20 rounded-full bg-blue-500/20 flex items-center justify-center mx-auto mb-6">
+                    <CheckCircle2 className="w-10 h-10 text-blue-400" />
                   </div>
                   <h3 className="text-2xl font-bold text-white mb-4">Application Submitted!</h3>
                   <p className="text-white/60 mb-6">
@@ -264,13 +264,13 @@ I would like to join the IdiamPro beta program.
                   </p>
                   <p className="text-white/40 text-sm">
                     In the meantime, head back home and tell a colleague:{' '}
-                    <a href="/" className="text-emerald-400 hover:underline">2ndbrainware.com</a>
+                    <a href="/" className="text-blue-400 hover:underline">2ndbrainware.com</a>
                   </p>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="p-8 rounded-3xl bg-white/5 border border-white/10">
                   <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
                       <Sparkles className="w-5 h-5 text-white" />
                     </div>
                     <div>
@@ -290,7 +290,7 @@ I would like to join the IdiamPro beta program.
                           required
                           value={formData.name}
                           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                          className="w-full pl-11 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50"
+                          className="w-full pl-11 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50"
                           placeholder="Dr. Jane Smith"
                         />
                       </div>
@@ -306,7 +306,7 @@ I would like to join the IdiamPro beta program.
                           required
                           value={formData.email}
                           onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                          className="w-full pl-11 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50"
+                          className="w-full pl-11 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50"
                           placeholder="jane@university.edu"
                         />
                       </div>
@@ -319,7 +319,7 @@ I would like to join the IdiamPro beta program.
                         required
                         value={formData.role}
                         onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                        className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 appearance-none cursor-pointer"
+                        className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 appearance-none cursor-pointer"
                       >
                         <option value="" className="bg-gray-900">Select your role...</option>
                         {roles.map((role) => (
@@ -338,7 +338,7 @@ I would like to join the IdiamPro beta program.
                         value={formData.useCase}
                         onChange={(e) => setFormData({ ...formData, useCase: e.target.value })}
                         rows={3}
-                        className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 resize-none"
+                        className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 resize-none"
                         placeholder="I'm researching climate change impacts and need to synthesize papers from multiple disciplines..."
                       />
                     </div>
@@ -350,7 +350,7 @@ I would like to join the IdiamPro beta program.
                         type="text"
                         value={formData.referral}
                         onChange={(e) => setFormData({ ...formData, referral: e.target.value })}
-                        className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50"
+                        className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50"
                         placeholder="Twitter, colleague, conference..."
                       />
                     </div>
@@ -358,7 +358,7 @@ I would like to join the IdiamPro beta program.
                     <Button
                       type="submit"
                       disabled={isSubmitting}
-                      className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white py-6 text-lg shadow-lg shadow-emerald-500/25"
+                      className="w-full bg-gradient-to-r from-blue-600 to-blue-600 hover:from-blue-500 hover:to-blue-500 text-white py-6 text-lg shadow-lg shadow-blue-500/25"
                     >
                       {isSubmitting ? (
                         'Submitting...'

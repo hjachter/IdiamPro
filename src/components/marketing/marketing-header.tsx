@@ -28,7 +28,7 @@ export function MarketingHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4 lg:px-12 backdrop-blur-xl bg-white/80 border-b border-[#e3e7ea]">
+    <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4 lg:px-12 backdrop-blur-xl bg-white/80 border-b border-[#dde5f2]">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         {/* Logo → home. The whole mark + wordmark is one clickable link. */}
         <Link
@@ -36,14 +36,14 @@ export function MarketingHeader() {
           aria-label="IdiamPro home"
           className="flex items-center gap-3 cursor-pointer group"
         >
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-600 to-teal-700 flex items-center justify-center shadow-lg shadow-teal-600/20 group-hover:scale-105 transition-transform">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-lg shadow-blue-600/20 group-hover:scale-105 transition-transform">
             <Layers className="w-5 h-5 text-white" />
           </div>
           <span className="flex flex-col leading-none">
-            <span className="text-xl font-bold text-[#0c2224] group-hover:text-teal-700 transition-colors">
+            <span className="text-xl font-bold text-[#0b1533] group-hover:text-blue-700 transition-colors">
               IdiamPro
             </span>
-            <span className="text-[10px] text-[#6b7d7e] tracking-wide mt-0.5">say it &ldquo;I-D-M Pro&rdquo;</span>
+            <span className="text-[10px] text-[#64748b] tracking-wide mt-0.5">say it &ldquo;I-D-M Pro&rdquo;</span>
           </span>
         </Link>
 
@@ -53,7 +53,7 @@ export function MarketingHeader() {
             <Link
               key={link.href}
               href={link.href}
-              className="text-[#47585a] hover:text-[#0c2224] transition-colors text-sm"
+              className="text-[#475569] hover:text-[#0b1533] transition-colors text-sm"
             >
               {link.label}
             </Link>
@@ -64,7 +64,7 @@ export function MarketingHeader() {
           <SignedOut>
             <Button
               onClick={launchApp}
-              className="hidden md:inline-flex bg-gradient-to-r from-[#0ea5a4] to-[#0b74c4] hover:from-[#0c8f8e] hover:to-[#0960a3] text-white font-semibold shadow-lg shadow-teal-600/25"
+              className="hidden md:inline-flex bg-gradient-to-r from-[#38bdf8] via-[#2563eb] to-[#4f46e5] hover:from-[#2563eb] hover:to-[#4338ca] text-white font-semibold shadow-lg shadow-blue-600/25"
             >
               Sign up free
               <ArrowRight className="w-4 h-4 ml-2" />
@@ -73,7 +73,7 @@ export function MarketingHeader() {
           <SignedIn>
             <Button
               onClick={() => { window.location.href = '/app'; }}
-              className="hidden md:inline-flex bg-gradient-to-r from-[#0ea5a4] to-[#0b74c4] hover:from-[#0c8f8e] hover:to-[#0960a3] text-white font-semibold shadow-lg shadow-teal-600/25"
+              className="hidden md:inline-flex bg-gradient-to-r from-[#38bdf8] via-[#2563eb] to-[#4f46e5] hover:from-[#2563eb] hover:to-[#4338ca] text-white font-semibold shadow-lg shadow-blue-600/25"
             >
               Open IdiamPro
               <ArrowRight className="w-4 h-4 ml-2" />
@@ -93,14 +93,14 @@ export function MarketingHeader() {
 
       {/* Mobile menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 right-0 bg-white/95 backdrop-blur-xl border-b border-[#e3e7ea] p-6">
+        <div className="md:hidden absolute top-full left-0 right-0 bg-white/95 backdrop-blur-xl border-b border-[#dde5f2] p-6">
           <div className="flex flex-col gap-4">
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className="text-[#0c2224] py-2"
+                className="text-[#0b1533] py-2"
               >
                 {link.label}
               </Link>
@@ -108,7 +108,7 @@ export function MarketingHeader() {
             <SignedOut>
               <Button
                 onClick={launchApp}
-                className="bg-gradient-to-r from-[#0ea5a4] to-[#0b74c4] text-white font-semibold w-full mt-2"
+                className="bg-gradient-to-r from-[#38bdf8] via-[#2563eb] to-[#4f46e5] text-white font-semibold w-full mt-2"
               >
                 Sign up free
               </Button>
@@ -116,7 +116,7 @@ export function MarketingHeader() {
             <SignedIn>
               <Button
                 onClick={() => { window.location.href = '/app'; }}
-                className="bg-gradient-to-r from-[#0ea5a4] to-[#0b74c4] text-white font-semibold w-full mt-2"
+                className="bg-gradient-to-r from-[#38bdf8] via-[#2563eb] to-[#4f46e5] text-white font-semibold w-full mt-2"
               >
                 Open IdiamPro
               </Button>

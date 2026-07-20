@@ -177,12 +177,12 @@ function ApplicationGate({
   if (state.kind === 'submitted' || state.kind === 'pending-review') {
     const isResubmit = state.kind === 'pending-review';
     return (
-      <div className="w-full rounded-2xl border border-emerald-400/30 bg-emerald-500/10 p-8 text-center">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/20">
+      <div className="w-full rounded-2xl border border-blue-400/30 bg-blue-500/10 p-8 text-center">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-500/20">
           {isResubmit ? (
-            <Clock className="h-8 w-8 text-emerald-300" />
+            <Clock className="h-8 w-8 text-blue-300" />
           ) : (
-            <CheckCircle2 className="h-8 w-8 text-emerald-300" />
+            <CheckCircle2 className="h-8 w-8 text-blue-300" />
           )}
         </div>
         <h2 className="mb-3 text-xl font-semibold text-white">
@@ -197,7 +197,7 @@ function ApplicationGate({
           Questions? Drop a note to{' '}
           <a
             href="mailto:support@2ndbrainware.com"
-            className="text-emerald-300 hover:underline"
+            className="text-blue-300 hover:underline"
           >
             support@2ndbrainware.com
           </a>
