@@ -10,7 +10,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { SignedIn, SignedOut } from '@/lib/auth/signed-gates';
-import { Layers, ArrowRight, Menu, X } from 'lucide-react';
+import { ArrowRight, Menu, X } from 'lucide-react';
 
 const SIGNUP_URL = '/signup';
 const launchApp = () => {
@@ -33,17 +33,17 @@ export function MarketingHeader() {
         {/* Logo → home. The whole mark + wordmark is one clickable link. */}
         <Link
           href="/"
-          aria-label="IdiamPro home"
+          aria-label="IdeaM home"
           className="flex items-center gap-3 cursor-pointer group"
         >
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-lg shadow-blue-600/20 group-hover:scale-105 transition-transform">
-            <Layers className="w-5 h-5 text-white" />
+            <span className="text-white text-lg font-extrabold leading-none">M</span>
           </div>
           <span className="flex flex-col leading-none">
-            <span className="text-xl font-bold text-[#0b1533] group-hover:text-blue-700 transition-colors">
-              IdiamPro
+            <span className="text-2xl font-extrabold tracking-tight leading-none">
+              <span className="text-[#0b1533]">Idea</span><span className="text-blue-600">M</span>
             </span>
-            <span className="text-[10px] text-[#64748b] tracking-wide mt-0.5">say it &ldquo;I-D-M Pro&rdquo;</span>
+            <span className="text-[10px] text-[#64748b] tracking-[0.15em] uppercase mt-1">by SecondBrainWare</span>
           </span>
         </Link>
 
@@ -75,7 +75,7 @@ export function MarketingHeader() {
               onClick={() => { window.location.href = '/app'; }}
               className="hidden md:inline-flex bg-gradient-to-r from-[#38bdf8] via-[#2563eb] to-[#4f46e5] hover:from-[#2563eb] hover:to-[#4338ca] text-white font-semibold shadow-lg shadow-blue-600/25"
             >
-              Open IdiamPro
+              Open IdeaM
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           </SignedIn>
@@ -118,7 +118,7 @@ export function MarketingHeader() {
                 onClick={() => { window.location.href = '/app'; }}
                 className="bg-gradient-to-r from-[#38bdf8] via-[#2563eb] to-[#4f46e5] text-white font-semibold w-full mt-2"
               >
-                Open IdiamPro
+                Open IdeaM
               </Button>
             </SignedIn>
           </div>

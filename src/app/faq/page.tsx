@@ -71,7 +71,8 @@ import {
   SpeakerIcon,
   Volume2,
   BarChart3,
-  Languages
+  Languages,
+  AlertTriangle
 } from 'lucide-react';
 
 const SIGNUP_URL = '/signup';
@@ -105,16 +106,16 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
 export default function FaqPage() {
   const faqs = [
     {
-      question: 'How is IdiamPro different from Notion or Obsidian?',
-      answer: 'IdiamPro is purpose-built for research synthesis and content creation. Unlike general note-taking apps, we focus on importing multiple sources (YouTube, PDFs, audio) and using AI to synthesize them into structured outlines. Our multi-source analysis and speaker diarization features are unique to IdiamPro.'
+      question: 'How is IdeaM different from Notion or Obsidian?',
+      answer: 'IdeaM is purpose-built for research synthesis and content creation. Unlike general note-taking apps, we focus on importing multiple sources (YouTube, PDFs, audio) and using AI to synthesize them into structured outlines. Our multi-source analysis and speaker diarization features are unique to IdeaM.'
     },
     {
       question: 'Can I import my existing notes?',
-      answer: 'Yes! IdiamPro supports importing from Markdown, OPML, plain text, and JSON formats. You can also import content from PDFs, Word documents, web pages, and even YouTube videos with automatic transcription.'
+      answer: 'Yes! IdeaM supports importing from Markdown, OPML, plain text, and JSON formats. You can also import content from PDFs, Word documents, web pages, and even YouTube videos with automatic transcription.'
     },
     {
       question: 'Is my data private and secure?',
-      answer: 'Absolutely. IdiamPro uses a local-first architecture—your outlines are stored on your device by default. When you use AI features, your content is sent securely to process but is never used to train AI models. We never sell your data.'
+      answer: 'Absolutely. IdeaM uses a local-first architecture—your outlines are stored on your device by default. When you use AI features, your content is sent securely to process but is never used to train AI models. We never sell your data.'
     },
     {
       question: 'What AI models do you use?',
@@ -126,14 +127,15 @@ export default function FaqPage() {
     },
     {
       question: 'Can I export my work?',
-      answer: 'IdiamPro offers 23 export formats: PDF, Markdown, HTML (collapsible website), Word, LaTeX, EPUB, Plain Text, OPML, Obsidian (with wiki-links), Notion, CSV, JSON Tree, and more. Your data is never locked in.'
+      answer: 'IdeaM offers 23 export formats: PDF, Markdown, HTML (collapsible website), Word, LaTeX, EPUB, Plain Text, OPML, Obsidian (with wiki-links), Notion, CSV, JSON Tree, and more. Your data is never locked in.'
     }
   ];
 
   return (
     <div className="fixed inset-0 bg-white text-[#0b1533] overflow-x-hidden overflow-y-auto">
-      <div className="fixed inset-0 bg-gradient-to-br from-white via-white to-white" />
-      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-600/[0.035] via-transparent to-transparent" />
+      {/* Carbon re-skin: flat, crisp white ground — no hazy blue radial wash,
+          matching the homepage's engineered IBM look. */}
+      <div className="fixed inset-0 bg-white" />
       <div className="relative z-10">
         <MarketingHeader />
         <main className="pt-28 lg:pt-32">
@@ -143,7 +145,7 @@ export default function FaqPage() {
             </Link>
           </div>
           <div className="text-center px-6 pt-8 pb-6 lg:px-12">
-            <div className="text-sm font-medium text-blue-600 uppercase tracking-wider mb-2">Frequently asked questions</div>
+            <div className="text-sm font-mono font-semibold text-[#1e40af] uppercase tracking-wider mb-2">Frequently asked questions</div>
             <h1 className="text-4xl md:text-5xl font-bold text-[#0b1533]">FAQ</h1>
           </div>
         {/* FAQ */}
@@ -162,6 +164,78 @@ export default function FaqPage() {
               {faqs.map((faq, i) => (
                 <FAQItem key={i} {...faq} />
               ))}
+            </div>
+
+            {/* Keep your work safe — DELIBERATE RED LIABILITY-DISCLAIMER treatment.
+                Relocated here from the homepage (reviewer feedback 2026-07-20): a
+                heavy warning belongs where someone is setting up, not on the front
+                door. Local-first: files live on the user's device (desktop) or in
+                the browser's storage (web), so off-device backup is the user's
+                responsibility. Content preserved verbatim. Carbon-flat red notice —
+                high contrast on white, no flashing. */}
+            <div className="mt-12">
+              <div className="relative overflow-hidden rounded-2xl border-2 border-red-500 bg-red-50 p-7 sm:p-9 shadow-lg shadow-red-500/15">
+                <div className="flex flex-col sm:flex-row sm:items-start gap-5">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-red-600 to-red-700 text-white shadow-md shadow-red-600/25">
+                    <AlertTriangle className="h-6 w-6" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                      <span className="inline-flex items-center rounded-full bg-red-600 px-3 py-1 text-xs font-mono font-semibold uppercase tracking-wider text-white">
+                        Important — please read
+                      </span>
+                    </div>
+                    <h3 className="text-2xl md:text-3xl font-extrabold text-red-700 tracking-tight mb-3">
+                      Keep your work safe — back it up
+                    </h3>
+                    <p className="text-lg leading-relaxed mb-3">
+                      <span className="font-bold text-red-700">Your work lives on your own device, and keeping it safe is ultimately your responsibility. Store your IdeaM files in a location that&apos;s automatically backed up.</span>
+                      <span className="text-[#2b3a5c]"> The method is your choice — iCloud Drive, Dropbox, Google Drive, OneDrive, a Time Machine disk, or any backup you trust. IdeaM keeps automatic local snapshots as a safety net, but they are </span>
+                      <span className="font-bold text-red-700">not a substitute for your own off-device backup.</span>
+                    </p>
+                    <p className="text-lg leading-relaxed mb-4">
+                      <span className="font-bold text-red-700">Using the free web version in a browser? Your work is saved inside that browser, on that device — and it can be lost if you clear your browser data, use private/incognito mode, or switch browsers.</span>
+                      <span className="text-[#2b3a5c]"> Export your outlines regularly and keep the copies in a backed-up location.</span>
+                    </p>
+                    <div className="flex flex-wrap gap-2 mb-5">
+                      {['iCloud Drive', 'Dropbox', 'Google Drive', 'OneDrive', 'Time Machine', 'Your choice'].map((c) => (
+                        <span
+                          key={c}
+                          className="inline-flex items-center rounded-full bg-white border border-red-300 px-3 py-1 text-xs font-semibold text-red-700"
+                        >
+                          {c}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="mb-5 rounded-xl border border-red-200 bg-white/60 p-4">
+                      <div className="mb-2 text-xs font-mono font-semibold uppercase tracking-wider text-red-700">
+                        More ways to protect your work
+                      </div>
+                      <ul className="grid gap-2 text-base text-[#2b3a5c] sm:grid-cols-2">
+                        {[
+                          'Keep more than one copy — the 3-2-1 rule: 3 copies, on 2 kinds of storage, 1 kept off-site.',
+                          'Use a backup that keeps version history (Time Machine, iCloud, Dropbox) so you can roll back a bad change or a corrupted file.',
+                          'Export important outlines before any big reorganization or deletion — an extra copy costs nothing.',
+                          'Occasionally test that you can actually restore a file — an untested backup isn’t a backup.',
+                          'Protect the device itself: turn on disk encryption (FileVault on Mac) and a passcode/login.',
+                          'Turn on two-factor authentication for your cloud/backup account so the backup itself stays secure.',
+                        ].map((m) => (
+                          <li key={m} className="flex items-start gap-2">
+                            <Check className="mt-0.5 h-4 w-4 shrink-0 text-red-600" />
+                            <span>{m}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div className="inline-flex items-center gap-2 rounded-xl bg-red-100 border border-red-300 px-4 py-2.5">
+                      <MessagesSquare className="h-4 w-4 shrink-0 text-red-700" />
+                      <span className="text-sm font-medium text-[#0b1533]">
+                        Not sure what to pick? Ask <span className="font-bold">IdeaM Help</span> and we&apos;ll walk you through it.
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>

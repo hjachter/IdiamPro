@@ -10,9 +10,11 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        body: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Text', 'Inter', 'Segoe UI', 'Roboto', 'sans-serif'],
-        headline: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'Space Grotesk', 'sans-serif'],
-        code: ['SF Mono', 'Source Code Pro', 'Menlo', 'monospace'],
+        sans: ['var(--font-plex-sans)', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        body: ['var(--font-plex-sans)', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        headline: ['var(--font-plex-sans)', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        mono: ['var(--font-plex-mono)', 'SF Mono', 'Menlo', 'monospace'],
+        code: ['var(--font-plex-mono)', 'SF Mono', 'Menlo', 'monospace'],
       },
       colors: {
         background: 'hsl(var(--background))',

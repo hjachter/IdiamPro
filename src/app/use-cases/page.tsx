@@ -112,7 +112,7 @@ function WhoItsFor({ useCases }: { useCases: UseCase[] }) {
   return (
     <div>
       {/* Persona pills */}
-      <div role="tablist" aria-label="Who IdiamPro is for" className="flex flex-wrap justify-center gap-2 md:gap-3 mb-10">
+      <div role="tablist" aria-label="Who IdeaM is for" className="flex flex-wrap justify-center gap-2 md:gap-3 mb-10">
         {useCases.map((uc, i) => {
           const selected = i === active;
           const PillIcon = uc.icon;
@@ -150,7 +150,7 @@ function WhoItsFor({ useCases }: { useCases: UseCase[] }) {
             <div className={`w-14 h-14 rounded-2xl ${current.gradient} flex items-center justify-center mb-4 shadow-lg`}>
               <Icon className="w-7 h-7 text-white" />
             </div>
-            <div className="text-xs text-blue-600 font-medium uppercase tracking-wider mb-1">{current.subtitle}</div>
+            <div className="text-xs text-[#1e40af] font-mono font-semibold uppercase tracking-wider mb-1">{current.subtitle}</div>
             <h3 className="text-2xl font-bold text-[#0b1533] mb-3">{current.title}</h3>
             <p className="text-lg text-[#2b3a5c] font-medium leading-relaxed">{current.description}</p>
           </div>
@@ -190,7 +190,7 @@ export default function UseCasesPage() {
       icon: Scale,
       title: 'Trial Prep',
       subtitle: 'Attorneys & Paralegals',
-      description: 'Upload 200 pages of medical records, expert reports, and prior testimony. IdiamPro builds a chronological timeline, flags contradictions between sources, and produces a one-page list of questions to ask the witness. Three days of paralegal work — done in twenty minutes.',
+      description: 'Upload 200 pages of medical records, expert reports, and prior testimony. IdeaM builds a chronological timeline, flags contradictions between sources, and produces a one-page list of questions to ask the witness. Three days of paralegal work — done in twenty minutes.',
       gradient: 'bg-gradient-to-br from-blue-600 to-blue-700',
       examples: [
         { text: 'Drop in a 90-minute deposition recording — it transcribes the whole thing and labels who said what, so you can read the exchange instead of scrubbing audio.' },
@@ -204,7 +204,7 @@ export default function UseCasesPage() {
       icon: Microscope,
       title: 'Literature Reviews',
       subtitle: 'Researchers & PhD Students',
-      description: 'Drop fifty research papers into one outline. IdiamPro groups them by methodology, summarizes each finding in plain English, and shows where the field agrees and where it\'s still fighting. You arrive at the writing stage already knowing the structure of your argument.',
+      description: 'Drop fifty research papers into one outline. IdeaM groups them by methodology, summarizes each finding in plain English, and shows where the field agrees and where it\'s still fighting. You arrive at the writing stage already knowing the structure of your argument.',
       gradient: 'bg-gradient-to-br from-blue-600 to-blue-700',
       examples: [
         { text: 'Import 50 PDFs at once and get each paper summarized in plain English, grouped by method — no more reading abstracts one tab at a time.' },
@@ -218,7 +218,7 @@ export default function UseCasesPage() {
       icon: BookMarked,
       title: 'Writing Non-Fiction',
       subtitle: 'Authors & Writers',
-      description: 'Import interview transcripts, archival research, and your own notes. IdiamPro drafts chapter outlines from your source material, suggests where each anecdote fits the narrative, and flags chapters where you\'re thin on evidence — so you know what to research next.',
+      description: 'Import interview transcripts, archival research, and your own notes. IdeaM drafts chapter outlines from your source material, suggests where each anecdote fits the narrative, and flags chapters where you\'re thin on evidence — so you know what to research next.',
       gradient: 'bg-gradient-to-br from-blue-600 to-blue-700',
       examples: [
         { text: 'Give it your premise in one sentence and get a full chapter-by-chapter book outline to react to instead of staring at page one.' },
@@ -232,7 +232,7 @@ export default function UseCasesPage() {
       icon: Lightbulb,
       title: 'Client Engagements',
       subtitle: 'Consultants & Analysts',
-      description: 'Combine client emails, stakeholder interviews, and competitive research into one outline. IdiamPro produces a slide-deck outline organized by client priority, with every claim traceable back to the email, transcript, or report that supports it.',
+      description: 'Combine client emails, stakeholder interviews, and competitive research into one outline. IdeaM produces a slide-deck outline organized by client priority, with every claim traceable back to the email, transcript, or report that supports it.',
       gradient: 'bg-gradient-to-br from-blue-600 to-blue-700',
       examples: [
         { text: 'Import the client\'s data room — PDFs, spreadsheets, Google Docs and Slides — and have it organized into one working outline by lunch.' },
@@ -246,7 +246,7 @@ export default function UseCasesPage() {
       icon: Video,
       title: 'Learning from Video',
       subtitle: 'Students & Learners',
-      description: 'Paste a link to a 90-minute lecture. IdiamPro transcribes it, organizes the content by topic with timestamps, and turns it into a study guide. Then ask follow-up questions and get answers from the lecture itself — not generic web search.',
+      description: 'Paste a link to a 90-minute lecture. IdeaM transcribes it, organizes the content by topic with timestamps, and turns it into a study guide. Then ask follow-up questions and get answers from the lecture itself — not generic web search.',
       gradient: 'bg-gradient-to-br from-blue-600 to-blue-700',
       examples: [
         { text: 'Paste a YouTube lecture link and get a topic-organized study guide with timestamps — go straight to the five minutes you actually missed.' },
@@ -260,7 +260,7 @@ export default function UseCasesPage() {
       icon: Newspaper,
       title: 'Investigative Reporting',
       subtitle: 'Journalists & Reporters',
-      description: 'Import court records, leaked documents, and source interviews into a single secure outline. IdiamPro cross-references names, dates, and locations across sources to surface a coherent timeline. Every claim in your final story carries a click-through to the exact page that supports it.',
+      description: 'Import court records, leaked documents, and source interviews into a single secure outline. IdeaM cross-references names, dates, and locations across sources to surface a coherent timeline. Every claim in your final story carries a click-through to the exact page that supports it.',
       gradient: 'bg-gradient-to-br from-blue-600 to-blue-700',
       examples: [
         { text: 'Record a source interview and get it transcribed with each speaker identified — the exact quote, attributed, without a second listen.' },
@@ -274,8 +274,9 @@ export default function UseCasesPage() {
 
   return (
     <div className="fixed inset-0 bg-white text-[#0b1533] overflow-x-hidden overflow-y-auto">
-      <div className="fixed inset-0 bg-gradient-to-br from-white via-white to-white" />
-      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-600/[0.035] via-transparent to-transparent" />
+      {/* Carbon re-skin: flat, crisp white ground — no hazy blue radial wash,
+          matching the homepage's engineered IBM look. */}
+      <div className="fixed inset-0 bg-white" />
       <div className="relative z-10">
         <MarketingHeader />
         <main className="pt-28 lg:pt-32">
@@ -285,7 +286,7 @@ export default function UseCasesPage() {
             </Link>
           </div>
           <div className="text-center px-6 pt-8 pb-6 lg:px-12">
-            <div className="text-sm font-medium text-blue-600 uppercase tracking-wider mb-2">Who it's for</div>
+            <div className="text-sm font-mono font-semibold text-[#1e40af] uppercase tracking-wider mb-2">Who it's for</div>
             <h1 className="text-4xl md:text-5xl font-bold text-[#0b1533]">Use Cases</h1>
           </div>
         {/* Thinkers — primary target segment (writers are one example) */}
@@ -296,7 +297,7 @@ export default function UseCasesPage() {
                 Built for people who think for a living.
               </h2>
               <p className="text-lg md:text-xl text-[#2b3a5c] font-medium leading-relaxed mb-5">
-                However you earn your living, you earn it by thinking — researching, structuring, connecting ideas, and turning them into something real. IdiamPro is where that thinking takes shape: it pulls in your research, organizes it the way you reason, and helps you ship the result — a report, a strategy, a manuscript, a talk, a video.
+                However you earn your living, you earn it by thinking — researching, structuring, connecting ideas, and turning them into something real. IdeaM is where that thinking takes shape: it pulls in your research, organizes it the way you reason, and helps you ship the result — a report, a strategy, a manuscript, a talk, a video.
               </p>
               <div className="flex flex-wrap gap-2">
                 <span className="px-3 py-1 rounded-full bg-blue-600/10 border border-blue-600/20 text-blue-500 text-xs">Researchers</span>
@@ -321,10 +322,10 @@ export default function UseCasesPage() {
                 Most plans die the moment reality moves. Traditional project management builds a beautiful, rigid structure &mdash; the chart, the fixed timeline &mdash; and then life shifts, the plan shatters, and it ends up stale in a drawer. It assumes a world that holds still. <span className="text-[#0b1533] font-semibold">The world never holds still.</span>
               </p>
               <p className="text-lg md:text-xl text-[#2b3a5c] font-medium leading-relaxed mb-4">
-                IdiamPro&rsquo;s plan is <span className="text-blue-600 font-semibold">alive</span>. Because it&rsquo;s completely yours to shape, it bends and re-forms as your life unfolds &mdash; new information reshapes a branch, a closed door becomes a new route, an opening becomes your next move. It doesn&rsquo;t just plan your life; it keeps up with it.
+                IdeaM&rsquo;s plan is <span className="text-blue-600 font-semibold">alive</span>. Because it&rsquo;s completely yours to shape, it bends and re-forms as your life unfolds &mdash; new information reshapes a branch, a closed door becomes a new route, an opening becomes your next move. It doesn&rsquo;t just plan your life; it keeps up with it.
               </p>
               <p className="text-lg md:text-xl text-[#2b3a5c] font-medium leading-relaxed">
-                That&rsquo;s the difference between a plan and a <span className="text-blue-600 font-semibold">living</span> plan: one is a snapshot of a moment already gone &mdash; the other grows with you. IdiamPro is the living kind.
+                That&rsquo;s the difference between a plan and a <span className="text-blue-600 font-semibold">living</span> plan: one is a snapshot of a moment already gone &mdash; the other grows with you. IdeaM is the living kind.
               </p>
             </div>
           </div>
@@ -356,7 +357,7 @@ export default function UseCasesPage() {
                 </span>
               </h2>
               <p className="text-[#2b3a5c] text-lg md:text-xl font-medium max-w-2xl mx-auto">
-                Pick the work you do and see exactly how IdiamPro fits it — from PhD dissertations to investigative journalism.
+                Pick the work you do and see exactly how IdeaM fits it — from PhD dissertations to investigative journalism.
               </p>
             </div>
 
@@ -370,7 +371,7 @@ export default function UseCasesPage() {
                   <div className="text-3xl font-bold text-blue-600 mb-2">47 → 1</div>
                   <h4 className="text-[#0b1533] font-semibold mb-2">Literature Review Synthesis</h4>
                   <p className="text-[#2b3a5c] text-base font-medium mb-4">
-                    Imagine importing 47 research papers on computational biology — IdiamPro synthesizes them into a coherent literature review organized by methodology, findings, and gaps.
+                    Imagine importing 47 research papers on computational biology — IdeaM synthesizes them into a coherent literature review organized by methodology, findings, and gaps.
                   </p>
                   <div className="text-blue-600 text-xs font-medium">Example scenario • Computational Biology</div>
                 </div>
@@ -379,7 +380,7 @@ export default function UseCasesPage() {
                   <div className="text-3xl font-bold text-blue-600 mb-2">12 hrs → 30 min</div>
                   <h4 className="text-[#0b1533] font-semibold mb-2">Field Interview Analysis</h4>
                   <p className="text-[#2b3a5c] text-base font-medium mb-4">
-                    Imagine an R&D team recording 12 hours of stakeholder interviews across 3 sites — IdiamPro transcribes with speaker diarization and organizes insights by theme.
+                    Imagine an R&D team recording 12 hours of stakeholder interviews across 3 sites — IdeaM transcribes with speaker diarization and organizes insights by theme.
                   </p>
                   <div className="text-blue-600 text-xs font-medium">Example scenario • Industrial R&D</div>
                 </div>
@@ -388,7 +389,7 @@ export default function UseCasesPage() {
                   <div className="text-3xl font-bold text-blue-600 mb-2">2,400 docs</div>
                   <h4 className="text-[#0b1533] font-semibold mb-2">Legal Discovery</h4>
                   <p className="text-[#2b3a5c] text-base font-medium mb-4">
-                    Imagine a litigation team processing 2,400 discovery documents including depositions, contracts, and communications — IdiamPro organizes evidence by timeline and relevance.
+                    Imagine a litigation team processing 2,400 discovery documents including depositions, contracts, and communications — IdeaM organizes evidence by timeline and relevance.
                   </p>
                   <div className="text-blue-600 text-xs font-medium">Example scenario • Legal Discovery</div>
                 </div>

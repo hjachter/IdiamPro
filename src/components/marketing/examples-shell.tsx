@@ -67,7 +67,7 @@ export function ExamplesShell({
             Make something like this — free.
           </h2>
           <p className="text-lg text-[#2b3a5c] mb-8 max-w-xl mx-auto">
-            Start with an outline. IdiamPro turns it into whatever you need to publish.
+            Start with an outline. IdeaM turns it into whatever you need to publish.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <Button
@@ -92,7 +92,7 @@ export function ExamplesShell({
 }
 
 // A tasteful browser-chrome frame (matches the homepage showcase) that wraps a
-// screenshot so a rendered site reads as "a real site IdiamPro built."
+// screenshot so a rendered site reads as "a real site IdeaM built."
 export function BrowserFrame({
   src,
   alt,

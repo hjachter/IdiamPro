@@ -120,7 +120,7 @@ function AnimatedNumber({ value, suffix = '', prefix = '' }: { value: number; su
 }
 
 // One outline → many outputs — a hub-and-spoke visual. A central "One Outline"
-// node fans out to the finished formats IdiamPro actually ships. Desktop uses a
+// node fans out to the finished formats IdeaM actually ships. Desktop uses a
 // 3×3 grid ring with an SVG spoke layer whose endpoints land on fixed cell
 // centres (percentages of equal thirds, so they stay aligned at any width);
 // mobile stacks the hub above a 2-column card grid. Outputs listed here are all
@@ -246,8 +246,9 @@ function OneOutlineManyOutputs() {
 export default function FeaturesPage() {
   return (
     <div className="fixed inset-0 bg-white text-[#0b1533] overflow-x-hidden overflow-y-auto">
-      <div className="fixed inset-0 bg-gradient-to-br from-white via-white to-white" />
-      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-600/[0.035] via-transparent to-transparent" />
+      {/* Carbon re-skin: flat, crisp white ground — no hazy blue radial wash,
+          matching the homepage's engineered IBM look. */}
+      <div className="fixed inset-0 bg-white" />
       <div className="relative z-10">
         <MarketingHeader />
         <main className="pt-28 lg:pt-32">
@@ -257,7 +258,7 @@ export default function FeaturesPage() {
             </Link>
           </div>
           <div className="text-center px-6 pt-8 pb-6 lg:px-12">
-            <div className="text-sm font-medium text-blue-600 uppercase tracking-wider mb-2">What IdiamPro does</div>
+            <div className="text-sm font-mono font-semibold text-[#1e40af] uppercase tracking-wider mb-2">What IdeaM does</div>
             <h1 className="text-4xl md:text-5xl font-bold text-[#0b1533]">Features</h1>
           </div>
         <OneOutlineManyOutputs />
@@ -346,7 +347,7 @@ export default function FeaturesPage() {
                 Written work and multimedia, from one outline.
               </h2>
               <p className="text-lg md:text-xl text-[#2b3a5c] font-medium leading-relaxed mb-4">
-                IdiamPro is the idea developer for both written content and multimedia. Snap a whiteboard photo and watch it become a structured outline. Pick a branch and IdiamPro produces a complete YouTube content package — script, chapters, description, SEO, B-roll prompts. Multimedia in, multimedia out.
+                IdeaM is the idea developer for both written content and multimedia. Snap a whiteboard photo and watch it become a structured outline. Pick a branch and IdeaM produces a complete YouTube content package — script, chapters, description, SEO, B-roll prompts. Multimedia in, multimedia out.
               </p>
               <div className="flex flex-wrap gap-2">
                 <span className="px-3 py-1 rounded-full bg-[#f7faff] border border-[#dde5f2] text-[#475569] text-xs">Books &amp; long-form</span>
@@ -379,7 +380,7 @@ export default function FeaturesPage() {
                 </span>
               </h2>
               <p className="text-xl text-[#475569] max-w-3xl mx-auto leading-relaxed">
-                IdiamPro is a true intelligence amplifier—it doesn&apos;t just store information, it enhances
+                IdeaM is a true intelligence amplifier—it doesn&apos;t just store information, it enhances
                 your cognitive capabilities. Build a knowledge repository that grows with you, surfaces hidden
                 connections, and accelerates your thinking.
               </p>
@@ -389,14 +390,13 @@ export default function FeaturesPage() {
             <div className="grid md:grid-cols-3 gap-8">
               {/* Expanded Scope */}
               <div className="relative group">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-blue-600/10 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="relative p-8 rounded-3xl bg-[#f7faff] border border-[#dde5f2] hover:border-blue-600/30 transition-all duration-300 h-full">
+                <div className="relative p-8 rounded-2xl bg-[#f7faff] border border-[#dde5f2] hover:border-blue-600/40 transition-all duration-300 h-full">
                   <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center mb-6 shadow-lg shadow-blue-600/30">
                     <Globe className="w-8 h-8 text-white" />
                   </div>
                   <h3 className="text-2xl font-bold text-[#0b1533] mb-4">Expanded Knowledge Scope</h3>
                   <p className="text-lg text-[#2b3a5c] leading-relaxed mb-4">
-                    Your brain can only hold so much. IdiamPro becomes your external memory—capturing every source,
+                    Your brain can only hold so much. IdeaM becomes your external memory—capturing every source,
                     every insight, every connection you&apos;ve ever encountered. Access decades of accumulated
                     knowledge instantly.
                   </p>
@@ -410,8 +410,7 @@ export default function FeaturesPage() {
 
               {/* Speed of Access */}
               <div className="relative group">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-blue-600/10 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="relative p-8 rounded-3xl bg-[#f7faff] border border-[#dde5f2] hover:border-blue-600/30 transition-all duration-300 h-full">
+                <div className="relative p-8 rounded-2xl bg-[#f7faff] border border-[#dde5f2] hover:border-blue-600/40 transition-all duration-300 h-full">
                   <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center mb-6 shadow-lg shadow-blue-600/30">
                     <Zap className="w-8 h-8 text-white" />
                   </div>
@@ -430,8 +429,7 @@ export default function FeaturesPage() {
 
               {/* Pattern Recognition */}
               <div className="relative group">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-blue-600/10 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="relative p-8 rounded-3xl bg-[#f7faff] border border-[#dde5f2] hover:border-blue-600/30 transition-all duration-300 h-full">
+                <div className="relative p-8 rounded-2xl bg-[#f7faff] border border-[#dde5f2] hover:border-blue-600/40 transition-all duration-300 h-full">
                   <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center mb-6 shadow-lg shadow-blue-600/30">
                     <Network className="w-8 h-8 text-white" />
                   </div>
@@ -454,7 +452,7 @@ export default function FeaturesPage() {
               <Quote className="w-12 h-12 text-blue-600/50 mx-auto mb-6" />
               <blockquote className="text-2xl lg:text-3xl font-light text-[#0b1533] italic max-w-4xl mx-auto leading-relaxed">
                 &ldquo;The difference between experts and novices isn&apos;t just what they know—it&apos;s how quickly
-                they can access and connect that knowledge. IdiamPro gives everyone an expert&apos;s cognitive edge.&rdquo;
+                they can access and connect that knowledge. IdeaM gives everyone an expert&apos;s cognitive edge.&rdquo;
               </blockquote>
               <div className="mt-6 text-[#64748b]">
                 — The Cognitive Enhancement Philosophy
@@ -487,8 +485,7 @@ export default function FeaturesPage() {
               {/* Hero row - the flagship synthesis workflow + two signature captures */}
               <div className="grid md:grid-cols-2 gap-6">
                 {/* Research Synthesis - Hero Workflow */}
-                <div className="md:col-span-2 group relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600/20 via-blue-600/10 to-blue-600/20 border border-blue-600/30 p-8 lg:p-12 hover:border-blue-600/50 transition-all duration-500">
-                  <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl -tranteal-y-1/2 tranteal-x-1/2" />
+                <div className="md:col-span-2 group relative overflow-hidden rounded-2xl bg-[#f7faff] border border-blue-600/30 p-8 lg:p-12 hover:border-blue-600/50 transition-all duration-500">
                   <div className="relative">
                     <div className="flex items-center gap-3 mb-4">
                       <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-lg shadow-blue-600/30">
@@ -526,8 +523,7 @@ export default function FeaturesPage() {
                 </div>
 
                 {/* Meeting Transcription */}
-                <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600/10 to-blue-600/10 border border-blue-600/20 p-8 hover:border-blue-600/40 transition-all duration-500">
-                  <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl -tranteal-y-1/2 tranteal-x-1/2" />
+                <div className="group relative overflow-hidden rounded-2xl bg-[#f7faff] border border-[#dde5f2] p-8 hover:border-blue-600/40 transition-all duration-500">
                   <div className="relative">
                     <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-lg shadow-blue-600/30 mb-4">
                       <Headphones className="w-6 h-6 text-white" />
@@ -545,8 +541,7 @@ export default function FeaturesPage() {
                 </div>
 
                 {/* Generate Podcasts */}
-                <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600/10 to-blue-600/10 border border-blue-600/20 p-8 hover:border-blue-600/40 transition-all duration-500">
-                  <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl -tranteal-y-1/2 tranteal-x-1/2" />
+                <div className="group relative overflow-hidden rounded-2xl bg-[#f7faff] border border-[#dde5f2] p-8 hover:border-blue-600/40 transition-all duration-500">
                   <div className="relative">
                     <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-lg shadow-blue-600/30 mb-4">
                       <Podcast className="w-6 h-6 text-white" />
@@ -637,7 +632,7 @@ export default function FeaturesPage() {
                 Real screenshots, real product.
               </h2>
               <p className="text-lg md:text-xl text-[#2b3a5c] font-medium leading-relaxed max-w-2xl mx-auto">
-                No mockups. This is IdiamPro today — from the writing workspace to the finished outputs it produces.
+                No mockups. This is IdeaM today — from the writing workspace to the finished outputs it produces.
               </p>
             </div>
 
@@ -673,7 +668,7 @@ export default function FeaturesPage() {
                   </div>
                   <img
                     src="/screenshots/outline-editor.png"
-                    alt="IdiamPro workspace in dark mode"
+                    alt="IdeaM workspace in dark mode"
                     loading="lazy"
                     className="w-full h-auto block"
                   />
@@ -763,7 +758,7 @@ export default function FeaturesPage() {
         <section id="features" className="px-6 py-24 lg:px-12">
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-16">
-              <p className="text-blue-600 font-medium mb-2">Why Professionals Choose IdiamPro</p>
+              <p className="text-blue-600 font-medium mb-2">Why Professionals Choose IdeaM</p>
               <h2 className="text-3xl lg:text-5xl font-bold mb-4">
                 Built for{' '}
                 <span className="bg-gradient-to-r from-blue-600 to-blue-600 bg-clip-text text-transparent">
@@ -771,7 +766,7 @@ export default function FeaturesPage() {
                 </span>
               </h2>
               <p className="text-lg md:text-xl text-[#2b3a5c] font-medium max-w-2xl mx-auto">
-                Consumer note-taking apps weren't designed for professional research. IdiamPro was built from the ground up for serious knowledge synthesis.
+                Consumer note-taking apps weren't designed for professional research. IdeaM was built from the ground up for serious knowledge synthesis.
               </p>
             </div>
 
@@ -811,7 +806,7 @@ export default function FeaturesPage() {
               <div className="p-8 rounded-3xl bg-gradient-to-br from-blue-600/10 to-blue-600/10 border border-blue-600/30">
                 <h3 className="text-lg font-semibold text-[#0b1533] mb-6 flex items-center gap-2">
                   <span className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-xs">✓</span>
-                  What IdiamPro does differently
+                  What IdeaM does differently
                 </h3>
                 <ul className="space-y-4">
                   <li className="flex items-start gap-3 text-[#0b1533] text-base">
@@ -845,7 +840,7 @@ export default function FeaturesPage() {
                   <tr className="border-b border-[#dde5f2]">
                     <th className="text-left py-4 px-4 text-[#0b1533] font-semibold">Feature</th>
                     <th className="text-center py-4 px-4">
-                      <span className="text-blue-600 font-bold">IdiamPro</span>
+                      <span className="text-blue-600 font-bold">IdeaM</span>
                     </th>
                     <th className="text-center py-4 px-4 text-[#64748b]">Notion</th>
                     <th className="text-center py-4 px-4 text-[#64748b]">Obsidian</th>
@@ -921,8 +916,7 @@ export default function FeaturesPage() {
             </div>
 
             {/* Scale Callout */}
-            <div className="mt-16 p-8 lg:p-12 rounded-3xl bg-gradient-to-r from-blue-600/10 via-blue-600/10 to-blue-600/10 border border-blue-600/20 text-center relative overflow-hidden">
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-600/10 via-transparent to-transparent" />
+            <div className="mt-16 p-8 lg:p-12 rounded-2xl bg-[#f7faff] border border-blue-600/20 text-center relative overflow-hidden">
               <div className="relative">
                 <h3 className="text-4xl lg:text-6xl font-bold text-[#0b1533] mb-4">
                   <AnimatedNumber value={1000000} prefix="" suffix="+" />
@@ -1008,7 +1002,7 @@ export default function FeaturesPage() {
                   </span>
                 </h2>
                 <p className="text-lg md:text-xl text-[#2b3a5c] font-medium mb-8">
-                  Unlike cloud-first apps that hold your data hostage, IdiamPro is built local-first.
+                  Unlike cloud-first apps that hold your data hostage, IdeaM is built local-first.
                   Your outlines live on your device. You're always in control.
                 </p>
 
@@ -1056,8 +1050,7 @@ export default function FeaturesPage() {
               </div>
 
               <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-blue-600/20 rounded-3xl blur-3xl" />
-                <div className="relative p-8 lg:p-12 rounded-3xl bg-white/80 border border-blue-600/20">
+                <div className="relative p-8 lg:p-12 rounded-2xl bg-[#f7faff] border border-blue-600/20">
                   <div className="text-center">
                     <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center mx-auto mb-6 shadow-lg shadow-blue-600/30">
                       <Shield className="w-10 h-10 text-white" />

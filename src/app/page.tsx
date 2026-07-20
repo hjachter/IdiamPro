@@ -72,8 +72,7 @@ import {
   SpeakerIcon,
   Volume2,
   BarChart3,
-  Languages,
-  AlertTriangle
+  Languages
 } from 'lucide-react';
 
 // ============================================
@@ -81,7 +80,7 @@ import {
 // ============================================
 
 // Sign-up URL — the public entry point for new users. The home page no
-// longer links directly to /app: anyone who wants to try IdiamPro applies
+// longer links directly to /app: anyone who wants to try IdeaM applies
 // for the invite-only beta first, and Howard approves each one personally.
 // The /app route is still reachable for already-approved users (via the
 // hero CTA's SignedIn branch and via deep links once they're authed); the
@@ -131,22 +130,12 @@ function ParticlesBackground() {
     { left: 51, top: 38, delay: 0.3, duration: 15 },
   ];
 
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {particles.map((p, i) => (
-        <div
-          key={i}
-          className="absolute w-1 h-1 bg-blue-600/40 rounded-full animate-float"
-          style={{
-            left: `${p.left}%`,
-            top: `${p.top}%`,
-            animationDelay: `${p.delay}s`,
-            animationDuration: `${p.duration}s`,
-          }}
-        />
-      ))}
-    </div>
-  );
+  // Carbon re-skin: the floating particle field fought IBM's precise, engineered
+  // feel, so it's intentionally disabled. Kept as a no-op (rather than deleted)
+  // so the decorative layer can be reinstated quickly if desired. The `particles`
+  // data above is retained for that reason.
+  void particles;
+  return null;
 }
 
 // Idea development band — the page's thesis: "a great idea isn't a single
@@ -161,7 +150,7 @@ function IdeaDevelopmentBand() {
             A great idea isn&apos;t a single prompt.
           </h2>
           <p className="text-lg md:text-xl font-medium text-[#2b3a5c] leading-relaxed max-w-[660px] mx-auto">
-            It might take a hundred sources — articles, PDFs, videos, notes, textbooks — read, weighed, and merged into one outline before the essence comes into focus. Developing an idea is iterative: many passes, not one flash. IdiamPro is built for that work.
+            It might take a hundred sources — articles, PDFs, videos, notes, textbooks — read, weighed, and merged into one outline before the essence comes into focus. Developing an idea is iterative: many passes, not one flash. IdeaM is built for that work.
           </p>
         </div>
 
@@ -178,12 +167,12 @@ function IdeaDevelopmentBand() {
               controls
               playsInline
               preload="metadata"
-              aria-label="Watch IdiamPro turn one idea into finished work — produced by IdiamPro"
+              aria-label="Watch IdeaM turn one idea into finished work — produced by IdeaM"
             />
           </div>
           <p className="mt-3 flex items-center justify-center gap-1.5 text-sm font-semibold text-[#1e40af]">
             <Video className="h-3.5 w-3.5" />
-            Watch IdiamPro turn one idea into finished work
+            Watch IdeaM turn one idea into finished work
           </p>
         </div>
 
@@ -318,7 +307,7 @@ function ShowcaseRow({
       <div className={`${reverse ? 'lg:order-2' : ''} max-w-xl ${reverse ? 'lg:ml-auto' : ''}`}>
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-600/12 border border-blue-600/30 mb-4">
           <Icon className="w-3.5 h-3.5 text-[#1e40af]" />
-          <span className="text-xs font-bold uppercase tracking-wider text-[#1e40af]">{eyebrow}</span>
+          <span className="text-xs font-mono font-semibold uppercase tracking-wider text-[#1e40af]">{eyebrow}</span>
         </div>
         <h3 className="text-3xl md:text-4xl lg:text-[2.6rem] font-extrabold text-[#0b1533] tracking-tight leading-[1.08] mb-4">
           {headline}
@@ -352,7 +341,7 @@ function SeeItShowcase() {
             Seeing is believing.
           </h2>
           <p className="text-lg md:text-xl font-medium text-[#2b3a5c] leading-relaxed max-w-[680px] mx-auto">
-            Real screens from IdiamPro. Point it at an idea — and watch it become finished, beautiful work.
+            Real screens from IdeaM. Point it at an idea — and watch it become finished, beautiful work.
           </p>
         </div>
 
@@ -364,7 +353,7 @@ function SeeItShowcase() {
             headline="Turn scattered thinking into a clear visual plan."
             support="Drop in your ideas and watch them become a structured outline — complete with an AI-generated mind-map you can actually follow."
             src="/screenshots/01-hero-strategy-mindmap.png"
-            alt="A strategy plan in IdiamPro with an AI-generated mind-map of its structure"
+            alt="A strategy plan in IdeaM with an AI-generated mind-map of its structure"
           />
         </div>
 
@@ -376,7 +365,7 @@ function SeeItShowcase() {
             headline="One window. Every kind of content."
             support="Text, videos, a flowchart, and a table — all living together in a single page. No tab-hopping, no scattered files."
             src="/screenshots/all-in-one-window-2.png"
-            alt="A single IdiamPro page holding a video, headings and text, a flowchart, a data table, and a second video all at once"
+            alt="A single IdeaM page holding a video, headings and text, a flowchart, a data table, and a second video all at once"
             reverse
           />
         </div>
@@ -386,19 +375,19 @@ function SeeItShowcase() {
           <div className="text-center max-w-3xl mx-auto mb-10">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-blue-600 to-[#1e40af] mb-5 shadow-md shadow-blue-600/25">
               <BarChart3 className="w-3.5 h-3.5 text-white" />
-              <span className="text-xs font-bold uppercase tracking-wider text-white">Killer feature</span>
+              <span className="text-xs font-mono font-semibold uppercase tracking-wider text-white">Killer feature</span>
             </div>
             <h3 className="text-4xl md:text-5xl lg:text-[3.4rem] font-extrabold text-[#0b1533] tracking-tight leading-[1.05] mb-4">
               Ask for a spreadsheet.<br className="hidden sm:block" /> Get one — filled in.
             </h3>
             <p className="text-lg md:text-2xl font-medium text-[#2b3a5c] leading-relaxed max-w-[720px] mx-auto">
-              Describe the numbers you need. IdiamPro builds a real, editable spreadsheet — with the data already in the cells.
+              Describe the numbers you need. IdeaM builds a real, editable spreadsheet — with the data already in the cells.
             </p>
           </div>
           <div className="max-w-[1200px] mx-auto">
             <ProductFrame
               src="/screenshots/02-ai-spreadsheet.png"
-              alt="IdiamPro generating a real, filled-in budget spreadsheet from a request"
+              alt="IdeaM generating a real, filled-in budget spreadsheet from a request"
             />
           </div>
         </div>
@@ -411,7 +400,7 @@ function SeeItShowcase() {
             headline="Organize and track anything, beautifully."
             support="Color-coded status boards keep every workstream, owner, and deadline in view — so nothing slips and progress is obvious at a glance."
             src="/screenshots/03-status-dashboard.png"
-            alt="A colorful status board in IdiamPro tracking workstreams and progress"
+            alt="A colorful status board in IdeaM tracking workstreams and progress"
             reverse
           />
           <ShowcaseRow
@@ -420,7 +409,7 @@ function SeeItShowcase() {
             headline="Let AI develop, expand, and structure your ideas."
             support="One click to generate from context, expand a single thought, or build out every branch at once — the thinking grows with you."
             src="/screenshots/04-generate-smarttools.png"
-            alt="IdiamPro's Generate / Smart Tools menu for developing ideas with AI"
+            alt="IdeaM's Generate / Smart Tools menu for developing ideas with AI"
           />
           <ShowcaseRow
             icon={GitBranch}
@@ -428,7 +417,7 @@ function SeeItShowcase() {
             headline="Generate mind-maps, flowcharts, and diagrams on command."
             support="Turn any branch of your outline into a diagram — instantly, from what you've already written. No drawing, no dragging boxes."
             src="/screenshots/diagrams-all-three.png"
-            alt="A single IdiamPro page showing a mind-map, a flowchart, and a gantt timeline generated together"
+            alt="A single IdeaM page showing a mind-map, a flowchart, and a gantt timeline generated together"
             reverse
           />
           {/* All-in-one claim — proved with a PAIR of real frames: a doc with a
@@ -438,7 +427,7 @@ function SeeItShowcase() {
             <div className="max-w-xl mb-8">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-600/12 border border-blue-600/30 mb-4">
                 <Layers className="w-3.5 h-3.5 text-[#1e40af]" />
-                <span className="text-xs font-bold uppercase tracking-wider text-[#1e40af]">All in one place</span>
+                <span className="text-xs font-mono font-semibold uppercase tracking-wider text-[#1e40af]">All in one place</span>
               </div>
               <h3 className="text-3xl md:text-4xl lg:text-[2.6rem] font-extrabold text-[#0b1533] tracking-tight leading-[1.08] mb-4">
                 Docs, sheets, videos, and more — together.
@@ -450,11 +439,11 @@ function SeeItShowcase() {
             <div className="grid md:grid-cols-2 gap-6 lg:gap-8">
               <ProductFrame
                 src="/screenshots/docs-sheets-videos.png"
-                alt="A document in IdiamPro with a video playing inside it, and the outline tree showing a doc, a sheet, and a video together"
+                alt="A document in IdeaM with a video playing inside it, and the outline tree showing a doc, a sheet, and a video together"
               />
               <ProductFrame
                 src="/screenshots/docs-sheets-videos-sheet.png"
-                alt="A live budget spreadsheet in IdiamPro from the same workspace"
+                alt="A live budget spreadsheet in IdeaM from the same workspace"
               />
             </div>
           </div>
@@ -462,9 +451,9 @@ function SeeItShowcase() {
             icon={Languages}
             eyebrow="Any language"
             headline="Work and publish in 21 languages."
-            support="Capture, develop, and produce finished work in the language you think in — IdiamPro speaks 21 languages, so your ideas aren't limited by where you're from."
+            support="Capture, develop, and produce finished work in the language you think in — IdeaM speaks 21 languages, so your ideas aren't limited by where you're from."
             src="/screenshots/languages.png"
-            alt="IdiamPro's language menu offering 21 languages"
+            alt="IdeaM's language menu offering 21 languages"
             reverse
           />
         </div>
@@ -491,10 +480,10 @@ export default function MarketingPage() {
 
   return (
     <div className="fixed inset-0 bg-white text-[#0b1533] overflow-x-hidden overflow-y-auto">
-      {/* Background gradients */}
-      <div className="fixed inset-0 bg-gradient-to-br from-white via-white to-white" />
-      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-600/[0.035] via-transparent to-transparent" />
-      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-blue-600/[0.02] via-transparent to-transparent" />
+      {/* Carbon re-skin: flat, precise white ground — the soft radial glows that
+          used to sit here were dialed out to match IBM's crisp, engineered look.
+          The vivid blue lives in the CTAs and accents, not a hazy wash. */}
+      <div className="fixed inset-0 bg-white" />
 
       <ParticlesBackground />
 
@@ -530,7 +519,7 @@ export default function MarketingPage() {
                   — refined over many passes, then published in whatever format you need.
                 </p>
 
-                {/* Output strip — provable formats IdiamPro produces. The
+                {/* Output strip — provable formats IdeaM produces. The
                     formats with real example galleries are clickable chips that
                     navigate to their gallery; the rest point to the examples hub. */}
                 <div className="flex flex-wrap justify-center gap-2 mb-8 max-w-2xl mx-auto">
@@ -562,7 +551,7 @@ export default function MarketingPage() {
                       size="lg"
                       className="bg-gradient-to-br from-[#38bdf8] via-[#2563eb] to-[#4f46e5] hover:from-[#2563eb] hover:to-[#4338ca] text-white font-bold px-8 py-6 text-base shadow-xl shadow-blue-700/35"
                     >
-                      Sign up to try IdiamPro free
+                      Sign up to try IdeaM free
                       <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>
                     <button
@@ -580,7 +569,7 @@ export default function MarketingPage() {
                       size="lg"
                       className="bg-gradient-to-br from-[#38bdf8] via-[#2563eb] to-[#4f46e5] hover:from-[#2563eb] hover:to-[#4338ca] text-white font-bold px-8 py-6 text-base shadow-xl shadow-blue-700/35"
                     >
-                      Open IdiamPro
+                      Open IdeaM
                       <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>
                   </SignedIn>
@@ -598,36 +587,36 @@ export default function MarketingPage() {
         </div>
         </section>
 
-        {/* FIRST video — the conceptual film + the "Who IdiamPro Is For" segments,
+        {/* FIRST video — the conceptual film + the "Who IdeaM Is For" segments,
             leading the page (audience first). Founder's story follows below. */}
         <IdeaDevelopmentBand />
 
-        {/* Three categories — the crisp crystallization of IdiamPro's category:
-            query box ANSWERS, outliner STORES, IdiamPro DEVELOPS. Light Clarity
+        {/* Three categories — the crisp crystallization of IdeaM's category:
+            query box ANSWERS, outliner STORES, IdeaM DEVELOPS. Light Clarity
             band; leads into the dark tool-by-tool grid below as the deeper dive. */}
         <section className="px-6 py-24 lg:px-12 border-t border-[#dde5f2]">
           <div className="max-w-[1600px] mx-auto">
             <div className="text-center max-w-3xl mx-auto mb-14">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-600/15 border border-blue-600/40 mb-6">
                 <Layers className="w-4 h-4 text-[#1e40af]" />
-                <span className="text-sm font-semibold text-[#1e40af]">Where IdiamPro fits</span>
+                <span className="text-sm font-semibold text-[#1e40af]">Where IdeaM fits</span>
               </div>
               <h2 className="text-4xl md:text-5xl font-extrabold text-[#0b1533] mb-4 tracking-tight">
                 Three kinds of tools. Only one thinks <span className="text-[#1e40af]">with</span> you.
               </h2>
               <p className="text-lg md:text-xl font-medium text-[#2b3a5c] leading-relaxed max-w-[720px] mx-auto">
-                A query box answers. A filing cabinet stores. IdiamPro develops — the difference between a moment and a process.
+                A query box answers. A filing cabinet stores. IdeaM develops — the difference between a moment and a process.
               </p>
             </div>
 
-            {/* Three columns — first two muted, IdiamPro the highlighted culmination */}
+            {/* Three columns — first two muted, IdeaM the highlighted culmination */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5 items-stretch">
               {/* 1 — The query box */}
               <div className="flex flex-col rounded-2xl border border-[#dde5f2] bg-[#f7faff] p-7">
                 <div className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-[#eef2f9] border border-[#dde5f2] mb-5">
                   <MessagesSquare className="w-5 h-5 text-[#5b6b85]" />
                 </div>
-                <div className="text-xs font-bold uppercase tracking-wider text-[#5b6b85] mb-1">The query box</div>
+                <div className="text-xs font-mono font-semibold uppercase tracking-wider text-[#5b6b85] mb-1">The query box</div>
                 <div className="text-sm text-[#5b6b85] mb-4">ChatGPT · Gemini · Claude chat</div>
                 <div className="text-5xl md:text-6xl font-black text-[#475569] mb-4 tracking-tight leading-none">Answers.</div>
                 <p className="text-base font-medium text-[#2b3a5c] leading-relaxed">
@@ -640,7 +629,7 @@ export default function MarketingPage() {
                 <div className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-[#eef2f9] border border-[#dde5f2] mb-5">
                   <FolderTree className="w-5 h-5 text-[#5b6b85]" />
                 </div>
-                <div className="text-xs font-bold uppercase tracking-wider text-[#5b6b85] mb-1">The outliner / vault</div>
+                <div className="text-xs font-mono font-semibold uppercase tracking-wider text-[#5b6b85] mb-1">The outliner / vault</div>
                 <div className="text-sm text-[#5b6b85] mb-4">Obsidian · Notion · Roam</div>
                 <div className="text-5xl md:text-6xl font-black text-[#475569] mb-4 tracking-tight leading-none">Stores.</div>
                 <p className="text-base font-medium text-[#2b3a5c] leading-relaxed">
@@ -648,15 +637,15 @@ export default function MarketingPage() {
                 </p>
               </div>
 
-              {/* 3 — IdiamPro (highlighted culmination) */}
+              {/* 3 — IdeaM (highlighted culmination) */}
               <div className="relative flex flex-col rounded-2xl border-2 border-blue-600 bg-gradient-to-br from-blue-700/12 to-blue-700/[0.06] p-7 shadow-2xl shadow-blue-600/20 md:-mt-3">
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-blue-600 to-[#1e40af] px-4 py-1 text-xs font-bold uppercase tracking-wider text-white shadow-md whitespace-nowrap">
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-blue-600 to-[#1e40af] px-4 py-1 text-xs font-mono font-semibold uppercase tracking-wider text-white shadow-md whitespace-nowrap">
                   A different category
                 </span>
                 <div className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-blue-600/25 border border-blue-600/40 mb-5">
                   <Brain className="w-5 h-5 text-[#1e40af]" />
                 </div>
-                <div className="text-xs font-bold uppercase tracking-wider text-[#1e40af] mb-1">IdiamPro</div>
+                <div className="text-xs font-mono font-semibold uppercase tracking-wider text-[#1e40af] mb-1">IdeaM</div>
                 <div className="text-sm text-[#1e40af] mb-4">The idea-development engine</div>
                 <div className="text-5xl md:text-6xl font-black text-[#1e40af] mb-4 tracking-tight leading-none">Develops.</div>
                 <p className="text-base font-medium text-[#2b3a5c] leading-relaxed mb-4">
@@ -684,7 +673,7 @@ export default function MarketingPage() {
                 <div className="p-3 md:p-4" />
                 <div className="p-3 md:p-4 text-center text-[11px] md:text-xs font-bold text-[#5b6b85] leading-tight">Query<br className="sm:hidden" /> box</div>
                 <div className="p-3 md:p-4 text-center text-[11px] md:text-xs font-bold text-[#5b6b85] leading-tight">Outliner<br className="sm:hidden" /> / vault</div>
-                <div className="p-3 md:p-4 text-center text-[11px] md:text-xs font-extrabold text-[#1e40af] leading-tight bg-blue-600/10">IdiamPro</div>
+                <div className="p-3 md:p-4 text-center text-[11px] md:text-xs font-extrabold text-[#1e40af] leading-tight bg-blue-600/10">IdeaM</div>
               </div>
               {[
                 { row: 'Memory that grows over time', a: false, b: 'partial', c: true },
@@ -743,7 +732,7 @@ export default function MarketingPage() {
                 controls
                 playsInline
                 preload="metadata"
-                aria-label="Watch the 30-second IdiamPro sizzle reel — produced by IdiamPro"
+                aria-label="Watch the 30-second IdeaM sizzle reel — produced by IdeaM"
               />
             </div>
 
@@ -820,11 +809,11 @@ export default function MarketingPage() {
                 >
                   <h3 className="text-base font-bold text-white mb-4">{c.name}</h3>
                   <div className="mb-4">
-                    <div className="text-[11px] font-bold uppercase tracking-wider text-white/50 mb-1.5">They</div>
+                    <div className="text-[11px] font-mono font-semibold uppercase tracking-wider text-white/50 mb-1.5">They</div>
                     <p className="text-base font-medium text-white/75 leading-relaxed">{c.they}</p>
                   </div>
                   <div className="mt-auto pt-4 border-t border-white/10">
-                    <div className="text-[11px] font-bold uppercase tracking-wider text-blue-300 mb-1.5">We</div>
+                    <div className="text-[11px] font-mono font-semibold uppercase tracking-wider text-blue-300 mb-1.5">We</div>
                     <p className="text-base font-medium text-blue-100/90 leading-relaxed">{c.we}</p>
                   </div>
                 </div>
@@ -883,7 +872,7 @@ export default function MarketingPage() {
                     </div>
                   </div>
                   <div className="p-5 md:p-6">
-                    <div className="text-xs text-[#1e40af] font-bold uppercase tracking-wider mb-1">{wf.label}</div>
+                    <div className="text-xs text-[#1e40af] font-mono font-semibold uppercase tracking-wider mb-1">{wf.label}</div>
                     <h3 className="text-lg font-semibold text-[#0b1533] mb-1">{wf.title}</h3>
                     <p className="text-[#2b3a5c] text-base font-medium leading-relaxed mb-3">{wf.desc}</p>
                     <span className="inline-flex items-center gap-1 text-sm font-semibold text-[#1e40af] group-hover:gap-2 transition-all">
@@ -912,9 +901,9 @@ export default function MarketingPage() {
         <section className="px-6 py-20 lg:px-12">
           <div className="max-w-[1600px] mx-auto">
             <div className="text-center max-w-3xl mx-auto mb-12">
-              <h2 className="text-4xl md:text-5xl font-extrabold text-[#0b1533] mb-4 tracking-tight">Explore IdiamPro</h2>
+              <h2 className="text-4xl md:text-5xl font-extrabold text-[#0b1533] mb-4 tracking-tight">Explore IdeaM</h2>
               <p className="text-lg md:text-xl font-medium text-[#2b3a5c] leading-relaxed">
-                Go deeper into what IdiamPro does, who it&apos;s for, and how it&apos;s priced.
+                Go deeper into what IdeaM does, who it&apos;s for, and how it&apos;s priced.
               </p>
             </div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
@@ -968,7 +957,7 @@ export default function MarketingPage() {
                 {
                   n: '1',
                   icon: Download,
-                  title: 'Download IdiamPro',
+                  title: 'Download IdeaM',
                   body: 'Get it on Mac, iPhone & iPad, or run it right in your web browser. Your work syncs with you.',
                   chips: ['Mac', 'iPhone · iPad', 'Web'],
                 },
@@ -1016,77 +1005,10 @@ export default function MarketingPage() {
               })}
             </div>
 
-            {/* Keep your work safe — DELIBERATE RED LIABILITY-DISCLAIMER treatment
-                (Howard 2026-07-16: red, bold, bordered — a warning, not a tip).
-                Local-first: files live on the user's device (desktop) or in the
-                browser's storage (web), so off-device backup is the user's
-                responsibility. Covers BOTH the native-file case and the more
-                fragile browser-storage case. No literal flashing — a professional
-                tool doesn't blink, and it breaks screen readers. */}
-            <div className="mb-20">
-              <div className="relative overflow-hidden rounded-2xl border-2 border-red-500 bg-red-50 p-7 sm:p-9 shadow-lg shadow-red-500/15">
-                <div className="flex flex-col sm:flex-row sm:items-start gap-5">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-red-600 to-red-700 text-white shadow-md shadow-red-600/25">
-                    <AlertTriangle className="h-6 w-6" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex flex-wrap items-center gap-2 mb-2">
-                      <span className="inline-flex items-center rounded-full bg-red-600 px-3 py-1 text-xs font-bold uppercase tracking-wider text-white">
-                        Important — please read
-                      </span>
-                    </div>
-                    <h3 className="text-2xl md:text-3xl font-extrabold text-red-700 tracking-tight mb-3">
-                      Keep your work safe — back it up
-                    </h3>
-                    <p className="text-lg leading-relaxed mb-3">
-                      <span className="font-bold text-red-700">Your work lives on your own device, and keeping it safe is ultimately your responsibility. Store your IdiamPro files in a location that&apos;s automatically backed up.</span>
-                      <span className="text-[#2b3a5c]"> The method is your choice — iCloud Drive, Dropbox, Google Drive, OneDrive, a Time Machine disk, or any backup you trust. IdiamPro keeps automatic local snapshots as a safety net, but they are </span>
-                      <span className="font-bold text-red-700">not a substitute for your own off-device backup.</span>
-                    </p>
-                    <p className="text-lg leading-relaxed mb-4">
-                      <span className="font-bold text-red-700">Using the free web version in a browser? Your work is saved inside that browser, on that device — and it can be lost if you clear your browser data, use private/incognito mode, or switch browsers.</span>
-                      <span className="text-[#2b3a5c]"> Export your outlines regularly and keep the copies in a backed-up location.</span>
-                    </p>
-                    <div className="flex flex-wrap gap-2 mb-5">
-                      {['iCloud Drive', 'Dropbox', 'Google Drive', 'OneDrive', 'Time Machine', 'Your choice'].map((c) => (
-                        <span
-                          key={c}
-                          className="inline-flex items-center rounded-full bg-white border border-red-300 px-3 py-1 text-xs font-semibold text-red-700"
-                        >
-                          {c}
-                        </span>
-                      ))}
-                    </div>
-                    <div className="mb-5 rounded-xl border border-red-200 bg-white/60 p-4">
-                      <div className="mb-2 text-xs font-bold uppercase tracking-wider text-red-700">
-                        More ways to protect your work
-                      </div>
-                      <ul className="grid gap-2 text-base text-[#2b3a5c] sm:grid-cols-2">
-                        {[
-                          'Keep more than one copy — the 3-2-1 rule: 3 copies, on 2 kinds of storage, 1 kept off-site.',
-                          'Use a backup that keeps version history (Time Machine, iCloud, Dropbox) so you can roll back a bad change or a corrupted file.',
-                          'Export important outlines before any big reorganization or deletion — an extra copy costs nothing.',
-                          'Occasionally test that you can actually restore a file — an untested backup isn’t a backup.',
-                          'Protect the device itself: turn on disk encryption (FileVault on Mac) and a passcode/login.',
-                          'Turn on two-factor authentication for your cloud/backup account so the backup itself stays secure.',
-                        ].map((m) => (
-                          <li key={m} className="flex items-start gap-2">
-                            <Check className="mt-0.5 h-4 w-4 shrink-0 text-red-600" />
-                            <span>{m}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                    <div className="inline-flex items-center gap-2 rounded-xl bg-red-100 border border-red-300 px-4 py-2.5">
-                      <MessagesSquare className="h-4 w-4 shrink-0 text-red-700" />
-                      <span className="text-sm font-medium text-[#0b1533]">
-                        Not sure what to pick? Ask <span className="font-bold">IdiamPro Help</span> and we&apos;ll walk you through it.
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            {/* Data-backup liability disclaimer relocated off the homepage to the
+                FAQ page (src/app/faq/page.tsx) per reviewer feedback 2026-07-20:
+                a heavy red warning does not belong on the front door — it belongs
+                where someone is getting set up. Content preserved verbatim there. */}
 
             {/* Platform reassurance — nobody is blocked. Apple gets native apps
                 today; every other platform is fully usable right now via the web.
@@ -1171,7 +1093,7 @@ export default function MarketingPage() {
                   controls
                   playsInline
                   preload="metadata"
-                  aria-label="Getting Started with IdiamPro — a two-minute walkthrough from blank page to published idea."
+                  aria-label="Getting Started with IdeaM — a two-minute walkthrough from blank page to published idea."
                 />
               </div>
               <p className="mt-3 flex items-center justify-center gap-1.5 text-sm text-[#475569]">
@@ -1225,7 +1147,7 @@ export default function MarketingPage() {
 
               {/* Professional — highlighted */}
               <div className="relative flex flex-col rounded-2xl border-2 border-blue-600 bg-white p-8 shadow-2xl shadow-blue-600/20 md:-mt-3">
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-blue-600 to-[#1e40af] px-4 py-1 text-xs font-bold uppercase tracking-wider text-white shadow-md">
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-blue-600 to-[#1e40af] px-4 py-1 text-xs font-mono font-semibold uppercase tracking-wider text-white shadow-md">
                   Most popular
                 </span>
                 <div className="flex items-center gap-2 mb-4">
@@ -1305,7 +1227,7 @@ export default function MarketingPage() {
               </span>
             </h2>
             <p className="text-white/80 text-lg md:text-xl font-medium mb-10 max-w-2xl mx-auto">
-              Join researchers, authors, and professionals who've upgraded their workflow with IdiamPro.
+              Join researchers, authors, and professionals who've upgraded their workflow with IdeaM.
             </p>
             <SignedOut>
               <Button
@@ -1313,7 +1235,7 @@ export default function MarketingPage() {
                 size="lg"
                 className="bg-white hover:bg-blue-50 text-[#1e40af] font-bold text-lg px-10 py-6 shadow-2xl shadow-black/25 transition-all duration-300"
               >
-                Sign up to try IdiamPro
+                Sign up to try IdeaM
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </SignedOut>
@@ -1323,7 +1245,7 @@ export default function MarketingPage() {
                 size="lg"
                 className="bg-white hover:bg-blue-50 text-[#1e40af] font-bold text-lg px-10 py-6 shadow-2xl shadow-black/25 transition-all duration-300"
               >
-                Open IdiamPro
+                Open IdeaM
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </SignedIn>
@@ -1337,7 +1259,7 @@ export default function MarketingPage() {
         <section className="px-6 py-8 lg:px-12">
           <div className="max-w-4xl mx-auto">
             <div className="border-t border-[#dde5f2] pt-8">
-              <h4 className="text-[#475569] text-xs uppercase tracking-wider mb-4">Performance Notes</h4>
+              <h4 className="text-[#475569] text-xs font-mono uppercase tracking-wider mb-4">Performance Notes</h4>
               <div className="text-[#5b6b85] text-xs space-y-2">
                 <p>
                   <strong className="text-[#475569]">*Node Capacity Testing:</strong> 1,000,000+ nodes tested on Apple M4 MacBook Air
@@ -1368,9 +1290,14 @@ export default function MarketingPage() {
               <div>
                 <div className="flex items-center gap-2 mb-4">
                   <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center">
-                    <Brain className="w-4 h-4 text-white" />
+                    <span className="text-white text-sm font-extrabold leading-none">M</span>
                   </div>
-                  <span className="font-bold text-[#0b1533]">IdiamPro</span>
+                  <span className="flex flex-col leading-none">
+                    <span className="text-lg font-extrabold tracking-tight leading-none">
+                      <span className="text-[#0b1533]">Idea</span><span className="text-blue-600">M</span>
+                    </span>
+                    <span className="text-[9px] text-[#5b6b85] tracking-[0.15em] uppercase mt-1">by SecondBrainWare</span>
+                  </span>
                 </div>
                 <p className="text-[#475569] text-sm mb-2">
                   Your Intelligence Amplifier.

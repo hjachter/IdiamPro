@@ -1,5 +1,24 @@
 import type {Metadata} from 'next';
+import { IBM_Plex_Sans, IBM_Plex_Mono } from 'next/font/google';
 import './globals.css';
+
+// IBM Plex — self-hosted at build time by next/font (no external font CDN at
+// runtime, so it's CSP-safe). Plex Sans is the primary typeface for the whole
+// site; Plex Mono powers small uppercase eyebrows/labels for the precise,
+// engineered "IBM Carbon" feel. Exposed as CSS variables that Tailwind's
+// font-sans / font-mono families resolve to (see tailwind.config.ts).
+const plexSans = IBM_Plex_Sans({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-plex-sans',
+  display: 'swap',
+});
+const plexMono = IBM_Plex_Mono({
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  variable: '--font-plex-mono',
+  display: 'swap',
+});
 import { Toaster } from "@/components/ui/toaster";
 import { AIProvider } from '@/contexts/ai-context';
 import { UpgradePromptProvider } from '@/components/upgrade-prompt';
@@ -19,20 +38,20 @@ import BackupHealthWatcher from '@/components/backup-health-watcher';
 export const metadata: Metadata = {
   metadataBase: new URL('https://2ndbrainware.com'),
   title: {
-    default: 'IdiamPro — AI-native outliner for thinkers and researchers',
-    template: '%s | IdiamPro',
+    default: 'IdeaM — AI-native outliner for thinkers and researchers',
+    template: '%s | IdeaM',
   },
   description:
-    'IdiamPro, by SecondBrainWare, is an AI-native outliner that helps you think, research, and write. Local-first, BYOK, cross-platform — the outline editor your second brain deserves.',
+    'IdeaM, by SecondBrainWare, is an AI-native outliner that helps you think, research, and write. Local-first, BYOK, cross-platform — the outline editor your second brain deserves.',
   manifest: '/manifest.json',
-  applicationName: 'IdiamPro',
+  applicationName: 'IdeaM',
   creator: 'SecondBrainWare',
   publisher: 'SecondBrainWare',
-  keywords: ['SecondBrainWare', 'Second Brain Ware', 'IdiamPro', 'AI outliner', 'second brain app', 'AI-native outliner', 'consolidate ideas'],
+  keywords: ['SecondBrainWare', 'Second Brain Ware', 'IdeaM', 'AI outliner', 'second brain app', 'AI-native outliner', 'consolidate ideas'],
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'IdiamPro',
+    title: 'IdeaM',
   },
   icons: {
     icon: [
@@ -49,8 +68,8 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: 'https://2ndbrainware.com',
-    siteName: 'IdiamPro',
-    title: 'IdiamPro — AI-native outliner for thinkers and researchers',
+    siteName: 'IdeaM',
+    title: 'IdeaM — AI-native outliner for thinkers and researchers',
     description:
       'An AI-native outliner that helps you think, research, and write. Local-first, BYOK, cross-platform. From SecondBrainWare.',
     images: [
@@ -59,13 +78,13 @@ export const metadata: Metadata = {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'IdiamPro — AI-native outliner',
+        alt: 'IdeaM — AI-native outliner',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'IdiamPro — AI-native outliner for thinkers and researchers',
+    title: 'IdeaM — AI-native outliner for thinkers and researchers',
     description:
       'An AI-native outliner that helps you think, research, and write. Local-first, BYOK, cross-platform. From SecondBrainWare.',
     images: ['/og-image.png'],
@@ -82,13 +101,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full overflow-hidden" suppressHydrationWarning>
+    <html lang="en" className={`h-full overflow-hidden ${plexSans.variable} ${plexMono.variable}`} suppressHydrationWarning>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         <meta name="theme-color" content="#242424" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;700&family=Source+Code+Pro&display=swap" rel="stylesheet" />
         {/* Organization structured data — tells search engines this domain IS the
             company SecondBrainWare (so searches for the company name find it). */}
         <script
@@ -102,7 +118,7 @@ export default function RootLayout({
               url: 'https://2ndbrainware.com',
               logo: 'https://2ndbrainware.com/icons/icon-180.png',
               description:
-                'SecondBrainWare builds IdiamPro, an AI-native outliner and second-brain platform that helps you capture, consolidate, and develop your ideas across every platform.',
+                'SecondBrainWare builds IdeaM, an AI-native outliner and second-brain platform that helps you capture, consolidate, and develop your ideas across every platform.',
             }),
           }}
         />

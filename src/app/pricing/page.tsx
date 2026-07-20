@@ -113,7 +113,7 @@ function PricingCard({
       }`}
     >
       {badge && (
-        <div className="absolute -top-3 left-1/2 -tranteal-x-1/2">
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2">
           <span className="px-4 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-[#2563eb] to-[#2563eb] text-white font-semibold">
             {badge}
           </span>
@@ -156,8 +156,9 @@ function PricingCard({
 export default function PricingPage() {
   return (
     <div className="fixed inset-0 bg-white text-[#0b1533] overflow-x-hidden overflow-y-auto">
-      <div className="fixed inset-0 bg-gradient-to-br from-white via-white to-white" />
-      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-600/[0.035] via-transparent to-transparent" />
+      {/* Carbon re-skin: flat, crisp white ground — no hazy blue radial wash,
+          matching the homepage's engineered IBM look. */}
+      <div className="fixed inset-0 bg-white" />
       <div className="relative z-10">
         <MarketingHeader />
         <main className="pt-28 lg:pt-32">
@@ -167,7 +168,7 @@ export default function PricingPage() {
             </Link>
           </div>
           <div className="text-center px-6 pt-8 pb-6 lg:px-12">
-            <div className="text-sm font-medium text-blue-600 uppercase tracking-wider mb-2">Simple and transparent</div>
+            <div className="text-sm font-mono font-semibold text-[#1e40af] uppercase tracking-wider mb-2">Simple and transparent</div>
             <h1 className="text-4xl md:text-5xl font-bold text-[#0b1533]">Pricing</h1>
           </div>
         {/* Plan Benefits — the "why" behind each plan (complements the comparison grid's "what") */}
@@ -366,7 +367,7 @@ export default function PricingPage() {
                 Compare what you get
               </h3>
               <p className="text-center text-[#2b3a5c] text-base font-medium mb-8">
-                Four ways to use IdiamPro. Pick the one that fits how you work.
+                Four ways to use IdeaM. Pick the one that fits how you work.
               </p>
               <div className="overflow-x-auto rounded-3xl border border-[#dde5f2] bg-[#f7faff]">
                 <table className="w-full min-w-[820px] text-sm text-[#0b1533] border-collapse">
@@ -505,8 +506,7 @@ export default function PricingPage() {
             </div>
 
             {/* Beta Testers Callout */}
-            <div className="mt-12 p-8 lg:p-10 rounded-3xl bg-gradient-to-br from-blue-600/20 via-blue-600/10 to-blue-600/20 border border-blue-600/30 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/20 rounded-full blur-3xl -tranteal-y-1/2 tranteal-x-1/2" />
+            <div className="mt-12 p-8 lg:p-10 rounded-2xl bg-[#f7faff] border border-blue-600/30 relative overflow-hidden">
               <div className="relative flex flex-col lg:flex-row items-center justify-between gap-8">
                 <div className="flex items-start gap-5">
                   <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-lg shadow-blue-600/30 flex-shrink-0">
@@ -519,7 +519,7 @@ export default function PricingPage() {
                     </div>
                     <h3 className="text-2xl font-bold text-[#0b1533] mb-2">Join Our Beta Program</h3>
                     <p className="text-[#2b3a5c] text-lg font-medium max-w-xl">
-                      Be among the first to experience IdiamPro. Beta testers get <span className="text-blue-600 font-semibold">free lifetime access to Pro features</span>,
+                      Be among the first to experience IdeaM. Beta testers get <span className="text-blue-600 font-semibold">free lifetime access to Pro features</span>,
                       direct input into our roadmap, and priority support. Help us build the ultimate cognitive enhancement platform.
                     </p>
                     <div className="flex flex-wrap gap-3 mt-4">
