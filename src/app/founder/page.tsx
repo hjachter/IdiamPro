@@ -11,7 +11,7 @@ import React from 'react';
 import Link from 'next/link';
 import { MarketingHeader } from '@/components/marketing/marketing-header';
 import { AmplifyMark } from '@/components/brand/amplify-mark';
-import { ArrowLeft, User } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 
 export default function FounderPage() {
   return (
@@ -46,21 +46,26 @@ export default function FounderPage() {
                 Howard Jachter built IdeaM to do, for everyone, what he spent a lifetime doing for the world&rsquo;s leading companies.
               </p>
 
-              {/* Byline + a tasteful placeholder for a future headshot */}
-              <div className="flex items-center gap-4">
-                <div
-                  className="w-16 h-16 rounded-2xl border border-dashed border-[#c3d0e8] bg-[#f7faff] flex items-center justify-center flex-shrink-0"
-                  aria-hidden="true"
-                >
-                  <User className="w-7 h-7 text-[#9db0d0]" />
-                </div>
-                <div>
-                  <div className="text-base font-semibold text-[#0b1533]">Howard Jachter</div>
-                  <div className="text-sm text-[#5b6b85]">
-                    Founder, SecondBrainWare &middot; creator of IdeaM
-                  </div>
+              {/* Byline */}
+              <div>
+                <div className="text-base font-semibold text-[#0b1533]">Howard Jachter</div>
+                <div className="text-sm text-[#5b6b85]">
+                  Founder, SecondBrainWare &middot; creator of IdeaM
                 </div>
               </div>
+            </div>
+          </section>
+
+          {/* Lead editorial photo of the founder */}
+          <section className="px-6 lg:px-12">
+            <div className="max-w-3xl mx-auto pb-4">
+              <figure className="overflow-hidden rounded-2xl border border-[#dde5f2] shadow-lg shadow-blue-900/10">
+                <img
+                  src="/founder-howard.jpg"
+                  alt="Howard Jachter, founder of IdeaM."
+                  className="block w-full h-auto max-w-full object-cover"
+                />
+              </figure>
             </div>
           </section>
 
@@ -118,8 +123,24 @@ export default function FounderPage() {
             </div>
           </section>
 
+          {/* Footnote — a light personality beat to close on a smile */}
+          <section className="px-6 lg:px-12">
+            <div className="max-w-3xl mx-auto pt-2 pb-6">
+              <figure className="max-w-sm mx-auto">
+                <img
+                  src="/founder-client-joke.jpg"
+                  alt="Howard Jachter beside a bronze prospector statue outside a cafe."
+                  className="block w-full h-auto max-w-full rounded-xl border border-[#dde5f2] shadow-md shadow-blue-900/5 object-cover"
+                />
+                <figcaption className="mt-2.5 text-center text-sm italic text-[#8a97ad]">
+                  Howard talking to a client.
+                </figcaption>
+              </figure>
+            </div>
+          </section>
+
           {/* CTA */}
-          <section className="px-6 py-16 lg:px-12">
+          <section className="px-6 py-10 lg:px-12">
             <div className="max-w-3xl mx-auto text-center">
               <Link
                 href="/signup"
