@@ -67,7 +67,7 @@ import {
   type DependencyHealthAlertProps,
 } from '@/emails/dependency-health-alert';
 
-const DEFAULT_FROM = 'IdiamPro Support <support@2ndbrainware.com>';
+const DEFAULT_FROM = 'IdeaM Support <support@2ndbrainware.com>';
 
 /**
  * Reply-To for every outgoing app email. Replies land in the shared support
@@ -285,11 +285,11 @@ export async function sendApplicantNotification(
 }
 
 interface SendApplicantApprovedArgs extends SendArgsBase {
-  /** Optional override; defaults to the IdiamPro sign-in page. */
+  /** Optional override; defaults to the IdeaM sign-in page. */
   signInUrl?: string;
   /**
    * Optional: the applicant's free-form answer to "What brings you to
-   * IdiamPro?" — used to personalise the welcome with a one-sentence
+   * IdeaM?" — used to personalise the welcome with a one-sentence
    * acknowledgement. Pass it straight through from the applicant record.
    */
   reason?: string | null;

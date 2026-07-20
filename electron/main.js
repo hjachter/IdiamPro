@@ -146,7 +146,7 @@ try {
 
 // Set app name based on environment
 if (process.env.NODE_ENV === 'development') {
-  app.setName('IDMPro Dev');
+  app.setName('IdeaM Dev');
   // Set dock icon for dev mode on macOS
   if (process.platform === 'darwin') {
     app.whenReady().then(() => {
@@ -155,7 +155,7 @@ if (process.env.NODE_ENV === 'development') {
     });
   }
 } else {
-  app.setName('IDMPro Desktop');
+  app.setName('IdeaM');
 }
 
 // Path to store app settings
@@ -559,7 +559,7 @@ async function createWindow() {
   mainWindow.webContents.on('console-message', (event, level, message, line, sourceId) => {
     // Detect ChunkLoadError and auto-reload after a short debounce
     if (level >= 2 && message.includes('ChunkLoadError') && !chunkErrorReloadTimer) {
-      console.log('[IDMPro] ChunkLoadError detected — auto-reloading in 1s...');
+      console.log('[IdeaM] ChunkLoadError detected — auto-reloading in 1s...');
       chunkErrorReloadTimer = setTimeout(() => {
         if (mainWindow && !mainWindow.isDestroyed()) {
           mainWindow.webContents.reload();
@@ -591,7 +591,7 @@ async function createWindow() {
 
 function createMenu() {
   const isMac = process.platform === 'darwin';
-  const appName = process.env.NODE_ENV === 'development' ? 'IDMPro Dev' : 'IDMPro';
+  const appName = process.env.NODE_ENV === 'development' ? 'IdeaM Dev' : 'IdeaM';
 
   const template = [
     // macOS App Menu (required for proper HIG compliance)
@@ -688,7 +688,7 @@ function createMenu() {
       label: 'Help',
       submenu: [
         {
-          label: 'IDMPro Help',
+          label: 'IdeaM Help',
           click: async () => {
             const { shell } = require('electron');
             await shell.openExternal('https://idiam-pro.vercel.app');

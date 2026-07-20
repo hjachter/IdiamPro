@@ -2,7 +2,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.idiampro.app',
-  appName: 'IDMPro',
+  appName: 'IdeaM',
   webDir: 'out',
   server: {
     // In production, load from deployed web app

@@ -1,0 +1,1345 @@
+{
+  "id": "idiampro-legal-compliance",
+  "name": "IdeaM -- Legal",
+  "rootNodeId": "root-legal",
+  "nodes": {
+    "root-legal": {
+      "id": "root-legal",
+      "name": "IdeaM -- Legal",
+      "content": "<p><strong>Legal Requirements &amp; Compliance Checklist</strong></p><p>Complete checklist for launching IdeaM as a commercial SaaS product.</p><p></p><p><strong>Legend:</strong></p><p>[CLAUDE] = Claude can do this task</p><p>[HUMAN] = Requires human action (payments, signatures, filings)</p><p>[LAWYER] = Requires attorney review</p><p></p><p><strong>Budget Summary:</strong> $7,250-19,500</p><p></p><p><em>Created: January 2025</em></p>",
+      "type": "root",
+      "parentId": null,
+      "childrenIds": [
+        "documents-for-lawyer",
+        "terms-of-service",
+        "privacy-policy",
+        "license-audit",
+        "api-compliance",
+        "intellectual-property",
+        "insurance",
+        "additional-compliance",
+        "timeline",
+        "f763b764-8dfd-4d33-b364-815c674e82c6"
+      ],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "terms-of-service": {
+      "id": "terms-of-service",
+      "name": "Terms of Service (TOS)",
+      "content": "<p><strong>Estimated Cost:</strong> $1,000-3,000 (template + lawyer review)</p><p></p><p><span style=\"color: rgb(34, 197, 94);\">[CLAUDE]</span> can draft complete TOS template.</p><p><span style=\"color: rgb(239, 68, 68);\">[LAWYER]</span> review recommended for liability sections.</p>",
+      "type": "chapter",
+      "parentId": "root-legal",
+      "childrenIds": [
+        "tos-standard",
+        "tos-ai-specific"
+      ],
+      "isCollapsed": false,
+      "prefix": "2"
+    },
+    "tos-standard": {
+      "id": "tos-standard",
+      "name": "Standard Clauses",
+      "content": "",
+      "type": "document",
+      "parentId": "terms-of-service",
+      "childrenIds": [
+        "tos-user-resp",
+        "tos-account",
+        "tos-payment",
+        "tos-ip",
+        "tos-liability",
+        "tos-warranty",
+        "tos-indemnification",
+        "tos-governing",
+        "tos-dispute",
+        "tos-modification"
+      ],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "tos-user-resp": {
+      "id": "tos-user-resp",
+      "name": "User responsibilities and acceptable use",
+      "content": "<p><span style=\"color: rgb(34, 197, 94);\">[CLAUDE]</span> can draft</p>",
+      "type": "task",
+      "parentId": "tos-standard",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "tos-account": {
+      "id": "tos-account",
+      "name": "Account creation and termination",
+      "content": "<p><span style=\"color: rgb(34, 197, 94);\">[CLAUDE]</span> can draft</p>",
+      "type": "task",
+      "parentId": "tos-standard",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "tos-payment": {
+      "id": "tos-payment",
+      "name": "Payment terms and refund policy",
+      "content": "<p><span style=\"color: rgb(34, 197, 94);\">[CLAUDE]</span> can draft</p>",
+      "type": "task",
+      "parentId": "tos-standard",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "tos-ip": {
+      "id": "tos-ip",
+      "name": "Intellectual property rights",
+      "content": "<p><span style=\"color: rgb(34, 197, 94);\">[CLAUDE]</span> can draft</p>",
+      "type": "task",
+      "parentId": "tos-standard",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "tos-liability": {
+      "id": "tos-liability",
+      "name": "Limitation of liability (CRITICAL)",
+      "content": "<p><span style=\"color: rgb(239, 68, 68);\">[LAWYER]</span> must review</p>",
+      "type": "task",
+      "parentId": "tos-standard",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "tos-warranty": {
+      "id": "tos-warranty",
+      "name": "Disclaimer of warranties",
+      "content": "<p><span style=\"color: rgb(239, 68, 68);\">[LAWYER]</span> must review</p>",
+      "type": "task",
+      "parentId": "tos-standard",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "tos-indemnification": {
+      "id": "tos-indemnification",
+      "name": "Indemnification clause",
+      "content": "<p><span style=\"color: rgb(239, 68, 68);\">[LAWYER]</span> must review</p>",
+      "type": "task",
+      "parentId": "tos-standard",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "tos-governing": {
+      "id": "tos-governing",
+      "name": "Governing law and jurisdiction",
+      "content": "<p><span style=\"color: rgb(34, 197, 94);\">[CLAUDE]</span> can draft</p>",
+      "type": "task",
+      "parentId": "tos-standard",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "tos-dispute": {
+      "id": "tos-dispute",
+      "name": "Dispute resolution (arbitration optional)",
+      "content": "<p><span style=\"color: rgb(239, 68, 68);\">[LAWYER]</span> should review</p>",
+      "type": "task",
+      "parentId": "tos-standard",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "tos-modification": {
+      "id": "tos-modification",
+      "name": "Modification of terms notice",
+      "content": "<p><span style=\"color: rgb(34, 197, 94);\">[CLAUDE]</span> can draft</p>",
+      "type": "task",
+      "parentId": "tos-standard",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "tos-ai-specific": {
+      "id": "tos-ai-specific",
+      "name": "AI-Specific Clauses",
+      "content": "",
+      "type": "document",
+      "parentId": "terms-of-service",
+      "childrenIds": [
+        "tos-ai-accuracy",
+        "tos-ai-availability",
+        "tos-ai-responsibility",
+        "tos-ai-improve"
+      ],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "tos-ai-accuracy": {
+      "id": "tos-ai-accuracy",
+      "name": "AI may produce inaccurate content - user must verify",
+      "content": "<p><span style=\"color: rgb(34, 197, 94);\">[CLAUDE]</span> can draft</p>",
+      "type": "task",
+      "parentId": "tos-ai-specific",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "tos-ai-availability": {
+      "id": "tos-ai-availability",
+      "name": "No guarantee of AI availability or performance",
+      "content": "<p><span style=\"color: rgb(34, 197, 94);\">[CLAUDE]</span> can draft</p>",
+      "type": "task",
+      "parentId": "tos-ai-specific",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "tos-ai-responsibility": {
+      "id": "tos-ai-responsibility",
+      "name": "User responsible for actions based on AI suggestions",
+      "content": "<p><span style=\"color: rgb(34, 197, 94);\">[CLAUDE]</span> can draft</p>",
+      "type": "task",
+      "parentId": "tos-ai-specific",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "tos-ai-improve": {
+      "id": "tos-ai-improve",
+      "name": "AI outputs may be used to improve service",
+      "content": "<p><span style=\"color: rgb(34, 197, 94);\">[CLAUDE]</span> can draft</p>",
+      "type": "task",
+      "parentId": "tos-ai-specific",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "privacy-policy": {
+      "id": "privacy-policy",
+      "name": "Privacy Policy",
+      "content": "<p><strong>Status: IMPLEMENTED</strong></p><p></p><p>Privacy policy page is live at <code>/privacy</code>. Covers:</p><ul><li><p>Local-only data storage</p></li><li><p>Third-party AI services (Google Gemini, OpenAI, AssemblyAI)</p></li><li><p>Microphone access for transcription</p></li><li><p>Children's privacy (COPPA)</p></li><li><p>Consent controls and revocation</p></li></ul><p></p><p>Linked from AI Consent Dialog and Settings page.</p>",
+      "type": "chapter",
+      "parentId": "root-legal",
+      "childrenIds": [
+        "privacy-disclosures",
+        "privacy-gdpr",
+        "privacy-ccpa",
+        "privacy-ai"
+      ],
+      "isCollapsed": true,
+      "prefix": "3"
+    },
+    "privacy-disclosures": {
+      "id": "privacy-disclosures",
+      "name": "Required Disclosures",
+      "content": "",
+      "type": "document",
+      "parentId": "privacy-policy",
+      "childrenIds": [
+        "priv-data-collect",
+        "priv-data-use",
+        "priv-third-party",
+        "priv-retention",
+        "priv-user-rights",
+        "priv-cookies",
+        "priv-security",
+        "priv-coppa",
+        "priv-contact"
+      ],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "priv-data-collect": {
+      "id": "priv-data-collect",
+      "name": "What data is collected (personal info, usage data, content)",
+      "content": "<p><span style=\"color: rgb(34, 197, 94);\">[CLAUDE]</span> can draft</p>",
+      "type": "task",
+      "parentId": "privacy-disclosures",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "priv-data-use": {
+      "id": "priv-data-use",
+      "name": "How data is used (service delivery, AI processing, analytics)",
+      "content": "<p><span style=\"color: rgb(34, 197, 94);\">[CLAUDE]</span> can draft</p>",
+      "type": "task",
+      "parentId": "privacy-disclosures",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "priv-third-party": {
+      "id": "priv-third-party",
+      "name": "Third-party data sharing (AI providers, analytics, payment)",
+      "content": "<p><span style=\"color: rgb(34, 197, 94);\">[CLAUDE]</span> can draft</p>",
+      "type": "task",
+      "parentId": "privacy-disclosures",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "priv-retention": {
+      "id": "priv-retention",
+      "name": "Data retention periods",
+      "content": "<p><span style=\"color: rgb(34, 197, 94);\">[CLAUDE]</span> can draft</p>",
+      "type": "task",
+      "parentId": "privacy-disclosures",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "priv-user-rights": {
+      "id": "priv-user-rights",
+      "name": "User rights (access, correction, deletion)",
+      "content": "<p><span style=\"color: rgb(34, 197, 94);\">[CLAUDE]</span> can draft</p>",
+      "type": "task",
+      "parentId": "privacy-disclosures",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "priv-cookies": {
+      "id": "priv-cookies",
+      "name": "Cookie policy",
+      "content": "<p><span style=\"color: rgb(34, 197, 94);\">[CLAUDE]</span> can draft</p>",
+      "type": "task",
+      "parentId": "privacy-disclosures",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "priv-security": {
+      "id": "priv-security",
+      "name": "Security measures",
+      "content": "<p><span style=\"color: rgb(34, 197, 94);\">[CLAUDE]</span> can draft</p>",
+      "type": "task",
+      "parentId": "privacy-disclosures",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "priv-coppa": {
+      "id": "priv-coppa",
+      "name": "Children's privacy (COPPA if applicable)",
+      "content": "<p><span style=\"color: rgb(239, 68, 68);\">[LAWYER]</span> should review</p>",
+      "type": "task",
+      "parentId": "privacy-disclosures",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "priv-contact": {
+      "id": "priv-contact",
+      "name": "Contact information for privacy inquiries",
+      "content": "<p><span style=\"color: rgb(234, 179, 8);\">[HUMAN]</span> provide info</p>",
+      "type": "task",
+      "parentId": "privacy-disclosures",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "privacy-gdpr": {
+      "id": "privacy-gdpr",
+      "name": "GDPR Compliance (EU Users)",
+      "content": "",
+      "type": "document",
+      "parentId": "privacy-policy",
+      "childrenIds": [
+        "gdpr-lawful",
+        "gdpr-forgotten",
+        "gdpr-portability",
+        "gdpr-dpo",
+        "gdpr-dpa"
+      ],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "gdpr-lawful": {
+      "id": "gdpr-lawful",
+      "name": "Lawful basis for processing",
+      "content": "<p><span style=\"color: rgb(34, 197, 94);\">[CLAUDE]</span> can draft</p>",
+      "type": "task",
+      "parentId": "privacy-gdpr",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "gdpr-forgotten": {
+      "id": "gdpr-forgotten",
+      "name": "Right to be forgotten",
+      "content": "<p><span style=\"color: rgb(34, 197, 94);\">[CLAUDE]</span> can draft</p>",
+      "type": "task",
+      "parentId": "privacy-gdpr",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "gdpr-portability": {
+      "id": "gdpr-portability",
+      "name": "Data portability",
+      "content": "<p><span style=\"color: rgb(34, 197, 94);\">[CLAUDE]</span> can draft</p>",
+      "type": "task",
+      "parentId": "privacy-gdpr",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "gdpr-dpo": {
+      "id": "gdpr-dpo",
+      "name": "DPO appointment (if required)",
+      "content": "<p><span style=\"color: rgb(234, 179, 8);\">[HUMAN]</span> must assess and appoint if needed</p>",
+      "type": "task",
+      "parentId": "privacy-gdpr",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "gdpr-dpa": {
+      "id": "gdpr-dpa",
+      "name": "Data Processing Agreements with vendors",
+      "content": "<p><span style=\"color: rgb(234, 179, 8);\">[HUMAN]</span> must sign with Google, Vercel, etc.</p>",
+      "type": "task",
+      "parentId": "privacy-gdpr",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "privacy-ccpa": {
+      "id": "privacy-ccpa",
+      "name": "CCPA Compliance (California Users)",
+      "content": "",
+      "type": "document",
+      "parentId": "privacy-policy",
+      "childrenIds": [
+        "ccpa-sell",
+        "ccpa-know",
+        "ccpa-delete",
+        "ccpa-nondiscrim"
+      ],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "ccpa-sell": {
+      "id": "ccpa-sell",
+      "name": "\"Do Not Sell My Personal Information\" link",
+      "content": "<p><span style=\"color: rgb(34, 197, 94);\">[CLAUDE]</span> can implement</p>",
+      "type": "task",
+      "parentId": "privacy-ccpa",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "ccpa-know": {
+      "id": "ccpa-know",
+      "name": "Right to know what data is collected",
+      "content": "<p><span style=\"color: rgb(34, 197, 94);\">[CLAUDE]</span> can draft</p>",
+      "type": "task",
+      "parentId": "privacy-ccpa",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "ccpa-delete": {
+      "id": "ccpa-delete",
+      "name": "Right to deletion",
+      "content": "<p><span style=\"color: rgb(34, 197, 94);\">[CLAUDE]</span> can draft</p>",
+      "type": "task",
+      "parentId": "privacy-ccpa",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "ccpa-nondiscrim": {
+      "id": "ccpa-nondiscrim",
+      "name": "Non-discrimination for exercising rights",
+      "content": "<p><span style=\"color: rgb(34, 197, 94);\">[CLAUDE]</span> can draft</p>",
+      "type": "task",
+      "parentId": "privacy-ccpa",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "privacy-ai": {
+      "id": "privacy-ai",
+      "name": "AI-Specific Disclosures",
+      "content": "",
+      "type": "document",
+      "parentId": "privacy-policy",
+      "childrenIds": [
+        "ai-priv-third",
+        "ai-priv-process",
+        "ai-priv-optout"
+      ],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "ai-priv-third": {
+      "id": "ai-priv-third",
+      "name": "Data sent to third-party AI providers (Google Gemini)",
+      "content": "<p><span style=\"color: rgb(34, 197, 94);\">[CLAUDE]</span> can draft</p>",
+      "type": "task",
+      "parentId": "privacy-ai",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "ai-priv-process": {
+      "id": "ai-priv-process",
+      "name": "How AI processes user content",
+      "content": "<p><span style=\"color: rgb(34, 197, 94);\">[CLAUDE]</span> can draft</p>",
+      "type": "task",
+      "parentId": "privacy-ai",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "ai-priv-optout": {
+      "id": "ai-priv-optout",
+      "name": "Opt-out options for AI training (if applicable)",
+      "content": "<p><span style=\"color: rgb(34, 197, 94);\">[CLAUDE]</span> can draft</p>",
+      "type": "task",
+      "parentId": "privacy-ai",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "license-audit": {
+      "id": "license-audit",
+      "name": "Third-Party Dependency Audit",
+      "content": "<p><strong>Current Stack Licenses (All Safe for Commercial Use):</strong></p><p></p><p>Next.js - MIT | React - MIT | Electron - MIT | Tailwind CSS - MIT | Radix UI - MIT | Lucide Icons - ISC | Genkit - Apache 2.0 | pdf-parse - MIT</p><p></p><p><strong>Audit Results (1,400+ packages):</strong></p><p>MIT: 1017 | Apache-2.0: 212 | ISC: 92 | BSD variants: 49</p><p><span style=\"color: rgb(239, 68, 68);\">GPL-2.0: 1 | LGPL-3.0-or-later: 1</span> (Potential issues - review needed)</p>",
+      "type": "chapter",
+      "parentId": "root-legal",
+      "childrenIds": [
+        "license-tasks",
+        "license-commands"
+      ],
+      "isCollapsed": true,
+      "prefix": "4"
+    },
+    "license-tasks": {
+      "id": "license-tasks",
+      "name": "Action Items",
+      "content": "",
+      "type": "document",
+      "parentId": "license-audit",
+      "childrenIds": [
+        "lic-run-audit",
+        "lic-identify-gpl",
+        "lic-replace",
+        "lic-document",
+        "lic-attributions"
+      ],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "lic-run-audit": {
+      "id": "lic-run-audit",
+      "name": "Run full license audit: npx license-checker --summary",
+      "content": "<p><span style=\"color: rgb(34, 197, 94);\">[CLAUDE]</span> can run</p>",
+      "type": "task",
+      "parentId": "license-tasks",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": true
+    },
+    "lic-identify-gpl": {
+      "id": "lic-identify-gpl",
+      "name": "Identify any GPL/AGPL packages (viral licenses)",
+      "content": "<p><span style=\"color: rgb(34, 197, 94);\">[CLAUDE]</span> can analyze - Found 1 GPL-2.0 and 1 LGPL-3.0-or-later</p>",
+      "type": "task",
+      "parentId": "license-tasks",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": true
+    },
+    "lic-replace": {
+      "id": "lic-replace",
+      "name": "Remove or replace any problematic dependencies",
+      "content": "<p><span style=\"color: rgb(34, 197, 94);\">[CLAUDE]</span> can do - Need to identify specific packages</p>",
+      "type": "task",
+      "parentId": "license-tasks",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "lic-document": {
+      "id": "lic-document",
+      "name": "Document all licenses for compliance records",
+      "content": "<p><span style=\"color: rgb(34, 197, 94);\">[CLAUDE]</span> can generate</p>",
+      "type": "task",
+      "parentId": "license-tasks",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "lic-attributions": {
+      "id": "lic-attributions",
+      "name": "Add license attributions to app (About section or docs)",
+      "content": "<p><span style=\"color: rgb(34, 197, 94);\">[CLAUDE]</span> can implement</p>",
+      "type": "task",
+      "parentId": "license-tasks",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "license-commands": {
+      "id": "license-commands",
+      "name": "Commands to Run",
+      "content": "<p><code>npx license-checker --summary</code></p><p><code>npx license-checker --production --json > licenses.json</code></p>",
+      "type": "document",
+      "parentId": "license-audit",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "api-compliance": {
+      "id": "api-compliance",
+      "name": "API Terms Compliance",
+      "content": "<p><strong>Primary AI Provider:</strong> Google Gemini API</p><p><strong>API Terms URL:</strong> https://ai.google.dev/terms</p>",
+      "type": "chapter",
+      "parentId": "root-legal",
+      "childrenIds": [
+        "gemini-terms",
+        "future-providers",
+        "ai-consent-compliance"
+      ],
+      "isCollapsed": true,
+      "prefix": "5"
+    },
+    "gemini-terms": {
+      "id": "gemini-terms",
+      "name": "Google Gemini API Terms",
+      "content": "",
+      "type": "document",
+      "parentId": "api-compliance",
+      "childrenIds": [
+        "api-usage",
+        "api-rate",
+        "api-privacy",
+        "api-attribution",
+        "api-competing",
+        "api-geographic",
+        "api-commercial"
+      ],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "api-usage": {
+      "id": "api-usage",
+      "name": "Usage restrictions and prohibited uses",
+      "content": "<p><span style=\"color: rgb(34, 197, 94);\">[CLAUDE]</span> can review & summarize</p>",
+      "type": "task",
+      "parentId": "gemini-terms",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "api-rate": {
+      "id": "api-rate",
+      "name": "Rate limits and quota management",
+      "content": "<p><span style=\"color: rgb(34, 197, 94);\">[CLAUDE]</span> can review & summarize</p>",
+      "type": "task",
+      "parentId": "gemini-terms",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "api-privacy": {
+      "id": "api-privacy",
+      "name": "Data handling and privacy requirements",
+      "content": "<p><span style=\"color: rgb(34, 197, 94);\">[CLAUDE]</span> can review & summarize</p>",
+      "type": "task",
+      "parentId": "gemini-terms",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "api-attribution": {
+      "id": "api-attribution",
+      "name": "Attribution requirements (\"Powered by Google Gemini\")",
+      "content": "<p><span style=\"color: rgb(34, 197, 94);\">[CLAUDE]</span> can implement</p>",
+      "type": "task",
+      "parentId": "gemini-terms",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "api-competing": {
+      "id": "api-competing",
+      "name": "Restrictions on competing AI model training",
+      "content": "<p><span style=\"color: rgb(34, 197, 94);\">[CLAUDE]</span> can review & summarize</p>",
+      "type": "task",
+      "parentId": "gemini-terms",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "api-geographic": {
+      "id": "api-geographic",
+      "name": "Geographic restrictions",
+      "content": "<p><span style=\"color: rgb(34, 197, 94);\">[CLAUDE]</span> can review & summarize</p>",
+      "type": "task",
+      "parentId": "gemini-terms",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "api-commercial": {
+      "id": "api-commercial",
+      "name": "Commercial use allowances",
+      "content": "<p><span style=\"color: rgb(34, 197, 94);\">[CLAUDE]</span> can review & summarize</p>",
+      "type": "task",
+      "parentId": "gemini-terms",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "future-providers": {
+      "id": "future-providers",
+      "name": "Future Providers (Anthropic, OpenAI)",
+      "content": "<p>Review terms before integration</p><p>Ensure compliance with each provider's policies</p><p>Consider multi-provider fallback strategy</p>",
+      "type": "document",
+      "parentId": "api-compliance",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "intellectual-property": {
+      "id": "intellectual-property",
+      "name": "Intellectual Property",
+      "content": "<p><strong>Trademark Cost:</strong> $250-350 per class + attorney fees (~$500-1,000)</p><p><strong>Timeline:</strong> 8-12 months for registration</p><p><strong>USPTO Search:</strong> https://www.uspto.gov/trademarks/search</p>",
+      "type": "chapter",
+      "parentId": "root-legal",
+      "childrenIds": [
+        "ip-trademark",
+        "ip-copyright",
+        "ip-trade-secrets",
+        "ip-patents"
+      ],
+      "isCollapsed": true,
+      "prefix": "6"
+    },
+    "ip-trademark": {
+      "id": "ip-trademark",
+      "name": "Trademark - IdeaM",
+      "content": "",
+      "type": "document",
+      "parentId": "intellectual-property",
+      "childrenIds": [
+        "tm-uspto",
+        "tm-google",
+        "tm-file",
+        "tm-international"
+      ],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "tm-uspto": {
+      "id": "tm-uspto",
+      "name": "Search USPTO database for conflicts",
+      "content": "<p><span style=\"color: rgb(34, 197, 94);\">[CLAUDE]</span> can do web search</p>",
+      "type": "task",
+      "parentId": "ip-trademark",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "tm-google": {
+      "id": "tm-google",
+      "name": "Search Google/domain names for conflicts",
+      "content": "<p><span style=\"color: rgb(34, 197, 94);\">[CLAUDE]</span> can do web search</p>",
+      "type": "task",
+      "parentId": "ip-trademark",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "tm-file": {
+      "id": "tm-file",
+      "name": "File trademark application (Class 009 - Software, Class 042 - SaaS)",
+      "content": "<p><span style=\"color: rgb(234, 179, 8);\">[HUMAN]</span> must file</p>",
+      "type": "task",
+      "parentId": "ip-trademark",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "tm-international": {
+      "id": "tm-international",
+      "name": "Consider international protection (Madrid Protocol)",
+      "content": "<p><span style=\"color: rgb(234, 179, 8);\">[HUMAN]</span> must file</p>",
+      "type": "task",
+      "parentId": "ip-trademark",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "ip-copyright": {
+      "id": "ip-copyright",
+      "name": "Copyright",
+      "content": "",
+      "type": "document",
+      "parentId": "intellectual-property",
+      "childrenIds": [
+        "cr-notices",
+        "cr-register",
+        "cr-dates"
+      ],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "cr-notices": {
+      "id": "cr-notices",
+      "name": "Add copyright notices to code, website, docs",
+      "content": "<p><span style=\"color: rgb(34, 197, 94);\">[CLAUDE]</span> can implement</p>",
+      "type": "task",
+      "parentId": "ip-copyright",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "cr-register": {
+      "id": "cr-register",
+      "name": "Register key works with US Copyright Office ($65 each)",
+      "content": "<p><span style=\"color: rgb(234, 179, 8);\">[HUMAN]</span> must file</p>",
+      "type": "task",
+      "parentId": "ip-copyright",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "cr-dates": {
+      "id": "cr-dates",
+      "name": "Document creation dates for all original content",
+      "content": "<p><span style=\"color: rgb(34, 197, 94);\">[CLAUDE]</span> can document</p>",
+      "type": "task",
+      "parentId": "ip-copyright",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "ip-trade-secrets": {
+      "id": "ip-trade-secrets",
+      "name": "Trade Secrets",
+      "content": "",
+      "type": "document",
+      "parentId": "intellectual-property",
+      "childrenIds": [
+        "ts-identify",
+        "ts-nda",
+        "ts-secure"
+      ],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "ts-identify": {
+      "id": "ts-identify",
+      "name": "Identify proprietary algorithms/processes",
+      "content": "<p><span style=\"color: rgb(34, 197, 94);\">[CLAUDE]</span> can analyze</p>",
+      "type": "task",
+      "parentId": "ip-trade-secrets",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "ts-nda": {
+      "id": "ts-nda",
+      "name": "Implement confidentiality agreements with employees/contractors",
+      "content": "<p><span style=\"color: rgb(234, 179, 8);\">[HUMAN]</span> must sign</p>",
+      "type": "task",
+      "parentId": "ip-trade-secrets",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "ts-secure": {
+      "id": "ts-secure",
+      "name": "Secure access to sensitive code/data",
+      "content": "<p><span style=\"color: rgb(34, 197, 94);\">[CLAUDE]</span> can advise</p>",
+      "type": "task",
+      "parentId": "ip-trade-secrets",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "ip-patents": {
+      "id": "ip-patents",
+      "name": "Patent Considerations",
+      "content": "<p><strong>Is IdeaM Patentable?</strong></p><p></p><p>Core features (outlining, AI text generation): Likely NOT patentable - well-established</p><p>Novel combinations: MAYBE patentable if truly unique workflows exist</p><p><strong>Recommendation:</strong> Focus on trade secrets + speed to market over patents</p><p></p><p><strong>Patent Troll Defense:</strong></p><p>- Document prior art for all features</p><p>- Consider joining LOT Network (free for small companies)</p><p>- Get startup-friendly IP insurance</p><p></p><p><strong>If Pursuing Patents:</strong></p><p>Provisional patent: $500-1,000 (buys 12 months)</p><p>Full patent: $15,000-30,000+ (2-3 year timeline)</p>",
+      "type": "document",
+      "parentId": "intellectual-property",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "insurance": {
+      "id": "insurance",
+      "name": "Insurance",
+      "content": "<p><strong>Recommended Providers:</strong></p><p>Embroker - Tech startup specialist</p><p>Vouch - Startup-focused</p><p>Hiscox - Small business coverage</p>",
+      "type": "chapter",
+      "parentId": "root-legal",
+      "childrenIds": [
+        "insurance-types",
+        "insurance-tasks"
+      ],
+      "isCollapsed": true,
+      "prefix": "7"
+    },
+    "insurance-types": {
+      "id": "insurance-types",
+      "name": "Required Coverage",
+      "content": "<p><strong>General Liability:</strong> $1M coverage, $500-800/year - Bodily injury, property damage</p><p></p><p><strong>E&O (Professional Liability):</strong> $1M coverage, $1,000-3,000/year - Software failures, bad advice</p><p></p><p><strong>Cyber Liability:</strong> $1M coverage, $1,000-3,000/year - Data breaches, ransomware</p><p></p><p><strong>D&O (Directors & Officers):</strong> $1M coverage, $2,000-5,000/year - Investor protection (if funded)</p>",
+      "type": "document",
+      "parentId": "insurance",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "insurance-tasks": {
+      "id": "insurance-tasks",
+      "name": "Action Items",
+      "content": "",
+      "type": "document",
+      "parentId": "insurance",
+      "childrenIds": [
+        "ins-quotes",
+        "ins-start",
+        "ins-cyber",
+        "ins-do"
+      ],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "ins-quotes": {
+      "id": "ins-quotes",
+      "name": "Get quotes from 2-3 providers",
+      "content": "<p><span style=\"color: rgb(234, 179, 8);\">[HUMAN]</span> must contact insurers</p>",
+      "type": "task",
+      "parentId": "insurance-tasks",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "ins-start": {
+      "id": "ins-start",
+      "name": "Start with General Liability + E&O minimum",
+      "content": "<p><span style=\"color: rgb(234, 179, 8);\">[HUMAN]</span> must purchase</p>",
+      "type": "task",
+      "parentId": "insurance-tasks",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "ins-cyber": {
+      "id": "ins-cyber",
+      "name": "Add Cyber Liability before collecting user data",
+      "content": "<p><span style=\"color: rgb(234, 179, 8);\">[HUMAN]</span> must purchase</p>",
+      "type": "task",
+      "parentId": "insurance-tasks",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "ins-do": {
+      "id": "ins-do",
+      "name": "Add D&O if taking outside investment",
+      "content": "<p><span style=\"color: rgb(234, 179, 8);\">[HUMAN]</span> must purchase</p>",
+      "type": "task",
+      "parentId": "insurance-tasks",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "completed": false
+    },
+    "additional-compliance": {
+      "id": "additional-compliance",
+      "name": "Additional Compliance",
+      "content": "",
+      "type": "chapter",
+      "parentId": "root-legal",
+      "childrenIds": [
+        "dmca",
+        "accessibility",
+        "export-control"
+      ],
+      "isCollapsed": true,
+      "prefix": "8"
+    },
+    "dmca": {
+      "id": "dmca",
+      "name": "DMCA Compliance (User-Generated Content)",
+      "content": "<p>Register DMCA agent with US Copyright Office</p><p>Create takedown request process</p><p>Document response procedures</p><p>Add DMCA notice to Terms of Service</p>",
+      "type": "document",
+      "parentId": "additional-compliance",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "accessibility": {
+      "id": "accessibility",
+      "name": "Accessibility (ADA/WCAG)",
+      "content": "<p>Audit app for accessibility issues</p><p>Implement WCAG 2.1 AA compliance</p><p>Add accessibility statement to website</p>",
+      "type": "document",
+      "parentId": "additional-compliance",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "export-control": {
+      "id": "export-control",
+      "name": "Export Control",
+      "content": "<p>Review if encryption features require export licenses</p><p>Check restricted country lists (OFAC sanctions)</p>",
+      "type": "document",
+      "parentId": "additional-compliance",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "timeline": {
+      "id": "timeline",
+      "name": "Implementation Timeline",
+      "content": "",
+      "type": "chapter",
+      "parentId": "root-legal",
+      "childrenIds": [
+        "phase1",
+        "phase2",
+        "phase3",
+        "budget-summary",
+        "resources"
+      ],
+      "isCollapsed": true,
+      "prefix": "9"
+    },
+    "phase1": {
+      "id": "phase1",
+      "name": "Phase 1: Pre-Launch",
+      "content": "<p>1. C-Corp formation</p><p>2. Draft TOS & Privacy Policy</p><p>3. Run license audit</p><p>4. Review Google Gemini API terms</p><p>5. Get insurance quotes</p>",
+      "type": "document",
+      "parentId": "timeline",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "phase2": {
+      "id": "phase2",
+      "name": "Phase 2: At Launch",
+      "content": "<p>1. File trademark application</p><p>2. Register DMCA agent</p><p>3. Implement cookie consent (if EU users)</p><p>4. Finalize insurance coverage</p>",
+      "type": "document",
+      "parentId": "timeline",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "phase3": {
+      "id": "phase3",
+      "name": "Phase 3: Post-Launch (First 3 Months)",
+      "content": "<p>1. Join patent defense network (LOT)</p><p>2. Complete trademark registration</p><p>3. Regular legal review (quarterly)</p><p>4. Update policies as needed</p>",
+      "type": "document",
+      "parentId": "timeline",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "budget-summary": {
+      "id": "budget-summary",
+      "name": "Budget Summary",
+      "content": "<p><strong>C-Corp Formation:</strong> $500-2,000</p><p><strong>TOS + Privacy Policy:</strong> $1,500-5,000</p><p><strong>Trademark Filing:</strong> $750-1,500</p><p><strong>Insurance (Year 1):</strong> $2,500-6,000</p><p><strong>Legal Review/Retainer:</strong> $2,000-5,000</p><p></p><p><strong>TOTAL: $7,250-19,500</strong></p>",
+      "type": "document",
+      "parentId": "timeline",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "resources": {
+      "id": "resources",
+      "name": "Legal Resources",
+      "content": "<p><strong>DIY Tools:</strong></p><p>Clerky/Gust Launch - Formation + standard docs</p><p>Termly/Iubenda - Privacy policy generators</p><p>TermsFeed - TOS generators</p><p></p><p><strong>Professional Help:</strong></p><p>Startup Lawyers: $300-500/hour</p><p>Monthly Retainers: $500-2,000/month</p><p>Law School Clinics: Free/low-cost (slower)</p><p></p><p><strong>Recommended Reading:</strong></p><p>YCombinator's \"Series A Documents\" (free templates)</p><p>Stripe Atlas Knowledge Base</p><p>GDPR.eu compliance guide</p><p>FTC privacy compliance resources</p>",
+      "type": "document",
+      "parentId": "timeline",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "ai-consent-compliance": {
+      "id": "ai-consent-compliance",
+      "name": "AI Data Consent (Apple Guideline 5.1.2(i))",
+      "content": "<p><strong>Status: IMPLEMENTED</strong></p><p></p><p>Apple requires apps to obtain consent before sending user data to third-party services. Implementation:</p><ul><li><p>Consent dialog appears on first AI feature use</p></li><li><p>Names all three AI providers and what data is sent</p></li><li><p>Two-step decline: warning lists disabled features before confirming</p></li><li><p>Settings → Data &amp; Privacy toggle to revoke/grant</p></li><li><p>All AI operations gated by consent check</p></li><li><p>Privacy policy linked from consent dialog</p></li></ul>",
+      "childrenIds": [],
+      "isExpanded": false,
+      "prefix": ""
+    },
+    "f763b764-8dfd-4d33-b364-815c674e82c6": {
+      "id": "f763b764-8dfd-4d33-b364-815c674e82c6",
+      "name": "Data Storage & Backup — User Responsibility (Disclaimer of Liability)",
+      "content": "IMPORTANT liability disclaimer. Must be surfaced to users IMMEDIATELY at first-run/setup, shown in the website setup section, taught to Help, and included in the Terms of Service. IdeaM is local-first: user data lives on the user's own device.",
+      "type": "note",
+      "parentId": "root-legal",
+      "childrenIds": [
+        "23f127a1-7484-46df-9ff1-0464e8559e9f",
+        "85f69864-e968-4e1e-bc79-b49d9140fcd8",
+        "c9a7c6b3-98b3-4df4-b675-a64eb6822fac",
+        "06e3c468-f904-4b6b-8a58-325622c6c297",
+        "2df6e4be-c2e6-4aea-829b-0ff26cdf80b8"
+      ],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1784189432545,
+        "updatedAt": 1784189432545
+      }
+    },
+    "23f127a1-7484-46df-9ff1-0464e8559e9f": {
+      "id": "23f127a1-7484-46df-9ff1-0464e8559e9f",
+      "name": "Statement (for Terms of Service)",
+      "content": "IdeaM is a local-first application: your outlines and data files are stored on your own device, in locations you control. You retain full ownership and control of your data.\n\nBecause your data resides on your own machine, YOU are solely responsible for the security, storage, and backup of your files. We strongly recommend that you store your IdeaM data files in a location that is automatically and regularly backed up.\n\nIdeaM provides an automatic local snapshot / backup-health feature as a convenience and safety net; however, this is NOT a substitute for your own independent, off-device backup, and it does not protect against device loss, theft, hardware failure, or file deletion outside the app.\n\nTo the maximum extent permitted by law, SecondBrainWare LLC and IdeaM disclaim all liability for any loss, corruption, or unavailability of data stored on your device. Ensuring your files are stored securely and backed up is your responsibility.\n\nIf you would like guidance choosing or configuring a backup method, contact IdeaM Help.",
+      "type": "note",
+      "parentId": "f763b764-8dfd-4d33-b364-815c674e82c6",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1784189432545,
+        "updatedAt": 1784189432545
+      }
+    },
+    "85f69864-e968-4e1e-bc79-b49d9140fcd8": {
+      "id": "85f69864-e968-4e1e-bc79-b49d9140fcd8",
+      "name": "Backup options we present to users",
+      "content": "Concrete options to name (the choice is theirs): iCloud Drive, Dropbox, Google Drive, Microsoft OneDrive, an external Time Machine disk, or any other trusted backup solution. Guidance: keep your IdeaM data files inside one of these automatically-backed-up folders.",
+      "type": "note",
+      "parentId": "f763b764-8dfd-4d33-b364-815c674e82c6",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1784189432545,
+        "updatedAt": 1784189432545
+      }
+    },
+    "c9a7c6b3-98b3-4df4-b675-a64eb6822fac": {
+      "id": "c9a7c6b3-98b3-4df4-b675-a64eb6822fac",
+      "name": "Where this must appear",
+      "content": "1) IMMEDIATELY at first-run / in the setup plan inside the app (a one-time notice, not buried).\n2) The website 'Ready to get started?' setup section (backup as an explicit setup step).\n3) Help assistant context (so 'how do I back up?' gets a real answer).\n4) User Guide.\n5) The Terms of Service (formal disclaimer of liability).\nRationale (Howard, 2026-07-16): intentional redundancy — this is a disclaimer of liability and is very important to us.",
+      "type": "note",
+      "parentId": "f763b764-8dfd-4d33-b364-815c674e82c6",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1784189432545,
+        "updatedAt": 1784189432545
+      }
+    },
+    "06e3c468-f904-4b6b-8a58-325622c6c297": {
+      "id": "06e3c468-f904-4b6b-8a58-325622c6c297",
+      "name": "Web (browser) users — additional warning (data lives in the browser)",
+      "content": "If you use the free WEB version of IdeaM in a browser, your outlines are stored in your browser's local storage area — on your device, inside that one specific browser.\n\nThis means:\n- Your data is tied to that browser on that device. It does NOT automatically follow you to another browser, computer, or device.\n- Your data can be LOST if you clear your browser's cache / history / site data, use private/incognito mode, or if the browser evicts stored data to free up space.\n\nHow to protect it:\n- Regularly EXPORT / download your outlines and keep those exported files in an automatically-backed-up location (iCloud Drive, Dropbox, Google Drive, OneDrive, etc.).\n- Do not clear your browser's site data for IdeaM unless you have exported your work first.\n- For the strongest protection, use the native app (Mac / iPhone / iPad), where your work is real files you can keep in a backed-up folder.\n\nAs with all IdeaM data, protecting and backing up your data is your responsibility. Ask IdeaM Help for guidance. This must be surfaced to web users IMMEDIATELY at first use.",
+      "type": "note",
+      "parentId": "f763b764-8dfd-4d33-b364-815c674e82c6",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1784189483873,
+        "updatedAt": 1784189483873
+      }
+    },
+    "2df6e4be-c2e6-4aea-829b-0ff26cdf80b8": {
+      "id": "2df6e4be-c2e6-4aea-829b-0ff26cdf80b8",
+      "name": "Additional protection measures (best practices we recommend)",
+      "content": "Beyond storing files in an automatically-backed-up location, we recommend users also:\n- Keep more than one copy — the 3-2-1 rule: 3 copies, on 2 different kinds of storage, with 1 kept off-site (e.g. in the cloud).\n- Use a backup that keeps VERSION HISTORY (Time Machine, iCloud, Dropbox, Google Drive), so you can roll back a bad change or a corrupted file — not just mirror the latest state.\n- Export important outlines before any big reorganization or deletion; an extra copy costs nothing.\n- Occasionally TEST that you can actually restore a file — an untested backup isn't a backup.\n- Protect the device itself: turn on disk encryption (FileVault on Mac / device encryption elsewhere) and a passcode/login.\n- Turn on two-factor authentication on the cloud/backup account so the backup itself stays secure.\n- Web users especially: export before clearing browser data, switching browsers, or uninstalling.",
+      "type": "note",
+      "parentId": "f763b764-8dfd-4d33-b364-815c674e82c6",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1784189826295,
+        "updatedAt": 1784189826295
+      }
+    },
+    "documents-for-lawyer": {
+      "id": "documents-for-lawyer",
+      "name": "Documents for the Lawyer",
+      "content": "<p>Collection point for every legal / compliance / policy document and reference we have, to hand to the attorney. Each item below says what it is and its current status (draft / final / needs review / reference). The numbered sections further down in this outline are the underlying in-house planning workbook.</p>",
+      "type": "chapter",
+      "parentId": "root-legal",
+      "childrenIds": [
+        "dfl-tm",
+        "dfl-tos",
+        "dfl-privacy",
+        "dfl-contact",
+        "dfl-existing-planning",
+        "dfl-data-backup",
+        "dfl-llc-formation",
+        "dfl-api-compliance",
+        "dfl-ip-plan",
+        "dfl-gaps"
+      ],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "dfl-tm": {
+      "id": "dfl-tm",
+      "name": "Trademark Knockout Search — IdeaM (2026-07-20)",
+      "content": "<p><strong>STATUS:</strong> In-house preliminary knockout done; needs formal attorney clearance before filing.</p><p>Live USPTO database searched in a real browser + web checks.</p><ul><li>Exact-word \"ideam\" returns only TWO marks: (1) IDEAM — LIVE/REGISTERED — owner IDEAM LLC (Colorado) — but covers bird feeders / bird baths / housewares (class 21), unrelated to software. (2) IDEAM — DEAD/ABANDONED — Ingenium Product Development (Wisconsin) — engineering/industrial-design services (class 42); dead, blocks nothing.</li><li>NO live or pending \"IDEAM\" mark in the software classes that matter: class 9 (downloadable apps) or class 42 (SaaS/software).</li><li>Common-law web users are all different industries: Ideam Technologies (US defense engineering), ideam.ai (India IT/ServiceNow consultancy), Colombia's IDEAM (weather agency).</li><li>Bottom line: \"IdeaM\" looks reasonably CLEAR to use and register for our prosumer idea/outlining software — no blocking mark in our niche.</li><li>Caveat: this is a knockout search, NOT formal legal clearance. A trademark attorney should run a full clearance (including phonetic equivalents like \"ideum\") and confirm the class-9/42 path before any filing.</li></ul>",
+      "type": "note",
+      "parentId": "documents-for-lawyer",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "dfl-tos": {
+      "id": "dfl-tos",
+      "name": "Terms of Service (draft)",
+      "content": "<p>Full Terms of Service for IdeaM — covers acceptance, the license to use the app, the rule that users own their own content (local-first; never sold or used to train AI), acceptable use, AI-feature disclaimers (output may be wrong; Bring-Your-Own-Key), the user's own responsibility to back up their data, plans / payment / refunds, warranty disclaimer, limitation of liability, termination, indemnification, and Washington governing law.</p><p><strong>STATUS:</strong> DRAFT — not lawyer-reviewed. Governing law = Washington (SecondBrainWare LLC). Open bracketed decisions remain (refund policy, liability cap, arbitration/venue + county, mailing address). Source: docs/legal-drafts/terms-of-service.md.</p>",
+      "type": "note",
+      "parentId": "documents-for-lawyer",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "dfl-privacy": {
+      "id": "dfl-privacy",
+      "name": "Privacy Policy (draft)",
+      "content": "<p>Privacy Policy explaining IdeaM's local-first handling of data: what we do NOT collect (no server copy of outlines, no ad tracking, no selling data, no AI-training on user content), what limited data we do process (account, payment, diagnostics), and exactly what gets sent to third-party AI providers (Google Gemini, OpenAI, AssemblyAI) only when the user invokes a feature — plus BYOK, GDPR and CCPA rights, children's privacy, retention, security, and international transfers.</p><p><strong>STATUS:</strong> DRAFT — not lawyer-reviewed; GDPR/CCPA sections are jurisdiction-sensitive and must be tailored to where users actually are before publishing. Source: docs/legal-drafts/privacy-policy.md.</p>",
+      "type": "note",
+      "parentId": "documents-for-lawyer",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "dfl-contact": {
+      "id": "dfl-contact",
+      "name": "Contact (draft)",
+      "content": "<p>Public Contact-page copy: how to reach the team (support@2ndbrainware.com), the target response window, what support can help with, quick self-help links (FAQ / Privacy / Terms / in-app Help), the company block (SecondBrainWare LLC, Washington), and the legal-notice pointers for privacy/data requests, DMCA/copyright, and security reports.</p><p><strong>STATUS:</strong> DRAFT — needs review alongside the Terms and Privacy Policy; a DMCA agent and optional mailing address still to be designated. Source: docs/legal-drafts/contact.md.</p>",
+      "type": "note",
+      "parentId": "documents-for-lawyer",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "dfl-existing-planning": {
+      "id": "dfl-existing-planning",
+      "name": "Legal & Compliance planning workbook (this outline)",
+      "content": "<p>The rest of this outline is the in-house legal &amp; compliance planning workbook. It covers: a Terms-of-Service clause checklist; a Privacy Policy checklist (including GDPR and CCPA); a Third-Party Dependency / open-source license audit; API-terms compliance; Intellectual Property (trademark, copyright, trade secret, patent); Insurance; Additional Compliance (DMCA, accessibility, export control); and an Implementation Timeline with a budget summary.</p><p><strong>STATUS:</strong> REFERENCE / planning — a mix of done items and open to-dos, each tagged [CLAUDE] / [LAWYER] / [HUMAN]; the items that need a lawyer are flagged inline.</p>",
+      "type": "note",
+      "parentId": "documents-for-lawyer",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "dfl-data-backup": {
+      "id": "dfl-data-backup",
+      "name": "Data-Storage & Backup liability disclosure",
+      "content": "<p>The local-first data-protection policy: because outlines live on the user's own device (or, on web, in the browser), the USER is responsible for storage and backup, and we disclaim liability for loss on the user's device — with a specific extra warning for browser users about clearing site data. Includes the exact statement, recommended backup options, the web-user warning, and where it must appear (first-run notice, website setup section, in-app Help, and the Terms of Service).</p><p><strong>STATUS:</strong> FINAL in substance and already surfaced in the app, website, Help, and the ToS draft; lawyer to confirm the disclaimer language holds up.</p>",
+      "type": "note",
+      "parentId": "documents-for-lawyer",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "dfl-llc-formation": {
+      "id": "dfl-llc-formation",
+      "name": "SecondBrainWare LLC — formation & entity",
+      "content": "<p>SecondBrainWare LLC is the operating company and the owner-of-record for all IP. It is a Washington LLC, filed with the Washington Secretary of State on 2026-07-03 (then: await UBI &rarr; EIN &rarr; business bank account &rarr; Stripe).</p><p><strong>STATUS:</strong> FILED (Washington) / reference.</p><p><strong>Why Washington, not Delaware:</strong> a home-state Washington LLC is simpler and cheaper for a bootstrapped solo founder — it avoids Delaware’s franchise tax, the cost of an out-of-state registered agent, and the need to foreign-qualify back into Washington anyway. Delaware’s advantages mainly benefit VC-backed C-corporations, which is not our path.</p>",
+      "type": "note",
+      "parentId": "documents-for-lawyer",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "dfl-api-compliance": {
+      "id": "dfl-api-compliance",
+      "name": "Third-party / API / AI-provider compliance notes",
+      "content": "<p>Which outside services process user data and the obligations attached: Google Gemini API terms (attribution, usage limits, no competing-model training), OpenAI and AssemblyAI terms for their respective features, Apple Guideline 5.1.2(i) third-party-data consent (implemented as a first-use consent dialog), and the Bring-Your-Own-Key model. Also flags the Data Processing Agreements still to be signed with vendors.</p><p><strong>STATUS:</strong> Partly implemented (the consent dialog is live); vendor DPAs are OUTSTANDING and need attorney review.</p>",
+      "type": "note",
+      "parentId": "documents-for-lawyer",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "dfl-ip-plan": {
+      "id": "dfl-ip-plan",
+      "name": "IP Protection Prep — trademark & patent filing plan (separate outline)",
+      "content": "<p>A separate outline, \"IP Protection Prep — IdeaM / SecondBrainWare\", holds the full IP filing plan: trademark strategy (the Idiam / IdeaM marks; owner of record SecondBrainWare LLC), provisional-patent candidate seeds, copyright &amp; trade-secret notes, and a recommended filing sequence with rough costs.</p><p><strong>STATUS:</strong> REFERENCE / planning — pairs with the trademark knockout search above; attorney to run formal clearance and handle filings.</p>",
+      "type": "note",
+      "parentId": "documents-for-lawyer",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "dfl-gaps": {
+      "id": "dfl-gaps",
+      "name": "Gaps — standard documents still needed",
+      "content": "<p>Standard legal documents a launching software product typically needs that we do NOT yet have drafted — so the lawyer can immediately see what is missing:</p><ul><li>End-User License Agreement (EULA) / standalone software-license terms (distinct from the ToS; app stores may require one).</li><li>Cookie policy + cookie-consent banner (for EU / UK / California site visitors).</li><li>Standalone Acceptable-Use Policy (currently only a clause inside the ToS).</li><li>DMCA / copyright-takedown policy and a registered designated agent.</li><li>Finalized refund / cancellation policy, kept consistent with the payment processor.</li><li>Data Processing Agreements (DPAs) with Google, OpenAI, AssemblyAI, hosting, identity, payment, and crash-reporting vendors.</li><li>Data-transfer safeguards (Standard Contractual Clauses) for EU / UK users, and a public subprocessor list.</li><li>Accessibility statement (WCAG / ADA).</li><li>Beta / early-access agreement, if beta testers are asked to agree to anything.</li></ul><p><strong>STATUS:</strong> NOT DRAFTED — for the lawyer to advise which are required at launch.</p>",
+      "type": "note",
+      "parentId": "documents-for-lawyer",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    }
+  },
+  "createdAt": "2025-01-14T00:00:00.000Z",
+  "updatedAt": "2025-01-14T00:00:00.000Z",
+  "isGuide": false,
+  "_fileSize": 43337,
+  "_fileName": "IdeaM -- Legal.idm",
+  "_isLazyLoaded": false,
+  "lastModified": 1784189826295
+}

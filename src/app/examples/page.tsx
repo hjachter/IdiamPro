@@ -19,7 +19,7 @@ const GALLERIES = [
     href: '/examples/websites',
     icon: Globe,
     title: 'Websites',
-    desc: 'Clean, shareable web pages built from IdiamPro’s templates.',
+    desc: 'Clean, shareable web pages built from IdeaM’s templates.',
     tint: 'from-blue-600/12 to-blue-700/8',
   },
   {
@@ -36,11 +36,11 @@ export default function ExamplesHubPage() {
     <ExamplesShell
       eyebrow="Examples"
       eyebrowIcon={<Sparkles className="w-4 h-4 text-[#1e40af]" />}
-      title={<>See what IdiamPro can make.</>}
+      title={<>See what IdeaM can make.</>}
       subtitle={
         <>
           One outline becomes many finished formats. Browse real examples of each
-          — every one produced by IdiamPro itself.
+          — every one produced by IdeaM itself.
         </>
       }
     >

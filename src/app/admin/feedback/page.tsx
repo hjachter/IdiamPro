@@ -366,7 +366,7 @@ export default function AdminFeedbackPage() {
                           size="sm"
                           variant="outline"
                           onClick={() => {
-                            const subject = encodeURIComponent('Re: your IdiamPro feedback');
+                            const subject = encodeURIComponent('Re: your IdeaM feedback');
                             window.location.href = `mailto:${r.email}?subject=${subject}`;
                           }}
                         >

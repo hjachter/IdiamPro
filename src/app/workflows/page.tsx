@@ -3,10 +3,10 @@
 // Workflows — a CLARITY-teal CHARACTER-PROFILE GALLERY. Doctrine (Howard's):
 // "We localize the pain and provide the remedy." Every workflow is a person a
 // visitor can see themselves in — a named character tied to a market segment,
-// their localized pain (the ache), and the remedy film that shows IdiamPro
+// their localized pain (the ache), and the remedy film that shows IdeaM
 // solving it end to end. Clean white background, deep-teal accent (#2563eb),
 // near-black ink, the shared Clarity header. Each film is "Produced by
-// IdiamPro" (baked into the video). The films themselves are a separate job;
+// IdeaM" (baked into the video). The films themselves are a separate job;
 // this page is the teal frame around them. Additive — touches no other route.
 
 import React, { useState } from 'react';
@@ -111,7 +111,7 @@ const PROFILES: Profile[] = [
     videoSrc: '/career-workflow.mp4',
     posterSrc: '/career-workflow-poster.jpg',
     ariaLabel:
-      "A degree and no idea what's next — a recent grad uses IdiamPro to design an A.I.-resilient career plan, a workflow film produced by IdiamPro",
+      "A degree and no idea what's next — a recent grad uses IdeaM to design an A.I.-resilient career plan, a workflow film produced by IdeaM",
   },
   {
     index: '02',
@@ -124,7 +124,7 @@ const PROFILES: Profile[] = [
     videoSrc: '/book-workflow.mp4',
     posterSrc: '/book-workflow-poster.jpg',
     ariaLabel:
-      'How Sam took on the impossible — an eleven-year-old chases cold fusion for the science fair, a workflow film produced by IdiamPro',
+      'How Sam took on the impossible — an eleven-year-old chases cold fusion for the science fair, a workflow film produced by IdeaM',
   },
   {
     index: '03',
@@ -137,7 +137,7 @@ const PROFILES: Profile[] = [
     videoSrc: '/surfer-workflow.mp4',
     posterSrc: '/surfer-workflow-poster.jpg',
     ariaLabel:
-      'The surf-shop owner turns a single topic into a finished podcast episode with one press, a workflow film produced by IdiamPro',
+      'The surf-shop owner turns a single topic into a finished podcast episode with one press, a workflow film produced by IdeaM',
     pending: false,
   },
 ];
@@ -169,7 +169,7 @@ export default function WorkflowsPage() {
               See yourself here.
             </h1>
             <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-[#475569] md:text-lg">
-              Every profile below is one person, one real problem, and the moment IdiamPro turned it into
+              Every profile below is one person, one real problem, and the moment IdeaM turned it into
               finished work — almost as fast as they could describe it. Find the one who sounds like you.
             </p>
           </section>
@@ -227,7 +227,7 @@ export default function WorkflowsPage() {
                     />
                     <p className="mt-3 flex items-center justify-center gap-1.5 text-sm text-[#64748b]">
                       <Video className="h-3.5 w-3.5 text-blue-600" />
-                      Produced by IdiamPro
+                      Produced by IdeaM
                     </p>
                   </div>
                 </article>
@@ -235,9 +235,9 @@ export default function WorkflowsPage() {
             </div>
           </section>
 
-          {/* The story behind IdiamPro — the founder film, relocated here from the
+          {/* The story behind IdeaM — the founder film, relocated here from the
               homepage. A tasteful "meet the maker" card that sits alongside the
-              character films: the founder used IdiamPro to plan IdiamPro's own
+              character films: the founder used IdeaM to plan IdeaM's own
               launch. Reuses the same ProfileFilm click-to-play pattern. */}
           <section className="px-6 pt-4 pb-16 lg:px-12">
             <div className="mx-auto max-w-[1600px]">
@@ -245,7 +245,7 @@ export default function WorkflowsPage() {
                 <div className="flex items-center gap-3">
                   <span className="text-sm font-bold text-blue-600/70">★</span>
                   <span className="text-xs font-medium uppercase tracking-wider text-blue-600">
-                    The story behind IdiamPro
+                    The story behind IdeaM
                   </span>
                 </div>
                 <h2 className="mt-2 text-3xl font-bold tracking-tight text-[#0b1533] md:text-4xl">
@@ -254,7 +254,7 @@ export default function WorkflowsPage() {
                 <div className="mt-1 text-sm text-[#64748b]">A note from the founder</div>
                 <p className="mt-5 max-w-3xl text-[15px] leading-relaxed text-[#475569] md:text-base">
                   A tool I&apos;d envisioned for decades — finally possible now. So I did the most
-                  honest test I could think of: I used IdiamPro to plan its own launch. The plan
+                  honest test I could think of: I used IdeaM to plan its own launch. The plan
                   you&apos;ll watch build itself is the real one.
                 </p>
               </div>
@@ -262,11 +262,11 @@ export default function WorkflowsPage() {
                 <ProfileFilm
                   videoSrc="/idiampro-story.mp4?v=story6"
                   posterSrc="/idiampro-story-poster.jpg?v=story6"
-                  ariaLabel="Our Story — a founder uses IdiamPro to plan IdiamPro's own launch. Produced by IdiamPro."
+                  ariaLabel="Our Story — a founder uses IdeaM to plan IdeaM's own launch. Produced by IdeaM."
                 />
                 <p className="mt-3 flex items-center justify-center gap-1.5 text-sm text-[#64748b]">
                   <Video className="h-3.5 w-3.5 text-blue-600" />
-                  Produced by IdiamPro
+                  Produced by IdeaM
                 </p>
               </div>
             </div>

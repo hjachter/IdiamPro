@@ -17,7 +17,7 @@ export function PWAUpdateNotification({ onUpdate, onDismiss }: PWAUpdateNotifica
         <div className="flex-1">
           <h3 className="font-semibold text-sm">Update Available</h3>
           <p className="text-xs mt-1 text-blue-100">
-            A new version of IdiamPro is ready. Click update to get the latest features.
+            A new version of IdeaM is ready. Click update to get the latest features.
           </p>
           <div className="flex gap-2 mt-3">
             <Button

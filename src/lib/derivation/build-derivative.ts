@@ -73,7 +73,7 @@ export function buildDerivativeOutline(opts: BuildDerivativeOptions): Outline {
     };
   }
 
-  // Sync the root node's name with the new outline name. The IdiamPro file
+  // Sync the root node's name with the new outline name. The IdeaM file
   // format treats the root node's `name` as the display name within the
   // outline; the Outline.name is the sidebar/file name. They should match
   // for newly-created derivatives so nothing looks stale.

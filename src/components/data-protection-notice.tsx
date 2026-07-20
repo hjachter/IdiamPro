@@ -3,7 +3,7 @@
 /**
  * Data Protection Notice — a one-time, first-run liability disclaimer that
  * teaches brand-new users to keep their work safe with their own off-device
- * backup. IdiamPro is local-first: outline files live on the user's own
+ * backup. IdeaM is local-first: outline files live on the user's own
  * device, so backing them up is ultimately the user's responsibility. This
  * notice makes that clear at setup — not only on the marketing site.
  *
@@ -198,10 +198,10 @@ export function DataProtectionNotice() {
           <div className="flex gap-2.5 rounded-lg border border-red-500/40 bg-red-500/5 p-3.5">
             <Cloud className="h-5 w-5 shrink-0 text-red-600 dark:text-red-400 mt-0.5" />
             <p className="text-sm leading-relaxed text-foreground">
-              Store your IdiamPro files in an automatically-backed-up
+              Store your IdeaM files in an automatically-backed-up
               location — <strong>iCloud Drive, Dropbox, Google Drive,
               OneDrive, a Time Machine disk</strong>, or any backup you trust.
-              IdiamPro keeps automatic local snapshots as a safety net, but
+              IdeaM keeps automatic local snapshots as a safety net, but
               they are <strong>not a substitute</strong> for your own
               off-device backup.
             </p>
@@ -245,7 +245,7 @@ export function DataProtectionNotice() {
           <div className="flex items-center gap-2 rounded-lg bg-muted/50 px-3 py-2.5">
             <HelpCircle className="h-4 w-4 shrink-0 text-muted-foreground" />
             <p className="text-sm text-muted-foreground">
-              Need help choosing? Ask IdiamPro Help.
+              Need help choosing? Ask IdeaM Help.
             </p>
           </div>
         </div>

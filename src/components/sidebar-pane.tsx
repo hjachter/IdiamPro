@@ -380,7 +380,7 @@ export default function SidebarPane({
     <div className="h-full w-full flex flex-col bg-background/80 sidebar-shadow">
       {/* Brand / app title */}
       <div className="flex-shrink-0 px-3 pt-2.5 pb-1.5 border-b border-border/60">
-        <span className="font-semibold text-sm tracking-tight">IdiamPro</span>
+        <span className="font-semibold text-sm tracking-tight">IdeaM</span>
       </div>
 
       {/* Function clusters — grouped and labeled so they no longer blend

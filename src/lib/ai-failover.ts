@@ -121,7 +121,7 @@ export async function callOpenRouter(
       'Content-Type': 'application/json',
       // Optional attribution headers OpenRouter recommends; harmless if ignored.
       'HTTP-Referer': 'https://2ndbrainware.com',
-      'X-Title': 'IdiamPro',
+      'X-Title': 'IdeaM',
     },
     body: JSON.stringify({
       model: chosenModel,

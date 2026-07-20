@@ -1,6 +1,6 @@
 'use client';
 
-// VIDEO example gallery — a click-to-play showcase of REAL videos IdiamPro
+// VIDEO example gallery — a click-to-play showcase of REAL videos IdeaM
 // produced. Uses the page-wide single-video hook so only one plays at a time.
 
 import React from 'react';
@@ -17,7 +17,7 @@ const VIDEOS = [
   {
     src: `/homepage-sizzle.mp4${V}`,
     title: 'Product Sizzle',
-    desc: 'A fast, cinematic tour of what IdiamPro does end to end.',
+    desc: 'A fast, cinematic tour of what IdeaM does end to end.',
   },
   {
     src: `/getting-started.mp4${V}`,
@@ -51,7 +51,7 @@ export default function VideosExamplePage() {
       title={<>Real videos, made from outlines.</>}
       subtitle={
         <>
-          Every clip below was produced by IdiamPro — a narrated slideshow
+          Every clip below was produced by IdeaM — a narrated slideshow
           generated straight from an outline. Press play on any one to watch.
         </>
       }

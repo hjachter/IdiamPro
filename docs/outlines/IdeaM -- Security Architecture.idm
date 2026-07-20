@@ -1,0 +1,110 @@
+{
+  "id": "security-architecture",
+  "name": "IdeaM -- Security Architecture",
+  "rootNodeId": "sec-root",
+  "lastModified": 1780679855269,
+  "isGuide": false,
+  "nodes": {
+    "sec-root": {
+      "id": "sec-root",
+      "name": "IdeaM -- Security Architecture",
+      "content": "<p><strong>Purpose:</strong> A plain-English explanation of how IdeaM keeps data and intellectual property safe. Suitable for briefing new team members and investors. No code, no jargon — if a smart non-engineer would not understand a sentence, it does not belong here.</p>\n<p><strong>Last updated:</strong> 2026-06-05.</p>\n<p><strong>The one-sentence version:</strong> Your outlines live on YOUR device; we only see what you explicitly send to the AI; only people we've invited can use the app; and we know exactly who is doing what.</p>",
+      "type": "root",
+      "parentId": null,
+      "childrenIds": [
+        "sec-data-residency",
+        "sec-access-control",
+        "sec-ai-data-flow",
+        "sec-encryption",
+        "sec-privacy-stance",
+        "sec-incident",
+        "sec-compliance",
+        "sec-summary"
+      ],
+      "prefix": ""
+    },
+    "sec-data-residency": {
+      "id": "sec-data-residency",
+      "name": "Where the data lives",
+      "parentId": "sec-root",
+      "childrenIds": [],
+      "type": "chapter",
+      "isCollapsed": false,
+      "prefix": "1",
+      "content": "<p>The single most important fact about IdeaM's security model: <strong>your outlines stay on your own device.</strong></p>\n<p>On Mac (desktop app), every outline is a file on your hard drive — by default in <code>~/Documents/IDM Outlines/</code>, but you can pick any folder, including an iCloud or Dropbox folder if you want your own sync. On iPhone and iPad, outlines live in the app's private storage. On the web, outlines live in your browser's local storage.</p>\n<p><strong>We do NOT have a central database of customer outlines.</strong> We could not read your outlines even if we wanted to, because they never reach our servers in their entirety. This is sometimes called a \"local-first\" architecture, and it is a deliberate strategic choice — it dramatically reduces the surface area we have to protect, and it means a breach at our end cannot expose your knowledge base.</p>\n<p>What this means in practice:</p>\n<ul>\n<li><p>Your competitive research, client lists, business plans, personal journals — whatever you put in IdeaM — never leaves your control unless YOU explicitly choose to share or export them.</p></li>\n<li><p>If we disappeared tomorrow, your outlines would still be on your device, readable in plain text or with any other compatible tool.</p></li>\n<li><p>You can back up your outlines yourself, using whatever backup system you already trust.</p></li>\n</ul>"
+    },
+    "sec-access-control": {
+      "id": "sec-access-control",
+      "name": "Who can use IdeaM",
+      "parentId": "sec-root",
+      "childrenIds": [],
+      "type": "chapter",
+      "isCollapsed": false,
+      "prefix": "2",
+      "content": "<p>IdeaM has three layers of access control, each more specific than the one before:</p>\n<h3>Layer 1: Public vs private pages</h3>\n<p>The marketing pages (homepage, pricing, privacy policy) are public so that prospective customers and search engines can find us. The actual outliner — the place where you create and edit outlines — is behind an authentication wall. You cannot use the app without first signing in.</p>\n<h3>Layer 2: Invite-only signup</h3>\n<p>Even being able to sign IN requires being able to sign UP first, and signing up requires an invitation. We do NOT have open public signup. Each new user must be granted permission by an authorized administrator before they can create an account. This is enforced two ways:</p>\n<ul>\n<li><p><strong>At signup:</strong> the signup page checks the email against an allowlist. Unknown emails are politely turned away.</p></li>\n<li><p><strong>After signup:</strong> when a new account is created, our system double-checks the account against the allowlist on the server side. If somehow an unauthorized account gets through, it is automatically deactivated before it can do anything.</p></li>\n</ul>\n<p>The practical effect: every person using IdeaM has been explicitly approved. We know who they are. We have their email. If we ever needed to revoke access, we can do so instantly from an admin dashboard.</p>\n<h3>Layer 3: Tier-based feature access</h3>\n<p>Within the app, what each user can DO depends on which tier they are on. Free trial users get 25 AI generations to try the product. Student tier ($4.99/month with .edu verification) gets 200 a month. Pro tier ($9.99/month) gets 1,000 a month plus premium features like podcast generation. Pro-only features are gated at the feature surface — a Free user cannot accidentally consume a Pro-only resource.</p>\n<p>Users who bring their own AI keys (BYOK) bypass the generation counter entirely — they are paying their own AI bills directly to the AI provider, so we do not need to meter them. The tier rules still apply to premium features even with BYOK.</p>"
+    },
+    "sec-ai-data-flow": {
+      "id": "sec-ai-data-flow",
+      "name": "How AI features handle your data",
+      "parentId": "sec-root",
+      "childrenIds": [],
+      "type": "chapter",
+      "isCollapsed": false,
+      "prefix": "3",
+      "content": "<p>This is where most outlining apps make compromises and we do not.</p>\n<p>When you use an AI feature in IdeaM — for example, asking the AI to refresh a section's content from the web, translate a subtree, or generate an outline from a topic — the following happens:</p>\n<ol>\n<li><p>The relevant content (just the nodes you selected, not your entire outline library) is sent to the AI provider.</p></li>\n<li><p>The AI provider processes the request and returns the result.</p></li>\n<li><p>The result is shown to you for approval BEFORE it touches your outline. You can accept, reject, or edit per-node. Nothing changes in your outline until you say so.</p></li>\n</ol>\n<p><strong>Bring Your Own Key (BYOK).</strong> Power users can plug in their own API keys (Gemini, OpenAI, Anthropic, etc.) directly in Settings. When BYOK is enabled, the AI request goes straight from the app to the AI provider using YOUR key — it does not pass through our servers at all. The AI provider sees your traffic; we never do.</p>\n<p><strong>Local AI option.</strong> If you have Ollama installed on your Mac, you can switch the entire AI pipeline to local-only mode. In that mode, requests never leave your machine. This is the most private option, but requires you to host the AI yourself.</p>\n<p><strong>Consent gate.</strong> Even with all the above protection, the first time any AI feature is used we ask for explicit consent — a one-time dialog explaining what the AI provider will see and asking you to confirm. You can revoke this consent at any time in Settings. Without consent, AI features simply do not run.</p>"
+    },
+    "sec-encryption": {
+      "id": "sec-encryption",
+      "name": "Encryption in transit and at rest",
+      "parentId": "sec-root",
+      "childrenIds": [],
+      "type": "chapter",
+      "isCollapsed": false,
+      "prefix": "4",
+      "content": "<p><strong>In transit:</strong> Every connection between the IdeaM app and any server — ours, the AI providers, the authentication service, the payment processor — uses HTTPS with industry-standard TLS encryption. This is the same encryption your bank uses. Network attackers cannot read what is sent.</p>\n<p><strong>At rest on your device:</strong> Outlines are saved as standard files on your device. The platform's own protections apply — FileVault on Mac, device encryption on iPhone, browser storage protections on web. We do not add a separate encryption layer because doing so would prevent you from opening your own files with other tools (an explicit design choice: your data should always be portable).</p>\n<p><strong>At rest on our servers:</strong> We store very little. The two things we do store — your account email (for sign-in) and your subscription status — are stored at our authentication and payment providers (Clerk and Stripe, both of which are SOC 2 certified). Subscription status and entitlement data go through RevenueCat, also SOC 2 certified. We do NOT store outlines, attachments, AI prompts, or AI responses on our servers.</p>\n<p><strong>API keys (BYOK):</strong> When a user enters their own AI provider key in Settings, that key is stored locally on the user's device. It is NOT transmitted to or stored on our servers. Production builds plan to use the platform's secure-storage facility (macOS Keychain on desktop, iOS Keychain on phone) for additional protection beyond browser local storage. For v1 the key is held in the device's local storage with that limitation clearly disclosed.</p>"
+    },
+    "sec-privacy-stance": {
+      "id": "sec-privacy-stance",
+      "name": "What we collect and what we deliberately do NOT collect",
+      "parentId": "sec-root",
+      "childrenIds": [],
+      "type": "chapter",
+      "isCollapsed": false,
+      "prefix": "5",
+      "content": "<h3>What we collect (intentionally minimal)</h3>\n<ul>\n<li><p><strong>Account information:</strong> the email you sign up with, plus whatever name or profile data you provide. Held at our authentication provider (Clerk).</p></li>\n<li><p><strong>Subscription status:</strong> which tier you are on, whether your payment is current. Held at Stripe and RevenueCat.</p></li>\n<li><p><strong>Crash reports (opt-in):</strong> if you opt in, anonymous crash reports go to Sentry — a stack trace plus the version of the app, no personal data or outline content. Off by default; you choose.</p></li>\n<li><p><strong>AI usage counters:</strong> just the count (how many AI generations this month), not the content. Used to enforce the tier caps.</p></li>\n</ul>\n<h3>What we explicitly do NOT collect</h3>\n<ul>\n<li><p>Your outline content (nodes, hierarchies, attachments, embedded images, recordings).</p></li>\n<li><p>AI prompts you send or AI responses you receive (those go directly between you and the AI provider).</p></li>\n<li><p>Your file paths, file names, or local folder organization.</p></li>\n<li><p>Your BYOK API keys.</p></li>\n<li><p>Behavioral tracking data, marketing fingerprints, third-party advertising IDs, or session replay recordings.</p></li>\n</ul>\n<p>The principle: if we do not need it to deliver the service or charge for it, we do not collect it.</p>"
+    },
+    "sec-incident": {
+      "id": "sec-incident",
+      "name": "Incident response and operational security",
+      "parentId": "sec-root",
+      "childrenIds": [],
+      "type": "chapter",
+      "isCollapsed": false,
+      "prefix": "6",
+      "content": "<p>We have a documented incident response playbook covering common scenarios (vendor outage, exposed credential, suspicious user activity, data subject request). Each scenario has a severity rating, an escalation path, and a post-mortem template.</p>\n<p>Backups are automatic and on-device (Desktop). Every save creates a timestamped backup in a hidden folder on the user's machine; the last 10 backups per outline are retained. Recovery is a one-click operation. We do NOT operate a central backup of customer data — see \"Where the data lives\" above for why.</p>\n<p>For operational security: production credentials live in our cloud provider's secret store (Vercel environment variables), not in source code. No engineer has direct database access to customer-identifying data — Clerk and Stripe own their respective domains and we interact with them through audited APIs.</p>\n<p>If a customer reports a security concern, our published acknowledgement target is within one business day. If a vulnerability is confirmed, we patch and notify affected users per applicable regulations.</p>"
+    },
+    "sec-compliance": {
+      "id": "sec-compliance",
+      "name": "Compliance with privacy regulations",
+      "parentId": "sec-root",
+      "childrenIds": [],
+      "type": "chapter",
+      "isCollapsed": false,
+      "prefix": "7",
+      "content": "<p>IdeaM is designed to comply with major privacy regulations from day one:</p>\n<ul>\n<li><p><strong>GDPR (Europe):</strong> Users can export all their data (already built into the app — Settings → Privacy & Data → Export). Users can delete all their data (same place — Delete All Data). Both operations run locally and produce/destroy the local files. We do not need to coordinate with a central database because there isn't one.</p></li>\n<li><p><strong>CCPA (California):</strong> Same export/delete flow satisfies CCPA requirements. The \"right to know what we collect\" is satisfied by the public privacy policy + the in-app data scope inspector.</p></li>\n<li><p><strong>COPPA (under-13):</strong> Our terms require users to be 13 or older. The signup flow enforces this. We do not knowingly create accounts for children under 13.</p></li>\n<li><p><strong>App Store Privacy Nutrition Labels:</strong> Documented row-by-row in our App Store Connect submission. Answers are based on the data-collection facts above, which are deliberately minimal.</p></li>\n<li><p><strong>AI consent:</strong> Explicit consent dialog before any AI feature runs. Logged per user, revocable at any time. This is a defensive position against future AI-specific regulations.</p></li>\n</ul>\n<p>The compliance documents themselves (Privacy Policy, Terms of Service, Refund Policy) are drafted and pending lawyer review for production launch.</p>"
+    },
+    "sec-summary": {
+      "id": "sec-summary",
+      "name": "Summary for an investor or new employee",
+      "parentId": "sec-root",
+      "childrenIds": [],
+      "type": "chapter",
+      "isCollapsed": false,
+      "prefix": "8",
+      "content": "<p>Three things to remember about IdeaM's security posture:</p>\n<ol>\n<li><p><strong>The data lives with the user.</strong> We do not run a central database of customer outlines. This is a deliberate architectural choice that dramatically reduces our breach surface area and makes the IP — both ours and theirs — harder to leak.</p></li>\n<li><p><strong>Access is invitation-only.</strong> No one can use the app without being explicitly approved by an authorized administrator. We know who every user is, we can revoke access instantly, and we are not exposed to bot signups or anonymous abuse.</p></li>\n<li><p><strong>AI requests are user-controlled.</strong> The AI features include a per-request review and approve cycle, optional BYOK so traffic never touches our servers, and an optional local-AI mode for the most privacy-sensitive customers. The AI consent gate ensures no AI call runs without the user's affirmative authorization.</p></li>\n</ol>\n<p>The combined effect: a SaaS product with the privacy posture of a local-first tool, the lead-capture and revenue model of a hosted service, and the access-control of a private beta — without compromising on any of those three dimensions.</p>\n<p>For the technical reader: full implementation details for each of these layers are recorded in the Development outline's Decisions Log. This document is the executive summary; the detailed engineering is documented separately.</p>"
+    }
+  },
+  "_fileName": "IdeaM -- Security Architecture.idm",
+  "_isLazyLoaded": false,
+  "_fileSize": 0
+}

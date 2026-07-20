@@ -1,4 +1,4 @@
-# IdiamPro - Claude Code Guidelines
+# IdeaM - Claude Code Guidelines
 
 ## ⚠️ COMMUNICATION RULE — NO CODE OR TERMINAL OUTPUT ⚠️
 
@@ -10,7 +10,7 @@
 
 ## Platform Support & Rosetta Stone
 
-IdiamPro/SecondBrainWare targets 6 platforms. macOS, iOS, and Web are actively shipped. Windows and Linux have build configurations ready but no distributed builds yet. Android is compatible by design via Capacitor but the Android project is not yet scaffolded. All new features must work on Apple platforms first, and should remain compatible with the others without platform-specific assumptions wherever possible.
+IdeaM/SecondBrainWare targets 6 platforms. macOS, iOS, and Web are actively shipped. Windows and Linux have build configurations ready but no distributed builds yet. Android is compatible by design via Capacitor but the Android project is not yet scaffolded. All new features must work on Apple platforms first, and should remain compatible with the others without platform-specific assumptions wherever possible.
 
 ### Platform Support Matrix
 
@@ -112,11 +112,11 @@ Every time a new user-facing feature is implemented, it **must** also be documen
 1. **User Guide** (`src/lib/initial-guide.ts`) — Add a new node or update an existing one
 2. **Help Chat context** (`src/components/help-chat-dialog.tsx`) — Update the `APP_CONTEXT` string
 3. **Help Chat API context** (`src/app/api/help-chat/route.ts`) — Update the duplicated `APP_CONTEXT` string
-4. **How It Works outline** (`~/Documents/IDM Outlines/IdiamPro - How it works.idm` + sync to `docs/outlines/`) — Update the relevant section describing the feature's architecture in plain language
+4. **How It Works outline** (`~/Documents/IDM Outlines/IdeaM -- How it works.idm` + sync to `docs/outlines/`) — Update the relevant section describing the feature's architecture in plain language
 
 This includes: new keyboard shortcuts, new node types, new toolbar/menu items, new settings, new gestures, new dialogs, and any change to existing feature behavior. Never merge a feature without its documentation.
 
-**Note:** The "How it works" outline is for explaining *how the main app is built* (components, data flow, architecture) in non-technical language. Only update it when features change the app's structure or behavior significantly. MCP server features belong in `IdiamPro-MCP-Plan.idm` instead.
+**Note:** The "How it works" outline is for explaining *how the main app is built* (components, data flow, architecture) in non-technical language. Only update it when features change the app's structure or behavior significantly. MCP server features belong in `IdeaM -- MCP-Plan.idm` instead.
 
 ---
 
@@ -129,47 +129,47 @@ Critical project outlines are stored in **two locations**:
 **When editing project outlines, update BOTH copies:**
 ```bash
 # After editing an outline, copy to project folder:
-cp "~/Documents/IDM Outlines/IdiamPro - Testing.idm" docs/outlines/
+cp "~/Documents/IDM Outlines/IdeaM -- Testing.idm" docs/outlines/
 ```
 
 **Outlines in the project folder (`docs/outlines/`):**
 
 *App & Architecture:*
-- `IdiamPro - How it works.idm` — Plain-language explanation of how the app is built
-- `IdiamPro - Development.idm` — Milestones, architecture, issues, app store submission
-- `IdiamPro - Current Features.idm` — Comprehensive catalog of all implemented features
-- `IdiamPro - Testing.idm` — Automated test results + manual test checklists
+- `IdeaM -- How it works.idm` — Plain-language explanation of how the app is built
+- `IdeaM -- Development.idm` — Milestones, architecture, issues, app store submission
+- `IdeaM -- Current Features.idm` — Comprehensive catalog of all implemented features
+- `IdeaM -- Testing.idm` — Automated test results + manual test checklists
 - `Developer Guide.idm` — Quick-start guide for developers working on the codebase
 
 *Business & Strategy:*
-- `IdiamPro-Planning.idm` — Executive business plan, market analysis, financial projections
-- `IdiamPro-BizDev.idm` — Business development, investor pitch, partnerships
-- `IdiamPro-Marketing.idm` — Marketing copy, feature descriptions, pricing tiers, video content
-- `IdiamPro - Bootstrap Plan.idm` — Bootstrapping roadmap from web presence to App Store
-- `IdiamPro - Legal and Compliance.idm` — TOS, privacy policy, API compliance, IP
+- `IdeaM -- Planning.idm` — Executive business plan, market analysis, financial projections
+- `IdeaM -- BizDev.idm` — Business development, investor pitch, partnerships
+- `IdeaM -- Marketing.idm` — Marketing copy, feature descriptions, pricing tiers, video content
+- `IdeaM -- Bootstrap Plan.idm` — Bootstrapping roadmap from web presence to App Store
+- `IdeaM -- Legal.idm` — collection point for documents to hand the lawyer: TOS, privacy policy, contact, API/third-party compliance, IP, trademark knockout search, LLC formation, and a gaps-still-needed list (formerly `IdiamPro - Legal and Compliance.idm`)
 
 *Operations:*
-- `IdiamPro - Operations.idm` — Back-office runbook: beta program, user support, bug intake, email comms, finance, partnerships pipeline, incident response, compliance/privacy
-- `IdiamPro - Bug Log.idm` — Live bug tracking sorted by severity (P0/P1/P2/P3 + Resolved); paired with the Operations Bug Intake section
-- `IdiamPro - Dependencies.idm` — Third-party vendor/dependency register: every external product we rely on, its blast radius if it fails, and our recurring responsibilities (billing, key rotation, cert/domain renewal, monitoring, compliance) to keep each one honest
+- `IdeaM -- Operations.idm` — Back-office runbook: beta program, user support, bug intake, email comms, finance, partnerships pipeline, incident response, compliance/privacy
+- `IdeaM -- Bug Log.idm` — Live bug tracking sorted by severity (P0/P1/P2/P3 + Resolved); paired with the Operations Bug Intake section
+- `IdeaM -- Dependencies.idm` — Third-party vendor/dependency register: every external product we rely on, its blast radius if it fails, and our recurring responsibilities (billing, key rotation, cert/domain renewal, monitoring, compliance) to keep each one honest
 
 *Product & Features:*
-- `IdiamPro - Killer Features & Selling Points.idm` — Key differentiators and workflows
-- `IdiamPro - Killer Features & Selling Points - HJ.idm` — Howard's expanded version
-- `IdiamPro - Group.idm` — Group/collaboration features planning
+- `IdeaM -- Killer Features & Selling Points.idm` — Key differentiators and workflows
+- `IdeaM -- Killer Features & Selling Points - HJ.idm` — Howard's expanded version
+- `IdeaM -- Group.idm` — Group/collaboration features planning
 
 *MCP Server:*
-- `IdiamPro-MCP-Plan.idm` — MCP server: architecture, tools, auth, commercialization, test procedures
+- `IdeaM -- MCP-Plan.idm` — MCP server: architecture, tools, auth, commercialization, test procedures
 
-**Video production planning** lives in `IdiamPro-Marketing.idm` section 8 ("Video Content"), with strategic cross-references in `IdiamPro-BizDev.idm` (Strategic Partnerships → AI Video Tool Partnerships), `IdiamPro - Bootstrap Plan.idm` (Video Production Roadmap), and `IdiamPro - Killer Features & Selling Points.idm` (Outline → Video Generation feature). Today's brainstorming captured in the "Strategy Brainstorm — 2026-06-11" node in Development outline (docs/ copy). For future video work, start in Marketing section 8 and follow the cross-outline links.
+**Video production planning** lives in `IdeaM -- Marketing.idm` section 8 ("Video Content"), with strategic cross-references in `IdeaM -- BizDev.idm` (Strategic Partnerships → AI Video Tool Partnerships), `IdeaM -- Bootstrap Plan.idm` (Video Production Roadmap), and `IdeaM -- Killer Features & Selling Points.idm` (Outline → Video Generation feature). Today's brainstorming captured in the "Strategy Brainstorm — 2026-06-11" node in Development outline (docs/ copy). For future video work, start in Marketing section 8 and follow the cross-outline links.
 
 *Live dashboards (auto-maintained by Claude):*
-- `IdiamPro - Launch Progress.idm` — Percentage-complete bar graph + completed / waiting / next-up lists. **This is the single source of truth.** **Update this outline whenever a task status changes**, then sync to `~/Documents/IDM Outlines/`. The user reads it to see where we are relative to launch at a glance.
+- `IdeaM -- Launch Progress.idm` — Percentage-complete bar graph + completed / waiting / next-up lists. **This is the single source of truth.** **Update this outline whenever a task status changes**, then sync to `~/Documents/IDM Outlines/`. The user reads it to see where we are relative to launch at a glance.
 - The Launch Progress bar chart now has **two mirrors that must BOTH be kept in sync** every time launch progress changes:
-  1. `IdiamPro - Bootstrap Plan.idm` — The root node's `content` field holds a mirror of the launch-progress bar graph (top of the content, before the "━━━" separator).
-  2. `IdiamPro - Development.idm` — The root node's `content` field also holds a mirror of the bar graph (top of the content, above the "━━━" separator; existing content preserved below).
+  1. `IdeaM -- Bootstrap Plan.idm` — The root node's `content` field holds a mirror of the launch-progress bar graph (top of the content, before the "━━━" separator).
+  2. `IdeaM -- Development.idm` — The root node's `content` field also holds a mirror of the bar graph (top of the content, above the "━━━" separator; existing content preserved below).
 
-**Important:** The user edits outlines in IdiamPro (from `~/Documents/IDM Outlines/`). After significant changes, sync to `docs/outlines/` and commit.
+**Important:** The user edits outlines in IdeaM (from `~/Documents/IDM Outlines/`). After significant changes, sync to `docs/outlines/` and commit.
 
 ---
 
@@ -193,7 +193,7 @@ At the start of every new session, **automatically enable voice mode** by runnin
 
 ## Automated Testing
 
-IdiamPro has a Playwright-based test suite for automated UI testing of the Electron app. **Always prefer Playwright over asking the user to click things manually.** You can drive the UI, type into fields, take screenshots, and read responses — there is no reason to make the user perform UI actions one step at a time.
+IdeaM has a Playwright-based test suite for automated UI testing of the Electron app. **Always prefer Playwright over asking the user to click things manually.** You can drive the UI, type into fields, take screenshots, and read responses — there is no reason to make the user perform UI actions one step at a time.
 
 ### MANDATORY: Verify every feature in Playwright before reporting "done"
 
@@ -220,7 +220,7 @@ When the user says **"TEST EVERYTHING"** (or any clear variant: "run all tests",
    - Any future `tests/*-test.js` scripts as they're added
 4. **Capture the full output** and **read every report file** (`test-screenshots/**/report.{json,md}`).
 5. **Summarize** in plain language: pass/fail counts per script, which tests failed and why, any new bugs surfaced.
-6. **Update the `IdiamPro - Testing` outline** with the latest results, then sync to `docs/outlines/`.
+6. **Update the `IdeaM -- Testing` outline** with the latest results, then sync to `docs/outlines/`.
 7. **File any new bugs as tasks** (TaskCreate) so they don't get lost.
 
 The user wants this to be a one-word command — they should never have to babysit a test run.
@@ -248,7 +248,7 @@ node tests/electron-test.js
 node tests/gemma4-smoke-test.js
 ```
 
-**Test outline:** The `IdiamPro - Testing` outline (`~/Documents/IDM Outlines/IdiamPro - Testing.idm` + sync to `docs/outlines/`) contains:
+**Test outline:** The `IdeaM -- Testing` outline (`~/Documents/IDM Outlines/IdeaM -- Testing.idm` + sync to `docs/outlines/`) contains:
 - Automated test status (Playwright results)
 - Manual test checklists for the few things that can't be automated
 - Test run log for recording results

@@ -3,7 +3,7 @@
  *
  * PURPOSE: today the launch tier model treats the dev/desktop build very
  * permissively, so the owner can't easily preview what a real FREE user sees
- * (the Generate Video "X of 10 free" counter, the "Made with IdiamPro"
+ * (the Generate Video "X of 10 free" counter, the "Made with IdeaM"
  * watermark path, and the Pro upgrade prompts). This flag forces the app to
  * treat the current session as a free / non-Pro user.
  *

@@ -210,7 +210,7 @@ ${sections.slice(0, 4).map((section, i) => this.renderFeaturedChapter(section, i
 
   <footer>
     <div class="footer-container">
-      <p>© ${new Date().getFullYear()} ${this.escapeHtml(options.title)} · Generated with <a href="https://2ndbrainware.com">IdiamPro</a></p>
+      <p>© ${new Date().getFullYear()} ${this.escapeHtml(options.title)} · Generated with <a href="https://2ndbrainware.com">IdeaM</a></p>
     </div>
   </footer>`;
 

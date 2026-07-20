@@ -1,0 +1,1730 @@
+{
+  "id": "marketing-outline-v2",
+  "name": "IdeaM -- Marketing",
+  "rootNodeId": "root",
+  "lastModified": 1784189095607,
+  "nodes": {
+    "root": {
+      "id": "root",
+      "name": "IdeaM -- Marketing",
+      "content": "<h2>IdeaM - AI-Native Outlining Platform</h2><p>This outline contains all marketing materials, product specifications, workflows, and action items for the IdeaM marketing effort.</p><p><strong>Tagline:</strong> <em>\"Think in outlines. Create with AI.\"</em></p>",
+      "type": "root",
+      "parentId": null,
+      "childrenIds": [
+        "overview",
+        "feat-multimedia-shipped-2026-06-11",
+        "platforms",
+        "requirements",
+        "features",
+        "workflows",
+        "enhancements",
+        "subscriptions",
+        "video-support",
+        "roadmap",
+        "audience-segments-2026-06-11",
+        "action-items",
+        "real-testimonials-incoming-2026-06-10",
+        "d30bb7de-1ab0-4455-8d5b-67b7d32417a2",
+        "creator-outreach",
+        "51b3e21f-84b6-4f9f-98ad-3d7ade039d33",
+        "ideam-naming-trademark"
+      ],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "overview": {
+      "id": "overview",
+      "name": "Product Overview",
+      "content": "<h2>What is IdeaM?</h2><p>IdeaM is your <strong>second brain — with profound capabilities</strong>. It's an AI-native outlining platform that doesn't just store your knowledge — it actively helps you think. Import your research from any source, and IdeaM synthesizes it into structured, integrated knowledge, just as a researcher synthesizes hundreds or even thousands of sources into a knowledge base that can be used to draw original conclusions.</p><p>Most knowledge tools are passive — they hold what you put in. IdeaM is active. It synthesizes your sources, generates content that builds on your existing structure, and lets you work at a scale that would be unmanageable manually. We call each IdeaM outline a <strong>Knowledge Molecule</strong> — a living, structured entity that folds and unfolds like DNA, growing as you learn and expressing only what you need in the moment.</p><h3>Core Capabilities</h3><ul><li><p><strong>Hierarchical Thinking:</strong> Structure any project as a navigable outline with unlimited depth</p></li><li><p><strong>AI at Every Node:</strong> Generate contextually-aware content that understands your full document structure</p></li><li><p><strong>Built-in Research Assistant:</strong> Import and synthesize content from PDFs, YouTube, web pages, audio, and more into integrated knowledge</p></li><li><p><strong>Scale Without Limits:</strong> Handle massive documents (66,000+ nodes) with smooth performance</p></li><li><p><strong>Cross-Platform:</strong> Work seamlessly across Mac, iOS, and web today — with Windows and Linux Electron builds configured and Android via Capacitor on the roadmap</p></li></ul><h3>Who Is It For?</h3><ul><li><p>Writers and authors</p></li><li><p>Researchers and academics</p></li><li><p>Business professionals</p></li><li><p>Knowledge workers</p></li><li><p>Content creators</p></li><li><p>Consultants and strategists</p></li></ul><p></p>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": [
+        "concept-idea-incubator",
+        "overview-differentiators",
+        "overview-second-brain",
+        "overview-testimonials"
+      ],
+      "isCollapsed": false,
+      "prefix": "1"
+    },
+    "overview-differentiators": {
+      "id": "overview-differentiators",
+      "name": "Key Differentiators",
+      "content": "<h3>Why IdeaM vs. Other Tools?</h3><h4>Compared to Traditional Outliners</h4><ul><li><p><strong>Unlimited depth:</strong> Most outliners limit how many levels deep you can go. IdeaM has no limits — nest as deep as you need.</p></li><li><p><strong>Built-in AI:</strong> Traditional outliners have no AI. IdeaM generates content that understands your entire document.</p></li><li><p><strong>Import anything:</strong> Other outliners require manual copy-paste. IdeaM pulls in PDFs, YouTube videos, audio, and web pages automatically.</p></li><li><p><strong>Handles massive documents:</strong> Other tools slow down at a few thousand items. IdeaM handles 66,000+ without breaking a sweat.</p></li><li><p><strong>Built-in research assistant:</strong> IdeaM doesn't just store your sources — it works like a research assistant. Pull in PDFs, YouTube videos, audio recordings, web pages, and existing outlines, and AI synthesizes them into a single integrated outline that weaves together the knowledge from all your sources. Think of how a PhD student synthesizes dozens of papers into a thesis, or how a researcher integrates findings across studies — IdeaM does that for you automatically.</p></li><li><p><strong>Universal knowledge unification:</strong> Your knowledge is scattered everywhere — AI conversations spread across ChatGPT, Claude, and Gemini; research trapped in PDFs; insights buried in YouTube videos, audio recordings, web pages, and Google Docs. IdeaM is the first tool that unifies all of these sources into a single, structured knowledge base. Capture highlights from any LLM, import documents in any format, and AI synthesizes everything together in context. One place for all your knowledge, no matter where it originated.</p></li></ul><h4>Compared to AI Writing Tools</h4><ul><li><p><strong>Structure-aware:</strong> AI writing tools treat your document as one flat block of text. IdeaM's AI understands your outline hierarchy and writes content that fits.</p></li><li><p><strong>No length limits:</strong> AI writing tools hit token limits on long documents. IdeaM works with documents of any size.</p></li><li><p><strong>Private AI option:</strong> AI writing tools send everything to the cloud. IdeaM can run AI entirely on your own computer — your data never leaves your machine.</p></li></ul><p></p>",
+      "type": "document",
+      "parentId": "overview",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "1.1"
+    },
+    "overview-second-brain": {
+      "id": "overview-second-brain",
+      "name": "Your Second Brain — With Profound Capabilities",
+      "content": "<h3>IdeaM as a Second Brain</h3><p>The \"second brain\" concept (popularized by Tiago Forte's <em>Building a Second Brain</em> methodology) is about capturing, organizing, distilling, and expressing knowledge. IdeaM does all four — but goes far beyond what typical tools in this space offer.</p><h4>What typical second brain tools do (Notion, Obsidian, Roam)</h4><ul><li>Capture and store notes</li><li>Link ideas together</li><li>Search and retrieve</li></ul><h4>What IdeaM adds</h4><ul><li><strong>AI that synthesizes your knowledge</strong> — not just stores it. IdeaM actively helps you think by connecting and integrating ideas across your entire document.</li><li><strong>Multi-source import:</strong> Pull in PDFs, YouTube videos, audio recordings, web pages, and existing outlines automatically — no manual copy-paste.</li><li><strong>Hierarchical structure:</strong> Mirrors how people naturally think about complex topics, with unlimited nesting depth.</li><li><strong>Context-aware content generation:</strong> AI writes content that understands the full context of your knowledge base, not just the current page.</li><li><strong>Massive scale:</strong> Handle 66,000+ items without slowing down — far beyond what other tools can manage.</li></ul><h4>A Living Outline — The Knowledge Molecule</h4><p>Think of your IdeaM outline like a DNA molecule. DNA contains your entire genetic code, but at any moment only specific genes are unfolded and expressed — the rest stays compactly coiled, ready when needed. Your IdeaM outline works the same way. Your full second brain holds everything — all your knowledge, all your sources, all your ideas — but you expand only the areas you're actively working with and collapse everything else. When your focus shifts, you fold one area closed and unfold another.</p><p>This is why we call an IdeaM outline a <strong>Knowledge Molecule</strong>. It's not a static document — it's a living, structured entity that contains your entire knowledge base while expressing only what you need right now. Like DNA, it grows, adapts, and organizes complexity into something you can work with.</p><p>This isn't just an organizational trick. It's what makes it possible to work with a knowledge base of thousands of items without feeling overwhelmed. You're never looking at everything at once — you're looking at exactly what's relevant right now, with the full context of everything else one click away.</p><p><strong>An IdeaM outline is a living thing.</strong> It grows as you learn. It adapts as your focus changes. It holds the full complexity of your knowledge while showing you only what you need in the moment — just like DNA expresses only the genes the cell needs right now, while keeping the entire genome intact and ready.</p><h4>Capture Ideas When They Come</h4><p>Working on one thing and an idea hits you for something else? Drop it into your outline right where it belongs. IdeaM holds the context so you don't have to — your second brain remembers it, and you can pick it up later without losing your train of thought. That's what a second brain is for: letting you think freely without worrying about losing ideas.</p><h4>The Key Difference</h4><p>Most second brain tools are <strong>passive</strong> — they hold what you put in. IdeaM is <strong>active</strong>. It synthesizes your sources, generates content that builds on your existing structure, and lets you work at a scale that would be unmanageable manually. It's not just a place to store knowledge — it's a research assistant that synthesizes hundreds or even thousands of sources into a knowledge base you can use to draw original conclusions.</p><p>That's what makes a Knowledge Molecule different from an ordinary outline. It's alive — it grows, folds, unfolds, and evolves with your thinking.</p>",
+      "type": "document",
+      "parentId": "overview",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "1.2"
+    },
+    "overview-testimonials": {
+      "id": "overview-testimonials",
+      "name": "Testimonials (To Collect)",
+      "content": "<h3>We Built This With IdeaM</h3><p>This website was generated from an IdeaM outline. We maintain our marketing knowledge base in IdeaM — product positioning, features, workflows, pricing — and the website is generated directly from it. When we update the outline, the website updates.</p><p>This isn't just how we work — it's a model for how you can work too. Maintain your knowledge in IdeaM and let it become your website, your documentation, your training materials, or any other output you need.</p><h3>Testimonials (Coming Soon)</h3><p><em>Collecting quotes from beta users focusing on:</em></p><ul><li><p>Time saved on research synthesis</p></li><li><p>Quality of AI-generated content</p></li><li><p>Ability to handle large documents</p></li><li><p>Cross-platform workflow</p></li><li><p>Unifying knowledge from multiple AI chatbots and sources</p></li></ul>",
+      "type": "document",
+      "parentId": "overview",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "1.3"
+    },
+    "platforms": {
+      "id": "platforms",
+      "name": "Platform Support",
+      "content": "<h2>Available Platforms</h2><p>IdeaM runs natively on multiple platforms with feature parity where possible.</p>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": [
+        "platforms-current",
+        "platforms-future",
+        "platforms-comparison"
+      ],
+      "isCollapsed": false,
+      "prefix": "2"
+    },
+    "platforms-current": {
+      "id": "platforms-current",
+      "name": "Currently Available",
+      "content": "<h3>macOS (Desktop App)</h3><ul><li><p><strong>Technology:</strong> Electron app, distributed as a .dmg installer</p></li><li><p><strong>Architecture:</strong> Universal binary — works on both Apple Silicon and Intel Macs</p></li><li><p><strong>Features:</strong> Full feature set including Ollama integration (private AI) and native file system access</p></li><li><p><strong>Minimum OS:</strong> macOS 11 (Big Sur) or later</p></li></ul><h3>iOS / iPadOS (Mobile)</h3><ul><li><p><strong>Technology:</strong> Native app built with Capacitor, distributed via the App Store</p></li><li><p><strong>Features:</strong> Full feature set with touch-optimized gestures and native share sheet</p></li><li><p><strong>Minimum OS:</strong> iOS 15 or later</p></li></ul><h3>Web Browser</h3><ul><li><p><strong>Supported:</strong> Chrome, Edge, Safari, and Firefox</p></li><li><p>No installation needed — just open in your browser</p></li><li><p>Chrome and Edge provide the best experience thanks to the File System Access API, which lets you save files directly to your computer</p></li></ul>",
+      "type": "document",
+      "parentId": "platforms",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "2.1"
+    },
+    "platforms-future": {
+      "id": "platforms-future",
+      "name": "Future Platforms (Roadmap)",
+      "content": "<h3>Coming Soon</h3><ul><li><p><strong>Windows:</strong> Electron app with NSIS installer + portable version</p></li><li><p><strong>Linux:</strong> Available as AppImage and DEB packages</p></li><li><p><strong>Android:</strong> Built with Capacitor, distributed via Google Play Store</p></li></ul><h3>Under Consideration</h3><ul><li><p><strong>Chrome Extension:</strong> Quick capture — grab ideas from any web page</p></li><li><p><strong>VS Code Extension:</strong> Integration for software developers</p></li><li><p><strong>Obsidian Plugin:</strong> Connect with the popular knowledge management app</p></li></ul>",
+      "type": "document",
+      "parentId": "platforms",
+      "childrenIds": [
+        "platforms-android-work"
+      ],
+      "isCollapsed": false,
+      "prefix": "2.2"
+    },
+    "platforms-android-work": {
+      "id": "platforms-android-work",
+      "name": "Android — Work Required",
+      "content": "<h3>Android Port — What's Needed</h3><p>Since IdeaM already uses Capacitor for iOS, the core web app and most bridge code carry over. Android is the easiest future platform to add, but still requires dedicated work:</p><ol><li><strong>UI testing and fixes:</strong> Android has different screen sizes, navigation patterns, and back button behavior that need attention</li><li><strong>Touch gesture tuning:</strong> Android and iOS handle touch events slightly differently — swipe gestures will need calibration</li><li><strong>Storage layer:</strong> Android has its own file system conventions that need to be implemented</li><li><strong>App Store packaging:</strong> Google Play Store submission, APK/AAB signing, store listing, and screenshots</li><li><strong>Platform-specific bug fixes:</strong> There are always device- and OS-specific issues to resolve</li></ol><p><strong>Advantage:</strong> The Capacitor infrastructure is already in place from the iOS build. This gives us a significant head start — the architecture is already cross-platform.</p>",
+      "type": "note",
+      "parentId": "platforms-future",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "2.2.1"
+    },
+    "platforms-comparison": {
+      "id": "platforms-comparison",
+      "name": "Platform Feature Comparison",
+      "content": "<h3>What Works Where</h3><p><strong>Available everywhere</strong> (Mac, iPhone/iPad, Web, and coming to Windows, Linux, and Android):</p><ul><li>All outlining features</li><li>AI content generation</li><li>PDF, YouTube, and web page import</li><li>Audio transcription</li><li>Keyboard shortcuts (partial on iPhone/iPad)</li></ul><p><strong>Desktop only</strong> (Mac, and coming to Windows and Linux):</p><ul><li>Private AI (runs AI on your own computer, no internet needed)</li><li>Full file system access (save anywhere on your computer)</li></ul><p><strong>iPhone, iPad, and Android (coming soon):</strong></p><ul><li>Touch gestures (swipe to indent/outdent, drag to reorganize) — these same actions are performed via keyboard shortcuts (Tab, Shift+Tab, drag) on desktop and web</li></ul><p><em>Windows, Linux, and Android versions coming soon</em></p>",
+      "type": "document",
+      "parentId": "platforms",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "2.3"
+    },
+    "requirements": {
+      "id": "requirements",
+      "name": "System Requirements",
+      "content": "<h2>Technical Requirements</h2><p>Minimum and recommended specifications for running IdeaM.</p>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": [
+        "req-macos",
+        "req-ios",
+        "req-web",
+        "req-optional"
+      ],
+      "isCollapsed": true,
+      "prefix": "3"
+    },
+    "req-macos": {
+      "id": "req-macos",
+      "name": "macOS Requirements",
+      "content": "<h3>Minimum Requirements</h3><ul><li><strong>OS:</strong> macOS 11.0 (Big Sur) or later</li><li><strong>Processor:</strong> Intel Core i5 or Apple M1</li><li><strong>RAM:</strong> 4 GB</li><li><strong>Storage:</strong> 500 MB for application</li><li><strong>Internet:</strong> Required for AI features (unless using private AI)</li></ul><h3>Recommended</h3><ul><li><strong>OS:</strong> macOS 13.0 (Ventura) or later</li><li><strong>Processor:</strong> Apple M1 or later</li><li><strong>RAM:</strong> 8 GB+ (16 GB for large outlines)</li><li><strong>Storage:</strong> SSD with 2 GB+ free space</li></ul>",
+      "type": "document",
+      "parentId": "requirements",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "3.1"
+    },
+    "req-ios": {
+      "id": "req-ios",
+      "name": "iOS Requirements",
+      "content": "<h3>Minimum Requirements</h3><ul><li><strong>OS:</strong> iOS 15.0 or later</li><li><strong>Device:</strong> iPhone 8 or later, iPad (6th gen) or later</li><li><strong>Storage:</strong> 200 MB for application</li><li><strong>Internet:</strong> Required for AI features</li></ul><h3>Recommended</h3><ul><li><strong>OS:</strong> iOS 17.0 or later</li><li><strong>Device:</strong> iPhone 12 or later, iPad Pro</li><li><strong>Storage:</strong> 1 GB+ free for outline storage</li></ul>",
+      "type": "document",
+      "parentId": "requirements",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "3.2"
+    },
+    "req-web": {
+      "id": "req-web",
+      "name": "Web Browser Requirements",
+      "content": "<h3>Supported Browsers</h3><ul><li><strong>Chrome:</strong> Version 100 or later (recommended)</li><li><strong>Edge:</strong> Version 100 or later</li><li><strong>Safari:</strong> Version 15 or later</li><li><strong>Firefox:</strong> Version 100 or later</li></ul><h3>Notes</h3><ul><li>Chrome and Edge offer the best experience — they let you save files directly to your computer</li><li>Your browser must allow cookies and local storage so your work is saved</li></ul>",
+      "type": "document",
+      "parentId": "requirements",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "3.3"
+    },
+    "req-optional": {
+      "id": "req-optional",
+      "name": "Optional Components",
+      "content": "<h3>Ollama with Gemma 4 — Private, Offline AI (Optional, Multimodal)</h3><p>Ollama with Gemma 4 lets you run AI entirely on your own computer (now multimodal — supports text and images) — nothing is sent to the cloud. Install it and IdeaM connects automatically.</p><ul><li><strong>Download:</strong> <a href=\"https://ollama.ai\">ollama.ai</a></li><li><strong>RAM:</strong> 8 GB minimum (16 GB recommended)</li><li><strong>Storage:</strong> 4–8 GB per model</li><li><strong>Recommended models:</strong><ul><li><code>llama3.2</code> — Best balance of speed and quality (default)</li><li><code>phi3</code> — Fastest responses, lighter weight</li><li><code>llama3.1</code> — Highest quality output</li><li><code>codellama</code> — Optimized for code-related tasks</li></ul></li></ul><h3>AssemblyAI — Audio Transcription (Optional)</h3><p>Converts audio and video recordings to text, with speaker diarization (identifies who said what).</p><ul><li>Sign up at <a href=\"https://www.assemblyai.com\">assemblyai.com</a> and add your API key to IdeaM's settings</li><li>Free tier: 100 hours/month for testing</li></ul>",
+      "type": "document",
+      "parentId": "requirements",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "3.4"
+    },
+    "features": {
+      "id": "features",
+      "name": "Features & Capabilities",
+      "content": "<h2>Complete Feature Set</h2><p>IdeaM combines powerful outlining with AI-native capabilities.</p>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": [
+        "feat-outlining",
+        "feat-ai",
+        "feat-import",
+        "feat-export",
+        "feat-organization",
+        "feat-templates",
+        "feat-videos",
+        "cf-qc-23fbc6",
+        "cf-db-43d5dd",
+        "cf-sat-b56dc0"
+      ],
+      "isCollapsed": true,
+      "prefix": "4"
+    },
+    "feat-outlining": {
+      "id": "feat-outlining",
+      "name": "Core Outlining",
+      "content": "<h3>Organize Anything as an Outline</h3><ul><li>Nest items as deep as you want — no limits</li><li>Drag and drop to rearrange</li><li>Use keyboard shortcuts or swipe gestures (on iPhone/iPad) to indent and move items</li><li>Collapse sections to focus on what you're working on</li><li>Focus mode lets you zoom into any branch and work on it like its own document</li></ul><h3>20 Types of Items</h3><p>Every item in your outline can be a specific type:</p><ul><li><strong>Writing:</strong> Chapters, documents, notes, quotes</li><li><strong>Tasks:</strong> To-do items with checkboxes and due dates</li><li><strong>Media:</strong> Images, videos, audio recordings, PDFs, YouTube links</li><li><strong>Data:</strong> Spreadsheets, databases, code snippets</li><li><strong>External:</strong> Web links, apps, maps</li><li><strong>Creative:</strong> Canvas (Excalidraw — a freehand drawing tool)</li></ul><h3>Rich Text Editor</h3><ul><li>Full Markdown support with rich formatting</li><li>Embed images and YouTube videos directly in your content</li><li>Mermaid diagrams — auto-generated flowcharts, mind maps, and timelines from simple text</li><li>Code blocks with syntax highlighting</li></ul>",
+      "type": "document",
+      "parentId": "features",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "4.1"
+    },
+    "feat-ai": {
+      "id": "feat-ai",
+      "name": "AI Capabilities",
+      "content": "<h3>AI Content Generation</h3><ul><li><strong>Generate an entire outline:</strong> Type a topic and get a fully structured, multi-level outline in seconds</li><li><strong>Write content for any section:</strong> Click on any item and have AI write detailed content that understands your entire document's context</li><li><strong>Bulk generation:</strong> Generate content for all items in a section at once</li></ul><h3>Research Synthesis</h3><ul><li><strong>Pull in content from many sources at once:</strong> Combine information from multiple sources into one organized outline</li><li><strong>Works with:</strong><ul><li>YouTube videos (automatically extracts the transcript)</li><li>PDF documents</li><li>Web pages</li><li>Audio and video files (converts speech to text)</li><li>Images (OCR — reads text from photos and screenshots)</li><li>Google Docs, Sheets, and Slides</li><li>Other IdeaM outlines</li></ul></li><li><strong>AI organizes it for you:</strong> Imported content is automatically sorted and structured</li></ul><h3>Private AI</h3><ul><li>Run AI entirely on your own computer — your data never leaves your machine</li><li>Works without an internet connection</li><li>Automatic fallback — when cloud AI is rate-limited, Ollama takes over automatically</li></ul><h3>Audio Recording and Transcription</h3><ul><li>Record conversations and meetings directly in the app</li><li>Speaker diarization — automatically identifies who said what</li><li>Converts speech to text with timestamps you can navigate</li></ul>",
+      "type": "document",
+      "parentId": "features",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "4.2"
+    },
+    "feat-import": {
+      "id": "feat-import",
+      "name": "Import Capabilities",
+      "content": "<h3>What You Can Import</h3><ul><li><strong>PDFs:</strong> Pull in text and preserve the document's structure</li><li><strong>YouTube videos:</strong> Automatically grab the transcript</li><li><strong>Audio and video files:</strong> Convert speech to text</li><li><strong>Web pages:</strong> Extract the text from any URL</li><li><strong>Images:</strong> Read text from photos, screenshots, and scanned documents</li><li><strong>Google Docs, Sheets, Slides:</strong> Import directly from Google</li><li><strong>Plain text:</strong> Paste or upload text files</li><li><strong>Other outlines:</strong> Import outlines you've previously created</li></ul><h3>How Importing Works</h3><ul><li>Create a brand new outline from imported content</li><li>Add imported content as a new section in an existing outline</li><li>Import from many sources at once and let AI organize everything for you</li></ul>",
+      "type": "document",
+      "parentId": "features",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "4.3"
+    },
+    "feat-export": {
+      "id": "feat-export",
+      "name": "Export Capabilities",
+      "content": "<h3>PDF Export — Already a Universal Output</h3><p>PDF was our first output format, and it's already remarkably versatile. Because IdeaM generates PDFs from structured, AI-enhanced outlines with full context awareness, the output quality is far beyond what you'd get from a flat document. You can export your entire outline or any section as a professional PDF.</p><h4>What You Can Create with PDF Export Today</h4><ul><li><strong>Reports:</strong> Executive summaries, research reports, status updates, annual reports</li><li><strong>Proposals:</strong> Client proposals, grant applications, RFP responses</li><li><strong>Books and manuscripts:</strong> Full books, ebooks, individual chapters</li><li><strong>Academic papers:</strong> Research papers, theses, dissertations</li><li><strong>Legal documents:</strong> Briefs, memos, case summaries</li><li><strong>Business plans:</strong> Complete plans for investors or internal use</li><li><strong>Manuals and guides:</strong> User manuals, training guides, onboarding docs</li><li><strong>Course materials:</strong> Syllabi, lesson plans, student handouts</li><li><strong>Technical documentation:</strong> API references, user guides</li><li><strong>Marketing collateral:</strong> Brochures, one-pagers, fact sheets, white papers</li><li><strong>Meeting materials:</strong> Agendas, minutes, briefing docs</li><li><strong>Case studies:</strong> Client success stories</li></ul><h3>Other Current Export Formats</h3><ul><li><strong>Outline files (.idm):</strong> Save your outlines as files you can share or back up</li><li><strong>Bulk backup:</strong> Export all your outlines at once for safekeeping</li></ul><h3>Export Options</h3><ul><li>Export your entire outline or just a specific section</li><li>Choose whether to include or skip collapsed sections</li><li>Diagrams are included in PDF exports</li></ul>",
+      "type": "document",
+      "parentId": "features",
+      "childrenIds": [
+        "feat-output-formats"
+      ],
+      "isCollapsed": false,
+      "prefix": "4.4"
+    },
+    "feat-output-formats": {
+      "id": "feat-output-formats",
+      "name": "Universal Output Formats (Roadmap)",
+      "content": "<h3>From Outline to Anything</h3><p>IdeaM can import knowledge from almost any source. The next step: export that knowledge into any output format. Your outline holds structured, contextualized knowledge — AI can reshape it into whatever your project demands.</p><h4>First Priority: Website Generation</h4><p>We're building this feature first — because we're using it ourselves. The IdeaM website is generated directly from this marketing outline. We maintain our knowledge base in IdeaM, and it becomes our website. This isn't just a feature — it's a model that shows every user how to do the same thing for their own business, project, or organization.</p><p><strong>Website generation from an outline is a product feature that others will want.</strong> Imagine maintaining your company's website as an outline — update the outline, the website updates. No separate CMS, no context switching, no content drift.</p><h4>Additional Output Formats (Roadmap)</h4><ul><li><strong>Textbook:</strong> Generate a full textbook with chapters, sections, and pedagogy from your knowledge outline</li><li><strong>Screenplay:</strong> Transform story outlines into properly formatted screenplays</li><li><strong>Article / Blog Post:</strong> Turn any section into a polished, publication-ready article</li><li><strong>Newsletter:</strong> Select a subtree and generate a newsletter from it</li><li><strong>Presentation:</strong> Generate slide decks from outline sections</li><li><strong>Report:</strong> Create executive reports, research reports, and white papers</li><li><strong>Course Materials:</strong> Generate lesson plans, student guides, and assessments</li><li><strong>Documentation:</strong> Generate technical docs, API references, and user guides</li><li><strong>Email Campaign:</strong> Turn product or marketing outlines into email sequences</li><li><strong>Social Media:</strong> Generate platform-specific posts from key points in your outline</li></ul><h4>The Key Advantage</h4><p>Because IdeaM has the full context of your structured knowledge, every output format benefits from that context. The AI doesn't just reformat text — it understands the hierarchy, the relationships between ideas, and the full scope of your knowledge base. This produces dramatically better output than tools that work from flat documents.</p><h4>The Complete Picture</h4><p><strong>Universal input</strong> (PDFs, YouTube, audio, web, AI chats, Google Docs) → <strong>Structured knowledge</strong> (your second brain) → <strong>Universal output</strong> (any format your project needs). IdeaM is the hub that connects all your sources to all your outputs.</p>",
+      "type": "document",
+      "parentId": "feat-export",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "4.4.1"
+    },
+    "feat-organization": {
+      "id": "feat-organization",
+      "name": "Organization Features",
+      "content": "<h3>Visual Organization</h3><ul><li><strong>Color Coding:</strong> 8 colors for visual categorization</li><li><strong>Tags:</strong> Tag items for cross-outline organization</li><li><strong>Pinning:</strong> Pin important items to the top</li></ul><h3>Navigation</h3><ul><li><strong>Search:</strong> Find anything across the current outline or all your outlines</li><li><strong>Command Palette:</strong> Quick access to every action from the keyboard</li><li><strong>Keyboard Shortcuts:</strong> Full keyboard navigation for power users</li><li><strong>Breadcrumbs:</strong> Always see where you are in the outline hierarchy</li></ul><h3>Multi-Select</h3><ul><li>Select multiple items at once</li><li>Bulk operations: delete, color, tag</li><li>Copy, cut, and paste entire sections</li></ul>",
+      "type": "document",
+      "parentId": "features",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "4.5"
+    },
+    "feat-templates": {
+      "id": "feat-templates",
+      "name": "Built-in Templates",
+      "content": "<h3>14 Professional Templates</h3><ol><li><strong>Meeting Notes</strong> — Agenda, attendees, action items</li><li><strong>Project Plan</strong> — Goals, milestones, tasks, risks</li><li><strong>Book Outline</strong> — Chapters, scenes, characters</li><li><strong>Research Paper</strong> — Abstract, methodology, findings</li><li><strong>Weekly Review</strong> — Accomplishments, learnings, priorities</li><li><strong>Course Notes</strong> — Modules, key concepts, questions</li><li><strong>Daily Journal</strong> — Gratitude, goals, reflections</li><li><strong>Product Roadmap</strong> — Vision, themes, features</li><li><strong>Blog Post</strong> — Hook, body, call to action</li><li><strong>Job Interview Prep</strong> — Research, questions, follow-up</li><li><strong>Recipe</strong> — Ingredients, steps, notes</li><li><strong>Travel Itinerary</strong> — Destinations, activities, logistics</li><li><strong>1-on-1 Meeting</strong> — Updates, feedback, goals</li><li><strong>Decision Document</strong> — Context, options, recommendation</li></ol>",
+      "type": "document",
+      "parentId": "features",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "4.6"
+    },
+    "feat-videos": {
+      "id": "feat-videos",
+      "name": "See It In Action",
+      "content": "<h3>Watch IdeaM In Action</h3><p>Short video demos of every major feature — see exactly how it works before you try it yourself.</p><ul><li><strong>AI Content Generation (2 min):</strong> Watch AI write content that understands your full outline</li><li><strong>Research Synthesis (3 min):</strong> Import multiple sources and see AI merge them into one integrated outline</li><li><strong>Audio Transcription (2 min):</strong> Record a conversation and see it transcribed with speaker labels</li><li><strong>Private AI with Ollama (2 min):</strong> Run AI entirely on your own computer</li><li><strong>Google Workspace Embedding (1 min):</strong> Embed live Google Docs, Sheets, and Slides</li><li><strong>PDF Export (1 min):</strong> Turn any outline into a polished, professional PDF</li></ul><p>See our full <strong>Video Library (Section 8)</strong> for getting started guides, workflow walkthroughs, and more.</p>",
+      "type": "document",
+      "parentId": "features",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "4.7"
+    },
+    "workflows": {
+      "id": "workflows",
+      "name": "Workflows & Use Cases",
+      "content": "<h2>29 Sample Workflows</h2><p>These are just a starting point. IdeaM supports a huge number of possible workflows — any task that involves organizing ideas, synthesizing research, or creating structured content can benefit from it.</p><p><strong>Discovered a new way of working with IdeaM?</strong> Share it with us! We'd love to hear how you're using your second brain, and we'll add your workflow to this list so other users can benefit from it too.</p><p><strong>Want to see these workflows in action?</strong> We have video walkthroughs for many of them — book writing, building a knowledge base, AI conversation capture, literature reviews, business planning, and more. See our <strong>Video Library (Section 8)</strong> for the full list.</p>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": [
+        "wf-content",
+        "wf-research",
+        "wf-business",
+        "wf-knowledge",
+        "wf-creative",
+        "wf-professional"
+      ],
+      "isCollapsed": true,
+      "prefix": "5"
+    },
+    "wf-content": {
+      "id": "wf-content",
+      "name": "Content Creation & Writing",
+      "content": "<p>Workflows for writers, authors, and content creators.</p>",
+      "type": "document",
+      "parentId": "workflows",
+      "childrenIds": [
+        "wf-1",
+        "wf-2",
+        "wf-3",
+        "wf-4",
+        "wf-5"
+      ],
+      "isCollapsed": true,
+      "prefix": "5.1"
+    },
+    "wf-1": {
+      "id": "wf-1",
+      "name": "Book Writing",
+      "content": "<h3>Workflow: Writing a Book</h3><p><strong>Process:</strong></p><ol><li>Create a root node for your book title</li><li>Add chapter nodes as children</li><li>For each chapter, add scene or section nodes</li><li>Select any node and use AI to generate draft content based on the outline context</li><li>Import research PDFs that automatically structure into your outline</li><li>Navigate and reorganize 66K+ nodes smoothly as your manuscript grows</li></ol><p><strong>Example:</strong> A non-fiction author imports 20 research PDFs, creates a chapter structure, then uses AI to draft each section while maintaining consistency with the full book's context.</p>",
+      "type": "note",
+      "parentId": "wf-content",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.1.1"
+    },
+    "wf-2": {
+      "id": "wf-2",
+      "name": "Blog Post Planning",
+      "content": "<h3>Workflow: Planning Blog Posts</h3><p><strong>Process:</strong></p><ol><li>Start with your article topic as root</li><li>Add nodes for introduction, main points, and conclusion</li><li>Use the Research feature to gather information from multiple web sources</li><li>IdeaM synthesizes research into structured notes</li><li>Select each section and generate draft content that incorporates your research</li></ol><p><strong>Example:</strong> A content marketer researches \"AI trends 2024\" from 5 web sources, synthesizes into an outline, then generates a 2,000-word article with proper structure and citations.</p>",
+      "type": "note",
+      "parentId": "wf-content",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.1.2"
+    },
+    "wf-3": {
+      "id": "wf-3",
+      "name": "Screenwriting",
+      "content": "<h3>Workflow: Writing Screenplays</h3><p><strong>Process:</strong></p><ol><li>Structure your screenplay with Act nodes containing Sequence nodes containing Scene nodes</li><li>Add character and location nodes as reference branches</li><li>Use AI to expand scene beats into dialogue drafts</li><li>Collapse completed acts to focus on current work while maintaining the full structure</li></ol><p><strong>Example:</strong> A screenwriter outlines a feature film with 3 acts, 8 sequences, and 40 scenes. They generate dialogue for each scene while the AI maintains character voice consistency.</p>",
+      "type": "note",
+      "parentId": "wf-content",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.1.3"
+    },
+    "wf-4": {
+      "id": "wf-4",
+      "name": "Technical Documentation",
+      "content": "<h3>Workflow: Creating Technical Docs</h3><p><strong>Process:</strong></p><ol><li>Import existing docs or start fresh with product/feature hierarchy</li><li>Add nodes for each API endpoint, function, or feature</li><li>Generate descriptions, examples, and usage notes using AI</li><li>Export structured content for your documentation platform</li></ol><p><strong>Example:</strong> A developer documents a REST API with 50 endpoints. Each endpoint node contains description, parameters, examples, and error codes—all generated with contextual awareness.</p>",
+      "type": "note",
+      "parentId": "wf-content",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.1.4"
+    },
+    "wf-5": {
+      "id": "wf-5",
+      "name": "Course Development",
+      "content": "<h3>Workflow: Building Online Courses</h3><p><strong>Process:</strong></p><ol><li>Create a module hierarchy: Course → Modules → Lessons → Topics</li><li>For each topic node, generate learning objectives, key concepts, and assessment questions</li><li>Import reference materials as PDFs that structure automatically</li><li>Build instructor notes alongside student-facing content</li></ol><p><strong>Example:</strong> An educator builds a 12-week course with 36 lessons. Each lesson has AI-generated learning objectives, content summaries, and quiz questions.</p>",
+      "type": "note",
+      "parentId": "wf-content",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.1.5"
+    },
+    "wf-research": {
+      "id": "wf-research",
+      "name": "Research & Analysis",
+      "content": "<p>Workflows for researchers, analysts, and academics.</p>",
+      "type": "document",
+      "parentId": "workflows",
+      "childrenIds": [
+        "wf-6",
+        "wf-7",
+        "wf-8",
+        "wf-9",
+        "wf-10"
+      ],
+      "isCollapsed": true,
+      "prefix": "5.2"
+    },
+    "wf-6": {
+      "id": "wf-6",
+      "name": "Literature Review",
+      "content": "<h3>Workflow: Conducting Literature Reviews</h3><p><strong>Process:</strong></p><ol><li>Import academic PDFs—each structures into a node tree by sections</li><li>Create a synthesis outline alongside with themes as top-level nodes</li><li>Drag relevant excerpts from source outlines into your synthesis</li><li>Use AI to generate summary paragraphs that cite across sources</li></ol><p><strong>Example:</strong> A PhD student imports 50 papers, organizes by theme, then generates a literature review that synthesizes findings across all sources with proper attribution.</p>",
+      "type": "note",
+      "parentId": "wf-research",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.2.1"
+    },
+    "wf-7": {
+      "id": "wf-7",
+      "name": "Competitive Analysis",
+      "content": "<h3>Workflow: Analyzing Competitors</h3><p><strong>Process:</strong></p><ol><li>Create competitor nodes at the top level</li><li>Add consistent child nodes across each: Pricing, Features, Strengths, Weaknesses</li><li>Use Research feature to gather current information on each</li><li>Generate comparison summaries that pull from the structured data</li></ol><p><strong>Example:</strong> A product manager analyzes 8 competitors, imports their pricing pages and feature lists, then generates an executive summary with competitive positioning recommendations.</p>",
+      "type": "note",
+      "parentId": "wf-research",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.2.2"
+    },
+    "wf-8": {
+      "id": "wf-8",
+      "name": "Legal Research",
+      "content": "<h3>Workflow: Legal Case Research</h3><p><strong>Process:</strong></p><ol><li>Structure by case or by legal issue</li><li>Import case PDFs that auto-structure by sections</li><li>Create argument branches with supporting evidence as child nodes</li><li>Generate case summaries and identify relevant precedents across your research</li></ol><p><strong>Example:</strong> A paralegal researches 30 cases for a brief, organizes by legal issue, then generates a memo summarizing relevant holdings and their applicability.</p>",
+      "type": "note",
+      "parentId": "wf-research",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.2.3"
+    },
+    "wf-9": {
+      "id": "wf-9",
+      "name": "Academic Research",
+      "content": "<h3>Workflow: Writing Research Papers</h3><p><strong>Process:</strong></p><ol><li>Build your thesis structure: Introduction, Literature Review, Methodology, Findings, Discussion</li><li>Import source PDFs into a References branch</li><li>Link and annotate sources to relevant sections</li><li>Generate draft paragraphs that synthesize your structured research</li></ol><p><strong>Example:</strong> A graduate student structures their thesis, imports 100+ sources, and generates draft sections that properly reference and synthesize the literature.</p>",
+      "type": "note",
+      "parentId": "wf-research",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.2.4"
+    },
+    "wf-10": {
+      "id": "wf-10",
+      "name": "Market Research",
+      "content": "<h3>Workflow: Conducting Market Research</h3><p><strong>Process:</strong></p><ol><li>Organize by market segment, customer type, or research question</li><li>Import survey results, interview transcripts, and reports</li><li>Use AI to identify themes and generate insights</li><li>Structure findings into a presentation-ready hierarchy</li></ol><p><strong>Example:</strong> A market researcher imports 20 customer interviews (audio transcribed), identifies 5 key themes, and generates an insights report with supporting quotes.</p>",
+      "type": "note",
+      "parentId": "wf-research",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.2.5"
+    },
+    "wf-business": {
+      "id": "wf-business",
+      "name": "Business & Strategy",
+      "content": "<p>Workflows for executives, managers, and business professionals.</p>",
+      "type": "document",
+      "parentId": "workflows",
+      "childrenIds": [
+        "wf-11",
+        "wf-12",
+        "wf-13",
+        "wf-14",
+        "wf-15"
+      ],
+      "isCollapsed": true,
+      "prefix": "5.3"
+    },
+    "wf-11": {
+      "id": "wf-11",
+      "name": "Business Planning",
+      "content": "<h3>Workflow: Creating Business Plans</h3><p><strong>Process:</strong></p><ol><li>Start with Vision and Mission nodes</li><li>Add Goals as children, Strategies under each goal, Tactics under each strategy</li><li>Generate detailed action plans for each tactic</li><li>Collapse completed sections to focus on current priorities</li></ol><p><strong>Example:</strong> A startup founder creates a business plan with 5 strategic goals, 15 strategies, and 45 tactical initiatives—each with AI-generated implementation details.</p>",
+      "type": "note",
+      "parentId": "wf-business",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.3.1"
+    },
+    "wf-12": {
+      "id": "wf-12",
+      "name": "Product Roadmapping",
+      "content": "<h3>Workflow: Building Product Roadmaps</h3><p><strong>Process:</strong></p><ol><li>Create timeline nodes (Q1, Q2, etc.) or theme nodes (Performance, UX, etc.)</li><li>Add feature nodes with child nodes for requirements, dependencies, and acceptance criteria</li><li>Generate user stories and technical specs from outline context</li></ol><p><strong>Example:</strong> A product manager builds a 4-quarter roadmap with 20 features, each containing AI-generated user stories, acceptance criteria, and technical considerations.</p>",
+      "type": "note",
+      "parentId": "wf-business",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.3.2"
+    },
+    "wf-13": {
+      "id": "wf-13",
+      "name": "Meeting Preparation",
+      "content": "<h3>Workflow: Preparing for Meetings</h3><p><strong>Process:</strong></p><ol><li>Create an agenda with topic nodes</li><li>Add talking points, questions, and decision items as children</li><li>Use AI to generate background briefings for each topic</li><li>After the meeting, add outcome nodes and action items</li></ol><p><strong>Example:</strong> An executive prepares for a board meeting with 8 agenda items. Each item has AI-generated context, key metrics, and recommended talking points.</p>",
+      "type": "note",
+      "parentId": "wf-business",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.3.3"
+    },
+    "wf-14": {
+      "id": "wf-14",
+      "name": "Project Planning",
+      "content": "<h3>Workflow: Planning Projects</h3><p><strong>Process:</strong></p><ol><li>Build a Work Breakdown Structure: Project → Phases → Deliverables → Tasks</li><li>Add dependency and resource nodes</li><li>Generate task descriptions and acceptance criteria</li><li>Track progress by collapsing completed branches</li></ol><p><strong>Example:</strong> A project manager creates a breakdown for a software launch with 4 phases, 12 deliverables, and 60 tasks—each with clear descriptions and success criteria.</p>",
+      "type": "note",
+      "parentId": "wf-business",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.3.4"
+    },
+    "wf-15": {
+      "id": "wf-15",
+      "name": "Strategic Planning",
+      "content": "<h3>Workflow: Developing Strategy</h3><p><strong>Process:</strong></p><ol><li>Structure as: Vision → Strategic Themes → Objectives → Key Results → Initiatives</li><li>Use Research feature to gather market intelligence</li><li>Generate detailed initiative plans</li><li>Review and refine using the hierarchical view</li></ol><p><strong>Example:</strong> A CEO develops a 3-year strategy with 4 themes, 12 objectives, 36 key results, and 100 initiatives—all interconnected and AI-enhanced.</p>",
+      "type": "note",
+      "parentId": "wf-business",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.3.5"
+    },
+    "wf-knowledge": {
+      "id": "wf-knowledge",
+      "name": "Knowledge Management",
+      "content": "<p>Workflows for personal and organizational knowledge management.</p>",
+      "type": "document",
+      "parentId": "workflows",
+      "childrenIds": [
+        "wf-16",
+        "wf-17",
+        "wf-18",
+        "wf-19",
+        "wf-20",
+        "wf-29"
+      ],
+      "isCollapsed": true,
+      "prefix": "5.4"
+    },
+    "wf-16": {
+      "id": "wf-16",
+      "name": "Building Your Second Brain",
+      "content": "<h3>Workflow: Building Your Second Brain</h3><p>This is IdeaM at its most powerful — a living, growing knowledge base that captures everything you learn from every source and helps you think.</p><p><strong>Process:</strong></p><ol><li>Create topic areas as top-level nodes (Technology, Health, Finance, etc.)</li><li>Add ideas and learnings as they come to you — your second brain holds the context so you don't have to</li><li>Import knowledge from everywhere: PDFs, YouTube videos, web pages, audio recordings, and AI conversations from any LLM</li><li>AI synthesizes and connects ideas across topics — surfacing relationships you might not have seen</li><li>Over time, your second brain grows into a knowledge base that rivals what a researcher builds across years of study</li></ol><p><strong>Example:</strong> A lifelong learner maintains a knowledge base across 20 domains. They import articles, capture AI conversation highlights from Claude and ChatGPT, add insights from YouTube lectures, and let IdeaM synthesize connections across fields. After a year, they have a personal knowledge base of thousands of integrated sources — ready to draw original conclusions from.</p>",
+      "type": "note",
+      "parentId": "wf-knowledge",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.4.1"
+    },
+    "wf-17": {
+      "id": "wf-17",
+      "name": "Company Wiki",
+      "content": "<h3>Workflow: Building a Company Wiki</h3><p><strong>Process:</strong></p><ol><li>Structure by department or function</li><li>Add policies, procedures, and reference materials</li><li>Use AI to generate onboarding guides from existing content</li><li>Keep institutional knowledge organized and searchable</li></ol><p><strong>Example:</strong> An operations manager builds a wiki with 50 processes across 8 departments, generating onboarding materials and FAQs from the structured content.</p>",
+      "type": "note",
+      "parentId": "wf-knowledge",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.4.2"
+    },
+    "wf-18": {
+      "id": "wf-18",
+      "name": "Study Notes",
+      "content": "<h3>Workflow: Organizing Study Notes</h3><p><strong>Process:</strong></p><ol><li>Create course or subject outlines</li><li>Import textbook chapters and lecture slides as PDFs</li><li>Add your own notes alongside structured source material</li><li>Generate study guides and practice questions from your notes</li></ol><p><strong>Example:</strong> A medical student organizes notes for 8 courses, imports lecture PDFs, and generates flashcard-style review questions for each topic.</p>",
+      "type": "note",
+      "parentId": "wf-knowledge",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.4.3"
+    },
+    "wf-19": {
+      "id": "wf-19",
+      "name": "Recipe Collections",
+      "content": "<h3>Workflow: Organizing Recipes</h3><p><strong>Process:</strong></p><ol><li>Organize by cuisine, course, or main ingredient</li><li>Add recipes with child nodes for ingredients, instructions, and variations</li><li>Import cookbook PDFs that structure automatically</li><li>Generate shopping lists and meal plans</li></ol><p><strong>Example:</strong> A home cook organizes 200 recipes by cuisine, imports grandma's cookbook PDF, and generates weekly meal plans with consolidated shopping lists.</p>",
+      "type": "note",
+      "parentId": "wf-knowledge",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.4.4"
+    },
+    "wf-20": {
+      "id": "wf-20",
+      "name": "Travel Planning",
+      "content": "<h3>Workflow: Planning Travel</h3><p><strong>Process:</strong></p><ol><li>Create destination nodes with children for Accommodations, Activities, Restaurants, Transportation</li><li>Use Research feature to gather options</li><li>Generate day-by-day itineraries</li><li>Keep confirmation numbers and notes organized</li></ol><p><strong>Example:</strong> A traveler plans a 2-week Japan trip with 5 cities, researching options from travel blogs and generating optimized daily itineraries.</p>",
+      "type": "note",
+      "parentId": "wf-knowledge",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.4.5"
+    },
+    "wf-29": {
+      "id": "wf-29",
+      "name": "AI Conversation Capture",
+      "content": "<h3>Workflow: Capturing AI Conversations</h3><p><strong>The Problem:</strong> If you use AI chatbots, you've probably had hundreds of conversations — scattered not just within one platform, but across many. Competent AI users work with multiple LLMs (ChatGPT, Claude, Gemini, etc.) because each has particular strengths and weaknesses. The result is breakthrough insights buried across multiple platforms in flat, chronological chat logs with no structure and no connection to each other or your other work.</p><p><strong>Process:</strong></p><ol><li>After an AI conversation produces valuable insights, open the relevant outline in IdeaM</li><li>Create a node where the insight belongs in your knowledge structure</li><li>Paste the key highlights or the full conversation</li><li>Use AI to summarize and integrate the new knowledge with your existing outline</li><li>Conversations that went in the wrong direction? Simply delete the node — no clutter</li></ol><p><strong>Example:</strong> A product manager has 50 conversations with Claude about pricing strategy over 3 months. Instead of scrolling through chat history, the key insights live in their Pricing Strategy outline — organized by theme, synthesized with market research, and ready to reference anytime.</p><p><strong>Why this matters:</strong> IdeaM is the first tool that unifies AI conversations from every LLM you use into a single structured knowledge base. No more switching between ChatGPT, Claude, and Gemini trying to find that one conversation. Your insights live where they belong — in context, organized, and ready to build on.</p>",
+      "type": "note",
+      "parentId": "wf-knowledge",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.4.6"
+    },
+    "wf-creative": {
+      "id": "wf-creative",
+      "name": "Creative & Design",
+      "content": "<p>Workflows for designers, game developers, and creative professionals.</p>",
+      "type": "document",
+      "parentId": "workflows",
+      "childrenIds": [
+        "wf-21",
+        "wf-22",
+        "wf-23",
+        "wf-24"
+      ],
+      "isCollapsed": true,
+      "prefix": "5.5"
+    },
+    "wf-21": {
+      "id": "wf-21",
+      "name": "Game Design Documents",
+      "content": "<h3>Workflow: Creating Game Design Documents</h3><p><strong>Process:</strong></p><ol><li>Structure as: Concept → Mechanics → Story → Levels → Characters → Art Style</li><li>Add detailed specifications under each</li><li>Generate backstories, level descriptions, and dialogue</li><li>Keep the full vision organized as the project scales</li></ol><p><strong>Example:</strong> An indie developer documents an RPG with 100 characters, 50 quests, and 20 locations—all with AI-generated descriptions maintaining world consistency.</p>",
+      "type": "note",
+      "parentId": "wf-creative",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.5.1"
+    },
+    "wf-22": {
+      "id": "wf-22",
+      "name": "UX Research Synthesis",
+      "content": "<h3>Workflow: Synthesizing UX Research</h3><p><strong>Process:</strong></p><ol><li>Import interview transcripts and usability test notes</li><li>Create theme nodes for patterns you observe</li><li>Drag relevant quotes into theme branches</li><li>Generate insight summaries and design recommendations</li></ol><p><strong>Example:</strong> A UX researcher imports 30 user interviews, identifies 8 pain point themes, and generates a research report with actionable design recommendations.</p>",
+      "type": "note",
+      "parentId": "wf-creative",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.5.2"
+    },
+    "wf-23": {
+      "id": "wf-23",
+      "name": "Brand Strategy",
+      "content": "<h3>Workflow: Developing Brand Strategy</h3><p><strong>Process:</strong></p><ol><li>Structure as: Brand Purpose → Audience Segments → Messaging Pillars → Voice Guidelines</li><li>Add examples and anti-examples under each</li><li>Generate taglines, copy variations, and content guidelines</li></ol><p><strong>Example:</strong> A brand strategist develops positioning for a startup with 4 audience segments, 6 messaging pillars, and AI-generated copy examples for each channel.</p>",
+      "type": "note",
+      "parentId": "wf-creative",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.5.3"
+    },
+    "wf-24": {
+      "id": "wf-24",
+      "name": "Event Planning",
+      "content": "<h3>Workflow: Planning Events</h3><p><strong>Process:</strong></p><ol><li>Create category nodes: Venue, Catering, Entertainment, Invitations, Timeline</li><li>Add vendor options and decisions as children</li><li>Generate checklists, scripts, and communication templates</li></ol><p><strong>Example:</strong> An event planner organizes a 500-person conference with 20 vendors, generating day-of scripts, vendor communications, and detailed run-of-show documents.</p>",
+      "type": "note",
+      "parentId": "wf-creative",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.5.4"
+    },
+    "wf-professional": {
+      "id": "wf-professional",
+      "name": "Professional Services",
+      "content": "<p>Workflows for consultants, trainers, and service professionals.</p>",
+      "type": "document",
+      "parentId": "workflows",
+      "childrenIds": [
+        "wf-25",
+        "wf-26",
+        "wf-27",
+        "wf-28"
+      ],
+      "isCollapsed": true,
+      "prefix": "5.6"
+    },
+    "wf-25": {
+      "id": "wf-25",
+      "name": "Client Deliverables",
+      "content": "<h3>Workflow: Creating Client Deliverables</h3><p><strong>Process:</strong></p><ol><li>Structure findings and recommendations hierarchically</li><li>Import source documents and data</li><li>Generate executive summaries from detailed findings</li><li>Export polished reports maintaining your outline structure</li></ol><p><strong>Example:</strong> A consultant delivers a market entry strategy with 50 pages of analysis, generating executive summaries and implementation roadmaps from the detailed research.</p>",
+      "type": "note",
+      "parentId": "wf-professional",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.6.1"
+    },
+    "wf-26": {
+      "id": "wf-26",
+      "name": "Consulting Frameworks",
+      "content": "<h3>Workflow: Building Consulting Frameworks</h3><p><strong>Process:</strong></p><ol><li>Build reusable methodology templates</li><li>Clone and customize for each engagement</li><li>Generate client-specific recommendations within proven structures</li><li>Maintain a library of frameworks across practices</li></ol><p><strong>Example:</strong> A management consultant maintains 15 framework templates, customizing and generating client-specific content while maintaining methodological consistency.</p>",
+      "type": "note",
+      "parentId": "wf-professional",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.6.2"
+    },
+    "wf-27": {
+      "id": "wf-27",
+      "name": "Training Materials",
+      "content": "<h3>Workflow: Developing Training Materials</h3><p><strong>Process:</strong></p><ol><li>Structure curriculum hierarchically</li><li>Generate varied exercises for each concept</li><li>Create facilitator guides alongside participant materials</li><li>Adapt content for different audiences by cloning and customizing branches</li></ol><p><strong>Example:</strong> A corporate trainer develops a leadership program with 8 modules, generating exercises, discussion guides, and assessment rubrics for each.</p>",
+      "type": "note",
+      "parentId": "wf-professional",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.6.3"
+    },
+    "wf-28": {
+      "id": "wf-28",
+      "name": "Proposal Writing",
+      "content": "<h3>Workflow: Writing Proposals</h3><p><strong>Process:</strong></p><ol><li>Create proposal template outlines</li><li>Customize for each RFP with client-specific nodes</li><li>Use Research feature to gather relevant case studies and credentials</li><li>Generate tailored content that addresses specific requirements</li></ol><p><strong>Example:</strong> A services firm responds to RFPs by cloning their proposal template, importing the RFP requirements, and generating customized responses that address each evaluation criterion.</p>",
+      "type": "note",
+      "parentId": "wf-professional",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "5.6.4"
+    },
+    "enhancements": {
+      "id": "enhancements",
+      "name": "Optional Enhancements",
+      "content": "<h2>Extend IdeaM's Capabilities</h2><p>Optional add-ons for users who want more.</p>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": [
+        "enh-ollama",
+        "enh-assemblyai",
+        "enh-google",
+        "enh-mcp"
+      ],
+      "isCollapsed": true,
+      "prefix": "6"
+    },
+    "enh-ollama": {
+      "id": "enh-ollama",
+      "name": "Ollama (Private AI)",
+      "content": "<h3>Run AI Completely on Your Computer — Now with Multimodal Gemma 4</h3><p>Ollama is a free app that lets IdeaM generate content using AI that runs entirely on your own machine. As of April 2026, IdeaM defaults to Google's Gemma 4 model — a multimodal AI that can process both text and images locally, with quality that beats Llama 4 on key benchmarks. Gemma 4 has variants for every system: e2b (1.5GB RAM, mobile), e4b (4GB RAM, recommended), 26b MoE (16GB+ RAM, fast), and 31b dense (24GB+ RAM, max quality). IdeaM auto-detects your available memory and picks the best variant. Nothing is sent to the internet.</p><h4>Why Use It?</h4><ul><li><strong>Total privacy:</strong> Your documents and ideas never leave your computer</li><li><strong>Works offline:</strong> Use AI even without an internet connection</li><li><strong>No usage limits:</strong> Generate as much content as you want</li><li><strong>Automatic backup:</strong> If the cloud AI is temporarily busy, your local AI picks up seamlessly</li></ul><h4>How to Set It Up</h4><ol><li>Download the free app from <a href=\"https://ollama.ai\">ollama.ai</a></li><li>Install and open it (it runs quietly in the background)</li><li>Download an AI model from within the app (IdeaM recommends one for you)</li><li>IdeaM automatically detects it — no configuration needed</li></ol><h4>What You Need</h4><ul><li>A Mac, Windows, or Linux computer</li><li>At least 8 GB of memory (16 GB recommended for best results)</li><li>A few gigabytes of free disk space for the AI model</li></ul>",
+      "type": "document",
+      "parentId": "enhancements",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "6.1"
+    },
+    "enh-assemblyai": {
+      "id": "enh-assemblyai",
+      "name": "Audio Transcription",
+      "content": "<h3>Professional Audio-to-Text</h3><p>Connect a transcription service to turn audio and video recordings into written text — with the ability to tell speakers apart.</p><h4>What It Does</h4><ul><li><strong>Speaker identification:</strong> Automatically labels who said what in a conversation</li><li><strong>High accuracy:</strong> Industry-leading speech recognition</li><li><strong>50+ languages:</strong> Works with audio in many languages</li><li><strong>Timestamps:</strong> Jump to any moment in the recording from the text</li></ul><h4>How It Works</h4><p>Audio transcription is provided as part of IdeaM's hosted service — no setup required on your end. Just record or import audio, and IdeaM handles the transcription automatically.</p><p><em><strong>TODO:</strong> Add an API Keys section to the Settings dialog so users who want to use their own AssemblyAI account (or self-host IdeaM) can enter their personal API key. Currently, the key is configured at the server level only.</em></p><h4>Cost</h4><ul><li>Included with your IdeaM subscription</li><li>Users with their own AssemblyAI account: about $0.37 per hour of audio (pay only for what you use)</li></ul>",
+      "type": "document",
+      "parentId": "enhancements",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "6.2"
+    },
+    "enh-google": {
+      "id": "enh-google",
+      "name": "Google Workspace Integration",
+      "content": "<h3>Embed Google Workspace Content</h3><p>Embed Google Docs, Sheets, Slides, and Maps directly in your outline — no sign-in required.</p><h4>Supported Apps</h4><ul><li><strong>Google Docs:</strong> Embed documents as live previews in your content</li><li><strong>Google Sheets:</strong> Embed spreadsheets with full interactivity</li><li><strong>Google Slides:</strong> Embed presentations you can navigate in-place</li><li><strong>Google Maps:</strong> Embed map locations with previews</li></ul><h4>How to Use It</h4><ol><li>Select a node and open the content pane</li><li>Click the <strong>+ (Add content)</strong> button in the toolbar</li><li>Choose <strong>Google Doc</strong>, <strong>Google Sheet</strong>, <strong>Google Slides</strong>, or <strong>Google Maps</strong></li><li>A dialog opens — paste the URL of your Google document (copy it from the browser address bar)</li><li>Click <strong>Insert Document</strong> — the content embeds directly in your outline</li></ol><p><em>No Google sign-in needed. Just paste the share or edit URL of any Google document you have access to.</em></p>",
+      "type": "document",
+      "parentId": "enhancements",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "6.3"
+    },
+    "enh-mcp": {
+      "id": "enh-mcp",
+      "name": "AI Assistant Integration (Coming Soon)",
+      "content": "<h3>MCP Server — Connect IdeaM to AI Assistants</h3><p>MCP (Model Context Protocol) is a standard that lets AI assistants like Claude read and work with your outlines directly. IdeaM will expose outlines via an MCP server.</p><h4>What This Will Enable</h4><ul><li>Let Claude or other AI assistants read, create, and edit your outlines</li><li>Integrate with IDE extensions and developer tools</li><li>Build custom automation workflows</li><li>Connect with other MCP-compatible tools</li></ul><h4>Status</h4><p><em>Coming soon — currently in development</em></p><h4>INTERNAL: Review These MCP Planning Documents</h4><ul><li>IdeaM-MCP-Plan.idm</li><li>IdeaM MCP Server - Development &amp; Commercialization Plan.idm</li><li>IdeaM: AI-Native Outlining Platform with MCP Access.idm</li></ul><p><em>Review these three outlines to ensure this marketing section aligns with the detailed MCP plans.</em></p>",
+      "type": "document",
+      "parentId": "enhancements",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "6.4"
+    },
+    "subscriptions": {
+      "id": "subscriptions",
+      "name": "Subscription Tiers",
+      "content": "<h2>Pricing Plans</h2><p>Choose the plan that fits your needs.</p><p><strong>Headline:</strong> \"Unlimited AI, free forever — bring your own key.\" The Free tier gives unlimited AI at zero cost to IdeaM when the user brings their own API key (they pay their provider directly). This is surfaced as a first-class option on the pricing page, in the in-app paywall/cap-reached dialog, and in Settings — never buried.</p><p><strong>NOTE (2026-05-15):</strong> The Level 3 collaboration / GDSS product is NOT part of these consumer tiers. It is a separate B2B/enterprise offering with its own pricing structure (seat/org/facilitation-based), sold mainly to corporations and groups. Enterprise pricing to be designed separately. See IdeaM - Group.idm &gt; Strategic Vision.</p><p></p><p><strong>━━━ CONFIRMED / LOCKED 2026-07-03 — feature-by-tier split ━━━</strong></p><p>Four options: <strong>Free trial</strong> · <strong>Own it — $29.99 one-time ($19.99 founder launch)</strong> · <strong>Pro — $9.99/mo (or $89/yr)</strong> · <strong>BYOK (bring your own key)</strong>.</p><p><strong>CORE (all tiers):</strong> unlimited outlining, structure/drag-drop, tags &amp; colors, search, export/share, backups &amp; restore, data protection.</p><p><strong>EVERYDAY AI</strong> (Own it, Pro, BYOK; Free trial limited to 25 total generations): generate outline from a topic, reformat, translate, suggest tags, describe images, quick commands, Help chat — powered by on-device Gemma / the user's own key / a small monthly free-cloud allowance.</p><p><strong>ON-DEVICE / PRIVATE AI</strong> (Own it, Pro, BYOK): notes never leave the device when using local AI.</p><p><strong>PRO-ONLY \"SUPERPOWERS\" (heavy cloud):</strong> Refresh from Web (live web + citations), Research &amp; Import (multi-source synthesis), Transform Outline (structural AI), Ask Your Outlines at scale (big-context Q&amp;A), Podcast generation, Image generation, Video/YouTube package (v1.1 — <em>coming soon</em>), frontier cloud models, higher/unlimited caps + priority. NOTE: these heavy features ALSO work for <strong>BYOK</strong> users who supply a capable cloud key (\"✓ with your key\").</p><p><strong>PRIVACY per option:</strong> Own it/Local = \"notes stay on your device\"; Pro/free-cloud = \"premium cloud AI, not trained on your data\"; BYOK = \"your provider, your account, we never see it.\"</p>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": [
+        "sub-free",
+        "sub-ownit",
+        "sub-pro",
+        "sub-power",
+        "sub-pricing-options"
+      ],
+      "isCollapsed": true,
+      "prefix": "7"
+    },
+    "sub-free": {
+      "id": "sub-free",
+      "name": "Free Plan (Unlimited AI, free forever — BYOK)",
+      "content": "<h3>Free Plan — Unlimited AI, free forever with your own key</h3><p><strong>Price:</strong> $0/month — free forever</p><p><strong>Headline positioning:</strong> \"Unlimited AI, free forever — bring your own key.\" Plug in your own AI key (Gemini, OpenAI, Anthropic, Mistral, Groq, or local Ollama) and your AI usage is unlimited and free. You pay your AI provider directly; IdeaM takes nothing. This is a first-class option presented alongside Student and Pro on the pricing page and in-app — not a fallback or a footnote.</p><h4>What You Get</h4><ul><li>Create unlimited outlines with unlimited items</li><li>All item types and the full rich text editor</li><li>Import PDFs, YouTube videos, and web pages</li><li><strong>Unlimited AI generations when you bring your own key</strong> (Gemini, OpenAI, Anthropic, Mistral, Groq) — you pay your provider directly, IdeaM takes nothing</li><li>Private AI via Ollama (unlimited, runs on your own computer, no key needed)</li><li>Without a key: a limited free trial of AI, then either add a free key for unlimited use or upgrade to Student/Pro for included AI</li><li>All export formats</li><li>Multi-platform (Mac, iPhone, web)</li></ul><h4>Why BYOK is the hero of the free tier</h4><ul><li>Zero cost to IdeaM — the user pays their AI provider directly, so we can honestly say \"unlimited, free forever.\"</li><li>Users never feel cornered: when they hit the free AI trial cap, the paywall offers an equal \"use your own key for unlimited free\" path right next to \"upgrade to Pro.\"</li><li>Cost transparency: mentioning \"bring your own key\" is legitimate because the mechanism IS the value.</li></ul><h4>Best For</h4><ul><li>Anyone who wants unlimited AI at no cost by supplying their own key</li><li>Getting started with IdeaM and exploring what it can do</li><li>Privacy-focused users who prefer running AI locally (Ollama)</li></ul>",
+      "type": "document",
+      "parentId": "subscriptions",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "7.1"
+    },
+    "sub-pro": {
+      "id": "sub-pro",
+      "name": "Pro Plan",
+      "content": "<h3>Pro Plan</h3><p><strong>Price:</strong> $12/month (or $115/year — save 20%)</p><h4>Everything in Free, Plus</h4><ul><li><strong>100 outline generations</strong> per month</li><li><strong>Unlimited content expansions</strong> — no more counting</li><li><strong>20 sources</strong> per bulk import</li><li><strong>5 hours/month audio transcription</strong> — record meetings, interviews, and lectures with speaker identification</li><li><strong>All current export formats</strong> — PDF and more as they're added</li><li><strong>Google Workspace embedding</strong> — Docs, Sheets, Slides, Maps</li><li><strong>Email support</strong> with faster response times</li></ul><h4>Best For</h4><ul><li>Writers, researchers, and content creators who use AI regularly</li><li>Professionals building a serious knowledge base</li><li>Anyone who's outgrown the free tier's limits</li></ul>",
+      "type": "document",
+      "parentId": "subscriptions",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "7.3"
+    },
+    "sub-power": {
+      "id": "sub-power",
+      "name": "Power Plan",
+      "content": "<h3>Power Plan</h3><p><strong>Price:</strong> $28/month (or $269/year — save 20%)</p><h4>Everything in Pro, Plus</h4><ul><li><strong>Unlimited outline generations</strong></li><li><strong>50+ sources</strong> per bulk import — handle book-length research projects</li><li><strong>20 hours/month audio transcription</strong></li><li><strong>Universal Output Formats</strong> — generate websites, textbooks, screenplays, newsletters, presentations, and more from your outlines</li><li><strong>Multi-LLM support</strong> — choose the best AI model for each task (Claude, GPT, Gemini, and others)</li><li><strong>Priority AI processing</strong> — your requests go to the front of the queue</li><li><strong>AI style learning</strong> — AI adapts to your writing voice over time (coming soon)</li><li><strong>Consistency checking</strong> — AI spots contradictions across your document (coming soon)</li><li><strong>Section summaries</strong> — instantly summarize any branch of your outline (coming soon)</li><li><strong>Real-time collaboration</strong> — multiple people editing the same outline (coming soon)</li><li><strong>Priority support</strong></li></ul><h4>Best For</h4><ul><li>Power users and professionals who depend on IdeaM daily</li><li>Teams and organizations building shared knowledge bases</li><li>Researchers importing large volumes of source material</li><li>Anyone who wants every feature as soon as it ships</li></ul>",
+      "type": "document",
+      "parentId": "subscriptions",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "7.4"
+    },
+    "sub-pricing-options": {
+      "id": "sub-pricing-options",
+      "name": "Pricing Options & Discounts",
+      "content": "<h3>Annual Pricing</h3><p>Save 20% by paying annually on any paid plan. Annual subscribers also get early access to new features.</p><h3>Education & Nonprofit Discount</h3><p><strong>50% off any paid plan</strong> for students, educators, academic researchers, and registered nonprofit organizations. IdeaM is built for research and knowledge work — we want it accessible to those who need it most.</p><p>Apply with a valid .edu email address or nonprofit registration.</p><h3>Free Tier — Always Free</h3><p>The Free plan is genuinely free, forever. No credit card required, no trial period. Create as many outlines as you want with no time limit. Upgrade only when you need more AI power.</p>",
+      "type": "document",
+      "parentId": "subscriptions",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "7.5"
+    },
+    "video-support": {
+      "id": "video-support",
+      "name": "Video Content",
+      "content": "<h2>Video Tutorials & Resources</h2><p>Learn IdeaM through video — from quick feature spotlights to full workflow walkthroughs.</p>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": [
+        "video-public",
+        "video-production"
+      ],
+      "isCollapsed": true,
+      "prefix": "8"
+    },
+    "video-public": {
+      "id": "video-public",
+      "name": "Video Library (For Prospects & Customers)",
+      "content": "<h3>See IdeaM in Action</h3><p>Watch how IdeaM works — from getting started to advanced workflows. Every video shows real use cases with real outlines.</p><h4>Getting Started</h4><ul><li><strong>Product Overview (5 min):</strong> A guided tour of IdeaM — create an outline, generate content with AI, and import your first source</li><li><strong>Your First Outline (2 min):</strong> Create a structured outline from scratch in under 2 minutes</li><li><strong>Importing Your First PDF (2 min):</strong> See how a PDF becomes a structured, navigable outline</li></ul><h4>Feature Spotlights (1–2 min each)</h4><ul><li><strong>AI Content Generation:</strong> Watch AI write content that understands your full outline</li><li><strong>Research Synthesis:</strong> Import multiple sources and see AI merge them into one integrated outline</li><li><strong>Audio Transcription:</strong> Record a conversation and see it transcribed with speaker labels</li><li><strong>Private AI with Ollama:</strong> Run AI entirely on your own computer — nothing leaves your machine</li><li><strong>Google Workspace Embedding:</strong> Embed live Google Docs, Sheets, and Slides in your outline</li><li><strong>PDF Export:</strong> Turn any outline into a polished, professional PDF</li></ul><h4>Workflow Walkthroughs (3–5 min each)</h4><ul><li><strong>Writing a Book:</strong> Structure chapters, import research, generate drafts</li><li><strong>Building a Knowledge Base:</strong> Your second brain in action — capture, organize, synthesize</li><li><strong>AI Conversation Capture:</strong> Unify insights from ChatGPT, Claude, and Gemini into one place</li><li><strong>Literature Review:</strong> Import 50 papers, organize by theme, generate a synthesis</li><li><strong>Business Planning:</strong> From vision to tactical initiatives, all in one outline</li><li><strong>Meeting Notes to Action Items:</strong> Record, transcribe, and organize in real time</li></ul><h4>Social Media Clips (30–60 sec)</h4><ul><li>Quick demos of standout features for sharing on social platforms</li></ul><p><em>Videos are in production — subscribe to our channel to be notified when they're released.</em></p>",
+      "type": "document",
+      "parentId": "video-support",
+      "childrenIds": [
+        "pilot-script-ai-content-generation-2026-06-11"
+      ],
+      "isCollapsed": false,
+      "prefix": "8.1"
+    },
+    "pilot-script-ai-content-generation-2026-06-11": {
+      "id": "pilot-script-ai-content-generation-2026-06-11",
+      "name": "Pilot Script: AI Content Generation",
+      "content": "<h3>Pilot Video Script — AI Content Generation Feature Spotlight</h3><p><strong>Status:</strong> Script Complete — ready for production.</p><p><strong>Length:</strong> 75 seconds. <strong>Audience:</strong> Indie creators and content professionals. <strong>Tone:</strong> Confident, calm, professional — show, don't tell.</p><p>This is the proof-of-concept for the hybrid video pipeline described in section 8.2.3. The script demonstrates IdeaM's Smart Tools running a Reformat with AI transform on a sparse outline, emphasizing whole-outline context, preview-and-approve, and the derivative-outline default that preserves the original.</p><p><strong>Production package location:</strong> <code>docs/video-scripts/01-ai-content-generation.md</code></p><p>The markdown file contains all eight deliverables in one place:</p><ol><li>Voiceover script with timing markers</li><li>Scene-by-scene storyboard (8 scenes)</li><li>Shot list for screen recording</li><li>AI tool prompts for B-roll (Runway / MagicLight / Sora)</li><li>Talking-head segment script + delivery direction (HeyGen avatar recommended)</li><li>Five YouTube title variants with lead recommendation</li><li>YouTube description with chapter markers</li><li>SEO tags + thumbnail concept (1280×720)</li></ol><p>A production checklist at the bottom of the file gives Howard (or a contractor) an eight-step sequence to execute against.</p><p><em>Captured 2026-06-11.</em></p>",
+      "type": "document",
+      "parentId": "video-public",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "8.1.1"
+    },
+    "video-production": {
+      "id": "video-production",
+      "name": "INTERNAL: Video Production Plan",
+      "content": "<h3>How We Create Our Videos</h3><p><em>This section is internal — not shown on the website.</em></p>",
+      "type": "document",
+      "parentId": "video-support",
+      "childrenIds": [
+        "video-capabilities",
+        "video-tools",
+        "video-user-actions",
+        "video-ai-partnerships-2026-06-11"
+      ],
+      "isCollapsed": false,
+      "prefix": "8.2"
+    },
+    "video-capabilities": {
+      "id": "video-capabilities",
+      "name": "What Claude Code Can Do",
+      "content": "<h3>Video Support from Claude Code</h3><p>Claude Code drives the full video production pipeline except for the actual render. The hybrid pipeline:</p><h4>Claude Code produces</h4><ul><li>Narration scripts with timing cues</li><li>Scene-by-scene storyboards</li><li>Shot lists</li><li>AI-tool prompts for B-roll generation (Runway / MagicLight)</li><li>HeyGen avatar scripts</li><li>On-screen captions</li><li>Chapter markers</li><li>YouTube SEO package (titles, descriptions, tags, thumbnail concepts)</li></ul><h4>AI video tools render</h4><ul><li><strong>Runway Gen-4</strong> and <strong>MagicLight</strong> handle B-roll and brand imagery</li><li><strong>Sora</strong> (OpenAI) and <strong>Veo 3</strong> (Google) handle longer scenes</li><li><strong>HeyGen</strong> and <strong>Synthesia</strong> handle talking-head avatars of Howard or team members</li><li><strong>Pika Labs</strong> handles short-form social clips</li></ul><h4>Real screen recording</h4><p>macOS Cmd+Shift+5 or ScreenFlow captures actual in-app demos — AI video tools don't know IdeaM's menus, so this segment is hand-recorded with voiceover (Howard's voice or ElevenLabs AI voice).</p><h4>Final editor</h4><p>DaVinci Resolve free tier or Descript stitches AI gen + screen recording + avatar + music + captions into one published video.</p><h4>Timeline</h4><p>60–90 sec polished video = ~2–4 hours of production once the pipeline is set up. 20-video library = ~6 weeks at 1 video/day, faster with parallelization.</p>",
+      "type": "document",
+      "parentId": "video-production",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "8.2.1"
+    },
+    "video-tools": {
+      "id": "video-tools",
+      "name": "Recommended Video Tools",
+      "content": "<h3>Tools for Creating Marketing Videos</h3><h4>Screen Recording</h4><ul><li><strong>Loom</strong> — Quick demos and tutorials (Free to $15/month)</li><li><strong>ScreenFlow</strong> — Professional Mac screen recordings with editing ($169 one-time)</li></ul><h4>AI-Powered Video</h4><ul><li><strong>Descript</strong> — Easy video editing with AI-powered transcription ($15–30/month)</li><li><strong>Synthesia</strong> — Create talking-head videos with AI avatars, no camera needed ($30+/month)</li><li><strong>Runway</strong> — AI-generated creative and abstract visuals ($15–95/month)</li></ul><h4>General Video Editing</h4><ul><li><strong>Canva</strong> — Simple video editing for social media clips (Free to $13/month)</li><li><strong>After Effects</strong> — Professional motion graphics and animations ($23/month)</li></ul><h4>AI Graphics</h4><ul><li><strong>Google Gemini</strong> — Generate illustrations and diagrams with AI (Free tier available)</li></ul><h4>AI Video Generation (2026 stack)</h4><ul><li><strong>MagicLight</strong> — script-to-video with sound; Howard's tested workflow ($15–50/month)</li><li><strong>Runway Gen-4</strong> — broadest creative AI video; B-roll specialty ($15–95/month)</li><li><strong>OpenAI Sora</strong> — longest-form text-to-video, photorealistic (pricing via API)</li><li><strong>Google Veo 3</strong> — multi-shot AI video via Gemini API</li><li><strong>HeyGen</strong> — current consumer favorite for AI avatars; better than Synthesia for indie creators ($30+/month)</li><li><strong>Pika Labs</strong> — short-form social clips ($10–35/month)</li><li><strong>ElevenLabs</strong> — AI voice synthesis for narration ($5+/month)</li></ul>",
+      "type": "document",
+      "parentId": "video-production",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "8.2.2"
+    },
+    "video-user-actions": {
+      "id": "video-user-actions",
+      "name": "User Actions Required",
+      "content": "<h3>The 6-Step Hybrid Workflow (per video)</h3><ol><li><strong>Script + storyboard + prompts</strong> — Claude Code writes the script, storyboard, AI-tool prompts, and voiceover text.</li><li><strong>Generate B-roll</strong> — Runway / MagicLight using Claude's prompts.</li><li><strong>Talking-head segments</strong> — HeyGen avatar (or Howard records himself).</li><li><strong>In-app demo</strong> — record real screen capture (Cmd+Shift+5 or ScreenFlow).</li><li><strong>Voiceover</strong> — ElevenLabs AI voice (or Howard records).</li><li><strong>Final edit</strong> — DaVinci Resolve / Descript stitches everything together with music and captions.</li></ol>",
+      "type": "document",
+      "parentId": "video-production",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "8.2.3"
+    },
+    "roadmap": {
+      "id": "roadmap",
+      "name": "Platform Roadmap",
+      "content": "<h2>Future Development Plans</h2><p>Planned platforms and features.</p>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": [
+        "roadmap-platforms",
+        "roadmap-features",
+        "agentic-processes-marketing-2026-06-11"
+      ],
+      "isCollapsed": true,
+      "prefix": "9"
+    },
+    "roadmap-platforms": {
+      "id": "roadmap-platforms",
+      "name": "Platform Expansion",
+      "content": "<h3>Platform Expansion Roadmap</h3><h4>Available Now</h4><ul><li>Mac desktop app</li><li>iPhone and iPad app</li><li>Web browser (any modern browser)</li></ul><h4>Coming Next</h4><ul><li><strong>Windows:</strong> Full desktop app with standard installer</li><li><strong>Linux:</strong> Desktop app in common package formats</li></ul><h4>After That</h4><ul><li><strong>Android:</strong> Full app on Google Play Store</li></ul><h4>Exploring</h4><ul><li>Chrome Extension for quick capture from any web page</li><li>Integration with code editors for developers</li><li>Integration with Obsidian (popular knowledge management app)</li><li>Public access for developers to build on top of IdeaM</li></ul>",
+      "type": "document",
+      "parentId": "roadmap",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "9.1"
+    },
+    "roadmap-features": {
+      "id": "roadmap-features",
+      "name": "Feature Roadmap",
+      "content": "<h3>Upcoming Features</h3><h4>Smarter AI</h4><ul><li><strong>Section Summaries:</strong> Instantly summarize any section of your outline</li><li><strong>Teach Mode:</strong> AI learns your writing style and preferences over time</li><li><strong>Consistency Checks:</strong> AI spots contradictions and inconsistencies across your document</li><li><strong>AI Illustrations:</strong> Auto-generate diagrams (Mermaid) and images (DALL-E) to accompany your content</li><li><strong>Multi-LLM Support:</strong> Choose from multiple AI models (Claude, GPT, Gemini, and others) for content generation — tailor your problem-solving approach to the strengths of each model</li><li><strong>Universal Output Formats:</strong> Export your structured knowledge into any format — textbooks, screenplays, newsletters, articles, websites, presentations, reports, course materials, documentation, and more</li></ul><h4>Teamwork</h4><ul><li><strong>Real-time Collaboration:</strong> Multiple people editing the same outline at once</li><li><strong>Comments:</strong> Leave feedback and notes on any item</li><li><strong>Version History:</strong> See what changed and when, with the ability to go back</li></ul><h4>Connections to Other Tools</h4><ul><li><strong>MCP Server:</strong> Let AI assistants like Claude work with your outlines via Model Context Protocol</li><li><strong>Zapier/Make:</strong> Connect IdeaM to other apps through automation services</li><li><strong>Notion Import:</strong> Easily move your Notion content into IdeaM</li></ul>",
+      "type": "document",
+      "parentId": "roadmap",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "9.2"
+    },
+    "action-items": {
+      "id": "action-items",
+      "name": "Marketing Action Items",
+      "content": "<h2>Action Items for Marketing Launch</h2><p>Tasks to complete before marketing launch.</p>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": [
+        "action-content",
+        "action-website",
+        "action-video",
+        "action-outreach"
+      ],
+      "isCollapsed": true,
+      "prefix": "10"
+    },
+    "action-content": {
+      "id": "action-content",
+      "name": "Content Creation",
+      "content": "<h3>Content to Create</h3><ul><li><input type=\"checkbox\"> Finalize product tagline and positioning</li><li><input type=\"checkbox\"> Write landing page copy</li><li><input type=\"checkbox\"> Create feature comparison chart</li><li><input type=\"checkbox\"> Write 3-5 blog posts for launch</li><li><input type=\"checkbox\"> Prepare press release</li><li><input type=\"checkbox\"> Collect beta user testimonials</li><li><input type=\"checkbox\"> Create case studies for key workflows</li></ul>",
+      "type": "task",
+      "parentId": "action-items",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "10.1"
+    },
+    "action-website": {
+      "id": "action-website",
+      "name": "Website Setup",
+      "content": "<h3>Website Architecture</h3><p><strong>Key Concept:</strong> This marketing outline IS the website's content source. The outline serves as a CMS — edit the outline in IdeaM, and the website updates automatically. Some sections are public-facing (shown on the website), others are private (internal planning only).</p><h3>Design Requirements</h3><ul><li><strong>Responsive design</strong> — mobile-first, works across all screen sizes (phone, tablet, desktop)</li><li>Use existing Tailwind breakpoints: sm (640px), md (768px), lg (1024px), xl (1280px)</li><li>Touch-friendly navigation on mobile</li><li>Consistent with IdeaM's Tailwind/shadcn design system</li></ul><h3>Implementation Tasks</h3><ul><li><input type=\"checkbox\"> Register domain (if not done)</li><li><input type=\"checkbox\"> Add public/private visibility to nodes (tag, property, or naming convention) so the website knows which sections to display</li><li><input type=\"checkbox\"> Build Next.js website that reads this outline and renders public nodes as web pages</li><li><input type=\"checkbox\"> Use existing Tailwind/shadcn design system for visual consistency with the app</li><li><input type=\"checkbox\"> Map outline sections to website pages: Hero, Features, Workflows, Platforms, Pricing, Downloads</li><li><input type=\"checkbox\"> Set up email capture for launch list</li><li><input type=\"checkbox\"> Create documentation/help section</li><li><input type=\"checkbox\"> Set up automated publish flow: save outline → website updates</li></ul><h3>Audience-Based Visibility</h3><p>Each node gets an <code>audience</code> property (array) that controls who can see it. When rendering for a given viewer, hidden nodes are completely invisible — no table of contents entry, no hyperlinks, no trace.</p><h4>Audience Tags</h4><ul><li><strong>public</strong> — anyone visiting the website</li><li><strong>customer</strong> — registered or paying users</li><li><strong>developer</strong> — technical audience (API docs, integration guides, system requirements)</li><li><strong>tester</strong> — beta testers (unreleased features, known issues)</li><li><strong>internal</strong> — team only (action items, work planning, production notes)</li></ul><h4>Rendering Rules</h4><ul><li>Filter nodes by viewer's audience tag</li><li>Prune table of contents — hidden nodes don't appear</li><li>Strip links — hyperlinks to hidden nodes are removed or replaced with plain text</li><li>Cascade — if a parent is hidden, all children are hidden regardless of their own tags</li></ul><h4>Section Assignments</h4><ul><li><strong>public:</strong> Product Overview, Features &amp; Capabilities, Workflows &amp; Use Cases, Platform Support, Subscription Tiers</li><li><strong>customer:</strong> Optional Enhancements (setup guides), System Requirements</li><li><strong>developer:</strong> System Requirements, Optional Enhancements (technical detail)</li><li><strong>tester:</strong> Platform Roadmap (upcoming features)</li><li><strong>internal:</strong> Video Content Support, Marketing Action Items, Android work planning</li></ul>",
+      "type": "task",
+      "parentId": "action-items",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "10.2"
+    },
+    "action-video": {
+      "id": "action-video",
+      "name": "Video Production",
+      "content": "<h3>Videos to Create</h3><ul><li><input type=\"checkbox\"> Request video scripts from Claude Code</li><li><input type=\"checkbox\"> Set up screen recording software</li><li><input type=\"checkbox\"> Create demo data in IdeaM</li><li><input type=\"checkbox\"> Record main product demo (5 min)</li><li><input type=\"checkbox\"> Record 5-6 workflow highlight videos (1-2 min each)</li><li><input type=\"checkbox\"> Create social media teaser clips (30 sec)</li><li><input type=\"checkbox\"> Consider AI avatar for talking head segments</li></ul>",
+      "type": "task",
+      "parentId": "action-items",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "10.3"
+    },
+    "action-outreach": {
+      "id": "action-outreach",
+      "name": "Launch Outreach",
+      "content": "<h3>Outreach and Distribution</h3><ul><li><input type=\"checkbox\"> Identify target communities (Reddit, Hacker News, ProductHunt)</li><li><input type=\"checkbox\"> Prepare ProductHunt launch</li><li><input type=\"checkbox\"> Create social media accounts</li><li><input type=\"checkbox\"> Identify influencers and reviewers in the productivity space</li><li><input type=\"checkbox\"> Prepare App Store descriptions and screenshots</li><li><input type=\"checkbox\"> Set up analytics tracking</li></ul>",
+      "type": "task",
+      "parentId": "action-items",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "10.4"
+    },
+    "cf-qc-23fbc6": {
+      "id": "cf-qc-23fbc6",
+      "name": "Quick Capture",
+      "parentId": "features",
+      "childrenIds": [],
+      "type": "document",
+      "content": "<p><strong>Pitch: \"The friction between thought and capture is where value dies.\"</strong></p>\n<p>People don't lack good ideas. They lose them. Memory research is brutal on this: we forget about half of new information within an hour, 70% within a day. The cost of writing a thought down decides whether it survives. If capture takes 5 keystrokes and a context switch, ideas evaporate. If it takes 1 keystroke from anywhere, the product becomes a habit.</p>\n<p>This is why every successful note tool — Apple Notes, Drafts, Bear, Obsidian, Notion — has some flavor of \"scratchpad\" or quick-input mode. It's not a feature; it's <em>the</em> primitive. Capture is the foundation of every personal knowledge management framework that's ever worked (Getting Things Done, Building a Second Brain, Zettelkasten). Without low-friction capture, the rest of the system is theater.</p>\n<p><strong>Business angle:</strong> Daily active usage is the lifeblood of subscription products. Users who capture daily renew. Users who capture monthly churn. Quick capture is the single biggest lever for retention in this category.</p>\n<p><strong>How it works:</strong> Global shortcut (e.g., Cmd+Shift+I) opens a small floating dialog from anywhere. Type or paste, hit Enter, lands in a \"📥 Inbox\" section at the top of the Second Brain outline. Organize later.</p>",
+      "isExpanded": false
+    },
+    "cf-db-43d5dd": {
+      "id": "cf-db-43d5dd",
+      "name": "Second Brain Dashboard",
+      "parentId": "features",
+      "childrenIds": [],
+      "type": "document",
+      "content": "<p><strong>Pitch: \"Without proof of accumulation, people stop trusting the system.\"</strong></p>\n<p>This is the lesson of Evernote's collapse: people saved hundreds of notes, lost the thread of what was in there, gradually stopped trusting it, and gave up. Capture without a sense of what you've accumulated turns into a write-only graveyard. The dashboard exists to give the user the <em>feeling</em> that their effort is compounding — that yesterday's save matters today.</p>\n<p>It's also the screenshot people post: \"Look at my Second Brain.\" That's organic marketing. And it's the trigger for re-engagement — when a user sees \"you saved 12 things this week,\" that's a justification of their subscription that no email campaign can match.</p>\n<p>This is less about features and more about converting Second Brain from a sink (things go in) into an archive (things come back out). Without a dashboard, retrieval depends entirely on Knowledge Chat search. That's powerful but ephemeral. A dashboard is the resting state — the thing you see when you open the app on a quiet morning.</p>\n<p><strong>How it works:</strong> A read-only panel accessible from the Brain menu showing: total entries, recent saves (last 7 days with snippets), and a \"review pile\" of older entries to revisit.</p>",
+      "isExpanded": false
+    },
+    "cf-sat-b56dc0": {
+      "id": "cf-sat-b56dc0",
+      "name": "Smart Auto-Tagging",
+      "parentId": "features",
+      "childrenIds": [],
+      "type": "document",
+      "content": "<p><strong>Pitch: \"The user captures; the system organizes.\"</strong></p>\n<p>Every PKM tool that's ever asked users to tag manually has watched users not tag manually. The cognitive load of \"what should I call this?\" is enough friction to break the capture habit. Folders go unmaintained. Categories drift. By year two, the system is a mess and the user is shopping for a new app.</p>\n<p>AI silently doing the organizational work is the AI-native value proposition: not \"here's a chat dropped in,\" but \"the system gets smarter the more you use it, with no effort on your part.\" It's the iCloud Photos \"People\" album of personal knowledge — emergent structure from raw input.</p>\n<p>This is also our <strong>moat and our marketing demo.</strong> \"Save anything. We tag it. Filter by topic without ever organizing.\" Every competitor has tagging. Almost none have AI doing it for you. It's a 30-second video that sells the Premium tier.</p>\n<p><strong>How it works:</strong> On save, AI suggests 1–3 tags (using node metadata schema that already exists but is unused). User accepts, edits, or skips. Tags later power filter/search.</p>",
+      "isExpanded": false
+    },
+    "real-testimonials-incoming-2026-06-10": {
+      "id": "real-testimonials-incoming-2026-06-10",
+      "name": "Real testimonials incoming — replace placeholders (2026-06-10)",
+      "content": "<p>The marketing site currently runs with placeholder / illustrative testimonials. As beta users submit the new feedback form at /feedback and check the &quot;OK to quote me&quot; box, real testimonials will start landing in /admin/feedback (filter chip: Public-quotable). Plan to swap placeholders for real quotes as soon as we have three to five with non-anonymous attribution. Video testimonials, when they arrive, become a Founding User showcase strip and unlock that badge in the app. Keep the rotation honest — only use quotes where the user picked Full name + title or First name + role attribution.</p>",
+      "type": "document",
+      "parentId": "root",
+      "childrenIds": []
+    },
+    "video-ai-partnerships-2026-06-11": {
+      "id": "video-ai-partnerships-2026-06-11",
+      "name": "AI Video Tool Partnerships",
+      "content": "<h3>Partnership Track for Video AI Tools</h3><p>Same playbook as the API provider partnerships (see <code>project-openai-partnership-outreach</code> memory).</p><h4>Targets in priority order</h4><ol><li>Runway</li><li>MagicLight</li><li>HeyGen</li><li>OpenAI Sora (already in track via OpenAI form)</li><li>Google Veo (already partnering via Gemini)</li><li>Pika</li><li>Synthesia</li></ol><h4>Partnership types</h4><ul><li>Co-marketing</li><li>Partner pricing for IdeaM users</li><li>Integration partnership (long term: embed their APIs in-app)</li><li>Strategic relationship with quarterly check-ins</li></ul><p>Status tracking lives in the Operations outline (planned).</p><p><em>Captured 2026-06-11 — see <code>project-ai-video-tool-partnerships</code> memory.</em></p>",
+      "type": "chapter",
+      "parentId": "video-production",
+      "childrenIds": [
+        "e6101fa5-afd0-4c2c-b2a9-b80aca17c002"
+      ],
+      "isCollapsed": false,
+      "prefix": "8.2.4"
+    },
+    "audience-segments-2026-06-11": {
+      "id": "audience-segments-2026-06-11",
+      "name": "Target Customer Segments",
+      "content": "<h3>Who IdeaM Is For</h3><p>Primary segments the product positioning, copy, and outreach should center on. Added 2026-06-11.</p>",
+      "type": "node",
+      "parentId": "root",
+      "childrenIds": [
+        "audience-segment-authors-2026-06-11",
+        "positioning-multimedia-2026-06-11"
+      ],
+      "isCollapsed": false,
+      "prefix": "11"
+    },
+    "audience-segment-authors-2026-06-11": {
+      "id": "audience-segment-authors-2026-06-11",
+      "name": "Authors",
+      "content": "<h3>Authors — primary target segment</h3><p>Screenwriters, novelists, nonfiction authors, technical writers, journalists, content marketers.</p><p>Identified 2026-06-11 by Howard's wife as a segment missing from the marketing positioning. Now a primary target — must appear on the website and in landing-page copy.</p><h4>Why authors</h4><ul><li>Outlining is already core to their workflow</li><li>Multi-source research synthesis is a huge time saver</li><li>Manuscript-scale documents — IdeaM handles 66K+ items</li><li>AI generation that respects voice and existing structure</li><li>Multimedia output (YouTube companion content) is a natural extension for content marketers and authors building platforms</li></ul>",
+      "type": "chapter",
+      "parentId": "audience-segments-2026-06-11",
+      "childrenIds": [
+        "f3ca6af1-91d9-40d8-af28-1f325571ec11",
+        "c623d9c4-3f3d-45fe-b8c0-9bdb7c7968f0"
+      ],
+      "isCollapsed": false,
+      "prefix": "11.1"
+    },
+    "positioning-multimedia-2026-06-11": {
+      "id": "positioning-multimedia-2026-06-11",
+      "name": "Positioning — Written AND Multimedia",
+      "content": "<h3>Multimedia Positioning</h3><p>The positioning framing should include BOTH <strong>written content</strong> AND <strong>multimedia content</strong>, with YouTube as the showcase example.</p><p>IdeaM turns an outline into:</p><ul><li>Long-form written work (books, articles, technical docs)</li><li>Spoken-word output (podcast)</li><li>Video output (YouTube script + chapter markers + description + SEO package; production pipeline in section 8)</li><li>Visual diagrams (mind maps, flowcharts)</li></ul><p>Website copy must reflect this dual framing once the multimedia features ship. Captured 2026-06-11.</p>",
+      "type": "node",
+      "parentId": "audience-segments-2026-06-11",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "11.2"
+    },
+    "e6101fa5-afd0-4c2c-b2a9-b80aca17c002": {
+      "id": "e6101fa5-afd0-4c2c-b2a9-b80aca17c002",
+      "name": "Partnership strategy (BizDev)",
+      "content": "",
+      "type": "outline-link",
+      "parentId": "video-ai-partnerships-2026-06-11",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "8.2.4.1",
+      "linkedOutlineId": "biz-dev-2026"
+    },
+    "f3ca6af1-91d9-40d8-af28-1f325571ec11": {
+      "id": "f3ca6af1-91d9-40d8-af28-1f325571ec11",
+      "name": "Author persona (Planning)",
+      "content": "",
+      "type": "outline-link",
+      "parentId": "audience-segment-authors-2026-06-11",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "11.1.1",
+      "linkedOutlineId": "idiampro-planning-2026"
+    },
+    "c623d9c4-3f3d-45fe-b8c0-9bdb7c7968f0": {
+      "id": "c623d9c4-3f3d-45fe-b8c0-9bdb7c7968f0",
+      "name": "Authors market analysis (BizDev)",
+      "content": "",
+      "type": "outline-link",
+      "parentId": "audience-segment-authors-2026-06-11",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "11.1.2",
+      "linkedOutlineId": "biz-dev-2026"
+    },
+    "feat-multimedia-shipped-2026-06-11": {
+      "id": "feat-multimedia-shipped-2026-06-11",
+      "name": "Multimedia AI shipped (2026-06-11)",
+      "content": "<p><strong>Previously planned for v1.1 — now shipping in v1.</strong></p><p><strong>1. Capture from image.</strong> Take a photo of any whiteboard, mind map, or sticky-note brainstorm — IdeaM extracts a structured outline from it. Hand-drawn diagrams, sticky-note storms, slide screenshots, textbook pages — all turn into editable hierarchies in seconds. Three-panel preview lets you edit names before committing. Available on every platform; iOS adds a native camera button.</p><p><strong>2. Share as YouTube package.</strong> Turn any chapter of an outline into a complete YouTube content package: voiceover script with shot markers, chapter list, description, 5 title variants, SEO tags, thumbnail concept, B-roll prompts ready for Runway / MagicLight / Sora, and a screen-recording shot list. Export as markdown or save as a new outline.</p><p><strong>Why it matters for positioning:</strong> 'Outliner that turns your napkin sketch into a YouTube script' is a sharper differentiator than any of the original v1 messaging. Both features fit the 'Premier Idea Developer' tagline directly — capture an idea, develop it, ship it.</p>",
+      "type": "document",
+      "parentId": "root",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "agentic-processes-marketing-2026-06-11": {
+      "id": "agentic-processes-marketing-2026-06-11",
+      "name": "Agentic Workflows (Future)",
+      "content": "<h3>Agentic Workflows</h3><p>Coming after launch as a future capability. IdeaM's AI tools today produce one output at a time — reformat a node, translate an outline, refresh from the web, capture an outline from an image. The next step is chaining these into multi-step autonomous workflows: research → synthesize → outline → derivative outline → video package, with you supervising rather than driving each step.</p><p><em>Not committing to a specific date — capability is on the roadmap, dates will firm up after v1 launch settles.</em></p>",
+      "type": "document",
+      "parentId": "roadmap",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "9.3"
+    },
+    "concept-idea-incubator-capture": {
+      "id": "concept-idea-incubator-capture",
+      "name": "Capture",
+      "content": "<p>Drop in anything, no matter how rough. A 2am thought, a YouTube video, a dense PDF, a voice memo.</p>",
+      "type": "text",
+      "parentId": "concept-idea-incubator",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "concept-idea-incubator-structure": {
+      "id": "concept-idea-incubator-structure",
+      "name": "Structure",
+      "content": "<p>Watch chaos become an outline you can shape, expand, and rearrange.</p>",
+      "type": "text",
+      "parentId": "concept-idea-incubator",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "concept-idea-incubator-enrich": {
+      "id": "concept-idea-incubator-enrich",
+      "name": "Enrich",
+      "content": "<p>Refresh any part against the live web so your thinking never goes stale, and ask your own outlines questions.</p>",
+      "type": "text",
+      "parentId": "concept-idea-incubator",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "concept-idea-incubator-hatch": {
+      "id": "concept-idea-incubator-hatch",
+      "name": "Hatch",
+      "content": "<p>When an idea is ready, generate the finished thing: a document, a script, a podcast, a content package.</p>",
+      "type": "text",
+      "parentId": "concept-idea-incubator",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "concept-idea-incubator": {
+      "id": "concept-idea-incubator",
+      "name": "The Idea Incubator (core concept)",
+      "content": "<p><strong>Definition:</strong> An Idea Incubator is where raw thoughts grow into finished work.</p><p>Most tools store your notes. An Idea Incubator does something different — it takes the scattered raw material of your thinking (half-formed thoughts, saved videos, PDFs, web pages, meeting scraps) and actively grows them into structured, usable ideas.</p><p>The four stages: Capture → Structure → Enrich → Hatch.</p><p><strong>Closing line:</strong> That's the difference between a filing cabinet and an incubator. One stores your ideas. The other helps them grow up.</p><p><em>Shipped to the marketing/landing page as the lead concept section (right after the hero).</em></p>",
+      "type": "text",
+      "parentId": "overview",
+      "childrenIds": [
+        "concept-idea-incubator-capture",
+        "concept-idea-incubator-structure",
+        "concept-idea-incubator-enrich",
+        "concept-idea-incubator-hatch"
+      ],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "sub-ownit": {
+      "id": "sub-ownit",
+      "name": "Own it — $29.99 one-time ($19.99 founder launch)",
+      "content": "<h3>Own it — One-Time Purchase</h3><p><strong>Price:</strong> $29.99 one-time — <strong>$19.99 founder launch price</strong> for the first cohort. Buy it once, own it forever. No subscription.</p><h4>What You Get</h4><ul><li>All the core outlining and second-brain features — unlimited outlines, all item types, the full editor, import, export, and multi-platform (Mac, iPhone, web).</li><li><strong>Private on-device AI (Ollama / Gemma)</strong> — runs on your own computer, no key needed, unlimited.</li><li><strong>A capped free-cloud AI allowance</strong> — enough to get real work done for the core features.</li><li><strong>Bring your own key (BYOK)</strong> — plug in your own AI key for unlimited cloud AI; you pay your provider directly.</li></ul><h4>Why One-Time Works Here</h4><p>The entry tier's AI is local, capped-free, or your-own-key — so it costs IdeaM almost nothing to run. That's what makes an honest buy-once, no-subscription price sustainable.</p><h4>When to Step Up to Pro</h4><p>Pro (recurring) sits <strong>above</strong> Own it. Choose Pro when you want premium cloud LLMs, heavy features (podcast/image generation, big-context Refresh/Transform), and higher or unlimited AI caps. Own it covers the essentials; Pro is for power and premium cloud AI.</p>",
+      "type": "document",
+      "parentId": "subscriptions",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "7.2"
+    },
+    "d30bb7de-1ab0-4455-8d5b-67b7d32417a2": {
+      "id": "d30bb7de-1ab0-4455-8d5b-67b7d32417a2",
+      "name": "Data Safety &amp; Trust — “Your data is safe with us” website copy",
+      "content": "<p><strong>Your data is safe with us</strong></p><p><em>IdeaM is built to protect the one thing that matters most — your thinking.</em></p><p><strong>Your outlines live on your device.</strong> Your work is stored locally, on your own machine — not locked away in someone else's cloud. On desktop they're plain files you own: back them up, move them, or keep them entirely offline.</p><p><strong>Your originals stay yours.</strong> When AI rewrites or reshapes an outline, it creates a new copy by default and leaves your original untouched. When a change edits an outline in place, IdeaM snapshots it first. Either way, the version you started with is always one step from being restored.</p><p><strong>A safety net before AI changes.</strong> IdeaM automatically snapshots your outline before AI transforms it (on by default), so any AI change is one click from undone.</p><p><strong>Deep, unlimited undo.</strong> A single Undo reverses your edits, moves, deletes, imports, and AI changes — as far back as you need, with no hard limit.</p><p><strong>Built assuming systems can fail.</strong> We design IdeaM so that if something goes wrong behind the scenes, it's caught and surfaced — not hidden. Automated checks monitor our services and alert us when something needs attention.</p><p><strong>You always know where your data stands.</strong> On-device AI keeps your content entirely on your machine. When you use your own AI key or a paid plan, your content isn't used to train AI models, under your provider's terms. We tell you plainly what every plan does with your data — no fine print.</p>",
+      "type": "text",
+      "parentId": "root",
+      "childrenIds": [
+        "44dca01b-1cb5-4f8c-a312-cfbbaf572df3"
+      ],
+      "prefix": ""
+    },
+    "44dca01b-1cb5-4f8c-a312-cfbbaf572df3": {
+      "id": "44dca01b-1cb5-4f8c-a312-cfbbaf572df3",
+      "name": "⚠ Status, backing &amp; guardrails (do not publish without legal sign-off)",
+      "content": "<p><strong>STATUS:</strong> Draft approved by Howard 2026-07-06. Every claim above is backed by the automated <em>Marketing Claims Verification</em> test suite (tests/claims-verification-test.js) — the tests will fail if a future code change makes any line untrue.</p><p><strong>⚠ PENDING LEGAL REVIEW before publishing:</strong> the last pillar (“You always know where your data stands”), specifically the “not used to train AI models” statement — that describes a THIRD-PARTY provider's policy we don't control, so a lawyer must bless the exact wording. Same care as the privacy-tier copy.</p><p><strong>GUARDRAILS (do not violate when editing this copy):</strong></p><ul><li>NEVER write a blanket “your data never leaves your device.” Cloud AI features and the Podcast generator send outline content to a provider/our server per the user's plan. Storage is local; AI processing is not.</li><li>Do NOT say “ALL AI transforms default to a new copy” — Translate defaults to replace-in-place (it snapshots first), and Capture-from-image adds items. The wording above is deliberately scoped to be true.</li><li>Avoid absolute guarantees (“we never lose your data”). Frame as concrete practices, which is testable and defensible.</li></ul><p><strong>Placement:</strong> a “trust” section on the homepage or a short dedicated page; pairs with the privacy-tier messaging.</p>",
+      "type": "text",
+      "parentId": "d30bb7de-1ab0-4455-8d5b-67b7d32417a2",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "creator-outreach": {
+      "id": "creator-outreach",
+      "name": "Creator & Evangelist Outreach List",
+      "content": "<h2>Creator &amp; Evangelist Outreach List</h2><p>A researched target list of currently-active AI creators, authors, and outlets whose audiences are already pre-sold on \"AI can create amazing things.\" Feeds an outreach + beta-invite + (later, with consent) testimonial pipeline. Company: SecondBrainWare LLC. Research date: mid-July 2026.</p>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": [
+        "creator-outreach-intro",
+        "creator-outreach-writing",
+        "creator-outreach-video",
+        "creator-outreach-explainers",
+        "creator-outreach-newsletters",
+        "creator-outreach-genre",
+        "creator-outreach-visuals",
+        "creator-outreach-tools",
+        "creator-outreach-priority",
+        "creator-outreach-gaps",
+        "creator-outreach-email-template-v1"
+      ],
+      "isCollapsed": true,
+      "prefix": "12"
+    },
+    "creator-outreach-intro": {
+      "id": "creator-outreach-intro",
+      "name": "Purpose & Approach",
+      "content": "<h3>Purpose</h3><p>Reach real, active authors and creators whose audiences already believe AI can create amazing things — the people who would light up at IdeaM (one outline &rarr; many finished outputs: books, podcasts, narrated videos, diagrams, graphics, screenplays, legal/professional docs).</p><h3>The pipeline</h3><ul><li><strong>Research</strong> — every entry below surfaced via live web search and has a real, valid URL.</li><li><strong>Invite</strong> — bring them into the beta / v1.</li><li><strong>Consented testimonials</strong> — real quotes, only with explicit permission.</li><li><strong>Reciprocal promotion</strong> — creator promotes IdeaM, we promote the creator.</li></ul><h3>Honesty rules for this list</h3><ul><li>Subscriber/reader numbers are labeled \"approx\" and included <strong>only</strong> where a source stated one. Where no number was verifiable, it is omitted on purpose — do not guess.</li><li>Individual creators (voices/channels) are kept separate from tools/companies (see the last node).</li><li>Two entries are flagged \"confirm handle before outreach.\" Honor those flags.</li><li>Confirm any omitted counts live before any public testimonial use.</li></ul>",
+      "type": "document",
+      "parentId": "creator-outreach",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "12.1"
+    },
+    "creator-outreach-writing": {
+      "id": "creator-outreach-writing",
+      "name": "AI Writing & Authoring",
+      "content": "<p>Authors and channels focused on AI for creative and non-fiction writing, outlining, and self-publishing.</p>",
+      "type": "document",
+      "parentId": "creator-outreach",
+      "childrenIds": [
+        "creator-outreach-w1",
+        "creator-outreach-w2",
+        "creator-outreach-w3"
+      ],
+      "isCollapsed": false,
+      "prefix": "12.2"
+    },
+    "creator-outreach-w1": {
+      "id": "creator-outreach-w1",
+      "name": "Jason Hamilton — The Nerdy Novelist",
+      "content": "<p><strong>Platform + URL:</strong> YouTube &mdash; https://www.youtube.com/@TheNerdyNovelist (also X: https://x.com/StoryHobbit)</p><p><strong>Approx reach:</strong> 56K+ subscribers (early-2025 figure)</p><p><strong>Covers:</strong> The largest channel specifically about AI for creative/fiction writing; tutorials on outlining, drafting, and beating writer's block with AI. Runs the \"Story Hacker AI\" community.</p><p><strong>IdeaM angle:</strong> <em>Highest-fit name on this list.</em> IdeaM's \"outline &rarr; AI builds the table of contents &rarr; populates every chapter\" is his exact workflow, productized.</p>",
+      "type": "note",
+      "parentId": "creator-outreach-writing",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "12.2.1"
+    },
+    "creator-outreach-w2": {
+      "id": "creator-outreach-w2",
+      "name": "Joanna Penn — The Creative Penn",
+      "content": "<p><strong>Platform + URL:</strong> Blog/podcast &mdash; https://www.thecreativepenn.com</p><p><strong>Approx reach:</strong> Not verified (NYT/USA Today bestselling author, 40+ books)</p><p><strong>Covers:</strong> The definitive voice on making a living as an author; recurring, credible coverage of \"AI for authors\" done tastefully.</p><p><strong>IdeaM angle:</strong> Trusted, non-hype authority; a demo of full-book generation done with craft would resonate with her \"artisan author\" framing.</p>",
+      "type": "note",
+      "parentId": "creator-outreach-writing",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "12.2.2"
+    },
+    "creator-outreach-w3": {
+      "id": "creator-outreach-w3",
+      "name": "Bethany Atazadeh",
+      "content": "<p><strong>Platform + URL:</strong> YouTube &mdash; search https://www.youtube.com/results?search_query=bethany+atazadeh</p><p><strong>Approx reach:</strong> Not verified</p><p><strong>Covers:</strong> YA author coaching writers on writing, editing, self-publishing, and marketing; \"Author Money\" and \"Outline With Me\" series.</p><p><strong>IdeaM angle:</strong> Her live \"Outline With Me\" format maps 1:1 onto IdeaM's outline-first book pipeline.</p><p><strong>&#9888; Confirm before outreach:</strong> Verify her exact channel handle before reaching out &mdash; canonical channel URL not yet landed.</p>",
+      "type": "note",
+      "parentId": "creator-outreach-writing",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "12.2.3"
+    },
+    "creator-outreach-video": {
+      "id": "creator-outreach-video",
+      "name": "AI Video & Filmmaking",
+      "content": "<p>Creators covering AI video tools, AI filmmaking, faceless video, and AI content workflows.</p>",
+      "type": "document",
+      "parentId": "creator-outreach",
+      "childrenIds": [
+        "creator-outreach-v1",
+        "creator-outreach-v2",
+        "creator-outreach-v3",
+        "creator-outreach-v4",
+        "creator-outreach-v5"
+      ],
+      "isCollapsed": false,
+      "prefix": "12.3"
+    },
+    "creator-outreach-v1": {
+      "id": "creator-outreach-v1",
+      "name": "Curious Refuge (Caleb Ward)",
+      "content": "<p><strong>Platform + URL:</strong> YouTube &mdash; https://www.youtube.com/@curiousrefuge (also https://curiousrefuge.com)</p><p><strong>Approx reach:</strong> Not verified (site claims 100M+ views across their work)</p><p><strong>Covers:</strong> The world's first \"home for AI filmmaking\" &mdash; end-to-end AI film education from concept to finished film, plus AI screenwriting.</p><p><strong>IdeaM angle:</strong> Their students already storyboard/script inside AI; IdeaM is the missing \"outline &rarr; screenplay &rarr; narrated video\" spine that organizes the whole pipeline.</p>",
+      "type": "note",
+      "parentId": "creator-outreach-video",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "12.3.1"
+    },
+    "creator-outreach-v2": {
+      "id": "creator-outreach-v2",
+      "name": "Theoretically Media (Tim Simmons)",
+      "content": "<p><strong>Platform + URL:</strong> YouTube &mdash; https://www.youtube.com/@TheoreticallyMedia</p><p><strong>Approx reach:</strong> Not verified</p><p><strong>Covers:</strong> Hands-on reviews of the new creative-AI stack &mdash; which AI video tools/models/workflows actually hold up in production.</p><p><strong>IdeaM angle:</strong> He live-tests new creative tools for a discerning audience; IdeaM's outline-to-video pipeline is exactly his review beat.</p>",
+      "type": "note",
+      "parentId": "creator-outreach-video",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "12.3.2"
+    },
+    "creator-outreach-v3": {
+      "id": "creator-outreach-v3",
+      "name": "Tao Prompts",
+      "content": "<p><strong>Platform + URL:</strong> YouTube &mdash; search https://www.youtube.com/results?search_query=tao+prompts</p><p><strong>Approx reach:</strong> Not verified</p><p><strong>Covers:</strong> Cinematic AI video education &mdash; character consistency, camera moves, image-to-video across Kling/Veo.</p><p><strong>IdeaM angle:</strong> Audience is craft-obsessed about turning a written idea into cinematic output &mdash; IdeaM starts from the idea itself.</p><p><strong>&#9888; Confirm before outreach:</strong> Verify the exact channel handle before reaching out &mdash; surfaced by name in multiple roundups but the canonical channel URL was not landed.</p>",
+      "type": "note",
+      "parentId": "creator-outreach-video",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "12.3.3"
+    },
+    "creator-outreach-v4": {
+      "id": "creator-outreach-v4",
+      "name": "MattVidPro AI",
+      "content": "<p><strong>Platform + URL:</strong> YouTube &mdash; https://www.youtube.com/c/MattVideoProductions202</p><p><strong>Approx reach:</strong> Not verified</p><p><strong>Covers:</strong> AI-technology-focused creator; broad coverage of new AI creative tools.</p><p><strong>IdeaM angle:</strong> Broad, engaged AI-tools audience always hunting the next \"type an idea, get a finished thing\" tool.</p>",
+      "type": "note",
+      "parentId": "creator-outreach-video",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "12.3.4"
+    },
+    "creator-outreach-explainers": {
+      "id": "creator-outreach-explainers",
+      "name": "AI Explainers & Education",
+      "content": "<p>Channels that teach and explain AI to broad audiences.</p>",
+      "type": "document",
+      "parentId": "creator-outreach",
+      "childrenIds": [
+        "creator-outreach-e1",
+        "creator-outreach-e2",
+        "creator-outreach-e3",
+        "creator-outreach-e4",
+        "creator-outreach-e5",
+        "creator-outreach-e6"
+      ],
+      "isCollapsed": false,
+      "prefix": "12.4"
+    },
+    "creator-outreach-e1": {
+      "id": "creator-outreach-e1",
+      "name": "Matt Wolfe",
+      "content": "<p><strong>Platform + URL:</strong> YouTube &mdash; https://www.youtube.com/@mreflow (also FutureTools.io)</p><p><strong>Approx reach:</strong> Newsletter 225K+ readers</p><p><strong>Covers:</strong> The most-watched \"what AI tools are worth using now\" channel; weekly demos + news for non-technical builders. Also heavily covers AI image tools.</p><p><strong>IdeaM angle:</strong> Tool-demo machine with a huge non-technical audience &mdash; a single \"one idea &rarr; book/video/podcast\" demo could reach hundreds of thousands. Natural home for an \"outline &rarr; AI mind-map / diagram / graphics\" demo.</p>",
+      "type": "note",
+      "parentId": "creator-outreach-explainers",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "12.4.1"
+    },
+    "creator-outreach-e2": {
+      "id": "creator-outreach-e2",
+      "name": "Wes Roth",
+      "content": "<p><strong>Platform + URL:</strong> YouTube &mdash; https://www.youtube.com/c/WesRoth</p><p><strong>Approx reach:</strong> 318K subscribers</p><p><strong>Covers:</strong> Fast-paced AI news + commentary on models and industry trends.</p><p><strong>IdeaM angle:</strong> Broad AI-curious audience primed for \"look what this new creative tool does\" segments.</p>",
+      "type": "note",
+      "parentId": "creator-outreach-explainers",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "12.4.2"
+    },
+    "creator-outreach-e3": {
+      "id": "creator-outreach-e3",
+      "name": "Riley Brown",
+      "content": "<p><strong>Platform + URL:</strong> YouTube &mdash; https://www.youtube.com/@rileybrownai</p><p><strong>Approx reach:</strong> 1.5M across platforms</p><p><strong>Covers:</strong> Building with AI / AI for knowledge work; early viral AI-content creator.</p><p><strong>IdeaM angle:</strong> Massive reach; frames AI as a doing-tool for knowledge workers &mdash; IdeaM's professional-doc + creative outputs fit both.</p>",
+      "type": "note",
+      "parentId": "creator-outreach-explainers",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "12.4.3"
+    },
+    "creator-outreach-e4": {
+      "id": "creator-outreach-e4",
+      "name": "Two Minute Papers",
+      "content": "<p><strong>Platform + URL:</strong> YouTube &mdash; https://www.youtube.com/@TwoMinutePapers</p><p><strong>Approx reach:</strong> Not verified</p><p><strong>Covers:</strong> Makes AI research accessible; breakthroughs explained simply.</p><p><strong>IdeaM angle:</strong> Credibility halo; audience that gets excited about \"AI can now create X\" moments.</p>",
+      "type": "note",
+      "parentId": "creator-outreach-explainers",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "12.4.4"
+    },
+    "creator-outreach-e5": {
+      "id": "creator-outreach-e5",
+      "name": "Andrej Karpathy",
+      "content": "<p><strong>Platform + URL:</strong> YouTube &mdash; https://www.youtube.com/@AndrejKarpathy</p><p><strong>Approx reach:</strong> Not verified</p><p><strong>Covers:</strong> Gold-standard deep technical AI education (LLM internals).</p><p><strong>IdeaM angle:</strong> Lower direct-fit (technical, not creative-tools), but enormous authority &mdash; a stretch/aspirational contact, not a core testimonial target.</p>",
+      "type": "note",
+      "parentId": "creator-outreach-explainers",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "12.4.5"
+    },
+    "creator-outreach-e6": {
+      "id": "creator-outreach-e6",
+      "name": "DeepLearning.AI",
+      "content": "<p><strong>Platform + URL:</strong> YouTube &mdash; https://www.youtube.com/@Deeplearningai</p><p><strong>Approx reach:</strong> Not verified</p><p><strong>Covers:</strong> Structured education on ML / generative AI / LLM apps.</p><p><strong>IdeaM angle:</strong> Institutional voice; better as a partnership/credibility play than a personal-demo testimonial.</p>",
+      "type": "note",
+      "parentId": "creator-outreach-explainers",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "12.4.6"
+    },
+    "creator-outreach-newsletters": {
+      "id": "creator-outreach-newsletters",
+      "name": "Newsletters & Blogs",
+      "content": "<p>Newsletters and blogs about creative and practical AI.</p>",
+      "type": "document",
+      "parentId": "creator-outreach",
+      "childrenIds": [
+        "creator-outreach-n1",
+        "creator-outreach-n2",
+        "creator-outreach-n3",
+        "creator-outreach-n4",
+        "creator-outreach-n5"
+      ],
+      "isCollapsed": false,
+      "prefix": "12.5"
+    },
+    "creator-outreach-n1": {
+      "id": "creator-outreach-n1",
+      "name": "One Useful Thing (Ethan Mollick)",
+      "content": "<p><strong>Platform + URL:</strong> Substack &mdash; https://www.oneusefulthing.org</p><p><strong>Approx reach:</strong> Not verified (very widely cited)</p><p><strong>Covers:</strong> The go-to for translating AI capability into practical, real-world use at an executive register.</p><p><strong>IdeaM angle:</strong> If Mollick demos \"idea &rarr; finished professional deliverable,\" it lands with serious professionals &mdash; IdeaM's exact \"for all thinkers\" pitch.</p>",
+      "type": "note",
+      "parentId": "creator-outreach-newsletters",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "12.5.1"
+    },
+    "creator-outreach-n2": {
+      "id": "creator-outreach-n2",
+      "name": "Ben's Bites",
+      "content": "<p><strong>Platform + URL:</strong> Substack &mdash; https://bensbites.com</p><p><strong>Approx reach:</strong> 166K+ subscribers</p><p><strong>Covers:</strong> Daily AI news for founders/builders.</p><p><strong>IdeaM angle:</strong> Huge builder audience; tool spotlights.</p>",
+      "type": "note",
+      "parentId": "creator-outreach-newsletters",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "12.5.2"
+    },
+    "creator-outreach-n3": {
+      "id": "creator-outreach-n3",
+      "name": "Ahead of AI (Sebastian Raschka)",
+      "content": "<p><strong>Platform + URL:</strong> Substack &mdash; https://magazine.sebastianraschka.com</p><p><strong>Approx reach:</strong> 199K+ subscribers</p><p><strong>Covers:</strong> LLM architecture / ML research.</p><p><strong>IdeaM angle:</strong> Technical-credibility audience; stretch fit but authoritative.</p>",
+      "type": "note",
+      "parentId": "creator-outreach-newsletters",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "12.5.3"
+    },
+    "creator-outreach-n4": {
+      "id": "creator-outreach-n4",
+      "name": "Import AI (Jack Clark)",
+      "content": "<p><strong>Platform + URL:</strong> Substack &mdash; https://importai.substack.com</p><p><strong>Approx reach:</strong> 100K+ subscribers</p><p><strong>Covers:</strong> AI governance, safety, and societal implications.</p><p><strong>IdeaM angle:</strong> Policy/serious register; lower product-demo fit, high credibility.</p>",
+      "type": "note",
+      "parentId": "creator-outreach-newsletters",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "12.5.4"
+    },
+    "creator-outreach-n5": {
+      "id": "creator-outreach-n5",
+      "name": "Robot Writers AI",
+      "content": "<p><strong>Platform + URL:</strong> Newsletter &mdash; https://robotwritersai.com</p><p><strong>Approx reach:</strong> Not verified</p><p><strong>Covers:</strong> Weekly AI-for-writers roundup (recommended by Joanna Penn).</p><p><strong>IdeaM angle:</strong> Niche but perfectly targeted &mdash; an AI-writing-tool newsletter audience.</p>",
+      "type": "note",
+      "parentId": "creator-outreach-newsletters",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "12.5.5"
+    },
+    "creator-outreach-genre": {
+      "id": "creator-outreach-genre",
+      "name": "Genre Voices",
+      "content": "<p>Genre-specific voices: screenwriting-with-AI, legal-tech / AI-for-lawyers, and education / EdTech AI. Includes candid notes on where individual creator-voices are thin.</p>",
+      "type": "document",
+      "parentId": "creator-outreach",
+      "childrenIds": [
+        "creator-outreach-g1",
+        "creator-outreach-g2",
+        "creator-outreach-g3",
+        "creator-outreach-g4",
+        "creator-outreach-g5"
+      ],
+      "isCollapsed": false,
+      "prefix": "12.6"
+    },
+    "creator-outreach-g1": {
+      "id": "creator-outreach-g1",
+      "name": "Curious Refuge — AI Screenwriting (Screenwriting)",
+      "content": "<p><strong>Platform + URL:</strong> https://curiousrefuge.com/ai-screenwriting</p><p><strong>Covers:</strong> Course + community teaching concept &rarr; pitch deck &rarr; finished script. The clearest real home for AI-screenwriting education (cross-listed with AI Video & Filmmaking).</p><p><strong>IdeaM angle:</strong> IdeaM's screenplay output + outline spine is a direct fit.</p><p><strong>&#9888; Candid note:</strong> Beyond Curious Refuge, screenwriting-with-AI is dominated by <em>tools</em>, not individual creator-voices. No strong standalone screenwriter-creator verified &mdash; a gap worth manual hunting on YouTube.</p>",
+      "type": "note",
+      "parentId": "creator-outreach-genre",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "12.6.1"
+    },
+    "creator-outreach-g2": {
+      "id": "creator-outreach-g2",
+      "name": "Artificial Lawyer (Richard Tromans) — Legal-tech",
+      "content": "<p><strong>Platform + URL:</strong> https://www.artificiallawyer.com</p><p><strong>Covers:</strong> Long-running, respected legal-AI news/analysis blog.</p><p><strong>IdeaM angle:</strong> IdeaM's \"structured legal/professional document\" generation is directly on-topic.</p>",
+      "type": "note",
+      "parentId": "creator-outreach-genre",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "12.6.2"
+    },
+    "creator-outreach-g3": {
+      "id": "creator-outreach-g3",
+      "name": "LegalTech Digest — Legal-tech",
+      "content": "<p><strong>Platform + URL:</strong> https://www.legaltechdigest.org</p><p><strong>Covers:</strong> Weekly legal-tech newsletter for lawyers/students; features tools practitioners can adopt.</p><p><strong>IdeaM angle:</strong> A natural place for an IdeaM legal-doc demo.</p>",
+      "type": "note",
+      "parentId": "creator-outreach-genre",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "12.6.3"
+    },
+    "creator-outreach-g4": {
+      "id": "creator-outreach-g4",
+      "name": "Rok's Legal AI Conversations — Legal-tech (podcast)",
+      "content": "<p><strong>Platform + URL:</strong> https://www.mpladvisors.com/podcast/</p><p><strong>Covers:</strong> Practical legal-AI discussions.</p><p><strong>IdeaM angle:</strong> Potential guest/demo slot.</p>",
+      "type": "note",
+      "parentId": "creator-outreach-genre",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "12.6.4"
+    },
+    "creator-outreach-g5": {
+      "id": "creator-outreach-g5",
+      "name": "AI for Education — EdTech",
+      "content": "<p><strong>Platform + URL:</strong> https://www.aiforeducation.io</p><p><strong>Covers:</strong> Educator-facing AI resource/community.</p><p><strong>IdeaM angle:</strong> IdeaM's \"for students + teachers\" outputs (lesson structure &rarr; explainer video/diagram) fit their audience.</p><p><strong>&#9888; Candid note:</strong> EdTech surfaced mostly as tools/orgs (Eduaide, ISTE+ASCD) rather than individual creator-voices. This is the best single verified target; individual EdTech-AI creators are a gap.</p>",
+      "type": "note",
+      "parentId": "creator-outreach-genre",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "12.6.5"
+    },
+    "creator-outreach-visuals": {
+      "id": "creator-outreach-visuals",
+      "name": "AI Visuals & Diagrams (thin category — caution)",
+      "content": "<p><strong>Candid caution:</strong> this is the thinnest category for AI-native individual creators. Most channels that surfaced are traditional art educators who <em>reference</em> AI, not creators whose whole voice is AI-generated visuals/diagrams. Included honestly with that caveat; recommend deeper hand-verification before outreach here. Diagrams / visual-thinking specifically is a gap &mdash; no strong AI-native individual creator verified. (Proko / Sinix / Drawing Wiff Waffles / SonaDrawzStuffYT surfaced in AI-art roundups but read as traditional-art channels &mdash; left out to avoid overstating fit.)</p>",
+      "type": "document",
+      "parentId": "creator-outreach",
+      "childrenIds": [
+        "creator-outreach-vi1",
+        "creator-outreach-vi2"
+      ],
+      "isCollapsed": false,
+      "prefix": "12.7"
+    },
+    "creator-outreach-vi1": {
+      "id": "creator-outreach-vi1",
+      "name": "Marco Bucci",
+      "content": "<p><strong>Platform + URL:</strong> YouTube &mdash; https://www.youtube.com/@marcobucci</p><p><strong>Approx reach:</strong> Not verified</p><p><strong>Covers:</strong> Pro concept artist; color theory, character design; blends traditional art with AI tools.</p><p><strong>IdeaM angle:</strong> Explicitly bridges human craft + AI; would appreciate IdeaM's AI-graphics + auto-diagram outputs.</p>",
+      "type": "note",
+      "parentId": "creator-outreach-visuals",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "12.7.1"
+    },
+    "creator-outreach-vi2": {
+      "id": "creator-outreach-vi2",
+      "name": "Matt Wolfe (cross-listed)",
+      "content": "<p><strong>Platform + URL:</strong> https://www.youtube.com/@mreflow</p><p><strong>Covers:</strong> Also heavily covers AI image tools (see AI Explainers & Education for full entry).</p><p><strong>IdeaM angle:</strong> Natural home for an \"outline &rarr; AI mind-map / diagram / graphics\" demo.</p>",
+      "type": "note",
+      "parentId": "creator-outreach-visuals",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "12.7.2"
+    },
+    "creator-outreach-tools": {
+      "id": "creator-outreach-tools",
+      "name": "Tools/Companies — not individual creators",
+      "content": "<h3>Separate bucket &mdash; do not confuse with the creators above</h3><p>These appeared repeatedly in searches. Useful as competitive/landscape context or partnership targets &mdash; <strong>not</strong> creator-testimonial targets.</p><ul><li><strong>HeyGen</strong> &mdash; https://www.heygen.com &mdash; AI avatar / video generation</li><li><strong>Synthesia</strong> &mdash; https://www.synthesia.io &mdash; AI avatar video</li><li><strong>Fliki</strong> &mdash; https://fliki.ai &mdash; text-to-video / TTS</li><li><strong>Pictory</strong> &mdash; https://pictory.ai &mdash; video from text</li><li><strong>Squibler</strong> &mdash; https://www.squibler.io &mdash; AI script/novel writing</li><li><strong>Youbooks</strong> &mdash; https://www.youbooks.com &mdash; AI non-fiction book generator</li><li><strong>BookBud</strong> &mdash; https://www.bookbud.ai &mdash; AI book writer for self-publishers</li><li><strong>Murphy</strong> &mdash; https://murphy.inc &mdash; AI movie-script generator</li><li><strong>Melies AI</strong> &mdash; https://melies.co &mdash; AI screenplay writer</li><li><strong>Morphed</strong> &mdash; https://morphed.app &mdash; multi-model AI video generator</li><li><strong>FutureTools.io</strong> &mdash; https://www.futuretools.io &mdash; AI tool directory (Matt Wolfe's)</li></ul>",
+      "type": "document",
+      "parentId": "creator-outreach",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "12.8"
+    },
+    "creator-outreach-priority": {
+      "id": "creator-outreach-priority",
+      "name": "Recommended Outreach Priority",
+      "content": "<h3>Top of funnel first</h3><ol><li><strong>Jason Hamilton / The Nerdy Novelist</strong> &mdash; tightest workflow match; whole channel is \"AI for outlining + writing books.\"</li><li><strong>Curious Refuge (Caleb Ward)</strong> &mdash; the AI-filmmaking/screenwriting hub; outline &rarr; screenplay &rarr; narrated video is their world.</li><li><strong>Theoretically Media (Tim Simmons)</strong> &mdash; tool-review beat; primed to demo IdeaM's pipeline.</li><li><strong>Joanna Penn</strong> &mdash; credibility + tasteful-AI framing for the authoring audience.</li><li><strong>Matt Wolfe</strong> &mdash; sheer reach for a single \"one idea &rarr; many outputs\" demo.</li></ol>",
+      "type": "document",
+      "parentId": "creator-outreach",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "12.9"
+    },
+    "creator-outreach-gaps": {
+      "id": "creator-outreach-gaps",
+      "name": "Honest Gaps to Flag",
+      "content": "<ul><li><strong>Diagrams / visual-thinking</strong> individual creators: no strong AI-native voice verified.</li><li><strong>Screenwriting-with-AI</strong> beyond Curious Refuge: dominated by tools, few creator-voices.</li><li><strong>EdTech-AI</strong> individual creators: mostly orgs/tools, not personal channels.</li><li>Several subscriber counts were deliberately omitted where unverifiable &mdash; confirm live before any public testimonial use.</li></ul>",
+      "type": "document",
+      "parentId": "creator-outreach",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "12.10"
+    },
+    "creator-outreach-v5": {
+      "id": "creator-outreach-v5",
+      "name": "Julia McCoy",
+      "content": "<p><strong>[HOWARD-FLAGGED &mdash; HIGH PRIORITY]</strong> (Howard named her personally.)</p><p><strong>Platform + URL:</strong> Founder &amp; CEO of First Movers &mdash; https://firstmovers.ai ; publishes on YouTube + the First Movers newsletter</p><p><strong>Covers:</strong> Teaches creators/entrepreneurs to build AI content systems and AI clones; famously trained a full AI clone/avatar of herself (voice, face, thinking) and runs it prolifically on YouTube.</p><p><strong>IdeaM angle:</strong> Her audience is builders who want one person&rsquo;s ideas to scale into massive output &mdash; a word-for-word match to IdeaM&rsquo;s \"one idea into many finished works.\" Ideal evangelist.</p>",
+      "type": "note",
+      "parentId": "creator-outreach-video",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "12.3.5"
+    },
+    "creator-outreach-email-template-v1": {
+      "id": "creator-outreach-email-template-v1",
+      "name": "Outreach Email — Template (v2)",
+      "content": "<p>Subject: One idea → published to the whole planet, in any language, at any level</p><p>Hi [First Name],</p><p>I follow your work on [their focus], so you&#x27;ll understand why this matters — and you&#x27;ll be skeptical, which is exactly why I want you to be the one to judge it.</p><p>Last week I fed a single outline into IdeaM. In about ten minutes it wrote a complete book — table of contents and every chapter. Ten minutes more, it became a podcast. Then a narrated video, with diagrams it generated on its own.</p><p>But here&#x27;s the part that stops people cold:</p><p>IdeaM publishes the same idea multilingual, multilevel, and multimedia — any language, any level of understanding, any format. One book can speak to a Nobel laureate and to a curious six-year-old, in English or Mandarin or Portuguese, as text, audio, or video. Practically anyone on Earth over the age of two becomes a potential reader, listener, or viewer.</p><p>That&#x27;s not a note app — it&#x27;s a creative workstation that turns one person&#x27;s thinking into products the entire world can consume, and that creators and entrepreneurs can actually sell. The leverage is the whole point: a single mind can now produce, publish, and monetize at a scale that used to demand a full studio. AI is the most disruptive force of our lifetime, and IdeaM is how one person harnesses it — I believe it will change how the public and professionals alike create, and let a lot of sharp people build real businesses, and real fortunes, doing it.</p><p>I&#x27;ve chased this idea for about 35 years. AI finally made it real.</p><p>You evaluate the best tools on the planet, so I&#x27;ll be direct: I think this belongs among them. Judge for yourself — secondbrainware.com.</p><p>If you&#x27;re open to evaluating it, I&#x27;ll set you up with early beta access, or a free copy of the full app — your choice, no strings. And if it earns your respect, we&#x27;d be proud to feature and promote you in return, with an ambassador program for creators who want to take it further.</p><p>Would you take a look?</p><p>Best,<br>Howard Jachter<br>Founder, IdeaM — SecondBrainWare LLC</p>",
+      "type": "document",
+      "parentId": "creator-outreach",
+      "childrenIds": [
+        "creator-outreach-email-template-v1-status"
+      ],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "creator-outreach-email-template-v1-status": {
+      "id": "creator-outreach-email-template-v1-status",
+      "name": "Status & TODO",
+      "content": "<p>STATUS: v2 draft, approved-in-direction by Howard 2026-07-14. WEBSITE URL: DONE — secondbrainware.com. TODO before send: (1) personalize opening line per recipient; (2) sending is Howard&#x27;s call. Amped per Howard: stress multilingual/multilevel/multimedia universal reach + monetization/leverage + disruptive vision, kept credible with the concrete 10-minute-book proof.</p>",
+      "type": "document",
+      "parentId": "creator-outreach-email-template-v1",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "51b3e21f-84b6-4f9f-98ad-3d7ade039d33": {
+      "id": "51b3e21f-84b6-4f9f-98ad-3d7ade039d33",
+      "name": "Pricing & Cost Analysis (confirmed 2026-07-16)",
+      "content": "Confirmed launch pricing + the cost model behind it. Full write-up: standalone outline \"IdeaM - Pricing & Cost Analysis\" and docs/pricing-cost-analysis.md.",
+      "type": "note",
+      "parentId": "root",
+      "childrenIds": [
+        "b136d890-1354-4a9d-a311-166abc783912",
+        "3d287201-5cc8-4748-b158-38149e2d5482",
+        "2d9d2dac-cc32-4fd9-bf13-7cd44e3138b3",
+        "2deaae1e-a84e-45f3-af44-1b519acebc7b"
+      ],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1784189095607,
+        "updatedAt": 1784189095607
+      }
+    },
+    "b136d890-1354-4a9d-a311-166abc783912": {
+      "id": "b136d890-1354-4a9d-a311-166abc783912",
+      "name": "Confirmed tiers",
+      "content": "Free: $0 forever (core app + on-device Google Gemma AI).\nProfessional: $19.99/mo on web & Mac ($29.99/mo on iPhone/iPad, via the App Store, to cover Apple's cut). First month free.\nStudent: $9.99/mo (half price) on web & Mac ($14.99 iPhone/iPad); verify with a .edu email; lighter premium allowance so the discount stays cash-positive.",
+      "type": "note",
+      "parentId": "51b3e21f-84b6-4f9f-98ad-3d7ade039d33",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1784189095607,
+        "updatedAt": 1784189095607
+      }
+    },
+    "3d287201-5cc8-4748-b158-38149e2d5482": {
+      "id": "3d287201-5cc8-4748-b158-38149e2d5482",
+      "name": "Method — 20% margin, calculated backwards",
+      "content": "Margin = 20% share of the SALE PRICE, over FULLY-LOADED cost (AI allowance + infra/overhead + payment fee). Price = cost / (1 - margin - payment-fee rate). Web fee ~3% (Stripe); iPhone 15-30% (Apple IAP). Never below cost; usage metered so cost can't run away. Uses industry-standard cost inputs until real vendor figures are known.",
+      "type": "note",
+      "parentId": "51b3e21f-84b6-4f9f-98ad-3d7ade039d33",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1784189095607,
+        "updatedAt": 1784189095607
+      }
+    },
+    "2d9d2dac-cc32-4fd9-bf13-7cd44e3138b3": {
+      "id": "2d9d2dac-cc32-4fd9-bf13-7cd44e3138b3",
+      "name": "The value anchor",
+      "content": "$20/month is the floor for any serious LLM subscription (ChatGPT Plus, Claude Pro, Gemini Advanced are all $20). IdeaM Professional at $19.99 = the price of one bare chatbot, with the whole thinking system on top (outlining, consolidation, Second Brain, and every finished output). A genuine deal for the customer; cash-positive for us.",
+      "type": "note",
+      "parentId": "51b3e21f-84b6-4f9f-98ad-3d7ade039d33",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1784189095607,
+        "updatedAt": 1784189095607
+      }
+    },
+    "2deaae1e-a84e-45f3-af44-1b519acebc7b": {
+      "id": "2deaae1e-a84e-45f3-af44-1b519acebc7b",
+      "name": "Optional add-on revenue lines",
+      "content": "All priced at the same 20% margin: overage top-up packs (when the monthly allowance runs out), premium-voice upgrade, BYOK discount path (bring your own key = lower price), annual billing (~2 months free).",
+      "type": "note",
+      "parentId": "51b3e21f-84b6-4f9f-98ad-3d7ade039d33",
+      "childrenIds": [],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1784189095607,
+        "updatedAt": 1784189095607
+      }
+    },
+    "ideam-naming-trademark": {
+      "id": "ideam-naming-trademark",
+      "name": "IdeaM — Naming & Trademark",
+      "content": "<p>Naming and trademark research for the \"IdeaM\" brand direction.</p>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": [
+        "tm-knockout-ideam-20260720"
+      ],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "tm-knockout-ideam-20260720": {
+      "id": "tm-knockout-ideam-20260720",
+      "name": "Trademark Knockout Search — IdeaM (2026-07-20)",
+      "content": "<p>Live USPTO database searched in a real browser + web checks.</p><ul><li>Exact-word \"ideam\" returns only TWO marks: (1) IDEAM — LIVE/REGISTERED — owner IDEAM LLC (Colorado) — but covers bird feeders / bird baths / housewares (class 21), unrelated to software. (2) IDEAM — DEAD/ABANDONED — Ingenium Product Development (Wisconsin) — engineering/industrial-design services (class 42); dead, blocks nothing.</li><li>NO live or pending \"IDEAM\" mark in the software classes that matter: class 9 (downloadable apps) or class 42 (SaaS/software).</li><li>Common-law web users are all different industries: Ideam Technologies (US defense engineering), ideam.ai (India IT/ServiceNow consultancy), Colombia's IDEAM (weather agency).</li><li>Bottom line: \"IdeaM\" looks reasonably CLEAR to use and register for our prosumer idea/outlining software — no blocking mark in our niche.</li><li>Caveat: this is a knockout search, NOT formal legal clearance. A trademark attorney should run a full clearance (including phonetic equivalents like \"ideum\") and confirm the class-9/42 path before any filing.</li></ul>",
+      "type": "note",
+      "parentId": "ideam-naming-trademark",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    }
+  },
+  "isGuide": false,
+  "_fileSize": 88387,
+  "_fileName": "IdeaM -- Marketing.idm",
+  "_isLazyLoaded": false
+}

@@ -35,7 +35,7 @@ export class LatexExporter extends BaseExporter {
     parts.push('\\geometry{margin=1in}');
     parts.push('');
     parts.push(`\\title{${this.escapeLatex(title)}}`);
-    parts.push('\\author{Exported from IdiamPro}');
+    parts.push('\\author{Exported from IdeaM}');
     parts.push(`\\date{${new Date().toLocaleDateString()}}`);
     parts.push('');
     parts.push('\\begin{document}');

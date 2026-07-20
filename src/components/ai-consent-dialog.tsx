@@ -85,7 +85,7 @@ export default function AIConsentDialog({ open, onConsent, onDecline }: AIConsen
                 AI Data Processing Consent
               </DialogTitle>
               <DialogDescription>
-                IdiamPro uses third-party AI services to power its intelligent features.
+                IdeaM uses third-party AI services to power its intelligent features.
               </DialogDescription>
             </DialogHeader>
 

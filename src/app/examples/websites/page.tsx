@@ -1,6 +1,6 @@
 'use client';
 
-// WEBSITE example gallery — real sites IdiamPro generated from its own built-in
+// WEBSITE example gallery — real sites IdeaM generated from its own built-in
 // templates, each shown in a browser frame. Screenshots live in
 // /public/screenshots/examples and were rendered from the actual templates.
 
@@ -48,7 +48,7 @@ export default function WebsitesExamplePage() {
       subtitle={
         <>
           Publish any outline as a clean, shareable web page. These four were
-          generated from IdiamPro&apos;s built-in templates — eight in all, from
+          generated from IdeaM&apos;s built-in templates — eight in all, from
           marketing pages to blogs, portfolios, docs, and event sites.
         </>
       }
@@ -56,7 +56,7 @@ export default function WebsitesExamplePage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {SITES.map((s) => (
           <div key={s.src}>
-            <BrowserFrame src={s.src} alt={`${s.title} website built by IdiamPro`} label={s.url} />
+            <BrowserFrame src={s.src} alt={`${s.title} website built by IdeaM`} label={s.url} />
             <div className="mt-4 px-1">
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-lg font-bold text-[#0b1533]">{s.title}</span>

@@ -21,7 +21,7 @@ interface WebsiteExportOptions extends ExportOptions {
 /**
  * Website Exporter - Generates professional websites from outlines
  *
- * This is IdiamPro's "universal output format" - demonstrating that any outline
+ * This is IdeaM's "universal output format" - demonstrating that any outline
  * can be transformed into a polished, standalone website.
  *
  * Supports multiple website types:

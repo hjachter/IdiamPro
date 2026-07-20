@@ -58,7 +58,7 @@ interface TranslateDialogProps {
 }
 
 // Language list ordering — promotes the languages of globally-distributed
-// teams IdiamPro is positioned for (Howard's marketing line: "Built for
+// teams IdeaM is positioned for (Howard's marketing line: "Built for
 // teams from Boston to Shanghai to São Paulo"). The top group covers the
 // largest cross-border collaboration languages; the rest follows in a
 // roughly population-weighted order. English is included for back-translation.

@@ -51,12 +51,12 @@ export default function WaitingPage() {
     <div className="fixed inset-0 overflow-y-auto bg-gray-950 text-white">
       <div className="fixed inset-0 bg-gradient-to-br from-violet-950 via-gray-950 to-indigo-950" />
       <div className="relative z-10 mx-auto flex min-h-screen max-w-md flex-col items-center justify-center px-6 py-12">
-        <a href="/" aria-label="IdiamPro home" className="mb-8 flex items-center gap-3 cursor-pointer transition-opacity hover:opacity-80">
+        <a href="/" aria-label="IdeaM home" className="mb-8 flex items-center gap-3 cursor-pointer transition-opacity hover:opacity-80">
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 shadow-lg shadow-violet-500/30">
             <Layers className="h-6 w-6 text-white" />
           </div>
           <span className="bg-gradient-to-r from-white to-white/70 bg-clip-text text-2xl font-bold text-transparent">
-            IdiamPro
+            IdeaM
           </span>
         </a>
 

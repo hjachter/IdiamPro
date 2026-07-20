@@ -101,7 +101,7 @@ export class BlogHtmlExporter extends BaseExporter {
     </header>
     ${parts.join('\n    ')}
     <footer>
-      <p>Exported from IdiamPro</p>
+      <p>Exported from IdeaM</p>
     </footer>
   </article>
 </body>

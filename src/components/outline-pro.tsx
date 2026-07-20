@@ -1615,7 +1615,7 @@ export default function OutlinePro() {
 
   // Transform outline with AI — scope is the selected node (if any) plus its
   // descendants, OR the whole current outline's root + descendants when
-  // nothing is selected. Decision logged in IdiamPro - Development.idm.
+  // nothing is selected. Decision logged in IdeaM - Development.idm.
   const transformScopeRootId = useMemo(() => {
     if (!currentOutlineId) return null;
     const outline = outlines.find(o => o.id === currentOutlineId);
@@ -2324,7 +2324,7 @@ export default function OutlinePro() {
   // Show Welcome outline (creates a new one if needed)
   const handleShowWelcome = useCallback(() => {
     // Check if a welcome outline already exists
-    const existingWelcome = outlines.find(o => o.name === 'Welcome to IdiamPro!');
+    const existingWelcome = outlines.find(o => o.name === 'Welcome to IdeaM!');
     if (existingWelcome) {
       setCurrentOutlineId(existingWelcome.id);
       setSelectedNodeId(existingWelcome.rootNodeId);
@@ -4804,7 +4804,7 @@ export default function OutlinePro() {
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center space-y-3">
               <div className="skeleton h-8 w-8 rounded-full mx-auto" />
-              <p className="text-sm text-muted-foreground">Loading IdiamPro...</p>
+              <p className="text-sm text-muted-foreground">Loading IdeaM...</p>
             </div>
           </div>
         </div>

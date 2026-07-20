@@ -51,7 +51,7 @@ export default class AppErrorBoundary extends React.Component<AppErrorBoundaryPr
             </div>
             <h1 className="text-2xl font-bold mb-3">Something went wrong in the editor</h1>
             <p className="text-muted-foreground mb-6 leading-relaxed">
-              IdiamPro hit an unexpected error while rendering. Your outlines are saved locally and are not affected. You can try to recover, or reload the app.
+              IdeaM hit an unexpected error while rendering. Your outlines are saved locally and are not affected. You can try to recover, or reload the app.
             </p>
             <div className="flex gap-3 justify-center flex-wrap">
               <button

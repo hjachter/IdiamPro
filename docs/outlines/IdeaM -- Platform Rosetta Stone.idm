@@ -1,0 +1,63 @@
+{
+  "id": "platform-rosetta-stone",
+  "name": "IdeaM -- Platform Rosetta Stone",
+  "rootNodeId": "root",
+  "nodes": {
+    "root": {
+      "id": "root",
+      "name": "IdeaM -- Platform Rosetta Stone",
+      "content": "<p>The canonical reference for cross-platform input equivalence in IdeaM/SecondBrainWare. The app targets six platforms: macOS, iOS, Web, Windows, Linux, and Android. macOS, iOS, and Web are actively shipped; Windows and Linux have build configurations ready but no distributed builds yet; Android is compatible by design via Capacitor but not yet scaffolded.</p>",
+      "type": "chapter",
+      "parentId": null,
+      "childrenIds": [
+        "support-matrix",
+        "rosetta",
+        "gesture-conflicts",
+        "how-to"
+      ],
+      "isExpanded": true,
+      "prefix": ""
+    },
+    "support-matrix": {
+      "id": "support-matrix",
+      "name": "Platform Support Matrix",
+      "content": "<p>The app targets six platforms. Status reflects what's actively shipped today.</p><table><thead><tr><th>Platform</th><th>Build Path</th><th>Status</th><th>Distribution</th></tr></thead><tbody><tr><td>macOS</td><td>Electron</td><td>Production</td><td>Self-hosted DMG, TestFlight planned</td></tr><tr><td>iOS</td><td>Capacitor</td><td>Production</td><td>TestFlight (in queue)</td></tr><tr><td>Web</td><td>Vercel</td><td>Production</td><td>Auto-deploy on git push</td></tr><tr><td>Windows</td><td>Electron</td><td>Build config ready</td><td>Not yet built/distributed</td></tr><tr><td>Linux</td><td>Electron</td><td>Build config ready</td><td>Not yet built/distributed</td></tr><tr><td>Android</td><td>Capacitor</td><td>Not scaffolded</td><td>Future work</td></tr></tbody></table>",
+      "type": "document",
+      "parentId": "root",
+      "childrenIds": [],
+      "isExpanded": true,
+      "prefix": "1"
+    },
+    "rosetta": {
+      "id": "rosetta",
+      "name": "Action-to-Input Rosetta Stone",
+      "content": "<p>Each row shows the canonical input for a single user action across all supported platforms. Cells labeled <em>(needs button — TODO)</em> or <em>(needs audit)</em> are known gaps.</p><table><thead><tr><th>Action</th><th>macOS</th><th>Windows/Linux</th><th>iOS/Android</th><th>Web</th></tr></thead><tbody><tr><td>Copy / Paste / Select All</td><td>Cmd+C/V/A</td><td>Ctrl+C/V/A</td><td>Long-press → menu</td><td>Cmd/Ctrl+C/V/A</td></tr><tr><td>Undo / Redo</td><td>Cmd+Z / Cmd+Shift+Z</td><td>Ctrl+Z / Ctrl+Shift+Z</td><td>Toolbar buttons</td><td>Both</td></tr><tr><td>Bold / Italic / Headings</td><td>Cmd+B/I or BubbleMenu</td><td>Ctrl+B/I or BubbleMenu</td><td>BubbleMenu only</td><td>Both</td></tr><tr><td>Open Second Brain</td><td>Cmd+B</td><td>Ctrl+B</td><td>Brain menu</td><td>Both</td></tr><tr><td>Save to Second Brain</td><td>Cmd+Shift+B</td><td>Ctrl+Shift+B</td><td>Brain menu</td><td>Both</td></tr><tr><td>Quick Capture</td><td>Cmd+Shift+I or toolbar</td><td>Ctrl+Shift+I or toolbar</td><td>Toolbar button</td><td>Both</td></tr><tr><td>Search Second Brain</td><td>Cmd+Shift+S</td><td>Ctrl+Shift+S</td><td>Brain menu</td><td>Both</td></tr><tr><td>Indent / Outdent</td><td>Tab / Shift+Tab</td><td>Tab / Shift+Tab</td><td>Swipe right / left</td><td>Tab / Shift+Tab</td></tr><tr><td>Drag-reorder nodes</td><td>Drag</td><td>Drag</td><td>Long-press + drag</td><td>Drag</td></tr><tr><td>Context menu</td><td>Right-click</td><td>Right-click</td><td>Long-press</td><td>Right-click</td></tr><tr><td>Edit node name</td><td>Double-click</td><td>Double-click</td><td>Tap-again on selected</td><td>Double-click</td></tr><tr><td>Multi-select</td><td>Cmd+Click</td><td>Ctrl+Click</td><td>(needs audit)</td><td>Cmd/Ctrl+Click</td></tr><tr><td>Command Palette</td><td>Cmd+K or toolbar</td><td>Ctrl+K or toolbar</td><td>Toolbar button</td><td>Both</td></tr><tr><td>Search current outline</td><td>Cmd+F</td><td>Ctrl+F</td><td>Search field</td><td>Cmd/Ctrl+F</td></tr><tr><td>Focus mode</td><td>Cmd+Shift+F</td><td>Ctrl+Shift+F</td><td>(needs button — TODO)</td><td>Cmd/Ctrl+Shift+F</td></tr><tr><td>Collapse / expand all</td><td>Cmd+E</td><td>Ctrl+E</td><td>(needs button — TODO)</td><td>Cmd/Ctrl+E</td></tr></tbody></table>",
+      "type": "document",
+      "parentId": "root",
+      "childrenIds": [],
+      "isExpanded": true,
+      "prefix": "2"
+    },
+    "gesture-conflicts": {
+      "id": "gesture-conflicts",
+      "name": "iOS Gesture Conflicts (Reserved by System)",
+      "content": "<p>When proposing or auditing features, watch for any of these iOS-reserved gestures. If a feature relies on one, switch to the listed alternative.</p><table><thead><tr><th>Gesture</th><th>iOS System Use</th><th>Alternative</th></tr></thead><tbody><tr><td><strong>Long-press</strong></td><td>Drag & drop, context menu</td><td>Tap-again on selected item</td></tr><tr><td><strong>Pinch</strong></td><td>Zoom</td><td>Avoid or use buttons</td></tr><tr><td><strong>Two-finger tap</strong></td><td>Often system-reserved</td><td>Single-finger alternatives</td></tr><tr><td><strong>Edge swipes</strong></td><td>Back navigation, app switcher</td><td>In-app buttons</td></tr><tr><td><strong>F-keys (F1-F12)</strong></td><td>Hardware (brightness, volume, etc.)</td><td>Use letter keys or Return/Enter</td></tr><tr><td><strong>Three-finger gestures</strong></td><td>System multitasking</td><td>Avoid entirely</td></tr></tbody></table>",
+      "type": "document",
+      "parentId": "root",
+      "childrenIds": [],
+      "isExpanded": true,
+      "prefix": "3"
+    },
+    "how-to": {
+      "id": "how-to",
+      "name": "How to use this document",
+      "content": "<p>Use the Rosetta Stone as the authoritative reference when designing or auditing any user-facing feature. Every new feature must have a row added here. Any cell labeled <em>(needs button — TODO)</em> or <em>(needs audit)</em> is a known gap that must be closed before claiming cross-platform support.</p>",
+      "type": "document",
+      "parentId": "root",
+      "childrenIds": [],
+      "isExpanded": true,
+      "prefix": "4"
+    }
+  },
+  "_fileName": "IdeaM -- Platform Rosetta Stone.idm"
+}

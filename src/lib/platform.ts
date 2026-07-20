@@ -1,7 +1,7 @@
 /**
- * Platform / runtime detection for IdiamPro.
+ * Platform / runtime detection for IdeaM.
  *
- * IdiamPro ships through three runtimes — Electron (macOS/Windows/Linux
+ * IdeaM ships through three runtimes — Electron (macOS/Windows/Linux
  * desktop), a Capacitor native shell (iOS, eventually Android), and the
  * plain web build on Vercel. User-facing help text frequently needs to be
  * different for each one (e.g. "open System Settings" vs. "click the mic

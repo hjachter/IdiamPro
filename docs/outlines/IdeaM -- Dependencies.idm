@@ -1,0 +1,318 @@
+{
+  "id": "45b26a76-c975-4c55-ace2-cd27f0fc825d",
+  "name": "IdeaM -- Dependencies",
+  "rootNodeId": "d7d1cdbc-8e30-47c8-8647-45db78d59c3e",
+  "nodes": {
+    "d7d1cdbc-8e30-47c8-8647-45db78d59c3e": {
+      "id": "d7d1cdbc-8e30-47c8-8647-45db78d59c3e",
+      "name": "IdeaM -- Dependencies",
+      "content": "<p><strong>Third-Party Dependency &amp; Vendor Register.</strong> Every external product IdeaM relies on, what breaks if it fails, and OUR recurring responsibilities to keep each one doing what we expect. Created 2026-07-06 from a full codebase sweep. Pairs with the reliability principle: assume every dependency will fail, and design so a failure is harmless and visible.</p><p><em>Review this register on a set cadence (see “Our Standing Responsibilities”). Update it whenever a vendor is added, removed, or its status changes.</em></p>",
+      "type": "text",
+      "parentId": null,
+      "childrenIds": [
+        "b911545c-a1fa-4afd-90a7-08ede6617109",
+        "a4e61d38-02d5-467d-9594-f9055ce351ef",
+        "04c17db1-48b4-4a16-8a8b-71d5c2698b01",
+        "52927a25-0757-4db2-be6d-cca86abe394f",
+        "7c14b36c-461a-477a-805a-19ced7b1a2c4",
+        "ea12f614-1cda-44d1-ab84-b3c9abe37bbf",
+        "a78bb8c6-d8ba-4af2-b771-85026d17e295",
+        "5eefab25-3016-4043-a94b-8fe0c4dec581",
+        "c5cd707a-7389-4e20-a1b7-c821a992e878",
+        "5b411fe6-2f09-4480-bc1f-eb0720e85b9a"
+      ],
+      "prefix": ""
+    },
+    "b911545c-a1fa-4afd-90a7-08ede6617109": {
+      "id": "b911545c-a1fa-4afd-90a7-08ede6617109",
+      "name": "1 · Hosting &amp; Infrastructure",
+      "content": "<p>Where the app runs and stores server-side data.</p>",
+      "type": "text",
+      "parentId": "d7d1cdbc-8e30-47c8-8647-45db78d59c3e",
+      "childrenIds": [
+        "87891909-4cd2-40d8-9bf6-1b4be0e31ba2",
+        "0845ef9a-8561-4216-9a06-0424a3cc9245",
+        "ae86213d-c98d-4606-9e8e-a2e593beebd2"
+      ],
+      "prefix": ""
+    },
+    "a4e61d38-02d5-467d-9594-f9055ce351ef": {
+      "id": "a4e61d38-02d5-467d-9594-f9055ce351ef",
+      "name": "2 · Authentication",
+      "content": "<p>Who the user is.</p>",
+      "type": "text",
+      "parentId": "d7d1cdbc-8e30-47c8-8647-45db78d59c3e",
+      "childrenIds": [
+        "d7e97079-0a04-43e7-93dd-33f0e1451cc1"
+      ],
+      "prefix": ""
+    },
+    "04c17db1-48b4-4a16-8a8b-71d5c2698b01": {
+      "id": "04c17db1-48b4-4a16-8a8b-71d5c2698b01",
+      "name": "3 · AI &amp; Language Models",
+      "content": "<p>Cloud + local intelligence.</p>",
+      "type": "text",
+      "parentId": "d7d1cdbc-8e30-47c8-8647-45db78d59c3e",
+      "childrenIds": [
+        "68786994-2d8a-4014-a6dc-e6fdfccdd0dc",
+        "bc03e3db-99cb-42f9-8c61-c5a4df4d40c1",
+        "6a5bc04d-e9a4-41a1-b671-496fa807d942",
+        "c782773c-a5b0-4fc6-92c9-0d6549d998b3",
+        "496766b2-550f-497f-a13a-1b9eedb61be2"
+      ],
+      "prefix": ""
+    },
+    "52927a25-0757-4db2-be6d-cca86abe394f": {
+      "id": "52927a25-0757-4db2-be6d-cca86abe394f",
+      "name": "4 · Billing &amp; Subscriptions",
+      "content": "<p>Money in.</p>",
+      "type": "text",
+      "parentId": "d7d1cdbc-8e30-47c8-8647-45db78d59c3e",
+      "childrenIds": [
+        "4f20af6a-d0e0-4ac9-8630-3c540f422c0c",
+        "fd8d6356-c554-456c-a0cb-89c9f30d1463"
+      ],
+      "prefix": ""
+    },
+    "7c14b36c-461a-477a-805a-19ced7b1a2c4": {
+      "id": "7c14b36c-461a-477a-805a-19ced7b1a2c4",
+      "name": "5 · Email",
+      "content": "<p>Transactional + notification email.</p>",
+      "type": "text",
+      "parentId": "d7d1cdbc-8e30-47c8-8647-45db78d59c3e",
+      "childrenIds": [
+        "3da04b3b-348b-4f66-b2b3-babff2b75d2e"
+      ],
+      "prefix": ""
+    },
+    "ea12f614-1cda-44d1-ab84-b3c9abe37bbf": {
+      "id": "ea12f614-1cda-44d1-ab84-b3c9abe37bbf",
+      "name": "6 · Error Monitoring &amp; Analytics",
+      "content": "<p>Observability.</p>",
+      "type": "text",
+      "parentId": "d7d1cdbc-8e30-47c8-8647-45db78d59c3e",
+      "childrenIds": [
+        "150cacc6-940a-4719-8ade-892ef3f950f0",
+        "43b5844b-0a6b-415a-80ba-ddb85a76baa7"
+      ],
+      "prefix": ""
+    },
+    "a78bb8c6-d8ba-4af2-b771-85026d17e295": {
+      "id": "a78bb8c6-d8ba-4af2-b771-85026d17e295",
+      "name": "7 · Native Mobile &amp; Desktop",
+      "content": "<p>App shells + distribution.</p>",
+      "type": "text",
+      "parentId": "d7d1cdbc-8e30-47c8-8647-45db78d59c3e",
+      "childrenIds": [
+        "c0f56792-c618-451c-9abb-64f520722bc8",
+        "4c054d19-cbf0-46dc-8864-f8eafeed61b8",
+        "dfe22b1b-2bf9-4986-b33d-869aeb0ed7c7",
+        "0cae495f-838b-45d6-bbab-aa2612795ca9"
+      ],
+      "prefix": ""
+    },
+    "5eefab25-3016-4043-a94b-8fe0c4dec581": {
+      "id": "5eefab25-3016-4043-a94b-8fe0c4dec581",
+      "name": "8 · Content &amp; Media",
+      "content": "<p>External content sources.</p>",
+      "type": "text",
+      "parentId": "d7d1cdbc-8e30-47c8-8647-45db78d59c3e",
+      "childrenIds": [
+        "fed90e59-2e03-4a45-8c1f-fb26ef8b4968"
+      ],
+      "prefix": ""
+    },
+    "87891909-4cd2-40d8-9bf6-1b4be0e31ba2": {
+      "id": "87891909-4cd2-40d8-9bf6-1b4be0e31ba2",
+      "name": "Vercel",
+      "content": "<p><strong>What it is:</strong> Web hosting, Next.js deploy, serverless functions, cron, env-var management.</p><p><strong>Used for:</strong> Production web deploys (auto on git push), all API routes, cron jobs (drip email, feedback reminder, storage-health).</p><p><strong>Blast radius if it fails/lapses:</strong> App loses hosting → all web users offline; env vars not reaching runtime → silent feature failures.</p><p><strong>OUR recurring responsibilities:</strong> Keep billing current; maintain env vars; verify edge/runtime compatibility on SDK updates; monitor build/deploy health; redeploy after any env-var change.</p><p><strong>Current status / risk:</strong> Active. Crons configured in vercel.json.</p>",
+      "type": "text",
+      "parentId": "b911545c-a1fa-4afd-90a7-08ede6617109",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "0845ef9a-8561-4216-9a06-0424a3cc9245": {
+      "id": "0845ef9a-8561-4216-9a06-0424a3cc9245",
+      "name": "Upstash / Vercel KV (Redis)",
+      "content": "<p><strong>What it is:</strong> Redis-compatible key-value store for durable serverless storage.</p><p><strong>Used for:</strong> Applicant records, feedback, beta Pro grants, unsubscribe state in production.</p><p><strong>Blast radius if it fails/lapses:</strong> KV down → writes silently fail on Vercel (read-only FS can't back it up) → beta signups/feedback lost.</p><p><strong>OUR recurring responsibilities:</strong> Confirm a live Upstash DB is connected in Vercel → Storage; keep the 3 env vars valid; REDEPLOY after changes; monitor quota/billing; watch the storage-health cron alerts.</p><p><strong>Current status / risk:</strong> ⚠ RISK: appeared DISCONNECTED in production (Vercel retired built-in KV). Needs reconnect. Three-layer protection now makes an outage visible, not silent.</p>",
+      "type": "text",
+      "parentId": "b911545c-a1fa-4afd-90a7-08ede6617109",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "ae86213d-c98d-4606-9e8e-a2e593beebd2": {
+      "id": "ae86213d-c98d-4606-9e8e-a2e593beebd2",
+      "name": "Namecheap (Domain + DNS + PrivateEmail)",
+      "content": "<p><strong>What it is:</strong> Domain registrar, DNS, and mailbox host for 2ndbrainware.com.</p><p><strong>Used for:</strong> Email sender domain, SMTP mailbox (howard@ / welcome@2ndbrainware.com), desktop auto-update server URL.</p><p><strong>Blast radius if it fails/lapses:</strong> Domain expires → email bounces + update server unreachable; DNS/MX broken → email fails.</p><p><strong>OUR recurring responsibilities:</strong> Renew the domain (never let it lapse); maintain DNS A/CNAME (update server) + MX (email) records; keep mailbox access.</p><p><strong>Current status / risk:</strong> Active. Single dependency underpinning both email and desktop updates.</p>",
+      "type": "text",
+      "parentId": "b911545c-a1fa-4afd-90a7-08ede6617109",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "d7e97079-0a04-43e7-93dd-33f0e1451cc1": {
+      "id": "d7e97079-0a04-43e7-93dd-33f0e1451cc1",
+      "name": "Clerk",
+      "content": "<p><strong>What it is:</strong> User authentication, sessions, identity.</p><p><strong>Used for:</strong> Sign-in/up, identity for billing/quota, invite-only beta gating, account deletion.</p><p><strong>Blast radius if it fails/lapses:</strong> Clerk down → nobody can sign in (no fallback auth); webhook/secret issues → gating bypass or applicants unvalidated.</p><p><strong>OUR recurring responsibilities:</strong> Maintain webhook endpoint + rotate signing secret; keep user.created subscription; account-deletion integration; key validity.</p><p><strong>Current status / risk:</strong> Env-gated. ⚠ Still on DEV/TEST keys — must swap to production keys + re-issue sign-in links before public launch.</p>",
+      "type": "text",
+      "parentId": "a4e61d38-02d5-467d-9594-f9055ce351ef",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "68786994-2d8a-4014-a6dc-e6fdfccdd0dc": {
+      "id": "68786994-2d8a-4014-a6dc-e6fdfccdd0dc",
+      "name": "Google Gemini (via Genkit)",
+      "content": "<p><strong>What it is:</strong> Primary cloud AI engine for text generation.</p><p><strong>Used for:</strong> Help chat, outline generation, Refresh-from-Web, Translate, Reformat, Transform, podcast script, image description, YouTube package.</p><p><strong>Blast radius if it fails/lapses:</strong> Gemini down/quota/billing → cloud AI features fail (Help falls back to local Gemma if present; Pro cloud features blocked).</p><p><strong>OUR recurring responsibilities:</strong> Keep GEMINI_API_KEY valid; monitor quota + Google Cloud billing; handle rate limits; update Genkit/SDK + model version; data-consent compliance.</p><p><strong>Current status / risk:</strong> Active (default gemini-3.5-flash). ⚠ Gemini key showed “Needs Attention” in Vercel — verify. Billing had intermittent dunning (resolved). Fallback chain: Gemini → OpenRouter → local Gemma.</p>",
+      "type": "text",
+      "parentId": "04c17db1-48b4-4a16-8a8b-71d5c2698b01",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "bc03e3db-99cb-42f9-8c61-c5a4df4d40c1": {
+      "id": "bc03e3db-99cb-42f9-8c61-c5a4df4d40c1",
+      "name": "Ollama (local, on-device)",
+      "content": "<p><strong>What it is:</strong> On-device LLM for private/offline AI + failover target.</p><p><strong>Used for:</strong> “Local” AI provider mode; fallback when cloud fails.</p><p><strong>Blast radius if it fails/lapses:</strong> Ollama not installed/model missing → no local fallback; insufficient RAM → macOS SIGKILL.</p><p><strong>OUR recurring responsibilities:</strong> Document user setup; keep model recommendations current; version compat with Genkit; RAM guidance (≈2× model size).</p><p><strong>Current status / risk:</strong> Optional; fully local, no external calls. Default model gemma4:e4b.</p>",
+      "type": "text",
+      "parentId": "04c17db1-48b4-4a16-8a8b-71d5c2698b01",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "6a5bc04d-e9a4-41a1-b671-496fa807d942": {
+      "id": "6a5bc04d-e9a4-41a1-b671-496fa807d942",
+      "name": "OpenRouter",
+      "content": "<p><strong>What it is:</strong> Secondary/dormant backup cloud AI provider.</p><p><strong>Used for:</strong> Failover if primary Gemini fails AND OPENROUTER_API_KEY is set.</p><p><strong>Blast radius if it fails/lapses:</strong> Only matters when Gemini AND local are both unavailable and a key is set.</p><p><strong>OUR recurring responsibilities:</strong> If activated: key validity, quota/billing, model-id validation, rate limits.</p><p><strong>Current status / risk:</strong> Dormant in production (no key set). Zero overhead when unused.</p>",
+      "type": "text",
+      "parentId": "04c17db1-48b4-4a16-8a8b-71d5c2698b01",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "c782773c-a5b0-4fc6-92c9-0d6549d998b3": {
+      "id": "c782773c-a5b0-4fc6-92c9-0d6549d998b3",
+      "name": "AssemblyAI",
+      "content": "<p><strong>What it is:</strong> Audio transcription with speaker diarization.</p><p><strong>Used for:</strong> Voice-input transcription; future audio/recording features.</p><p><strong>Blast radius if it fails/lapses:</strong> Down/key expired → voice transcription fails.</p><p><strong>OUR recurring responsibilities:</strong> Keep ASSEMBLYAI_API_KEY valid; monitor audio-duration quota + billing; SDK updates.</p><p><strong>Current status / risk:</strong> Integrated; light use in v1. Requires active account.</p>",
+      "type": "text",
+      "parentId": "04c17db1-48b4-4a16-8a8b-71d5c2698b01",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "496766b2-550f-497f-a13a-1b9eedb61be2": {
+      "id": "496766b2-550f-497f-a13a-1b9eedb61be2",
+      "name": "OpenAI (TTS)",
+      "content": "<p><strong>What it is:</strong> Text-to-speech for podcast audio.</p><p><strong>Used for:</strong> Podcast generation (script → MP3).</p><p><strong>Blast radius if it fails/lapses:</strong> Down/quota → podcast generation blocked (NO local TTS fallback).</p><p><strong>OUR recurring responsibilities:</strong> Keep OPENAI_API_KEY valid; monitor quota/billing; voice/model validation; retry/backoff.</p><p><strong>Current status / risk:</strong> Active for podcast TTS. Optional (BYOK or env key). ⚠ Single point of failure — no fallback TTS.</p>",
+      "type": "text",
+      "parentId": "04c17db1-48b4-4a16-8a8b-71d5c2698b01",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "4f20af6a-d0e0-4ac9-8630-3c540f422c0c": {
+      "id": "4f20af6a-d0e0-4ac9-8630-3c540f422c0c",
+      "name": "Stripe",
+      "content": "<p><strong>What it is:</strong> Payment processing + subscriptions (web/desktop).</p><p><strong>Used for:</strong> Checkout, recurring subscriptions, customer portal, subscription webhooks.</p><p><strong>Blast radius if it fails/lapses:</strong> Stripe down → checkout blocked (no fallback); webhook down → tier changes not synced.</p><p><strong>OUR recurring responsibilities:</strong> Maintain webhook endpoint + rotate secret; keep price IDs + keys valid; monthly reconciliation; portal config; (PCI handled by Stripe).</p><p><strong>Current status / risk:</strong> Env-gated; stub when keys unset. ⚠ Single point of failure for payments. One-time “Own it” SKU still to wire.</p>",
+      "type": "text",
+      "parentId": "52927a25-0757-4db2-be6d-cca86abe394f",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "fd8d6356-c554-456c-a0cb-89c9f30d1463": {
+      "id": "fd8d6356-c554-456c-a0cb-89c9f30d1463",
+      "name": "RevenueCat",
+      "content": "<p><strong>What it is:</strong> Subscription entitlement source-of-truth across web (Stripe) + iOS (Apple IAP).</p><p><strong>Used for:</strong> Grants pro/student entitlements; unifies tier across platforms.</p><p><strong>Blast radius if it fails/lapses:</strong> Down/key invalid → tier checks fail or iOS purchases don't grant access.</p><p><strong>OUR recurring responsibilities:</strong> Keep server + client keys valid; manage entitlement IDs; Stripe→RevenueCat provisioning; monitor Apple IAP sync; SDK updates.</p><p><strong>Current status / risk:</strong> Env-gated; dormant if unset (all users free). Part of the deferred production-migration bundle.</p>",
+      "type": "text",
+      "parentId": "52927a25-0757-4db2-be6d-cca86abe394f",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "3da04b3b-348b-4f66-b2b3-babff2b75d2e": {
+      "id": "3da04b3b-348b-4f66-b2b3-babff2b75d2e",
+      "name": "PrivateEmail SMTP (Namecheap)",
+      "content": "<p><strong>What it is:</strong> Transactional/notification email sender.</p><p><strong>Used for:</strong> Onboarding drip (welcome, day 3/7/14), applicant notifications, feedback reminders, storage-health + bug alerts.</p><p><strong>Blast radius if it fails/lapses:</strong> SMTP down/suspended → emails never send (logged only). NOTE: applicant notification email is now the guaranteed backup copy of signups — this path must stay healthy.</p><p><strong>OUR recurring responsibilities:</strong> Keep SMTP creds valid; port/TLS settings; DNS MX for the mailbox; monitor send rate; unsubscribe-list upkeep.</p><p><strong>Current status / risk:</strong> Env-gated; optional (no email if unset). Now load-bearing for the signup data-safety backup — treat as important, not optional.</p>",
+      "type": "text",
+      "parentId": "7c14b36c-461a-477a-805a-19ced7b1a2c4",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "150cacc6-940a-4719-8ade-892ef3f950f0": {
+      "id": "150cacc6-940a-4719-8ade-892ef3f950f0",
+      "name": "Sentry",
+      "content": "<p><strong>What it is:</strong> Crash reporting + error tracking.</p><p><strong>Used for:</strong> Unhandled errors across web/iOS/desktop + server; performance sampling.</p><p><strong>Blast radius if it fails/lapses:</strong> Down → errors logged locally only (no hard failure).</p><p><strong>OUR recurring responsibilities:</strong> Keep DSNs valid; optional source-map auth token; release tagging; quota.</p><p><strong>Current status / risk:</strong> Env-gated; fully no-op if DSN unset. tracesSampleRate 0.1 (free tier).</p>",
+      "type": "text",
+      "parentId": "ea12f614-1cda-44d1-ab84-b3c9abe37bbf",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "43b5844b-0a6b-415a-80ba-ddb85a76baa7": {
+      "id": "43b5844b-0a6b-415a-80ba-ddb85a76baa7",
+      "name": "Vercel Analytics",
+      "content": "<p><strong>What it is:</strong> Page views + Web Vitals.</p><p><strong>Used for:</strong> Performance + engagement metrics.</p><p><strong>Blast radius if it fails/lapses:</strong> Down → metrics not sent (silent, no runtime impact).</p><p><strong>OUR recurring responsibilities:</strong> Billing; data-retention policy; dashboard review.</p><p><strong>Current status / risk:</strong> Passive. Optional Vercel feature.</p>",
+      "type": "text",
+      "parentId": "ea12f614-1cda-44d1-ab84-b3c9abe37bbf",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "c0f56792-c618-451c-9abb-64f520722bc8": {
+      "id": "c0f56792-c618-451c-9abb-64f520722bc8",
+      "name": "Capacitor",
+      "content": "<p><strong>What it is:</strong> Cross-platform native runtime (iOS/Android) from the web codebase.</p><p><strong>Used for:</strong> iOS app shell; native APIs (filesystem, camera, mic, share); App Store distribution.</p><p><strong>Blast radius if it fails/lapses:</strong> Plugin/SDK incompatibility → app won't build/run; native bridge broken → features fail.</p><p><strong>OUR recurring responsibilities:</strong> iOS SDK compat; plugin updates; TestFlight builds; signing certs + provisioning profiles.</p><p><strong>Current status / risk:</strong> Active. NOTE: iOS app is a thin remote webview (loads idiam-pro.vercel.app) with no bundled fallback → blank screen if the remote fails to render (open bug).</p>",
+      "type": "text",
+      "parentId": "a78bb8c6-d8ba-4af2-b771-85026d17e295",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "4c054d19-cbf0-46dc-8864-f8eafeed61b8": {
+      "id": "4c054d19-cbf0-46dc-8864-f8eafeed61b8",
+      "name": "Apple",
+      "content": "<p><strong>What it is:</strong> App Store distribution, IAP, Sign in with Apple, TestFlight.</p><p><strong>Used for:</strong> iOS distribution + beta; IAP revenue; Apple as an auth option.</p><p><strong>Blast radius if it fails/lapses:</strong> App rejected → can't install; signing cert expired → builds fail; IAP misconfig → purchases don't grant access.</p><p><strong>OUR recurring responsibilities:</strong> App Store Connect upkeep; review cycles; IAP product/price setup; ANNUAL cert renewal; TestFlight; guideline 3.1.1 (Apple IAP for subs) compliance; export-compliance per build; privacy policy.</p><p><strong>Current status / risk:</strong> Active (Individual enrollment; convert to Company after LLC). ⚠ “Sign in with Apple / Hide My Email” issues relay addresses that don't match the allowlist — gate must handle this (open bug).</p>",
+      "type": "text",
+      "parentId": "a78bb8c6-d8ba-4af2-b771-85026d17e295",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "dfe22b1b-2bf9-4986-b33d-869aeb0ed7c7": {
+      "id": "dfe22b1b-2bf9-4986-b33d-869aeb0ed7c7",
+      "name": "Electron",
+      "content": "<p><strong>What it is:</strong> Desktop runtime (macOS/Windows/Linux).</p><p><strong>Used for:</strong> IdeaM Desktop app; file access; native menus; auto-update.</p><p><strong>Blast radius if it fails/lapses:</strong> SDK incompatibility → won't build; auto-update endpoint down → users stuck on old version.</p><p><strong>OUR recurring responsibilities:</strong> Electron updates; electron-builder config; code signing (mac hardened runtime, Windows Authenticode); dmg/msi publishing.</p><p><strong>Current status / risk:</strong> Active.</p>",
+      "type": "text",
+      "parentId": "a78bb8c6-d8ba-4af2-b771-85026d17e295",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "0cae495f-838b-45d6-bbab-aa2612795ca9": {
+      "id": "0cae495f-838b-45d6-bbab-aa2612795ca9",
+      "name": "Electron-Updater",
+      "content": "<p><strong>What it is:</strong> Automatic desktop updates.</p><p><strong>Used for:</strong> Version checks, background download, restart-to-apply.</p><p><strong>Blast radius if it fails/lapses:</strong> Update server (2ndbrainware.com/updates) down → no updates (silent fallback).</p><p><strong>OUR recurring responsibilities:</strong> Host build artifacts; server uptime; version tagging; release notes.</p><p><strong>Current status / risk:</strong> Checks every 4h + on launch. Depends on Namecheap domain being live.</p>",
+      "type": "text",
+      "parentId": "a78bb8c6-d8ba-4af2-b771-85026d17e295",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "fed90e59-2e03-4a45-8c1f-fb26ef8b4968": {
+      "id": "fed90e59-2e03-4a45-8c1f-fb26ef8b4968",
+      "name": "YouTube (transcripts)",
+      "content": "<p><strong>What it is:</strong> Video transcript extraction + embedded viewers.</p><p><strong>Used for:</strong> Research &amp; Import from YouTube.</p><p><strong>Blast radius if it fails/lapses:</strong> API/package breakage → transcript extraction fails; private video → inaccessible.</p><p><strong>OUR recurring responsibilities:</strong> Monitor the transcript package maintenance; watch YouTube ToS/rate limits.</p><p><strong>Current status / risk:</strong> Passive via npm package (no explicit key; reverse-engineered transcripts).</p>",
+      "type": "text",
+      "parentId": "5eefab25-3016-4043-a94b-8fe0c4dec581",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "c5cd707a-7389-4e20-a1b7-c821a992e878": {
+      "id": "c5cd707a-7389-4e20-a1b7-c821a992e878",
+      "name": "⚠ Single Points of Failure (no real fallback)",
+      "content": "<ul><li><strong>Stripe</strong> — web checkout fully blocked if down. Consider a backup processor (Paddle/PayPal) later.</li><li><strong>Vercel KV storage</strong> — production writes fail if KV + FS both unavailable. Now mitigated by three-layer protection (guaranteed email backup + fail-loud + watchdog) — but reconnect the DB.</li><li><strong>Clerk</strong> — no fallback auth system; if Clerk is down, nobody signs in.</li><li><strong>OpenAI TTS</strong> — podcast generation has no fallback TTS wired in.</li></ul>",
+      "type": "text",
+      "parentId": "d7d1cdbc-8e30-47c8-8647-45db78d59c3e",
+      "childrenIds": [],
+      "prefix": ""
+    },
+    "5b411fe6-2f09-4480-bc1f-eb0720e85b9a": {
+      "id": "5b411fe6-2f09-4480-bc1f-eb0720e85b9a",
+      "name": "✅ Our Standing Responsibilities (recurring tasks)",
+      "content": "<p>The recurring duties that keep third parties doing what we expect. Assign a cadence and don't let any lapse.</p><ul><li><strong>Billing current</strong> on every paid vendor: Vercel, Google Cloud (Gemini), OpenAI, AssemblyAI, Stripe, RevenueCat, Namecheap. A lapsed card = an outage.</li><li><strong>API keys valid + rotated</strong>: Gemini, OpenAI, AssemblyAI, OpenRouter (if used), Clerk (publishable+secret), Stripe (secret+webhook), RevenueCat, Sentry DSN.</li><li><strong>Webhook signing secrets</strong> rotated + endpoints healthy: Clerk, Stripe.</li><li><strong>Certificates + signing</strong>: Apple signing cert (ANNUAL), Electron mac/Windows code-signing. Never let them expire.</li><li><strong>Domain + DNS</strong>: renew 2ndbrainware.com (Namecheap); keep MX (email) + A/CNAME (update server) records correct.</li><li><strong>Quota / rate-limit monitoring</strong>: Gemini, OpenAI, AssemblyAI, KV, email send rate.</li><li><strong>Health checks</strong>: watch the storage-health cron alerts; add checks for other critical paths over time.</li><li><strong>SDK / version updates</strong>: Genkit, Capacitor+iOS SDK, Electron, Next.js — verify compatibility on upgrade.</li><li><strong>Compliance</strong>: Apple guideline 3.1.1 (IAP for subs), export-compliance per iOS build, AI-provider data terms, privacy policy accuracy.</li><li><strong>Pre-public-launch swaps</strong>: Clerk dev→prod keys + re-issue links; reconnect Upstash KV; wire Stripe/RevenueCat SKUs.</li></ul>",
+      "type": "text",
+      "parentId": "d7d1cdbc-8e30-47c8-8647-45db78d59c3e",
+      "childrenIds": [],
+      "prefix": ""
+    }
+  },
+  "isGuide": false,
+  "lastModified": "2026-07-06T23:04:47.437208",
+  "_fileName": "IdeaM -- Dependencies.idm"
+}

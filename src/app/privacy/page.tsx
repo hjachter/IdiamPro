@@ -14,10 +14,10 @@ export default function PrivacyPolicyPage() {
       <div className="max-w-3xl mx-auto px-6 py-12">
         <a
           href="/"
-          aria-label="IdiamPro home"
+          aria-label="IdeaM home"
           className="inline-block mb-8 text-xl font-bold text-primary hover:opacity-80 transition-opacity cursor-pointer"
         >
-          IdiamPro
+          IdeaM
         </a>
         <h1 className="text-3xl font-bold mb-2">Privacy Policy</h1>
         <p className="text-sm text-muted-foreground mb-8">Last updated: March 22, 2026</p>
@@ -26,7 +26,7 @@ export default function PrivacyPolicyPage() {
           <section>
             <h2 className="text-xl font-semibold mb-3">Overview</h2>
             <p>
-              IdiamPro is a professional outlining application. We are committed to protecting your privacy.
+              IdeaM is a professional outlining application. We are committed to protecting your privacy.
               Your outlines and documents are stored locally on your device and are never uploaded to our servers
               for storage. This policy explains what data is processed when you use AI-powered features.
             </p>
@@ -35,7 +35,7 @@ export default function PrivacyPolicyPage() {
           <section>
             <h2 className="text-xl font-semibold mb-3">Data Storage</h2>
             <p>
-              All your outlines, documents, and settings are stored locally on your device. IdiamPro does not
+              All your outlines, documents, and settings are stored locally on your device. IdeaM does not
               maintain user accounts, cloud storage, or any server-side database of your content. When you use
               the desktop app, outlines are saved as <code>.idm</code> files in your chosen folder. On iOS,
               data is stored within the app&apos;s sandboxed storage.
@@ -94,7 +94,7 @@ export default function PrivacyPolicyPage() {
           <section>
             <h2 className="text-xl font-semibold mb-3">Microphone Access</h2>
             <p>
-              IdiamPro requests microphone access only when you use the audio recording feature for
+              IdeaM requests microphone access only when you use the audio recording feature for
               transcription. Audio is recorded locally and sent to AssemblyAI only when you explicitly
               choose to transcribe it. Microphone access can be revoked at any time through your device settings.
             </p>
@@ -103,7 +103,7 @@ export default function PrivacyPolicyPage() {
           <section>
             <h2 className="text-xl font-semibold mb-3">Consent and Control</h2>
             <p>
-              Before using any AI feature for the first time, IdiamPro displays a consent dialog explaining
+              Before using any AI feature for the first time, IdeaM displays a consent dialog explaining
               which services will process your data. You can decline and continue using all non-AI features.
               Consent can be revoked at any time in Settings, which will disable AI features until consent
               is granted again.
@@ -113,7 +113,7 @@ export default function PrivacyPolicyPage() {
           <section>
             <h2 className="text-xl font-semibold mb-3">Children&apos;s Privacy</h2>
             <p>
-              IdiamPro is not directed at children under 13. We do not knowingly collect personal
+              IdeaM is not directed at children under 13. We do not knowingly collect personal
               information from children.
             </p>
           </section>
@@ -136,7 +136,7 @@ export default function PrivacyPolicyPage() {
         </div>
 
         <div className="mt-12 pt-6 border-t text-center">
-          <a href="/app" className="text-sm text-blue-500 hover:underline">Back to IdiamPro</a>
+          <a href="/app" className="text-sm text-blue-500 hover:underline">Back to IdeaM</a>
         </div>
       </div>
     </div>

@@ -50,7 +50,7 @@ export class EvernoteExporter extends BaseExporter {
 
     const enex = `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE en-export SYSTEM "http://xml.evernote.com/pub/evernote-export4.dtd">
-<en-export export-date="${date}" application="IdiamPro">
+<en-export export-date="${date}" application="IdeaM">
   <note>
     <title>${this.escapeXml(title)}</title>
     <content><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
@@ -61,7 +61,7 @@ ${noteContent}
     <created>${date}</created>
     <updated>${date}</updated>
     <note-attributes>
-      <source>IdiamPro</source>
+      <source>IdeaM</source>
     </note-attributes>
   </note>
 </en-export>`;

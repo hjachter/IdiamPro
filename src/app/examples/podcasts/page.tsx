@@ -2,7 +2,7 @@
 
 // PODCAST example gallery — podcasts are audio, so we present the capability
 // cleanly: the in-app tool that offers Podcast, plus the real narration voices
-// IdiamPro uses. We do NOT fabricate a podcast; the voice clips below are the
+// IdeaM uses. We do NOT fabricate a podcast; the voice clips below are the
 // genuine narration-voice previews shipped with the app.
 
 import React from 'react';
@@ -32,7 +32,7 @@ export default function PodcastsExamplePage() {
       title={<>Turn any outline into a narrated podcast.</>}
       subtitle={
         <>
-          Pick a section, and IdiamPro writes and voices a natural two-host
+          Pick a section, and IdeaM writes and voices a natural two-host
           conversation about it — a real podcast episode, generated in a click.
         </>
       }
@@ -42,8 +42,8 @@ export default function PodcastsExamplePage() {
         <div className="lg:col-span-3">
           <BrowserFrame
             src="/screenshots/outputs.png"
-            alt="IdiamPro's output menu showing the Podcast tool"
-            label="IdiamPro — What you can make"
+            alt="IdeaM's output menu showing the Podcast tool"
+            label="IdeaM — What you can make"
           />
         </div>
         <div className="lg:col-span-2">
@@ -58,7 +58,7 @@ export default function PodcastsExamplePage() {
             <li className="flex gap-3">
               <Users className="w-5 h-5 text-[#1e40af] shrink-0 mt-0.5" />
               <span className="text-[#2b3a5c]">
-                <b>From any section.</b> Point it at a chapter or the whole outline — IdiamPro scripts the conversation for you.
+                <b>From any section.</b> Point it at a chapter or the whole outline — IdeaM scripts the conversation for you.
               </span>
             </li>
             <li className="flex gap-3">

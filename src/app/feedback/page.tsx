@@ -263,10 +263,10 @@ function FeedbackPageInner() {
       <div className="max-w-3xl mx-auto">
         <a
           href="/"
-          aria-label="IdiamPro home"
+          aria-label="IdeaM home"
           className="inline-block mb-6 text-xl font-bold text-foreground hover:opacity-80 transition-opacity cursor-pointer"
         >
-          IdiamPro
+          IdeaM
         </a>
         <header className="mb-8 text-center">
           <div className="inline-flex h-12 w-12 rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 items-center justify-center mb-4">
@@ -334,7 +334,7 @@ function FeedbackPageInner() {
           <CardContent className="space-y-6">
             <div>
               <label className="text-sm font-medium block mb-2">
-                How likely are you to recommend IdiamPro to a friend or colleague?
+                How likely are you to recommend IdeaM to a friend or colleague?
               </label>
               <input
                 type="range"
@@ -430,7 +430,7 @@ function FeedbackPageInner() {
           <CardContent className="space-y-4">
             <div>
               <label className="text-sm font-medium block mb-1" htmlFor="fb-best">
-                What's the single best thing about IdiamPro for you?
+                What's the single best thing about IdeaM for you?
               </label>
               <textarea
                 id="fb-best"
@@ -453,7 +453,7 @@ function FeedbackPageInner() {
                 value={form.biggestWish}
                 onChange={(e) => setForm((s) => ({ ...s, biggestWish: e.target.value }))}
                 className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400/40"
-                placeholder="Where IdiamPro got in your way, or didn't show up."
+                placeholder="Where IdeaM got in your way, or didn't show up."
               />
             </div>
           </CardContent>
@@ -468,7 +468,7 @@ function FeedbackPageInner() {
           <CardContent className="space-y-4">
             <div>
               <label className="text-sm font-medium block mb-1" htmlFor="fb-before">
-                What were you using for outlining or note-taking before IdiamPro?
+                What were you using for outlining or note-taking before IdeaM?
               </label>
               <input
                 id="fb-before"
@@ -496,7 +496,7 @@ function FeedbackPageInner() {
             </div>
             <div>
               <label className="text-sm font-medium block mb-1" htmlFor="fb-usage">
-                How often have you opened IdiamPro this week?
+                How often have you opened IdeaM this week?
               </label>
               <select
                 id="fb-usage"
@@ -530,7 +530,7 @@ function FeedbackPageInner() {
           <CardContent className="space-y-4">
             <div>
               <label className="text-sm font-medium block mb-2">
-                Can we quote you on the IdiamPro website?
+                Can we quote you on the IdeaM website?
               </label>
               <div className="flex gap-3">
                 <Button

@@ -26,7 +26,7 @@ export default function GlobalError({
               Something went wrong
             </h1>
             <p style={{ fontSize: '1rem', color: '#a1a1aa', marginBottom: '2rem', lineHeight: 1.5 }}>
-              IdiamPro hit an unexpected error and couldn't recover. Your outlines are safe — they're stored locally. You can try again, or reload the app.
+              IdeaM hit an unexpected error and couldn't recover. Your outlines are safe — they're stored locally. You can try again, or reload the app.
             </p>
             <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
               <button

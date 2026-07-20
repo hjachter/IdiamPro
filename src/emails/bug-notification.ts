@@ -89,7 +89,7 @@ ${bug.context ? `\nWhat they were trying to do:\n${bug.context}\n` : ''}
 Open admin: ${adminUrl}`;
 
   return wrapEmail({
-    subject: `[IdiamPro Bug] (${severityLabel}) ${preview}`,
+    subject: `[IdeaM Bug] (${severityLabel}) ${preview}`,
     preheader: `New bug report from ${bug.userEmail ?? 'a beta user'}.`,
     bodyHtml,
     bodyText,

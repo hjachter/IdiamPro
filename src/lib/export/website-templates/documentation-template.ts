@@ -48,7 +48,7 @@ ${sidebarGroups.map(group => this.renderSidebarGroup(group)).join('\n')}
 
       <div class="sidebar-footer">
         <a href="#getting-started" class="sidebar-link">📖 Back to Top</a>
-        <span class="sidebar-link" style="color:var(--text-muted);font-size:0.75rem;opacity:0.7">Generated with IdiamPro</span>
+        <span class="sidebar-link" style="color:var(--text-muted);font-size:0.75rem;opacity:0.7">Generated with IdeaM</span>
       </div>
     </aside>
 
@@ -112,7 +112,7 @@ ${this.renderContentTree(sections, 0, options)}
                 <span>${sections.length} chapters · ${totalTopics}+ topics</span>
               </div>
             </div>
-            <p class="footer-credit">Generated with <a href="https://2ndbrainware.com">IdiamPro</a></p>
+            <p class="footer-credit">Generated with <a href="https://2ndbrainware.com">IdeaM</a></p>
           </footer>
         </article>
 

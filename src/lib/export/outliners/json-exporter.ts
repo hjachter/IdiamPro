@@ -5,7 +5,7 @@ import type { ExportOptions, ExportResult } from '../types';
 import { BaseExporter } from '../base-exporter';
 
 /**
- * Export outline to native IdiamPro JSON (.idm) format
+ * Export outline to native IdeaM JSON (.idm) format
  * Re-exports the outline in its native format for sharing/backup
  */
 export class JsonExporter extends BaseExporter {

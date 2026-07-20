@@ -357,7 +357,7 @@ export default function MobileSidebarSheet({
         {/* Header with title */}
         <SheetHeader className="flex-shrink-0 px-4 py-2 border-b border-border/60">
           <div className="flex items-center justify-between">
-            <SheetTitle className="font-semibold tracking-tight">IdiamPro</SheetTitle>
+            <SheetTitle className="font-semibold tracking-tight">IdeaM</SheetTitle>
           </div>
         </SheetHeader>
 

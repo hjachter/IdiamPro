@@ -36,7 +36,7 @@ export class JsonTreeExporter extends BaseExporter {
     const result = {
       name: outline.name,
       exportedAt: new Date().toISOString(),
-      source: 'IdiamPro',
+      source: 'IdeaM',
       root: tree,
     };
 

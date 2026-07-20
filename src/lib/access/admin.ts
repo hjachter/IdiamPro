@@ -2,7 +2,7 @@
  * Server-enforced admin authorization.
  *
  * This module is the single source of truth for "is the current request
- * made by an IdiamPro admin?" It replaces the old v1 stopgap that trusted
+ * made by an IdeaM admin?" It replaces the old v1 stopgap that trusted
  * a client-set `localStorage.isAdmin` flag (which anyone could flip in
  * DevTools). Admin status is now decided ENTIRELY on the server from:
  *

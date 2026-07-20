@@ -32,7 +32,7 @@ export default function Error({
         </div>
         <h1 className="text-2xl font-bold mb-3">Something went wrong on this page</h1>
         <p className="text-muted-foreground mb-6 leading-relaxed">
-          IdiamPro hit an unexpected error. Your outlines are saved locally and are not affected. You can try again, or go back home.
+          IdeaM hit an unexpected error. Your outlines are saved locally and are not affected. You can try again, or go back home.
         </p>
         <div className="flex gap-3 justify-center flex-wrap">
           <button
