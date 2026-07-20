@@ -574,14 +574,6 @@ export default function MarketingPage() {
                       <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>
                   </SignedIn>
-                  {/* Zero-friction path — try the live outliner in-browser, no signup. */}
-                  <Link
-                    href="/try"
-                    className="inline-flex items-center gap-2 rounded-full border border-blue-600/40 bg-white px-5 py-3 text-sm font-semibold text-[#1e40af] hover:bg-blue-600/10 hover:border-blue-600/60 transition-colors shadow-sm"
-                  >
-                    <Play className="w-4 h-4" />
-                    Try it live — no signup
-                  </Link>
                 </div>
 
 

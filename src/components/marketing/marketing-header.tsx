@@ -19,7 +19,6 @@ const launchApp = () => {
 };
 
 const NAV_LINKS = [
-  { href: '/try', label: 'Try it live' },
   { href: '/features', label: 'Features' },
   { href: '/use-cases', label: 'Use Cases' },
   { href: '/pricing', label: 'Pricing' },
