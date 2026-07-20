@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, FileText, Crown, Loader2, Brain, MessageSquare, Languages, WandSparkles, Wand2, Image as ImageIcon } from 'lucide-react';
+import { Sparkles, FileText, Crown, Loader2, Brain, MessageSquare, Languages, WandSparkles, Wand2, Image as ImageIcon, LayoutGrid } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useAI, useAIFeature } from '@/contexts/ai-context';
 import AiGenerateDialog from './ai-generate-dialog';
@@ -30,6 +30,7 @@ interface AIMenuProps {
   onOpenReformat?: () => void;
   onOpenTransformOutline?: () => void;
   onOpenImageToOutline?: () => void;
+  onOpenApplications?: () => void;
   onAskAI?: () => void;
   hasSelectedNode?: boolean;
   selectedNodeName?: string;
@@ -45,6 +46,7 @@ export default function AIMenu({
   onOpenReformat,
   onOpenTransformOutline,
   onOpenImageToOutline,
+  onOpenApplications,
   onAskAI,
   hasSelectedNode,
   selectedNodeName,
@@ -113,6 +115,22 @@ export default function AIMenu({
           </Badge>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+
+        {onOpenApplications && (
+          <>
+            <DropdownMenuItem
+              onSelect={() => {
+                setMenuOpen(false);
+                onOpenApplications?.();
+              }}
+              className="cursor-pointer"
+            >
+              <LayoutGrid className="mr-2 h-4 w-4 text-amber-500 dark:text-amber-400" />
+              <span className="font-semibold">Wizards</span>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+          </>
+        )}
 
         {onAskAI && (
           <DropdownMenuItem

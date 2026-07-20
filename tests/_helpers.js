@@ -35,9 +35,13 @@ async function dismissWelcomeShowcase(page, { timeoutMs = 4000 } = {}) {
       .catch(() => false);
 
     if (visible) {
-      const skip = page.locator('[data-testid="welcome-showcase-skip"]');
-      if ((await skip.count().catch(() => 0)) > 0) {
-        await skip.first().click().catch(() => {});
+      // The persistent opt-out button (renamed 2026-07-16 from "Skip" to
+      // "Don't show this again"); fall back to the older testid, then Escape.
+      const optOut = page.locator(
+        '[data-testid="welcome-showcase-dont-show"], [data-testid="welcome-showcase-skip"]',
+      );
+      if ((await optOut.count().catch(() => 0)) > 0) {
+        await optOut.first().click().catch(() => {});
       } else {
         await page.keyboard.press('Escape').catch(() => {});
       }

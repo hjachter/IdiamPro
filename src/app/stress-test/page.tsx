@@ -364,16 +364,16 @@ export default function StressTestPage() {
         {results.length > 0 && (
           <div className="space-y-4">
             <h2 className="text-lg font-semibold flex items-center gap-2">
-              <BarChart3 className="w-5 h-5 text-emerald-400" />
+              <BarChart3 className="w-5 h-5 text-blue-400" />
               Test Results
             </h2>
 
             {/* Summary */}
             {!isRunning && maxSuccessful > 0 && (
-              <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-6 mb-6">
+              <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-6 mb-6">
                 <div className="flex items-center gap-3 mb-2">
-                  <CheckCircle2 className="w-6 h-6 text-emerald-400" />
-                  <span className="text-xl font-bold text-emerald-400">
+                  <CheckCircle2 className="w-6 h-6 text-blue-400" />
+                  <span className="text-xl font-bold text-blue-400">
                     Maximum Tested: {maxSuccessful.toLocaleString()} nodes
                   </span>
                 </div>
@@ -407,7 +407,7 @@ export default function StressTestPage() {
                       </td>
                       <td className="px-4 py-3">
                         {result.passed ? (
-                          <span className="flex items-center gap-1 text-emerald-400">
+                          <span className="flex items-center gap-1 text-blue-400">
                             <CheckCircle2 className="w-4 h-4" /> Pass
                           </span>
                         ) : (

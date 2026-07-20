@@ -237,8 +237,20 @@ export async function generateOutlineAction(
   tone: AITone = 'professional',
   level: AILevel = 'college',
   userApiKey?: string | null,
+  useLocal: boolean = false,
 ): Promise<string> {
   try {
+    // Cost-free local path: route straight to on-device Ollama (Gemma). Used
+    // when the user picked the Local provider — never bills a hosted key.
+    if (useLocal) {
+      const md = await generateWithOllama({
+        system:
+          'You are an expert author creating a structured book outline. Output ONLY GitHub-flavored markdown: a single "# Title" line, then "## Chapter" headings, then "### Section" headings under each chapter. No prose outside headings.',
+        prompt: `Create a detailed book outline for the topic: "${topic}".\nTone: ${tone}. Depth: ${depth}. Audience level: ${level}.\nUse "# ${topic}" as the title, 4-6 "## " chapters, and 2-4 "### " sections under each chapter. Return ONLY the markdown outline, nothing else.`,
+        maxTokens: 1500,
+      });
+      return md;
+    }
     const result = await generateOutlineFromTopic({ topic, depth, tone, level, userApiKey });
     return result.outline;
   } catch (error) {
@@ -414,7 +426,8 @@ export async function transformOutlineAction(
  * Supports both context-based and custom prompt-based generation
  */
 export async function generateContentForNodeAction(
-  context: NodeGenerationContext
+  context: NodeGenerationContext,
+  useLocal: boolean = false,
 ): Promise<string> {
   try {
     // Build context information
@@ -458,6 +471,17 @@ MERMAID SYNTAX RULES (critical - diagrams will fail if violated):
     } else {
       // Default context-based generation
       enhancedTitle = `${ancestorContext}${draftContext}${diagramInstructions}\n\nGenerate detailed content for: ${context.nodeName}`;
+    }
+
+    // Cost-free local path: on-device Ollama (Gemma). Never bills a hosted key.
+    if (useLocal) {
+      const content = await generateWithOllama({
+        system:
+          'You are an expert author writing a clear, engaging section of a book. Write 1-3 well-formed paragraphs. Do not repeat the section title as a heading.',
+        prompt: enhancedTitle,
+        maxTokens: 800,
+      });
+      return content;
     }
 
     const result = await expandNodeContent({ title: enhancedTitle });

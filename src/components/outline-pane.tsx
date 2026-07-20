@@ -126,6 +126,8 @@ interface OutlinePaneProps {
   onSearchOpenChange?: (open: boolean) => void;
   // AI content generation for children
   onGenerateContentForChildren?: (nodeId: string) => void;
+  // Applications (one-click automated workflows)
+  onOpenApplications?: () => void;
   // Command palette
   onOpenCommandPalette?: () => void;
   // Help chat
@@ -227,6 +229,7 @@ export default function OutlinePane({
   externalSearchOpen,
   onSearchOpenChange,
   onGenerateContentForChildren,
+  onOpenApplications,
   onOpenCommandPalette,
   onOpenHelp,
   onOpenKnowledgeChat,
@@ -1010,11 +1013,11 @@ export default function OutlinePane({
                     <Button
                         variant="outline"
                         size="icon"
-                        className="shrink-0 active:scale-95 active:bg-accent/30 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
+                        className="bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white border-transparent shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 shrink-0 active:scale-95 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
                         onClick={() => onOpenCommandPalette?.()}
                         aria-label="Quick Command — type what you want done (Cmd+K)"
                     >
-                        <MessageSquare className="h-4 w-4" />
+                        <MessageSquare className="h-4 w-4" strokeWidth={2.5} />
                     </Button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom">Quick Command (⌘K)</TooltipContent>
@@ -1156,11 +1159,11 @@ export default function OutlinePane({
                             size="icon"
                             onClick={onOpenBackup}
                             disabled={!currentOutline}
-                            className="shrink-0 active:scale-95 active:bg-accent/30 hidden sm:inline-flex min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
+                            className="bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white border-transparent shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 shrink-0 active:scale-95 hidden sm:inline-flex min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
                             aria-label="Backup — save a snapshot of this outline"
                             data-testid="backup-outline-button"
                         >
-                            <ShieldCheck className="h-4 w-4" />
+                            <ShieldCheck className="h-4 w-4" strokeWidth={2.5} />
                         </Button>
                     </TooltipTrigger>
                     <TooltipContent side="bottom">Backup outline</TooltipContent>
@@ -1180,10 +1183,10 @@ export default function OutlinePane({
                             <Button
                                 variant="outline"
                                 size="icon"
-                                className={cn("shrink-0 active:scale-95 active:bg-accent/30 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0", showHeaderOverflow ? "inline-flex" : "hidden")}
+                                className={cn("bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white border-transparent shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 shrink-0 active:scale-95 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0", showHeaderOverflow ? "inline-flex" : "hidden")}
                                 aria-label="More tools"
                             >
-                                <MoreHorizontal className="h-4 w-4" />
+                                <MoreHorizontal className="h-4 w-4" strokeWidth={2.5} />
                             </Button>
                         </DropdownMenuTrigger>
                     </TooltipTrigger>
@@ -1403,8 +1406,8 @@ export default function OutlinePane({
           <Tooltip>
             <TooltipTrigger asChild>
               <span tabIndex={-1} className="inline-flex">
-                <Button variant="outline" size="icon" onClick={() => onCreateNode()} disabled={!selectedNodeId || currentOutline?.isGuide} className="hover:bg-accent/20 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0" aria-label="Add sibling item">
-                  <Plus className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                <Button variant="outline" size="icon" onClick={() => onCreateNode()} disabled={!selectedNodeId || currentOutline?.isGuide} className="bg-gradient-to-b from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 shadow-blue-700/40 ring-1 ring-inset ring-blue-500/40 dark:from-blue-600 dark:to-blue-700 dark:hover:from-blue-500 dark:hover:to-blue-600 dark:shadow-blue-500/50 dark:ring-blue-300/70 text-white border-transparent shadow-md disabled:opacity-40 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0" aria-label="Add sibling item">
+                  <Plus className="h-4 w-4 text-white" strokeWidth={2.75} />
                 </Button>
               </span>
             </TooltipTrigger>
@@ -1419,7 +1422,7 @@ export default function OutlinePane({
                     variant="outline"
                     size="icon"
                     disabled={!selectedNodeId || isSelectedNodeRoot || currentOutline?.isGuide}
-                    className="text-destructive hover:bg-destructive/20 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
+                    className="text-destructive border-destructive/50 hover:bg-destructive/20 hover:border-destructive min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
                     aria-label="Delete item"
                     onClick={() => {
                       if (currentOutline?.isGuide) return;
@@ -1479,8 +1482,8 @@ export default function OutlinePane({
           <Tooltip>
             <TooltipTrigger asChild>
               <span tabIndex={-1} className="inline-flex">
-                <Button variant="outline" size="icon" onClick={() => setIsSearchOpen(true)} disabled={!currentOutline} className="hover:bg-accent/20 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0" aria-label="Search outline">
-                  <Search className="h-4 w-4 text-sky-600 dark:text-sky-400" />
+                <Button variant="outline" size="icon" onClick={() => setIsSearchOpen(true)} disabled={!currentOutline} className="bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 border-transparent text-white shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0" aria-label="Search outline">
+                  <Search className="h-4 w-4 text-white" strokeWidth={2.5} />
                 </Button>
               </span>
             </TooltipTrigger>
@@ -1498,13 +1501,13 @@ export default function OutlinePane({
                     onClick={onToggleFocusMode}
                     disabled={!selectedNodeId}
                     className={cn(
-                      "hover:bg-accent/20 active:scale-95 active:bg-accent/30 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0",
-                      isFocusMode && "bg-primary/15 ring-1 ring-primary/40 text-primary"
+                      "bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 border-transparent text-white shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 active:scale-95 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0",
+                      isFocusMode && "bg-gradient-to-b from-blue-600 to-blue-800 dark:from-blue-600 dark:to-blue-700 border-transparent text-white hover:from-blue-700 hover:to-blue-900 dark:hover:from-blue-500 dark:hover:to-blue-600 ring-2 ring-inset ring-blue-300/70 shadow-md shadow-blue-700/40"
                     )}
                     aria-pressed={isFocusMode}
                     aria-label="Focus Mode"
                   >
-                    <Focus className="h-4 w-4 text-sky-600 dark:text-sky-400" />
+                    <Focus className={cn("h-4 w-4", isFocusMode ? "text-white" : "text-white")} strokeWidth={2.5} />
                   </Button>
                 </span>
               </TooltipTrigger>
@@ -1528,10 +1531,10 @@ export default function OutlinePane({
                       variant="outline"
                       size="icon"
                       disabled={!currentOutline}
-                      className="hover:bg-accent/20 shrink-0 active:scale-95 active:bg-accent/30 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
+                      className="bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 border-transparent text-white shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 shrink-0 active:scale-95 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
                       aria-label="Show or hide all items"
                     >
-                      <ChevronsDownUp className="h-4 w-4 text-sky-600 dark:text-sky-400" />
+                      <ChevronsDownUp className="h-4 w-4 text-white" strokeWidth={2.5} />
                     </Button>
                   </DropdownMenuTrigger>
                 </span>
@@ -1575,10 +1578,10 @@ export default function OutlinePane({
                   size="icon"
                   disabled={!selectedNodeId}
                   onClick={() => selectedNodeId && onExportSubtree?.(selectedNodeId)}
-                  className="hover:bg-accent/20 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
+                  className="bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 border-transparent text-white shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
                   aria-label="Share suboutline"
                 >
-                  <svg className="h-4 w-4 text-blue-600 dark:text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <svg className="h-4 w-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     <path d="M12 3v12" />
                     <path d="m8 7 4-4 4 4" />
                     <rect x="4" y="11" width="16" height="11" rx="2" ry="2" fill="none" />
@@ -1604,10 +1607,10 @@ export default function OutlinePane({
                   <Button
                     variant="outline"
                     size="icon"
-                    className={cn("text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 active:scale-95 active:bg-accent/30 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0", showTier2Inline ? "inline-flex" : "hidden")}
+                    className={cn("bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 border-transparent text-white shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 active:scale-95 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0", showTier2Inline ? "inline-flex" : "hidden")}
                     aria-label="Second Brain menu"
                   >
-                    <Brain className="h-4 w-4" />
+                    <Brain className="h-4 w-4 text-white" strokeWidth={2.5} />
                   </Button>
                 </DropdownMenuTrigger>
               </TooltipTrigger>
@@ -1668,6 +1671,7 @@ export default function OutlinePane({
               onOpenReformat={currentOutline?.isGuide ? undefined : onOpenReformat}
               onOpenTransformOutline={currentOutline?.isGuide ? undefined : onOpenTransformOutline}
               onOpenImageToOutline={currentOutline?.isGuide ? undefined : onOpenImageToOutline}
+              onOpenApplications={onOpenApplications}
               onAskAI={onOpenCommandPalette}
               hasSelectedNode={!!selectedNodeId && !currentOutline?.isGuide}
               selectedNodeName={selectedNodeId && currentOutline?.nodes[selectedNodeId]?.name || ''}
@@ -1717,10 +1721,10 @@ export default function OutlinePane({
               size="icon"
               title="Settings"
               aria-label="Settings"
-              className={cn("hover:bg-accent/20 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0", showTier3Inline ? "inline-flex" : "hidden")}
+              className={cn("bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white border-transparent shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0", showTier3Inline ? "inline-flex" : "hidden")}
               data-settings-trigger
             >
-              <Settings className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+              <Settings className="h-4 w-4 text-white" strokeWidth={2.5} />
             </Button>
           </SettingsDialog>
 
@@ -1730,10 +1734,10 @@ export default function OutlinePane({
                 variant="outline"
                 size="icon"
                 onClick={onOpenHelp}
-                className={cn("hover:bg-red-500/20 border-red-500/30 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0", showTier3Inline ? "inline-flex" : "hidden")}
+                className={cn("bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white border-transparent shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0", showTier3Inline ? "inline-flex" : "hidden")}
                 aria-label="Help and support"
               >
-                <span aria-hidden="true" className="text-red-500 dark:text-red-400 font-bold text-lg leading-none">?</span>
+                <span aria-hidden="true" className="text-white font-bold text-lg leading-none">?</span>
               </Button>
             </TooltipTrigger>
             <TooltipContent>Help & Support</TooltipContent>
@@ -1751,11 +1755,11 @@ export default function OutlinePane({
                     <Button
                       variant="outline"
                       size="icon"
-                      className="hover:bg-accent/20 shrink-0 active:scale-95 active:bg-accent/30 inline-flex min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
+                      className="bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white border-transparent shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 shrink-0 active:scale-95 inline-flex min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
                       aria-label="More tools"
                       data-testid="outline-toolbar-more"
                     >
-                      <MoreHorizontal className="h-4 w-4" />
+                      <MoreHorizontal className="h-4 w-4" strokeWidth={2.5} />
                     </Button>
                   </DropdownMenuTrigger>
                 </TooltipTrigger>
@@ -1840,6 +1844,11 @@ export default function OutlinePane({
                         <Sparkles className="mr-2 h-4 w-4 text-violet-600 dark:text-violet-400" /> Smart Tools
                       </DropdownMenuSubTrigger>
                       <DropdownMenuSubContent className="w-56">
+                        {onOpenApplications && (
+                          <DropdownMenuItem onSelect={() => onOpenApplications?.()} className="cursor-pointer">
+                            <Sparkles className="mr-2 h-4 w-4 text-amber-500 dark:text-amber-400" /> <span className="font-semibold">Wizards</span>
+                          </DropdownMenuItem>
+                        )}
                         {onOpenCommandPalette && (
                           <DropdownMenuItem onSelect={() => onOpenCommandPalette?.()} className="cursor-pointer">
                             <Command className="mr-2 h-4 w-4" /> Quick Command

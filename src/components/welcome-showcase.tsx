@@ -6,9 +6,12 @@
  * (video, podcast, website, export) and inputs (import, AI + Second Brain).
  *
  * Design contract:
- *   - Shows once, then never again. A dedicated localStorage flag
- *     (`onboarding:welcomeShowcaseSeen`) records that the user has seen it.
- *     Skipping, closing, or "Get started" all mark it seen.
+ *   - A dedicated localStorage flag (`onboarding:welcomeShowcaseSeen`) records
+ *     the persistent opt-out. The obvious "Don't show this again" button and
+ *     "Get started" both set it, so the panel never returns on relaunch.
+ *     Closing via the X / Escape is a "just this once" close that does NOT
+ *     persist, so an accidental close can reappear next launch.
+ *   - Re-enableable from Settings via `resetWelcomeShowcase()`.
  *   - Suppressed entirely in Professional mode (reuses the Discovery hook's
  *     `isProfessional`), matching the two-tier opt-out philosophy.
  *   - NOT a multi-step tour — one panel, one dismiss. Non-intrusive.
@@ -72,6 +75,24 @@ function markShowcaseSeen(): void {
   if (typeof window === 'undefined') return;
   try {
     window.localStorage.setItem(SEEN_KEY, 'true');
+  } catch {
+    // private mode / disabled storage — ignore
+  }
+}
+
+/** Sibling first-run nudge flag, cleared alongside the showcase on reset. */
+const MAKE_SOMETHING_NUDGE_KEY = 'onboarding:makeSomethingNudgeFired';
+
+/**
+ * Re-arm the first-run welcome panel (and the paired "make something" nudge)
+ * so they show again for a user who opted out. Called from Settings so the
+ * persistent opt-out is always reversible.
+ */
+export function resetWelcomeShowcase(): void {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.removeItem(SEEN_KEY);
+    window.localStorage.removeItem(MAKE_SOMETHING_NUDGE_KEY);
   } catch {
     // private mode / disabled storage — ignore
   }
@@ -157,15 +178,24 @@ export function WelcomeShowcase() {
     }
   }, [ready, isProfessional, open]);
 
-  const dismiss = React.useCallback(() => {
+  // Persistent opt-out: mark seen so the panel never returns on relaunch,
+  // unless re-enabled from Settings.
+  const dismissForever = React.useCallback(() => {
     markShowcaseSeen();
+    setOpen(false);
+  }, []);
+
+  // Just-this-once close (X / Escape / overlay): closes the panel without
+  // marking it seen, so it can reappear on the next launch. The obvious,
+  // persistent opt-out lives on the "Don't show again" button below.
+  const closeOnce = React.useCallback(() => {
     setOpen(false);
   }, []);
 
   if (!ready || isProfessional) return null;
 
   return (
-    <Dialog open={open} onOpenChange={(next) => { if (!next) dismiss(); }}>
+    <Dialog open={open} onOpenChange={(next) => { if (!next) closeOnce(); }}>
       {/*
         Flex-column layout so the panel stays usable on windows SHORTER than
         the panel: the header and footer stay pinned while ONLY the card region
@@ -224,19 +254,20 @@ export function WelcomeShowcase() {
           </div>
         </div>
 
-        <DialogFooter className="shrink-0 gap-2 border-t border-border/40 p-6 pt-3 sm:gap-2">
+        <DialogFooter className="shrink-0 flex-col-reverse gap-2 border-t border-border/40 p-6 pt-3 sm:flex-row sm:items-center sm:justify-between sm:gap-2">
           <Button
             type="button"
             variant="ghost"
-            onClick={dismiss}
-            data-testid="welcome-showcase-skip"
+            onClick={dismissForever}
+            className="text-muted-foreground"
+            data-testid="welcome-showcase-dont-show"
           >
-            Skip
+            Don&rsquo;t show this again
           </Button>
           <Button
             type="button"
             variant="default"
-            onClick={dismiss}
+            onClick={dismissForever}
             data-testid="welcome-showcase-start"
           >
             Get started

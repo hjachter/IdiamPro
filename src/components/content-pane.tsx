@@ -2260,8 +2260,8 @@ export default function ContentPane({
                   </Button>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button className="bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600">
-                        <Check className="mr-2 h-4 w-4" />
+                      <Button className="bg-gradient-to-b from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 shadow-blue-700/40 ring-1 ring-inset ring-blue-500/40 dark:from-blue-600 dark:to-blue-700 dark:hover:from-blue-500 dark:hover:to-blue-600 dark:shadow-blue-500/50 dark:ring-blue-300/70 text-white shadow-sm font-semibold">
+                        <Check className="mr-2 h-4 w-4" strokeWidth={2.5} />
                         Save to Node
                         <ChevronDown className="ml-2 h-3 w-3" />
                       </Button>
@@ -2313,7 +2313,7 @@ export default function ContentPane({
                 <Button
                   onClick={handleGenerateFromPrompt}
                   disabled={!customPrompt.trim() || isGenerating}
-                  className="bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600"
+                  className="bg-gradient-to-b from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 shadow-blue-700/40 ring-1 ring-inset ring-blue-500/40 dark:from-blue-600 dark:to-blue-700 dark:hover:from-blue-500 dark:hover:to-blue-600 dark:shadow-blue-500/50 dark:ring-blue-300/70 text-white shadow-sm font-semibold"
                 >
                   {isGenerating ? (
                     <>
@@ -2456,7 +2456,7 @@ export default function ContentPane({
             <Button
               onClick={handleGenerateImage}
               disabled={(imageVisualType !== 'mindmap' && imageVisualType !== 'flowchart' && !imagePrompt.trim()) || isGeneratingImage}
-              className="bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600"
+              className="bg-gradient-to-b from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 shadow-blue-700/40 ring-1 ring-inset ring-blue-500/40 dark:from-blue-600 dark:to-blue-700 dark:hover:from-blue-500 dark:hover:to-blue-600 dark:shadow-blue-500/50 dark:ring-blue-300/70 text-white shadow-sm font-semibold"
             >
               {isGeneratingImage ? (
                 <>
@@ -2548,9 +2548,9 @@ export default function ContentPane({
                     onClick={() => editor.chain().focus().undo().run()}
                     disabled={!editor.can().undo()}
                     aria-label="Undo"
-                    className="active:scale-95 active:bg-accent/30"
+                    className="bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white border-transparent shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 active:scale-95"
                   >
-                    <Undo className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                    <Undo className="h-4 w-4 text-white" strokeWidth={2.5} />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>{isMobile ? 'Undo' : 'Undo (⌘Z)'}</TooltipContent>
@@ -2564,9 +2564,9 @@ export default function ContentPane({
                     onClick={() => editor.chain().focus().redo().run()}
                     disabled={!editor.can().redo()}
                     aria-label="Redo"
-                    className="active:scale-95 active:bg-accent/30"
+                    className="bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white border-transparent shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 active:scale-95"
                   >
-                    <Redo className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                    <Redo className="h-4 w-4 text-white" strokeWidth={2.5} />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>{isMobile ? 'Redo' : 'Redo (⌘⇧Z)'}</TooltipContent>
@@ -2583,9 +2583,9 @@ export default function ContentPane({
                       size="icon"
                       onClick={() => editor.chain().focus().toggleBulletList().run()}
                       aria-label="Bullet list"
-                      className={`active:scale-95 active:bg-accent/30 ${editor.isActive('bulletList') ? 'bg-accent' : ''}`}
+                      className={`bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white border-transparent shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 active:scale-95 ${editor.isActive('bulletList') ? 'ring-2 ring-white/80' : ''}`}
                     >
-                      <List className="h-4 w-4 text-sky-600 dark:text-sky-400" />
+                      <List className="h-4 w-4 text-white" strokeWidth={2.5} />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>Bullet list</TooltipContent>
@@ -2598,9 +2598,9 @@ export default function ContentPane({
                       size="icon"
                       onClick={() => editor.chain().focus().toggleOrderedList().run()}
                       aria-label="Numbered list"
-                      className={`active:scale-95 active:bg-accent/30 ${editor.isActive('orderedList') ? 'bg-accent' : ''}`}
+                      className={`bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white border-transparent shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 active:scale-95 ${editor.isActive('orderedList') ? 'ring-2 ring-white/80' : ''}`}
                     >
-                      <ListOrdered className="h-4 w-4 text-sky-600 dark:text-sky-400" />
+                      <ListOrdered className="h-4 w-4 text-white" strokeWidth={2.5} />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>Numbered list</TooltipContent>
@@ -2613,9 +2613,9 @@ export default function ContentPane({
                       size="icon"
                       onClick={() => editor.chain().focus().toggleTaskList().run()}
                       aria-label="Checklist"
-                      className={`active:scale-95 active:bg-accent/30 ${editor.isActive('taskList') ? 'bg-accent' : ''}`}
+                      className={`bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white border-transparent shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 active:scale-95 ${editor.isActive('taskList') ? 'ring-2 ring-white/80' : ''}`}
                     >
-                      <ListChecks className="h-4 w-4 text-sky-600 dark:text-sky-400" />
+                      <ListChecks className="h-4 w-4 text-white" strokeWidth={2.5} />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>Checklist</TooltipContent>
@@ -2633,8 +2633,8 @@ export default function ContentPane({
             <DropdownMenu>
               <TooltipTrigger asChild>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="icon" aria-label="Insert app">
-                    <LayoutGrid className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                  <Button variant="outline" size="icon" aria-label="Insert app" className="bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white border-transparent shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 active:scale-95">
+                    <LayoutGrid className="h-4 w-4 text-white" strokeWidth={2.5} />
                   </Button>
                 </DropdownMenuTrigger>
               </TooltipTrigger>
@@ -2689,8 +2689,8 @@ export default function ContentPane({
           {/* Import File Button */}
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="outline" size="icon" onClick={handleImportFile} aria-label="Insert file">
-                <Paperclip className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+              <Button variant="outline" size="icon" onClick={handleImportFile} aria-label="Insert file" className="bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white border-transparent shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 active:scale-95">
+                <Paperclip className="h-4 w-4 text-white" strokeWidth={2.5} />
               </Button>
             </TooltipTrigger>
             <TooltipContent>Insert File</TooltipContent>
@@ -2796,9 +2796,9 @@ export default function ContentPane({
                   size="sm"
                   onClick={() => setPromptDialogOpen(true)}
                   disabled={isGenerating || isLoadingAI}
-                  className="text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 hover:text-emerald-800 dark:hover:bg-emerald-950 dark:hover:text-emerald-300 px-2"
+                  className="bg-gradient-to-b from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 shadow-blue-700/40 ring-1 ring-inset ring-blue-500/40 dark:from-blue-600 dark:to-blue-700 dark:hover:from-blue-500 dark:hover:to-blue-600 dark:shadow-blue-500/50 dark:ring-blue-300/70 text-white border-transparent shadow-sm font-semibold disabled:opacity-40 px-2"
                 >
-                  <MessageSquare className="h-4 w-4" />
+                  <MessageSquare className="h-4 w-4" strokeWidth={2.5} />
                   <span className="ml-1.5 text-xs hidden sm:inline">Expand</span>
                 </Button>
               </TooltipTrigger>
@@ -2816,12 +2816,12 @@ export default function ContentPane({
                     size="sm"
                     onClick={() => handleGenerateContent()}
                     disabled={isGenerating || isLoadingAI || !aiContentEnabled}
-                    className="text-primary hover:bg-primary/20 rounded-r-none border-r-0 px-2"
+                    className="bg-gradient-to-b from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 shadow-blue-700/40 ring-1 ring-inset ring-blue-500/40 dark:from-blue-600 dark:to-blue-700 dark:hover:from-blue-500 dark:hover:to-blue-600 dark:shadow-blue-500/50 dark:ring-blue-300/70 text-white border-transparent shadow-sm font-semibold disabled:opacity-40 rounded-r-none px-2"
                   >
                     {(isGenerating || isLoadingAI) ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
-                      <Sparkles className="h-4 w-4" />
+                      <Sparkles className="h-4 w-4" strokeWidth={2.5} />
                     )}
                     <span className="ml-1.5 text-xs hidden sm:inline">
                       {generateSource === 'context' ? 'Generate' : 'Prompt'}
@@ -2832,9 +2832,9 @@ export default function ContentPane({
                       variant="outline"
                       size="sm"
                       disabled={isGenerating || isLoadingAI || !aiContentEnabled}
-                      className="text-primary hover:bg-primary/20 rounded-l-none px-1"
+                      className="bg-gradient-to-b from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 shadow-blue-700/40 ring-1 ring-inset ring-blue-500/40 dark:from-blue-600 dark:to-blue-700 dark:hover:from-blue-500 dark:hover:to-blue-600 dark:shadow-blue-500/50 dark:ring-blue-300/70 text-white border-transparent border-l border-l-blue-300/50 shadow-sm disabled:opacity-40 rounded-l-none px-1"
                     >
-                      <ChevronDown className="h-3 w-3" />
+                      <ChevronDown className="h-3 w-3" strokeWidth={2.5} />
                     </Button>
                   </DropdownMenuTrigger>
                 </div>
@@ -2882,12 +2882,12 @@ export default function ContentPane({
                 size="sm"
                 onClick={handleOpenImageDialog}
                 disabled={isGeneratingImage || isGuide}
-                className="text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 hover:text-emerald-800 dark:hover:bg-emerald-950 dark:hover:text-emerald-300 px-2"
+                className="bg-gradient-to-b from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 shadow-blue-700/40 ring-1 ring-inset ring-blue-500/40 dark:from-blue-600 dark:to-blue-700 dark:hover:from-blue-500 dark:hover:to-blue-600 dark:shadow-blue-500/50 dark:ring-blue-300/70 text-white border-transparent shadow-sm font-semibold disabled:opacity-40 px-2"
               >
                 {isGeneratingImage ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
-                  <ImagePlus className="h-4 w-4" />
+                  <ImagePlus className="h-4 w-4" strokeWidth={2.5} />
                 )}
                 <span className="ml-1.5 text-xs hidden sm:inline">Image</span>
               </Button>
@@ -2904,11 +2904,11 @@ export default function ContentPane({
                     <Button
                       variant="outline"
                       size="sm"
-                      className="text-green-600 dark:text-green-400 hover:bg-green-100 hover:text-green-800 dark:hover:bg-green-950 dark:hover:text-green-300 px-2"
+                      className="bg-gradient-to-b from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 shadow-blue-700/40 ring-1 ring-inset ring-blue-500/40 dark:from-blue-600 dark:to-blue-700 dark:hover:from-blue-500 dark:hover:to-blue-600 dark:shadow-blue-500/50 dark:ring-blue-300/70 text-white border-transparent shadow-sm font-semibold px-2"
                     >
-                      <Network className="h-4 w-4" />
+                      <Network className="h-4 w-4" strokeWidth={2.5} />
                       <span className="ml-1.5 text-xs hidden sm:inline">Diagram</span>
-                      <ChevronDown className="h-3 w-3 ml-1" />
+                      <ChevronDown className="h-3 w-3 ml-1" strokeWidth={2.5} />
                     </Button>
                   </DropdownMenuTrigger>
                 </TooltipTrigger>

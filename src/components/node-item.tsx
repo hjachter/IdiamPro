@@ -581,8 +581,8 @@ export default function NodeItem({
             className={cn(
                 "relative flex items-center rounded-lg transition-all duration-150 group touch-manipulation",
                 isSelected
-                  ? "bg-primary/15 shadow-sm ring-1 ring-primary/30"
-                  : "hover:bg-primary/5",
+                  ? "bg-blue-500/25 dark:bg-blue-500/30 shadow-sm ring-1 ring-blue-500/60 border-l-[3px] border-l-blue-600 dark:border-l-blue-400"
+                  : "hover:bg-blue-500/10",
                 dropPosition && "bg-accent/10",
                 isDragging && "opacity-50 bg-muted",
                 !isRoot && "cursor-grab active:cursor-grabbing",

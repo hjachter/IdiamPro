@@ -186,6 +186,13 @@ interface DiscoveryContextValue {
    *     hard-dismissed list and never fires again, regardless of Pro mode.
    */
   dismissHint: (id: string, options?: DismissOptions) => void;
+  /**
+   * Clear the persistent "hard-dismissed" set so every "Did You Know?" tip
+   * becomes eligible to fire again on its next trigger. Used by the Settings
+   * "bring back tips" control so a permanent opt-out is always reversible.
+   * Returns the number of tips that were re-enabled.
+   */
+  resetHardDismissed: () => number;
   /** Imperative trigger fire — same as the global `fireDiscovery`. */
   fireDiscovery: (trigger: DiscoveryTrigger) => void;
 }
@@ -305,6 +312,18 @@ export function DiscoveryProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  const resetHardDismissed = useCallback((): number => {
+    let count = 0;
+    setHardDismissed((prev) => {
+      count = prev.size;
+      if (count === 0) return prev;
+      const empty = new Set<string>();
+      storage.saveHardDismissed(empty);
+      return empty;
+    });
+    return count;
+  }, []);
+
   const setProfessional = useCallback((value: boolean) => {
     setIsProfessional(value);
     storage.saveProfessional(value);
@@ -339,9 +358,10 @@ export function DiscoveryProvider({ children }: { children: ReactNode }) {
       isProfessional,
       setProfessional,
       dismissHint,
+      resetHardDismissed,
       fireDiscovery,
     }),
-    [activeHints, isProfessional, setProfessional, dismissHint],
+    [activeHints, isProfessional, setProfessional, dismissHint, resetHardDismissed],
   );
 
   return (
@@ -361,6 +381,7 @@ export function useDiscovery(): DiscoveryContextValue {
       isProfessional: false,
       setProfessional: () => undefined,
       dismissHint: () => undefined,
+      resetHardDismissed: () => 0,
       fireDiscovery: () => undefined,
     };
   }

@@ -28,6 +28,7 @@ import { useAI } from '@/contexts/ai-context';
 import { useToast } from '@/hooks/use-toast';
 import { useDiscovery, fireDiscovery } from '@/hooks/use-discovery';
 import { openDataProtectionNotice } from './data-protection-notice';
+import { resetWelcomeShowcase } from './welcome-showcase';
 import { resetAllConfirmSuppressions } from '@/hooks/use-confirm-dialog';
 import { storeDirectoryHandle, getDirectoryHandle, verifyDirectoryPermission } from '@/lib/file-storage';
 import { isElectron, electronSelectDirectory, electronGetStoredDirectoryPath, checkOllamaInstallation, startOllama } from '@/lib/electron-storage';
@@ -85,7 +86,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
   // because Electron is excluded inside it.
   const isNativeIOS = isCapacitor();
   const { theme, setTheme } = useTheme();
-  const { isProfessional, setProfessional } = useDiscovery();
+  const { isProfessional, setProfessional, resetHardDismissed } = useDiscovery();
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
@@ -853,7 +854,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
 
           {/* Tips & Discovery Section */}
           <div className="space-y-3">
-            <h3 className="text-sm font-medium">Tips</h3>
+            <h3 className="text-sm font-medium">Tips &amp; messages</h3>
             <div className="flex items-center justify-between">
               <Label htmlFor="professional-mode" className="text-sm">
                 Professional mode
@@ -866,8 +867,39 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
               />
             </div>
             <p className="text-xs text-muted-foreground">
-              Suppress &ldquo;Did You Know?&rdquo; tips and all confirmation dialogs. Recommended once you know your way around.
+              Master quiet switch. Turn on to silence <strong>every</strong> unrequested message at once — the welcome panel, &ldquo;Did You Know?&rdquo; tips, confirmation dialogs, and other pop-ups. Recommended once you know your way around. Turn it off any time to bring them back.
             </p>
+
+            {/* Bring back tips & welcome (2026-07-16). Re-arms every per-surface
+                "Don't show again" opt-out — the first-run welcome panel, the
+                paired make-something nudge, and all permanently-dismissed
+                "Did You Know?" tips — so any persistent opt-out is reversible. */}
+            <div className="flex items-center justify-between pt-2">
+              <div>
+                <Label className="text-sm">Bring back tips &amp; welcome</Label>
+                <p className="text-xs text-muted-foreground">
+                  Shows the welcome panel and every tip you dismissed with &ldquo;Don&rsquo;t show again&rdquo;
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                data-testid="reset-tips-welcome"
+                onClick={() => {
+                  resetWelcomeShowcase();
+                  const tips = resetHardDismissed();
+                  toast({
+                    title: 'Tips & welcome restored',
+                    description:
+                      tips > 0
+                        ? `The welcome panel and ${tips} dismissed tip${tips === 1 ? '' : 's'} will show again.`
+                        : 'The welcome panel will show again next time.',
+                  });
+                }}
+              >
+                Restore
+              </Button>
+            </div>
           </div>
           </>)}
 
@@ -1263,7 +1295,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
                 Privacy Policy
               </a>
               <a
-                href="mailto:hjachter@gmail.com"
+                href="mailto:support@2ndbrainware.com"
                 className="flex items-center gap-2 text-sm text-sky-500 dark:text-sky-400 hover:underline"
               >
                 <Mail className="h-4 w-4" />

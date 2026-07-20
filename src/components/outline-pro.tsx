@@ -44,6 +44,8 @@ import SidebarPane from './sidebar-pane';
 import MobileSidebarSheet from './mobile-sidebar-sheet';
 import KeyboardShortcutsDialog, { useKeyboardShortcuts } from './keyboard-shortcuts-dialog';
 import BulkResearchDialog from './bulk-research-dialog';
+import ApplicationsDialog from './applications-dialog';
+import { APPLICATIONS, type ApplicationRecipe } from '@/lib/applications/registry';
 import LiveBooksDialog from './live-books-dialog';
 import TranslateDialog from './translate-dialog';
 import ReformatDialog from './reformat-dialog';
@@ -432,6 +434,8 @@ export default function OutlinePro() {
   // if a node is selected, operate on that subtree; otherwise, operate on
   // the whole current outline (root down).
   const [isTransformOutlineOpen, setIsTransformOutlineOpen] = useState(false);
+  const [isApplicationsOpen, setIsApplicationsOpen] = useState(false);
+  const [runningApplicationId, setRunningApplicationId] = useState<string | null>(null);
 
   // Reformat with AI dialog state — single-shot per-node content reformat
   // driven by a plain-language instruction. Different from Translate/LIVE
@@ -2904,6 +2908,133 @@ export default function OutlinePro() {
     }
   }, [toast, selectedNodeId, currentOutlineId, ensureAIQuota, aiUsageGate]);
 
+  // Wizards — one-click automated workflows. Currently the "Automatic Book"
+  // recipe is fully live: topic (+ guided depth/tone/audience answers) -> AI
+  // outline -> AI-written sections -> a brand-new standalone outline that
+  // becomes the current outline. The other recipes are previews and show a
+  // friendly coming-soon toast.
+  const handleRunApplication = useCallback(async (
+    recipe: ApplicationRecipe,
+    opts: { topic: string; depth?: AIDepth; tone?: AITone; level?: AILevel; customize?: string },
+  ) => {
+    if (recipe.status !== 'live') {
+      toast({
+        title: `${recipe.title} — coming soon`,
+        description: `${recipe.subtitle}. This Wizard is a preview in the prototype — the Automatic Book Wizard is fully live today. Try that one!`,
+      });
+      return;
+    }
+
+    if (!checkAiConsent(() => handleRunApplication(recipe, opts))) return;
+    // Reuse the tier gate so end-user runs are never billed to the dev key.
+    if (!aiUsageGate({ feature: 'wizardRun' })) return;
+
+    setRunningApplicationId(recipe.id);
+    setIsLoadingAI(true);
+    aiCancelledRef.current = false;
+
+    // Prefer the free/local on-device AI when the user picked the Local
+    // provider — a wizard run then costs nothing and bills no hosted key.
+    let useLocal = false;
+    try { useLocal = localStorage.getItem('aiProvider') === 'local'; } catch { /* default cloud */ }
+
+    try {
+      const topic = opts.topic.trim();
+      // Guided-dialogue answers thread straight into the real pipeline params.
+      const depth: AIDepth = opts.depth || 'standard';
+      const tone: AITone = opts.tone || 'professional';
+      const level: AILevel = opts.level || 'college';
+      const markdown = await generateOutlineAction(topic, depth, tone, level, getUserApiKey('gemini'), useLocal);
+      const { rootNodeId, nodes } = parseMarkdownToNodes(markdown, topic);
+
+      const newOutlineId = uuidv4();
+      const working: NodeMap = { ...nodes };
+      const newOutline: Outline = {
+        id: newOutlineId,
+        name: topic,
+        rootNodeId,
+        nodes: working,
+        lastModified: Date.now(),
+      };
+
+      // Add the book to the library RIGHT AWAY and make it current, then close
+      // the wizard — the user watches the structure appear and sections fill in
+      // live rather than staring at a spinner.
+      setOutlines(curr => [...curr, { ...newOutline, nodes: { ...working } }]);
+      setCurrentOutlineId(newOutlineId);
+      setSelectedNodeId(rootNodeId);
+      setIsApplicationsOpen(false);
+      toast({
+        title: 'Building your book',
+        description: `"${topic}" — the outline is ready and AI is writing the sections now.`,
+      });
+
+      // Fill content for chapters + their direct sections, capped at 8 nodes
+      // to keep the prototype runtime bounded.
+      const root = working[rootNodeId];
+      const targetIds: string[] = [];
+      for (const chId of root.childrenIds) {
+        targetIds.push(chId);
+        const ch = working[chId];
+        if (ch) for (const gcId of ch.childrenIds) targetIds.push(gcId);
+      }
+      const capped = targetIds.slice(0, 8);
+      const delay = (ms: number) => new Promise(r => setTimeout(r, ms));
+
+      for (let i = 0; i < capped.length; i++) {
+        if (aiCancelledRef.current) break;
+        const id = capped[i];
+        const node = working[id];
+        if (!node) continue;
+
+        // Build ancestorPath by walking parentId up to the root.
+        const ancestorPath: string[] = [];
+        let cursor: OutlineNode | undefined = working[id];
+        while (cursor) {
+          const pid: string | null = cursor.parentId;
+          if (!pid) break;
+          const parent: OutlineNode | undefined = working[pid];
+          if (!parent) break;
+          ancestorPath.unshift(parent.name);
+          cursor = parent;
+        }
+
+        try {
+          const content = await generateContentForNodeAction({
+            nodeId: id,
+            nodeName: node.name,
+            ancestorPath,
+            existingContent: '',
+            customPrompt: opts.customize?.trim() || undefined,
+            includeDiagram: false,
+          }, useLocal);
+          working[id] = { ...working[id], content };
+          // Push the freshly-written section into the live outline.
+          setOutlines(curr => curr.map(o =>
+            o.id === newOutlineId ? { ...o, nodes: { ...working } } : o,
+          ));
+        } catch {
+          // Non-fatal: leave this section empty and keep going.
+        }
+        if (i < capped.length - 1) await delay(1200);
+      }
+
+      toast({
+        title: 'Your book is ready',
+        description: `"${topic}" — a full outline with AI-written sections. It's now your current outline.`,
+      });
+    } catch (e) {
+      toast({
+        variant: 'destructive',
+        title: "Couldn't build that",
+        description: (e as Error).message || 'Something went wrong.',
+      });
+    } finally {
+      setRunningApplicationId(null);
+      setIsLoadingAI(false);
+    }
+  }, [toast, checkAiConsent, aiUsageGate, setOutlines]);
+
   // FIXED: handleExpandContent uses functional update pattern (legacy)
   const handleExpandContent = useCallback(async () => {
     if (!selectedNode) return;
@@ -4769,6 +4900,13 @@ export default function OutlinePro() {
           onUnmerge={handleUnmerge}
         />
 
+        <ApplicationsDialog
+          open={isApplicationsOpen}
+          onOpenChange={setIsApplicationsOpen}
+          onRun={handleRunApplication}
+          runningId={runningApplicationId}
+        />
+
         <LiveBooksDialog
           open={isLiveBooksOpen}
           onOpenChange={setIsLiveBooksOpen}
@@ -5089,6 +5227,7 @@ export default function OutlinePro() {
                 externalSearchOpen={isSearchOpen}
                 onSearchOpenChange={setIsSearchOpen}
                 onGenerateContentForChildren={handleGenerateContentForChildren}
+                onOpenApplications={() => { setTimeout(() => setIsApplicationsOpen(true), 60); }}
                 onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
                 onOpenHelp={() => setIsHelpChatOpen(true)}
                 onOpenKnowledgeChat={() => setIsKnowledgeChatOpen(true)}
@@ -5282,6 +5421,13 @@ export default function OutlinePro() {
         onOpenChange={setIsBulkResearchOpen}
         onSubmit={handleBulkResearch}
         currentOutlineName={currentOutline?.name}
+      />
+
+      <ApplicationsDialog
+        open={isApplicationsOpen}
+        onOpenChange={setIsApplicationsOpen}
+        onRun={handleRunApplication}
+        runningId={runningApplicationId}
       />
 
       <LiveBooksDialog
@@ -5622,6 +5768,7 @@ export default function OutlinePro() {
                 externalSearchOpen={isSearchOpen}
                 onSearchOpenChange={setIsSearchOpen}
                 onGenerateContentForChildren={handleGenerateContentForChildren}
+                onOpenApplications={() => { setTimeout(() => setIsApplicationsOpen(true), 60); }}
                 onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
                 onOpenHelp={() => setIsHelpChatOpen(true)}
                 onOpenKnowledgeChat={() => setIsKnowledgeChatOpen(true)}

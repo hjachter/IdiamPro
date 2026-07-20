@@ -223,8 +223,8 @@ function FeedbackPageInner() {
         <div className="max-w-2xl mx-auto">
           <Card>
             <CardHeader className="text-center">
-              <div className="mx-auto mb-4 h-12 w-12 rounded-full bg-emerald-100 flex items-center justify-center">
-                <CheckCircle2 className="h-7 w-7 text-emerald-600" />
+              <div className="mx-auto mb-4 h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
+                <CheckCircle2 className="h-7 w-7 text-blue-600" />
               </div>
               <CardTitle className="text-2xl">
                 Thanks — you've earned 1 year of Pro features.

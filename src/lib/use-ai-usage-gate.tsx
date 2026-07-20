@@ -65,7 +65,8 @@ export type AIFeatureKey =
   | 'imageToOutline'
   | 'youtubePackage'
   | 'videoGeneration'
-  | 'recordingTranscription';
+  | 'recordingTranscription'
+  | 'wizardRun';
 
 export interface AIGateOptions {
   /** Which feature is being invoked — used for the Pro-only check + toast. */
