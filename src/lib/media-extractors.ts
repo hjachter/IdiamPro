@@ -265,10 +265,10 @@ export async function extractTextFromImage(data: string): Promise<string> {
     // Use Gemini vision to extract text
     const { text } = await ai.generate({
       model: getDefaultGeminiModel('genkit'),
-      prompt: 'Extract all text from this image. Include any visible text, captions, labels, and annotations. If there are diagrams or charts, describe their key information as well.',
-      media: {
-        url: `data:${mimeType};base64,${base64Data}`,
-      },
+      prompt: [
+        { text: 'Extract all text from this image. Include any visible text, captions, labels, and annotations. If there are diagrams or charts, describe their key information as well.' },
+        { media: { url: `data:${mimeType};base64,${base64Data}` } },
+      ],
     });
 
     if (!text || text.trim().length === 0) {
@@ -313,10 +313,10 @@ export async function extractTextFromDocument(data: string, fileName: string): P
     // Use Gemini to extract text from document
     const { text } = await ai.generate({
       model: getDefaultGeminiModel('genkit'),
-      prompt: 'Extract all text content from this document. Preserve the structure and meaning. Include headings, paragraphs, bullet points, and any important textual information.',
-      media: {
-        url: `data:${mimeType};base64,${base64Data}`,
-      },
+      prompt: [
+        { text: 'Extract all text content from this document. Preserve the structure and meaning. Include headings, paragraphs, bullet points, and any important textual information.' },
+        { media: { url: `data:${mimeType};base64,${base64Data}` } },
+      ],
     });
 
     if (!text || text.trim().length === 0) {
@@ -362,10 +362,10 @@ export async function transcribeAudio(data: string, fileName?: string): Promise<
     // Use Gemini to transcribe audio
     const { text } = await ai.generate({
       model: getDefaultGeminiModel('genkit'),
-      prompt: 'Transcribe this audio file completely. Include all spoken words and important sounds or context.',
-      media: {
-        url: `data:${mimeType};base64,${base64Data}`,
-      },
+      prompt: [
+        { text: 'Transcribe this audio file completely. Include all spoken words and important sounds or context.' },
+        { media: { url: `data:${mimeType};base64,${base64Data}` } },
+      ],
     });
 
     if (!text || text.trim().length === 0) {
@@ -411,10 +411,10 @@ export async function transcribeVideo(data: string, fileName?: string): Promise<
     // Use Gemini to transcribe video
     const { text } = await ai.generate({
       model: getDefaultGeminiModel('genkit'),
-      prompt: 'Transcribe this video completely. Include all spoken words, describe any important visual information, and provide context about what is happening in the video.',
-      media: {
-        url: `data:${mimeType};base64,${base64Data}`,
-      },
+      prompt: [
+        { text: 'Transcribe this video completely. Include all spoken words, describe any important visual information, and provide context about what is happening in the video.' },
+        { media: { url: `data:${mimeType};base64,${base64Data}` } },
+      ],
     });
 
     if (!text || text.trim().length === 0) {

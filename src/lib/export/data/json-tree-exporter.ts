@@ -74,7 +74,7 @@ export class JsonTreeExporter extends BaseExporter {
       treeNode.content = this.stripHtml(node.content);
     }
 
-    if (includeMetadata && node.type && node.type !== 'default') {
+    if (includeMetadata && node.type && node.type !== 'document') {
       treeNode.type = node.type;
     }
 

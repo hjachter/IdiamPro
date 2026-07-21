@@ -512,8 +512,9 @@ export async function ingestExternalSourceAction(
       sourceDescription = 'Text input';
     } else if (source.type === 'youtube' && source.url) {
       // Extract YouTube transcript
-      extractedContent = await extractYoutubeTranscript(source.url);
-      sourceDescription = `YouTube Video: ${source.url}`;
+      const ytResult = await extractYoutubeTranscript(source.url);
+      extractedContent = ytResult.transcript;
+      sourceDescription = `YouTube Video: ${ytResult.title || source.url}`;
     } else if (source.type === 'pdf') {
       // Handle both PDF URL and file upload
       if (source.url) {
@@ -1476,6 +1477,80 @@ Return ONLY a JSON array of theme names, nothing else:
  * This is the key function that creates structure from atomic facts
  * For large sets (500+), uses two-pass theme-based organization
  */
+/**
+ * Convert a language model's freeform markdown outline into the strict
+ * dash-indent format that parseMarkdownToNodes turns into a real hierarchy.
+ *
+ * Local models (Gemma via Ollama) frequently ignore the requested
+ * "- Chapter: content" dash format and instead emit a mix of "#"/"###"
+ * headings, "**I. Chapter**" bold-numbered lines, and "*"/"+" bullets. The
+ * parser only builds a tree from "#" headings OR "- " bullets, so that dialect
+ * used to collapse a whole merge to ~1 node. This normalizer maps:
+ *   - the first heading            -> dropped (it is the document title; the
+ *                                     outline root already carries the name)
+ *   - any later "#…" heading       -> a top-level chapter ("- …")
+ *   - a "**bold**" line (no bullet) -> a top-level chapter ("- …")
+ *   - a "-"/"*"/"+" bullet          -> a nested subtopic ("  - …"), depth from
+ *                                     its own indentation (min depth 1)
+ *   - a plain prose line            -> appended to the previous item's content
+ * Bold markers and leading "I."/"1)" numbering are stripped from titles.
+ * It is idempotent on already-clean dash output.
+ */
+function normalizeOrganizedOutline(raw: string): string {
+  if (!raw) return '';
+  const debold = (s: string) => s.replace(/\*\*/g, '').replace(/`/g, '').trim();
+  const denum = (s: string) => s.replace(/^(?:[IVXLCDM]+|\d+)[.)]\s+/i, '').trim();
+  const clean = (s: string) => denum(debold(s));
+
+  const outLines: string[] = [];
+  let droppedTitle = false;
+
+  for (const rawLine of raw.split('\n')) {
+    const line = rawLine.replace(/```[a-z]*/gi, '');
+    const s = line.trim();
+    if (!s) continue;
+
+    // Skip a leading conversational preamble ("Here is the outline:", "Sure!").
+    if (outLines.length === 0 && !droppedTitle && /^(here|sure|okay|below|certainly|this outline)\b/i.test(s) && !/^[#\-*+]/.test(s)) {
+      continue;
+    }
+
+    // Heading line: first becomes the (dropped) document title, rest are chapters.
+    const h = s.match(/^(#{1,6})\s+(.*)$/);
+    if (h) {
+      if (!droppedTitle) { droppedTitle = true; continue; }
+      const text = clean(h[2]);
+      if (text) outLines.push(`- ${text}`);
+      continue;
+    }
+
+    // Bullet line (-, *, +): nested subtopic, depth from leading indentation.
+    const b = line.match(/^(\s*)[-*+]\s+(.*)$/);
+    if (b) {
+      const depth = Math.max(1, Math.floor(b[1].length / 2) || 1);
+      const text = clean(b[2]);
+      if (text) outLines.push(`${'  '.repeat(depth)}- ${text}`);
+      continue;
+    }
+
+    // Bold-only line (e.g. "**I. Selecting Beans**"): a chapter.
+    if (/^\*\*.+\*\*:?/.test(s)) {
+      const text = clean(s);
+      if (text) outLines.push(`- ${text}`);
+      continue;
+    }
+
+    // Plain prose: fold into the previous item's content so it isn't lost.
+    if (outLines.length) {
+      outLines[outLines.length - 1] += ` ${debold(s)}`;
+    } else {
+      outLines.push(`- ${clean(s)}`);
+    }
+  }
+
+  return outLines.join('\n');
+}
+
 async function organizeBulletsIntoOutline(
   bullets: ContentBullet[],
   outlineName: string,
@@ -1670,8 +1745,25 @@ Generate the unified outline:`;
     );
   }
 
+  // Normalize the model's freeform markdown into the clean dash-indent format
+  // that parseMarkdownToNodes reliably turns into a hierarchy. Local models
+  // (Gemma) tend to answer with "### Title", "**I. Chapter**" bold-numbered
+  // lines, and "*"/"+" bullets rather than the requested "- Chapter: content"
+  // dash list — which silently collapsed the merge to ~0 nodes. This pre-pass
+  // is scoped to the merge organize step only.
+  const normalizedOutline = normalizeOrganizedOutline(result.outline);
+
   // Parse the organized outline into nodes
-  const { rootNodeId, nodes } = parseMarkdownToNodes(result.outline, outlineName);
+  let { rootNodeId, nodes } = parseMarkdownToNodes(normalizedOutline, outlineName);
+  // Safety net: if normalization somehow yielded nothing, fall back to the raw
+  // model output so we never do WORSE than before.
+  if (Object.keys(nodes).length <= 1) {
+    const fallback = parseMarkdownToNodes(result.outline, outlineName);
+    if (Object.keys(fallback.nodes).length > Object.keys(nodes).length) {
+      rootNodeId = fallback.rootNodeId;
+      nodes = fallback.nodes;
+    }
+  }
 
   // Post-process: clean up artifacts and consolidate
   cleanupBulletOutlineNodes(nodes, rootNodeId);

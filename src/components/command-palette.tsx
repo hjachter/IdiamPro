@@ -64,6 +64,9 @@ interface CommandPaletteProps {
   onOpenTranslate?: () => void;
   onOpenReformat?: () => void;
   onOpenTransformOutline?: () => void;
+  onOpenImageToOutline?: () => void;
+  onOpenYoutubePackage?: () => void;
+  onOpenGenerateVideo?: () => void;
   isGuide: boolean;
   isFocusMode?: boolean;
   onAICommand?: (text: string) => void;

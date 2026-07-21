@@ -87,7 +87,7 @@ export abstract class BaseImporter {
         id,
         name: parsed.name,
         content: parsed.content || '',
-        type: parsed.type || 'default',
+        type: parsed.type || 'document',
         prefix,
         parentId,
         childrenIds: [],

@@ -9,8 +9,10 @@ import { MultiSelectToolbar } from './multi-select-toolbar';
 import FileImportDialog from './file-import-dialog';
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger } from "@/components/ui/dropdown-menu";
-import { Plus, Trash2, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, ChevronsDownUp, Settings, Search, Command, PanelLeft, PanelLeftClose, Brain, StopCircle, Inbox, LayoutDashboard, Focus, Sparkles, Mic, MessageSquare, BookDown, BookUp, Share2, ExternalLink, RefreshCw, MoreHorizontal, HelpCircle, Send, ShieldCheck, GitFork, Video } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuCheckboxItem } from "@/components/ui/dropdown-menu";
+import { Plus, Trash2, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, ChevronsDownUp, Settings, Search, Command, PanelLeft, PanelLeftClose, Brain, StopCircle, Inbox, LayoutDashboard, Focus, Sparkles, Mic, MessageSquare, BookDown, BookUp, Share2, ExternalLink, RefreshCw, MoreHorizontal, HelpCircle, Send, ShieldCheck, GitFork, Video, ChevronDown, Sun, Moon, Info, User } from 'lucide-react';
+import { AmplifyMark } from '@/components/brand/amplify-mark';
+import { useTheme } from 'next-themes';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter } from "@/components/ui/alert-dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -285,6 +287,9 @@ export default function OutlinePane({
   // const outlinePaneRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   const { toast } = useToast();
+  const { theme, setTheme } = useTheme();
+  // App-menu "About & version" dialog (2026-07-21)
+  const [showAboutDialog, setShowAboutDialog] = useState(false);
 
   // Collapse/Expand toggle state
   const [isAllCollapsed, setIsAllCollapsed] = useState(false);
@@ -321,17 +326,36 @@ export default function OutlinePane({
   // instead of (as before) wrapping it to an ugly second line. Share moved out
   // of the always-inline set into Tier 2 (it was gated on the sm: VIEWPORT
   // breakpoint, which ignored the pane's true width).
-  // RESTORED (2026-07-20, per Howard): the responsive-overflow collapse is
-  // disabled. Every action-toolbar button now renders INLINE in its designed
-  // position at all widths — nothing folds into a "…" overflow menu. Help and
-  // Smart Tools (AI) in particular must always be visible on the bar. The
-  // measured width (actionToolbarWidth) is still tracked above but no longer
-  // drives any hiding; the toolbar container allows horizontal scroll so a
-  // very narrow pane scrolls rather than clipping or burying a button.
-  void actionToolbarWidth;
-  const showTier2Inline = true;
-  const showTier3Inline = true;
-  const showActionOverflow = false;
+  // FIXED-POSITION toolbar (2026-07-21, per Howard). Buttons hold FIXED spots
+  // in a single NON-WRAPPING row and NEVER shuffle as the pane width changes —
+  // this is the industry-standard "priority-plus" pattern and it protects
+  // muscle memory (the previous flex-wrap moved buttons between rows).
+  //   • PINNED, never collapse, never move: New Outline (green, far left),
+  //     Search, AI, and Help (red, far right).
+  //   • COLLAPSIBLE MIDDLE (between AI and Help), in fixed left-to-right order:
+  //     Bring In, Turn Into, Second Brain, Expand/Compress. Only these fold,
+  //     and only from the TAIL (Expand collapses first, then Second Brain, then
+  //     Turn Into, then Bring In) into a single "⋯ More" menu that appears just
+  //     before Help. Deterministic: the same buttons always collapse first.
+  // Nothing to the left of the collapsible zone ever moves, so New/Search/AI
+  // keep their exact positions at every width. Never wraps, never scrolls.
+  const ACTION_MIDDLE_COUNT = 4; // [Bring In, Turn Into, Second Brain, Expand]
+  const _aBtn = isMobile ? 50 : 44;                 // one icon button + gap
+  const _aReserved =
+    (_aBtn + 30) /* New split (chevron half) */ +
+    _aBtn /* Search */ + _aBtn /* AI */ + _aBtn /* Help */ +
+    14 * 3 /* separators */ + 16 /* container padding margin */;
+  let _aAvail = (Number.isFinite(actionToolbarWidth) ? actionToolbarWidth : 100000) - _aReserved;
+  let actionMiddleVisible = Math.max(0, Math.min(ACTION_MIDDLE_COUNT, Math.floor(_aAvail / _aBtn)));
+  if (actionMiddleVisible < ACTION_MIDDLE_COUNT) {
+    _aAvail -= _aBtn; // reserve room for the "More" button
+    actionMiddleVisible = Math.max(0, Math.min(ACTION_MIDDLE_COUNT, Math.floor(_aAvail / _aBtn)));
+  }
+  const showActionMore = actionMiddleVisible < ACTION_MIDDLE_COUNT;
+  const showBringIn = actionMiddleVisible >= 1;      // collapses last
+  const showTurnInto = actionMiddleVisible >= 2;
+  const showSecondBrain = actionMiddleVisible >= 3;
+  const showExpand = actionMiddleVisible >= 4;        // collapses first (tail)
 
   // Header/title-row responsive overflow (2026-07-14 fix).
   // The prior overflow fix (above) only covered the lower ACTION toolbar. The
@@ -594,7 +618,7 @@ export default function OutlinePane({
       // Notify parent of search term change with first match info for scrolling
       if (onSearchTermChange && matches.length > 0) {
         const firstMatch = matches[0];
-        const matchType = firstMatch.type;
+        const matchType = firstMatch.matchType;
         const localMatchIndex = 0; // First match always has local index 0
         onSearchTermChange(term, matchType, localMatchIndex);
       }
@@ -649,12 +673,12 @@ export default function OutlinePane({
     // Calculate local match index within this node's content
     if (onSearchTermChange && searchTerm) {
       const currentMatch = searchMatches[nextIndex];
-      const matchType = currentMatch.type;
+      const matchType = currentMatch.matchType;
 
       // Count how many content matches in the same node come before this one
       let localMatchIndex = 0;
       for (let i = 0; i < nextIndex; i++) {
-        if (searchMatches[i].nodeId === currentMatch.nodeId && searchMatches[i].type === 'content') {
+        if (searchMatches[i].nodeId === currentMatch.nodeId && searchMatches[i].matchType === 'content') {
           localMatchIndex++;
         }
       }
@@ -672,12 +696,12 @@ export default function OutlinePane({
     // Calculate local match index within this node's content
     if (onSearchTermChange && searchTerm) {
       const currentMatch = searchMatches[prevIndex];
-      const matchType = currentMatch.type;
+      const matchType = currentMatch.matchType;
 
       // Count how many content matches in the same node come before this one
       let localMatchIndex = 0;
       for (let i = 0; i < prevIndex; i++) {
-        if (searchMatches[i].nodeId === currentMatch.nodeId && searchMatches[i].type === 'content') {
+        if (searchMatches[i].nodeId === currentMatch.nodeId && searchMatches[i].matchType === 'content') {
           localMatchIndex++;
         }
       }
@@ -961,9 +985,296 @@ export default function OutlinePane({
   const selectedNode = selectedNodeId ? currentOutline?.nodes[selectedNodeId] : undefined;
   const isSelectedNodeRoot = selectedNode?.type === 'root';
 
+  // Shared menu-item fragments for the four collapsible middle buttons. Used
+  // BOTH by their inline toolbar dropdowns AND by the "⋯ More" overflow
+  // submenus, so the two can never drift apart. (2026-07-21)
+  const bringInMenuItems = (
+    <>
+      <DropdownMenuLabel className="py-1 text-xs uppercase tracking-wide text-muted-foreground">Bring In</DropdownMenuLabel>
+      {onOpenBulkResearch && (
+        <DropdownMenuItem onSelect={onOpenBulkResearch} className="cursor-pointer py-1">
+          <Library className="mr-2 h-4 w-4" /> Research & Import
+        </DropdownMenuItem>
+      )}
+      <DropdownMenuItem onSelect={handleImportClick} className="cursor-pointer py-1">
+        <FileUp className="mr-2 h-4 w-4" /> Import Outline
+      </DropdownMenuItem>
+      {onOpenLinkToOutline && (
+        <DropdownMenuItem
+          onSelect={onOpenLinkToOutline}
+          disabled={!currentOutline || currentOutline.isGuide}
+          className="cursor-pointer py-1"
+        >
+          <ExternalLink className="mr-2 h-4 w-4" /> Import/Link to Outline…
+        </DropdownMenuItem>
+      )}
+      {onOpenLiveBooks && (
+        <DropdownMenuItem
+          onSelect={onOpenLiveBooks}
+          disabled={!selectedNodeId || currentOutline?.isGuide}
+          className="cursor-pointer py-1"
+          title={currentOutline?.isGuide ? 'User Guide is read-only' : (selectedNodeId ? 'Refresh selected item and its children against the latest web information' : 'Select an item first')}
+        >
+          <RefreshCw className="mr-2 h-4 w-4" /> Refresh from Web
+        </DropdownMenuItem>
+      )}
+      <DropdownMenuItem onSelect={handleRestoreAllClick} className="cursor-pointer py-1">
+        <FileUp className="mr-2 h-4 w-4" /> Restore All Outlines
+      </DropdownMenuItem>
+      {onUnmerge && (
+        <DropdownMenuItem
+          onSelect={() => onUnmerge?.()}
+          disabled={!canUnmerge}
+          className="cursor-pointer py-1"
+          title={canUnmerge ? 'Restore outline to pre-merge state' : 'Unmerge — available right after a merge'}
+        >
+          <RotateCcw className="mr-2 h-4 w-4" /> Unmerge
+        </DropdownMenuItem>
+      )}
+    </>
+  );
+
+  const turnIntoMenuItems = (
+    <>
+      <DropdownMenuLabel className="py-1 text-xs uppercase tracking-wide text-muted-foreground">Turn Into</DropdownMenuLabel>
+      <DropdownMenuItem
+        onSelect={() => { if (selectedNodeId) onExportSubtree?.(selectedNodeId); }}
+        disabled={!selectedNodeId}
+        className="cursor-pointer py-1"
+        title={selectedNodeId ? undefined : 'Select an item first'}
+      >
+        <Share2 className="mr-2 h-4 w-4" /> Share Suboutline as&hellip;
+      </DropdownMenuItem>
+      {onOpenYoutubePackage && (
+        <DropdownMenuItem
+          onSelect={() => onOpenYoutubePackage?.()}
+          disabled={!selectedNodeId}
+          className="cursor-pointer py-1"
+          title={selectedNodeId ? undefined : 'Select a chapter first'}
+        >
+          <ExternalLink className="mr-2 h-4 w-4" /> Share as YouTube package
+        </DropdownMenuItem>
+      )}
+      {onOpenGenerateVideo && (
+        <DropdownMenuItem
+          onSelect={() => onOpenGenerateVideo?.()}
+          disabled={!selectedNodeId}
+          className="cursor-pointer py-1"
+          title={selectedNodeId ? undefined : 'Select a chapter first'}
+        >
+          <Video className="mr-2 h-4 w-4" /> Generate Video
+        </DropdownMenuItem>
+      )}
+      <DropdownMenuItem onSelect={onExportOutline} disabled={!currentOutline} className="cursor-pointer py-1">
+        <FileDown className="mr-2 h-4 w-4" /> Export Current Outline
+      </DropdownMenuItem>
+      <DropdownMenuItem onSelect={handleBackupAll} className="cursor-pointer py-1">
+        <FileDown className="mr-2 h-4 w-4" /> Backup All Outlines
+      </DropdownMenuItem>
+    </>
+  );
+
+  const secondBrainMenuItems = (
+    <>
+      <DropdownMenuLabel className="flex items-center gap-2">
+        <span className="text-base">🧠</span>
+        Second Brain
+      </DropdownMenuLabel>
+      <DropdownMenuSeparator />
+      <DropdownMenuItem onSelect={() => onOpenSecondBrain?.()} className="cursor-pointer">
+        <Brain className="mr-2 h-4 w-4" />
+        Open Second Brain
+      </DropdownMenuItem>
+      <DropdownMenuItem onSelect={() => onOpenQuickCapture?.()} className="cursor-pointer">
+        <Inbox className="mr-2 h-4 w-4" />
+        Quick Capture
+        {!isMobile && <span className="ml-auto text-xs text-muted-foreground">⌘⇧I</span>}
+      </DropdownMenuItem>
+      <DropdownMenuItem
+        onSelect={() => selectedNodeId && onSaveToSecondBrain?.(selectedNodeId)}
+        disabled={!selectedNodeId || currentOutline?.isSecondBrain}
+        className="cursor-pointer"
+      >
+        <Plus className="mr-2 h-4 w-4" />
+        Save Selection to Second Brain
+      </DropdownMenuItem>
+      <DropdownMenuSeparator />
+      <DropdownMenuItem onSelect={() => onSearchSecondBrainLocal?.()} className="cursor-pointer" aria-label="Search Second Brain — free, instant, local keyword search">
+        <Search className="mr-2 h-4 w-4" />
+        Search Second Brain
+      </DropdownMenuItem>
+      <DropdownMenuItem onSelect={() => onSearchSecondBrain?.()} className="cursor-pointer" aria-label="Ask Second Brain — AI answer (uses an AI generation)">
+        <MessageSquare className="mr-2 h-4 w-4" />
+        Ask Second Brain
+      </DropdownMenuItem>
+      <DropdownMenuItem onSelect={() => onOpenSecondBrainDashboard?.()} className="cursor-pointer">
+        <LayoutDashboard className="mr-2 h-4 w-4" />
+        View Dashboard
+      </DropdownMenuItem>
+      <DropdownMenuItem onSelect={() => onImportToSecondBrain?.()} className="cursor-pointer">
+        <Library className="mr-2 h-4 w-4" />
+        Import to Second Brain
+      </DropdownMenuItem>
+    </>
+  );
+
+  const expandMenuItems = (
+    <>
+      <DropdownMenuItem
+        onSelect={() => { onExpandAll(); setIsAllCollapsed(false); }}
+        disabled={!currentOutline}
+        className="cursor-pointer py-1"
+      >
+        <ChevronsDown className="mr-2 h-4 w-4" /> Expand All
+        {!isMobile && <DropdownMenuShortcut>⌘E</DropdownMenuShortcut>}
+      </DropdownMenuItem>
+      <DropdownMenuItem
+        onSelect={() => { onCollapseAll(); setIsAllCollapsed(true); }}
+        disabled={!currentOutline}
+        className="cursor-pointer py-1"
+      >
+        <ChevronsUp className="mr-2 h-4 w-4" /> Collapse All
+        {!isMobile && <DropdownMenuShortcut>⌘⇧E</DropdownMenuShortcut>}
+      </DropdownMenuItem>
+    </>
+  );
+
   return (
     <div ref={paneRef} data-testid="outline-pane" className="flex flex-col h-full bg-card p-3 space-y-3" style={{ paddingTop: 'max(0.75rem, env(safe-area-inset-top))' }}>
       <div data-testid="outline-header-row" className="flex-shrink-0 flex flex-wrap items-center gap-2 px-2 min-w-0">
+        {/* App menu (far left) — the IdeaM Amplify mark opens the app-level
+            menu: switch outline, Settings, Account, theme, Backup & Restore,
+            About. Global app actions live here; per-node actions live in the
+            node right-click menu. */}
+        <TooltipProvider>
+          <DropdownMenu>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="shrink-0 p-0 overflow-hidden active:scale-95 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
+                    aria-label="Menu"
+                    data-testid="app-menu-trigger"
+                  >
+                    <AmplifyMark className="h-5 w-5 rounded-[4px]" />
+                  </Button>
+                </DropdownMenuTrigger>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">Menu</TooltipContent>
+            </Tooltip>
+            <DropdownMenuContent align="start" className="w-60">
+              <DropdownMenuLabel className="flex items-center gap-2">
+                <AmplifyMark className="h-4 w-4 rounded-[3px]" /> IdeaM
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+
+              {/* Open / Switch outline — lists user outlines (excludes the
+                  Second Brain + User Guide). Current one is checked. */}
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger className="cursor-pointer">
+                  <FileUp className="mr-2 h-4 w-4" /> Open / Switch outline…
+                </DropdownMenuSubTrigger>
+                <DropdownMenuSubContent className="max-h-80 overflow-y-auto w-56">
+                  {outlines.filter(o => !o.isSecondBrain && !o.isGuide).length === 0 ? (
+                    <DropdownMenuItem disabled>No outlines yet</DropdownMenuItem>
+                  ) : (
+                    outlines
+                      .filter(o => !o.isSecondBrain && !o.isGuide)
+                      .map(o => (
+                        <DropdownMenuCheckboxItem
+                          key={o.id}
+                          checked={o.id === currentOutline?.id}
+                          onSelect={() => onSelectOutline(o.id)}
+                          className="cursor-pointer"
+                        >
+                          <span className="truncate">{o.name}</span>
+                        </DropdownMenuCheckboxItem>
+                      ))
+                  )}
+                </DropdownMenuSubContent>
+              </DropdownMenuSub>
+
+              {/* Settings — opens the existing Settings dialog via its hidden
+                  trigger button (kept mounted in the toolbar below). */}
+              <DropdownMenuItem
+                onSelect={(e) => {
+                  e.preventDefault();
+                  const trigger = document.querySelector<HTMLButtonElement>('[data-settings-trigger]');
+                  trigger?.click();
+                }}
+                className="cursor-pointer"
+              >
+                <Settings className="mr-2 h-4 w-4" /> Settings
+              </DropdownMenuItem>
+
+              {/* Account — opens the Clerk account menu (avatar kept on the
+                  right so account stays reachable even in stub mode). */}
+              <DropdownMenuItem
+                onSelect={(e) => {
+                  e.preventDefault();
+                  const btn = document.querySelector<HTMLElement>('.cl-userButtonTrigger');
+                  btn?.click();
+                }}
+                className="cursor-pointer"
+              >
+                <User className="mr-2 h-4 w-4" /> Account
+              </DropdownMenuItem>
+
+              {/* Light / Dark theme toggle */}
+              <DropdownMenuItem
+                onSelect={(e) => {
+                  e.preventDefault();
+                  setTheme(theme === 'dark' ? 'light' : 'dark');
+                }}
+                className="cursor-pointer"
+              >
+                {theme === 'dark'
+                  ? <Sun className="mr-2 h-4 w-4" />
+                  : <Moon className="mr-2 h-4 w-4" />}
+                Light / Dark theme
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator />
+
+              {/* Backup & Restore — also available in Settings; surfaced here
+                  for quick reach. */}
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger className="cursor-pointer">
+                  <ShieldCheck className="mr-2 h-4 w-4" /> Backup &amp; Restore…
+                </DropdownMenuSubTrigger>
+                <DropdownMenuSubContent className="w-60">
+                  {onOpenBackup && (
+                    <DropdownMenuItem onSelect={onOpenBackup} disabled={!currentOutline} className="cursor-pointer">
+                      <ShieldCheck className="mr-2 h-4 w-4" /> Backup this outline
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem onSelect={handleBackupAll} className="cursor-pointer">
+                    <FileDown className="mr-2 h-4 w-4" /> Backup All Outlines
+                  </DropdownMenuItem>
+                  {onOpenRestore && (
+                    <DropdownMenuItem onSelect={onOpenRestore} disabled={!currentOutline} className="cursor-pointer">
+                      <RotateCcw className="mr-2 h-4 w-4" /> Restore from backup…
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem onSelect={handleRestoreAllClick} className="cursor-pointer">
+                    <FileUp className="mr-2 h-4 w-4" /> Restore All Outlines
+                  </DropdownMenuItem>
+                </DropdownMenuSubContent>
+              </DropdownMenuSub>
+
+              {/* About & version */}
+              <DropdownMenuItem
+                onSelect={() => setShowAboutDialog(true)}
+                className="cursor-pointer"
+              >
+                <Info className="mr-2 h-4 w-4" /> About &amp; version
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </TooltipProvider>
+
         {/* Sidebar toggle button (desktop) */}
         {onToggleSidebar && (
           <TooltipProvider>
@@ -1020,342 +1331,6 @@ export default function OutlinePane({
             </span>
         </div>
 
-        {/* Natural-language command bar entry point — kept unobtrusive
-            (same weight as the wrench beside it). Click opens the Cmd+K
-            palette where the Quick Command row appears at the bottom.
-            Voice infrastructure is preserved but opt-in via Settings → Input mode. */}
-        <TooltipProvider>
-            <Tooltip>
-                <TooltipTrigger asChild>
-                    <Button
-                        variant="outline"
-                        size="icon"
-                        className="bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white border-transparent shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 shrink-0 active:scale-95 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
-                        onClick={() => onOpenCommandPalette?.()}
-                        aria-label="Quick Command — type what you want done (Cmd+K)"
-                    >
-                        <MessageSquare className="h-4 w-4" strokeWidth={2.5} />
-                    </Button>
-                </TooltipTrigger>
-                <TooltipContent side="bottom">Quick Command (⌘K)</TooltipContent>
-            </Tooltip>
-        </TooltipProvider>
-
-        {/* Import dropdown — bringing data INTO the outline (Tier 2: tablet+) */}
-        <TooltipProvider>
-            <DropdownMenu>
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <DropdownMenuTrigger asChild>
-                            <Button
-                                variant="outline"
-                                size="icon"
-                                className={cn("shrink-0 active:scale-95 active:bg-accent/30 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0", showHeaderButtonsInline ? "inline-flex" : "hidden")}
-                                aria-label="Import — bring in content from YouTube, PDFs, web pages, and notes"
-                            >
-                                <BookDown className="h-4 w-4" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom">Bring in content — YouTube, PDFs, web pages, notes</TooltipContent>
-                </Tooltip>
-                <DropdownMenuContent align="end" className="w-56 p-0.5">
-                    <DropdownMenuLabel className="py-1 text-xs uppercase tracking-wide text-muted-foreground">Import</DropdownMenuLabel>
-                    {onOpenBulkResearch && (
-                        <DropdownMenuItem onSelect={onOpenBulkResearch} className="cursor-pointer py-1">
-                            <Library className="mr-2 h-4 w-4" /> Research & Import
-                        </DropdownMenuItem>
-                    )}
-                    <DropdownMenuItem onSelect={handleImportClick} className="cursor-pointer py-1">
-                        <FileUp className="mr-2 h-4 w-4" /> Import Outline
-                    </DropdownMenuItem>
-                    {onOpenLinkToOutline && (
-                        <DropdownMenuItem
-                            onSelect={onOpenLinkToOutline}
-                            disabled={!currentOutline || currentOutline.isGuide}
-                            className="cursor-pointer py-1"
-                        >
-                            <ExternalLink className="mr-2 h-4 w-4" /> Link to Outline…
-                        </DropdownMenuItem>
-                    )}
-                    <DropdownMenuItem onSelect={handleRestoreAllClick} className="cursor-pointer py-1">
-                        <FileUp className="mr-2 h-4 w-4" /> Restore All Outlines
-                    </DropdownMenuItem>
-                    {onOpenRestore && (
-                        <DropdownMenuItem
-                            onSelect={onOpenRestore}
-                            disabled={!currentOutline}
-                            className="cursor-pointer py-1"
-                            title={currentOutline ? 'Restore this outline from a previous snapshot' : 'Open an outline first'}
-                        >
-                            <RotateCcw className="mr-2 h-4 w-4" /> Restore from backup&hellip;
-                        </DropdownMenuItem>
-                    )}
-                    {onOpenLiveBooks && (
-                        <DropdownMenuItem
-                            onSelect={onOpenLiveBooks}
-                            disabled={!selectedNodeId || currentOutline?.isGuide}
-                            className="cursor-pointer py-1"
-                            title={currentOutline?.isGuide ? 'User Guide is read-only' : (selectedNodeId ? 'Refresh selected item and its children against the latest web information' : 'Select an item first')}
-                        >
-                            <RefreshCw className="mr-2 h-4 w-4" /> Refresh from Web
-                        </DropdownMenuItem>
-                    )}
-                </DropdownMenuContent>
-            </DropdownMenu>
-        </TooltipProvider>
-
-        {/* Export dropdown — sending data OUT of the outline. Placed
-            immediately after Import so the two data-transfer controls read as
-            one Import → Export pair. (Tier 2: tablet+) */}
-        <TooltipProvider>
-            <DropdownMenu>
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <DropdownMenuTrigger asChild>
-                            <Button
-                                variant="outline"
-                                size="icon"
-                                className={cn("shrink-0 active:scale-95 active:bg-accent/30 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0", showHeaderButtonsInline ? "inline-flex" : "hidden")}
-                                aria-label="Export — turn this into a video, podcast, website, or 20+ formats"
-                            >
-                                <BookUp className="h-4 w-4" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom">Turn this into a video, podcast, website, or 20+ formats</TooltipContent>
-                </Tooltip>
-                <DropdownMenuContent align="end" className="w-56 p-0.5">
-                    <DropdownMenuLabel className="py-1 text-xs uppercase tracking-wide text-muted-foreground">Export</DropdownMenuLabel>
-                    <DropdownMenuItem
-                        onSelect={() => { if (selectedNodeId) onExportSubtree?.(selectedNodeId); }}
-                        disabled={!selectedNodeId}
-                        className="cursor-pointer py-1"
-                        title={selectedNodeId ? undefined : 'Select an item first'}
-                    >
-                        <Share2 className="mr-2 h-4 w-4" /> Share Suboutline as&hellip;
-                    </DropdownMenuItem>
-                    {onOpenYoutubePackage && (
-                        <DropdownMenuItem
-                            onSelect={() => onOpenYoutubePackage?.()}
-                            disabled={!selectedNodeId}
-                            className="cursor-pointer py-1"
-                            title={selectedNodeId ? undefined : 'Select a chapter first'}
-                        >
-                            <ExternalLink className="mr-2 h-4 w-4" /> Share as YouTube package
-                        </DropdownMenuItem>
-                    )}
-                    {onOpenGenerateVideo && (
-                        <DropdownMenuItem
-                            onSelect={() => onOpenGenerateVideo?.()}
-                            disabled={!selectedNodeId}
-                            className="cursor-pointer py-1"
-                            title={selectedNodeId ? undefined : 'Select a chapter first'}
-                        >
-                            <Video className="mr-2 h-4 w-4" /> Generate Video
-                        </DropdownMenuItem>
-                    )}
-                    <DropdownMenuItem onSelect={onExportOutline} disabled={!currentOutline} className="cursor-pointer py-1">
-                        <FileDown className="mr-2 h-4 w-4" /> Export Current Outline
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onSelect={handleBackupAll} className="cursor-pointer py-1">
-                        <FileDown className="mr-2 h-4 w-4" /> Backup All Outlines
-                    </DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
-        </TooltipProvider>
-
-        {/* Backup button — quick snapshot of the current outline. The Restore
-            tab lives one click away inside the same dialog. (Tier 2: tablet+) */}
-        {onOpenBackup && (
-            <TooltipProvider>
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={onOpenBackup}
-                            disabled={!currentOutline}
-                            className="bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white border-transparent shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 shrink-0 active:scale-95 hidden sm:inline-flex min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
-                            aria-label="Backup — save a snapshot of this outline"
-                            data-testid="backup-outline-button"
-                        >
-                            <ShieldCheck className="h-4 w-4" strokeWidth={2.5} />
-                        </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom">Backup outline</TooltipContent>
-                </Tooltip>
-            </TooltipProvider>
-        )}
-
-        {/* Overflow menu — gathers tier-2 and tier-3 toolbar actions on
-            narrow viewports. Visible on phone + tablet, hidden on desktop
-            where every action fits inline. Anchored just left of the avatar
-            so it lives at a consistent on-screen location. */}
-        <TooltipProvider>
-            <DropdownMenu>
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <DropdownMenuTrigger asChild>
-                            <Button
-                                variant="outline"
-                                size="icon"
-                                className={cn("bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white border-transparent shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 shrink-0 active:scale-95 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0", showHeaderOverflow ? "inline-flex" : "hidden")}
-                                aria-label="More tools"
-                            >
-                                <MoreHorizontal className="h-4 w-4" strokeWidth={2.5} />
-                            </Button>
-                        </DropdownMenuTrigger>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom">More tools</TooltipContent>
-                </Tooltip>
-                <DropdownMenuContent align="end" className="w-60 p-0.5">
-                    <DropdownMenuLabel className="py-1 text-xs uppercase tracking-wide text-muted-foreground">More tools</DropdownMenuLabel>
-
-                    {/* Tier 2 — surfaced whenever the header buttons are collapsed
-                        (narrow pane / narrow window / phone). */}
-                    <div className={cn(showHeaderButtonsInline ? "hidden" : "block")}>
-                        {onOpenBulkResearch && (
-                            <DropdownMenuItem onSelect={onOpenBulkResearch} className="cursor-pointer py-1">
-                                <Library className="mr-2 h-4 w-4" /> Research & Import
-                            </DropdownMenuItem>
-                        )}
-                        <DropdownMenuItem onSelect={handleImportClick} className="cursor-pointer py-1">
-                            <BookDown className="mr-2 h-4 w-4" /> Import Outline
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                            onSelect={onExportOutline}
-                            disabled={!currentOutline}
-                            className="cursor-pointer py-1"
-                        >
-                            <BookUp className="mr-2 h-4 w-4" /> Export Outline
-                        </DropdownMenuItem>
-                        {onOpenBackup && (
-                            <DropdownMenuItem
-                                onSelect={onOpenBackup}
-                                disabled={!currentOutline}
-                                className="cursor-pointer py-1"
-                            >
-                                <ShieldCheck className="mr-2 h-4 w-4" /> Backup Outline
-                            </DropdownMenuItem>
-                        )}
-                        {onOpenRestore && (
-                            <DropdownMenuItem
-                                onSelect={onOpenRestore}
-                                disabled={!currentOutline}
-                                className="cursor-pointer py-1"
-                            >
-                                <RotateCcw className="mr-2 h-4 w-4" /> Restore from Backup…
-                            </DropdownMenuItem>
-                        )}
-                        <DropdownMenuItem
-                            onSelect={() => onToggleFocusMode?.()}
-                            disabled={!selectedNodeId || !onToggleFocusMode}
-                            className="cursor-pointer py-1"
-                        >
-                            <Focus className="mr-2 h-4 w-4" /> Zoom In
-                            {!isMobile && <DropdownMenuShortcut>⌘⇧F</DropdownMenuShortcut>}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                            onSelect={() => { onExpandAll(); setIsAllCollapsed(false); }}
-                            disabled={!currentOutline}
-                            className="cursor-pointer py-1"
-                        >
-                            <ChevronsDown className="mr-2 h-4 w-4" /> Expand All
-                            {!isMobile && <DropdownMenuShortcut>⌘E</DropdownMenuShortcut>}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                            onSelect={() => { onCollapseAll(); setIsAllCollapsed(true); }}
-                            disabled={!currentOutline}
-                            className="cursor-pointer py-1"
-                        >
-                            <ChevronsUp className="mr-2 h-4 w-4" /> Collapse All
-                            {!isMobile && <DropdownMenuShortcut>⌘⇧E</DropdownMenuShortcut>}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                            onSelect={() => selectedNodeId && onExportSubtree?.(selectedNodeId)}
-                            disabled={!selectedNodeId}
-                            className="cursor-pointer py-1"
-                        >
-                            <Share2 className="mr-2 h-4 w-4" /> Share Suboutline…
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={() => onOpenCommandPalette?.()} className="cursor-pointer py-1">
-                            <Command className="mr-2 h-4 w-4" /> Command Palette
-                            {!isMobile && <DropdownMenuShortcut>⌘K</DropdownMenuShortcut>}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={() => onOpenSecondBrain?.()} className="cursor-pointer py-1">
-                            <Brain className="mr-2 h-4 w-4" /> Open Second Brain
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={() => onOpenQuickCapture?.()} className="cursor-pointer py-1">
-                            <Inbox className="mr-2 h-4 w-4" /> Quick Capture
-                            {!isMobile && <DropdownMenuShortcut>⌘⇧I</DropdownMenuShortcut>}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={() => onSearchSecondBrainLocal?.()} className="cursor-pointer py-1" aria-label="Search Second Brain — free, instant, local keyword search">
-                            <Search className="mr-2 h-4 w-4" /> Search Second Brain
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={() => onSearchSecondBrain?.()} className="cursor-pointer py-1" aria-label="Ask Second Brain — AI answer (uses an AI generation)">
-                            <MessageSquare className="mr-2 h-4 w-4" /> Ask Second Brain
-                        </DropdownMenuItem>
-                        {onOpenKnowledgeChat && (
-                            <DropdownMenuItem onSelect={onOpenKnowledgeChat} className="cursor-pointer py-1">
-                                <Sparkles className="mr-2 h-4 w-4" /> Ask Your Outlines
-                            </DropdownMenuItem>
-                        )}
-                        <DropdownMenuSeparator />
-                    </div>
-
-                    {/* Tier 3 — always surfaced in overflow (Settings + Help) */}
-                    {onOpenHelp && (
-                        <DropdownMenuItem onSelect={onOpenHelp} className="cursor-pointer py-1">
-                            <HelpCircle className="mr-2 h-4 w-4" /> Help & Support
-                        </DropdownMenuItem>
-                    )}
-                    {/* Report Issue — same dialog as the toolbar button.
-                        Placed inside the Help cluster so users searching
-                        the Help menu for a place to report problems find
-                        it next to "Help & Support". */}
-                    <ReportIssueMenuItem currentOutlineName={currentOutline?.name ?? null} />
-                    <DropdownMenuItem
-                        onSelect={() => {
-                            // Open the beta-feedback form in a new tab. /feedback is a
-                            // web URL that works whether we're running in Electron
-                            // (opens in default browser) or in the web build.
-                            const url = '/feedback';
-                            if (typeof window !== 'undefined') {
-                                window.open(url, '_blank', 'noopener,noreferrer');
-                            }
-                        }}
-                        className="cursor-pointer py-1"
-                        aria-label="Share feedback (earn 1 year of Pro)"
-                    >
-                        <Send className="mr-2 h-4 w-4" /> Share feedback
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                        onSelect={(e) => {
-                            // Open Settings dialog by clicking the hidden trigger.
-                            // SettingsDialog wraps a child Button; surface it as a
-                            // menu item by deferring to the real trigger element.
-                            e.preventDefault();
-                            const trigger = document.querySelector<HTMLButtonElement>('[data-settings-trigger]');
-                            trigger?.click();
-                        }}
-                        className="cursor-pointer py-1"
-                    >
-                        <Settings className="mr-2 h-4 w-4" /> Settings
-                    </DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
-        </TooltipProvider>
-
-        {/* Report Issue — opens a dialog where beta users can send Howard a
-            quick bug/issue report from inside the app. Sits right next to the
-            account avatar (anchor on the right edge), visually subordinate.
-            This is a WIDE text button, so on a narrow pane it folds into the
-            "More" (⋯) menu (which carries its own Report Issue item) rather
-            than clipping off the pane's right edge. */}
-        <div className={cn("ml-1 shrink-0 items-center", showHeaderButtonsInline ? "flex" : "hidden")}>
-            <ReportIssueButton currentOutlineName={currentOutline?.name ?? null} />
-        </div>
 
         {/* Account avatar / sign-out menu. Renders nothing when Clerk is not
             configured (stub mode for local dev), so the toolbar is unchanged
@@ -1381,6 +1356,23 @@ export default function OutlinePane({
         />
 
       </div>
+
+      {/* About & version dialog (opened from the App menu) */}
+      <AlertDialog open={showAboutDialog} onOpenChange={setShowAboutDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AmplifyMark className="h-5 w-5 rounded-[4px]" /> IdeaM
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Version {process.env.NEXT_PUBLIC_APP_VERSION ?? 'dev'}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Close</AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* "Derived from" banner (2026-06-10). Shown only when the loaded
           outline was created as a derivative of another outline. Subtle
@@ -1419,50 +1411,13 @@ export default function OutlinePane({
       })()}
 
       <TooltipProvider delayDuration={300}>
-        <div ref={actionToolbarRef} data-testid="outline-action-toolbar" className="flex-shrink-0 flex flex-wrap items-center justify-center gap-1.5 px-2 py-1.5 bg-[hsl(var(--toolbar-bg))] rounded-xl border border-border/30 min-w-0">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <span tabIndex={-1} className="inline-flex">
-                <Button variant="outline" size="icon" onClick={() => onCreateNode()} disabled={!selectedNodeId || currentOutline?.isGuide} className="bg-gradient-to-b from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 shadow-blue-700/40 ring-1 ring-inset ring-blue-500/40 dark:from-blue-600 dark:to-blue-700 dark:hover:from-blue-500 dark:hover:to-blue-600 dark:shadow-blue-500/50 dark:ring-blue-300/70 text-white border-transparent shadow-md disabled:opacity-40 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0" aria-label="Add sibling item">
-                  <Plus className="h-4 w-4 text-white" strokeWidth={2.75} />
-                </Button>
-              </span>
-            </TooltipTrigger>
-            <TooltipContent>{currentOutline?.isGuide ? 'Cannot modify User Guide' : (!selectedNodeId ? 'Add sibling item — select an item first' : 'Add sibling item')}</TooltipContent>
-          </Tooltip>
+        <div ref={actionToolbarRef} data-testid="outline-action-toolbar" className="flex-shrink-0 flex flex-nowrap items-center justify-start gap-1.5 px-2 py-1.5 bg-[hsl(var(--toolbar-bg))] rounded-xl border border-border/30 min-w-0 overflow-hidden">
 
+          {/* Keyboard Delete confirmation dialog — the Delete key handler opens
+              this via setShowDeleteDialog(true). The per-node Delete button lives
+              in the node right-click menu; this dialog stays mounted here so the
+              "Don't ask again" opt-out keeps working. */}
           <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span tabIndex={-1} className="inline-flex">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    disabled={!selectedNodeId || isSelectedNodeRoot || currentOutline?.isGuide}
-                    className="text-destructive border-destructive/50 hover:bg-destructive/20 hover:border-destructive min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
-                    aria-label="Delete item"
-                    onClick={() => {
-                      if (currentOutline?.isGuide) return;
-                      // Two-tier bypass (2026-06-10):
-                      //   1. Professional mode — global suppress all confirms.
-                      //   2. Per-prompt "Don't ask again" — localStorage key.
-                      //   3. Legacy "Confirm before deleting" Setting toggle.
-                      const legacyConfirmDelete = localStorage.getItem('confirmDelete') !== 'false';
-                      const perPromptSuppressed = localStorage.getItem(SUPPRESS_KEY) === 'true';
-                      if (isProfessional || perPromptSuppressed || !legacyConfirmDelete) {
-                        selectedNodeId && onDeleteNode(selectedNodeId);
-                      } else {
-                        setDeleteDontAskAgain(false);
-                        setShowDeleteDialog(true);
-                      }
-                    }}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </span>
-              </TooltipTrigger>
-              <TooltipContent>{currentOutline?.isGuide ? 'Cannot modify User Guide' : (!selectedNodeId ? 'Delete item — select an item first' : (isSelectedNodeRoot ? 'Delete item — cannot delete the root item' : 'Delete item'))}</TooltipContent>
-            </Tooltip>
             <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle>Delete Item?</AlertDialogTitle>
@@ -1493,12 +1448,54 @@ export default function OutlinePane({
             </AlertDialogContent>
           </AlertDialog>
 
-          {/* EDIT | VIEW/NAV cluster divider */}
-          <Separator orientation="vertical" className="h-6 mx-0.5" />
+          {/* 1. New Outline — GREEN split button. Main click creates a new
+                 outline; the chevron pulls down template options. Green marks it
+                 apart from the blue in-outline tools. */}
+          <span className="inline-flex shrink-0">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => onCreateOutline()}
+                  className="rounded-r-none bg-gradient-to-b from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 dark:from-emerald-600 dark:to-emerald-700 dark:hover:from-emerald-500 dark:hover:to-emerald-600 text-white border-transparent shadow-md shadow-emerald-700/40 ring-1 ring-inset ring-emerald-400/50 dark:ring-emerald-300/70 active:scale-95 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
+                  aria-label="New outline"
+                >
+                  <Plus className="h-4 w-4 text-white" strokeWidth={2.75} />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>New Outline</TooltipContent>
+            </Tooltip>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="rounded-l-none border-l border-l-emerald-800/40 w-7 min-w-0 px-0 bg-gradient-to-b from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 dark:from-emerald-600 dark:to-emerald-700 dark:hover:from-emerald-500 dark:hover:to-emerald-600 text-white shadow-md shadow-emerald-700/40 ring-1 ring-inset ring-emerald-400/50 dark:ring-emerald-300/70 active:scale-95 min-h-[44px] md:min-h-0"
+                  aria-label="New outline options"
+                >
+                  <ChevronDown className="h-4 w-4 text-white" strokeWidth={2.75} />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-52">
+                <DropdownMenuItem onSelect={() => onCreateOutline()} className="cursor-pointer">
+                  <Plus className="mr-2 h-4 w-4" /> New Outline
+                </DropdownMenuItem>
+                {/* TODO: wire "New from Template…" to a real template picker when
+                    one exists. For now it creates a blank outline so it never errors. */}
+                <DropdownMenuItem onSelect={() => onCreateOutline()} className="cursor-pointer">
+                  <FileDown className="mr-2 h-4 w-4" /> New from Template…
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </span>
 
+          <Separator orientation="vertical" className="h-6 mx-0.5 shrink-0" />
+
+          {/* 2. Find / Search */}
           <Tooltip>
             <TooltipTrigger asChild>
-              <span tabIndex={-1} className="inline-flex">
+              <span tabIndex={-1} className="inline-flex shrink-0">
                 <Button variant="outline" size="icon" onClick={() => setIsSearchOpen(true)} disabled={!currentOutline} className="bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 border-transparent text-white shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0" aria-label="Search outline">
                   <Search className="h-4 w-4 text-white" strokeWidth={2.5} />
                 </Button>
@@ -1507,194 +1504,182 @@ export default function OutlinePane({
             <TooltipContent>{!currentOutline ? 'Search outline — open an outline first' : `Search outline${!isMobile ? ' (⌘F)' : ''}`}</TooltipContent>
           </Tooltip>
 
-          {/* Focus Mode toggle (FIX 2) — Tier 2: tablet+ */}
-          {onToggleFocusMode && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span tabIndex={-1} className={cn(showTier2Inline ? "inline-flex" : "hidden")}>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={onToggleFocusMode}
-                    disabled={!selectedNodeId}
-                    className={cn(
-                      "bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 border-transparent text-white shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 active:scale-95 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0",
-                      isFocusMode && "bg-gradient-to-b from-blue-600 to-blue-800 dark:from-blue-600 dark:to-blue-700 border-transparent text-white hover:from-blue-700 hover:to-blue-900 dark:hover:from-blue-500 dark:hover:to-blue-600 ring-2 ring-inset ring-blue-300/70 shadow-md shadow-blue-700/40"
-                    )}
-                    aria-pressed={isFocusMode}
-                    aria-label="Zoom In"
-                  >
-                    <Focus className={cn("h-4 w-4", isFocusMode ? "text-white" : "text-white")} strokeWidth={2.5} />
-                  </Button>
-                </span>
-              </TooltipTrigger>
-              <TooltipContent>
-                {selectedNodeId
-                  ? `Zoom In — show only this item and its contents${!isMobile ? ' (⌘⇧F)' : ''}`
-                  : 'Zoom In — select an item first'}
-              </TooltipContent>
-            </Tooltip>
+          {/* 3. AI */}
+          <AIMenu
+            onGenerateOutline={onGenerateOutline}
+            outlineSummary={currentOutline?.name}
+            isLoadingAI={isLoadingAI}
+            onOpenBulkResearch={onOpenBulkResearch}
+            onOpenKnowledgeChat={onOpenKnowledgeChat}
+            onOpenTranslate={currentOutline?.isGuide ? undefined : onOpenTranslate}
+            onOpenReformat={currentOutline?.isGuide ? undefined : onOpenReformat}
+            onOpenTransformOutline={currentOutline?.isGuide ? undefined : onOpenTransformOutline}
+            onOpenImageToOutline={currentOutline?.isGuide ? undefined : onOpenImageToOutline}
+            onOpenApplications={onOpenApplications}
+            hasSelectedNode={!!selectedNodeId && !currentOutline?.isGuide}
+            selectedNodeName={selectedNodeId && currentOutline?.nodes[selectedNodeId]?.name || ''}
+          />
+
+          {/* 4. Bring In — the single "intake" door: merge in YouTube, PDFs,
+                 web pages, notes, audio, or another outline. Collapsible middle:
+                 folds into "⋯ More" (3rd from tail) when the pane is very narrow. */}
+          {showBringIn && (
+            <DropdownMenu>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="icon" className="bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 border-transparent text-white shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 shrink-0 active:scale-95 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0" aria-label="Bring In">
+                      <BookDown className="h-4 w-4 text-white" strokeWidth={2.5} />
+                    </Button>
+                  </DropdownMenuTrigger>
+                </TooltipTrigger>
+                <TooltipContent>Bring In — merge in YouTube, PDFs, web pages, notes, audio, or another outline</TooltipContent>
+              </Tooltip>
+              <DropdownMenuContent align="end" className="w-60 p-0.5">
+                {bringInMenuItems}
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
 
-          {/* Show or hide all nodes — single dropdown merging Expand All + Collapse All.
-              Bidirectional chevrons icon hints both directions; menu items keep the
-              original single-direction icons and the existing keyboard shortcuts. */}
-          <DropdownMenu>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span tabIndex={-1} className={cn(showTier2Inline ? "inline-flex" : "hidden")}>
+          {/* 5. Turn Into — the single "output" door: video, podcast, website,
+                 or 20+ formats. Collapsible middle (2nd from tail). */}
+          {showTurnInto && (
+            <DropdownMenu>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="icon" className="bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 border-transparent text-white shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 shrink-0 active:scale-95 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0" aria-label="Turn Into">
+                      <BookUp className="h-4 w-4 text-white" strokeWidth={2.5} />
+                    </Button>
+                  </DropdownMenuTrigger>
+                </TooltipTrigger>
+                <TooltipContent>Turn Into — video, podcast, website, or 20+ formats</TooltipContent>
+              </Tooltip>
+              <DropdownMenuContent align="end" className="w-56 p-0.5">
+                {turnIntoMenuItems}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+
+          {(showBringIn || showTurnInto) && (showSecondBrain || showExpand) && (
+            <Separator orientation="vertical" className="h-6 mx-0.5 shrink-0" />
+          )}
+
+          {/* 6. Second Brain menu. Collapsible middle (2nd from tail). */}
+          {showSecondBrain && (
+            <DropdownMenu>
+              <Tooltip>
+                <TooltipTrigger asChild>
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="outline"
                       size="icon"
-                      disabled={!currentOutline}
-                      className="bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 border-transparent text-white shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 shrink-0 active:scale-95 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
-                      aria-label="Show or hide all items"
+                      className="bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 border-transparent text-white shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 active:scale-95 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0 inline-flex"
+                      aria-label="Second Brain menu"
                     >
-                      <ChevronsDownUp className="h-4 w-4 text-white" strokeWidth={2.5} />
+                      <Brain className="h-4 w-4 text-white" strokeWidth={2.5} />
                     </Button>
                   </DropdownMenuTrigger>
-                </span>
-              </TooltipTrigger>
-              <TooltipContent>{!currentOutline ? 'Show or hide all items — open an outline first' : 'Show or hide all items'}</TooltipContent>
-            </Tooltip>
-            <DropdownMenuContent align="end" className="w-56 p-0.5">
-              <DropdownMenuItem
-                onSelect={() => {
-                  onExpandAll();
-                  setIsAllCollapsed(false);
-                }}
-                disabled={!currentOutline}
-                className="cursor-pointer py-1"
-              >
-                <ChevronsDown className="mr-2 h-4 w-4" /> Expand All
-                {!isMobile && <DropdownMenuShortcut>⌘E</DropdownMenuShortcut>}
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onSelect={() => {
-                  onCollapseAll();
-                  setIsAllCollapsed(true);
-                }}
-                disabled={!currentOutline}
-                className="cursor-pointer py-1"
-              >
-                <ChevronsUp className="mr-2 h-4 w-4" /> Collapse All
-                {!isMobile && <DropdownMenuShortcut>⌘⇧E</DropdownMenuShortcut>}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                </TooltipTrigger>
+                <TooltipContent>Second Brain</TooltipContent>
+              </Tooltip>
+              <DropdownMenuContent align="end" className="w-52">
+                {secondBrainMenuItems}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
 
-          {/* VIEW/NAV | SHARE cluster divider */}
-          <Separator orientation="vertical" className={cn("h-6 mx-0.5", showTier2Inline ? "block" : "hidden")} />
+          {/* 7. Expand All / Compress All — single dropdown. Lowest-priority
+                 collapsible middle: folds into "⋯ More" FIRST (tail). */}
+          {showExpand && (
+            <DropdownMenu>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span tabIndex={-1} className="inline-flex">
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        disabled={!currentOutline}
+                        className="bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 border-transparent text-white shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 shrink-0 active:scale-95 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
+                        aria-label="Expand or compress all items"
+                      >
+                        <ChevronsDownUp className="h-4 w-4 text-white" strokeWidth={2.5} />
+                      </Button>
+                    </DropdownMenuTrigger>
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>{!currentOutline ? 'Expand or compress all — open an outline first' : 'Expand or compress all items'}</TooltipContent>
+              </Tooltip>
+              <DropdownMenuContent align="end" className="w-56 p-0.5">
+                {expandMenuItems}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
 
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <span tabIndex={-1} className={cn(showTier2Inline ? "inline-flex" : "hidden")}>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  disabled={!selectedNodeId}
-                  onClick={() => selectedNodeId && onExportSubtree?.(selectedNodeId)}
-                  className="bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 border-transparent text-white shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
-                  aria-label="Share suboutline"
-                >
-                  <svg className="h-4 w-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <path d="M12 3v12" />
-                    <path d="m8 7 4-4 4 4" />
-                    <rect x="4" y="11" width="16" height="11" rx="2" ry="2" fill="none" />
-                  </svg>
-                </Button>
-              </span>
-            </TooltipTrigger>
-            <TooltipContent>{selectedNodeId ? 'Share suboutline as...' : 'Share suboutline — select an item first'}</TooltipContent>
-          </Tooltip>
+          {/* Flexible spacer — pins the "⋯ More" menu and the red Help button to
+              the far-right edge at every width, so Help never moves. */}
+          <div className="flex-1 min-w-0" aria-hidden="true" />
 
-          {/* Command palette tree-toolbar entry removed 2026-06-08 — the title-row
-              MessageSquare button is the single primary entry point for Cmd+K.
-              The mobile-overflow menu still surfaces "Command palette" as a backup. */}
+          {/* "⋯ More" overflow — appears ONLY when the pane is too narrow to show
+              the four collapsible middle tools inline. Deterministic tail-first
+              collapse: Expand folds first, then Second Brain, then Turn Into,
+              then Bring In. New / Search / AI / Help NEVER appear here. */}
+          {showActionMore && (
+            <DropdownMenu>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 border-transparent text-white shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 shrink-0 active:scale-95 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
+                      aria-label="More tools"
+                    >
+                      <MoreHorizontal className="h-4 w-4 text-white" strokeWidth={2.5} />
+                    </Button>
+                  </DropdownMenuTrigger>
+                </TooltipTrigger>
+                <TooltipContent>More tools</TooltipContent>
+              </Tooltip>
+              <DropdownMenuContent align="end" className="w-60 p-0.5 max-h-[70vh] overflow-y-auto">
+                {!showBringIn && (
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger className="cursor-pointer">
+                      <BookDown className="mr-2 h-4 w-4" /> Bring In
+                    </DropdownMenuSubTrigger>
+                    <DropdownMenuSubContent className="w-60">{bringInMenuItems}</DropdownMenuSubContent>
+                  </DropdownMenuSub>
+                )}
+                {!showTurnInto && (
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger className="cursor-pointer">
+                      <BookUp className="mr-2 h-4 w-4" /> Turn Into
+                    </DropdownMenuSubTrigger>
+                    <DropdownMenuSubContent className="w-56">{turnIntoMenuItems}</DropdownMenuSubContent>
+                  </DropdownMenuSub>
+                )}
+                {!showSecondBrain && (
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger className="cursor-pointer">
+                      <Brain className="mr-2 h-4 w-4" /> Second Brain
+                    </DropdownMenuSubTrigger>
+                    <DropdownMenuSubContent className="w-52">{secondBrainMenuItems}</DropdownMenuSubContent>
+                  </DropdownMenuSub>
+                )}
+                {!showExpand && (
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger className="cursor-pointer">
+                      <ChevronsDownUp className="mr-2 h-4 w-4" /> Expand / Compress
+                    </DropdownMenuSubTrigger>
+                    <DropdownMenuSubContent className="w-56">{expandMenuItems}</DropdownMenuSubContent>
+                  </DropdownMenuSub>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
 
-          {/* SHARE | SMART/BRAIN cluster divider */}
-          <Separator orientation="vertical" className={cn("h-6 mx-0.5", showTier2Inline ? "block" : "hidden")} />
-
-          {/* Second Brain Menu */}
-          <DropdownMenu>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className={cn("bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 border-transparent text-white shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 active:scale-95 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0", showTier2Inline ? "inline-flex" : "hidden")}
-                    aria-label="Second Brain menu"
-                  >
-                    <Brain className="h-4 w-4 text-white" strokeWidth={2.5} />
-                  </Button>
-                </DropdownMenuTrigger>
-              </TooltipTrigger>
-              <TooltipContent>Second Brain</TooltipContent>
-            </Tooltip>
-            <DropdownMenuContent align="end" className="w-52">
-              <DropdownMenuLabel className="flex items-center gap-2">
-                <span className="text-base">🧠</span>
-                Second Brain
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onSelect={() => onOpenSecondBrain?.()} className="cursor-pointer">
-                <Brain className="mr-2 h-4 w-4" />
-                Open Second Brain
-              </DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => onOpenQuickCapture?.()} className="cursor-pointer">
-                <Inbox className="mr-2 h-4 w-4" />
-                Quick Capture
-                {!isMobile && <span className="ml-auto text-xs text-muted-foreground">⌘⇧I</span>}
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onSelect={() => selectedNodeId && onSaveToSecondBrain?.(selectedNodeId)}
-                disabled={!selectedNodeId || currentOutline?.isSecondBrain}
-                className="cursor-pointer"
-              >
-                <Plus className="mr-2 h-4 w-4" />
-                Save Selection to Second Brain
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onSelect={() => onSearchSecondBrainLocal?.()} className="cursor-pointer" aria-label="Search Second Brain — free, instant, local keyword search">
-                <Search className="mr-2 h-4 w-4" />
-                Search Second Brain
-              </DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => onSearchSecondBrain?.()} className="cursor-pointer" aria-label="Ask Second Brain — AI answer (uses an AI generation)">
-                <MessageSquare className="mr-2 h-4 w-4" />
-                Ask Second Brain
-              </DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => onOpenSecondBrainDashboard?.()} className="cursor-pointer">
-                <LayoutDashboard className="mr-2 h-4 w-4" />
-                View Dashboard
-              </DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => onImportToSecondBrain?.()} className="cursor-pointer">
-                <Library className="mr-2 h-4 w-4" />
-                Import to Second Brain
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          {/* AIMenu (Smart Tools) — Tier 2: tablet+ */}
-          <span className={cn(showTier2Inline ? "inline-flex" : "hidden")}>
-            <AIMenu
-              onGenerateOutline={onGenerateOutline}
-              outlineSummary={currentOutline?.name}
-              isLoadingAI={isLoadingAI}
-              onOpenBulkResearch={onOpenBulkResearch}
-              onOpenKnowledgeChat={onOpenKnowledgeChat}
-              onOpenTranslate={currentOutline?.isGuide ? undefined : onOpenTranslate}
-              onOpenReformat={currentOutline?.isGuide ? undefined : onOpenReformat}
-              onOpenTransformOutline={currentOutline?.isGuide ? undefined : onOpenTransformOutline}
-              onOpenImageToOutline={currentOutline?.isGuide ? undefined : onOpenImageToOutline}
-              onOpenApplications={onOpenApplications}
-              onAskAI={onOpenCommandPalette}
-              hasSelectedNode={!!selectedNodeId && !currentOutline?.isGuide}
-              selectedNodeName={selectedNodeId && currentOutline?.nodes[selectedNodeId]?.name || ''}
-            />
-          </span>
-
+          {/* Stop AI — only shown while an AI operation is running. */}
           {isLoadingAI && onCancelAI && (
             <Tooltip>
               <TooltipTrigger asChild>
@@ -1712,226 +1697,59 @@ export default function OutlinePane({
             </Tooltip>
           )}
 
-          {onUnmerge && (
+          {/* Hidden Settings trigger — kept mounted so the App menu's "Settings"
+              item can open the Settings dialog by clicking [data-settings-trigger]. */}
+          <SettingsDialog onFolderSelected={onFolderSelected}>
+            <button
+              type="button"
+              aria-hidden="true"
+              tabIndex={-1}
+              className="hidden"
+              data-settings-trigger
+            />
+          </SettingsDialog>
+
+          <Separator orientation="vertical" className="h-6 mx-0.5 shrink-0" />
+
+          {/* 8. HELP — its own RED button, far right, ALWAYS visible and PINNED
+                 (never collapses, never moves), with a pull-down for Help,
+                 Report a Problem, and Share Feedback. */}
+          <DropdownMenu>
             <Tooltip>
               <TooltipTrigger asChild>
-                <span tabIndex={-1} className="inline-flex">
+                <DropdownMenuTrigger asChild>
                   <Button
                     variant="outline"
                     size="icon"
-                    onClick={onUnmerge}
-                    disabled={!canUnmerge}
-                    className="hover:bg-orange-500/20 border-orange-500/30 disabled:opacity-40 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
-                    aria-label="Unmerge — restore outline to pre-merge state"
+                    className="shrink-0 bg-red-600 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-500 text-white border-transparent shadow-sm shadow-red-700/30 ring-1 ring-inset ring-red-400/50 dark:ring-red-300/70 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0 inline-flex"
+                    aria-label="Help and support"
                   >
-                    <RotateCcw className="h-4 w-4 text-orange-500 dark:text-orange-400" />
+                    <span aria-hidden="true" className="text-white font-bold text-lg leading-none">?</span>
                   </Button>
-                </span>
+                </DropdownMenuTrigger>
               </TooltipTrigger>
-              <TooltipContent>{canUnmerge ? 'Unmerge — Restore outline to pre-merge state' : 'Unmerge — available right after a merge'}</TooltipContent>
+              <TooltipContent>Help & Support</TooltipContent>
             </Tooltip>
-          )}
-
-          {/* SMART/BRAIN | APP cluster divider (only visible when adjacent tier-3 items are shown) */}
-          <Separator orientation="vertical" className={cn("h-6 mx-0.5", showTier3Inline ? "block" : "hidden")} />
-
-          <SettingsDialog onFolderSelected={onFolderSelected}>
-            <Button
-              variant="outline"
-              size="icon"
-              title="Settings"
-              aria-label="Settings"
-              className={cn("bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white border-transparent shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0", showTier3Inline ? "inline-flex" : "hidden")}
-              data-settings-trigger
-            >
-              <Settings className="h-4 w-4 text-white" strokeWidth={2.5} />
-            </Button>
-          </SettingsDialog>
-
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={onOpenHelp}
-                className={cn("bg-red-600 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-500 text-white border-transparent shadow-sm shadow-red-700/30 ring-1 ring-inset ring-red-400/50 dark:ring-red-300/70 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0", showTier3Inline ? "inline-flex" : "hidden")}
-                aria-label="Help and support"
+            <DropdownMenuContent align="end" className="w-56 p-0.5">
+              {onOpenHelp && (
+                <DropdownMenuItem onSelect={() => onOpenHelp()} className="cursor-pointer py-1">
+                  <HelpCircle className="mr-2 h-4 w-4" /> Help & Support
+                </DropdownMenuItem>
+              )}
+              <ReportIssueMenuItem currentOutlineName={currentOutline?.name ?? null} />
+              <DropdownMenuItem
+                onSelect={() => {
+                  if (typeof window !== 'undefined') {
+                    window.open('/feedback', '_blank', 'noopener,noreferrer');
+                  }
+                }}
+                className="cursor-pointer py-1"
+                aria-label="Share feedback (earn 1 year of Pro)"
               >
-                <span aria-hidden="true" className="text-white font-bold text-lg leading-none">?</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Help & Support</TooltipContent>
-          </Tooltip>
-
-          {/* Overflow "More" (⋯) menu — surfaces any tool collapsed out of the
-              toolbar when the outline column is too narrow to show it inline,
-              so every action stays reachable and nothing is clipped. Shown
-              only when at least one tier is collapsed. */}
-          {showActionOverflow && (
-            <DropdownMenu>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white border-transparent shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 shrink-0 active:scale-95 inline-flex min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
-                      aria-label="More tools"
-                      data-testid="outline-toolbar-more"
-                    >
-                      <MoreHorizontal className="h-4 w-4" strokeWidth={2.5} />
-                    </Button>
-                  </DropdownMenuTrigger>
-                </TooltipTrigger>
-                <TooltipContent>More tools</TooltipContent>
-              </Tooltip>
-              <DropdownMenuContent align="end" className="w-56 p-0.5">
-                <DropdownMenuLabel className="py-1 text-xs uppercase tracking-wide text-muted-foreground">More tools</DropdownMenuLabel>
-                {!showTier2Inline && (
-                  <>
-                    {onToggleFocusMode && (
-                      <DropdownMenuItem
-                        onSelect={() => onToggleFocusMode?.()}
-                        disabled={!selectedNodeId}
-                        className="cursor-pointer py-1"
-                      >
-                        <Focus className="mr-2 h-4 w-4" /> Zoom In
-                        {!isMobile && <DropdownMenuShortcut>⌘⇧F</DropdownMenuShortcut>}
-                      </DropdownMenuItem>
-                    )}
-                    <DropdownMenuItem
-                      onSelect={() => { onExpandAll(); setIsAllCollapsed(false); }}
-                      disabled={!currentOutline}
-                      className="cursor-pointer py-1"
-                    >
-                      <ChevronsDown className="mr-2 h-4 w-4" /> Expand All
-                      {!isMobile && <DropdownMenuShortcut>⌘E</DropdownMenuShortcut>}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onSelect={() => { onCollapseAll(); setIsAllCollapsed(true); }}
-                      disabled={!currentOutline}
-                      className="cursor-pointer py-1"
-                    >
-                      <ChevronsUp className="mr-2 h-4 w-4" /> Collapse All
-                      {!isMobile && <DropdownMenuShortcut>⌘⇧E</DropdownMenuShortcut>}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onSelect={() => selectedNodeId && onExportSubtree?.(selectedNodeId)}
-                      disabled={!selectedNodeId}
-                      className="cursor-pointer py-1"
-                    >
-                      <Share2 className="mr-2 h-4 w-4" /> Share Suboutline…
-                    </DropdownMenuItem>
-
-                    {/* Second Brain — full menu preserved as a submenu. */}
-                    <DropdownMenuSub>
-                      <DropdownMenuSubTrigger className="cursor-pointer py-1">
-                        <Brain className="mr-2 h-4 w-4 text-emerald-600 dark:text-emerald-400" /> Second Brain
-                      </DropdownMenuSubTrigger>
-                      <DropdownMenuSubContent className="w-56">
-                        <DropdownMenuItem onSelect={() => onOpenSecondBrain?.()} className="cursor-pointer">
-                          <Brain className="mr-2 h-4 w-4" /> Open Second Brain
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={() => onOpenQuickCapture?.()} className="cursor-pointer">
-                          <Inbox className="mr-2 h-4 w-4" /> Quick Capture
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onSelect={() => selectedNodeId && onSaveToSecondBrain?.(selectedNodeId)}
-                          disabled={!selectedNodeId || currentOutline?.isSecondBrain}
-                          className="cursor-pointer"
-                        >
-                          <Plus className="mr-2 h-4 w-4" /> Save Selection to Second Brain
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem onSelect={() => onSearchSecondBrainLocal?.()} className="cursor-pointer">
-                          <Search className="mr-2 h-4 w-4" /> Search Second Brain
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={() => onSearchSecondBrain?.()} className="cursor-pointer">
-                          <MessageSquare className="mr-2 h-4 w-4" /> Ask Second Brain
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={() => onOpenSecondBrainDashboard?.()} className="cursor-pointer">
-                          <LayoutDashboard className="mr-2 h-4 w-4" /> View Dashboard
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={() => onImportToSecondBrain?.()} className="cursor-pointer">
-                          <Library className="mr-2 h-4 w-4" /> Import to Second Brain
-                        </DropdownMenuItem>
-                      </DropdownMenuSubContent>
-                    </DropdownMenuSub>
-
-                    {/* Smart Tools — AI actions preserved as a submenu. */}
-                    <DropdownMenuSub>
-                      <DropdownMenuSubTrigger className="cursor-pointer py-1">
-                        <Sparkles className="mr-2 h-4 w-4 text-violet-600 dark:text-violet-400" /> AI
-                      </DropdownMenuSubTrigger>
-                      <DropdownMenuSubContent className="w-56">
-                        {onOpenApplications && (
-                          <DropdownMenuItem onSelect={() => onOpenApplications?.()} className="cursor-pointer">
-                            <Sparkles className="mr-2 h-4 w-4 text-amber-500 dark:text-amber-400" /> <span className="font-semibold">Wizards</span>
-                          </DropdownMenuItem>
-                        )}
-                        {onOpenCommandPalette && (
-                          <DropdownMenuItem onSelect={() => onOpenCommandPalette?.()} className="cursor-pointer">
-                            <Command className="mr-2 h-4 w-4" /> Quick Command
-                            {!isMobile && <DropdownMenuShortcut>⌘K</DropdownMenuShortcut>}
-                          </DropdownMenuItem>
-                        )}
-                        {onOpenKnowledgeChat && (
-                          <DropdownMenuItem onSelect={onOpenKnowledgeChat} className="cursor-pointer">
-                            <Sparkles className="mr-2 h-4 w-4" /> Ask Your Outlines
-                          </DropdownMenuItem>
-                        )}
-                        {onOpenBulkResearch && (
-                          <DropdownMenuItem onSelect={onOpenBulkResearch} className="cursor-pointer">
-                            <Library className="mr-2 h-4 w-4" /> Research & Import
-                          </DropdownMenuItem>
-                        )}
-                        {onOpenReformat && !currentOutline?.isGuide && (
-                          <DropdownMenuItem onSelect={onOpenReformat} disabled={!selectedNodeId} className="cursor-pointer">
-                            <Sparkles className="mr-2 h-4 w-4" /> Reformat
-                          </DropdownMenuItem>
-                        )}
-                        {onOpenTranslate && !currentOutline?.isGuide && (
-                          <DropdownMenuItem onSelect={onOpenTranslate} disabled={!selectedNodeId} className="cursor-pointer">
-                            <Sparkles className="mr-2 h-4 w-4" /> Translate
-                          </DropdownMenuItem>
-                        )}
-                        {onOpenTransformOutline && !currentOutline?.isGuide && (
-                          <DropdownMenuItem onSelect={onOpenTransformOutline} className="cursor-pointer">
-                            <Sparkles className="mr-2 h-4 w-4" /> Transform Outline
-                          </DropdownMenuItem>
-                        )}
-                        {onOpenImageToOutline && !currentOutline?.isGuide && (
-                          <DropdownMenuItem onSelect={onOpenImageToOutline} disabled={!selectedNodeId} className="cursor-pointer">
-                            <Sparkles className="mr-2 h-4 w-4" /> Image to Outline
-                          </DropdownMenuItem>
-                        )}
-                      </DropdownMenuSubContent>
-                    </DropdownMenuSub>
-                  </>
-                )}
-                {!showTier2Inline && !showTier3Inline && <DropdownMenuSeparator />}
-                {!showTier3Inline && (
-                  <>
-                    <DropdownMenuItem
-                      onSelect={(e) => {
-                        e.preventDefault();
-                        const trigger = document.querySelector<HTMLButtonElement>('[data-settings-trigger]');
-                        trigger?.click();
-                      }}
-                      className="cursor-pointer py-1"
-                    >
-                      <Settings className="mr-2 h-4 w-4" /> Settings
-                    </DropdownMenuItem>
-                    {onOpenHelp && (
-                      <DropdownMenuItem onSelect={() => onOpenHelp()} className="cursor-pointer py-1">
-                        <HelpCircle className="mr-2 h-4 w-4" /> Help & Support
-                      </DropdownMenuItem>
-                    )}
-                  </>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
+                <Send className="mr-2 h-4 w-4" /> Share Feedback
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </TooltipProvider>
 
@@ -2007,6 +1825,8 @@ export default function OutlinePane({
               onSaveToSecondBrain={onSaveToSecondBrain}
               maxRenderDepth={maxRenderDepth}
               onInsertOutlineLink={currentOutline.isGuide ? undefined : onOpenLinkToOutline}
+              onZoomNode={(id) => { onSelectNode(id); onToggleFocusMode?.(); }}
+              onRefreshFromWeb={currentOutline.isGuide ? undefined : (id) => { onSelectNode(id); onOpenLiveBooks?.(); }}
               isReadOnly={!!currentOutline.isGuide}
             />
           </ul>

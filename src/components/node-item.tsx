@@ -5,7 +5,7 @@ import type { OutlineNode, NodeMap } from '@/types';
 import NodeIcon from './node-icon';
 import { TagBadge } from './tag-badge';
 import NodePropertiesDialog from './node-properties-dialog';
-import { ChevronRight, Plus, Trash2, Edit3, ChevronDown, ChevronUp, ChevronsDown, ChevronsUp, Copy, Scissors, ClipboardPaste, CopyPlus, Sparkles, CheckSquare2, Square, Sliders, Share, Globe, ExternalLink } from 'lucide-react';
+import { ChevronRight, Plus, Trash2, Edit3, ChevronDown, ChevronUp, ChevronsDown, ChevronsUp, Copy, Scissors, ClipboardPaste, CopyPlus, Sparkles, CheckSquare2, Square, Sliders, Share, Globe, ExternalLink, Focus, RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import {
@@ -70,6 +70,10 @@ interface NodeItemProps {
   maxRenderDepth?: number;
   // Cross-outline link picker (Phase 1, 2026-06-04) — context menu entry
   onInsertOutlineLink?: () => void;
+  // Zoom In / Focus this node (selects it, then enters Focus mode)
+  onZoomNode?: (nodeId: string) => void;
+  // Refresh this node's subtree from the latest web info (selects it, opens LIVE BOOKS)
+  onRefreshFromWeb?: (nodeId: string) => void;
   // Read-only mode (e.g. User Guide outline) — suppresses rename + always-shown
   // mutator items in the context menu, and blocks F2/double-click rename. The
   // optional mutator callbacks should already be undefined when isReadOnly is
@@ -180,6 +184,8 @@ export default function NodeItem({
   onSaveToSecondBrain,
   maxRenderDepth,
   onInsertOutlineLink,
+  onZoomNode,
+  onRefreshFromWeb,
   isReadOnly = false,
 }: NodeItemProps) {
   const node = nodes[nodeId];
@@ -830,6 +836,21 @@ export default function NodeItem({
               </ContextMenuItem>
             )}
 
+            {onZoomNode && (
+              <ContextMenuItem onClick={(e) => { e.stopPropagation(); onZoomNode(node.id); }}>
+                <Focus className="mr-2 h-4 w-4" />
+                Zoom In / Focus
+                <ContextMenuShortcut>⌘⇧F</ContextMenuShortcut>
+              </ContextMenuItem>
+            )}
+
+            {onRefreshFromWeb && !isReadOnly && (
+              <ContextMenuItem onClick={(e) => { e.stopPropagation(); onRefreshFromWeb(node.id); }}>
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Refresh from Web
+              </ContextMenuItem>
+            )}
+
             {isChapter && onGenerateContentForChildren && (
               <ContextMenuItem onClick={(e) => { e.stopPropagation(); onGenerateContentForChildren(node.id); }}>
                 <Sparkles className="mr-2 h-4 w-4" />
@@ -956,6 +977,8 @@ export default function NodeItem({
                         onSaveToSecondBrain={onSaveToSecondBrain}
                         maxRenderDepth={maxRenderDepth}
                         onInsertOutlineLink={onInsertOutlineLink}
+                        onZoomNode={onZoomNode}
+                        onRefreshFromWeb={onRefreshFromWeb}
                         isReadOnly={isReadOnly}
                     />
                 ))}

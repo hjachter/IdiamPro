@@ -260,7 +260,7 @@ export function moveNode(
     if (oldParentId) {
         const oldParent = { ...nodes[oldParentId], childrenIds: [...nodes[oldParentId].childrenIds] };
         oldParent.childrenIds = oldParent.childrenIds.filter(id => id !== draggedId);
-        if (oldParent.childrenIds.length === 0 && oldParent.type === 'chapter' && oldParent.type !== 'root') {
+        if (oldParent.childrenIds.length === 0 && oldParent.type === 'chapter') {
             oldParent.type = 'document';
         }
         nodes[oldParentId] = oldParent;

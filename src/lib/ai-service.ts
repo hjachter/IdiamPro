@@ -46,7 +46,17 @@ const PLAN_CONFIGS: Record<SubscriptionPlan, PlanConfig> = {
     maxTokens: 1000,
     temperature: 0.7,
   },
+  BASIC: {
+    modelHint: 'standard',
+    maxTokens: 2000,
+    temperature: 0.7,
+  },
   PREMIUM: {
+    modelHint: 'premium',
+    maxTokens: 4000,
+    temperature: 0.8,
+  },
+  ACADEMIC: {
     modelHint: 'premium',
     maxTokens: 4000,
     temperature: 0.8,
@@ -87,7 +97,7 @@ export class AIService {
     if (!this.features.enableAIContentGeneration) {
       throw new Error('AI content generation is not enabled for your plan.');
     }
-    return generateOutlineAction(topic, this.plan, undefined, undefined, getUserApiKey('gemini'));
+    return generateOutlineAction(topic, undefined, undefined, undefined, getUserApiKey('gemini'));
   }
 
   /**
@@ -97,7 +107,7 @@ export class AIService {
     if (!this.features.enableAIContentGeneration) {
       throw new Error('AI content generation is not enabled for your plan.');
     }
-    return generateContentForNodeAction(context, this.plan);
+    return generateContentForNodeAction(context);
   }
 
   /**
@@ -107,7 +117,7 @@ export class AIService {
     if (!this.features.enableAIContentGeneration) {
       throw new Error('AI content generation is not enabled for your plan.');
     }
-    return expandContentAction(title, this.plan);
+    return expandContentAction(title, getUserApiKey('gemini'));
   }
 
   /**
@@ -121,7 +131,7 @@ export class AIService {
     if (!this.features.enableIngestExternalSource) {
       throw new Error('External source ingestion is not enabled for your plan.');
     }
-    return ingestExternalSourceAction(source, existingOutlineSummary, this.plan);
+    return ingestExternalSourceAction(source, existingOutlineSummary);
   }
 }
 

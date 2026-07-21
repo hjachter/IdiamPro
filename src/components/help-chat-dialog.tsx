@@ -87,8 +87,8 @@ KEYBOARD SHORTCUTS:
 - Enter/Return: Create new sibling node
 - Tab: Indent node
 - Shift+Tab: Outdent node
-- Cmd+K: Command palette (also: Expand All, Collapse All)
-- Quick Command / Ask AI command bar (Cmd+K, or the chat-bubble toolbar button): a natural-language command bar that can act on your outline, not just answer questions. You can say things like "add a node called Budget" to create a node in the current outline, or "create an outline called Trip Plan" to make a whole new outline. Plain-English requests; conversational confirmations, never CLI-speak.
+- (Quick Command and its Cmd+K shortcut were retired in the 2026-07-21 UI restructure. Natural-language actions on your outline now live in the AI menu on the toolbar and in the right-click menus.)
+- AI menu (toolbar, sparkle icon): natural-language and AI actions that can act on your outline, not just answer questions — generate a suboutline, reformat, transform, translate, ask your outlines, and more. Plain-English requests; conversational confirmations, never CLI-speak.
 - Cmd+E: Expand All — recursive open of the selected suboutline (or the whole outline if nothing is selected). Also available from the toolbar's bidirectional double-chevron button (tooltip: "Show or hide all nodes") which opens a dropdown with [Expand all] and [Collapse all] items.
 - Cmd+Shift+E: Collapse All — recursive close of the selected suboutline (or the whole outline if nothing is selected). Same toolbar dropdown as above.
 - Single-chevron click on a node: toggles ONLY that node and preserves each descendant's previous open/closed state. Use this when you want a node to remember how it was last left.
@@ -174,7 +174,7 @@ MOBILE:
 - Stacked View: outline + content side by side
 - Content View: full-screen editor mode
 - Toggle between views with the toolbar button
-- Touch-accessible toolbar buttons mirror every keyboard shortcut for iPad/iPhone: Zoom In (target icon), Expand/Collapse All (bidirectional double-chevron icon — opens a dropdown), Search, Command Palette, and the Second Brain Brain menu (which contains Quick Capture, Open Second Brain, Ask Second Brain, and more). No iOS user is gated by a keyboard-only feature.
+- Touch-accessible toolbar buttons work for iPad/iPhone: Search/Find, Expand All/Compress All (combined double-chevron icon — opens a dropdown), AI (sparkle), Bring In, Turn Into, and the Second Brain menu (which contains Quick Capture, Open Second Brain, Ask Second Brain, and more). Zoom In / Focus and Refresh from Web live on each item's long-press (right-click) menu. No iOS user is gated by a keyboard-only feature.
 
 ADMIN DASHBOARD:
 - Launch Metrics page (internal): /admin/metrics is an internal-only dashboard showing launch-week vitals on a single screen — signups this week, activation rate, day-1 and day-7 retention, free-to-paid conversion, AI runs in the last 24 hours, and monthly recurring revenue. Access is enforced server-side (a signed-in Clerk user whose email is on the ADMIN_EMAILS allowlist). Refresh is manual (button at top with "Last updated N min ago"). All numbers are currently labelled "Demo" — the data layer (src/lib/launch-metrics.ts) exposes a typed contract so each metric can be re-wired to Clerk / RevenueCat / Sentry / the events backend independently once those are connected.

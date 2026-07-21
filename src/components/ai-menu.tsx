@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, FileText, Crown, Loader2, Brain, MessageSquare, Languages, WandSparkles, Wand2, Image as ImageIcon, LayoutGrid } from 'lucide-react';
+import { Sparkles, FileText, Crown, Loader2, Brain, Languages, WandSparkles, Wand2, Image as ImageIcon, LayoutGrid } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useAI, useAIFeature } from '@/contexts/ai-context';
 import AiGenerateDialog from './ai-generate-dialog';
@@ -31,7 +31,6 @@ interface AIMenuProps {
   onOpenTransformOutline?: () => void;
   onOpenImageToOutline?: () => void;
   onOpenApplications?: () => void;
-  onAskAI?: () => void;
   hasSelectedNode?: boolean;
   selectedNodeName?: string;
 }
@@ -47,7 +46,6 @@ export default function AIMenu({
   onOpenTransformOutline,
   onOpenImageToOutline,
   onOpenApplications,
-  onAskAI,
   hasSelectedNode,
   selectedNodeName,
 }: AIMenuProps) {
@@ -81,9 +79,9 @@ export default function AIMenu({
             <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
-                size="icon"
+                size="sm"
                 disabled={disabled || isLoadingAI}
-                className="bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white border-transparent shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 active:scale-95 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
+                className="shrink-0 bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white border-transparent shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 active:scale-95 min-h-[44px] touch-manipulation md:min-h-0 px-2"
                 aria-label="AI menu"
               >
                 {isLoadingAI ? (
@@ -91,6 +89,7 @@ export default function AIMenu({
                 ) : (
                   <Sparkles className="h-4 w-4 text-white" strokeWidth={2.5} />
                 )}
+                <span className="ml-1.5 text-xs">AI</span>
               </Button>
             </DropdownMenuTrigger>
           </TooltipTrigger>
@@ -130,17 +129,6 @@ export default function AIMenu({
             </DropdownMenuItem>
             <DropdownMenuSeparator />
           </>
-        )}
-
-        {onAskAI && (
-          <DropdownMenuItem
-            onSelect={() => onAskAI()}
-            className="cursor-pointer"
-          >
-            <MessageSquare className="mr-2 h-4 w-4 text-primary" />
-            <span className="font-medium">Quick Command</span>
-            <span className="ml-auto text-xs tracking-widest text-muted-foreground">⌘K</span>
-          </DropdownMenuItem>
         )}
 
         {onOpenReformat && hasSelectedNode && (

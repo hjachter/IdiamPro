@@ -868,6 +868,7 @@ export default function OutlinePro() {
               [sbRootId]: {
                 id: sbRootId,
                 name: 'Second Brain',
+                prefix: '',
                 parentId: null as unknown as string,
                 childrenIds: [],
                 type: 'root' as const,
@@ -1161,12 +1162,11 @@ export default function OutlinePro() {
   // Keyboard shortcuts (Command Palette, Focus Mode)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Cmd+K or Ctrl+K to open command palette
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        setIsCommandPaletteOpen(true);
-        return;
-      }
+      // Quick Command retired (2026-07-21 UI restructure): the Cmd+K / Ctrl+K
+      // binding is intentionally removed. Quick Command's toolbar button and
+      // AI-menu item were also removed. The palette component is left mounted
+      // but is no longer opened by a global shortcut.
+      // (was: if ((e.metaKey || e.ctrlKey) && e.key === 'k') { open palette })
 
       // Ctrl+F to open the outline search. We deliberately use Control (not
       // Command) so we don't fight Electron/Chromium's built-in Cmd+F page
@@ -2879,7 +2879,7 @@ export default function OutlinePro() {
             newNodes[newId] = {
               ...node,
               id: newId,
-              parentId: isTopLevel ? parentId : idMapping[node.parentId] || parentId,
+              parentId: isTopLevel ? parentId : (node.parentId ? idMapping[node.parentId] : undefined) || parentId,
               childrenIds: node.childrenIds.map(cid => idMapping[cid] || cid),
             };
           });
@@ -4441,7 +4441,7 @@ export default function OutlinePro() {
         newNodes[newId] = {
           ...node,
           id: newId,
-          parentId: isSubtreeRoot ? sb.rootNodeId : idMapping[node.parentId] || sb.rootNodeId,
+          parentId: isSubtreeRoot ? sb.rootNodeId : (node.parentId ? idMapping[node.parentId] : undefined) || sb.rootNodeId,
           childrenIds: node.childrenIds.map(cid => idMapping[cid] || cid),
         };
       });
@@ -5367,6 +5367,8 @@ export default function OutlinePro() {
             ancestorPath={selectedNodeAncestorPath}
             onUpdate={handleUpdateNode}
             onBack={() => setMobileView('stacked')}
+            onInsertOutlineLink={currentOutline?.isGuide ? undefined : () => setIsOutlineLinkPickerOpen(true)}
+            onExportContent={handleExportSubtree}
             onExpandContent={handleExpandContent}
             onGenerateContent={handleGenerateContentForNode}
             onGenerateContentForDescendants={handleGenerateContentForChildren}
@@ -5766,6 +5768,8 @@ export default function OutlinePro() {
             nodes={currentOutline?.nodes}
             ancestorPath={selectedNodeAncestorPath}
             onUpdate={handleUpdateNode}
+            onInsertOutlineLink={currentOutline?.isGuide ? undefined : () => setIsOutlineLinkPickerOpen(true)}
+            onExportContent={handleExportSubtree}
             onExpandContent={handleExpandContent}
             onGenerateContent={handleGenerateContentForNode}
             onGenerateContentForDescendants={handleGenerateContentForChildren}
@@ -5887,6 +5891,8 @@ export default function OutlinePro() {
                 nodes={currentOutline?.nodes}
                 ancestorPath={selectedNodeAncestorPath}
                 onUpdate={handleUpdateNode}
+                onInsertOutlineLink={currentOutline?.isGuide ? undefined : () => setIsOutlineLinkPickerOpen(true)}
+                onExportContent={handleExportSubtree}
                 onExpandContent={handleExpandContent}
                 onGenerateContent={handleGenerateContentForNode}
                 onGenerateContentForDescendants={handleGenerateContentForChildren}

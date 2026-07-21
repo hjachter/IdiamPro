@@ -94,6 +94,11 @@ async function launchApp() {
   // overlay can't intercept toolbar clicks.
   await dismissWelcomeShowcase(page);
 
+  // COST SAFETY: force the free/local Gemma (Ollama) path — no paid/cloud calls.
+  await page.evaluate(() => {
+    try { window.localStorage.setItem('aiProvider', 'local'); } catch {}
+  }).catch(() => {});
+
   // Capture browser console for diagnostics. Filter to AI / Ollama / KnowledgeChat lines.
   page.on('console', msg => {
     const t = msg.text();
@@ -147,6 +152,15 @@ async function ensureNoDialogs() {
   const count = await page.locator('[role="dialog"]').count().catch(() => 0);
   if (count > 0) {
     await closeDialog('stale');
+  }
+  // Also dismiss any lingering dropdown/popover menu. An open Radix menu adds a
+  // full-screen dismiss layer that intercepts every subsequent click ("<html>
+  // intercepts pointer events"), which silently breaks all following tests.
+  for (let i = 0; i < 4; i++) {
+    const menus = await page.locator('[role="menu"]:visible, [data-state="open"][role="menu"]').count().catch(() => 0);
+    if (menus === 0) break;
+    await page.keyboard.press('Escape').catch(() => {});
+    await page.waitForTimeout(250);
   }
 }
 
@@ -209,16 +223,21 @@ async function testHelpChat() {
     // Make sure no leftover dialog from a prior test is covering the toolbar.
     await ensureNoDialogs();
 
-    // Help Chat opens from the red "?" button when it's inline, or from the
-    // title-bar "More tools" overflow menu ("Help & Support"). The latter is
-    // `lg:hidden` (only rendered below 1024px), so briefly narrow the window
-    // to reveal a guaranteed path, then restore the wide layout afterward.
+    // The red "?" button now opens a small dropdown (Help & Support / Report
+    // Issue / Share Feedback) — Help Chat opens from the "Help & Support" item.
+    // On narrow widths the same item lives in the title-bar "More tools" menu.
     let opened = false;
     const helpBtn = page.locator('[aria-label="Help and support"]').first();
     if (await helpBtn.waitFor({ state: 'visible', timeout: 1500 }).then(() => true).catch(() => false)) {
       await helpBtn.click();
-      opened = true;
-    } else {
+      await page.waitForTimeout(400);
+      const helpSupport = page.locator('[role="menuitem"]:has-text("Help & Support")').first();
+      if (await helpSupport.waitFor({ state: 'visible', timeout: 3000 }).then(() => true).catch(() => false)) {
+        await helpSupport.click();
+        opened = true;
+      }
+    }
+    if (!opened) {
       await setElectronWindowSize(electronApp, 900, 900);
       await page.waitForTimeout(700);
       const more = page.locator('[aria-label="More tools"]').first();
@@ -285,9 +304,9 @@ async function testHelpChat() {
 
 /* ─────────────────────────── Test 3 ─────────────────────────── */
 async function openKnowledgeChat() {
-  // Open via Smart Tools menu (Sparkles icon). Knowledge Chat is now labeled
-  // "Ask Your Outlines" (value-based naming rename).
-  const aiBtn = page.locator('button[aria-label="Smart Tools menu"]').first();
+  // Open via the AI menu (Sparkles icon, labeled "AI"). Knowledge Chat is now
+  // labeled "Ask Your Outlines" (value-based naming rename).
+  const aiBtn = page.locator('button[aria-label="AI menu"], button[aria-label="Smart Tools menu"]').first();
   await aiBtn.click();
   await page.waitForTimeout(500);
   const kcItem = page.getByRole('menuitem', { name: /Ask Your Outlines|Knowledge Chat/i }).first();
@@ -449,7 +468,7 @@ async function testBulkResearchDialog() {
     // Research & Import moved to the Import menu (BookDown) 2026-06-06. Try
     // Import first, then overflow on narrow widths.
     let researchItem = null;
-    const importBtn = page.locator('button[aria-label^="Import"]').first();
+    const importBtn = page.locator('button[aria-label="Bring In"], button[aria-label^="Import"]').first();
     if (await importBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
       await importBtn.click();
       await page.waitForTimeout(500);

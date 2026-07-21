@@ -113,6 +113,13 @@ async function launchApp() {
   // its overlay can't block subsequent clicks. Shared across suites.
   await prepareApp(page);
 
+  // COST SAFETY: force the app onto the free/local Gemma (Ollama) path so no
+  // test can ever trigger a paid/cloud AI call. 'local' makes every AI feature
+  // route to localhost Ollama and never touch a cloud provider.
+  await page.evaluate(() => {
+    try { window.localStorage.setItem('aiProvider', 'local'); } catch {}
+  }).catch(() => {});
+
   console.log('App launched successfully, now at:', page.url());
   return { electronApp, page };
 }
@@ -144,7 +151,7 @@ async function testWelcomeTour() {
 
       // Verify welcome outline loaded - use heading to be more specific
       await page.waitForTimeout(2000);
-      const welcomeTitle = page.locator('h1:has-text("Welcome to IdiamPro!")');
+      const welcomeTitle = page.locator('h1:has-text("Welcome to IdeaM!")');
       if (await welcomeTitle.first().isVisible({ timeout: 5000 })) {
         details.steps.push('Welcome outline loaded successfully');
         return { passed: true, details };
@@ -289,7 +296,7 @@ async function testKeyboardNavigation() {
       details.steps.push('Clicked on Getting Started node');
     } else {
       // Fallback: click on the root
-      const rootNode = page.locator('h1:has-text("IdiamPro User Guide")');
+      const rootNode = page.locator('h1:has-text("IdeaM User Guide")');
       await rootNode.click();
       details.steps.push('Clicked on root node');
     }
@@ -567,7 +574,7 @@ async function testUserGuide() {
 
       await page.waitForTimeout(2000);
       // Use heading to be more specific
-      const guideTitle = page.locator('h1:has-text("IdiamPro User Guide")');
+      const guideTitle = page.locator('h1:has-text("IdeaM User Guide")');
       if (await guideTitle.first().isVisible({ timeout: 3000 })) {
         details.steps.push('User Guide loaded successfully');
         return { passed: true, details };

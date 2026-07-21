@@ -16,7 +16,7 @@ const SANITIZE_CONFIG: DOMPurify.Config = {
 // is trusted and gets re-sanitized on the client after hydration).
 function sanitizeHtml(html: string, config?: DOMPurify.Config): string {
   if (typeof window === 'undefined') return html;
-  return DOMPurify.sanitize(html, config);
+  return DOMPurify.sanitize(html, config as unknown as Parameters<typeof DOMPurify.sanitize>[1]);
 }
 
 /**
@@ -193,7 +193,7 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuCheckboxItem,
 } from '@/components/ui/dropdown-menu';
-import { ChevronDown, MoreHorizontal } from 'lucide-react';
+import { ChevronDown, MoreHorizontal, BookUp, Search, Highlighter, Link as LinkIcon, Quote, Pilcrow, ExternalLink } from 'lucide-react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import { BubbleMenu } from '@tiptap/react/menus';
 import { marked } from 'marked';
@@ -358,6 +358,16 @@ interface ContentPaneProps {
    * node. Wired from outline-pro.
    */
   onOpenReformat?: (args?: { selectionHtml: string; applySelection: (newHtml: string) => void }) => void;
+  /**
+   * Insert a link to another outline as a child of this node. Opens the
+   * outline-link picker. Wired from outline-pro. Content right-click home.
+   */
+  onInsertOutlineLink?: () => void;
+  /**
+   * Export just this node's content/subtree. Wired from outline-pro.
+   * Content right-click home.
+   */
+  onExportContent?: (nodeId: string) => void;
 }
 
 const YouTubeEmbed = ({ url }: { url: string }) => {
@@ -407,6 +417,8 @@ export default function ContentPane({
   isGuide = false,
   onCopyOutline,
   onOpenReformat,
+  onInsertOutlineLink,
+  onExportContent,
 }: ContentPaneProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [conflictDialogOpen, setConflictDialogOpen] = useState(false);
@@ -455,18 +467,15 @@ export default function ContentPane({
   //   • Expand / Image / Diagram fold into "More" next (still reachable).
   //   • Text labels on the AI buttons drop to icon-only to save width.
   // Undo/Redo and the Generate split-button always remain inline.
-  // RESTORED (2026-07-20, per Howard): the editor-toolbar responsive-overflow
-  // collapse is disabled. Every content-editor toolbar tool now renders INLINE
-  // in its designed position at all widths — Lists, Insert/Import, Expand,
-  // Image, Diagram, and the AI buttons (with their text labels) are all always
-  // visible; nothing folds into a "…" overflow menu. The measured width is
-  // still tracked but no longer hides anything; the toolbar allows horizontal
-  // scroll so a narrow pane scrolls rather than clipping a button.
-  void editorToolbarWidth;
-  const showEditorSecondaryInline = true; // Lists + Insert clusters
-  const showEditorAiExtrasInline = true;  // Expand, Image, Diagram
-  const showEditorAiLabels = true;        // text labels on AI buttons
-  const showEditorToolbarOverflow = false;
+  // FIXED-POSITION toolbar (2026-07-21, per Howard). Buttons hold FIXED spots
+  // in a single NON-WRAPPING row and never shuffle as the pane width changes —
+  // this protects muscle memory. Undo, Redo and the AI split-button are PINNED
+  // (they never collapse and never move). The two low-priority "coming soon"
+  // tools (Turn Into, Find in content) are the ONLY collapsible tail: at
+  // extreme-narrow pane widths they fold — in fixed order, tail first — into a
+  // single "⋯ More" menu at the very end. The deterministic collapse math needs
+  // `isMobile`, so it lives just below that hook (search: EDITOR_MIDDLE_COUNT).
+  const showEditorAiLabels = true;        // text labels on the AI button
 
   // AI Generate preferences (sticky)
   type GenerateSource = 'context' | 'prompt';
@@ -565,6 +574,22 @@ export default function ContentPane({
   // for Pro. Mind maps / flowcharts are drawn locally and are never gated.
   const { gate: aiUsageGate } = useAIUsageGate();
   const isMobile = useIsMobile();
+
+  // Editor-toolbar fixed-position collapse math (needs isMobile — see the note
+  // up by showEditorAiLabels). Undo/Redo/AI are pinned; only the low-priority
+  // tail (Turn Into, then Find) folds into "⋯ More" at extreme-narrow widths.
+  const EDITOR_MIDDLE_COUNT = 2; // [Turn Into, Find in content]
+  const _eBtn = isMobile ? 46 : 40;                 // one icon button + gap
+  const _eReserved = _eBtn * 2 /* undo+redo */ + 16 /* separator */ + 82 /* AI split */ + 16;
+  let _eAvail = (Number.isFinite(editorToolbarWidth) ? editorToolbarWidth : 100000) - _eReserved;
+  let editorMiddleVisible = Math.max(0, Math.min(EDITOR_MIDDLE_COUNT, Math.floor(_eAvail / _eBtn)));
+  if (editorMiddleVisible < EDITOR_MIDDLE_COUNT) {
+    _eAvail -= _eBtn; // reserve room for the "More" button
+    editorMiddleVisible = Math.max(0, Math.min(EDITOR_MIDDLE_COUNT, Math.floor(_eAvail / _eBtn)));
+  }
+  const showEditorMore = editorMiddleVisible < EDITOR_MIDDLE_COUNT;
+  const showTurnIntoInline = editorMiddleVisible >= 1;   // collapses second
+  const showFindInline = editorMiddleVisible >= 2;        // collapses first (tail)
 
   // Only create editor for node types that need rich text editing
   // Also check if content looks like spreadsheet JSON data - if so, don't use rich text editor
@@ -1994,6 +2019,7 @@ export default function ContentPane({
       try {
         toast({ title: 'Formatting document...', description: 'AI is preserving document structure', duration: 5000 });
         const formatted = await generateContentForNodeAction({
+          nodeId: node?.id ?? '',
           nodeName: pendingPdfData.fileName.replace(/\.pdf$/i, ''),
           ancestorPath: ancestorPath,
           existingContent: '',
@@ -2574,8 +2600,12 @@ export default function ContentPane({
         </div>
       </header>
 
-      {/* Toolbar */}
-      <div ref={editorToolbarRef} data-testid="editor-toolbar" className="flex-shrink-0 border-b border-border/50 px-4 py-2 flex flex-nowrap items-center gap-2 bg-[hsl(var(--toolbar-bg))] min-w-0 overflow-x-auto">
+      {/* Toolbar — GLOBAL, whole-node controls only. Selection formatting lives
+          in the BubbleMenu (over the selection); Insert / Lists live in the
+          right-click context menu. FIXED-POSITION single row: buttons never
+          wrap, never move, never scroll sideways. At extreme-narrow widths the
+          low-priority tail (Turn Into, Find) folds into a "⋯ More" menu. */}
+      <div ref={editorToolbarRef} data-testid="editor-toolbar" className="flex-shrink-0 border-b border-border/50 px-4 py-2 flex flex-nowrap items-center gap-2 bg-[hsl(var(--toolbar-bg))] min-w-0 overflow-hidden">
         <TooltipProvider delayDuration={300}>
           {/* Undo / Redo (touch-accessible) */}
           {shouldUseRichTextEditor && editor && (
@@ -2588,7 +2618,7 @@ export default function ContentPane({
                     onClick={() => editor.chain().focus().undo().run()}
                     disabled={!editor.can().undo()}
                     aria-label="Undo"
-                    className="bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white border-transparent shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 active:scale-95"
+                    className="shrink-0 bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white border-transparent shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 active:scale-95"
                   >
                     <Undo className="h-4 w-4 text-white" strokeWidth={2.5} />
                   </Button>
@@ -2604,7 +2634,7 @@ export default function ContentPane({
                     onClick={() => editor.chain().focus().redo().run()}
                     disabled={!editor.can().redo()}
                     aria-label="Redo"
-                    className="bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white border-transparent shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 active:scale-95"
+                    className="shrink-0 bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white border-transparent shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 active:scale-95"
                   >
                     <Redo className="h-4 w-4 text-white" strokeWidth={2.5} />
                   </Button>
@@ -2613,291 +2643,24 @@ export default function ContentPane({
               </Tooltip>
 
               <Separator orientation="vertical" className="h-6 mx-1" />
-
-              {/* List controls (touch-accessible) — collapse when the toolbar's
-                  own measured width is tight (folds into the "More" menu). */}
-              <div className={`${showEditorSecondaryInline ? 'flex' : 'hidden'} items-center gap-2`}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => editor.chain().focus().toggleBulletList().run()}
-                      aria-label="Bullet list"
-                      className={`bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white border-transparent shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 active:scale-95 ${editor.isActive('bulletList') ? 'ring-2 ring-white/80' : ''}`}
-                    >
-                      <List className="h-4 w-4 text-white" strokeWidth={2.5} />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Bullet list</TooltipContent>
-                </Tooltip>
-
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => editor.chain().focus().toggleOrderedList().run()}
-                      aria-label="Numbered list"
-                      className={`bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white border-transparent shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 active:scale-95 ${editor.isActive('orderedList') ? 'ring-2 ring-white/80' : ''}`}
-                    >
-                      <ListOrdered className="h-4 w-4 text-white" strokeWidth={2.5} />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Numbered list</TooltipContent>
-                </Tooltip>
-
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => editor.chain().focus().toggleTaskList().run()}
-                      aria-label="Checklist"
-                      className={`bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white border-transparent shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 active:scale-95 ${editor.isActive('taskList') ? 'ring-2 ring-white/80' : ''}`}
-                    >
-                      <ListChecks className="h-4 w-4 text-white" strokeWidth={2.5} />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Checklist</TooltipContent>
-                </Tooltip>
-
-                <Separator orientation="vertical" className="h-6 mx-1" />
-              </div>
             </>
           )}
 
-          {/* Insert App + Import File — collapse when the toolbar is tight
-              (folds into the "More" menu). */}
-          <div className={`${showEditorSecondaryInline ? 'flex' : 'hidden'} items-center gap-2`}>
-          {/* Add Content Button */}
-          <Tooltip>
-            <DropdownMenu>
-              <TooltipTrigger asChild>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="icon" aria-label="Insert app" className="bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white border-transparent shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 active:scale-95">
-                    <LayoutGrid className="h-4 w-4 text-white" strokeWidth={2.5} />
-                  </Button>
-                </DropdownMenuTrigger>
-              </TooltipTrigger>
-              <TooltipContent>Insert App</TooltipContent>
-              <DropdownMenuContent align="start">
-                {node.type !== 'canvas' && node.type !== 'spreadsheet' && (
-                  <>
-                    <DropdownMenuItem onClick={handleConvertToCanvas}>
-                      <Brush className="mr-2 h-4 w-4" />
-                      Canvas (Freeform)
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={handleConvertToSpreadsheet}>
-                      <Table className="mr-2 h-4 w-4" />
-                      Spreadsheet
-                    </DropdownMenuItem>
-                  </>
-                )}
-                {(node.type === 'canvas' || node.type === 'spreadsheet') && (
-                  <DropdownMenuItem onClick={handleConvertToText}>
-                    <FileText className="mr-2 h-4 w-4" />
-                    Switch to Text
-                  </DropdownMenuItem>
-                )}
-                <DropdownMenuItem onClick={handleOpenDrawing}>
-                  <Pencil className="mr-2 h-4 w-4" />
-                  Drawing (Apple Pencil)
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleInsertYouTube}>
-                  <Video className="mr-2 h-4 w-4" />
-                  YouTube Video
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleInsertGoogleDoc}>
-                  <FileText className="mr-2 h-4 w-4" />
-                  Google Doc
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleInsertGoogleSheet}>
-                  <Sheet className="mr-2 h-4 w-4" />
-                  Google Sheet
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleInsertGoogleSlide}>
-                  <Presentation className="mr-2 h-4 w-4" />
-                  Google Slides
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleInsertGoogleMaps}>
-                  <Map className="mr-2 h-4 w-4" />
-                  Google Maps
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </Tooltip>
-
-          {/* Import File Button */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="outline" size="icon" onClick={handleImportFile} aria-label="Insert file" className="bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white border-transparent shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 active:scale-95">
-                <Paperclip className="h-4 w-4 text-white" strokeWidth={2.5} />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Insert File</TooltipContent>
-          </Tooltip>
-          </div>
-
-          {/* More tools — visible whenever any cluster is folded away because
-              the toolbar's measured width is tight. Holds the collapsed Lists,
-              Insert/Import, and (when very narrow) the Expand/Image/Diagram
-              actions, so every tool stays reachable and nothing clips. */}
+          {/* AI — a single sparkle split-button. The main button generates;
+              its dropdown holds Source / Placement / Generate-for-Descendants
+              PLUS the folded-in Expand, Generate Image and Diagram actions so
+              nothing from the old toolbar is lost. Icon matches the outline
+              pane (Sparkles). */}
           <DropdownMenu>
             <Tooltip>
               <TooltipTrigger asChild>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    aria-label="More tools"
-                    data-testid="editor-toolbar-more"
-                    className={`${showEditorToolbarOverflow ? 'inline-flex' : 'hidden'} bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white border-transparent shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 active:scale-95`}
-                  >
-                    <MoreHorizontal className="h-4 w-4 text-white" strokeWidth={2.5} />
-                  </Button>
-                </DropdownMenuTrigger>
-              </TooltipTrigger>
-              <TooltipContent>More tools</TooltipContent>
-            </Tooltip>
-            <DropdownMenuContent align="start" className="w-52 max-h-[70vh] overflow-y-auto">
-              {shouldUseRichTextEditor && editor && !showEditorSecondaryInline && (
-                <>
-                  <DropdownMenuLabel className="text-xs text-muted-foreground">Lists</DropdownMenuLabel>
-                  <DropdownMenuItem onClick={() => editor?.chain().focus().toggleBulletList().run()}>
-                    <List className="mr-2 h-4 w-4" />
-                    Bullet list
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => editor?.chain().focus().toggleOrderedList().run()}>
-                    <ListOrdered className="mr-2 h-4 w-4" />
-                    Numbered list
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => editor?.chain().focus().toggleTaskList().run()}>
-                    <ListChecks className="mr-2 h-4 w-4" />
-                    Checklist
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                </>
-              )}
-              {!showEditorSecondaryInline && (
-                <>
-                  <DropdownMenuLabel className="text-xs text-muted-foreground">Insert</DropdownMenuLabel>
-                  {node.type !== 'canvas' && node.type !== 'spreadsheet' && (
-                    <>
-                      <DropdownMenuItem onClick={handleConvertToCanvas}>
-                        <Brush className="mr-2 h-4 w-4" />
-                        Canvas (Freeform)
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={handleConvertToSpreadsheet}>
-                        <Table className="mr-2 h-4 w-4" />
-                        Spreadsheet
-                      </DropdownMenuItem>
-                    </>
-                  )}
-                  {(node.type === 'canvas' || node.type === 'spreadsheet') && (
-                    <DropdownMenuItem onClick={handleConvertToText}>
-                      <FileText className="mr-2 h-4 w-4" />
-                      Switch to Text
-                    </DropdownMenuItem>
-                  )}
-                  <DropdownMenuItem onClick={handleOpenDrawing}>
-                    <Pencil className="mr-2 h-4 w-4" />
-                    Drawing (Apple Pencil)
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleInsertYouTube}>
-                    <Video className="mr-2 h-4 w-4" />
-                    YouTube Video
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleInsertGoogleDoc}>
-                    <FileText className="mr-2 h-4 w-4" />
-                    Google Doc
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleInsertGoogleSheet}>
-                    <Sheet className="mr-2 h-4 w-4" />
-                    Google Sheet
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleInsertGoogleSlide}>
-                    <Presentation className="mr-2 h-4 w-4" />
-                    Google Slides
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleInsertGoogleMaps}>
-                    <Map className="mr-2 h-4 w-4" />
-                    Google Maps
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleImportFile}>
-                    <Paperclip className="mr-2 h-4 w-4" />
-                    Import File
-                  </DropdownMenuItem>
-                </>
-              )}
-
-              {/* AI actions fallback — surfaced here only when they're too wide
-                  to sit inline (very narrow pane), so Expand/Image/Diagram are
-                  never lost. Generate stays inline as the primary action. */}
-              {!showEditorAiExtrasInline && (
-                <>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuLabel className="text-xs text-muted-foreground">AI Tools</DropdownMenuLabel>
-                  {aiContentEnabled && (
-                    <DropdownMenuItem onClick={() => setPromptDialogOpen(true)} disabled={isGenerating || isLoadingAI}>
-                      <MessageSquare className="mr-2 h-4 w-4" />
-                      Expand
-                    </DropdownMenuItem>
-                  )}
-                  <DropdownMenuItem onClick={handleOpenImageDialog} disabled={isGeneratingImage || isGuide}>
-                    <ImagePlus className="mr-2 h-4 w-4" />
-                    Generate Image
-                  </DropdownMenuItem>
-                  {nodes && node && node.childrenIds.length > 0 && (
-                    <>
-                      <DropdownMenuItem onClick={() => handleGenerateSubtreeDiagram('mindmap')}>
-                        <GitBranch className="mr-2 h-4 w-4" />
-                        Diagram — Mind Map
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleGenerateSubtreeDiagram('flowchart')}>
-                        <Network className="mr-2 h-4 w-4" />
-                        Diagram — Flowchart
-                      </DropdownMenuItem>
-                    </>
-                  )}
-                </>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          {/* INSERT | SMART TOOLS cluster divider */}
-          <Separator orientation="vertical" className="h-6 mx-1" />
-
-          {/* Ask AI Button - opens prompt dialog directly */}
-          {aiContentEnabled && showEditorAiExtrasInline && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setPromptDialogOpen(true)}
-                  disabled={isGenerating || isLoadingAI}
-                  className="bg-gradient-to-b from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 shadow-blue-700/40 ring-1 ring-inset ring-blue-500/40 dark:from-blue-600 dark:to-blue-700 dark:hover:from-blue-500 dark:hover:to-blue-600 dark:shadow-blue-500/50 dark:ring-blue-300/70 text-white border-transparent shadow-sm font-semibold disabled:opacity-40 px-2"
-                >
-                  <MessageSquare className="h-4 w-4" strokeWidth={2.5} />
-                  <span className={`ml-1.5 text-xs ${showEditorAiLabels ? 'inline' : 'hidden'}`}>Expand</span>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Expand or rewrite this content with AI</TooltipContent>
-            </Tooltip>
-          )}
-
-          {/* AI Generate Content Dropdown Button */}
-          <DropdownMenu>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className="flex">
+                <div className="flex shrink-0">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => handleGenerateContent()}
                     disabled={isGenerating || isLoadingAI || !aiContentEnabled}
+                    aria-label="AI"
                     className="bg-gradient-to-b from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 shadow-blue-700/40 ring-1 ring-inset ring-blue-500/40 dark:from-blue-600 dark:to-blue-700 dark:hover:from-blue-500 dark:hover:to-blue-600 dark:shadow-blue-500/50 dark:ring-blue-300/70 text-white border-transparent shadow-sm font-semibold disabled:opacity-40 rounded-r-none px-2"
                   >
                     {(isGenerating || isLoadingAI) ? (
@@ -2905,15 +2668,14 @@ export default function ContentPane({
                     ) : (
                       <Sparkles className="h-4 w-4" strokeWidth={2.5} />
                     )}
-                    <span className={`ml-1.5 text-xs ${showEditorAiLabels ? 'inline' : 'hidden'}`}>
-                      {generateSource === 'context' ? 'Generate' : 'Prompt'}
-                    </span>
+                    <span className={`ml-1.5 text-xs ${showEditorAiLabels ? 'inline' : 'hidden'}`}>AI</span>
                   </Button>
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="outline"
                       size="sm"
                       disabled={isGenerating || isLoadingAI || !aiContentEnabled}
+                      aria-label="AI options"
                       className="bg-gradient-to-b from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 shadow-blue-700/40 ring-1 ring-inset ring-blue-500/40 dark:from-blue-600 dark:to-blue-700 dark:hover:from-blue-500 dark:hover:to-blue-600 dark:shadow-blue-500/50 dark:ring-blue-300/70 text-white border-transparent border-l border-l-blue-300/50 shadow-sm disabled:opacity-40 rounded-l-none px-1"
                     >
                       <ChevronDown className="h-3 w-3" strokeWidth={2.5} />
@@ -2923,11 +2685,11 @@ export default function ContentPane({
               </TooltipTrigger>
               <TooltipContent>
                 {generateSource === 'context'
-                  ? 'Generate content from outline context'
-                  : 'Generate content from custom prompt'}
+                  ? 'AI — generate content from outline context'
+                  : 'AI — generate content from a custom prompt'}
               </TooltipContent>
             </Tooltip>
-            <DropdownMenuContent align="start" className="w-48 max-h-[70vh] overflow-y-auto">
+            <DropdownMenuContent align="start" className="w-56 max-h-[70vh] overflow-y-auto">
               <DropdownMenuLabel className="text-xs text-muted-foreground">Source</DropdownMenuLabel>
               <DropdownMenuRadioGroup value={generateSource} onValueChange={(v) => setGenerateSource(v as GenerateSource)}>
                 <DropdownMenuRadioItem value="context">From context</DropdownMenuRadioItem>
@@ -2953,72 +2715,117 @@ export default function ContentPane({
                   </DropdownMenuItem>
                 </>
               )}
+
+              {/* Folded-in AI actions — Expand, Generate Image, Diagram. */}
+              <DropdownMenuSeparator />
+              <DropdownMenuLabel className="text-xs text-muted-foreground">AI Tools</DropdownMenuLabel>
+              {aiContentEnabled && (
+                <DropdownMenuItem onClick={() => setPromptDialogOpen(true)} disabled={isGenerating || isLoadingAI}>
+                  <MessageSquare className="mr-2 h-4 w-4" />
+                  Expand / Prompt
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem onClick={handleOpenImageDialog} disabled={isGeneratingImage || isGuide}>
+                <ImagePlus className="mr-2 h-4 w-4" />
+                Generate Image
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => handleGenerateSubtreeDiagram('mindmap')}
+                disabled={!nodes || !node || node.childrenIds.length === 0}
+              >
+                <GitBranch className="mr-2 h-4 w-4" />
+                Diagram — Mind Map
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => handleGenerateSubtreeDiagram('flowchart')}
+                disabled={!nodes || !node || node.childrenIds.length === 0}
+              >
+                <Network className="mr-2 h-4 w-4" />
+                Diagram — Flowchart
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Generate Image Button */}
-          {showEditorAiExtrasInline && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleOpenImageDialog}
-                disabled={isGeneratingImage || isGuide}
-                className="bg-gradient-to-b from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 shadow-blue-700/40 ring-1 ring-inset ring-blue-500/40 dark:from-blue-600 dark:to-blue-700 dark:hover:from-blue-500 dark:hover:to-blue-600 dark:shadow-blue-500/50 dark:ring-blue-300/70 text-white border-transparent shadow-sm font-semibold disabled:opacity-40 px-2"
-              >
-                {isGeneratingImage ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <ImagePlus className="h-4 w-4" strokeWidth={2.5} />
-                )}
-                <span className={`ml-1.5 text-xs ${showEditorAiLabels ? 'inline' : 'hidden'}`}>Image</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Generate AI image</TooltipContent>
-          </Tooltip>
+          {/* Turn Into — export the whole node's content. No node/subtree
+              export handler is wired yet, so the control is present but grayed
+              (never removed). Icon matches the outline pane (BookUp).
+              Low-priority collapsible tail: folds into "⋯ More" only at
+              extreme-narrow pane widths. */}
+          {showTurnIntoInline && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span tabIndex={0} className="inline-flex shrink-0">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    disabled
+                    aria-label="Turn Into"
+                    className="bg-blue-700 text-white border-transparent shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 disabled:opacity-40 pointer-events-none"
+                  >
+                    <BookUp className="h-4 w-4 text-white" strokeWidth={2.5} />
+                  </Button>
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>Turn Into — export coming soon</TooltipContent>
+            </Tooltip>
           )}
 
-          {/* Subtree Diagram Button — always present in its position; disabled
-              (grayed) when the current item has no sub-items to diagram, so the
-              button never appears/vanishes based on context (Howard 2026-07-20). */}
-          {showEditorAiExtrasInline && (() => {
-            const canDiagram = !!nodes && !!node && node.childrenIds.length > 0;
-            return (
+          {/* Find in content — no in-content find handler is wired here yet
+              (search is driven from the outline pane), so this is present but
+              grayed. Lowest-priority collapsible tail (folds first). */}
+          {showFindInline && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span tabIndex={0} className="inline-flex shrink-0">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    disabled
+                    aria-label="Find in content"
+                    className="bg-blue-700 text-white border-transparent shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 disabled:opacity-40 pointer-events-none"
+                  >
+                    <Search className="h-4 w-4 text-white" strokeWidth={2.5} />
+                  </Button>
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>Find in content — coming soon</TooltipContent>
+            </Tooltip>
+          )}
+
+          {/* "⋯ More" overflow — appears ONLY when the pane is too narrow to
+              show the low-priority tail inline. Deterministic: Find folds first,
+              then Turn Into. Undo / Redo / AI never appear here. */}
+          {showEditorMore && (
             <DropdownMenu>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="outline"
-                      size="sm"
-                      disabled={!canDiagram}
-                      className="bg-gradient-to-b from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 shadow-blue-700/40 ring-1 ring-inset ring-blue-500/40 dark:from-blue-600 dark:to-blue-700 dark:hover:from-blue-500 dark:hover:to-blue-600 dark:shadow-blue-500/50 dark:ring-blue-300/70 text-white border-transparent shadow-sm font-semibold disabled:opacity-40 px-2"
+                      size="icon"
+                      aria-label="More tools"
+                      className="shrink-0 bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white border-transparent shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 active:scale-95"
                     >
-                      <Network className="h-4 w-4" strokeWidth={2.5} />
-                      <span className={`ml-1.5 text-xs ${showEditorAiLabels ? 'inline' : 'hidden'}`}>Diagram</span>
-                      <ChevronDown className="h-3 w-3 ml-1" strokeWidth={2.5} />
+                      <MoreHorizontal className="h-4 w-4 text-white" strokeWidth={2.5} />
                     </Button>
                   </DropdownMenuTrigger>
                 </TooltipTrigger>
-                <TooltipContent>{canDiagram ? 'Generate diagram of this suboutline' : 'Add sub-items to diagram this suboutline'}</TooltipContent>
+                <TooltipContent>More tools</TooltipContent>
               </Tooltip>
-              <DropdownMenuContent align="start" className="w-48">
-                <DropdownMenuLabel className="text-xs text-muted-foreground">
-                  Generate Suboutline Diagram
-                </DropdownMenuLabel>
-                <DropdownMenuItem onClick={() => handleGenerateSubtreeDiagram('mindmap')}>
-                  <GitBranch className="h-4 w-4 mr-2" />
-                  Mind Map
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleGenerateSubtreeDiagram('flowchart')}>
-                  <Network className="h-4 w-4 mr-2" />
-                  Flowchart
-                </DropdownMenuItem>
+              <DropdownMenuContent align="end" className="w-52 p-0.5">
+                {!showTurnIntoInline && (
+                  <DropdownMenuItem disabled className="py-1">
+                    <BookUp className="mr-2 h-4 w-4" /> Turn Into — coming soon
+                  </DropdownMenuItem>
+                )}
+                {!showFindInline && (
+                  <DropdownMenuItem disabled className="py-1">
+                    <Search className="mr-2 h-4 w-4" /> Find in content — coming soon
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
-            );
-          })()}
+          )}
         </TooltipProvider>
 
       </div>
@@ -3557,6 +3364,134 @@ export default function ContentPane({
                     </TooltipTrigger>
                     <TooltipContent>Heading 3</TooltipContent>
                   </Tooltip>
+
+                  <div className="w-px h-5 bg-border/50 mx-0.5" />
+
+                  {/* Block type: Paragraph / Quote (headings above). Compact. */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        aria-label="Paragraph"
+                        onClick={() => editor.chain().focus().setParagraph().run()}
+                        className={`h-8 w-8 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-8 md:min-w-8 active:scale-95 active:bg-accent/30 ${editor.isActive('paragraph') ? 'bg-accent' : ''}`}
+                      >
+                        <Pilcrow className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Paragraph</TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        aria-label="Quote"
+                        onClick={() => {
+                          const chain = editor.chain().focus() as unknown as { toggleBlockquote?: () => { run: () => void } };
+                          if (typeof chain.toggleBlockquote === 'function') chain.toggleBlockquote().run();
+                        }}
+                        className={`h-8 w-8 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-8 md:min-w-8 active:scale-95 active:bg-accent/30 ${editor.isActive('blockquote') ? 'bg-accent' : ''}`}
+                      >
+                        <Quote className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Quote</TooltipContent>
+                  </Tooltip>
+
+                  <div className="w-px h-5 bg-border/50 mx-0.5" />
+
+                  {/* Highlight + Link. Both guarded — the extension may be absent. */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        aria-label="Highlight"
+                        onClick={() => {
+                          const chain = editor.chain().focus() as unknown as { toggleHighlight?: () => { run: () => void } };
+                          if (typeof chain.toggleHighlight === 'function') chain.toggleHighlight().run();
+                        }}
+                        className={`h-8 w-8 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-8 md:min-w-8 active:scale-95 active:bg-accent/30 ${editor.isActive('highlight') ? 'bg-accent' : ''}`}
+                      >
+                        <Highlighter className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Highlight</TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        aria-label="Add link"
+                        onClick={() => {
+                          const url = typeof window !== 'undefined' ? window.prompt('Link URL:') : null;
+                          if (!url) return;
+                          const chain = editor.chain().focus().extendMarkRange('link') as unknown as { setLink?: (a: { href: string }) => { run: () => void } };
+                          if (typeof chain.setLink === 'function') chain.setLink({ href: url }).run();
+                        }}
+                        className={`h-8 w-8 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-8 md:min-w-8 active:scale-95 active:bg-accent/30 ${editor.isActive('link') ? 'bg-accent' : ''}`}
+                      >
+                        <LinkIcon className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Add link</TooltipContent>
+                  </Tooltip>
+
+                  <div className="w-px h-5 bg-border/50 mx-0.5" />
+
+                  {/* Lists — moved here from the toolbar (act on selection). */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        aria-label="Bullet list"
+                        onClick={() => editor.chain().focus().toggleBulletList().run()}
+                        className={`h-8 w-8 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-8 md:min-w-8 active:scale-95 active:bg-accent/30 ${editor.isActive('bulletList') ? 'bg-accent' : ''}`}
+                      >
+                        <List className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Bullet list</TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        aria-label="Numbered list"
+                        onClick={() => editor.chain().focus().toggleOrderedList().run()}
+                        className={`h-8 w-8 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-8 md:min-w-8 active:scale-95 active:bg-accent/30 ${editor.isActive('orderedList') ? 'bg-accent' : ''}`}
+                      >
+                        <ListOrdered className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Numbered list</TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        aria-label="Checklist"
+                        onClick={() => editor.chain().focus().toggleTaskList().run()}
+                        className={`h-8 w-8 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-8 md:min-w-8 active:scale-95 active:bg-accent/30 ${editor.isActive('taskList') ? 'bg-accent' : ''}`}
+                      >
+                        <ListChecks className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Checklist</TooltipContent>
+                  </Tooltip>
                   </TooltipProvider>
                 </BubbleMenu>
                 <EditorContent editor={editor} />
@@ -3775,6 +3710,57 @@ export default function ContentPane({
                   <Map className="mr-2 h-4 w-4" />
                   Google Maps
                 </ContextMenuItem>
+
+                <ContextMenuSeparator />
+
+                <ContextMenuItem onClick={handleOpenImageDialog} disabled={isGeneratingImage || isGuide}>
+                  <ImagePlus className="mr-2 h-4 w-4" />
+                  Image
+                </ContextMenuItem>
+
+                <ContextMenuItem
+                  onClick={() => {
+                    const chain = editor?.chain().focus() as unknown as { insertTable?: (a: { rows: number; cols: number; withHeaderRow: boolean }) => { run: () => void } } | undefined;
+                    if (chain && typeof chain.insertTable === 'function') {
+                      chain.insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
+                    }
+                  }}
+                >
+                  <Table className="mr-2 h-4 w-4" />
+                  Table
+                </ContextMenuItem>
+
+                <ContextMenuItem
+                  onClick={() => {
+                    const url = typeof window !== 'undefined' ? window.prompt('Link URL:') : null;
+                    if (!url) return;
+                    const chain = editor?.chain().focus().extendMarkRange('link') as unknown as { setLink?: (a: { href: string }) => { run: () => void } } | undefined;
+                    if (chain && typeof chain.setLink === 'function') chain.setLink({ href: url }).run();
+                  }}
+                >
+                  <LinkIcon className="mr-2 h-4 w-4" />
+                  Link
+                </ContextMenuItem>
+
+                <ContextMenuItem
+                  onClick={() => {
+                    const chain = editor?.chain().focus() as unknown as { toggleCodeBlock?: () => { run: () => void } } | undefined;
+                    if (chain && typeof chain.toggleCodeBlock === 'function') chain.toggleCodeBlock().run();
+                  }}
+                >
+                  <Code className="mr-2 h-4 w-4" />
+                  Code Block
+                </ContextMenuItem>
+
+                {onInsertOutlineLink && !isGuide && (
+                  <>
+                    <ContextMenuSeparator />
+                    <ContextMenuItem onClick={() => onInsertOutlineLink()}>
+                      <ExternalLink className="mr-2 h-4 w-4" />
+                      Link to Outline…
+                    </ContextMenuItem>
+                  </>
+                )}
               </ContextMenuSubContent>
             </ContextMenuSub>
 
@@ -3797,7 +3783,7 @@ export default function ContentPane({
             {aiContentEnabled && !isRoot && (
               <>
                 <ContextMenuSeparator />
-                <ContextMenuItem onClick={handleGenerateContent} disabled={isGenerating || isLoadingAI}>
+                <ContextMenuItem onClick={() => handleGenerateContent()} disabled={isGenerating || isLoadingAI}>
                   <Sparkles className="mr-2 h-4 w-4" />
                   Generate AI Content
                 </ContextMenuItem>
@@ -3809,6 +3795,16 @@ export default function ContentPane({
                 <WandSparkles className="mr-2 h-4 w-4 text-violet-500 dark:text-violet-400" />
                 Reformat with AI…
               </ContextMenuItem>
+            )}
+
+            {onExportContent && node && !isRoot && (
+              <>
+                <ContextMenuSeparator />
+                <ContextMenuItem onClick={() => onExportContent(node.id)}>
+                  <BookUp className="mr-2 h-4 w-4" />
+                  Export this content…
+                </ContextMenuItem>
+              </>
             )}
 
             <ContextMenuSeparator />

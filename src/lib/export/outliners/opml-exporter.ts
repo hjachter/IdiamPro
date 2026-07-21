@@ -75,7 +75,7 @@ ${body}
     }
 
     // Add type if not default
-    if (node.type && node.type !== 'default') {
+    if (node.type && node.type !== 'document') {
       attrs += ` _type="${this.escapeXml(node.type)}"`;
     }
 
