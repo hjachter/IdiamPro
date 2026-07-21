@@ -428,6 +428,38 @@ export default function ContentPane({
   const [fontSize, setFontSize] = useState<'xs' | 'sm' | 'base' | 'lg' | 'xl'>('base');
   const [contextMenuReady, setContextMenuReady] = useState(true);
 
+  // Editor-toolbar responsive overflow (2026-07-20).
+  // The content pane sits in a resizable 3-pane layout, so it can be narrow
+  // even on a wide desktop window. The toolbar previously collapsed its
+  // secondary tools on Tailwind's md:/sm: VIEWPORT breakpoints, which don't
+  // reflect the pane's true width — so on a wide window with a compressed pane
+  // the primary AI buttons (Image, Diagram) clipped off the right edge. We now
+  // measure the toolbar's OWN width and fold lower-priority tools into a single
+  // "More" (⋯) menu when space is tight, so nothing is ever clipped at any
+  // pane width. Undo/Redo and the primary Generate button always stay inline.
+  const editorToolbarRef = useRef<HTMLDivElement>(null);
+  const [editorToolbarWidth, setEditorToolbarWidth] = useState<number>(Number.POSITIVE_INFINITY);
+  useEffect(() => {
+    const el = editorToolbarRef.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        setEditorToolbarWidth(entry.contentRect.width);
+      }
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  // Priority tiers, driven by the toolbar's measured width (not the viewport):
+  //   • Lists + Insert/Import clusters fold into "More" first (secondary).
+  //   • Expand / Image / Diagram fold into "More" next (still reachable).
+  //   • Text labels on the AI buttons drop to icon-only to save width.
+  // Undo/Redo and the Generate split-button always remain inline.
+  const showEditorSecondaryInline = editorToolbarWidth >= 840; // Lists + Insert clusters
+  const showEditorAiExtrasInline = editorToolbarWidth >= 480;  // Expand, Image, Diagram
+  const showEditorAiLabels = editorToolbarWidth >= 620;        // text labels on AI buttons
+  const showEditorToolbarOverflow = !showEditorSecondaryInline || !showEditorAiExtrasInline;
+
   // AI Generate preferences (sticky)
   type GenerateSource = 'context' | 'prompt';
   type GeneratePlacement = 'append' | 'prepend' | 'replace';
@@ -2535,7 +2567,7 @@ export default function ContentPane({
       </header>
 
       {/* Toolbar */}
-      <div className="flex-shrink-0 border-b border-border/50 px-4 py-2 flex items-center gap-2 bg-[hsl(var(--toolbar-bg))]">
+      <div ref={editorToolbarRef} data-testid="editor-toolbar" className="flex-shrink-0 border-b border-border/50 px-4 py-2 flex flex-nowrap items-center gap-2 bg-[hsl(var(--toolbar-bg))] min-w-0 overflow-hidden">
         <TooltipProvider delayDuration={300}>
           {/* Undo / Redo (touch-accessible) */}
           {shouldUseRichTextEditor && editor && (
@@ -2574,8 +2606,9 @@ export default function ContentPane({
 
               <Separator orientation="vertical" className="h-6 mx-1" />
 
-              {/* List controls (touch-accessible) — collapse below md */}
-              <div className="hidden md:flex items-center gap-2">
+              {/* List controls (touch-accessible) — collapse when the toolbar's
+                  own measured width is tight (folds into the "More" menu). */}
+              <div className={`${showEditorSecondaryInline ? 'flex' : 'hidden'} items-center gap-2`}>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
@@ -2626,8 +2659,9 @@ export default function ContentPane({
             </>
           )}
 
-          {/* Insert App + Import File — collapse below md */}
-          <div className="hidden md:flex items-center gap-2">
+          {/* Insert App + Import File — collapse when the toolbar is tight
+              (folds into the "More" menu). */}
+          <div className={`${showEditorSecondaryInline ? 'flex' : 'hidden'} items-center gap-2`}>
           {/* Add Content Button */}
           <Tooltip>
             <DropdownMenu>
@@ -2697,7 +2731,10 @@ export default function ContentPane({
           </Tooltip>
           </div>
 
-          {/* More tools — shown only below md; holds collapsed Lists + Insert/Import */}
+          {/* More tools — visible whenever any cluster is folded away because
+              the toolbar's measured width is tight. Holds the collapsed Lists,
+              Insert/Import, and (when very narrow) the Expand/Image/Diagram
+              actions, so every tool stays reachable and nothing clips. */}
           <DropdownMenu>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -2706,16 +2743,17 @@ export default function ContentPane({
                     variant="outline"
                     size="icon"
                     aria-label="More tools"
-                    className="inline-flex md:hidden"
+                    data-testid="editor-toolbar-more"
+                    className={`${showEditorToolbarOverflow ? 'inline-flex' : 'hidden'} bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white border-transparent shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 active:scale-95`}
                   >
-                    <MoreHorizontal className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                    <MoreHorizontal className="h-4 w-4 text-white" strokeWidth={2.5} />
                   </Button>
                 </DropdownMenuTrigger>
               </TooltipTrigger>
               <TooltipContent>More tools</TooltipContent>
             </Tooltip>
             <DropdownMenuContent align="start" className="w-52 max-h-[70vh] overflow-y-auto">
-              {shouldUseRichTextEditor && editor && (
+              {shouldUseRichTextEditor && editor && !showEditorSecondaryInline && (
                 <>
                   <DropdownMenuLabel className="text-xs text-muted-foreground">Lists</DropdownMenuLabel>
                   <DropdownMenuItem onClick={() => editor?.chain().focus().toggleBulletList().run()}>
@@ -2733,54 +2771,90 @@ export default function ContentPane({
                   <DropdownMenuSeparator />
                 </>
               )}
-              <DropdownMenuLabel className="text-xs text-muted-foreground">Insert</DropdownMenuLabel>
-              {node.type !== 'canvas' && node.type !== 'spreadsheet' && (
+              {!showEditorSecondaryInline && (
                 <>
-                  <DropdownMenuItem onClick={handleConvertToCanvas}>
-                    <Brush className="mr-2 h-4 w-4" />
-                    Canvas (Freeform)
+                  <DropdownMenuLabel className="text-xs text-muted-foreground">Insert</DropdownMenuLabel>
+                  {node.type !== 'canvas' && node.type !== 'spreadsheet' && (
+                    <>
+                      <DropdownMenuItem onClick={handleConvertToCanvas}>
+                        <Brush className="mr-2 h-4 w-4" />
+                        Canvas (Freeform)
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={handleConvertToSpreadsheet}>
+                        <Table className="mr-2 h-4 w-4" />
+                        Spreadsheet
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                  {(node.type === 'canvas' || node.type === 'spreadsheet') && (
+                    <DropdownMenuItem onClick={handleConvertToText}>
+                      <FileText className="mr-2 h-4 w-4" />
+                      Switch to Text
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem onClick={handleOpenDrawing}>
+                    <Pencil className="mr-2 h-4 w-4" />
+                    Drawing (Apple Pencil)
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleConvertToSpreadsheet}>
-                    <Table className="mr-2 h-4 w-4" />
-                    Spreadsheet
+                  <DropdownMenuItem onClick={handleInsertYouTube}>
+                    <Video className="mr-2 h-4 w-4" />
+                    YouTube Video
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleInsertGoogleDoc}>
+                    <FileText className="mr-2 h-4 w-4" />
+                    Google Doc
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleInsertGoogleSheet}>
+                    <Sheet className="mr-2 h-4 w-4" />
+                    Google Sheet
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleInsertGoogleSlide}>
+                    <Presentation className="mr-2 h-4 w-4" />
+                    Google Slides
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleInsertGoogleMaps}>
+                    <Map className="mr-2 h-4 w-4" />
+                    Google Maps
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleImportFile}>
+                    <Paperclip className="mr-2 h-4 w-4" />
+                    Import File
                   </DropdownMenuItem>
                 </>
               )}
-              {(node.type === 'canvas' || node.type === 'spreadsheet') && (
-                <DropdownMenuItem onClick={handleConvertToText}>
-                  <FileText className="mr-2 h-4 w-4" />
-                  Switch to Text
-                </DropdownMenuItem>
+
+              {/* AI actions fallback — surfaced here only when they're too wide
+                  to sit inline (very narrow pane), so Expand/Image/Diagram are
+                  never lost. Generate stays inline as the primary action. */}
+              {!showEditorAiExtrasInline && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuLabel className="text-xs text-muted-foreground">AI Tools</DropdownMenuLabel>
+                  {aiContentEnabled && (
+                    <DropdownMenuItem onClick={() => setPromptDialogOpen(true)} disabled={isGenerating || isLoadingAI}>
+                      <MessageSquare className="mr-2 h-4 w-4" />
+                      Expand
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem onClick={handleOpenImageDialog} disabled={isGeneratingImage || isGuide}>
+                    <ImagePlus className="mr-2 h-4 w-4" />
+                    Generate Image
+                  </DropdownMenuItem>
+                  {nodes && node && node.childrenIds.length > 0 && (
+                    <>
+                      <DropdownMenuItem onClick={() => handleGenerateSubtreeDiagram('mindmap')}>
+                        <GitBranch className="mr-2 h-4 w-4" />
+                        Diagram — Mind Map
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleGenerateSubtreeDiagram('flowchart')}>
+                        <Network className="mr-2 h-4 w-4" />
+                        Diagram — Flowchart
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                </>
               )}
-              <DropdownMenuItem onClick={handleOpenDrawing}>
-                <Pencil className="mr-2 h-4 w-4" />
-                Drawing (Apple Pencil)
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleInsertYouTube}>
-                <Video className="mr-2 h-4 w-4" />
-                YouTube Video
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleInsertGoogleDoc}>
-                <FileText className="mr-2 h-4 w-4" />
-                Google Doc
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleInsertGoogleSheet}>
-                <Sheet className="mr-2 h-4 w-4" />
-                Google Sheet
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleInsertGoogleSlide}>
-                <Presentation className="mr-2 h-4 w-4" />
-                Google Slides
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleInsertGoogleMaps}>
-                <Map className="mr-2 h-4 w-4" />
-                Google Maps
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleImportFile}>
-                <Paperclip className="mr-2 h-4 w-4" />
-                Import File
-              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
@@ -2788,7 +2862,7 @@ export default function ContentPane({
           <Separator orientation="vertical" className="h-6 mx-1" />
 
           {/* Ask AI Button - opens prompt dialog directly */}
-          {aiContentEnabled && (
+          {aiContentEnabled && showEditorAiExtrasInline && (
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
@@ -2799,7 +2873,7 @@ export default function ContentPane({
                   className="bg-gradient-to-b from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 shadow-blue-700/40 ring-1 ring-inset ring-blue-500/40 dark:from-blue-600 dark:to-blue-700 dark:hover:from-blue-500 dark:hover:to-blue-600 dark:shadow-blue-500/50 dark:ring-blue-300/70 text-white border-transparent shadow-sm font-semibold disabled:opacity-40 px-2"
                 >
                   <MessageSquare className="h-4 w-4" strokeWidth={2.5} />
-                  <span className="ml-1.5 text-xs hidden sm:inline">Expand</span>
+                  <span className={`ml-1.5 text-xs ${showEditorAiLabels ? 'inline' : 'hidden'}`}>Expand</span>
                 </Button>
               </TooltipTrigger>
               <TooltipContent>Expand or rewrite this content with AI</TooltipContent>
@@ -2823,7 +2897,7 @@ export default function ContentPane({
                     ) : (
                       <Sparkles className="h-4 w-4" strokeWidth={2.5} />
                     )}
-                    <span className="ml-1.5 text-xs hidden sm:inline">
+                    <span className={`ml-1.5 text-xs ${showEditorAiLabels ? 'inline' : 'hidden'}`}>
                       {generateSource === 'context' ? 'Generate' : 'Prompt'}
                     </span>
                   </Button>
@@ -2875,6 +2949,7 @@ export default function ContentPane({
           </DropdownMenu>
 
           {/* Generate Image Button */}
+          {showEditorAiExtrasInline && (
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
@@ -2889,14 +2964,15 @@ export default function ContentPane({
                 ) : (
                   <ImagePlus className="h-4 w-4" strokeWidth={2.5} />
                 )}
-                <span className="ml-1.5 text-xs hidden sm:inline">Image</span>
+                <span className={`ml-1.5 text-xs ${showEditorAiLabels ? 'inline' : 'hidden'}`}>Image</span>
               </Button>
             </TooltipTrigger>
             <TooltipContent>Generate AI image</TooltipContent>
           </Tooltip>
+          )}
 
           {/* Subtree Diagram Button */}
-          {nodes && node && node.childrenIds.length > 0 && (
+          {showEditorAiExtrasInline && nodes && node && node.childrenIds.length > 0 && (
             <DropdownMenu>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -2907,7 +2983,7 @@ export default function ContentPane({
                       className="bg-gradient-to-b from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 shadow-blue-700/40 ring-1 ring-inset ring-blue-500/40 dark:from-blue-600 dark:to-blue-700 dark:hover:from-blue-500 dark:hover:to-blue-600 dark:shadow-blue-500/50 dark:ring-blue-300/70 text-white border-transparent shadow-sm font-semibold px-2"
                     >
                       <Network className="h-4 w-4" strokeWidth={2.5} />
-                      <span className="ml-1.5 text-xs hidden sm:inline">Diagram</span>
+                      <span className={`ml-1.5 text-xs ${showEditorAiLabels ? 'inline' : 'hidden'}`}>Diagram</span>
                       <ChevronDown className="h-3 w-3 ml-1" strokeWidth={2.5} />
                     </Button>
                   </DropdownMenuTrigger>

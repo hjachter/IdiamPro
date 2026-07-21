@@ -70,6 +70,7 @@ import dynamic from 'next/dynamic';
 
 const ExportDialog = dynamic(() => import('./export-dialog'), { ssr: false, loading: () => null });
 const PodcastDialog = dynamic(() => import('./podcast-dialog'), { ssr: false, loading: () => null });
+const WebsiteExportDialog = dynamic(() => import('./website-export-dialog'), { ssr: false, loading: () => null });
 import { isElectron, electronCheckPendingImports, electronDeletePendingImport, electronClearAllPendingImports, electronSaveOutlineToFile, electronGetOutlineMtime, onElectronWindowFocus, type PendingImportResult } from '@/lib/electron-storage';
 import type { BulkResearchSources } from '@/types';
 
@@ -492,6 +493,10 @@ export default function OutlinePro() {
   // Podcast generation dialog state
   const [podcastDialogOpen, setPodcastDialogOpen] = useState(false);
   const [podcastNodeId, setPodcastNodeId] = useState<string | null>(null);
+
+  // Website Building wizard — front-door over the existing website export
+  // engine, run against the current outline.
+  const [websiteWizardOpen, setWebsiteWizardOpen] = useState(false);
 
   // Pending imports recovery state
   const [pendingImports, setPendingImports] = useState<PendingImportResult[]>([]);
@@ -3035,6 +3040,38 @@ export default function OutlinePro() {
     }
   }, [toast, checkAiConsent, aiUsageGate, setOutlines]);
 
+  // Engine-launcher wizards (Website Building, Podcast, YouTube Video) are
+  // friendly front-doors over dialogs that already exist. Clicking the card
+  // closes the Wizards gallery and opens the matching engine dialog on the
+  // current outline. Each dialog keeps its own AI cost-gating and (for video)
+  // desktop-only + feature-flag rules.
+  const handleLaunchWizardEngine = useCallback((engine: 'website' | 'podcast' | 'video') => {
+    setIsApplicationsOpen(false);
+    if (!currentOutline) {
+      toast({
+        title: 'Open an outline first',
+        description: 'This Wizard works on your current outline — open or create one, then try again.',
+      });
+      return;
+    }
+    if (engine === 'website') {
+      setWebsiteWizardOpen(true);
+    } else if (engine === 'podcast') {
+      // Same as the Generate Podcast menu action, run on the outline root.
+      setPodcastNodeId(currentOutline.rootNodeId);
+      setPodcastDialogOpen(true);
+    } else if (engine === 'video') {
+      if (handleOpenGenerateVideo) {
+        handleOpenGenerateVideo();
+      } else {
+        toast({
+          title: 'Video is turned off right now',
+          description: 'The video engine is currently disabled. Try another Wizard for now.',
+        });
+      }
+    }
+  }, [currentOutline, toast, handleOpenGenerateVideo]);
+
   // FIXED: handleExpandContent uses functional update pattern (legacy)
   const handleExpandContent = useCallback(async () => {
     if (!selectedNode) return;
@@ -4905,7 +4942,17 @@ export default function OutlinePro() {
           onOpenChange={setIsApplicationsOpen}
           onRun={handleRunApplication}
           runningId={runningApplicationId}
+          onLaunchEngine={handleLaunchWizardEngine}
         />
+
+        {currentOutline && (
+          <WebsiteExportDialog
+            open={websiteWizardOpen}
+            onOpenChange={setWebsiteWizardOpen}
+            outline={currentOutline}
+            rootNodeId={currentOutline.rootNodeId}
+          />
+        )}
 
         <LiveBooksDialog
           open={isLiveBooksOpen}
@@ -5428,7 +5475,17 @@ export default function OutlinePro() {
         onOpenChange={setIsApplicationsOpen}
         onRun={handleRunApplication}
         runningId={runningApplicationId}
+        onLaunchEngine={handleLaunchWizardEngine}
       />
+
+      {currentOutline && (
+        <WebsiteExportDialog
+          open={websiteWizardOpen}
+          onOpenChange={setWebsiteWizardOpen}
+          outline={currentOutline}
+          rootNodeId={currentOutline.rootNodeId}
+        />
+      )}
 
       <LiveBooksDialog
         open={isLiveBooksOpen}

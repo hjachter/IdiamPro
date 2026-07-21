@@ -315,8 +315,14 @@ export default function OutlinePane({
   // 3-pane desktop layout, where nothing else fits. Tier 2 = Focus, Show/Hide
   // all, Share branch, Second Brain, Smart Tools. Tier 3 = Settings, Help.
   // Whatever is collapsed is mirrored in the "More" (⋯) menu.
-  const showTier2Inline = actionToolbarWidth >= 480;
-  const showTier3Inline = actionToolbarWidth >= 600;
+  // Thresholds raised (2026-07-20) so that whatever stays inline at each tier
+  // ALWAYS fits the measured column with margin — the toolbar is now a strict
+  // single non-wrapping row, so a threshold that's too low would CLIP a button
+  // instead of (as before) wrapping it to an ugly second line. Share moved out
+  // of the always-inline set into Tier 2 (it was gated on the sm: VIEWPORT
+  // breakpoint, which ignored the pane's true width).
+  const showTier2Inline = actionToolbarWidth >= 560;
+  const showTier3Inline = actionToolbarWidth >= 720;
   const showActionOverflow = !showTier2Inline || !showTier3Inline;
 
   // Header/title-row responsive overflow (2026-07-14 fix).
@@ -1402,7 +1408,7 @@ export default function OutlinePane({
       })()}
 
       <TooltipProvider delayDuration={300}>
-        <div ref={actionToolbarRef} data-testid="outline-action-toolbar" className="flex-shrink-0 flex flex-wrap items-center justify-center gap-1.5 px-2 py-1.5 bg-[hsl(var(--toolbar-bg))] rounded-xl border border-border/30 min-w-0">
+        <div ref={actionToolbarRef} data-testid="outline-action-toolbar" className="flex-shrink-0 flex flex-nowrap items-center justify-center gap-1.5 px-2 py-1.5 bg-[hsl(var(--toolbar-bg))] rounded-xl border border-border/30 min-w-0 overflow-hidden">
           <Tooltip>
             <TooltipTrigger asChild>
               <span tabIndex={-1} className="inline-flex">
@@ -1572,7 +1578,7 @@ export default function OutlinePane({
 
           <Tooltip>
             <TooltipTrigger asChild>
-              <span tabIndex={-1} className="hidden sm:inline-flex">
+              <span tabIndex={-1} className={cn(showTier2Inline ? "inline-flex" : "hidden")}>
                 <Button
                   variant="outline"
                   size="icon"

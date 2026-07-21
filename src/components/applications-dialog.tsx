@@ -37,6 +37,11 @@ interface ApplicationsDialogProps {
   onOpenChange: (o: boolean) => void;
   onRun: (recipe: ApplicationRecipe, opts: WizardAnswers) => Promise<void>;
   runningId: string | null;
+  /**
+   * Opens an existing, fully-built engine dialog (website / podcast / video)
+   * on the current outline. Called for engine-launcher wizard cards.
+   */
+  onLaunchEngine: (engine: 'website' | 'podcast' | 'video') => void;
 }
 
 // Friendly, audience-facing labels that map DIRECTLY onto the pipeline params.
@@ -64,8 +69,12 @@ export default function ApplicationsDialog({
   onOpenChange,
   onRun,
   runningId,
+  onLaunchEngine,
 }: ApplicationsDialogProps) {
   const [selected, setSelected] = useState<ApplicationRecipe | null>(null);
+  // Which coming-soon card the user just tapped — shows a small inline note.
+  // Never opens a config flow and never triggers any AI or cost.
+  const [notedId, setNotedId] = useState<string | null>(null);
   const [topic, setTopic] = useState('');
   const [depth, setDepth] = useState<AIDepth>('standard');
   const [tone, setTone] = useState<AITone>('professional');
@@ -76,6 +85,7 @@ export default function ApplicationsDialog({
   useEffect(() => {
     if (!open) {
       setSelected(null);
+      setNotedId(null);
       setTopic('');
       setDepth('standard');
       setTone('professional');
@@ -123,27 +133,54 @@ export default function ApplicationsDialog({
               </DialogDescription>
             </DialogHeader>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 py-2">
-              {APPLICATIONS.map((app) => (
-                <button
-                  key={app.id}
-                  type="button"
-                  onClick={() => setSelected(app)}
-                  className={`relative min-h-[96px] rounded-xl p-4 text-left transition-all bg-gradient-to-br ${app.accent} bg-opacity-10 border border-border hover:border-primary/40 hover:shadow-md active:scale-[0.99] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary`}
-                >
-                  <span className="absolute top-2 right-2">
-                    {app.status === 'live' ? (
-                      <Badge>Live</Badge>
-                    ) : (
-                      <Badge variant="secondary">Preview</Badge>
+              {APPLICATIONS.map((app) => {
+                const isLive = app.status === 'live';
+                return (
+                  <button
+                    key={app.id}
+                    type="button"
+                    // Three click behaviors:
+                    //  • engine-launcher live card -> open the existing engine
+                    //    dialog on the current outline (Website/Podcast/Video)
+                    //  • generator live card -> open the guided config view
+                    //  • coming-soon card -> inert; only shows a small note.
+                    //    Never opens a flow, never calls AI, never costs.
+                    onClick={() => {
+                      if (app.launches) {
+                        onLaunchEngine(app.launches);
+                      } else if (isLive) {
+                        setSelected(app);
+                      } else {
+                        setNotedId(app.id);
+                      }
+                    }}
+                    aria-disabled={!isLive}
+                    className={`relative min-h-[96px] rounded-xl p-4 text-left transition-all bg-gradient-to-br ${app.accent} border border-border focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                      isLive
+                        ? 'bg-opacity-10 hover:border-primary/40 hover:shadow-md active:scale-[0.99] cursor-pointer'
+                        : 'bg-opacity-5 opacity-70 hover:opacity-90 cursor-default'
+                    }`}
+                  >
+                    <span className="absolute top-2 right-2">
+                      {isLive ? (
+                        <Badge>Live</Badge>
+                      ) : (
+                        <Badge variant="secondary">Coming Soon</Badge>
+                      )}
+                    </span>
+                    <div className="text-2xl mb-1.5">{app.emoji}</div>
+                    <div className="font-semibold leading-tight">{app.title}</div>
+                    <div className="text-xs text-muted-foreground mt-0.5">
+                      {app.subtitle}
+                    </div>
+                    {!isLive && notedId === app.id && (
+                      <div className="mt-2 text-[11px] font-medium text-primary">
+                        Coming soon — we&apos;re building this. ✨
+                      </div>
                     )}
-                  </span>
-                  <div className="text-2xl mb-1.5">{app.emoji}</div>
-                  <div className="font-semibold leading-tight">{app.title}</div>
-                  <div className="text-xs text-muted-foreground mt-0.5">
-                    {app.subtitle}
-                  </div>
-                </button>
-              ))}
+                  </button>
+                );
+              })}
             </div>
           </>
         ) : (
