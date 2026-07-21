@@ -455,10 +455,18 @@ export default function ContentPane({
   //   • Expand / Image / Diagram fold into "More" next (still reachable).
   //   • Text labels on the AI buttons drop to icon-only to save width.
   // Undo/Redo and the Generate split-button always remain inline.
-  const showEditorSecondaryInline = editorToolbarWidth >= 840; // Lists + Insert clusters
-  const showEditorAiExtrasInline = editorToolbarWidth >= 480;  // Expand, Image, Diagram
-  const showEditorAiLabels = editorToolbarWidth >= 620;        // text labels on AI buttons
-  const showEditorToolbarOverflow = !showEditorSecondaryInline || !showEditorAiExtrasInline;
+  // RESTORED (2026-07-20, per Howard): the editor-toolbar responsive-overflow
+  // collapse is disabled. Every content-editor toolbar tool now renders INLINE
+  // in its designed position at all widths — Lists, Insert/Import, Expand,
+  // Image, Diagram, and the AI buttons (with their text labels) are all always
+  // visible; nothing folds into a "…" overflow menu. The measured width is
+  // still tracked but no longer hides anything; the toolbar allows horizontal
+  // scroll so a narrow pane scrolls rather than clipping a button.
+  void editorToolbarWidth;
+  const showEditorSecondaryInline = true; // Lists + Insert clusters
+  const showEditorAiExtrasInline = true;  // Expand, Image, Diagram
+  const showEditorAiLabels = true;        // text labels on AI buttons
+  const showEditorToolbarOverflow = false;
 
   // AI Generate preferences (sticky)
   type GenerateSource = 'context' | 'prompt';
@@ -2561,13 +2569,13 @@ export default function ContentPane({
                   ))}
                 </div>
               )}
-              <h1 className="text-2xl font-bold font-headline truncate">{node.name}</h1>
+              <h1 className="text-2xl font-bold font-headline break-words">{node.name}</h1>
             </div>
         </div>
       </header>
 
       {/* Toolbar */}
-      <div ref={editorToolbarRef} data-testid="editor-toolbar" className="flex-shrink-0 border-b border-border/50 px-4 py-2 flex flex-nowrap items-center gap-2 bg-[hsl(var(--toolbar-bg))] min-w-0 overflow-hidden">
+      <div ref={editorToolbarRef} data-testid="editor-toolbar" className="flex-shrink-0 border-b border-border/50 px-4 py-2 flex flex-nowrap items-center gap-2 bg-[hsl(var(--toolbar-bg))] min-w-0 overflow-x-auto">
         <TooltipProvider delayDuration={300}>
           {/* Undo / Redo (touch-accessible) */}
           {shouldUseRichTextEditor && editor && (
@@ -2971,8 +2979,12 @@ export default function ContentPane({
           </Tooltip>
           )}
 
-          {/* Subtree Diagram Button */}
-          {showEditorAiExtrasInline && nodes && node && node.childrenIds.length > 0 && (
+          {/* Subtree Diagram Button — always present in its position; disabled
+              (grayed) when the current item has no sub-items to diagram, so the
+              button never appears/vanishes based on context (Howard 2026-07-20). */}
+          {showEditorAiExtrasInline && (() => {
+            const canDiagram = !!nodes && !!node && node.childrenIds.length > 0;
+            return (
             <DropdownMenu>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -2980,7 +2992,8 @@ export default function ContentPane({
                     <Button
                       variant="outline"
                       size="sm"
-                      className="bg-gradient-to-b from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 shadow-blue-700/40 ring-1 ring-inset ring-blue-500/40 dark:from-blue-600 dark:to-blue-700 dark:hover:from-blue-500 dark:hover:to-blue-600 dark:shadow-blue-500/50 dark:ring-blue-300/70 text-white border-transparent shadow-sm font-semibold px-2"
+                      disabled={!canDiagram}
+                      className="bg-gradient-to-b from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 shadow-blue-700/40 ring-1 ring-inset ring-blue-500/40 dark:from-blue-600 dark:to-blue-700 dark:hover:from-blue-500 dark:hover:to-blue-600 dark:shadow-blue-500/50 dark:ring-blue-300/70 text-white border-transparent shadow-sm font-semibold disabled:opacity-40 px-2"
                     >
                       <Network className="h-4 w-4" strokeWidth={2.5} />
                       <span className={`ml-1.5 text-xs ${showEditorAiLabels ? 'inline' : 'hidden'}`}>Diagram</span>
@@ -2988,7 +3001,7 @@ export default function ContentPane({
                     </Button>
                   </DropdownMenuTrigger>
                 </TooltipTrigger>
-                <TooltipContent>Generate diagram of this suboutline</TooltipContent>
+                <TooltipContent>{canDiagram ? 'Generate diagram of this suboutline' : 'Add sub-items to diagram this suboutline'}</TooltipContent>
               </Tooltip>
               <DropdownMenuContent align="start" className="w-48">
                 <DropdownMenuLabel className="text-xs text-muted-foreground">
@@ -3004,12 +3017,13 @@ export default function ContentPane({
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          )}
+            );
+          })()}
         </TooltipProvider>
 
       </div>
 
-      <main className="flex-grow overflow-y-auto p-6 space-y-4">
+      <main className="flex-grow overflow-y-auto overflow-x-hidden p-6 space-y-4 w-full max-w-4xl mx-auto">
         {node.type === 'image' && node.content && isUrl(node.content.trimEnd()) && (
             <Card>
                 <CardContent className="p-4">

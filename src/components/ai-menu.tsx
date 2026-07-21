@@ -83,25 +83,25 @@ export default function AIMenu({
                 variant="outline"
                 size="icon"
                 disabled={disabled || isLoadingAI}
-                className="text-primary hover:bg-primary/20 active:scale-95 active:bg-accent/30"
-                aria-label="Smart Tools menu"
+                className="bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white border-transparent shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 active:scale-95 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
+                aria-label="AI menu"
               >
                 {isLoadingAI ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <Loader2 className="h-4 w-4 text-white animate-spin" />
                 ) : (
-                  <Sparkles className="h-4 w-4" />
+                  <Sparkles className="h-4 w-4 text-white" strokeWidth={2.5} />
                 )}
               </Button>
             </DropdownMenuTrigger>
           </TooltipTrigger>
-          <TooltipContent>Smart Tools</TooltipContent>
+          <TooltipContent>AI</TooltipContent>
         </Tooltip>
       </TooltipProvider>
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel className="flex items-center justify-between">
           <span className="flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-emerald-500 dark:text-emerald-400" />
-            Smart Tools
+            AI
           </span>
           <Badge variant={isPremium ? "default" : "secondary"} className="text-xs">
             {isPremium ? (

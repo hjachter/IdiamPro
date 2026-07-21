@@ -321,9 +321,17 @@ export default function OutlinePane({
   // instead of (as before) wrapping it to an ugly second line. Share moved out
   // of the always-inline set into Tier 2 (it was gated on the sm: VIEWPORT
   // breakpoint, which ignored the pane's true width).
-  const showTier2Inline = actionToolbarWidth >= 560;
-  const showTier3Inline = actionToolbarWidth >= 720;
-  const showActionOverflow = !showTier2Inline || !showTier3Inline;
+  // RESTORED (2026-07-20, per Howard): the responsive-overflow collapse is
+  // disabled. Every action-toolbar button now renders INLINE in its designed
+  // position at all widths — nothing folds into a "…" overflow menu. Help and
+  // Smart Tools (AI) in particular must always be visible on the bar. The
+  // measured width (actionToolbarWidth) is still tracked above but no longer
+  // drives any hiding; the toolbar container allows horizontal scroll so a
+  // very narrow pane scrolls rather than clipping or burying a button.
+  void actionToolbarWidth;
+  const showTier2Inline = true;
+  const showTier3Inline = true;
+  const showActionOverflow = false;
 
   // Header/title-row responsive overflow (2026-07-14 fix).
   // The prior overflow fix (above) only covered the lower ACTION toolbar. The
@@ -363,9 +371,12 @@ export default function OutlinePane({
   // we collapse. This is deliberately conservative: it guarantees icons never
   // clip even if one measurement lags or over-reports. Threshold chosen so a
   // typical narrow 3-pane middle column (~150-360px) always collapses.
-  const effectiveHeaderWidth = Math.min(paneWidth, actionToolbarWidth);
-  const showHeaderButtonsInline = effectiveHeaderWidth >= 620;
-  const showHeaderOverflow = !showHeaderButtonsInline || isMobile;
+  // RESTORED (2026-07-20, per Howard): header/title-row buttons (Import,
+  // Export, Backup, Report Issue, etc.) also render INLINE at all widths. The
+  // "…" header overflow menu is disabled so nothing from the top row is hidden.
+  void paneWidth;
+  const showHeaderButtonsInline = true;
+  const showHeaderOverflow = false;
 
   // Search state
   const [isSearchOpenInternal, setIsSearchOpenInternal] = useState(false);
@@ -1242,7 +1253,7 @@ export default function OutlinePane({
                             disabled={!selectedNodeId || !onToggleFocusMode}
                             className="cursor-pointer py-1"
                         >
-                            <Focus className="mr-2 h-4 w-4" /> Focus Mode
+                            <Focus className="mr-2 h-4 w-4" /> Zoom In
                             {!isMobile && <DropdownMenuShortcut>⌘⇧F</DropdownMenuShortcut>}
                         </DropdownMenuItem>
                         <DropdownMenuItem
@@ -1408,7 +1419,7 @@ export default function OutlinePane({
       })()}
 
       <TooltipProvider delayDuration={300}>
-        <div ref={actionToolbarRef} data-testid="outline-action-toolbar" className="flex-shrink-0 flex flex-nowrap items-center justify-center gap-1.5 px-2 py-1.5 bg-[hsl(var(--toolbar-bg))] rounded-xl border border-border/30 min-w-0 overflow-hidden">
+        <div ref={actionToolbarRef} data-testid="outline-action-toolbar" className="flex-shrink-0 flex flex-wrap items-center justify-center gap-1.5 px-2 py-1.5 bg-[hsl(var(--toolbar-bg))] rounded-xl border border-border/30 min-w-0">
           <Tooltip>
             <TooltipTrigger asChild>
               <span tabIndex={-1} className="inline-flex">
@@ -1511,7 +1522,7 @@ export default function OutlinePane({
                       isFocusMode && "bg-gradient-to-b from-blue-600 to-blue-800 dark:from-blue-600 dark:to-blue-700 border-transparent text-white hover:from-blue-700 hover:to-blue-900 dark:hover:from-blue-500 dark:hover:to-blue-600 ring-2 ring-inset ring-blue-300/70 shadow-md shadow-blue-700/40"
                     )}
                     aria-pressed={isFocusMode}
-                    aria-label="Focus Mode"
+                    aria-label="Zoom In"
                   >
                     <Focus className={cn("h-4 w-4", isFocusMode ? "text-white" : "text-white")} strokeWidth={2.5} />
                   </Button>
@@ -1519,8 +1530,8 @@ export default function OutlinePane({
               </TooltipTrigger>
               <TooltipContent>
                 {selectedNodeId
-                  ? `Focus Mode${!isMobile ? ' (⌘⇧F)' : ''}`
-                  : 'Focus Mode — select a node first'}
+                  ? `Zoom In — show only this item and its contents${!isMobile ? ' (⌘⇧F)' : ''}`
+                  : 'Zoom In — select an item first'}
               </TooltipContent>
             </Tooltip>
           )}
@@ -1701,20 +1712,23 @@ export default function OutlinePane({
             </Tooltip>
           )}
 
-          {canUnmerge && onUnmerge && (
+          {onUnmerge && (
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={onUnmerge}
-                  className="hover:bg-orange-500/20 border-orange-500/30 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
-                  aria-label="Unmerge — restore outline to pre-merge state"
-                >
-                  <RotateCcw className="h-4 w-4 text-orange-500 dark:text-orange-400" />
-                </Button>
+                <span tabIndex={-1} className="inline-flex">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={onUnmerge}
+                    disabled={!canUnmerge}
+                    className="hover:bg-orange-500/20 border-orange-500/30 disabled:opacity-40 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0"
+                    aria-label="Unmerge — restore outline to pre-merge state"
+                  >
+                    <RotateCcw className="h-4 w-4 text-orange-500 dark:text-orange-400" />
+                  </Button>
+                </span>
               </TooltipTrigger>
-              <TooltipContent>Unmerge — Restore outline to pre-merge state</TooltipContent>
+              <TooltipContent>{canUnmerge ? 'Unmerge — Restore outline to pre-merge state' : 'Unmerge — available right after a merge'}</TooltipContent>
             </Tooltip>
           )}
 
@@ -1740,7 +1754,7 @@ export default function OutlinePane({
                 variant="outline"
                 size="icon"
                 onClick={onOpenHelp}
-                className={cn("bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white border-transparent shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0", showTier3Inline ? "inline-flex" : "hidden")}
+                className={cn("bg-red-600 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-500 text-white border-transparent shadow-sm shadow-red-700/30 ring-1 ring-inset ring-red-400/50 dark:ring-red-300/70 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0", showTier3Inline ? "inline-flex" : "hidden")}
                 aria-label="Help and support"
               >
                 <span aria-hidden="true" className="text-white font-bold text-lg leading-none">?</span>
@@ -1781,7 +1795,7 @@ export default function OutlinePane({
                         disabled={!selectedNodeId}
                         className="cursor-pointer py-1"
                       >
-                        <Focus className="mr-2 h-4 w-4" /> Focus Mode
+                        <Focus className="mr-2 h-4 w-4" /> Zoom In
                         {!isMobile && <DropdownMenuShortcut>⌘⇧F</DropdownMenuShortcut>}
                       </DropdownMenuItem>
                     )}
@@ -1847,7 +1861,7 @@ export default function OutlinePane({
                     {/* Smart Tools — AI actions preserved as a submenu. */}
                     <DropdownMenuSub>
                       <DropdownMenuSubTrigger className="cursor-pointer py-1">
-                        <Sparkles className="mr-2 h-4 w-4 text-violet-600 dark:text-violet-400" /> Smart Tools
+                        <Sparkles className="mr-2 h-4 w-4 text-violet-600 dark:text-violet-400" /> AI
                       </DropdownMenuSubTrigger>
                       <DropdownMenuSubContent className="w-56">
                         {onOpenApplications && (

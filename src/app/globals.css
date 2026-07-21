@@ -172,6 +172,10 @@ button:active:not(:disabled),
   outline: none;
   font-size: 1rem;
   line-height: 1.6;
+  /* Ensure long words / URLs wrap inside the pane instead of overflowing
+     off the right edge and getting clipped. */
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .tiptap p {
