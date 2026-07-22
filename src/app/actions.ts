@@ -2319,7 +2319,7 @@ ${childContent.substring(0, 5000)}`;
 
     return {
       outline,
-      summary: `Successfully synthesized ${extractedSources.length} source${extractedSources.length > 1 ? 's' : ''} into a unified outline with ${Object.keys(nodes).length - 1} nodes.`,
+      summary: `Successfully digested ${extractedSources.length} source${extractedSources.length > 1 ? 's' : ''} into a unified outline with ${Object.keys(nodes).length - 1} nodes.`,
       sourcesProcessed: extractedSources.length,
     };
   } catch (error) {

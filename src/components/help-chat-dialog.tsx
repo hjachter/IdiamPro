@@ -44,7 +44,7 @@ KEY FEATURES:
 - Multi-select nodes for bulk operations (delete, change color, add tags)
 - Node multi-select (desktop): Cmd/Ctrl+Click toggles a node in the selection, Shift+Click selects a range
 - Node multi-select (mobile): Long-press any node in the outline (~500ms, no finger movement) to enter multi-select mode; once entered, plain taps on other nodes add/remove them from the selection. Provides light haptic feedback on entry where supported. Press Escape (desktop) or use the toolbar Cancel button to exit.
-- Sidebar multi-select (desktop): Cmd/Ctrl+Click or Shift+Click outlines in the sidebar to select multiple, then bulk delete
+- Sidebar multi-select (desktop): Cmd/Ctrl+Click or Shift+Click outlines in the sidebar to select multiple, then bulk delete — either via the "Delete" button in the top selection bar OR by right-clicking any highlighted outline and choosing "Delete N Outlines" (the row's right-click / "..." menu acts on the whole selection). A confirmation appears before deleting.
 - Sidebar multi-select (mobile): Long-press any outline in the mobile sidebar sheet to enter select mode, then tap additional outlines to toggle them; a top bar provides Cancel and Delete
 - Sidebar rename (mobile): Tap the ⋯ menu on the right of any outline row and choose Rename for an inline rename field (Enter saves, Escape cancels)
 - Sidebar search: Type in the search field below the Outlines header to filter outlines by name (works on desktop and mobile)

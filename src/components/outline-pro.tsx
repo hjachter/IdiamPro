@@ -3794,7 +3794,7 @@ export default function OutlinePro() {
         setSelectedNodeId(result.outline.rootNodeId);
 
         toast({
-          title: "Research Synthesized!",
+          title: "Sources Digested!",
           description: result.summary,
         });
       }

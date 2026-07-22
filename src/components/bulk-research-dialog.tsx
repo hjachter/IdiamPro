@@ -535,7 +535,7 @@ export default function BulkResearchDialog({
       // The parent handler raises this when AI data consent hasn't been
       // granted yet. The consent dialog opens at the same time; this
       // message keeps the user oriented so they know what to do next.
-      return "One-time AI consent needed before I can process this. A consent dialog should have just appeared — tap 'Allow' there, then click Synthesize again. (If you don't see it, close this dialog, the consent prompt is waiting underneath.)";
+      return "One-time AI consent needed before I can process this. A consent dialog should have just appeared — tap 'Allow' there, then click Digest again. (If you don't see it, close this dialog, the consent prompt is waiting underneath.)";
     }
     if (msg.includes('transcript') || msg.includes('captions')) {
       return "I couldn't get a transcript from that YouTube video — sometimes Google blocks our requests, or the video doesn't have captions. Want to try a different video?";
@@ -563,7 +563,7 @@ export default function BulkResearchDialog({
   const handleSubmit = async () => {
     const validSources = sources.filter(isSourceValid);
     if (validSources.length === 0) {
-      setSubmitError('Add at least one source with content before you synthesize.');
+      setSubmitError('Add at least one source with content before you digest.');
       return;
     }
 
@@ -1398,7 +1398,7 @@ export default function BulkResearchDialog({
             data-testid="bulk-research-error"
           >
             <div className="flex-1 text-sm">
-              <p className="font-medium text-red-800 dark:text-red-200">I couldn’t finish that synthesis</p>
+              <p className="font-medium text-red-800 dark:text-red-200">I couldn’t finish that digest</p>
               <p className="text-red-700 dark:text-red-300 mt-1">{submitError}</p>
             </div>
             <Button
@@ -1461,7 +1461,7 @@ export default function BulkResearchDialog({
                 Processing...
               </>
             ) : (
-              `Synthesize ${sources.filter(isSourceValid).length} Source${sources.filter(isSourceValid).length !== 1 ? 's' : ''}`
+              `Digest ${sources.filter(isSourceValid).length} Source${sources.filter(isSourceValid).length !== 1 ? 's' : ''}`
             )}
           </Button>
         </DialogFooter>

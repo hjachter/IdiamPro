@@ -261,6 +261,14 @@ export default function SidebarPane({
   };
 
   const handleDeleteClick = (outline: Outline) => {
+    // If the clicked row is part of an active multi-selection, the user's
+    // intent is to delete the WHOLE highlighted batch — route to bulk delete
+    // so a right-click / row-menu Delete on a selected outline removes every
+    // selected outline (matching the top action-bar "Delete" behavior).
+    if (selectedOutlineIds.size > 1 && selectedOutlineIds.has(outline.id)) {
+      handleBulkDeleteClick();
+      return;
+    }
     const legacyConfirmDelete = localStorage.getItem('confirmDelete') !== 'false';
     const perPromptSuppressed = localStorage.getItem(DELETE_OUTLINE_SUPPRESS_KEY) === 'true';
     if (isProfessional || perPromptSuppressed || !legacyConfirmDelete) {
@@ -329,7 +337,10 @@ export default function SidebarPane({
     } else {
       setOutlineToDelete(null); // null indicates bulk delete
       setDeleteDontAskAgain(false);
-      setDeleteDialogOpen(true);
+      // Small delay so a triggering context/dropdown menu closes first —
+      // Radix restores focus on close and can immediately dismiss a dialog
+      // opened in the same tick.
+      setTimeout(() => setDeleteDialogOpen(true), 100);
     }
   };
 
@@ -688,6 +699,15 @@ function OutlineRow(props: OutlineRowProps) {
     orphanedDerivativeIds,
   } = props;
 
+  // When this row is one of several highlighted outlines, the Delete action
+  // becomes a bulk delete — reflect the count in the label so it reads
+  // "Delete 5 Outlines" (consistent with the app's other count-labeled bulk
+  // actions).
+  const bulkDeleteActive = selectedOutlineIds.size > 1 && selectedOutlineIds.has(outline.id);
+  const deleteLabel = bulkDeleteActive
+    ? `Delete ${selectedOutlineIds.size} Outlines`
+    : 'Delete';
+
   // Is THIS outline a derivative? (renders with a fork badge on the icon).
   const isDerivative = !!outline.derivedFromOutlineId;
   const isOrphanDerivative = isDerivative && orphanedDerivativeIds.has(outline.id);
@@ -872,7 +892,7 @@ function OutlineRow(props: OutlineRowProps) {
             onSelect={() => handleDeleteClick(outline)}
           >
             <Trash2 className="h-4 w-4 mr-2" />
-            Delete
+            {deleteLabel}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -894,7 +914,7 @@ function OutlineRow(props: OutlineRowProps) {
             onClick={() => handleDeleteClick(outline)}
           >
             <Trash2 className="h-4 w-4 mr-2" />
-            Delete
+            {deleteLabel}
           </ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>
