@@ -1719,19 +1719,81 @@ ipcMain.handle('check-ollama-installation', async () => {
   }
 });
 
+// Probe the local Ollama server. Resolves true if it answers 200 on
+// /api/tags within `timeoutMs`, false otherwise. Used to skip a redundant
+// launch and to confirm a headless start actually came up.
+function isOllamaServerUp(timeoutMs = 1500) {
+  return new Promise((resolve) => {
+    const http = require('http');
+    const req = http.get(
+      { host: '127.0.0.1', port: 11434, path: '/api/tags', timeout: timeoutMs },
+      (res) => {
+        // Drain and resolve on any successful-ish response.
+        res.resume();
+        resolve(res.statusCode >= 200 && res.statusCode < 500);
+      }
+    );
+    req.on('error', () => resolve(false));
+    req.on('timeout', () => {
+      req.destroy();
+      resolve(false);
+    });
+  });
+}
+
+// Resolve the Ollama CLI binary path. Prefer the common install locations so
+// we can spawn the server directly; fall back to bare 'ollama' on PATH.
+function resolveOllamaBinary() {
+  const candidates = [
+    '/usr/local/bin/ollama', // Intel Homebrew / official installer symlink
+    '/opt/homebrew/bin/ollama', // Apple Silicon Homebrew
+  ];
+  for (const c of candidates) {
+    try {
+      if (fs.existsSync(c)) return c;
+    } catch {
+      /* ignore and try next */
+    }
+  }
+  return 'ollama'; // rely on PATH (also the Windows/Linux path)
+}
+
+// Start the Ollama background server HEADLESSLY — no GUI window ever.
+// Equivalent to `nohup ollama serve >/dev/null 2>&1 &`: a detached child with
+// stdio ignored and unref()'d so it survives and never surfaces UI. We do NOT
+// open Ollama.app (that pops an annoying launch window on every auto-restart).
 ipcMain.handle('start-ollama', async () => {
   try {
-    if (process.platform !== 'darwin') {
-      return { ok: false, error: 'start-ollama is only supported on macOS right now' };
+    // Already running? Do nothing — no second process, no window.
+    if (await isOllamaServerUp(1200)) {
+      return { ok: true, alreadyRunning: true };
     }
-    // shell.openPath returns '' on success and an error string on failure.
-    // Opening Ollama.app starts the background ollama service.
-    const result = await shell.openPath('/Applications/Ollama.app');
-    if (result) {
-      console.error('[Ollama] start-ollama failed:', result);
-      return { ok: false, error: result };
+
+    const bin = resolveOllamaBinary();
+    try {
+      const child = spawn(bin, ['serve'], {
+        detached: true,
+        stdio: 'ignore',
+        windowsHide: true,
+      });
+      child.on('error', (err) => {
+        console.error('[Ollama] headless serve spawn error:', err && err.message);
+      });
+      child.unref();
+    } catch (spawnErr) {
+      console.error('[Ollama] failed to spawn headless serve:', spawnErr);
+      return { ok: false, error: (spawnErr && spawnErr.message) || String(spawnErr) };
     }
-    return { ok: true };
+
+    // Poll up to ~8s for the server to answer before reporting success.
+    const deadline = Date.now() + 8000;
+    while (Date.now() < deadline) {
+      if (await isOllamaServerUp(1200)) return { ok: true };
+      await new Promise((r) => setTimeout(r, 700));
+    }
+    // Spawn was issued but it didn't confirm in time — report timeout so the
+    // caller's own retry/notice logic can take over. No window was shown.
+    return { ok: false, error: 'timeout waiting for ollama serve to come up' };
   } catch (error) {
     console.error('[Ollama] start-ollama threw:', error);
     return { ok: false, error: (error && error.message) || String(error) };
