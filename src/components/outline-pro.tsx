@@ -72,6 +72,7 @@ const ExportDialog = dynamic(() => import('./export-dialog'), { ssr: false, load
 const PodcastDialog = dynamic(() => import('./podcast-dialog'), { ssr: false, loading: () => null });
 const WebsiteExportDialog = dynamic(() => import('./website-export-dialog'), { ssr: false, loading: () => null });
 import { isElectron, electronCheckPendingImports, electronDeletePendingImport, electronClearAllPendingImports, electronSaveOutlineToFile, electronGetOutlineMtime, onElectronWindowFocus, type PendingImportResult } from '@/lib/electron-storage';
+import { autoStartLocalAIOnBoot, guardLocalAIReady, notifyLocalAIDown } from '@/lib/local-ai';
 import type { BulkResearchSources } from '@/types';
 
 type MobileView = 'stacked' | 'content'; // stacked = outline + preview, content = full screen content
@@ -790,6 +791,21 @@ export default function OutlinePro() {
     const interval = setInterval(checkExternalModification, 5000);
     return () => clearInterval(interval);
   }, [isClient, checkExternalModification]);
+
+  // On launch (desktop only): if the user depends on local AI but the engine
+  // isn't running — the classic "Ollama didn't come back after a reboot" case —
+  // quietly start it in the background. No dialog, never blocks launch, and a
+  // strict no-op for Cloud/Auto users and on the web. See src/lib/local-ai.tsx.
+  useEffect(() => {
+    if (!isClient) return;
+    void autoStartLocalAIOnBoot();
+    // Dev-only test hooks so Playwright can exercise the REAL guard + notice
+    // helpers (not a mock) while simulating the engine as down via a bad port.
+    if (process.env.NODE_ENV !== 'production') {
+      (window as unknown as Record<string, unknown>).__idmGuardLocalAI = guardLocalAIReady;
+      (window as unknown as Record<string, unknown>).__idmNotifyLocalAIDown = notifyLocalAIDown;
+    }
+  }, [isClient]);
 
   // iOS soft-keyboard scroll-into-view: when a text field / editor gains focus
   // on a touch device, the on-screen keyboard can cover it. Scroll the focused
@@ -2942,6 +2958,15 @@ export default function OutlinePro() {
     // provider — a wizard run then costs nothing and bills no hosted key.
     let useLocal = false;
     try { useLocal = localStorage.getItem('aiProvider') === 'local'; } catch { /* default cloud */ }
+
+    // If the user depends on local AI but the engine is down, show the calm
+    // "Start Local AI" notice (with one-click launch + retry) instead of
+    // dead-ending, and bail out of this run.
+    if (useLocal && !(await guardLocalAIReady({ onRetry: () => handleRunApplication(recipe, opts) }))) {
+      setRunningApplicationId(null);
+      setIsLoadingAI(false);
+      return;
+    }
 
     try {
       const topic = opts.topic.trim();

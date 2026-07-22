@@ -41,6 +41,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { WandSparkles, Loader2, AlertTriangle, Cpu, ArrowLeft } from 'lucide-react';
 import { reformatContentAction } from '@/app/actions';
+import { isLocalAIReachable, notifyLocalAIDown } from '@/lib/local-ai';
 import { getUserApiKey } from '@/lib/byok-keys';
 import { useAIUsageGate } from '@/lib/use-ai-usage-gate';
 import DerivationChoice, { type DerivationMode } from './derivation-choice';
@@ -150,6 +151,12 @@ export default function ReformatDialog({
 
     // Tier-enforcement gate (#33): one reformat call = 1 generation.
     if (!gate({ feature: 'reformat' })) return;
+
+    // On-device AI selected but the engine is down → calm one-click notice.
+    if (useLocal && !(await isLocalAIReachable())) {
+      await notifyLocalAIDown({ onRetry: () => { void handleRun(); } });
+      return;
+    }
 
     setErrorMsg(null);
     setPhase('running');

@@ -42,6 +42,7 @@ import {
   collectSubtree,
 } from '@/lib/transforms/transform-engine';
 import { createTranslateTransformer } from '@/lib/transforms/translate-transform';
+import { isLocalAIReachable, notifyLocalAIDown } from '@/lib/local-ai';
 import { useAIUsageGate } from '@/lib/use-ai-usage-gate';
 import DerivationChoice, { type DerivationMode } from './derivation-choice';
 import { suggestTranslateLabel } from '@/lib/derivation/label-from-prompt';
@@ -121,6 +122,12 @@ export default function TranslateDialog({
     // Tier-enforcement gate (#33): translating any number of nodes = ONE
     // generation (1 user-initiated AI action).
     if (!gate({ feature: 'translate' })) return;
+
+    // On-device AI selected but the engine is down → calm one-click notice.
+    if (useLocal && !(await isLocalAIReachable())) {
+      await notifyLocalAIDown({ onRetry: () => { void handleRun(); } });
+      return;
+    }
 
     setPhase('running');
     setErrorMsg(null);

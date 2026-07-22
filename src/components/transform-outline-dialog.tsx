@@ -40,6 +40,7 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Sparkles, Loader2, AlertTriangle, Cpu, ArrowLeft, Wand2 } from 'lucide-react';
 import { transformOutlineAction } from '@/app/actions';
+import { isLocalAIReachable, notifyLocalAIDown } from '@/lib/local-ai';
 import { serializeSubtree } from '@/lib/transform-outline-helpers';
 import type { SerializedNode, TransformOutlineResult } from '@/ai/flows/transform-outline';
 import { getUserApiKey } from '@/lib/byok-keys';
@@ -165,6 +166,13 @@ export default function TransformOutlineDialog({
 
     // Tier-enforcement gate: one transform = 1 generation regardless of subtree size.
     if (!gate({ feature: 'transformOutline' })) return;
+
+    // If this run will use on-device AI but the engine is down, show the calm
+    // "Start Local AI" notice (one-click launch + retry) instead of dead-ending.
+    if (useLocal && !(await isLocalAIReachable())) {
+      await notifyLocalAIDown({ onRetry: () => { void handleRun(); } });
+      return;
+    }
 
     setErrorMsg(null);
     setPhase('running');
