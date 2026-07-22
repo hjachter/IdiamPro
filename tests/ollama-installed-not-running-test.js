@@ -22,6 +22,7 @@ const path = require('path');
 const fs = require('fs');
 const os = require('os');
 const { execSync } = require('child_process');
+const { prepareApp, openSettings, setElectronWindowSize } = require('./_helpers');
 
 let electronApp;
 let page;
@@ -77,6 +78,12 @@ async function launchApp() {
   await page.waitForLoadState('domcontentloaded');
   await page.waitForTimeout(2000);
 
+  // A wide window keeps the toolbar buttons ("Bring In", etc.) inline instead
+  // of collapsing them into the "More tools" overflow menu — makes navigation
+  // deterministic. The overflow path is still handled as a fallback below.
+  await setElectronWindowSize(electronApp, 1500, 950);
+  await page.waitForTimeout(300);
+
   if (!page.url().includes('/app')) {
     await page.evaluate(() => { window.location.href = '/app'; });
     await page.waitForLoadState('domcontentloaded');
@@ -86,6 +93,10 @@ async function launchApp() {
       await page.waitForTimeout(5000);
     }
   }
+
+  // Dismiss the first-run welcome showcase (it renders over the app and blocks
+  // clicks) and wait for the real shell — shared with every other suite.
+  await prepareApp(page);
   console.log('App ready at:', page.url());
 }
 
@@ -110,16 +121,77 @@ async function closeAllDialogs() {
   await page.waitForTimeout(200);
 }
 
+// Open the Research & Import dialog reliably across viewport widths. Returns
+// true once the item has been clicked. Mirrors the working pattern used by
+// tests/import-secondbrain-sweep.js.
+async function openResearchDialog() {
+  await closeAllDialogs();
+
+  // Inline path: the "Bring In" toolbar dropdown.
+  const bringIn = page.locator('button[aria-label="Bring In"]').first();
+  if (await bringIn.isVisible({ timeout: 2000 }).catch(() => false)) {
+    await bringIn.click().catch(() => {});
+    await page.waitForTimeout(400);
+    const item = page.locator('[role="menuitem"]:has-text("Research & Import")').first();
+    if (await item.isVisible({ timeout: 1500 }).catch(() => false)) {
+      await item.click().catch(() => {});
+      return true;
+    }
+    // Close the dropdown before trying the overflow path.
+    await page.keyboard.press('Escape').catch(() => {});
+    await page.waitForTimeout(200);
+  }
+
+  // Overflow path: "More tools" → "Bring In" submenu → "Research & Import".
+  const more = page.locator('button[aria-label="More tools"]').first();
+  if (await more.isVisible({ timeout: 1500 }).catch(() => false)) {
+    await more.click().catch(() => {});
+    await page.waitForTimeout(400);
+    const sub = page.locator('[role="menuitem"]:has-text("Bring In")').first();
+    if (await sub.isVisible({ timeout: 1500 }).catch(() => false)) {
+      await sub.hover().catch(() => {});
+      await page.waitForTimeout(400);
+    }
+    const item = page.locator('[role="menuitem"]:has-text("Research & Import")').first();
+    if (await item.isVisible({ timeout: 1500 }).catch(() => false)) {
+      await item.click().catch(() => {});
+      return true;
+    }
+  }
+
+  return false;
+}
+
 /* ─────────────────────────── Test 1: Settings ─────────────────────────── */
 async function testSettingsDialog(ollamaInstalled) {
   const d = { steps: [] };
   try {
-    // Settings button is hidden on narrow widths (lg:inline-flex); use the
-    // canonical data-attribute so we hit the always-present trigger.
-    const settingsBtn = page.locator('[data-settings-trigger], button:has(.lucide-settings), [aria-label*="Settings"]').first();
-    await settingsBtn.click({ force: true });
+    // Open Settings via the shared, viewport-robust helper (drives the real
+    // "More tools" overflow path, then falls back to the app's canonical
+    // hidden [data-settings-trigger]). Replaces the old brittle force-click on
+    // a button that is now hidden by the responsive toolbar.
+    const opened = await openSettings(page);
     await page.waitForTimeout(1500); // let ollama probe finish
+    if (!opened) {
+      d.error = 'Could not open the Settings dialog';
+      await shot('01-settings-cant-open');
+      return { passed: false, details: d };
+    }
     d.steps.push('Opened Settings dialog');
+
+    // The Settings dialog is tabbed (2026-07); the Ollama / AI-provider status
+    // lives under the "AI" category, not the default "General" tab. Navigate
+    // there before reading the copy.
+    const aiTab = page.locator('[data-testid="settings-nav-ai"]').first();
+    if (await aiTab.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await aiTab.click().catch(() => {});
+      await page.waitForTimeout(1500); // let the ollama probe finish on this tab
+      d.steps.push('Switched to Settings → AI tab');
+    } else {
+      d.error = 'Could not find the AI tab in Settings';
+      await shot('01-settings-no-ai-tab');
+      return { passed: false, details: d };
+    }
     await shot('01-settings-open');
 
     const dialogText = (await page.locator('[role="dialog"]').last().textContent().catch(() => '')) || '';
@@ -170,33 +242,17 @@ async function testSettingsDialog(ollamaInstalled) {
 async function testBulkResearchDialog(ollamaInstalled) {
   const d = { steps: [] };
   try {
-    // Research & Import moved to the Import menu (BookDown). On narrow widths
-    // it's in the overflow "More tools" menu instead.
-    let researchItem = null;
-    const importBtn = page.locator('button[aria-label^="Import"]').first();
-    if (await importBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
-      await importBtn.click();
-      await page.waitForTimeout(500);
-      researchItem = page.locator('[role="menuitem"]:has-text("Research & Import")').first();
-    }
-    if (!researchItem || !(await researchItem.isVisible({ timeout: 1500 }).catch(() => false))) {
-      // Fallback: overflow menu (narrow widths).
-      const overflow = page.locator('button[aria-label="More tools"]').first();
-      if (await overflow.isVisible({ timeout: 1500 }).catch(() => false)) {
-        await overflow.click();
-        await page.waitForTimeout(500);
-        researchItem = page.locator('[role="menuitem"]:has-text("Research & Import")').first();
-      }
-    }
-    if (!researchItem) {
-      researchItem = page.locator('text="Research & Import"').first();
-    }
-    if (!(await researchItem.isVisible({ timeout: 2000 }).catch(() => false))) {
-      d.error = 'Research & Import menu item not found';
+    // "Research & Import" lives in the "Bring In" toolbar menu (the trigger
+    // button is aria-label="Bring In", renamed 2026-07-21 from the old
+    // "Import" label). On narrow widths it collapses into the "More tools"
+    // overflow menu as a "Bring In" submenu. Try the inline menu first (the
+    // wide window set at launch keeps it inline), then the overflow submenu.
+    const opened = await openResearchDialog();
+    if (!opened) {
+      d.error = 'Research & Import menu item not found (tried Bring In menu + More tools overflow)';
       await shot('02-research-no-item');
       return { passed: false, details: d };
     }
-    await researchItem.click();
     await page.waitForTimeout(1800); // let ollama probe finish
     d.steps.push('Opened Research & Import dialog');
     await shot('02-research-open');
