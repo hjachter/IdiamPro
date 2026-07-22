@@ -404,6 +404,25 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
 
   const [expandedGuide, setExpandedGuide] = useState<string | null>(null);
 
+  // Open a provider's setup guide AND make its paste box unmistakably visible:
+  // scroll the key input into the middle of the dialog and put the cursor in it.
+  // Without this, clicking "Set Up Gemini" only expands the guide — which pushes
+  // the actual input further down, often below the dialog's scroll fold, so on
+  // shorter screens the user sees "nothing happen" and can't find the box.
+  // Framework-agnostic (plain DOM) so it works identically on web and Electron.
+  const revealKeyInput = (providerId: string) => {
+    setExpandedGuide(providerId);
+    // Let the guide expand first, then scroll + focus the now-repositioned input.
+    setTimeout(() => {
+      const el = document.getElementById(`apikey-input-${providerId}`) as HTMLInputElement | null;
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // Focus after the smooth scroll settles so the cursor lands in view.
+        setTimeout(() => el.focus(), 350);
+      }
+    }, 80);
+  };
+
   // Privacy & Data state
   const [isExporting, setIsExporting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -1438,7 +1457,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
                   size="sm"
                   className="text-emerald-600 dark:text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/10"
                   onClick={() => {
-                    setExpandedGuide('gemini');
+                    revealKeyInput('gemini');
                     fireDiscovery('first-byok-prompt-encountered');
                   }}
                 >
@@ -1477,9 +1496,12 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
                         size="sm"
                         className="h-6 text-xs text-primary"
                         onClick={() => {
-                          const next = expandedGuide === provider.id ? null : provider.id;
-                          setExpandedGuide(next);
-                          if (next) fireDiscovery('first-byok-prompt-encountered');
+                          if (expandedGuide === provider.id) {
+                            setExpandedGuide(null);
+                          } else {
+                            revealKeyInput(provider.id);
+                            fireDiscovery('first-byok-prompt-encountered');
+                          }
                         }}
                       >
                         {expandedGuide === provider.id ? 'Hide Guide' : 'Get Key'}
@@ -1514,11 +1536,16 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
 
                   <div className="flex gap-1.5">
                     <Input
+                      id={`apikey-input-${provider.id}`}
                       type="password"
                       value={apiKeys[provider.id] || ''}
                       onChange={(e) => handleApiKeyChange(provider.id, e.target.value)}
                       placeholder={provider.placeholder}
-                      className="text-xs h-8 font-mono"
+                      className={`text-xs h-8 font-mono ${
+                        expandedGuide === provider.id && !apiKeys[provider.id]
+                          ? 'ring-2 ring-emerald-500/60 border-emerald-500/60'
+                          : ''
+                      }`}
                     />
                     <Button
                       variant="outline"
