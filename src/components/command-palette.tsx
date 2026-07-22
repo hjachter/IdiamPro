@@ -35,6 +35,7 @@ import {
   Languages,
   WandSparkles,
   Wand2,
+  ListTree,
 } from 'lucide-react';
 import { useInputModePreference } from '@/lib/use-input-mode-preference';
 import { getMicPermissionHelp } from '@/lib/platform-help';
@@ -64,6 +65,7 @@ interface CommandPaletteProps {
   onOpenTranslate?: () => void;
   onOpenReformat?: () => void;
   onOpenTransformOutline?: () => void;
+  onOpenSummarizeOutline?: () => void;
   onOpenImageToOutline?: () => void;
   onOpenYoutubePackage?: () => void;
   onOpenGenerateVideo?: () => void;
@@ -96,6 +98,7 @@ export default function CommandPalette({
   onOpenTranslate,
   onOpenReformat,
   onOpenTransformOutline,
+  onOpenSummarizeOutline,
   isGuide,
   isFocusMode,
   onAICommand,
@@ -490,6 +493,12 @@ export default function CommandPalette({
             <CommandItem onSelect={() => runCommand(onOpenTransformOutline)}>
               <Wand2 className="mr-2 h-4 w-4" />
               <span>Transform outline with AI</span>
+            </CommandItem>
+          )}
+          {onOpenSummarizeOutline && !isGuide && (
+            <CommandItem onSelect={() => runCommand(onOpenSummarizeOutline)}>
+              <ListTree className="mr-2 h-4 w-4" />
+              <span>Summarize outline</span>
             </CommandItem>
           )}
           {onOpenBulkResearch && (

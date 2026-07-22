@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, FileText, Crown, Loader2, Brain, Languages, WandSparkles, Wand2, Image as ImageIcon, LayoutGrid } from 'lucide-react';
+import { Sparkles, FileText, Crown, Loader2, Brain, Languages, WandSparkles, Wand2, Image as ImageIcon, LayoutGrid, ListTree } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useAI, useAIFeature } from '@/contexts/ai-context';
 import AiGenerateDialog from './ai-generate-dialog';
@@ -29,6 +29,7 @@ interface AIMenuProps {
   onOpenTranslate?: () => void;
   onOpenReformat?: () => void;
   onOpenTransformOutline?: () => void;
+  onOpenSummarizeOutline?: () => void;
   onOpenImageToOutline?: () => void;
   onOpenApplications?: () => void;
   hasSelectedNode?: boolean;
@@ -44,6 +45,7 @@ export default function AIMenu({
   onOpenTranslate,
   onOpenReformat,
   onOpenTransformOutline,
+  onOpenSummarizeOutline,
   onOpenImageToOutline,
   onOpenApplications,
   hasSelectedNode,
@@ -142,6 +144,17 @@ export default function AIMenu({
           <DropdownMenuItem onSelect={onOpenTransformOutline} className="cursor-pointer">
             <Wand2 className="mr-2 h-4 w-4 text-fuchsia-500 dark:text-fuchsia-400" />
             Transform outline with AI…
+          </DropdownMenuItem>
+        )}
+
+        {onOpenSummarizeOutline && (
+          <DropdownMenuItem
+            onSelect={onOpenSummarizeOutline}
+            className="cursor-pointer"
+            title="Distill the current outline down to its key points — a short gist, into a new outline or in place."
+          >
+            <ListTree className="mr-2 h-4 w-4 text-teal-500 dark:text-teal-400" />
+            Summarize outline
           </DropdownMenuItem>
         )}
 

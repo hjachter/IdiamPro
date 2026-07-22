@@ -54,6 +54,7 @@ export type AIFeatureKey =
   | 'translate'
   | 'reformat'
   | 'transformOutline'
+  | 'summarizeOutline'
   | 'tellAI'
   | 'bulkResearch'
   | 'aiMenu'

@@ -144,6 +144,8 @@ interface OutlinePaneProps {
   onOpenReformat?: () => void;
   // Transform outline with AI — whole-subtree structural transformation per natural-language instruction
   onOpenTransformOutline?: () => void;
+  // Summarize outline — distill the whole outline into a concise gist (2026-07-22)
+  onOpenSummarizeOutline?: () => void;
   // Multimedia AI (2026-06-11) — Capture from image, Share as YouTube package
   onOpenImageToOutline?: () => void;
   onOpenYoutubePackage?: () => void;
@@ -239,6 +241,7 @@ export default function OutlinePane({
   onOpenTranslate,
   onOpenReformat,
   onOpenTransformOutline,
+  onOpenSummarizeOutline,
   onOpenImageToOutline,
   onOpenYoutubePackage,
   onOpenGenerateVideo,
@@ -1514,6 +1517,7 @@ export default function OutlinePane({
             onOpenTranslate={currentOutline?.isGuide ? undefined : onOpenTranslate}
             onOpenReformat={currentOutline?.isGuide ? undefined : onOpenReformat}
             onOpenTransformOutline={currentOutline?.isGuide ? undefined : onOpenTransformOutline}
+            onOpenSummarizeOutline={currentOutline?.isGuide ? undefined : onOpenSummarizeOutline}
             onOpenImageToOutline={currentOutline?.isGuide ? undefined : onOpenImageToOutline}
             onOpenApplications={onOpenApplications}
             hasSelectedNode={!!selectedNodeId && !currentOutline?.isGuide}

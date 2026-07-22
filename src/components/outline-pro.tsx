@@ -50,6 +50,7 @@ import LiveBooksDialog from './live-books-dialog';
 import TranslateDialog from './translate-dialog';
 import ReformatDialog from './reformat-dialog';
 import TransformOutlineDialog from './transform-outline-dialog';
+import SummarizeOutlineDialog from './summarize-outline-dialog';
 import ImageToOutlineDialog, { type ImageToOutlineApplyPayload } from './image-to-outline-dialog';
 import YoutubePackageDialog from './youtube-package-dialog';
 import GenerateVideoDialog from './generate-video-dialog';
@@ -436,6 +437,9 @@ export default function OutlinePro() {
   // if a node is selected, operate on that subtree; otherwise, operate on
   // the whole current outline (root down).
   const [isTransformOutlineOpen, setIsTransformOutlineOpen] = useState(false);
+  // Summarize Outline dialog state — distills the WHOLE current outline into a
+  // concise gist. Reuses the Transform pipeline + apply handler (2026-07-22).
+  const [isSummarizeOutlineOpen, setIsSummarizeOutlineOpen] = useState(false);
   const [isApplicationsOpen, setIsApplicationsOpen] = useState(false);
   const [runningApplicationId, setRunningApplicationId] = useState<string | null>(null);
 
@@ -1654,6 +1658,15 @@ export default function OutlinePro() {
     if (!node) return 'the current outline';
     return `"${node.name}" and everything beneath it`;
   }, [outlines, currentOutlineId, transformScopeRootId]);
+
+  // Summarize always operates on the WHOLE current outline (its root), not the
+  // selected node — the gist is of the entire outline.
+  const summarizeScopeRootId = useMemo(() => {
+    if (!currentOutlineId) return null;
+    const outline = outlines.find(o => o.id === currentOutlineId);
+    if (!outline || outline.isGuide) return null;
+    return outline.rootNodeId;
+  }, [outlines, currentOutlineId]);
 
   // Apply an approved structural transform back into the outline, OR fork
   // into a derivative outline (2026-06-10 default for content-altering
@@ -4933,6 +4946,7 @@ export default function OutlinePro() {
             setIsReformatOpen(true);
           }}
           onOpenTransformOutline={() => setIsTransformOutlineOpen(true)}
+          onOpenSummarizeOutline={() => setIsSummarizeOutlineOpen(true)}
           onOpenImageToOutline={() => setIsImageToOutlineOpen(true)}
           onOpenYoutubePackage={() => setIsYoutubePackageOpen(true)}
           onOpenGenerateVideo={handleOpenGenerateVideo}
@@ -5041,6 +5055,15 @@ export default function OutlinePro() {
           nodes={currentOutline?.nodes ?? null}
           rootNodeId={transformScopeRootId}
           scopeLabel={transformScopeLabel}
+          outlineName={currentOutline?.name}
+          onApply={handleApplyTransformOutline}
+        />
+
+        <SummarizeOutlineDialog
+          open={isSummarizeOutlineOpen}
+          onOpenChange={setIsSummarizeOutlineOpen}
+          nodes={currentOutline?.nodes ?? null}
+          rootNodeId={summarizeScopeRootId}
           outlineName={currentOutline?.name}
           onApply={handleApplyTransformOutline}
         />
@@ -5311,6 +5334,7 @@ export default function OutlinePro() {
                   setIsReformatOpen(true);
                 }}
                 onOpenTransformOutline={() => setIsTransformOutlineOpen(true)}
+          onOpenSummarizeOutline={() => setIsSummarizeOutlineOpen(true)}
           onOpenImageToOutline={() => setIsImageToOutlineOpen(true)}
           onOpenYoutubePackage={() => setIsYoutubePackageOpen(true)}
           onOpenGenerateVideo={handleOpenGenerateVideo}
@@ -5575,6 +5599,15 @@ export default function OutlinePro() {
         nodes={currentOutline?.nodes ?? null}
         rootNodeId={transformScopeRootId}
         scopeLabel={transformScopeLabel}
+        outlineName={currentOutline?.name}
+        onApply={handleApplyTransformOutline}
+      />
+
+      <SummarizeOutlineDialog
+        open={isSummarizeOutlineOpen}
+        onOpenChange={setIsSummarizeOutlineOpen}
+        nodes={currentOutline?.nodes ?? null}
+        rootNodeId={summarizeScopeRootId}
         outlineName={currentOutline?.name}
         onApply={handleApplyTransformOutline}
       />
@@ -5866,6 +5899,7 @@ export default function OutlinePro() {
                   setIsReformatOpen(true);
                 }}
                 onOpenTransformOutline={() => setIsTransformOutlineOpen(true)}
+          onOpenSummarizeOutline={() => setIsSummarizeOutlineOpen(true)}
           onOpenImageToOutline={() => setIsImageToOutlineOpen(true)}
           onOpenYoutubePackage={() => setIsYoutubePackageOpen(true)}
           onOpenGenerateVideo={handleOpenGenerateVideo}
