@@ -80,26 +80,16 @@ import {
 // CONFIGURATION
 // ============================================
 
-// Sign-up URL — the public entry point for new users. The home page no
-// longer links directly to /app: anyone who wants to try IdeaM applies
-// for the invite-only beta first, and Howard approves each one personally.
-// The /app route is still reachable for already-approved users (via the
-// hero CTA's SignedIn branch and via deep links once they're authed); the
-// AppGate component enforces approval at the /app boundary.
-const SIGNUP_URL = '/signup';
+// App-entry routing — every "Open IdeaM" button is gate-aware and mirrors the
+// marketing header: signed-out visitors are sent to the /signup application
+// flow (the invite-only beta gate Howard approves personally), while an
+// already-signed-in/approved user goes straight to /app. Each button branches
+// on <SignedOut>/<SignedIn> inline, so all "Open IdeaM" CTAs (header, hero,
+// bottom) behave identically. The AppGate still enforces approval at the /app
+// boundary as the final backstop.
 
 // Launch date: April 1, 2026
 const LAUNCH_DATE = new Date('2026-04-01T00:00:00');
-
-/**
- * Send the visitor to the sign-up application flow. Every previously
- * "Launch App" / "Try App" button on the marketing page now routes
- * through here so prospective users always meet the application form
- * before they can reach the outliner.
- */
-const launchApp = () => {
-  window.location.href = SIGNUP_URL;
-};
 
 // ============================================
 // COMPONENTS
@@ -566,7 +556,7 @@ export default function MarketingPage() {
                   </SignedOut>
                   <SignedIn>
                     <Button
-                      onClick={launchApp}
+                      onClick={() => { window.location.href = '/app'; }}
                       size="lg"
                       className="bg-gradient-to-br from-[#38bdf8] via-[#2563eb] to-[#4f46e5] hover:from-[#2563eb] hover:to-[#4338ca] text-white font-bold px-8 py-6 text-base shadow-xl shadow-blue-700/35"
                     >
@@ -1242,7 +1232,7 @@ export default function MarketingPage() {
             </SignedOut>
             <SignedIn>
               <Button
-                onClick={launchApp}
+                onClick={() => { window.location.href = '/app'; }}
                 size="lg"
                 className="bg-white hover:bg-blue-50 text-[#1e40af] font-bold text-lg px-10 py-6 shadow-2xl shadow-black/25 transition-all duration-300"
               >
