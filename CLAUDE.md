@@ -113,6 +113,7 @@ Every time a new user-facing feature is implemented, it **must** also be documen
 2. **Help Chat context** (`src/components/help-chat-dialog.tsx`) — Update the `APP_CONTEXT` string
 3. **Help Chat API context** (`src/app/api/help-chat/route.ts`) — Update the duplicated `APP_CONTEXT` string
 4. **How It Works outline** (`~/Documents/IDM Outlines/IdeaM -- How it works.idm` + sync to `docs/outlines/`) — Update the relevant section describing the feature's architecture in plain language
+5. **Marketing website** — When the feature is a user-facing capability a prospect would care about (any wizard / output format / Smart Tool), reflect it on the public site: the `/features` page, and where fitting the landing page (`src/app/page.tsx`) and `/pricing`. A capability must never ship invisible to prospects. IMPORTANT: marketing copy is Howard's brand voice — **DRAFT** the site copy / feature card and surface it to Howard for approval before it goes live; do NOT treat auto-generated marketing wording as final. (Keeping the site in sync with shipped wizards is required; the wording is Howard's call.)
 
 This includes: new keyboard shortcuts, new node types, new toolbar/menu items, new settings, new gestures, new dialogs, and any change to existing feature behavior. Never merge a feature without its documentation.
 
@@ -140,6 +141,7 @@ cp "~/Documents/IDM Outlines/IdeaM -- Testing.idm" docs/outlines/
 - `IdeaM -- Current Features.idm` — Comprehensive catalog of all implemented features
 - `IdeaM -- Testing.idm` — Automated test results + manual test checklists
 - `Developer Guide.idm` — Quick-start guide for developers working on the codebase
+- `IdeaM -- Operating Procedures.idm` — Plain-English guide to the Claude Code workflow customizations in force (auto-publish, how we talk, quality gates, decisions, naming, memory, voice)
 
 *Business & Strategy:*
 - `IdeaM -- Planning.idm` — Executive business plan, market analysis, financial projections
