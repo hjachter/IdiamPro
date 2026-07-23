@@ -52,6 +52,9 @@ import { serializeSubtree } from '@/lib/transform-outline-helpers';
 import { getUserApiKey } from '@/lib/byok-keys';
 import { useAIUsageGate } from '@/lib/use-ai-usage-gate';
 import { useVoiceProfile } from '@/lib/use-voice-profile';
+import { useSourceVerifier } from '@/lib/ai/use-source-verifier';
+import { nodesToPlainText } from '@/lib/ai/hallucination-verifier';
+import AiQualityCheckNote from '@/components/ai-quality-check-note';
 import { openExternalUrl, isElectron } from '@/lib/electron-storage';
 import { useToast } from '@/hooks/use-toast';
 import { SOCIAL_TEMPLATES, getSocialTemplate, type SocialPostMode, type SocialTemplate } from '@/lib/social-templates';
@@ -181,6 +184,9 @@ export default function ShareToSocialDialog({
 }: ShareToSocialDialogProps) {
   const { gate } = useAIUsageGate();
   const { voiceAvailable, voiceProfile } = useVoiceProfile();
+  // Always-on hallucination verifier — checks the drafted post against the
+  // source branch on-device ($0, off the cloud meter).
+  const verifier = useSourceVerifier();
   const {
     shareToXAvailable,
     shareToInstagramAvailable,
@@ -272,6 +278,7 @@ export default function ShareToSocialDialog({
       setYtVariant('standard');
       setYtPkg(null);
       setYtCopied(null);
+      verifier.reset();
     }
   }, [open, availableTemplates]);
 
@@ -344,6 +351,11 @@ export default function ShareToSocialDialog({
       setPosts(r.posts);
       setModelLabel(r.model);
       setPhase('preview');
+      void verifier.run(
+        nodesToPlainText(subtreeNodes, rootNodeId!),
+        r.posts.join('\n\n'),
+        `${template.label} post`,
+      );
     } catch (e) {
       const raw = e instanceof Error ? e.message : String(e);
       setErrorMsg(`The draft didn't go through. ${raw ? `Reason: ${raw}. ` : ''}You can try again, switch to local AI, or check your API key in Settings.`);
@@ -402,6 +414,15 @@ export default function ShareToSocialDialog({
         setRendered([]);
       }
       setPhase('preview');
+      {
+        const slideText = (r.slides || [])
+          .map((s) => [s.title, s.subtitle].filter(Boolean).join(' — '))
+          .join('\n');
+        const igOutput = [r.caption, (r.hashtags || []).join(' '), slideText]
+          .filter(Boolean)
+          .join('\n\n');
+        void verifier.run(nodesToPlainText(subtreeNodes, rootNodeId!), igOutput, 'Instagram post');
+      }
     } catch (e) {
       const raw = e instanceof Error ? e.message : String(e);
       setErrorMsg(`The draft didn't go through. ${raw ? `Reason: ${raw}. ` : ''}You can try again, switch to local AI, or check your API key in Settings.`);
@@ -436,6 +457,11 @@ export default function ShareToSocialDialog({
       setYtPkg(r.package);
       setModelLabel(r.model);
       setPhase('preview');
+      void verifier.run(
+        nodesToPlainText(subtreeNodes, rootNodeId!),
+        youtubePackageToText(r.package, ytVariant),
+        'YouTube package',
+      );
     } catch (e) {
       const raw = e instanceof Error ? e.message : String(e);
       setErrorMsg(`The draft didn't go through. ${raw ? `Reason: ${raw}. ` : ''}You can try again, switch to local AI, or check your API key in Settings.`);
@@ -887,6 +913,7 @@ export default function ShareToSocialDialog({
                 <Badge variant="outline" data-testid="social-post-count">{posts.length} {posts.length === 1 ? 'post' : 'posts'}</Badge>
                 <span className="text-muted-foreground text-xs">Edit any post before you post it.</span>
               </div>
+              <AiQualityCheckNote verifying={verifier.verifying} result={verifier.result} />
               {/* Honest per-platform note. Platforms WITH a compose intent (X,
                   Threads) only need the "first post prefilled" note when there's
                   a multi-post thread. Platforms WITHOUT one (LinkedIn, Facebook)
@@ -942,6 +969,7 @@ export default function ShareToSocialDialog({
                   <Badge variant="outline" data-testid="ig-slide-count">{rendered.length} slides</Badge>
                 )}
               </div>
+              <AiQualityCheckNote verifying={verifier.verifying} result={verifier.result} />
 
               {igMode === 'carousel' && (
                 <div className="space-y-2">
@@ -1002,6 +1030,7 @@ export default function ShareToSocialDialog({
                 <Badge variant="outline">{ytVariant === 'shorts' ? 'Shorts idea' : 'Publish package'}</Badge>
                 <span className="text-muted-foreground text-xs">Edit anything before you use it.</span>
               </div>
+              <AiQualityCheckNote verifying={verifier.verifying} result={verifier.result} />
 
               <div className="space-y-1">
                 <Label className="text-xs uppercase tracking-wide text-muted-foreground">

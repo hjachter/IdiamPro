@@ -60,6 +60,9 @@ import { importEmailAction } from '@/app/actions';
 import { isLocalAIReachable, notifyLocalAIDown } from '@/lib/local-ai';
 import { useAIUsageGate } from '@/lib/use-ai-usage-gate';
 import { getFileJunkAsideEnabled } from '@/lib/use-email-tools-settings';
+import { useSourceVerifier } from '@/lib/ai/use-source-verifier';
+import { nodesToPlainText } from '@/lib/ai/hallucination-verifier';
+import AiQualityCheckNote from '@/components/ai-quality-check-note';
 import type { Outline } from '@/types';
 
 export type EmailImportOutputMode = 'new' | 'append' | 'secondBrain';
@@ -75,7 +78,7 @@ interface EmailImportDialogProps {
   onApply: (outline: Outline, mode: EmailImportOutputMode) => void;
 }
 
-type Phase = 'input' | 'running';
+type Phase = 'input' | 'running' | 'review';
 
 /**
  * Pragmatic .eml → readable text. Pulls the key headers (From / To / Subject /
@@ -186,6 +189,9 @@ export default function EmailImportDialog({
   onApply,
 }: EmailImportDialogProps) {
   const { gate } = useAIUsageGate();
+  // Always-on hallucination verifier — checks the extracted outline against the
+  // email it came from, on-device ($0, off the cloud meter).
+  const verifier = useSourceVerifier();
   const [phase, setPhase] = useState<Phase>('input');
   const [emailText, setEmailText] = useState('');
   const [outlineName, setOutlineName] = useState('');
@@ -194,6 +200,8 @@ export default function EmailImportDialog({
   const [outputMode, setOutputMode] = useState<EmailImportOutputMode>('new');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [loadedFileName, setLoadedFileName] = useState<string | null>(null);
+  // The extracted outline, held for the review step before it's applied.
+  const [produced, setProduced] = useState<Outline | null>(null);
 
   useEffect(() => {
     if (open) {
@@ -205,6 +213,8 @@ export default function EmailImportDialog({
       setOutputMode('new');
       setErrorMsg(null);
       setLoadedFileName(null);
+      setProduced(null);
+      verifier.reset();
     }
   }, [open]);
 
@@ -257,8 +267,16 @@ export default function EmailImportDialog({
         return;
       }
 
-      onApply(r.outline, outputMode);
-      handleClose();
+      // Hold the result for a quick review step. The always-on verifier checks
+      // the extracted outline against the email so the user sees any
+      // source-unsupported claims BEFORE it lands in their outlines.
+      setProduced(r.outline);
+      setPhase('review');
+      void verifier.run(
+        emailText.trim(),
+        nodesToPlainText(r.outline.nodes, r.outline.rootNodeId),
+        'email import',
+      );
     } catch (e) {
       const raw = e instanceof Error ? e.message : String(e);
       setErrorMsg(
@@ -266,6 +284,12 @@ export default function EmailImportDialog({
       );
       setPhase('input');
     }
+  };
+
+  const handleConfirmApply = () => {
+    if (!produced) return;
+    onApply(produced, outputMode);
+    handleClose();
   };
 
   return (
@@ -459,6 +483,23 @@ export default function EmailImportDialog({
           </div>
         )}
 
+        {phase === 'review' && produced && (
+          <ScrollArea className="flex-1 -mx-6 px-6">
+            <div className="space-y-3 py-2" data-testid="email-import-review">
+              <div className="rounded-lg border border-primary/30 bg-primary/5 p-3">
+                <p className="text-sm font-medium">
+                  Structured &ldquo;{produced.name}&rdquo; — {Object.keys(produced.nodes).length} points ready.
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Give it a quick look, then add it to your outlines.
+                </p>
+              </div>
+
+              <AiQualityCheckNote verifying={verifier.verifying} result={verifier.result} />
+            </div>
+          </ScrollArea>
+        )}
+
         <DialogFooter>
           {phase === 'input' && (
             <>
@@ -478,6 +519,15 @@ export default function EmailImportDialog({
               <Loader2 className="h-4 w-4 mr-1 animate-spin" />
               Importing…
             </Button>
+          )}
+          {phase === 'review' && (
+            <>
+              <Button variant="ghost" onClick={() => setPhase('input')}>Back</Button>
+              <Button onClick={handleConfirmApply} data-testid="email-import-confirm">
+                <Mail className="h-4 w-4 mr-1" />
+                Add to outline
+              </Button>
+            </>
           )}
         </DialogFooter>
       </DialogContent>

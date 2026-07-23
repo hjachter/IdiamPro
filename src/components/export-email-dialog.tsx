@@ -51,6 +51,9 @@ import { useEmailToolsSettings } from '@/lib/use-email-tools-settings';
 import { useVoiceProfile } from '@/lib/use-voice-profile';
 import { openExternalUrl } from '@/lib/electron-storage';
 import { useToast } from '@/hooks/use-toast';
+import { useSourceVerifier } from '@/lib/ai/use-source-verifier';
+import { nodesToPlainText } from '@/lib/ai/hallucination-verifier';
+import AiQualityCheckNote from '@/components/ai-quality-check-note';
 import type { NodeMap } from '@/types';
 
 interface ExportEmailDialogProps {
@@ -139,6 +142,9 @@ export default function ExportEmailDialog({
   // to draft the email in their own voice. Hidden entirely when unavailable.
   const { voiceAvailable, voiceProfile } = useVoiceProfile();
   const { toast } = useToast();
+  // Always-on hallucination verifier — checks the draft against its source
+  // outline branch on-device ($0, off the cloud meter).
+  const verifier = useSourceVerifier();
   const [phase, setPhase] = useState<Phase>('input');
   // Draft in the user's own voice (only offered when a profile exists).
   const [inMyVoice, setInMyVoice] = useState(false);
@@ -176,6 +182,7 @@ export default function ExportEmailDialog({
       setBodyEdited(false);
       setCopied(false);
       setShowGmailNoEmail(false);
+      verifier.reset();
     }
   }, [open]);
 
@@ -261,6 +268,12 @@ export default function ExportEmailDialog({
       setBodyEdited(false);
       setModelLabel(r.model);
       setPhase('preview');
+      // Kick off the always-on verification pass against the source branch.
+      void verifier.run(
+        nodesToPlainText(subtreeNodes, rootNodeId),
+        `Subject: ${r.subject}\n\n${r.bodyText || ''}`,
+        'email draft',
+      );
     } catch (e) {
       const raw = e instanceof Error ? e.message : String(e);
       setErrorMsg(
@@ -455,6 +468,12 @@ export default function ExportEmailDialog({
                   <span className="text-muted-foreground text-xs">Edit anything below before you send.</span>
                 </div>
               )}
+
+              <AiQualityCheckNote
+                verifying={verifier.verifying}
+                result={verifier.result}
+                onAcceptCorrection={(text) => { setBodyText(text); setBodyEdited(true); }}
+              />
 
               <div className="space-y-1.5">
                 <Label htmlFor="email-subject" className="text-xs uppercase tracking-wide text-muted-foreground">

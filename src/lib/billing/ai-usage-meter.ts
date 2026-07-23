@@ -64,10 +64,28 @@ import { getStorage } from '@/lib/storage/adapter';
  * table.
  */
 export const AI_TEXT_ALLOWANCES: Record<SubscriptionTierId, number> = {
-  free: 0, // NEVER our key.
-  pro: 1000, // PLACEHOLDER — Professional monthly company-AI text generations.
-  premium: 3000, // PLACEHOLDER — top-tier monthly company-AI text generations.
+  free: 0, // Free — NEVER our key (on-device / BYOK only).
+  pro: 1000, // Professional — approved starting monthly company-AI text generations (2026-07-23).
+  premium: 3000, // Top tier — monthly company-AI text generations (placeholder).
 };
+
+/* ─── APPROVED STARTING ALLOWANCES (2026-07-23) — the tune-here knobs ────────
+ * Owner-approved launch numbers for the per-tier MONTHLY company-cloud-AI text
+ * generation allowance. Change ONLY these values to retune; the enforcement
+ * logic reads AI_TEXT_ALLOWANCES above and never hard-codes a number.
+ *
+ *   Free         = 0     → free users never touch the company key.
+ *   Professional = 1000  → the 'pro' tier row above.
+ *   Student      = 500   → applied once the Student entitlement maps to its own
+ *                          tier id (today a Student subscription resolves through
+ *                          the same free/pro/premium table — see note above).
+ *   Overage pack = +500  → placeholder / "coming soon"; not yet purchasable.
+ */
+export const AI_TEXT_ALLOWANCE_FREE = 0;
+export const AI_TEXT_ALLOWANCE_PROFESSIONAL = 1000;
+export const AI_TEXT_ALLOWANCE_STUDENT = 500;
+/** Additional generations granted by one overage pack. Placeholder — "coming soon". */
+export const AI_TEXT_OVERAGE_PACK = 500;
 
 /* ───────────────────────── internal dev allowlist ─────────────────────────
  * "Only us as we develop." Reachable by email (any linked Clerk email) OR by

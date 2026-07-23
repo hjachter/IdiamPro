@@ -66,6 +66,9 @@ import type { SerializedNode, TransformOutlineResult } from '@/ai/flows/transfor
 import { getUserApiKey } from '@/lib/byok-keys';
 import { useAIUsageGate } from '@/lib/use-ai-usage-gate';
 import { useVoiceProfile } from '@/lib/use-voice-profile';
+import { useSourceVerifier } from '@/lib/ai/use-source-verifier';
+import { nodesToPlainText } from '@/lib/ai/hallucination-verifier';
+import AiQualityCheckNote from '@/components/ai-quality-check-note';
 import type { NodeMap } from '@/types';
 import DerivationChoice, { type DerivationMode } from './derivation-choice';
 
@@ -125,6 +128,9 @@ export default function SummarizeOutlineDialog({
   const { gate } = useAIUsageGate();
   // "Your Voice" — offer to write the summary's content in the user's own style.
   const { voiceAvailable, voiceProfile } = useVoiceProfile();
+  // Always-on hallucination verifier — checks the gist against the original
+  // outline on-device ($0, off the cloud meter).
+  const verifier = useSourceVerifier();
   const [phase, setPhase] = useState<Phase>('input');
   const [depth, setDepth] = useState<Depth>('standard');
   const [inMyVoice, setInMyVoice] = useState(false);
@@ -164,6 +170,7 @@ export default function SummarizeOutlineDialog({
       setDerivationMode('derivative');
       setDerivationLabel('Summary');
       setConfirmReplaceOpen(false);
+      verifier.reset();
     }
   }, [open]);
 
@@ -224,6 +231,14 @@ export default function SummarizeOutlineDialog({
 
       setResult(r);
       setPhase('preview');
+      // Always-on verification: check the produced gist against the original.
+      if (nodes && rootNodeId) {
+        void verifier.run(
+          nodesToPlainText(nodes, rootNodeId),
+          nodesToPlainText(r.transformedNodes, r.transformedRootId),
+          'outline summary',
+        );
+      }
     } catch (e) {
       const raw = e instanceof Error ? e.message : String(e);
       setErrorMsg(
@@ -399,6 +414,8 @@ export default function SummarizeOutlineDialog({
                     <p className="text-sm text-muted-foreground">{result.summary}</p>
                   )}
                 </div>
+
+                <AiQualityCheckNote verifying={verifier.verifying} result={verifier.result} />
 
                 <Separator />
 
