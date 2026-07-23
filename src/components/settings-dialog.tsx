@@ -19,6 +19,7 @@ import {
   getShareToFacebookEnabled,
   getShareToThreadsEnabled,
   getShareToBlueskyEnabled,
+  getShareToYouTubeEnabled,
   setSocialExportEnabled as persistSocialExportEnabled,
   grantSocialExportConsent,
   setShareToXEnabled as persistShareToXEnabled,
@@ -27,6 +28,7 @@ import {
   setShareToFacebookEnabled as persistShareToFacebookEnabled,
   setShareToThreadsEnabled as persistShareToThreadsEnabled,
   setShareToBlueskyEnabled as persistShareToBlueskyEnabled,
+  setShareToYouTubeEnabled as persistShareToYouTubeEnabled,
 } from '@/lib/use-social-export-settings';
 import {
   getEmailToolsEnabled,
@@ -196,6 +198,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
   const [shareToFacebookEnabled, setShareToFacebookEnabledState] = useState<boolean>(true);
   const [shareToThreadsEnabled, setShareToThreadsEnabledState] = useState<boolean>(true);
   const [shareToBlueskyEnabled, setShareToBlueskyEnabledState] = useState<boolean>(true);
+  const [shareToYouTubeEnabled, setShareToYouTubeEnabledState] = useState<boolean>(true);
   const [socialConsentMode, setSocialConsentMode] = useState<null | 'enable' | 'review'>(null);
 
   // Outline-backup auto-snapshot toggles (2026-06-10). Both default ON.
@@ -318,6 +321,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
     setShareToFacebookEnabledState(getShareToFacebookEnabled());
     setShareToThreadsEnabledState(getShareToThreadsEnabled());
     setShareToBlueskyEnabledState(getShareToBlueskyEnabled());
+    setShareToYouTubeEnabledState(getShareToYouTubeEnabled());
 
     // Load API keys
     const savedKeys: Record<string, string> = {};
@@ -366,6 +370,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
       setShareToFacebookEnabledState(getShareToFacebookEnabled());
       setShareToThreadsEnabledState(getShareToThreadsEnabled());
       setShareToBlueskyEnabledState(getShareToBlueskyEnabled());
+    setShareToYouTubeEnabledState(getShareToYouTubeEnabled());
     }
   }, [open]);
 
@@ -943,6 +948,11 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
   const handleShareToBlueskyToggle = (checked: boolean) => {
     setShareToBlueskyEnabledState(checked);
     persistShareToBlueskyEnabled(checked);
+  };
+
+  const handleShareToYouTubeToggle = (checked: boolean) => {
+    setShareToYouTubeEnabledState(checked);
+    persistShareToYouTubeEnabled(checked);
   };
 
   // --- "Your Voice" handlers -------------------------------------------------
@@ -1699,8 +1709,23 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
                     Draft a casual Bluesky post within its ~300-character limit — optionally in your voice. Copy it, open it in Bluesky prefilled, or download it.
                   </p>
 
+                  <div className="flex items-center justify-between pt-2">
+                    <Label htmlFor="social-feature-youtube" className="text-sm font-normal">
+                      Share to YouTube (publish package)
+                    </Label>
+                    <Switch
+                      id="social-feature-youtube"
+                      data-testid="social-feature-youtube"
+                      checked={shareToYouTubeEnabled}
+                      onCheckedChange={handleShareToYouTubeToggle}
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Build a YouTube publish package — title options, a description with chapter timestamps, tags, and a thumbnail idea — plus a Shorts variant, optionally in your voice. Pairs with Generate Video for the actual MP4. Copy or download it, then upload and paste it into YouTube yourself.
+                  </p>
+
                   <p className="text-xs text-muted-foreground pt-1">
-                    More platforms (YouTube, short-form video, and more) are coming — each will appear here as its own switch.
+                    More platforms (short-form video and more) are coming — each will appear here as its own switch.
                   </p>
                 </div>
               </div>

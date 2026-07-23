@@ -34,15 +34,17 @@ export interface SocialTemplate {
   /** One-line tooltip explaining the action. */
   tooltip: string;
   /** Icon identifier the dialog maps to a rendered glyph. */
-  iconKey: 'x' | 'instagram' | 'linkedin' | 'facebook' | 'threads' | 'bluesky' | 'generic';
+  iconKey: 'x' | 'instagram' | 'linkedin' | 'facebook' | 'threads' | 'bluesky' | 'youtube' | 'generic';
   /**
    * Output family this platform belongs to:
    *   'text'      — text posts (thread / single). X.
    *   'instagram' — Instagram caption OR branded carousel images.
+   *   'youtube'   — a YouTube publish package (title options + description with
+   *                 chapters + tags + thumbnail idea) plus a Shorts variant.
    * The dialog branches on this to show the right controls and hand-offs.
    * Defaults to 'text' when omitted (back-compat with the first template).
    */
-  outputKind?: 'text' | 'instagram';
+  outputKind?: 'text' | 'instagram' | 'youtube';
   /** Per-post character budget. Hard cap enforced end-to-end. */
   charLimit: number;
   /** Whether a multi-post thread makes sense on this platform. */
@@ -249,6 +251,41 @@ export const BLUESKY_TEMPLATE: SocialTemplate = {
   fileExtension: 'txt',
 };
 
+/**
+ * YouTube. The final social format template and a natural fit — the app already
+ * GENERATES video (Generate Video → a narrated slideshow MP4) and IMPORTS from
+ * YouTube. This template's value is the AI-written PUBLISH PACKAGE that makes an
+ * outline video ready to post: title options, a description with chapter
+ * timestamps, tags, and a thumbnail idea — plus a Shorts variant (a punchy title
+ * + a tight vertical script). Its output is handled by the dialog via
+ * outputKind: 'youtube'.
+ *
+ * There is deliberately NO buildIntentUrl for posting: a YouTube upload requires
+ * a signed-in account and cannot be pre-filled without the OAuth Data API (out of
+ * scope). The honest hand-off is copy (title / description / tags / all) +
+ * download the package as .txt, with an optional link that just opens the real
+ * YouTube upload page for the user to fill in by pasting.
+ */
+export const YOUTUBE_TEMPLATE: SocialTemplate = {
+  id: 'youtube',
+  label: 'YouTube',
+  shareLabel: 'Share to YouTube',
+  tooltip: 'Turn this branch into a YouTube publish package — title, description with chapters, tags and a thumbnail idea (plus a Shorts variant). Pairs with Generate Video for the actual MP4; you upload and paste it yourself.',
+  iconKey: 'youtube',
+  outputKind: 'youtube',
+  // Not a per-post text platform; the char cap is nominal for the shape.
+  charLimit: 5000,
+  supportsThread: false,
+  supportsSingle: false,
+  // Prompt rules live in the YouTube AI flow (generate-youtube-package.ts),
+  // which needs variant-specific guidance the flat promptRules string can't carry.
+  promptRules: 'Platform: YouTube. A publish package: SEO title options, a description with chapter timestamps, tags, and a thumbnail idea; plus a vertical Shorts variant.',
+  // No buildIntentUrl by design — YouTube upload needs sign-in + OAuth to pre-fill.
+  intentNote:
+    'YouTube uploads need you to be signed in and can’t be pre-filled from outside. Generate your video, then upload it to YouTube and paste this title, description, and tags. IdeaM never posts for you.',
+  fileExtension: 'txt',
+};
+
 /** The registry. Add a new template here to support a new platform. */
 export const SOCIAL_TEMPLATES: SocialTemplate[] = [
   X_TEMPLATE,
@@ -257,6 +294,7 @@ export const SOCIAL_TEMPLATES: SocialTemplate[] = [
   FACEBOOK_TEMPLATE,
   THREADS_TEMPLATE,
   BLUESKY_TEMPLATE,
+  YOUTUBE_TEMPLATE,
 ];
 
 /** Look up a template by id. */

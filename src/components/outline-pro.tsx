@@ -5157,6 +5157,7 @@ export default function OutlinePro() {
   rootNodeId={selectedNodeId}
   scopeLabel={selectedNodeId ? currentOutline?.nodes?.[selectedNodeId]?.name : undefined}
   outlineName={currentOutline?.name}
+  onOpenGenerateVideo={handleOpenGenerateVideo}
 />
 
 <EmailImportDialog
@@ -5732,6 +5733,7 @@ export default function OutlinePro() {
   rootNodeId={selectedNodeId}
   scopeLabel={selectedNodeId ? currentOutline?.nodes?.[selectedNodeId]?.name : undefined}
   outlineName={currentOutline?.name}
+  onOpenGenerateVideo={handleOpenGenerateVideo}
 />
 
 <EmailImportDialog

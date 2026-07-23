@@ -42,6 +42,8 @@ export const SOCIAL_EXPORT_STORAGE_KEYS = {
   threads: 'socialExport.platform.threads',
   /** Per-platform sub-toggle: Share to Bluesky. */
   bluesky: 'socialExport.platform.bluesky',
+  /** Per-platform sub-toggle: Share to YouTube. */
+  youtube: 'socialExport.platform.youtube',
 } as const;
 
 /** Fired on any write so every mounted consumer re-reads immediately. */
@@ -88,6 +90,9 @@ export function getShareToThreadsEnabled(): boolean {
 export function getShareToBlueskyEnabled(): boolean {
   return readBool(SOCIAL_EXPORT_STORAGE_KEYS.bluesky, true);
 }
+export function getShareToYouTubeEnabled(): boolean {
+  return readBool(SOCIAL_EXPORT_STORAGE_KEYS.youtube, true);
+}
 /** The single question the surface asks: is Share to X live right now? */
 export function isShareToXAvailable(): boolean {
   return getSocialExportEnabled() && getShareToXEnabled();
@@ -106,6 +111,9 @@ export function isShareToThreadsAvailable(): boolean {
 }
 export function isShareToBlueskyAvailable(): boolean {
   return getSocialExportEnabled() && getShareToBlueskyEnabled();
+}
+export function isShareToYouTubeAvailable(): boolean {
+  return getSocialExportEnabled() && getShareToYouTubeEnabled();
 }
 
 // ---- Plain setters -------------------------------------------------------
@@ -134,6 +142,9 @@ export function setShareToThreadsEnabled(on: boolean) {
 export function setShareToBlueskyEnabled(on: boolean) {
   writeAndNotify(SOCIAL_EXPORT_STORAGE_KEYS.bluesky, on ? 'true' : 'false');
 }
+export function setShareToYouTubeEnabled(on: boolean) {
+  writeAndNotify(SOCIAL_EXPORT_STORAGE_KEYS.youtube, on ? 'true' : 'false');
+}
 
 export interface SocialExportSettings {
   /** Master gate — when false, ALL social-export features are hidden/disabled. */
@@ -152,6 +163,8 @@ export interface SocialExportSettings {
   shareToThreadsEnabled: boolean;
   /** Share to Bluesky sub-toggle (only meaningful when master is on). */
   shareToBlueskyEnabled: boolean;
+  /** Share to YouTube sub-toggle (only meaningful when master is on). */
+  shareToYouTubeEnabled: boolean;
   /** Convenience: master AND the Share to X sub-toggle. */
   shareToXAvailable: boolean;
   /** Convenience: master AND the Share to Instagram sub-toggle. */
@@ -164,6 +177,8 @@ export interface SocialExportSettings {
   shareToThreadsAvailable: boolean;
   /** Convenience: master AND the Share to Bluesky sub-toggle. */
   shareToBlueskyAvailable: boolean;
+  /** Convenience: master AND the Share to YouTube sub-toggle. */
+  shareToYouTubeAvailable: boolean;
   /** Convenience: is ANY social platform available right now (drives the group). */
   socialExportAvailable: boolean;
   setSocialExportEnabled: (on: boolean) => void;
@@ -174,6 +189,7 @@ export interface SocialExportSettings {
   setShareToFacebookEnabled: (on: boolean) => void;
   setShareToThreadsEnabled: (on: boolean) => void;
   setShareToBlueskyEnabled: (on: boolean) => void;
+  setShareToYouTubeEnabled: (on: boolean) => void;
 }
 
 /**
@@ -190,6 +206,7 @@ export function useSocialExportSettings(): SocialExportSettings {
     shareToFacebookEnabled: true,
     shareToThreadsEnabled: true,
     shareToBlueskyEnabled: true,
+    shareToYouTubeEnabled: true,
   });
 
   const refresh = useCallback(() => {
@@ -202,6 +219,7 @@ export function useSocialExportSettings(): SocialExportSettings {
       shareToFacebookEnabled: getShareToFacebookEnabled(),
       shareToThreadsEnabled: getShareToThreadsEnabled(),
       shareToBlueskyEnabled: getShareToBlueskyEnabled(),
+      shareToYouTubeEnabled: getShareToYouTubeEnabled(),
     });
   }, []);
 
@@ -222,6 +240,7 @@ export function useSocialExportSettings(): SocialExportSettings {
   const shareToFacebookAvailable = state.socialExportEnabled && state.shareToFacebookEnabled;
   const shareToThreadsAvailable = state.socialExportEnabled && state.shareToThreadsEnabled;
   const shareToBlueskyAvailable = state.socialExportEnabled && state.shareToBlueskyEnabled;
+  const shareToYouTubeAvailable = state.socialExportEnabled && state.shareToYouTubeEnabled;
   return {
     ...state,
     shareToXAvailable,
@@ -230,6 +249,7 @@ export function useSocialExportSettings(): SocialExportSettings {
     shareToFacebookAvailable,
     shareToThreadsAvailable,
     shareToBlueskyAvailable,
+    shareToYouTubeAvailable,
     // Available if the master is on AND at least one platform sub-toggle is on.
     socialExportAvailable:
       state.socialExportEnabled &&
@@ -238,7 +258,8 @@ export function useSocialExportSettings(): SocialExportSettings {
         state.shareToLinkedInEnabled ||
         state.shareToFacebookEnabled ||
         state.shareToThreadsEnabled ||
-        state.shareToBlueskyEnabled),
+        state.shareToBlueskyEnabled ||
+        state.shareToYouTubeEnabled),
     setSocialExportEnabled,
     grantConsent: grantSocialExportConsent,
     setShareToXEnabled,
@@ -247,5 +268,6 @@ export function useSocialExportSettings(): SocialExportSettings {
     setShareToFacebookEnabled,
     setShareToThreadsEnabled,
     setShareToBlueskyEnabled,
+    setShareToYouTubeEnabled,
   };
 }

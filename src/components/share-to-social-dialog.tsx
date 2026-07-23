@@ -44,8 +44,9 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Share2, Loader2, AlertTriangle, Cpu, ArrowLeft, Sparkles, Copy, Download, Check, ExternalLink, Instagram, Images, Smartphone, Linkedin, Facebook, ClipboardPaste } from 'lucide-react';
-import { generateSocialPostAction, generateInstagramPostAction } from '@/app/actions';
+import { Share2, Loader2, AlertTriangle, Cpu, ArrowLeft, Sparkles, Copy, Download, Check, ExternalLink, Instagram, Images, Smartphone, Linkedin, Facebook, ClipboardPaste, Youtube, Video, Film } from 'lucide-react';
+import { generateSocialPostAction, generateInstagramPostAction, generateYoutubeShareAction } from '@/app/actions';
+import type { YoutubeVariant, YoutubeSharePackage } from '@/ai/flows/generate-youtube-package';
 import { isLocalAIReachable, notifyLocalAIDown } from '@/lib/local-ai';
 import { serializeSubtree } from '@/lib/transform-outline-helpers';
 import { getUserApiKey } from '@/lib/byok-keys';
@@ -77,6 +78,10 @@ interface ShareToSocialDialogProps {
   scopeLabel?: string;
   /** Display name of the current outline (context for the prompt). */
   outlineName?: string;
+  /** Jump to the existing Generate Video flow (the actual MP4). Used by the
+   *  YouTube template to connect the publish package to the real video. When
+   *  omitted (feature flag off), the dialog just points the user to it in words. */
+  onOpenGenerateVideo?: () => void;
 }
 
 type Phase = 'input' | 'running' | 'preview';
@@ -137,8 +142,33 @@ function PlatformIcon({ tpl, className }: { tpl: SocialTemplate; className?: str
   if (tpl.iconKey === 'facebook') return <Facebook className={className} />;
   if (tpl.iconKey === 'threads') return <ThreadsGlyph className={className} />;
   if (tpl.iconKey === 'bluesky') return <BlueskyGlyph className={className} />;
+  if (tpl.iconKey === 'youtube') return <Youtube className={className} />;
   return <Share2 className={className} />;
 }
+
+/** Assemble the full YouTube package into one copy/download-ready text block. */
+function youtubePackageToText(pkg: YoutubeSharePackage, variant: YoutubeVariant): string {
+  const lines: string[] = [];
+  const scriptLabel = variant === 'shorts' ? 'SCRIPT' : 'DESCRIPTION';
+  lines.push('TITLE OPTIONS');
+  pkg.titleOptions.forEach((t, i) => lines.push(`${i + 1}. ${t}`));
+  lines.push('');
+  lines.push(scriptLabel);
+  lines.push(pkg.description);
+  lines.push('');
+  lines.push('TAGS');
+  lines.push(pkg.tags.join(', '));
+  if (pkg.thumbnailIdea) {
+    lines.push('');
+    lines.push('THUMBNAIL IDEA');
+    lines.push(pkg.thumbnailIdea);
+  }
+  return lines.join('\n').trim();
+}
+
+/** YouTube's public upload page. It can't be pre-filled (that needs OAuth), so
+ *  the honest hand-off just opens it for the user to fill in by pasting. */
+const YOUTUBE_UPLOAD_URL = 'https://youtube.com/upload';
 
 export default function ShareToSocialDialog({
   open,
@@ -147,6 +177,7 @@ export default function ShareToSocialDialog({
   rootNodeId,
   scopeLabel,
   outlineName,
+  onOpenGenerateVideo,
 }: ShareToSocialDialogProps) {
   const { gate } = useAIUsageGate();
   const { voiceAvailable, voiceProfile } = useVoiceProfile();
@@ -157,6 +188,7 @@ export default function ShareToSocialDialog({
     shareToFacebookAvailable,
     shareToThreadsAvailable,
     shareToBlueskyAvailable,
+    shareToYouTubeAvailable,
   } = useSocialExportSettings();
   const { toast } = useToast();
 
@@ -170,6 +202,7 @@ export default function ShareToSocialDialog({
         if (t.id === 'facebook') return shareToFacebookAvailable;
         if (t.id === 'threads') return shareToThreadsAvailable;
         if (t.id === 'bluesky') return shareToBlueskyAvailable;
+        if (t.id === 'youtube') return shareToYouTubeAvailable;
         return true;
       }),
     [
@@ -179,6 +212,7 @@ export default function ShareToSocialDialog({
       shareToFacebookAvailable,
       shareToThreadsAvailable,
       shareToBlueskyAvailable,
+      shareToYouTubeAvailable,
     ],
   );
 
@@ -204,8 +238,14 @@ export default function ShareToSocialDialog({
   const [brand, setBrand] = useState<VideoStyle | null>(null);
   const [copiedCaption, setCopiedCaption] = useState(false);
 
+  // YOUTUBE state.
+  const [ytVariant, setYtVariant] = useState<YoutubeVariant>('standard');
+  const [ytPkg, setYtPkg] = useState<YoutubeSharePackage | null>(null);
+  const [ytCopied, setYtCopied] = useState<'title' | 'description' | 'tags' | 'all' | null>(null);
+
   const template = useMemo(() => getSocialTemplate(platformId) ?? SOCIAL_TEMPLATES[0], [platformId]);
   const isInstagram = template.outputKind === 'instagram';
+  const isYoutube = template.outputKind === 'youtube';
 
   useEffect(() => {
     if (open) {
@@ -229,15 +269,21 @@ export default function ShareToSocialDialog({
       setRendered([]);
       setCopiedCaption(false);
       setBrand(loadVideoStyle());
+      setYtVariant('standard');
+      setYtPkg(null);
+      setYtCopied(null);
     }
   }, [open, availableTemplates]);
 
-  // If the selected TEXT mode isn't supported by the platform, fall back.
+  // If the selected TEXT mode isn't supported by the platform, fall back. Only
+  // meaningful for text platforms — Instagram and YouTube have their own format
+  // controls and support NEITHER thread nor single, so guarding them here also
+  // prevents an infinite thread↔single flip loop.
   useEffect(() => {
-    if (isInstagram) return;
+    if (isInstagram || isYoutube) return;
     if (mode === 'thread' && !template.supportsThread) setMode('single');
     if (mode === 'single' && !template.supportsSingle) setMode('thread');
-  }, [template, mode, isInstagram]);
+  }, [template, mode, isInstagram, isYoutube]);
 
   const threadText = useMemo(() => buildThreadText(posts, mode), [posts, mode]);
   const intentUrl = useMemo(
@@ -363,6 +409,40 @@ export default function ShareToSocialDialog({
     }
   };
 
+  // --- YOUTUBE generation ---------------------------------------------------
+  const runYoutube = async () => {
+    setErrorMsg(null);
+    setPhase('running');
+    try {
+      const { subtreeNodes } = serializeSubtree(nodes!, rootNodeId!);
+      const userApiKey = getUserApiKey('gemini');
+      const r = await generateYoutubeShareAction({
+        subtreeNodes,
+        rootNodeId: rootNodeId!,
+        currentOutlineName: outlineName,
+        variant: ytVariant,
+        guidance: guidance.trim() || undefined,
+        voiceProfile: inMyVoice && voiceAvailable ? voiceProfile.trim() : undefined,
+        useLocal,
+        userApiKey,
+      });
+      if (r.error || !r.package) {
+        setErrorMsg(
+          `I couldn't build your YouTube ${ytVariant === 'shorts' ? 'Shorts idea' : 'publish package'}. ${r.error || 'The AI returned nothing usable.'} You can try again, switch to local AI, or check your API key in Settings.`,
+        );
+        setPhase('input');
+        return;
+      }
+      setYtPkg(r.package);
+      setModelLabel(r.model);
+      setPhase('preview');
+    } catch (e) {
+      const raw = e instanceof Error ? e.message : String(e);
+      setErrorMsg(`The draft didn't go through. ${raw ? `Reason: ${raw}. ` : ''}You can try again, switch to local AI, or check your API key in Settings.`);
+      setPhase('input');
+    }
+  };
+
   const handleRun = async () => {
     if (!nodes || !rootNodeId) {
       setErrorMsg('Select a branch first — a node and its sub-points.');
@@ -373,7 +453,8 @@ export default function ShareToSocialDialog({
       await notifyLocalAIDown({ onRetry: () => { void handleRun(); } });
       return;
     }
-    if (isInstagram) await runInstagram();
+    if (isYoutube) await runYoutube();
+    else if (isInstagram) await runInstagram();
     else await runText();
   };
 
@@ -456,15 +537,93 @@ export default function ShareToSocialDialog({
     }
   };
 
+  // --- YOUTUBE hand-offs ----------------------------------------------------
+  const updateYtPkg = <K extends keyof YoutubeSharePackage>(key: K, value: YoutubeSharePackage[K]) => {
+    setYtPkg((prev) => (prev ? { ...prev, [key]: value } : prev));
+  };
+
+  const flashYtCopied = (which: 'title' | 'description' | 'tags' | 'all') => {
+    setYtCopied(which);
+    window.setTimeout(() => setYtCopied((c) => (c === which ? null : c)), 1800);
+  };
+
+  const handleYtCopyTitle = async () => {
+    if (!ytPkg || ytPkg.titleOptions.length === 0) return;
+    const ok = await copyText(ytPkg.titleOptions[0]);
+    if (ok) {
+      flashYtCopied('title');
+      toast({ title: 'Title copied', description: 'Paste it into the YouTube title field.' });
+    } else {
+      toast({ variant: 'destructive', title: 'Copy failed', description: 'Your browser blocked clipboard access.' });
+    }
+  };
+
+  const handleYtCopyDescription = async () => {
+    if (!ytPkg) return;
+    const ok = await copyText(ytPkg.description);
+    if (ok) {
+      flashYtCopied('description');
+      toast({ title: ytVariant === 'shorts' ? 'Script copied' : 'Description copied', description: 'Paste it into YouTube.' });
+    } else {
+      toast({ variant: 'destructive', title: 'Copy failed', description: 'Your browser blocked clipboard access.' });
+    }
+  };
+
+  const handleYtCopyTags = async () => {
+    if (!ytPkg) return;
+    const ok = await copyText(ytPkg.tags.join(', '));
+    if (ok) {
+      flashYtCopied('tags');
+      toast({ title: 'Tags copied', description: 'Paste them into the YouTube tags field.' });
+    } else {
+      toast({ variant: 'destructive', title: 'Copy failed', description: 'Your browser blocked clipboard access.' });
+    }
+  };
+
+  const handleYtCopyAll = async () => {
+    if (!ytPkg) return;
+    const ok = await copyText(youtubePackageToText(ytPkg, ytVariant));
+    if (ok) {
+      flashYtCopied('all');
+      toast({ title: 'Package copied', description: 'The whole package is on your clipboard.' });
+    } else {
+      toast({ variant: 'destructive', title: 'Copy failed', description: 'Your browser blocked clipboard access.' });
+    }
+  };
+
+  const handleYtDownload = () => {
+    if (!ytPkg) return;
+    try {
+      const blob = new Blob([youtubePackageToText(ytPkg, ytVariant)], { type: 'text/plain;charset=utf-8' });
+      triggerDownload(blob, makeFilename(scopeLabel, template, 'txt'));
+      toast({ title: 'Downloaded', description: 'Saved the YouTube package as a text file.' });
+    } catch {
+      toast({ variant: 'destructive', title: 'Download failed', description: 'Could not create the file.' });
+    }
+  };
+
+  const handleYtOpenUpload = () => {
+    if (isElectron()) void openExternalUrl(YOUTUBE_UPLOAD_URL);
+    else window.open(YOUTUBE_UPLOAD_URL, '_blank', 'noopener,noreferrer');
+  };
+
+  const handleYtGenerateVideo = () => {
+    // Reuse the existing Generate Video flow for the actual MP4 — never
+    // reimplement video here. Close this dialog, then open Generate Video.
+    onOpenChange(false);
+    onOpenGenerateVideo?.();
+  };
+
   const igGenerateLabel = igMode === 'carousel' ? 'Design carousel' : 'Write caption';
+  const ytGenerateLabel = ytVariant === 'shorts' ? 'Write Shorts idea' : 'Write package';
 
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o) handleClose(); else onOpenChange(o); }}>
       <DialogContent className="w-[95vw] max-w-2xl max-h-[85vh] flex flex-col" data-testid="share-to-social-dialog">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            {isInstagram ? <Instagram className="h-5 w-5" /> : <Share2 className="h-5 w-5" />}
-            {isInstagram ? 'Share to Instagram' : 'Share to Social'}
+            {isYoutube ? <Youtube className="h-5 w-5" /> : isInstagram ? <Instagram className="h-5 w-5" /> : <Share2 className="h-5 w-5" />}
+            {isYoutube ? 'Share to YouTube' : isInstagram ? 'Share to Instagram' : 'Share to Social'}
           </DialogTitle>
           <DialogDescription>
             {scopeLabel
@@ -500,7 +659,7 @@ export default function ShareToSocialDialog({
               </div>
 
               {/* ── TEXT (X): Thread vs Single post ── */}
-              {!isInstagram && (
+              {!isInstagram && !isYoutube && (
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">Format</Label>
                   <RadioGroup value={mode} onValueChange={(v) => setMode(v as SocialPostMode)} className="gap-2">
@@ -605,6 +764,47 @@ export default function ShareToSocialDialog({
                 </>
               )}
 
+              {/* ── YOUTUBE: Standard package vs Shorts idea ── */}
+              {isYoutube && (
+                <>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Format</Label>
+                    <RadioGroup value={ytVariant} onValueChange={(v) => setYtVariant(v as YoutubeVariant)} className="gap-2">
+                      <div className="flex items-start gap-2">
+                        <RadioGroupItem value="standard" id="yt-variant-standard" className="mt-1" data-testid="yt-variant-standard" />
+                        <Label htmlFor="yt-variant-standard" className="font-normal cursor-pointer flex-1">
+                          <span className="font-medium flex items-center gap-1.5"><Youtube className="h-3.5 w-3.5" /> Publish package</span>
+                          <p className="text-xs text-muted-foreground mt-0.5">Title options, a description with chapter timestamps, tags, and a thumbnail idea — everything you paste in when you upload the video.</p>
+                        </Label>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <RadioGroupItem value="shorts" id="yt-variant-shorts" className="mt-1" data-testid="yt-variant-shorts" />
+                        <Label htmlFor="yt-variant-shorts" className="font-normal cursor-pointer flex-1">
+                          <span className="font-medium flex items-center gap-1.5"><Film className="h-3.5 w-3.5" /> Shorts</span>
+                          <p className="text-xs text-muted-foreground mt-0.5">A punchy vertical idea: a short hook title plus a tight script for a clip under 60 seconds. (Ties to future short-form video.)</p>
+                        </Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+
+                  {/* Connect to the actual MP4 — reuse Generate Video, never rebuild it. */}
+                  <div className="flex items-start gap-2 rounded-md border border-border/60 p-3" data-testid="yt-generate-video-note">
+                    <Video className="h-4 w-4 mt-0.5 shrink-0 text-muted-foreground" />
+                    <div className="grid gap-1.5">
+                      <p className="text-xs text-muted-foreground">
+                        This writes the words that go with your video. The video itself comes from <span className="font-medium text-foreground">Generate Video</span>, which turns this branch into a narrated slideshow MP4.
+                      </p>
+                      {onOpenGenerateVideo && (
+                        <Button variant="outline" size="sm" className="h-7 w-fit text-xs" onClick={handleYtGenerateVideo} data-testid="yt-open-generate-video">
+                          <Video className="h-3.5 w-3.5 mr-1" />
+                          Generate the video
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
+
               {voiceAvailable && (
                 <div className="flex items-start gap-2 pt-1">
                   <Checkbox id="social-in-my-voice" data-testid="social-in-my-voice" checked={inMyVoice} onCheckedChange={(c) => setInMyVoice(!!c)} />
@@ -618,11 +818,11 @@ export default function ShareToSocialDialog({
                           </Label>
                         </TooltipTrigger>
                         <TooltipContent className="max-w-xs">
-                          Write the {isInstagram ? 'caption' : 'posts'} in your own style, learned from your samples in Settings &rarr; Professional Customization &rarr; Your Voice.
+                          Write the {isYoutube ? 'title and description' : isInstagram ? 'caption' : 'posts'} in your own style, learned from your samples in Settings &rarr; Professional Customization &rarr; Your Voice.
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
-                    <p className="text-xs text-muted-foreground">Uses your saved voice profile so the {isInstagram ? 'caption sounds' : 'posts sound'} like you.</p>
+                    <p className="text-xs text-muted-foreground">Uses your saved voice profile so the {isYoutube ? 'title and description sound' : isInstagram ? 'caption sounds' : 'posts sound'} like you.</p>
                   </div>
                 </div>
               )}
@@ -669,7 +869,9 @@ export default function ShareToSocialDialog({
           <div className="flex flex-col items-center justify-center py-12 gap-3">
             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
             <p className="text-sm text-muted-foreground">
-              {isInstagram
+              {isYoutube
+                ? ytVariant === 'shorts' ? 'Writing your YouTube Shorts idea…' : 'Building your YouTube publish package…'
+                : isInstagram
                 ? igMode === 'carousel' ? 'Writing and designing your carousel slides…' : 'Writing your Instagram caption…'
                 : `Writing your ${template.label} ${mode === 'thread' ? 'thread' : 'post'}…`}
             </p>
@@ -677,7 +879,7 @@ export default function ShareToSocialDialog({
         )}
 
         {/* ── TEXT (X) preview ── */}
-        {phase === 'preview' && !isInstagram && (
+        {phase === 'preview' && !isInstagram && !isYoutube && (
           <ScrollArea className="flex-1 -mx-6 px-6">
             <div className="space-y-3 py-2">
               <div className="flex items-center gap-2 text-sm flex-wrap">
@@ -791,13 +993,97 @@ export default function ShareToSocialDialog({
           </ScrollArea>
         )}
 
+        {/* ── YOUTUBE preview ── */}
+        {phase === 'preview' && isYoutube && ytPkg && (
+          <ScrollArea className="flex-1 -mx-6 px-6">
+            <div className="space-y-4 py-2" data-testid="yt-preview">
+              <div className="flex items-center gap-2 text-sm flex-wrap">
+                {modelLabel && <Badge variant="secondary">{modelLabel}</Badge>}
+                <Badge variant="outline">{ytVariant === 'shorts' ? 'Shorts idea' : 'Publish package'}</Badge>
+                <span className="text-muted-foreground text-xs">Edit anything before you use it.</span>
+              </div>
+
+              <div className="space-y-1">
+                <Label className="text-xs uppercase tracking-wide text-muted-foreground">
+                  {ytVariant === 'shorts' ? 'Shorts title options' : 'Title options'}
+                </Label>
+                <textarea
+                  data-testid="yt-title-textarea"
+                  value={ytPkg.titleOptions.join('\n')}
+                  onChange={(e) => updateYtPkg('titleOptions', e.target.value.split('\n').map((s) => s.trim()).filter(Boolean))}
+                  className="w-full min-h-[70px] rounded-md border border-input bg-background p-2.5 text-sm leading-relaxed resize-y focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  spellCheck
+                />
+                <p className="text-xs text-muted-foreground">One title per line. Copy uses the first one.</p>
+              </div>
+
+              <div className="space-y-1">
+                <Label className="text-xs uppercase tracking-wide text-muted-foreground">
+                  {ytVariant === 'shorts' ? 'Script (under 60s)' : 'Description with chapters'}
+                </Label>
+                <textarea
+                  data-testid="yt-description-textarea"
+                  value={ytPkg.description}
+                  onChange={(e) => updateYtPkg('description', e.target.value)}
+                  className="w-full min-h-[160px] rounded-md border border-input bg-background p-2.5 text-sm leading-relaxed resize-y focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  spellCheck
+                />
+              </div>
+
+              <div className="space-y-1">
+                <Label className="text-xs uppercase tracking-wide text-muted-foreground">Tags</Label>
+                <textarea
+                  data-testid="yt-tags-textarea"
+                  value={ytPkg.tags.join(', ')}
+                  onChange={(e) => updateYtPkg('tags', e.target.value.split(',').map((s) => s.trim().replace(/^#+/, '')).filter(Boolean))}
+                  className="w-full min-h-[60px] rounded-md border border-input bg-background p-2.5 text-sm leading-relaxed resize-y focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  spellCheck={false}
+                />
+                <p className="text-xs text-muted-foreground">Comma-separated.</p>
+              </div>
+
+              {ytPkg.thumbnailIdea && (
+                <div className="space-y-1">
+                  <Label className="text-xs uppercase tracking-wide text-muted-foreground">Thumbnail idea</Label>
+                  <textarea
+                    data-testid="yt-thumbnail-textarea"
+                    value={ytPkg.thumbnailIdea}
+                    onChange={(e) => updateYtPkg('thumbnailIdea', e.target.value)}
+                    className="w-full min-h-[60px] rounded-md border border-input bg-background p-2.5 text-sm leading-relaxed resize-y focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    spellCheck
+                  />
+                </div>
+              )}
+
+              {/* Connect to the actual MP4 + honest upload note. */}
+              <div className="flex items-start gap-2 rounded-md border border-border/60 p-2.5 text-xs" data-testid="yt-video-link">
+                <Video className="h-4 w-4 mt-0.5 shrink-0 text-muted-foreground" />
+                <div className="grid gap-1.5">
+                  <span className="text-muted-foreground">Need the video? <span className="font-medium text-foreground">Generate Video</span> turns this branch into a narrated MP4.</span>
+                  {onOpenGenerateVideo && (
+                    <Button variant="outline" size="sm" className="h-7 w-fit text-xs" onClick={handleYtGenerateVideo} data-testid="yt-open-generate-video-preview">
+                      <Video className="h-3.5 w-3.5 mr-1" />
+                      Generate the video
+                    </Button>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2 rounded-md border border-amber-500/30 bg-amber-500/10 p-2.5 text-xs" data-testid="yt-honest-note">
+                <ClipboardPaste className="h-4 w-4 mt-0.5 shrink-0 text-amber-600" />
+                <span>Generate your video, then upload it to YouTube and paste this title, description, and tags. YouTube uploads need you to be signed in and can’t be pre-filled — IdeaM never posts for you.</span>
+              </div>
+            </div>
+          </ScrollArea>
+        )}
+
         <DialogFooter>
           {phase === 'input' && (
             <>
               <Button variant="ghost" onClick={handleClose}>Cancel</Button>
               <Button onClick={handleRun} disabled={!rootNodeId} data-testid="social-generate">
                 <Sparkles className="h-4 w-4 mr-1" />
-                {isInstagram ? igGenerateLabel : mode === 'thread' ? 'Write thread' : 'Write post'}
+                {isYoutube ? ytGenerateLabel : isInstagram ? igGenerateLabel : mode === 'thread' ? 'Write thread' : 'Write post'}
               </Button>
             </>
           )}
@@ -816,7 +1102,7 @@ export default function ShareToSocialDialog({
                 </Button>
 
                 {/* ── TEXT (X) hand-offs ── */}
-                {!isInstagram && (
+                {!isInstagram && !isYoutube && (
                   <div className="flex flex-wrap gap-2 sm:justify-end">
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -883,6 +1169,68 @@ export default function ShareToSocialDialog({
                         <TooltipContent>Save all slides as square images in a .zip — post them from the Instagram app.</TooltipContent>
                       </Tooltip>
                     )}
+                  </div>
+                )}
+
+                {/* ── YOUTUBE hand-offs — copy title / description / tags / all,
+                     download the package, open the real upload page. No fake
+                     auto-upload (that needs OAuth, out of scope). ── */}
+                {isYoutube && (
+                  <div className="flex flex-wrap gap-2 sm:justify-end">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button variant="outline" size="sm" onClick={handleYtCopyTitle} data-testid="yt-copy-title" disabled={!ytPkg || ytPkg.titleOptions.length === 0}>
+                          {ytCopied === 'title' ? <Check className="h-4 w-4 mr-1" /> : <Copy className="h-4 w-4 mr-1" />}
+                          Title
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Copy the first title to paste into YouTube.</TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button variant="outline" size="sm" onClick={handleYtCopyDescription} data-testid="yt-copy-description" disabled={!ytPkg?.description}>
+                          {ytCopied === 'description' ? <Check className="h-4 w-4 mr-1" /> : <Copy className="h-4 w-4 mr-1" />}
+                          {ytVariant === 'shorts' ? 'Script' : 'Description'}
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Copy the {ytVariant === 'shorts' ? 'script' : 'description with chapters'} to paste into YouTube.</TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button variant="outline" size="sm" onClick={handleYtCopyTags} data-testid="yt-copy-tags" disabled={!ytPkg || ytPkg.tags.length === 0}>
+                          {ytCopied === 'tags' ? <Check className="h-4 w-4 mr-1" /> : <Copy className="h-4 w-4 mr-1" />}
+                          Tags
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Copy the tags to paste into YouTube.</TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button variant="outline" size="sm" onClick={handleYtCopyAll} data-testid="yt-copy-all" disabled={!ytPkg}>
+                          {ytCopied === 'all' ? <Check className="h-4 w-4 mr-1" /> : <Copy className="h-4 w-4 mr-1" />}
+                          Copy all
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Copy the whole package at once.</TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button variant="outline" size="sm" onClick={handleYtOpenUpload} data-testid="yt-open-upload">
+                          <ExternalLink className="h-4 w-4 mr-1" />
+                          Upload page
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">Opens youtube.com/upload. It can’t be pre-filled — paste the copied fields there yourself.</TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button size="sm" onClick={handleYtDownload} data-testid="yt-download" disabled={!ytPkg}>
+                          <Download className="h-4 w-4 mr-1" />
+                          Download
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Save the whole package as a .txt file.</TooltipContent>
+                    </Tooltip>
                   </div>
                 )}
               </div>

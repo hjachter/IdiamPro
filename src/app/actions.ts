@@ -10,6 +10,7 @@ import { generateEmail, type GenerateEmailInput, type GenerateEmailResult } from
 import { distillVoiceProfile, type DistillVoiceProfileInput, type DistillVoiceProfileResult } from '@/ai/flows/distill-voice-profile';
 import { generateSocialPost, type GenerateSocialPostInput, type GenerateSocialPostResult } from '@/ai/flows/generate-social-post';
 import { generateInstagramPost, type GenerateInstagramInput, type GenerateInstagramResult } from '@/ai/flows/generate-instagram-post';
+import { generateYoutubePackage, type GenerateYoutubePackageInput, type GenerateYoutubePackageResult } from '@/ai/flows/generate-youtube-package';
 import { interpretCommand, type InterpretCommandInput, type InterpretedCommand } from '@/ai/flows/interpret-command';
 import { transcribeAudio as transcribeAudioWithGemini, type TranscribeAudioInput, type TranscribeAudioResult } from '@/ai/flows/transcribe-audio';
 import { refreshNodeContent, type RefreshNodeInput } from '@/ai/flows/refresh-node-content';
@@ -494,6 +495,33 @@ export async function generateInstagramPostAction(
       caption: '',
       hashtags: [],
       slides: [],
+      model: input.useLocal ? 'Local' : 'Gemini',
+      modelProvider: input.useLocal ? 'local' : 'cloud',
+      error: message,
+    };
+  }
+}
+
+/**
+ * Share to YouTube — turn a selected branch into a YouTube PUBLISH PACKAGE: an
+ * SEO-friendly title (a few options), a description with chapter timestamps, a
+ * tags list, and a thumbnail idea (STANDARD variant); or a punchy Shorts title +
+ * a tight vertical script (SHORTS variant). Pairs with the existing Generate
+ * Video feature, which produces the actual MP4. Sibling of
+ * generateSocialPostAction: same Gemini-with-Ollama fallback, same BYOK contract.
+ * Counts as 1 AI generation (gated on the client via useAIUsageGate). NO posting
+ * and NO OAuth — the client hand-off is copy / download / open the upload page.
+ */
+export async function generateYoutubeShareAction(
+  input: GenerateYoutubePackageInput,
+): Promise<GenerateYoutubePackageResult> {
+  try {
+    return await generateYoutubePackage(input);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'YouTube package generation failed';
+    console.error('Error generating YouTube package:', message);
+    return {
+      package: null,
       model: input.useLocal ? 'Local' : 'Gemini',
       modelProvider: input.useLocal ? 'local' : 'cloud',
       error: message,
