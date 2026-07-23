@@ -219,6 +219,7 @@ When the user says **"TEST EVERYTHING"** (or any clear variant: "run all tests",
 3. **Run every Playwright test script in `tests/`**, in order:
    - `node tests/electron-test.js` — core feature suite
    - `node tests/gemma4-smoke-test.js` — Gemma 4 / local AI smoke test
+   - `node tests/cost-guardrails-test.js` — **Financial-safety guardrails — MANDATORY, never skip.** Proves that free / no-user-key / over-allowance usage can NEVER bill our company AI keys (the company-key fallback stays fail-closed) and that the server-side usage meter actually enforces each tier's allowance (client-side counters do not count — the cap must be proven server-side). A missing or FAILING guardrail suite is a **RELEASE BLOCKER**: it means the app could run up uncapped vendor cost. When summarizing a TEST EVERYTHING run, always call out the financial-safety result explicitly.
    - Any future `tests/*-test.js` scripts as they're added
 4. **Capture the full output** and **read every report file** (`test-screenshots/**/report.{json,md}`).
 5. **Summarize** in plain language: pass/fail counts per script, which tests failed and why, any new bugs surfaced.

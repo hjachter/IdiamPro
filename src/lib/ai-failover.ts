@@ -21,6 +21,7 @@
  */
 
 import { getBestAvailableModel, hasGemma4, isOllamaAvailable } from '@/lib/ollama-service';
+import { isCompanyTextFallbackEnabled, NO_USER_KEY_MESSAGE } from '@/lib/billing/company-text-fallback';
 
 export type AIProviderChoice = 'cloud' | 'local' | 'auto';
 
@@ -230,6 +231,37 @@ export async function runAIWithFailover(
 ): Promise<AIFailoverResult> {
   const cloudProviderName = opts.cloudProviderName || 'Gemini';
 
+  // SAFETY STOPGAP (2026-07-23): every current caller's `cloudAttempt` uses the
+  // app's OWN (company/founder) env key — the Genkit singleton can't carry a
+  // per-request user BYOK key, and the client-supplied "is BYOK" flag is not a
+  // trustworthy cost signal. So when the company-text fallback is off (default),
+  // NEVER run the cloud attempt: go on-device (Ollama) if reachable, else return
+  // a friendly "add your key / use on-device" error. Flip ALLOW_COMPANY_TEXT_FALLBACK
+  // on (behind the real meter) to restore the company-funded cloud path.
+  if (!isCompanyTextFallbackEnabled()) {
+    const model = await reachableLocalGemma();
+    if (model) {
+      const text = await opts.localAttempt(model);
+      return {
+        text,
+        answeredBy: 'local',
+        // Not a "cloud failed" fallback — cloud was intentionally never tried.
+        fellBackToLocal: false,
+        secondaryCloudUsed: false,
+        billingIssue: false,
+        failingKeyWasByok: false,
+        cloudProviderName,
+        localModelName: model,
+      };
+    }
+    throw new AIFailoverError(NO_USER_KEY_MESSAGE, {
+      billingIssue: false,
+      failingKeyWasByok: false,
+      cloudProviderName,
+      companyKeyDisabled: true,
+    });
+  }
+
   // Local-only: no cloud attempt at all.
   if (opts.provider === 'local') {
     const model = (await reachableLocalGemma()) || 'gemma4:e4b';
@@ -322,15 +354,24 @@ export class AIFailoverError extends Error {
   billingIssue: boolean;
   failingKeyWasByok: boolean;
   cloudProviderName: string;
+  /** True when cloud was intentionally skipped because the company-key text
+   * fallback is off (SAFETY STOPGAP) and no on-device model was reachable. */
+  companyKeyDisabled: boolean;
   constructor(
     message: string,
-    meta: { billingIssue: boolean; failingKeyWasByok: boolean; cloudProviderName: string },
+    meta: {
+      billingIssue: boolean;
+      failingKeyWasByok: boolean;
+      cloudProviderName: string;
+      companyKeyDisabled?: boolean;
+    },
   ) {
     super(message);
     this.name = 'AIFailoverError';
     this.billingIssue = meta.billingIssue;
     this.failingKeyWasByok = meta.failingKeyWasByok;
     this.cloudProviderName = meta.cloudProviderName;
+    this.companyKeyDisabled = meta.companyKeyDisabled ?? false;
   }
 }
 
@@ -370,6 +411,11 @@ export function buildFailoverNotice(r: AIFailoverResult): string | null {
  * Build the message shown when cloud failed AND there is no local fallback.
  */
 export function buildNoFallbackMessage(err: AIFailoverError): string {
+  // SAFETY STOPGAP: cloud was intentionally skipped (no user key + company
+  // fallback off) and no on-device model is available.
+  if (err.companyKeyDisabled) {
+    return err.message || NO_USER_KEY_MESSAGE;
+  }
   if (err.billingIssue && err.failingKeyWasByok) {
     return `Your ${err.cloudProviderName} API key was rejected for a billing/quota reason — please check your provider's billing settings. Add local AI (Ollama) as a backup, or resolve the billing issue to continue.`;
   }

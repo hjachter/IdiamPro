@@ -13,6 +13,7 @@ import {z} from 'genkit';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { getDefaultGeminiModel } from '@/config/gemini-models';
 import { resolveApiKey } from '@/lib/byok-keys';
+import { isCompanyTextFallbackEnabled, NoCompanyKeyError } from '@/lib/billing/company-text-fallback';
 import type { AIDepth, AITone, AILevel } from '@/types';
 
 const GenerateOutlineFromTopicInputSchema = z.object({
@@ -161,7 +162,12 @@ The field has a long history.`;
     return { outline: result.response.text() || '' };
   }
 
-  // Env-var path — unchanged behavior (Genkit).
+  // No user key: the Genkit path would use the company/founder env key. SAFETY
+  // STOPGAP — fail closed unless the company-text fallback is explicitly on.
+  if (!isCompanyTextFallbackEnabled()) {
+    throw new NoCompanyKeyError();
+  }
+  // Env-var path — company-funded fallback (only when the gate is enabled).
   const response = await ai.generate({ prompt: fullPrompt });
   return { outline: response.text || '' };
 }

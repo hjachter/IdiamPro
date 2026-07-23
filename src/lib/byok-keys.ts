@@ -21,6 +21,8 @@
  * below are intentionally shaped so that swap is a one-file change.
  */
 
+import { isCompanyTextFallbackEnabled, NoCompanyKeyError } from '@/lib/billing/company-text-fallback';
+
 export type BYOKProvider = 'gemini' | 'openai' | 'anthropic' | 'mistral' | 'groq' | 'openrouter' | 'assemblyai';
 
 export const BYOK_PROVIDERS: BYOKProvider[] = ['gemini', 'openai', 'anthropic', 'mistral', 'groq', 'openrouter', 'assemblyai'];
@@ -76,9 +78,12 @@ export function getUserApiKeys(): Partial<Record<BYOKProvider, string>> {
 
 /**
  * SERVER-SIDE: resolve the final API key the server should use for `provider`.
- * Prefers the user-supplied `userApiKey` (BYOK); falls back to the env var.
- * Returns null if neither is set — callers must check and throw a clean
- * error message rather than crashing.
+ * Prefers the user-supplied `userApiKey` (BYOK). The env-var (company/founder)
+ * key is used ONLY as a fallback when the company-text-fallback gate is
+ * explicitly enabled — see company-text-fallback.ts. SAFETY STOPGAP (2026-07-23):
+ * the gate defaults OFF, so with no user key this returns null and the caller
+ * must surface the friendly "add your key / use on-device" message instead of
+ * silently billing our key. Returns null if no usable key is available.
  */
 export function resolveApiKey(
   provider: BYOKProvider,
@@ -87,15 +92,21 @@ export function resolveApiKey(
   if (userApiKey && userApiKey.trim().length > 0) {
     return userApiKey.trim();
   }
+  // No user key: only reach for the company/founder env key when the fallback
+  // is explicitly turned on (default OFF → fail closed, never bill our key).
+  if (!isCompanyTextFallbackEnabled()) {
+    return null;
+  }
   const envName = ENV_VAR_NAME[provider];
   const v = process.env[envName];
   return v && v.trim().length > 0 ? v.trim() : null;
 }
 
 /**
- * SERVER-SIDE: convenience that throws a user-friendly error if neither
- * the user's key nor the env-var key is available. Use this at the top
- * of any AI flow/action that needs a key.
+ * SERVER-SIDE: convenience that throws a user-friendly error if no usable key
+ * is available (no user BYOK key, and the company-key fallback is off). Use this
+ * at the top of any AI flow/action that needs a key. Throws a NoCompanyKeyError
+ * so callers/failover can recognize the "no key" case and offer on-device.
  */
 export function requireApiKey(
   provider: BYOKProvider,
@@ -103,10 +114,7 @@ export function requireApiKey(
 ): string {
   const key = resolveApiKey(provider, userApiKey);
   if (!key) {
-    throw new Error(
-      `No ${provider} API key available. ` +
-      `Either add one in Settings → AI Service Keys, or configure ${ENV_VAR_NAME[provider]} on the server.`,
-    );
+    throw new NoCompanyKeyError();
   }
   return key;
 }

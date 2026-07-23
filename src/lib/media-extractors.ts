@@ -3,6 +3,23 @@
 import { YoutubeTranscript } from 'youtube-transcript-plus';
 import { ai } from '@/ai/genkit';
 import { getDefaultGeminiModel } from '@/config/gemini-models';
+import { isCompanyTextFallbackEnabled, NoCompanyKeyError } from '@/lib/billing/company-text-fallback';
+
+/**
+ * Guarded wrapper around the Genkit `ai.generate` singleton, which uses the
+ * app's OWN (company/founder) env key — these import/extraction helpers carry
+ * no per-request user key. SAFETY STOPGAP (2026-07-23): when the company-text
+ * fallback is off (default), never bill our key — throw a friendly
+ * NoCompanyKeyError telling the user to add their own key or use on-device AI.
+ */
+function guardedGenerate(
+  args: Parameters<typeof ai.generate>[0],
+): ReturnType<typeof ai.generate> {
+  if (!isCompanyTextFallbackEnabled()) {
+    return Promise.reject(new NoCompanyKeyError()) as ReturnType<typeof ai.generate>;
+  }
+  return ai.generate(args);
+}
 
 // Import pdf-parse lib directly to avoid the debug test code in index.js
 // The main index.js runs a test parse when module.parent is undefined (which happens in webpack)
@@ -226,7 +243,7 @@ export async function extractTextFromWebUrl(url: string): Promise<string> {
 
 ${html.substring(0, 50000)}`; // Limit HTML size
 
-    const { text } = await ai.generate({
+    const { text } = await guardedGenerate({
       model: getDefaultGeminiModel('genkit'),
       prompt,
     });
@@ -263,7 +280,7 @@ export async function extractTextFromImage(data: string): Promise<string> {
     }
 
     // Use Gemini vision to extract text
-    const { text } = await ai.generate({
+    const { text } = await guardedGenerate({
       model: getDefaultGeminiModel('genkit'),
       prompt: [
         { text: 'Extract all text from this image. Include any visible text, captions, labels, and annotations. If there are diagrams or charts, describe their key information as well.' },
@@ -311,7 +328,7 @@ export async function extractTextFromDocument(data: string, fileName: string): P
     }
 
     // Use Gemini to extract text from document
-    const { text } = await ai.generate({
+    const { text } = await guardedGenerate({
       model: getDefaultGeminiModel('genkit'),
       prompt: [
         { text: 'Extract all text content from this document. Preserve the structure and meaning. Include headings, paragraphs, bullet points, and any important textual information.' },
@@ -360,7 +377,7 @@ export async function transcribeAudio(data: string, fileName?: string): Promise<
     }
 
     // Use Gemini to transcribe audio
-    const { text } = await ai.generate({
+    const { text } = await guardedGenerate({
       model: getDefaultGeminiModel('genkit'),
       prompt: [
         { text: 'Transcribe this audio file completely. Include all spoken words and important sounds or context.' },
@@ -409,7 +426,7 @@ export async function transcribeVideo(data: string, fileName?: string): Promise<
     }
 
     // Use Gemini to transcribe video
-    const { text } = await ai.generate({
+    const { text } = await guardedGenerate({
       model: getDefaultGeminiModel('genkit'),
       prompt: [
         { text: 'Transcribe this video completely. Include all spoken words, describe any important visual information, and provide context about what is happening in the video.' },

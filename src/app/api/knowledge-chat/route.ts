@@ -4,6 +4,7 @@ import { getBestAvailableModel } from '@/lib/ollama-service';
 import { getDefaultGeminiModel } from '@/config/gemini-models';
 import type { AIDepth } from '@/types';
 import { guardSensitiveRoute } from '@/lib/access/approval-guard';
+import { isCompanyTextFallbackEnabled, NoCompanyKeyError, NO_USER_KEY_MESSAGE } from '@/lib/billing/company-text-fallback';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -170,6 +171,13 @@ async function pipeGemini(
   systemPrompt: string,
   userPrompt: string,
 ) {
+  // SAFETY STOPGAP (2026-07-23): this streams via the Genkit singleton, which
+  // uses the app's OWN (company/founder) env key — no per-request user key is
+  // plumbed here. When the company-text fallback is off (default), never bill
+  // our key: throw so the caller routes to on-device Ollama or a friendly note.
+  if (!isCompanyTextFallbackEnabled()) {
+    throw new NoCompanyKeyError();
+  }
   const result = await ai.generateStream({
     model: getDefaultGeminiModel('genkit'),
     prompt: `${systemPrompt}\n\n${userPrompt}`,
@@ -205,18 +213,40 @@ function makeStream(
     async start(controller) {
       let closed = false;
       const close = () => { if (!closed) { closed = true; controller.close(); } };
+      // SAFETY STOPGAP: with the company-text fallback off (default), the cloud
+      // (Gemini) path would bill our OWN env key since no user key is plumbed
+      // here. So never try Gemini — go on-device (Ollama) instead, and if that
+      // isn't reachable, emit a friendly "add your key / use on-device" note.
+      const cloudAllowed = isCompanyTextFallbackEnabled();
       try {
-        if (provider === 'cloud') {
-          await pipeGemini(controller, systemPrompt, userPrompt);
-        } else if (provider === 'local') {
+        if (provider === 'local') {
           await pipeOllama(controller, systemPrompt, ollamaPrompt, truncated);
-        } else {
-          // 'auto': try Gemini, fall back to Ollama
-          try {
+        } else if (provider === 'cloud') {
+          if (cloudAllowed) {
             await pipeGemini(controller, systemPrompt, userPrompt);
-          } catch (geminiErr) {
-            console.warn('[KnowledgeChat] Gemini failed, trying Ollama:', errorMessage(geminiErr));
-            await pipeOllama(controller, systemPrompt, ollamaPrompt, truncated);
+          } else {
+            // Cloud requested but company key is off: fall to on-device.
+            try {
+              await pipeOllama(controller, systemPrompt, ollamaPrompt, truncated);
+            } catch {
+              controller.enqueue(encoder.encode(sseEvent({ error: NO_USER_KEY_MESSAGE })));
+            }
+          }
+        } else {
+          // 'auto': try Gemini (only if allowed), fall back to Ollama.
+          if (cloudAllowed) {
+            try {
+              await pipeGemini(controller, systemPrompt, userPrompt);
+            } catch (geminiErr) {
+              console.warn('[KnowledgeChat] Gemini failed, trying Ollama:', errorMessage(geminiErr));
+              await pipeOllama(controller, systemPrompt, ollamaPrompt, truncated);
+            }
+          } else {
+            try {
+              await pipeOllama(controller, systemPrompt, ollamaPrompt, truncated);
+            } catch {
+              controller.enqueue(encoder.encode(sseEvent({ error: NO_USER_KEY_MESSAGE })));
+            }
           }
         }
       } catch (err) {

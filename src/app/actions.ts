@@ -53,6 +53,11 @@ import { ai } from '@/ai/genkit';
 import { GoogleGenAI } from '@google/genai';
 import { getDefaultGeminiModel } from '@/config/gemini-models';
 import {
+  isCompanyTextFallbackEnabled,
+  isNoCompanyKeyError,
+  NoCompanyKeyError,
+} from '@/lib/billing/company-text-fallback';
+import {
   isOllamaAvailable,
   getOllamaModels,
   generateWithOllama,
@@ -86,6 +91,24 @@ function extractRetryDelay(errorMessage: string): number | null {
  * Detects "retry in X seconds" and waits accordingly
  * Optionally falls back to Ollama on exhausted retries
  */
+/**
+ * Guarded wrapper around the Genkit `ai.generate` singleton, which ALWAYS uses
+ * the app's own (company/founder) env Gemini key — it can't carry a per-request
+ * user BYOK key. SAFETY STOPGAP (2026-07-23): when the company-text fallback is
+ * off (the default), this NEVER calls our key — it throws NoCompanyKeyError so
+ * the surrounding withRateLimitRetry routes to on-device Ollama, or surfaces a
+ * friendly "add your key / use on-device" message. Flip ALLOW_COMPANY_TEXT_FALLBACK
+ * on (behind the real meter) to restore the company-funded path.
+ */
+function guardedGenkitGenerate(
+  args: Parameters<typeof ai.generate>[0],
+): ReturnType<typeof ai.generate> {
+  if (!isCompanyTextFallbackEnabled()) {
+    return Promise.reject(new NoCompanyKeyError()) as ReturnType<typeof ai.generate>;
+  }
+  return ai.generate(args);
+}
+
 async function withRateLimitRetry<T>(
   fn: () => Promise<T>,
   maxRetries: number = 1,  // One retry, then fallback to Ollama (if provided)
@@ -96,6 +119,21 @@ async function withRateLimitRetry<T>(
     try {
       return await fn();
     } catch (error: any) {
+      // SAFETY STOPGAP: no user key + company fallback off. Never our key.
+      // Go straight to on-device Ollama if we have a fallback + it's reachable;
+      // otherwise surface the friendly "add your key / use on-device" message.
+      if (isNoCompanyKeyError(error)) {
+        if (ollamaFallback) {
+          try {
+            if (await isOllamaAvailable()) {
+              return await ollamaFallback();
+            }
+          } catch (ollamaError) {
+            console.warn('Ollama fallback failed:', ollamaError);
+          }
+        }
+        throw new NoCompanyKeyError();
+      }
       const errorMsg = error?.message || String(error);
       const isRateLimit = errorMsg.includes('429') || errorMsg.includes('quota') || errorMsg.includes('rate');
 
@@ -754,7 +792,7 @@ ${content.substring(0, 3000)}`;
     };
 
     const { text } = await withRateLimitRetry(
-      () => ai.generate({
+      () => guardedGenkitGenerate({
         model: getDefaultGeminiModel('genkit'),
         prompt: titlePrompt,
       }),
@@ -996,7 +1034,7 @@ Extract the bullets (respond with ONLY the JSON array):`;
   } else {
     // Use Gemini with rate limit protection and Ollama fallback
     const { text: geminiText } = await withRateLimitRetry(
-      () => ai.generate({
+      () => guardedGenkitGenerate({
         model: getDefaultGeminiModel('genkit'),
         prompt: extractionPrompt,
       }),
@@ -1200,7 +1238,7 @@ Respond with ONLY one letter: A, B, or C`;
     };
 
     const { text: response } = await withRateLimitRetry(
-      () => ai.generate({
+      () => guardedGenkitGenerate({
         model: getDefaultGeminiModel('genkit'),
         prompt: detectionPrompt,
       }),
@@ -1329,7 +1367,7 @@ Return ONLY a JSON array of sub-theme names:
       text = result.text;
     } else {
       const { text: geminiText } = await withRateLimitRetry(
-        () => ai.generate({
+        () => guardedGenkitGenerate({
           model: getDefaultGeminiModel('genkit'),
           prompt: subThemePrompt,
         }),
@@ -1488,7 +1526,7 @@ Return ONLY a JSON array of theme names, nothing else:
       text = result.text;
     } else {
       const { text: geminiText } = await withRateLimitRetry(
-        () => ai.generate({
+        () => guardedGenkitGenerate({
           model: getDefaultGeminiModel('genkit'),
           prompt: themePrompt,
         }),
@@ -2158,7 +2196,7 @@ ${childContent.substring(0, 5000)}`;
           };
 
           const { text: rootSummary } = await withRateLimitRetry(
-            () => ai.generate({
+            () => guardedGenkitGenerate({
               model: getDefaultGeminiModel('genkit'),
               prompt: summaryPrompt,
             }),
@@ -2417,7 +2455,7 @@ ${childContent.substring(0, 5000)}`;
           };
 
           const { text: rootSummary } = await withRateLimitRetry(
-            () => ai.generate({
+            () => guardedGenkitGenerate({
               model: getDefaultGeminiModel('genkit'),
               prompt: summaryPrompt,
             }),
@@ -2787,7 +2825,7 @@ export async function generateImageDescriptionAction(
 }> {
   try {
     const { text } = await withRateLimitRetry(
-      () => ai.generate({
+      () => guardedGenkitGenerate({
         model: getDefaultGeminiModel('genkit'),
         prompt: `You are writing a descriptive caption for an illustration. The image was generated from this prompt: "${imagePrompt}" for a section titled "${nodeName}".
 
@@ -2885,7 +2923,16 @@ export async function describeImageAction(
 
   // Cloud path (Gemini)
   try {
-    const _describeKey = (userApiKey && userApiKey.trim()) || process.env.GEMINI_API_KEY || '';
+    // SAFETY STOPGAP: only reach for our env key when the company-text fallback
+    // is explicitly enabled (default OFF → never bill our key on the no-key path).
+    const _companyKey = isCompanyTextFallbackEnabled() ? (process.env.GEMINI_API_KEY || '') : '';
+    const _describeKey = (userApiKey && userApiKey.trim()) || _companyKey;
+    if (!_describeKey) {
+      return {
+        success: false,
+        error: 'To use cloud AI, add your own API key in Settings, or switch to on-device AI (Ollama).',
+      };
+    }
     const genai = new GoogleGenAI({ apiKey: _describeKey });
     const result = await genai.models.generateContent({
       model: getDefaultGeminiModel('sdk'),
@@ -3028,11 +3075,14 @@ Rules:
   // describeImageAction pattern but image-to-outline needs structured JSON
   // output, which the cloud models are far more reliable at. v1: cloud only.
   try {
-    const key = (userApiKey && userApiKey.trim()) || process.env.GEMINI_API_KEY || '';
+    // SAFETY STOPGAP: only reach for our env key when the company-text fallback
+    // is explicitly enabled (default OFF → never bill our key on the no-key path).
+    const _companyKey = isCompanyTextFallbackEnabled() ? (process.env.GEMINI_API_KEY || '') : '';
+    const key = (userApiKey && userApiKey.trim()) || _companyKey;
     if (!key) {
       return {
         success: false,
-        error: 'No Gemini API key found. Add one in Settings, or set GEMINI_API_KEY in your environment.',
+        error: 'To use cloud AI, add your own API key in Settings, or switch to on-device AI (Ollama).',
       };
     }
     const genai = new GoogleGenAI({ apiKey: key });
@@ -3166,11 +3216,14 @@ Rules:
 - Output STRICTLY the JSON object — no markdown fences, no commentary.`;
 
   try {
-    const key = (input.userApiKey && input.userApiKey.trim()) || process.env.GEMINI_API_KEY || '';
+    // SAFETY STOPGAP: only reach for our env key when the company-text fallback
+    // is explicitly enabled (default OFF → never bill our key on the no-key path).
+    const _companyKey = isCompanyTextFallbackEnabled() ? (process.env.GEMINI_API_KEY || '') : '';
+    const key = (input.userApiKey && input.userApiKey.trim()) || _companyKey;
     if (!key) {
       return {
         success: false,
-        error: 'No Gemini API key found. Add one in Settings, or set GEMINI_API_KEY in your environment.',
+        error: 'To use cloud AI, add your own API key in Settings, or switch to on-device AI (Ollama).',
       };
     }
     const genai = new GoogleGenAI({ apiKey: key });
