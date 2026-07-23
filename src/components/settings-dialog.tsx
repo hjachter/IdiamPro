@@ -7,8 +7,17 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { Folder, Info, Smartphone, Cpu, Cloud, Loader2, CheckCircle, XCircle, Crown, Shield, Moon, Sun, Download, Trash2, AlertTriangle, Play, Sparkles, ShieldCheck, KeyRound, UserX, Settings as SettingsIcon, Mail, FlaskConical, Briefcase } from 'lucide-react';
+import { Folder, Info, Smartphone, Cpu, Cloud, Loader2, CheckCircle, XCircle, Crown, Shield, Moon, Sun, Download, Trash2, AlertTriangle, Play, Sparkles, ShieldCheck, KeyRound, UserX, Settings as SettingsIcon, Mail, FlaskConical, Briefcase, Share2 } from 'lucide-react';
 import EmailToolsConsentDialog from './email-tools-consent-dialog';
+import SocialExportConsentDialog from './social-export-consent-dialog';
+import {
+  getSocialExportEnabled,
+  getSocialExportConsentGranted,
+  getShareToXEnabled,
+  setSocialExportEnabled as persistSocialExportEnabled,
+  grantSocialExportConsent,
+  setShareToXEnabled as persistShareToXEnabled,
+} from '@/lib/use-social-export-settings';
 import {
   getEmailToolsEnabled,
   getEmailToolsConsentGranted,
@@ -166,6 +175,14 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
   const [voiceBrainNote, setVoiceBrainNote] = useState<string | null>(null);
   const { gate: aiUsageGate } = useAIUsageGate();
 
+  // Professional Customization — "Social export" (2026-07-22). Opt-in, OFF by
+  // default, INDEPENDENT of Email tools and Your Voice. Turns a branch into
+  // ready-to-post social content (Share to X is the first platform). First
+  // enable shows a short honest note. Per-platform sub-toggles are extensible.
+  const [socialExportEnabled, setSocialExportEnabledState] = useState<boolean>(false);
+  const [shareToXEnabled, setShareToXEnabledState] = useState<boolean>(true);
+  const [socialConsentMode, setSocialConsentMode] = useState<null | 'enable' | 'review'>(null);
+
   // Outline-backup auto-snapshot toggles (2026-06-10). Both default ON.
   // Persisted to localStorage via snapshot-storage.ts.
   const [autoSnapshotTransform, setAutoSnapshotTransform] = useState<boolean>(true);
@@ -278,6 +295,10 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
     setVoiceProfileText(getVoiceProfile());
     setVoiceUpdatedAt(getVoiceUpdatedAt());
 
+    // Load "Social export" settings (off by default).
+    setSocialExportEnabledState(getSocialExportEnabled());
+    setShareToXEnabledState(getShareToXEnabled());
+
     // Load API keys
     const savedKeys: Record<string, string> = {};
     for (const provider of ['gemini', 'openai', 'anthropic', 'mistral', 'groq', 'assemblyai']) {
@@ -318,6 +339,8 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
       setVoiceEnabledState(getVoiceEnabled());
       setVoiceProfileText(getVoiceProfile());
       setVoiceUpdatedAt(getVoiceUpdatedAt());
+      setSocialExportEnabledState(getSocialExportEnabled());
+      setShareToXEnabledState(getShareToXEnabled());
     }
   }, [open]);
 
@@ -832,6 +855,44 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
   const handleUserEmailChange = (value: string) => {
     setUserEmail(value);
     setUserEmailAddress(value.trim());
+  };
+
+  // --- "Social export" handlers ----------------------------------------------
+
+  // Master toggle. Turning ON the first time (no prior consent) shows the short
+  // note first and does NOT enable until "Enable". Consent is remembered.
+  const handleSocialExportToggle = (checked: boolean) => {
+    if (checked) {
+      if (getSocialExportConsentGranted()) {
+        setSocialExportEnabledState(true);
+        persistSocialExportEnabled(true);
+      } else {
+        setSocialConsentMode('enable');
+      }
+    } else {
+      setSocialExportEnabledState(false);
+      persistSocialExportEnabled(false);
+    }
+  };
+
+  const handleSocialConsentEnable = () => {
+    grantSocialExportConsent();
+    setSocialExportEnabledState(true);
+    persistSocialExportEnabled(true);
+    setSocialConsentMode(null);
+    toast({
+      title: 'Social export enabled',
+      description: 'Share to Social is now available on a selected branch. You can turn this off anytime.',
+    });
+  };
+
+  const handleSocialConsentCancel = () => {
+    setSocialConsentMode(null);
+  };
+
+  const handleShareToXToggle = (checked: boolean) => {
+    setShareToXEnabledState(checked);
+    persistShareToXEnabled(checked);
   };
 
   // --- "Your Voice" handlers -------------------------------------------------
@@ -1450,6 +1511,72 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
                     </p>
                   </div>
                 )}
+              </div>
+            )}
+          </div>
+
+          {/* ── Social export — first social-media output format (2026-07-22) ── */}
+          <div id="social-export-section" className="space-y-3 pt-6 mt-4 border-t border-border/60">
+            <h3 className="text-sm font-medium flex items-center gap-2">
+              <Share2 className="h-4 w-4" />
+              Social export
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              Turn a branch of your outline into ready-to-post social content that you review and post yourself. Off until you turn it on. Independent of Email tools and Your Voice. IdeaM never posts anything automatically and never connects to your accounts.
+            </p>
+
+            {/* MASTER toggle — off by default. */}
+            <div className="flex items-center justify-between pt-1">
+              <div className="flex items-center gap-1.5">
+                <Label htmlFor="social-export-master" className="text-sm">
+                  Social export
+                </Label>
+                <button
+                  type="button"
+                  data-testid="social-export-info"
+                  aria-label="What social export does"
+                  onClick={() => setSocialConsentMode('review')}
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  <Info className="h-3.5 w-3.5" />
+                </button>
+              </div>
+              <Switch
+                id="social-export-master"
+                data-testid="social-export-master"
+                checked={socialExportEnabled}
+                onCheckedChange={handleSocialExportToggle}
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Master switch. When off, everything social-related is hidden. Turning it on the first time shows a short, honest note before anything is enabled.
+            </p>
+
+            {socialExportEnabled && (
+              <div className="space-y-4 rounded-lg border border-border/60 p-3">
+                {/* Per-platform sub-toggles (extensible — more platforms come later). */}
+                <div className="space-y-2">
+                  <Label className="text-xs uppercase tracking-wide text-muted-foreground">
+                    Platforms
+                  </Label>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="social-feature-x" className="text-sm font-normal">
+                      Share to X (thread or single post)
+                    </Label>
+                    <Switch
+                      id="social-feature-x"
+                      data-testid="social-feature-x"
+                      checked={shareToXEnabled}
+                      onCheckedChange={handleShareToXToggle}
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Adds a &ldquo;Share to Social&rdquo; action to a selected branch — draft an X thread or single post, optionally in your voice, then copy it, open it in X, or download it.
+                  </p>
+                  <p className="text-xs text-muted-foreground pt-1">
+                    More platforms (Instagram, LinkedIn, Threads, Bluesky, YouTube, and more) are coming — each will appear here as its own switch.
+                  </p>
+                </div>
               </div>
             )}
           </div>
@@ -2402,6 +2529,14 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
         reviewOnly={emailConsentMode === 'review'}
         onEnable={handleEmailConsentEnable}
         onCancel={handleEmailConsentCancel}
+      />
+
+      {/* Social export consent / note — first enable, and info-review. */}
+      <SocialExportConsentDialog
+        open={socialConsentMode !== null}
+        reviewOnly={socialConsentMode === 'review'}
+        onEnable={handleSocialConsentEnable}
+        onCancel={handleSocialConsentCancel}
       />
     </Dialog>
   );

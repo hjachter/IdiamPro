@@ -155,6 +155,7 @@ interface OutlinePaneProps {
   onOpenYoutubePackage?: () => void;
   onOpenGenerateVideo?: () => void;
   onOpenExportEmail?: () => void;
+  onOpenShareSocial?: () => void;
   // Double-click child node creation
   onCreateChildNode?: (parentId: string) => void;
   // Edit mode control
@@ -252,6 +253,7 @@ export default function OutlinePane({
   onOpenYoutubePackage,
   onOpenGenerateVideo,
   onOpenExportEmail,
+  onOpenShareSocial,
   onCreateChildNode,
   justCreatedNodeId,
   editingNodeId,
@@ -1092,6 +1094,17 @@ export default function OutlinePane({
           title={selectedNodeId ? 'Draft a ready-to-send email from the selected branch' : 'Select a branch first'}
         >
           <Mail className="mr-2 h-4 w-4" /> Export Email
+        </DropdownMenuItem>
+      )}
+      {onOpenShareSocial && (
+        <DropdownMenuItem
+          onSelect={() => onOpenShareSocial?.()}
+          disabled={!selectedNodeId}
+          className="cursor-pointer py-1"
+          data-testid="menu-share-social"
+          title={selectedNodeId ? 'Turn the selected branch into a ready-to-post X thread or single post (more platforms coming)' : 'Select a branch first'}
+        >
+          <Share2 className="mr-2 h-4 w-4" /> Share to Social
         </DropdownMenuItem>
       )}
       <DropdownMenuItem onSelect={onExportOutline} disabled={!currentOutline} className="cursor-pointer py-1">

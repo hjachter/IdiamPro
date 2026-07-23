@@ -8,6 +8,7 @@ import { reformatContent, type ReformatContentInput, type ReformatContentResult 
 import { transformOutline, type TransformOutlineInput, type TransformOutlineResult } from '@/ai/flows/transform-outline';
 import { generateEmail, type GenerateEmailInput, type GenerateEmailResult } from '@/ai/flows/generate-email';
 import { distillVoiceProfile, type DistillVoiceProfileInput, type DistillVoiceProfileResult } from '@/ai/flows/distill-voice-profile';
+import { generateSocialPost, type GenerateSocialPostInput, type GenerateSocialPostResult } from '@/ai/flows/generate-social-post';
 import { interpretCommand, type InterpretCommandInput, type InterpretedCommand } from '@/ai/flows/interpret-command';
 import { transcribeAudio as transcribeAudioWithGemini, type TranscribeAudioInput, type TranscribeAudioResult } from '@/ai/flows/transcribe-audio';
 import { refreshNodeContent, type RefreshNodeInput } from '@/ai/flows/refresh-node-content';
@@ -443,6 +444,29 @@ export async function generateEmailAction(
       subject: '',
       bodyHtml: '',
       bodyText: '',
+      model: input.useLocal ? 'Local' : 'Gemini',
+      modelProvider: input.useLocal ? 'local' : 'cloud',
+      error: message,
+    };
+  }
+}
+
+/**
+ * Share to Social — turn a selected branch (node + descendants) into ready-to-post
+ * social content (X thread or single post today; more platforms via templates).
+ * Sibling of generateEmailAction: same Gemini-with-Ollama fallback, same BYOK
+ * contract. Counts as 1 AI generation (gated on the client via useAIUsageGate).
+ */
+export async function generateSocialPostAction(
+  input: GenerateSocialPostInput,
+): Promise<GenerateSocialPostResult> {
+  try {
+    return await generateSocialPost(input);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Social post generation failed';
+    console.error('Error generating social post:', message);
+    return {
+      posts: [],
       model: input.useLocal ? 'Local' : 'Gemini',
       modelProvider: input.useLocal ? 'local' : 'cloud',
       error: message,

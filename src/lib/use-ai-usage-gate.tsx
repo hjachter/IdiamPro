@@ -57,6 +57,7 @@ export type AIFeatureKey =
   | 'summarizeOutline'
   | 'exportEmail'
   | 'importEmail'
+  | 'shareSocial'
   | 'distillVoiceProfile'
   | 'tellAI'
   | 'bulkResearch'

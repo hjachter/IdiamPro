@@ -37,6 +37,7 @@ import {
   Wand2,
   ListTree,
   Mail,
+  Share2,
 } from 'lucide-react';
 import { useInputModePreference } from '@/lib/use-input-mode-preference';
 import { getMicPermissionHelp } from '@/lib/platform-help';
@@ -71,6 +72,7 @@ interface CommandPaletteProps {
   onOpenYoutubePackage?: () => void;
   onOpenGenerateVideo?: () => void;
   onOpenExportEmail?: () => void;
+  onOpenShareSocial?: () => void;
   isGuide: boolean;
   isFocusMode?: boolean;
   onAICommand?: (text: string) => void;
@@ -102,6 +104,7 @@ export default function CommandPalette({
   onOpenTransformOutline,
   onOpenSummarizeOutline,
   onOpenExportEmail,
+  onOpenShareSocial,
   isGuide,
   isFocusMode,
   onAICommand,
@@ -508,6 +511,12 @@ export default function CommandPalette({
             <CommandItem onSelect={() => runCommand(onOpenExportEmail)}>
               <Mail className="mr-2 h-4 w-4" />
               <span>Export Email</span>
+            </CommandItem>
+          )}
+          {onOpenShareSocial && !isGuide && (
+            <CommandItem onSelect={() => runCommand(onOpenShareSocial)}>
+              <Share2 className="mr-2 h-4 w-4" />
+              <span>Share to Social</span>
             </CommandItem>
           )}
           {onOpenBulkResearch && (

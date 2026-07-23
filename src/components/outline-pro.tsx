@@ -55,9 +55,11 @@ import ImageToOutlineDialog, { type ImageToOutlineApplyPayload } from './image-t
 import YoutubePackageDialog from './youtube-package-dialog';
 import GenerateVideoDialog from './generate-video-dialog';
 import ExportEmailDialog from './export-email-dialog';
+import ShareToSocialDialog from './share-to-social-dialog';
 import EmailImportDialog, { type EmailImportOutputMode } from './email-import-dialog';
 import { useFeatureFlag } from './feature-flags-provider';
 import { useEmailToolsSettings } from '@/lib/use-email-tools-settings';
+import { useSocialExportSettings } from '@/lib/use-social-export-settings';
 import { insertProposedNodes } from '@/lib/multimedia/insert-proposed-nodes';
 import type { YoutubePackage } from '@/app/actions';
 import { mergeTransformedSubtreeIntoOutline } from '@/lib/transform-outline-helpers';
@@ -452,6 +454,18 @@ export default function OutlinePro() {
   const openExportEmail = React.useMemo(
     () => (exportEmailAvailable ? () => setIsExportEmailOpen(true) : undefined),
     [exportEmailAvailable],
+  );
+  // Share to Social (2026-07-22) — turn the selected branch into ready-to-post
+  // social content (X thread / single post today; more platforms via templates).
+  // Strictly gated behind the opt-in "Social export" master switch (off by
+  // default) plus a per-platform sub-toggle, INDEPENDENT of Email tools and Your
+  // Voice. When unavailable, the handler is undefined so the action doesn't
+  // render anywhere in the app.
+  const [isShareSocialOpen, setIsShareSocialOpen] = useState(false);
+  const { socialExportAvailable } = useSocialExportSettings();
+  const openShareSocial = React.useMemo(
+    () => (socialExportAvailable ? () => setIsShareSocialOpen(true) : undefined),
+    [socialExportAvailable],
   );
   // Inbound Email import (Phase 2). Same opt-in framework: the wizard trigger
   // is undefined (and so absent from every menu) unless the master "Email
@@ -5043,6 +5057,7 @@ export default function OutlinePro() {
           onOpenYoutubePackage={() => setIsYoutubePackageOpen(true)}
           onOpenGenerateVideo={handleOpenGenerateVideo}
           onOpenExportEmail={openExportEmail}
+          onOpenShareSocial={openShareSocial}
           onOpenTemplates={() => setIsTemplatesDialogOpen(true)}
           isGuide={currentOutline?.isGuide ?? false}
           isFocusMode={isFocusMode}
@@ -5129,6 +5144,15 @@ export default function OutlinePro() {
 <ExportEmailDialog
   open={isExportEmailOpen}
   onOpenChange={setIsExportEmailOpen}
+  nodes={currentOutline?.nodes ?? null}
+  rootNodeId={selectedNodeId}
+  scopeLabel={selectedNodeId ? currentOutline?.nodes?.[selectedNodeId]?.name : undefined}
+  outlineName={currentOutline?.name}
+/>
+
+<ShareToSocialDialog
+  open={isShareSocialOpen}
+  onOpenChange={setIsShareSocialOpen}
   nodes={currentOutline?.nodes ?? null}
   rootNodeId={selectedNodeId}
   scopeLabel={selectedNodeId ? currentOutline?.nodes?.[selectedNodeId]?.name : undefined}
@@ -5450,6 +5474,7 @@ export default function OutlinePro() {
           onOpenYoutubePackage={() => setIsYoutubePackageOpen(true)}
           onOpenGenerateVideo={handleOpenGenerateVideo}
           onOpenExportEmail={openExportEmail}
+          onOpenShareSocial={openShareSocial}
                 onCreateChildNode={handleCreateSiblingNode}
                 justCreatedNodeId={justCreatedNodeIdRef.current}
                 editingNodeId={editingNodeId}
@@ -5694,6 +5719,15 @@ export default function OutlinePro() {
 <ExportEmailDialog
   open={isExportEmailOpen}
   onOpenChange={setIsExportEmailOpen}
+  nodes={currentOutline?.nodes ?? null}
+  rootNodeId={selectedNodeId}
+  scopeLabel={selectedNodeId ? currentOutline?.nodes?.[selectedNodeId]?.name : undefined}
+  outlineName={currentOutline?.name}
+/>
+
+<ShareToSocialDialog
+  open={isShareSocialOpen}
+  onOpenChange={setIsShareSocialOpen}
   nodes={currentOutline?.nodes ?? null}
   rootNodeId={selectedNodeId}
   scopeLabel={selectedNodeId ? currentOutline?.nodes?.[selectedNodeId]?.name : undefined}
@@ -6034,6 +6068,7 @@ export default function OutlinePro() {
           onOpenYoutubePackage={() => setIsYoutubePackageOpen(true)}
           onOpenGenerateVideo={handleOpenGenerateVideo}
           onOpenExportEmail={openExportEmail}
+          onOpenShareSocial={openShareSocial}
                 onCreateChildNode={handleCreateSiblingNode}
                 justCreatedNodeId={justCreatedNodeIdRef.current}
                 editingNodeId={editingNodeId}
