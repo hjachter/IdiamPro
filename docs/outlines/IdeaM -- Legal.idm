@@ -1220,6 +1220,7 @@
       "type": "chapter",
       "parentId": "root-legal",
       "childrenIds": [
+        "legal-ai-accuracy-disclaimer-draft-2026-07-23",
         "dfl-tm",
         "dfl-tos",
         "dfl-privacy",
@@ -1333,13 +1334,27 @@
       "childrenIds": [],
       "isCollapsed": false,
       "prefix": ""
+    },
+    "legal-ai-accuracy-disclaimer-draft-2026-07-23": {
+      "id": "legal-ai-accuracy-disclaimer-draft-2026-07-23",
+      "name": "AI accuracy disclaimer — DRAFT for lawyer",
+      "content": "<p><strong>AI accuracy disclaimer — DRAFT for lawyer.</strong></p><p>🚩 <strong>Attorney to finalize; keep binding + marketing text promise-free (no 'catches almost all errors' / 'as reliable as possible').</strong></p><p><strong>Draft text (verbatim):</strong></p><blockquote><p>IdeaM's AI features generate drafts to assist you. While IdeaM applies automated quality checks designed to reduce errors, AI-generated content may still contain inaccuracies, and IdeaM does not warrant that it is accurate, complete, or fit for any purpose. You are solely responsible for reviewing and verifying any AI-generated content — including emails, posts, and summaries — before you send, publish, or rely on it.</p></blockquote><p><strong>Why this wording:</strong> It is INTENTIONALLY promise-free — this is the legal shield. It is deliberately different from the product's neutral in-app mention of the AI features. No efficacy or success-rate claim should appear in ANY binding or marketing text.</p>",
+      "type": "document",
+      "parentId": "documents-for-lawyer",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1784814066402,
+        "updatedAt": 1784814066402
+      }
     }
   },
   "createdAt": "2025-01-14T00:00:00.000Z",
-  "updatedAt": "2025-01-14T00:00:00.000Z",
+  "updatedAt": 1784814066402,
   "isGuide": false,
   "_fileSize": 43337,
   "_fileName": "IdeaM -- Legal.idm",
   "_isLazyLoaded": false,
-  "lastModified": 1784189826295
+  "lastModified": 1784814066402
 }
