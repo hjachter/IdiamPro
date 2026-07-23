@@ -33,6 +33,8 @@ import type {
   IngestPreview,
   BulkResearchSources,
   BulkResearchResult,
+  EmailImportInput,
+  EmailImportResult,
   Outline,
   DiarizedTranscript,
   TranscriptionOptions,
@@ -2359,6 +2361,177 @@ ${childContent.substring(0, 5000)}`;
       sourcesProcessed: 0,
       error: `Failed to process bulk research import: ${message}`,
     } as any;
+  }
+}
+
+/**
+ * INBOUND EMAIL IMPORT (Phase 2 — Professional Customization)
+ *
+ * Turn a pasted email / thread (or the text of a dropped .eml file) into a
+ * clean, STRUCTURED outline — a Summary, Key Points, Decisions, and Action
+ * Items — never a wall of quoted text. Reuses the same AI pipeline as bulk
+ * research: Gemini via generateOutlineFromTopic with an automatic Ollama
+ * fallback, or forced on-device when useLocalAI is set. One import counts as
+ * one AI generation (the client gates it through useAIUsageGate).
+ *
+ * "File junk aside" (fileJunkAside): when importing a thread, the AI classifies
+ * each message as keep vs. suspected-junk and files suspected junk under a
+ * clearly-labeled "Filtered — likely junk" sub-branch. It NEVER deletes
+ * anything — quarantine only, always rescuable. A single non-junk email
+ * produces no such branch.
+ */
+const JUNK_BRANCH_LABEL = 'Filtered — likely junk';
+
+function deriveEmailSubject(emailText: string): string | null {
+  // Pull the first "Subject:" header if present (single email or .eml source).
+  const m = emailText.match(/^\s*Subject:\s*(.+)$/im);
+  if (m && m[1]) {
+    const subj = m[1].replace(/^(re|fwd?):\s*/i, '').trim();
+    if (subj.length > 2) return subj.slice(0, 100);
+  }
+  return null;
+}
+
+export async function importEmailAction(
+  input: EmailImportInput
+): Promise<EmailImportResult> {
+  try {
+    const emailText = (input.emailText || '').trim();
+    if (!emailText || emailText.length < 10) {
+      return {
+        outline: null,
+        summary: '',
+        junkCount: 0,
+        error: 'There was no email content to import. Paste an email or drop a .eml file first.',
+      };
+    }
+
+    // Cap runaway input (very long threads / raw .eml with encoded attachments).
+    const MAX_CHARS = 40000;
+    const trimmedText = emailText.length > MAX_CHARS
+      ? emailText.slice(0, MAX_CHARS) + '\n\n[content truncated for length]'
+      : emailText;
+
+    const junkInstruction = input.fileJunkAside
+      ? `\nTHIS MAY BE A THREAD OF MULTIPLE MESSAGES. Classify EACH message as KEEP (real, substantive correspondence) or JUNK (promotional blast, marketing, newsletter, automated notification, spam, unsubscribe-footer noise).
+- Fold all useful content from KEEP messages into the sections above.
+- For EVERY message you judge JUNK, add ONE short bullet under a top-level section named EXACTLY "${JUNK_BRANCH_LABEL}" that names the sender and gist so the reader can glance and rescue it. NEVER discard a message silently and NEVER delete anything.
+- If NOTHING is junk, OMIT the "${JUNK_BRANCH_LABEL}" section entirely.`
+      : '';
+
+    const emailPrompt = `You are turning an email${input.fileJunkAside ? ' thread' : ''} into a clean, STRUCTURED outline for a note-taking app. Distill it — do NOT paste walls of quoted text or raw headers.
+
+Produce a markdown bullet outline using "- " for each item and indentation for nesting. Item titles must be short 2-6 word labels; put detail after a colon or in nested bullets.
+
+Organize it under these top-level sections, INCLUDING a section only when it actually has content:
+- Summary: a 1-3 sentence plain-English overview of what this email/thread is about.
+- Key Points: the substantive points and important facts, one per bullet.
+- Decisions: explicit decisions made or agreed (omit if none).
+- Action Items: concrete to-dos — include who owns each and any due date, one per bullet (omit if none).
+- Participants & Context: who is involved and relevant dates (optional, keep brief).
+${junkInstruction}
+
+EMAIL CONTENT:
+${trimmedText}
+
+Generate the structured outline now:`;
+
+    const systemPrompt = 'You are an expert at distilling email correspondence into clean, hierarchical outlines. Output only a well-structured markdown bullet outline (using "- " and indentation). Never echo raw email headers, quoted reply chains, or signatures verbatim.';
+
+    let outlineMarkdown: string;
+
+    if (input.useLocalAI) {
+      // Forced on-device — run entirely through Ollama.
+      const ollamaResult = await generateWithOllama({
+        prompt: emailPrompt,
+        system: systemPrompt,
+        temperature: 0.5,
+        maxTokens: 4000,
+      });
+      if (!ollamaResult || ollamaResult.trim().length < 30) {
+        throw new Error('Local AI returned empty or insufficient content.');
+      }
+      outlineMarkdown = ollamaResult;
+    } else {
+      const ollamaFallback = async () => {
+        const ollamaResult = await generateWithOllama({
+          prompt: emailPrompt,
+          system: systemPrompt,
+          temperature: 0.5,
+          maxTokens: 4000,
+        });
+        if (!ollamaResult || ollamaResult.trim().length < 30) {
+          throw new Error('Ollama returned empty or insufficient content');
+        }
+        return { outline: ollamaResult };
+      };
+
+      const result = await withRateLimitRetry(
+        () => generateOutlineFromTopic({ topic: emailPrompt, depth: 'standard' }),
+        1,
+        'email import',
+        ollamaFallback
+      );
+      outlineMarkdown = result.outline;
+    }
+
+    if (!outlineMarkdown || outlineMarkdown.trim().length < 10) {
+      return {
+        outline: null,
+        summary: '',
+        junkCount: 0,
+        error: 'The AI could not structure that email. Try again, or paste a bit more of the message.',
+      };
+    }
+
+    // Name the outline from the subject, an explicit override, or a date fallback.
+    const outlineName =
+      input.outlineName?.trim() ||
+      deriveEmailSubject(emailText) ||
+      `Email import ${new Date().toLocaleDateString()}`;
+
+    const { rootNodeId, nodes } = parseMarkdownToNodes(outlineMarkdown, outlineName);
+
+    // Count how many messages were quarantined under the junk sub-branch (if any).
+    let junkCount = 0;
+    if (input.fileJunkAside) {
+      const junkNode = Object.values(nodes).find(
+        n =>
+          n.id !== rootNodeId &&
+          /filtered|likely\s*junk|junk/i.test(n.name || '')
+      );
+      if (junkNode) {
+        junkCount = (junkNode.childrenIds || []).length || 1;
+      }
+    }
+
+    const outline: Outline = {
+      id: uuidv4(),
+      name: outlineName,
+      rootNodeId,
+      nodes,
+      lastModified: Date.now(),
+    };
+
+    const nodeCount = Object.keys(nodes).length - 1;
+    const junkNote = junkCount > 0
+      ? ` ${junkCount} suspected-junk message${junkCount === 1 ? '' : 's'} filed aside (nothing deleted).`
+      : '';
+
+    return {
+      outline,
+      summary: `Structured the email into ${nodeCount} point${nodeCount === 1 ? '' : 's'}.${junkNote}`,
+      junkCount,
+    };
+  } catch (error) {
+    console.error('Error in email import:', error);
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    return {
+      outline: null,
+      summary: '',
+      junkCount: 0,
+      error: `Failed to import the email: ${message}`,
+    };
   }
 }
 

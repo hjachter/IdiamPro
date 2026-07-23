@@ -55,6 +55,7 @@ import ImageToOutlineDialog, { type ImageToOutlineApplyPayload } from './image-t
 import YoutubePackageDialog from './youtube-package-dialog';
 import GenerateVideoDialog from './generate-video-dialog';
 import ExportEmailDialog from './export-email-dialog';
+import EmailImportDialog, { type EmailImportOutputMode } from './email-import-dialog';
 import { useFeatureFlag } from './feature-flags-provider';
 import { useEmailToolsSettings } from '@/lib/use-email-tools-settings';
 import { insertProposedNodes } from '@/lib/multimedia/insert-proposed-nodes';
@@ -447,10 +448,18 @@ export default function OutlinePro() {
   // default) plus the Export Email sub-toggle. When unavailable, the handler
   // is undefined so the action doesn't render anywhere in the app.
   const [isExportEmailOpen, setIsExportEmailOpen] = useState(false);
-  const { exportEmailAvailable } = useEmailToolsSettings();
+  const { exportEmailAvailable, emailImportAvailable } = useEmailToolsSettings();
   const openExportEmail = React.useMemo(
     () => (exportEmailAvailable ? () => setIsExportEmailOpen(true) : undefined),
     [exportEmailAvailable],
+  );
+  // Inbound Email import (Phase 2). Same opt-in framework: the wizard trigger
+  // is undefined (and so absent from every menu) unless the master "Email
+  // tools" switch AND "Import email into outlines" sub-toggle are both on.
+  const [isEmailImportOpen, setIsEmailImportOpen] = useState(false);
+  const openEmailImport = React.useMemo(
+    () => (emailImportAvailable ? () => setIsEmailImportOpen(true) : undefined),
+    [emailImportAvailable],
   );
   const [isApplicationsOpen, setIsApplicationsOpen] = useState(false);
   const [runningApplicationId, setRunningApplicationId] = useState<string | null>(null);
@@ -3907,6 +3916,77 @@ export default function OutlinePro() {
     }
   }, [currentOutline, toast]);
 
+  // Apply the result of an inbound Email import (Phase 2). The AI has already
+  // produced a fully-structured Outline; here we just place it per the user's
+  // output choice: a brand-new outline (default), grafted under the current
+  // outline, or grafted into the Second Brain. Grafting remaps node IDs and
+  // reparents the imported root's children under the target root (the imported
+  // root node itself is dropped so we don't nest a redundant wrapper).
+  const handleEmailImportApply = useCallback((imported: Outline, mode: EmailImportOutputMode) => {
+    if (mode === 'new') {
+      setOutlines(currentOutlines => [...currentOutlines, imported]);
+      setCurrentOutlineId(imported.id);
+      setSelectedNodeId(imported.rootNodeId);
+      toast({ title: 'Email imported', description: `Created "${imported.name}".` });
+      return;
+    }
+
+    // Graft into an existing outline (current or Second Brain).
+    const graftInto = (target: Outline): Outline => {
+      const idMapping: Record<string, string> = {};
+      Object.keys(imported.nodes).forEach(oldId => { idMapping[oldId] = uuidv4(); });
+
+      const mergedNodes: NodeMap = { ...target.nodes };
+      const importedTopLevel = imported.nodes[imported.rootNodeId]?.childrenIds || [];
+
+      Object.entries(imported.nodes).forEach(([oldId, node]) => {
+        if (oldId === imported.rootNodeId) return; // drop the wrapper root
+        const newId = idMapping[oldId];
+        const isTopLevel = importedTopLevel.includes(oldId);
+        mergedNodes[newId] = {
+          ...node,
+          id: newId,
+          parentId: isTopLevel ? target.rootNodeId : (node.parentId ? idMapping[node.parentId] : target.rootNodeId),
+          childrenIds: (node.childrenIds || []).map(cid => idMapping[cid] || cid),
+        };
+      });
+
+      const targetRoot = mergedNodes[target.rootNodeId];
+      mergedNodes[target.rootNodeId] = {
+        ...targetRoot,
+        childrenIds: [...targetRoot.childrenIds, ...importedTopLevel.map(id => idMapping[id])],
+      };
+
+      recalculatePrefixesForBranch(mergedNodes, target.rootNodeId);
+      return { ...target, nodes: mergedNodes, lastModified: Date.now() };
+    };
+
+    if (mode === 'secondBrain') {
+      const sb = outlines.find(o => o.isSecondBrain);
+      if (!sb) {
+        toast({ variant: 'destructive', title: 'No Second Brain', description: 'Could not find your Second Brain outline.' });
+        return;
+      }
+      const updated = graftInto(sb);
+      setOutlines(currentOutlines => currentOutlines.map(o => o.isSecondBrain ? updated : o));
+      toast({ title: 'Saved to Second Brain', description: `Added the email to "${sb.name}".` });
+      return;
+    }
+
+    // Append to current outline.
+    if (!currentOutline) {
+      // No current outline to append to — fall back to creating a new one.
+      setOutlines(currentOutlines => [...currentOutlines, imported]);
+      setCurrentOutlineId(imported.id);
+      setSelectedNodeId(imported.rootNodeId);
+      toast({ title: 'Email imported', description: `Created "${imported.name}".` });
+      return;
+    }
+    const updated = graftInto(currentOutline);
+    setOutlines(currentOutlines => currentOutlines.map(o => o.id === currentOutline.id ? updated : o));
+    toast({ title: 'Email imported', description: `Added to "${currentOutline.name}".` });
+  }, [currentOutline, outlines, toast]);
+
   // Add an already-parsed outline to the app (used by FileImportDialog and handleImportOutline)
   const handleAddImportedOutline = useCallback((importedData: Outline, showToast: boolean = true) => {
     pendingActionRef.current = {
@@ -5055,6 +5135,14 @@ export default function OutlinePro() {
   outlineName={currentOutline?.name}
 />
 
+<EmailImportDialog
+  open={isEmailImportOpen}
+  onOpenChange={setIsEmailImportOpen}
+  currentOutlineName={currentOutline?.name}
+  hasSecondBrain={outlines.some(o => o.isSecondBrain)}
+  onApply={handleEmailImportApply}
+/>
+
         <ReformatDialog
           open={isReformatOpen}
           onOpenChange={(o) => {
@@ -5329,6 +5417,7 @@ export default function OutlinePro() {
                 onDeleteNode={handleDeleteNode}
                 onGenerateOutline={handleGenerateOutline}
                 onOpenBulkResearch={() => setIsBulkResearchOpen(true)}
+                onOpenEmailImport={openEmailImport}
                 onUpdateNode={handleUpdateNode}
                 onImportOutline={handleImportOutline}
                 onAddImportedOutline={handleAddImportedOutline}
@@ -5609,6 +5698,14 @@ export default function OutlinePro() {
   rootNodeId={selectedNodeId}
   scopeLabel={selectedNodeId ? currentOutline?.nodes?.[selectedNodeId]?.name : undefined}
   outlineName={currentOutline?.name}
+/>
+
+<EmailImportDialog
+  open={isEmailImportOpen}
+  onOpenChange={setIsEmailImportOpen}
+  currentOutlineName={currentOutline?.name}
+  hasSecondBrain={outlines.some(o => o.isSecondBrain)}
+  onApply={handleEmailImportApply}
 />
 
       <ReformatDialog
@@ -5904,6 +6001,7 @@ export default function OutlinePro() {
                 onDeleteNode={handleDeleteNode}
                 onGenerateOutline={handleGenerateOutline}
                 onOpenBulkResearch={() => setIsBulkResearchOpen(true)}
+                onOpenEmailImport={openEmailImport}
                 onUpdateNode={handleUpdateNode}
                 onImportOutline={handleImportOutline}
                 onAddImportedOutline={handleAddImportedOutline}

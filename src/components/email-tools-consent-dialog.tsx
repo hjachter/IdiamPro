@@ -46,7 +46,7 @@ export const EMAIL_TOOLS_CONSENT_COPY = {
   thingsToKnow: {
     heading: 'Things to know',
     body:
-      'To draft the email, the AI reads the branch content you select — governed by your existing AI Provider setting. On-device AI (Gemma) stays fully private; cloud AI sends that content to the provider to process it. The "Open in Gmail" and "Open in Mail" hand-offs pre-fill PLAIN TEXT with a length cap, so long or richly-formatted emails come through best via Copy or Download.',
+      'To draft the email, the AI reads the branch content you select — governed by your existing AI Provider setting. Inbound import also has the AI read the email or thread you bring in, to structure it into an outline. On-device AI (Gemma) stays fully private; cloud AI sends that content to the provider to process it. The "Open in Gmail" and "Open in Mail" hand-offs pre-fill PLAIN TEXT with a length cap, so long or richly-formatted emails come through best via Copy or Download.',
   },
   privacy: {
     heading: 'Privacy & control',

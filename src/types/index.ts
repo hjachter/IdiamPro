@@ -348,6 +348,43 @@ export interface BulkResearchResult {
 }
 
 // ============================================
+// INBOUND EMAIL IMPORT (Phase 2 — Professional Customization)
+// ============================================
+//
+// Bring an email (or a whole thread) INTO IdeaM as a clean, structured outline
+// — key points, decisions, and action items, NOT a wall of quoted text. Gated
+// behind the opt-in "Email tools" master + "Import email into outlines"
+// sub-toggle. Reuses the same AI pipeline as bulk research (Gemini with an
+// Ollama fallback, or forced local). One import = one AI generation.
+
+export interface EmailImportInput {
+  /** Raw pasted email text and/or the text extracted from a dropped .eml file. */
+  emailText: string;
+  /** Optional name for a newly-created outline (else derived from the subject). */
+  outlineName?: string;
+  /**
+   * When true, the AI classifies each message in a thread as keep vs.
+   * suspected-junk and files suspected junk into a clearly-labeled
+   * "Filtered — likely junk" sub-branch. NEVER deletes anything — quarantine
+   * only, always rescuable. A single non-junk email produces no such branch.
+   */
+  fileJunkAside?: boolean;
+  /** Force local Ollama processing (macOS only, no rate limits). */
+  useLocalAI?: boolean;
+}
+
+export interface EmailImportResult {
+  /** The produced outline (structured key points / decisions / action items). */
+  outline: Outline | null;
+  /** One-line plain-English summary of what was imported. */
+  summary: string;
+  /** How many messages were quarantined into the "likely junk" sub-branch. */
+  junkCount: number;
+  /** Non-fatal error surfaced as data (Next.js strips thrown error messages). */
+  error?: string;
+}
+
+// ============================================
 // PODCAST GENERATION
 // ============================================
 

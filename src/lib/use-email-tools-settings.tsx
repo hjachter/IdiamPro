@@ -33,6 +33,10 @@ export const EMAIL_TOOLS_STORAGE_KEYS = {
   address: 'emailTools.address',
   /** Per-feature sub-toggle: turn an outline branch into an email. */
   exportEmail: 'emailTools.feature.exportEmail',
+  /** Per-feature sub-toggle: bring an email / thread IN as a structured outline. */
+  importEmail: 'emailTools.feature.importEmail',
+  /** Per-feature sub-toggle: quarantine suspected junk into a labeled sub-branch on import. */
+  fileJunkAside: 'emailTools.feature.fileJunkAside',
 } as const;
 
 /** Fired on any write so every mounted consumer re-reads immediately. */
@@ -76,6 +80,18 @@ export function getExportEmailEnabled(): boolean {
 export function isExportEmailAvailable(): boolean {
   return getEmailToolsEnabled() && getExportEmailEnabled();
 }
+/** Sub-toggle defaults ON once the master is on. */
+export function getImportEmailEnabled(): boolean {
+  return readBool(EMAIL_TOOLS_STORAGE_KEYS.importEmail, true);
+}
+/** "File suspected junk aside" quarantine defaults ON. */
+export function getFileJunkAsideEnabled(): boolean {
+  return readBool(EMAIL_TOOLS_STORAGE_KEYS.fileJunkAside, true);
+}
+/** The single question the import surface asks: is inbound Email import live right now? */
+export function isEmailImportAvailable(): boolean {
+  return getEmailToolsEnabled() && getImportEmailEnabled();
+}
 
 // ---- Plain setters -------------------------------------------------------
 
@@ -91,6 +107,12 @@ export function setUserEmailAddress(addr: string) {
 export function setExportEmailEnabled(on: boolean) {
   writeAndNotify(EMAIL_TOOLS_STORAGE_KEYS.exportEmail, on ? 'true' : 'false');
 }
+export function setImportEmailEnabled(on: boolean) {
+  writeAndNotify(EMAIL_TOOLS_STORAGE_KEYS.importEmail, on ? 'true' : 'false');
+}
+export function setFileJunkAsideEnabled(on: boolean) {
+  writeAndNotify(EMAIL_TOOLS_STORAGE_KEYS.fileJunkAside, on ? 'true' : 'false');
+}
 
 export interface EmailToolsSettings {
   /** Master gate — when false, ALL email features are hidden/disabled. */
@@ -101,12 +123,20 @@ export interface EmailToolsSettings {
   userEmail: string;
   /** Export Email sub-toggle (only meaningful when master is on). */
   exportEmailEnabled: boolean;
+  /** Import Email sub-toggle (only meaningful when master is on). */
+  importEmailEnabled: boolean;
+  /** "File suspected junk aside" quarantine sub-toggle. */
+  fileJunkAsideEnabled: boolean;
   /** Convenience: master AND the Export Email sub-toggle. */
   exportEmailAvailable: boolean;
+  /** Convenience: master AND the Import Email sub-toggle. */
+  emailImportAvailable: boolean;
   setEmailToolsEnabled: (on: boolean) => void;
   grantConsent: () => void;
   setUserEmail: (addr: string) => void;
   setExportEmailEnabled: (on: boolean) => void;
+  setImportEmailEnabled: (on: boolean) => void;
+  setFileJunkAsideEnabled: (on: boolean) => void;
 }
 
 /**
@@ -119,6 +149,8 @@ export function useEmailToolsSettings(): EmailToolsSettings {
     consentGranted: false,
     userEmail: '',
     exportEmailEnabled: true,
+    importEmailEnabled: true,
+    fileJunkAsideEnabled: true,
   });
 
   const refresh = useCallback(() => {
@@ -127,6 +159,8 @@ export function useEmailToolsSettings(): EmailToolsSettings {
       consentGranted: getEmailToolsConsentGranted(),
       userEmail: getUserEmailAddress(),
       exportEmailEnabled: getExportEmailEnabled(),
+      importEmailEnabled: getImportEmailEnabled(),
+      fileJunkAsideEnabled: getFileJunkAsideEnabled(),
     });
   }, []);
 
@@ -144,9 +178,12 @@ export function useEmailToolsSettings(): EmailToolsSettings {
   return {
     ...state,
     exportEmailAvailable: state.emailToolsEnabled && state.exportEmailEnabled,
+    emailImportAvailable: state.emailToolsEnabled && state.importEmailEnabled,
     setEmailToolsEnabled,
     grantConsent: grantEmailToolsConsent,
     setUserEmail: setUserEmailAddress,
     setExportEmailEnabled,
+    setImportEmailEnabled,
+    setFileJunkAsideEnabled,
   };
 }

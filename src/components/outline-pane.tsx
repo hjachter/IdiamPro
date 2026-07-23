@@ -106,6 +106,10 @@ interface OutlinePaneProps {
   onDeleteNode: (nodeId: string) => void;
   onGenerateOutline: (topic: string, depth: AIDepth, tone: AITone, level: AILevel) => Promise<void>;
   onOpenBulkResearch: () => void;
+  /** Opens the inbound Email import wizard. Only provided when the opt-in
+   *  "Email tools" master + "Import email into outlines" toggles are on, so
+   *  the menu item is entirely absent otherwise. */
+  onOpenEmailImport?: () => void;
   onUpdateNode: (nodeId: string, updates: Partial<OutlineNode>) => void;
   onImportOutline: (file: File) => void;
   onAddImportedOutline: (outline: Outline, showToast?: boolean) => void;
@@ -217,6 +221,7 @@ export default function OutlinePane({
   onDeleteNode,
   onGenerateOutline,
   onOpenBulkResearch,
+  onOpenEmailImport,
   onUpdateNode,
   onImportOutline,
   onAddImportedOutline,
@@ -999,6 +1004,15 @@ export default function OutlinePane({
       {onOpenBulkResearch && (
         <DropdownMenuItem onSelect={onOpenBulkResearch} className="cursor-pointer py-1">
           <Library className="mr-2 h-4 w-4" /> Research & Import
+        </DropdownMenuItem>
+      )}
+      {onOpenEmailImport && (
+        <DropdownMenuItem
+          onSelect={() => onOpenEmailImport?.()}
+          className="cursor-pointer py-1"
+          title="Bring an email or whole thread in as a clean outline — key points, decisions, action items. Suspected junk is filed aside, never deleted."
+        >
+          <Mail className="mr-2 h-4 w-4" /> Import Email
         </DropdownMenuItem>
       )}
       <DropdownMenuItem onSelect={handleImportClick} className="cursor-pointer py-1">

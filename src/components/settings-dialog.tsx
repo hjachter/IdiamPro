@@ -14,10 +14,14 @@ import {
   getEmailToolsConsentGranted,
   getUserEmailAddress,
   getExportEmailEnabled,
+  getImportEmailEnabled,
+  getFileJunkAsideEnabled,
   setEmailToolsEnabled as persistEmailToolsEnabled,
   grantEmailToolsConsent,
   setUserEmailAddress,
   setExportEmailEnabled as persistExportEmailEnabled,
+  setImportEmailEnabled as persistImportEmailEnabled,
+  setFileJunkAsideEnabled as persistFileJunkAsideEnabled,
 } from '@/lib/use-email-tools-settings';
 import {
   AlertDialog,
@@ -125,6 +129,8 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
   // and the first enable shows an honest consent/warning.
   const [emailToolsEnabled, setEmailToolsEnabled] = useState<boolean>(false);
   const [exportEmailEnabled, setExportEmailEnabled] = useState<boolean>(true);
+  const [importEmailEnabled, setImportEmailEnabled] = useState<boolean>(true);
+  const [fileJunkAsideEnabled, setFileJunkAsideEnabled] = useState<boolean>(true);
   const [userEmail, setUserEmail] = useState<string>('');
   // Consent dialog: 'enable' = gating a fresh turn-on; 'review' = info-only.
   const [emailConsentMode, setEmailConsentMode] = useState<null | 'enable' | 'review'>(null);
@@ -232,6 +238,8 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
     // Load Professional Customization / Email tools settings.
     setEmailToolsEnabled(getEmailToolsEnabled());
     setExportEmailEnabled(getExportEmailEnabled());
+    setImportEmailEnabled(getImportEmailEnabled());
+    setFileJunkAsideEnabled(getFileJunkAsideEnabled());
     setUserEmail(getUserEmailAddress());
 
     // Load API keys
@@ -268,6 +276,8 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
     if (open) {
       setEmailToolsEnabled(getEmailToolsEnabled());
       setExportEmailEnabled(getExportEmailEnabled());
+      setImportEmailEnabled(getImportEmailEnabled());
+      setFileJunkAsideEnabled(getFileJunkAsideEnabled());
       setUserEmail(getUserEmailAddress());
     }
   }, [open]);
@@ -770,6 +780,16 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
     persistExportEmailEnabled(checked);
   };
 
+  const handleImportEmailToggle = (checked: boolean) => {
+    setImportEmailEnabled(checked);
+    persistImportEmailEnabled(checked);
+  };
+
+  const handleFileJunkAsideToggle = (checked: boolean) => {
+    setFileJunkAsideEnabled(checked);
+    persistFileJunkAsideEnabled(checked);
+  };
+
   const handleUserEmailChange = (value: string) => {
     setUserEmail(value);
     setUserEmailAddress(value.trim());
@@ -1103,6 +1123,42 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
                   <p className="text-xs text-muted-foreground">
                     Adds an &ldquo;Export Email&rdquo; action to a selected branch — draft it, then hand off to Gmail, your mail app, the clipboard, or a download.
                   </p>
+
+                  {/* Import email into outlines (Phase 2). */}
+                  <div className="flex items-center justify-between pt-2">
+                    <Label htmlFor="email-feature-import" className="text-sm font-normal">
+                      Import email into outlines
+                    </Label>
+                    <Switch
+                      id="email-feature-import"
+                      data-testid="email-feature-import"
+                      checked={importEmailEnabled}
+                      onCheckedChange={handleImportEmailToggle}
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Adds an &ldquo;Import Email&rdquo; option to the Bring In menu — paste an email or whole thread (or drop a .eml file) and turn it into a clean outline of key points, decisions, and action items.
+                  </p>
+
+                  {/* File suspected junk aside — only meaningful when import is on. */}
+                  {importEmailEnabled && (
+                    <div className="pl-3 border-l-2 border-border/60 space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="email-feature-junk" className="text-sm font-normal">
+                          File suspected junk aside
+                        </Label>
+                        <Switch
+                          id="email-feature-junk"
+                          data-testid="email-feature-junk"
+                          checked={fileJunkAsideEnabled}
+                          onCheckedChange={handleFileJunkAsideToggle}
+                        />
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        When importing a thread, suspected promo/spam messages are quarantined into a labeled &ldquo;Filtered — likely junk&rdquo; branch with a count. Nothing is ever deleted — you can glance and rescue.
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
