@@ -34,7 +34,7 @@ export interface SocialTemplate {
   /** One-line tooltip explaining the action. */
   tooltip: string;
   /** Icon identifier the dialog maps to a rendered glyph. */
-  iconKey: 'x' | 'instagram' | 'generic';
+  iconKey: 'x' | 'instagram' | 'linkedin' | 'facebook' | 'threads' | 'bluesky' | 'generic';
   /**
    * Output family this platform belongs to:
    *   'text'      — text posts (thread / single). X.
@@ -124,8 +124,140 @@ export const INSTAGRAM_TEMPLATE: SocialTemplate = {
   fileExtension: 'txt',
 };
 
+/**
+ * LinkedIn. A professional, story-arc post — longer-form than X.
+ *
+ * LinkedIn has NO reliable pre-filled text compose URL (its sharer only takes a
+ * link, not post text), so there is deliberately NO buildIntentUrl — we never
+ * fake an "Open in LinkedIn" button. The honest hand-off is copy + download the
+ * text, then paste it into LinkedIn yourself.
+ */
+export const LINKEDIN_TEMPLATE: SocialTemplate = {
+  id: 'linkedin',
+  label: 'LinkedIn',
+  shareLabel: 'Share to LinkedIn',
+  tooltip: 'Turn this branch into a professional, story-arc LinkedIn post — you copy or download it and post it yourself.',
+  iconKey: 'linkedin',
+  charLimit: 3000,
+  supportsThread: false,
+  supportsSingle: true,
+  promptRules: [
+    'Platform: LinkedIn (professional network).',
+    'Write ONE post, longer-form: roughly 1 to 3 short paragraphs. Stay well within 3000 characters.',
+    'Open with a STRONG first line — a hook that stands alone as the preview line and makes people click "see more". No greeting, no "I\'m excited to share".',
+    'Professional but human and warm — a clear story arc or point of view, not a dry summary. Use short paragraphs with blank lines between them for readability (LinkedIn rewards white space).',
+    'End with a light takeaway or a gentle question that invites discussion.',
+    'Add a FEW tasteful, relevant hashtags at the very end (about 3-5) — professional, not spammy.',
+    'No markdown, no bullet characters, no code fences — just plain post text with line breaks as a person would type it.',
+  ].join('\n'),
+  // No buildIntentUrl by design — LinkedIn has no honest pre-filled text compose.
+  intentNote:
+    'LinkedIn has no way to pre-fill a post from outside, so copy or download this and paste it into a new LinkedIn post yourself. IdeaM never posts for you.',
+  fileExtension: 'txt',
+};
+
+/**
+ * Facebook. A friendly, engaging, conversational post.
+ *
+ * Facebook's sharer only shares a URL — it has NO usable pre-filled TEXT compose
+ * — so there is deliberately NO buildIntentUrl and no fake "Open in Facebook"
+ * button. Honest hand-off: copy + download, then paste it yourself.
+ */
+export const FACEBOOK_TEMPLATE: SocialTemplate = {
+  id: 'facebook',
+  label: 'Facebook',
+  shareLabel: 'Share to Facebook',
+  tooltip: 'Turn this branch into a friendly, engaging Facebook post — you copy or download it and post it yourself.',
+  iconKey: 'facebook',
+  charLimit: 2000,
+  supportsThread: false,
+  supportsSingle: true,
+  promptRules: [
+    'Platform: Facebook.',
+    'Write ONE post, friendly and conversational — a bit more casual and personal than LinkedIn, like talking to friends and followers. Stay within 2000 characters.',
+    'Open with something relatable or intriguing. Warm, human, story-driven; short paragraphs with line breaks are welcome.',
+    'Keep hashtags MINIMAL — zero to two at most, only if they genuinely fit (Facebook is not a hashtag platform).',
+    'A gentle call to comment, react, or share at the end is fine when natural.',
+    'No markdown, no bullet characters, no code fences — just plain post text with line breaks as a person would type it.',
+  ].join('\n'),
+  // No buildIntentUrl by design — Facebook has no honest pre-filled text compose.
+  intentNote:
+    'Facebook can only pre-fill a link, not post text, so copy or download this and paste it into a new Facebook post yourself. IdeaM never posts for you.',
+  fileExtension: 'txt',
+};
+
+/**
+ * Threads. A casual, punchy post — or a short numbered sequence if long.
+ *
+ * Threads DOES support a public web-compose intent that pre-fills post text, so
+ * it gets an honest "Open in Threads" hand-off (first post only; the rest stay
+ * on the clipboard for pasting as replies to build the sequence).
+ */
+export const THREADS_TEMPLATE: SocialTemplate = {
+  id: 'threads',
+  label: 'Threads',
+  shareLabel: 'Share to Threads',
+  tooltip: 'Turn this branch into a casual, punchy Threads post (or a short numbered sequence) — you review and post it yourself.',
+  iconKey: 'threads',
+  charLimit: 500,
+  supportsThread: true,
+  supportsSingle: true,
+  promptRules: [
+    'Platform: Threads (Meta).',
+    'Each post MUST be 500 characters or fewer — a hard limit, count carefully.',
+    'Voice: casual, punchy, conversational and human — like texting a smart friend. Short sentences. Line breaks within a post are fine.',
+    'In SINGLE mode: one tight, self-contained post. In THREAD mode: a short numbered SEQUENCE where the first post is the hook and each follow-on develops one idea.',
+    'A hashtag or two is fine where it fits naturally — Threads is light on hashtags, so do not stuff them.',
+    'Do NOT prefix posts with numbers like "1/5" — the app numbers them for the user.',
+    'No markdown, no bullet characters, no code fences — just plain post text.',
+  ].join('\n'),
+  buildIntentUrl: (firstPost: string) =>
+    `https://www.threads.net/intent/post?text=${encodeURIComponent(firstPost)}`,
+  intentLabel: 'Open in Threads',
+  intentNote:
+    'Opens Threads’ compose window prefilled with the FIRST post only. Copy the rest and paste each as a reply to build the sequence.',
+  fileExtension: 'txt',
+};
+
+/**
+ * Bluesky. A casual post within Bluesky's ~300-character limit.
+ *
+ * Bluesky DOES support a public web-compose intent that pre-fills post text, so
+ * it gets an honest "Open in Bluesky" hand-off prefilled with the post.
+ */
+export const BLUESKY_TEMPLATE: SocialTemplate = {
+  id: 'bluesky',
+  label: 'Bluesky',
+  shareLabel: 'Share to Bluesky',
+  tooltip: 'Turn this branch into a casual Bluesky post within its ~300-character limit — you review and post it yourself.',
+  iconKey: 'bluesky',
+  charLimit: 300,
+  supportsThread: false,
+  supportsSingle: true,
+  promptRules: [
+    'Platform: Bluesky.',
+    'Write ONE post of 300 characters or fewer — a hard limit, count carefully.',
+    'Voice: casual, human, conversational — friendly and a little witty, not corporate. Condense the whole branch into one compelling post.',
+    'Hashtags are used lightly on Bluesky — include at most one if it genuinely fits, otherwise none.',
+    'No markdown, no bullet characters, no code fences — just plain post text.',
+  ].join('\n'),
+  buildIntentUrl: (firstPost: string) =>
+    `https://bsky.app/intent/compose?text=${encodeURIComponent(firstPost)}`,
+  intentLabel: 'Open in Bluesky',
+  intentNote:
+    'Opens Bluesky’s compose window prefilled with your post. Review it and post it yourself.',
+  fileExtension: 'txt',
+};
+
 /** The registry. Add a new template here to support a new platform. */
-export const SOCIAL_TEMPLATES: SocialTemplate[] = [X_TEMPLATE, INSTAGRAM_TEMPLATE];
+export const SOCIAL_TEMPLATES: SocialTemplate[] = [
+  X_TEMPLATE,
+  INSTAGRAM_TEMPLATE,
+  LINKEDIN_TEMPLATE,
+  FACEBOOK_TEMPLATE,
+  THREADS_TEMPLATE,
+  BLUESKY_TEMPLATE,
+];
 
 /** Look up a template by id. */
 export function getSocialTemplate(id: string): SocialTemplate | undefined {

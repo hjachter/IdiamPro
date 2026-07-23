@@ -15,10 +15,18 @@ import {
   getSocialExportConsentGranted,
   getShareToXEnabled,
   getShareToInstagramEnabled,
+  getShareToLinkedInEnabled,
+  getShareToFacebookEnabled,
+  getShareToThreadsEnabled,
+  getShareToBlueskyEnabled,
   setSocialExportEnabled as persistSocialExportEnabled,
   grantSocialExportConsent,
   setShareToXEnabled as persistShareToXEnabled,
   setShareToInstagramEnabled as persistShareToInstagramEnabled,
+  setShareToLinkedInEnabled as persistShareToLinkedInEnabled,
+  setShareToFacebookEnabled as persistShareToFacebookEnabled,
+  setShareToThreadsEnabled as persistShareToThreadsEnabled,
+  setShareToBlueskyEnabled as persistShareToBlueskyEnabled,
 } from '@/lib/use-social-export-settings';
 import {
   getEmailToolsEnabled,
@@ -184,6 +192,10 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
   const [socialExportEnabled, setSocialExportEnabledState] = useState<boolean>(false);
   const [shareToXEnabled, setShareToXEnabledState] = useState<boolean>(true);
   const [shareToInstagramEnabled, setShareToInstagramEnabledState] = useState<boolean>(true);
+  const [shareToLinkedInEnabled, setShareToLinkedInEnabledState] = useState<boolean>(true);
+  const [shareToFacebookEnabled, setShareToFacebookEnabledState] = useState<boolean>(true);
+  const [shareToThreadsEnabled, setShareToThreadsEnabledState] = useState<boolean>(true);
+  const [shareToBlueskyEnabled, setShareToBlueskyEnabledState] = useState<boolean>(true);
   const [socialConsentMode, setSocialConsentMode] = useState<null | 'enable' | 'review'>(null);
 
   // Outline-backup auto-snapshot toggles (2026-06-10). Both default ON.
@@ -302,6 +314,10 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
     setSocialExportEnabledState(getSocialExportEnabled());
     setShareToXEnabledState(getShareToXEnabled());
     setShareToInstagramEnabledState(getShareToInstagramEnabled());
+    setShareToLinkedInEnabledState(getShareToLinkedInEnabled());
+    setShareToFacebookEnabledState(getShareToFacebookEnabled());
+    setShareToThreadsEnabledState(getShareToThreadsEnabled());
+    setShareToBlueskyEnabledState(getShareToBlueskyEnabled());
 
     // Load API keys
     const savedKeys: Record<string, string> = {};
@@ -346,6 +362,10 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
       setSocialExportEnabledState(getSocialExportEnabled());
       setShareToXEnabledState(getShareToXEnabled());
       setShareToInstagramEnabledState(getShareToInstagramEnabled());
+      setShareToLinkedInEnabledState(getShareToLinkedInEnabled());
+      setShareToFacebookEnabledState(getShareToFacebookEnabled());
+      setShareToThreadsEnabledState(getShareToThreadsEnabled());
+      setShareToBlueskyEnabledState(getShareToBlueskyEnabled());
     }
   }, [open]);
 
@@ -903,6 +923,26 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
   const handleShareToInstagramToggle = (checked: boolean) => {
     setShareToInstagramEnabledState(checked);
     persistShareToInstagramEnabled(checked);
+  };
+
+  const handleShareToLinkedInToggle = (checked: boolean) => {
+    setShareToLinkedInEnabledState(checked);
+    persistShareToLinkedInEnabled(checked);
+  };
+
+  const handleShareToFacebookToggle = (checked: boolean) => {
+    setShareToFacebookEnabledState(checked);
+    persistShareToFacebookEnabled(checked);
+  };
+
+  const handleShareToThreadsToggle = (checked: boolean) => {
+    setShareToThreadsEnabledState(checked);
+    persistShareToThreadsEnabled(checked);
+  };
+
+  const handleShareToBlueskyToggle = (checked: boolean) => {
+    setShareToBlueskyEnabledState(checked);
+    persistShareToBlueskyEnabled(checked);
   };
 
   // --- "Your Voice" handlers -------------------------------------------------
@@ -1599,8 +1639,68 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
                     Draft an Instagram caption with natural hashtags, or a branded square-image carousel (a hook cover plus one point per card) — optionally in your voice. Download the images and caption, then post from the Instagram app.
                   </p>
 
+                  <div className="flex items-center justify-between pt-2">
+                    <Label htmlFor="social-feature-linkedin" className="text-sm font-normal">
+                      Share to LinkedIn (professional post)
+                    </Label>
+                    <Switch
+                      id="social-feature-linkedin"
+                      data-testid="social-feature-linkedin"
+                      checked={shareToLinkedInEnabled}
+                      onCheckedChange={handleShareToLinkedInToggle}
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Draft a professional, story-arc LinkedIn post with a strong opening line and a few tasteful hashtags — optionally in your voice. Copy or download it, then paste it into LinkedIn yourself.
+                  </p>
+
+                  <div className="flex items-center justify-between pt-2">
+                    <Label htmlFor="social-feature-facebook" className="text-sm font-normal">
+                      Share to Facebook (friendly post)
+                    </Label>
+                    <Switch
+                      id="social-feature-facebook"
+                      data-testid="social-feature-facebook"
+                      checked={shareToFacebookEnabled}
+                      onCheckedChange={handleShareToFacebookToggle}
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Draft a friendly, conversational Facebook post — optionally in your voice. Copy or download it, then paste it into Facebook yourself.
+                  </p>
+
+                  <div className="flex items-center justify-between pt-2">
+                    <Label htmlFor="social-feature-threads" className="text-sm font-normal">
+                      Share to Threads (post or sequence)
+                    </Label>
+                    <Switch
+                      id="social-feature-threads"
+                      data-testid="social-feature-threads"
+                      checked={shareToThreadsEnabled}
+                      onCheckedChange={handleShareToThreadsToggle}
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Draft a casual, punchy Threads post (or a short numbered sequence) — optionally in your voice. Copy it, open it in Threads prefilled, or download it.
+                  </p>
+
+                  <div className="flex items-center justify-between pt-2">
+                    <Label htmlFor="social-feature-bluesky" className="text-sm font-normal">
+                      Share to Bluesky (short post)
+                    </Label>
+                    <Switch
+                      id="social-feature-bluesky"
+                      data-testid="social-feature-bluesky"
+                      checked={shareToBlueskyEnabled}
+                      onCheckedChange={handleShareToBlueskyToggle}
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Draft a casual Bluesky post within its ~300-character limit — optionally in your voice. Copy it, open it in Bluesky prefilled, or download it.
+                  </p>
+
                   <p className="text-xs text-muted-foreground pt-1">
-                    More platforms (LinkedIn, Threads, Bluesky, YouTube, and more) are coming — each will appear here as its own switch.
+                    More platforms (YouTube, short-form video, and more) are coming — each will appear here as its own switch.
                   </p>
                 </div>
               </div>

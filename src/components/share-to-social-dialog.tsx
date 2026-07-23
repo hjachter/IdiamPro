@@ -44,7 +44,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Share2, Loader2, AlertTriangle, Cpu, ArrowLeft, Sparkles, Copy, Download, Check, ExternalLink, Instagram, Images, Smartphone } from 'lucide-react';
+import { Share2, Loader2, AlertTriangle, Cpu, ArrowLeft, Sparkles, Copy, Download, Check, ExternalLink, Instagram, Images, Smartphone, Linkedin, Facebook, ClipboardPaste } from 'lucide-react';
 import { generateSocialPostAction, generateInstagramPostAction } from '@/app/actions';
 import { isLocalAIReachable, notifyLocalAIDown } from '@/lib/local-ai';
 import { serializeSubtree } from '@/lib/transform-outline-helpers';
@@ -112,9 +112,31 @@ function XGlyph({ className }: { className?: string }) {
   );
 }
 
+/** Threads glyph — lucide has no Threads icon, so render the brand mark. */
+function ThreadsGlyph({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden className={className} fill="currentColor">
+      <path d="M12.186 24h-.007c-3.581-.024-6.334-1.205-8.184-3.509C2.35 18.44 1.5 15.586 1.472 12.01v-.017c.03-3.579.879-6.43 2.525-8.482C5.845 1.205 8.6.024 12.18 0h.014c2.746.02 5.043.725 6.826 2.098 1.677 1.29 2.858 3.13 3.509 5.467l-2.04.569c-1.104-3.96-3.898-5.984-8.304-6.015-2.91.022-5.11.936-6.54 2.717C4.307 6.504 3.616 8.914 3.589 12c.027 3.086.718 5.496 2.057 7.164 1.43 1.781 3.63 2.695 6.54 2.717 2.623-.02 4.358-.631 5.8-2.045 1.647-1.613 1.618-3.593 1.09-4.798-.31-.71-.873-1.3-1.634-1.75-.192 1.352-.622 2.446-1.284 3.272-.886 1.102-2.14 1.704-3.73 1.79-1.202.065-2.361-.218-3.259-.801-1.063-.689-1.685-1.74-1.752-2.964-.065-1.19.408-2.285 1.33-3.082.88-.76 2.119-1.207 3.583-1.291a13.853 13.853 0 0 1 3.02.142c-.126-.742-.375-1.332-.75-1.757-.513-.586-1.308-.883-2.359-.89h-.029c-.844 0-1.992.232-2.721 1.32L7.734 7.847c.98-1.454 2.568-2.256 4.478-2.256h.044c3.194.02 5.097 1.975 5.287 5.388.108.046.216.094.324.145 1.52.715 2.631 1.796 3.213 3.13.809 1.857.884 4.883-1.586 7.294-1.888 1.844-4.181 2.667-7.31 2.69Z" />
+    </svg>
+  );
+}
+
+/** Bluesky glyph — lucide has no Bluesky icon, so render the butterfly mark. */
+function BlueskyGlyph({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden className={className} fill="currentColor">
+      <path d="M5.06 3.68c2.09 1.57 4.34 4.75 5.16 6.46.31.65.42.98.42 1.36 0-.38.11-.71.42-1.36.83-1.71 3.07-4.89 5.16-6.46 1.51-1.13 3.96-2.01 3.96.79 0 .56-.32 4.7-.51 5.37-.66 2.34-3.04 2.93-5.16 2.57 3.7.63 4.65 2.72 2.61 4.81-3.86 3.98-5.55-1-5.99-2.28-.08-.23-.12-.34-.12-.25 0-.09-.04.02-.12.25-.44 1.28-2.13 6.26-5.99 2.28-2.03-2.09-1.09-4.18 2.62-4.81-2.13.36-4.5-.23-5.16-2.57-.19-.67-.51-4.81-.51-5.37 0-2.8 2.45-1.92 3.96-.79Z" />
+    </svg>
+  );
+}
+
 function PlatformIcon({ tpl, className }: { tpl: SocialTemplate; className?: string }) {
   if (tpl.iconKey === 'x') return <XGlyph className={className} />;
   if (tpl.iconKey === 'instagram') return <Instagram className={className} />;
+  if (tpl.iconKey === 'linkedin') return <Linkedin className={className} />;
+  if (tpl.iconKey === 'facebook') return <Facebook className={className} />;
+  if (tpl.iconKey === 'threads') return <ThreadsGlyph className={className} />;
+  if (tpl.iconKey === 'bluesky') return <BlueskyGlyph className={className} />;
   return <Share2 className={className} />;
 }
 
@@ -128,7 +150,14 @@ export default function ShareToSocialDialog({
 }: ShareToSocialDialogProps) {
   const { gate } = useAIUsageGate();
   const { voiceAvailable, voiceProfile } = useVoiceProfile();
-  const { shareToXAvailable, shareToInstagramAvailable } = useSocialExportSettings();
+  const {
+    shareToXAvailable,
+    shareToInstagramAvailable,
+    shareToLinkedInAvailable,
+    shareToFacebookAvailable,
+    shareToThreadsAvailable,
+    shareToBlueskyAvailable,
+  } = useSocialExportSettings();
   const { toast } = useToast();
 
   // Only show platforms whose sub-toggle is on right now.
@@ -137,9 +166,20 @@ export default function ShareToSocialDialog({
       SOCIAL_TEMPLATES.filter((t) => {
         if (t.id === 'x') return shareToXAvailable;
         if (t.id === 'instagram') return shareToInstagramAvailable;
+        if (t.id === 'linkedin') return shareToLinkedInAvailable;
+        if (t.id === 'facebook') return shareToFacebookAvailable;
+        if (t.id === 'threads') return shareToThreadsAvailable;
+        if (t.id === 'bluesky') return shareToBlueskyAvailable;
         return true;
       }),
-    [shareToXAvailable, shareToInstagramAvailable],
+    [
+      shareToXAvailable,
+      shareToInstagramAvailable,
+      shareToLinkedInAvailable,
+      shareToFacebookAvailable,
+      shareToThreadsAvailable,
+      shareToBlueskyAvailable,
+    ],
   );
 
   const [phase, setPhase] = useState<Phase>('input');
@@ -350,7 +390,7 @@ export default function ShareToSocialDialog({
         title: mode === 'thread' && posts.length > 1 ? 'Thread copied' : 'Post copied',
         description: mode === 'thread' && posts.length > 1
           ? 'All posts copied, numbered and ready to paste one at a time.'
-          : 'Paste it into X and post.',
+          : `Paste it into ${template.label} and post.`,
       });
       window.setTimeout(() => setCopiedThread(false), 2000);
     } else {
@@ -645,9 +685,20 @@ export default function ShareToSocialDialog({
                 <Badge variant="outline" data-testid="social-post-count">{posts.length} {posts.length === 1 ? 'post' : 'posts'}</Badge>
                 <span className="text-muted-foreground text-xs">Edit any post before you post it.</span>
               </div>
-              {mode === 'thread' && posts.length > 1 && template.intentNote && (
-                <p className="text-xs text-amber-600 dark:text-amber-400">{template.intentNote}</p>
-              )}
+              {/* Honest per-platform note. Platforms WITH a compose intent (X,
+                  Threads) only need the "first post prefilled" note when there's
+                  a multi-post thread. Platforms WITHOUT one (LinkedIn, Facebook)
+                  always show the copy-and-paste-yourself note. */}
+              {template.intentNote &&
+                (template.buildIntentUrl ? mode === 'thread' && posts.length > 1 : true) && (
+                  <p
+                    className="flex items-start gap-1.5 text-xs text-amber-600 dark:text-amber-400"
+                    data-testid="social-honest-note"
+                  >
+                    {!template.buildIntentUrl && <ClipboardPaste className="h-3.5 w-3.5 mt-0.5 shrink-0" />}
+                    <span>{template.intentNote}</span>
+                  </p>
+                )}
               {posts.map((post, idx) => {
                 const over = post.length > template.charLimit;
                 return (

@@ -34,6 +34,14 @@ export const SOCIAL_EXPORT_STORAGE_KEYS = {
   x: 'socialExport.platform.x',
   /** Per-platform sub-toggle: Share to Instagram. */
   instagram: 'socialExport.platform.instagram',
+  /** Per-platform sub-toggle: Share to LinkedIn. */
+  linkedin: 'socialExport.platform.linkedin',
+  /** Per-platform sub-toggle: Share to Facebook. */
+  facebook: 'socialExport.platform.facebook',
+  /** Per-platform sub-toggle: Share to Threads. */
+  threads: 'socialExport.platform.threads',
+  /** Per-platform sub-toggle: Share to Bluesky. */
+  bluesky: 'socialExport.platform.bluesky',
 } as const;
 
 /** Fired on any write so every mounted consumer re-reads immediately. */
@@ -68,12 +76,36 @@ export function getShareToXEnabled(): boolean {
 export function getShareToInstagramEnabled(): boolean {
   return readBool(SOCIAL_EXPORT_STORAGE_KEYS.instagram, true);
 }
+export function getShareToLinkedInEnabled(): boolean {
+  return readBool(SOCIAL_EXPORT_STORAGE_KEYS.linkedin, true);
+}
+export function getShareToFacebookEnabled(): boolean {
+  return readBool(SOCIAL_EXPORT_STORAGE_KEYS.facebook, true);
+}
+export function getShareToThreadsEnabled(): boolean {
+  return readBool(SOCIAL_EXPORT_STORAGE_KEYS.threads, true);
+}
+export function getShareToBlueskyEnabled(): boolean {
+  return readBool(SOCIAL_EXPORT_STORAGE_KEYS.bluesky, true);
+}
 /** The single question the surface asks: is Share to X live right now? */
 export function isShareToXAvailable(): boolean {
   return getSocialExportEnabled() && getShareToXEnabled();
 }
 export function isShareToInstagramAvailable(): boolean {
   return getSocialExportEnabled() && getShareToInstagramEnabled();
+}
+export function isShareToLinkedInAvailable(): boolean {
+  return getSocialExportEnabled() && getShareToLinkedInEnabled();
+}
+export function isShareToFacebookAvailable(): boolean {
+  return getSocialExportEnabled() && getShareToFacebookEnabled();
+}
+export function isShareToThreadsAvailable(): boolean {
+  return getSocialExportEnabled() && getShareToThreadsEnabled();
+}
+export function isShareToBlueskyAvailable(): boolean {
+  return getSocialExportEnabled() && getShareToBlueskyEnabled();
 }
 
 // ---- Plain setters -------------------------------------------------------
@@ -90,6 +122,18 @@ export function setShareToXEnabled(on: boolean) {
 export function setShareToInstagramEnabled(on: boolean) {
   writeAndNotify(SOCIAL_EXPORT_STORAGE_KEYS.instagram, on ? 'true' : 'false');
 }
+export function setShareToLinkedInEnabled(on: boolean) {
+  writeAndNotify(SOCIAL_EXPORT_STORAGE_KEYS.linkedin, on ? 'true' : 'false');
+}
+export function setShareToFacebookEnabled(on: boolean) {
+  writeAndNotify(SOCIAL_EXPORT_STORAGE_KEYS.facebook, on ? 'true' : 'false');
+}
+export function setShareToThreadsEnabled(on: boolean) {
+  writeAndNotify(SOCIAL_EXPORT_STORAGE_KEYS.threads, on ? 'true' : 'false');
+}
+export function setShareToBlueskyEnabled(on: boolean) {
+  writeAndNotify(SOCIAL_EXPORT_STORAGE_KEYS.bluesky, on ? 'true' : 'false');
+}
 
 export interface SocialExportSettings {
   /** Master gate — when false, ALL social-export features are hidden/disabled. */
@@ -100,16 +144,36 @@ export interface SocialExportSettings {
   shareToXEnabled: boolean;
   /** Share to Instagram sub-toggle (only meaningful when master is on). */
   shareToInstagramEnabled: boolean;
+  /** Share to LinkedIn sub-toggle (only meaningful when master is on). */
+  shareToLinkedInEnabled: boolean;
+  /** Share to Facebook sub-toggle (only meaningful when master is on). */
+  shareToFacebookEnabled: boolean;
+  /** Share to Threads sub-toggle (only meaningful when master is on). */
+  shareToThreadsEnabled: boolean;
+  /** Share to Bluesky sub-toggle (only meaningful when master is on). */
+  shareToBlueskyEnabled: boolean;
   /** Convenience: master AND the Share to X sub-toggle. */
   shareToXAvailable: boolean;
   /** Convenience: master AND the Share to Instagram sub-toggle. */
   shareToInstagramAvailable: boolean;
+  /** Convenience: master AND the Share to LinkedIn sub-toggle. */
+  shareToLinkedInAvailable: boolean;
+  /** Convenience: master AND the Share to Facebook sub-toggle. */
+  shareToFacebookAvailable: boolean;
+  /** Convenience: master AND the Share to Threads sub-toggle. */
+  shareToThreadsAvailable: boolean;
+  /** Convenience: master AND the Share to Bluesky sub-toggle. */
+  shareToBlueskyAvailable: boolean;
   /** Convenience: is ANY social platform available right now (drives the group). */
   socialExportAvailable: boolean;
   setSocialExportEnabled: (on: boolean) => void;
   grantConsent: () => void;
   setShareToXEnabled: (on: boolean) => void;
   setShareToInstagramEnabled: (on: boolean) => void;
+  setShareToLinkedInEnabled: (on: boolean) => void;
+  setShareToFacebookEnabled: (on: boolean) => void;
+  setShareToThreadsEnabled: (on: boolean) => void;
+  setShareToBlueskyEnabled: (on: boolean) => void;
 }
 
 /**
@@ -122,6 +186,10 @@ export function useSocialExportSettings(): SocialExportSettings {
     consentGranted: false,
     shareToXEnabled: true,
     shareToInstagramEnabled: true,
+    shareToLinkedInEnabled: true,
+    shareToFacebookEnabled: true,
+    shareToThreadsEnabled: true,
+    shareToBlueskyEnabled: true,
   });
 
   const refresh = useCallback(() => {
@@ -130,6 +198,10 @@ export function useSocialExportSettings(): SocialExportSettings {
       consentGranted: getSocialExportConsentGranted(),
       shareToXEnabled: getShareToXEnabled(),
       shareToInstagramEnabled: getShareToInstagramEnabled(),
+      shareToLinkedInEnabled: getShareToLinkedInEnabled(),
+      shareToFacebookEnabled: getShareToFacebookEnabled(),
+      shareToThreadsEnabled: getShareToThreadsEnabled(),
+      shareToBlueskyEnabled: getShareToBlueskyEnabled(),
     });
   }, []);
 
@@ -146,15 +218,34 @@ export function useSocialExportSettings(): SocialExportSettings {
 
   const shareToXAvailable = state.socialExportEnabled && state.shareToXEnabled;
   const shareToInstagramAvailable = state.socialExportEnabled && state.shareToInstagramEnabled;
+  const shareToLinkedInAvailable = state.socialExportEnabled && state.shareToLinkedInEnabled;
+  const shareToFacebookAvailable = state.socialExportEnabled && state.shareToFacebookEnabled;
+  const shareToThreadsAvailable = state.socialExportEnabled && state.shareToThreadsEnabled;
+  const shareToBlueskyAvailable = state.socialExportEnabled && state.shareToBlueskyEnabled;
   return {
     ...state,
     shareToXAvailable,
     shareToInstagramAvailable,
+    shareToLinkedInAvailable,
+    shareToFacebookAvailable,
+    shareToThreadsAvailable,
+    shareToBlueskyAvailable,
     // Available if the master is on AND at least one platform sub-toggle is on.
-    socialExportAvailable: state.socialExportEnabled && (state.shareToXEnabled || state.shareToInstagramEnabled),
+    socialExportAvailable:
+      state.socialExportEnabled &&
+      (state.shareToXEnabled ||
+        state.shareToInstagramEnabled ||
+        state.shareToLinkedInEnabled ||
+        state.shareToFacebookEnabled ||
+        state.shareToThreadsEnabled ||
+        state.shareToBlueskyEnabled),
     setSocialExportEnabled,
     grantConsent: grantSocialExportConsent,
     setShareToXEnabled,
     setShareToInstagramEnabled,
+    setShareToLinkedInEnabled,
+    setShareToFacebookEnabled,
+    setShareToThreadsEnabled,
+    setShareToBlueskyEnabled,
   };
 }
