@@ -53,10 +53,10 @@ import { ai } from '@/ai/genkit';
 import { GoogleGenAI } from '@google/genai';
 import { getDefaultGeminiModel } from '@/config/gemini-models';
 import {
-  isCompanyTextFallbackEnabled,
   isNoCompanyKeyError,
   NoCompanyKeyError,
 } from '@/lib/billing/company-text-fallback';
+import { resolveCompanyTextAccess } from '@/lib/billing/ai-usage-meter';
 import {
   isOllamaAvailable,
   getOllamaModels,
@@ -94,17 +94,21 @@ function extractRetryDelay(errorMessage: string): number | null {
 /**
  * Guarded wrapper around the Genkit `ai.generate` singleton, which ALWAYS uses
  * the app's own (company/founder) env Gemini key — it can't carry a per-request
- * user BYOK key. SAFETY STOPGAP (2026-07-23): when the company-text fallback is
- * off (the default), this NEVER calls our key — it throws NoCompanyKeyError so
- * the surrounding withRateLimitRetry routes to on-device Ollama, or surfaces a
- * friendly "add your key / use on-device" message. Flip ALLOW_COMPANY_TEXT_FALLBACK
- * on (behind the real meter) to restore the company-funded path.
+ * user BYOK key. Every call runs the SERVER-SIDE AI USAGE METER first: the
+ * company key is reachable ONLY for the internal developer allowlist, or a
+ * verified paid user within their monthly allowance (see ai-usage-meter.ts).
+ * Everyone else (free, signed-out, unverified, over-allowance) gets a thrown
+ * NoCompanyKeyError so the surrounding withRateLimitRetry routes to on-device
+ * Ollama, or surfaces a friendly "add your key / use on-device" message.
+ * FAIL-CLOSED by default. Each call — including retries — is metered, so
+ * malformed/retried output can't silently multiply company cost.
  */
-function guardedGenkitGenerate(
+async function guardedGenkitGenerate(
   args: Parameters<typeof ai.generate>[0],
 ): ReturnType<typeof ai.generate> {
-  if (!isCompanyTextFallbackEnabled()) {
-    return Promise.reject(new NoCompanyKeyError()) as ReturnType<typeof ai.generate>;
+  const access = await resolveCompanyTextAccess({ isByok: false });
+  if (!access.allowed) {
+    throw new NoCompanyKeyError();
   }
   return ai.generate(args);
 }
@@ -115,6 +119,10 @@ async function withRateLimitRetry<T>(
   operationName: string = 'operation',
   ollamaFallback?: () => Promise<T>
 ): Promise<T> {
+  // BOUNDED RETRIES: hard-cap at 2 so malformed/hallucinated output can't
+  // multiply company-AI cost. Every attempt (incl. retries) is metered by
+  // guardedGenkitGenerate before it can reach the vendor.
+  maxRetries = Math.min(Math.max(0, maxRetries), 2);
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
       return await fn();
@@ -2923,9 +2931,11 @@ export async function describeImageAction(
 
   // Cloud path (Gemini)
   try {
-    // SAFETY STOPGAP: only reach for our env key when the company-text fallback
-    // is explicitly enabled (default OFF → never bill our key on the no-key path).
-    const _companyKey = isCompanyTextFallbackEnabled() ? (process.env.GEMINI_API_KEY || '') : '';
+    // Company key reachable only when the SERVER-SIDE AI USAGE METER allows it
+    // (internal dev allowlist, or a verified paid user within allowance). BYOK
+    // (the user's own key) always wins and never touches our key.
+    const access = await resolveCompanyTextAccess({ isByok: !!(userApiKey && userApiKey.trim()) });
+    const _companyKey = access.allowed && access.fund === 'company' ? (process.env.GEMINI_API_KEY || '') : '';
     const _describeKey = (userApiKey && userApiKey.trim()) || _companyKey;
     if (!_describeKey) {
       return {
@@ -3075,9 +3085,11 @@ Rules:
   // describeImageAction pattern but image-to-outline needs structured JSON
   // output, which the cloud models are far more reliable at. v1: cloud only.
   try {
-    // SAFETY STOPGAP: only reach for our env key when the company-text fallback
-    // is explicitly enabled (default OFF → never bill our key on the no-key path).
-    const _companyKey = isCompanyTextFallbackEnabled() ? (process.env.GEMINI_API_KEY || '') : '';
+    // Company key reachable only when the SERVER-SIDE AI USAGE METER allows it
+    // (internal dev allowlist, or a verified paid user within allowance). BYOK
+    // (the user's own key) always wins and never touches our key.
+    const access = await resolveCompanyTextAccess({ isByok: !!(userApiKey && userApiKey.trim()) });
+    const _companyKey = access.allowed && access.fund === 'company' ? (process.env.GEMINI_API_KEY || '') : '';
     const key = (userApiKey && userApiKey.trim()) || _companyKey;
     if (!key) {
       return {
@@ -3216,9 +3228,11 @@ Rules:
 - Output STRICTLY the JSON object — no markdown fences, no commentary.`;
 
   try {
-    // SAFETY STOPGAP: only reach for our env key when the company-text fallback
-    // is explicitly enabled (default OFF → never bill our key on the no-key path).
-    const _companyKey = isCompanyTextFallbackEnabled() ? (process.env.GEMINI_API_KEY || '') : '';
+    // Company key reachable only when the SERVER-SIDE AI USAGE METER allows it
+    // (internal dev allowlist, or a verified paid user within allowance). BYOK
+    // (the user's own key) always wins and never touches our key.
+    const access = await resolveCompanyTextAccess({ isByok: !!(input.userApiKey && input.userApiKey.trim()) });
+    const _companyKey = access.allowed && access.fund === 'company' ? (process.env.GEMINI_API_KEY || '') : '';
     const key = (input.userApiKey && input.userApiKey.trim()) || _companyKey;
     if (!key) {
       return {

@@ -21,7 +21,8 @@
  */
 
 import { getBestAvailableModel, hasGemma4, isOllamaAvailable } from '@/lib/ollama-service';
-import { isCompanyTextFallbackEnabled, NO_USER_KEY_MESSAGE } from '@/lib/billing/company-text-fallback';
+import { NO_USER_KEY_MESSAGE } from '@/lib/billing/company-text-fallback';
+import { resolveCompanyTextAccess } from '@/lib/billing/ai-usage-meter';
 
 export type AIProviderChoice = 'cloud' | 'local' | 'auto';
 
@@ -231,14 +232,17 @@ export async function runAIWithFailover(
 ): Promise<AIFailoverResult> {
   const cloudProviderName = opts.cloudProviderName || 'Gemini';
 
-  // SAFETY STOPGAP (2026-07-23): every current caller's `cloudAttempt` uses the
+  // SERVER-SIDE AI USAGE METER: every current caller's `cloudAttempt` uses the
   // app's OWN (company/founder) env key — the Genkit singleton can't carry a
-  // per-request user BYOK key, and the client-supplied "is BYOK" flag is not a
-  // trustworthy cost signal. So when the company-text fallback is off (default),
-  // NEVER run the cloud attempt: go on-device (Ollama) if reachable, else return
-  // a friendly "add your key / use on-device" error. Flip ALLOW_COMPANY_TEXT_FALLBACK
-  // on (behind the real meter) to restore the company-funded cloud path.
-  if (!isCompanyTextFallbackEnabled()) {
+  // per-request user BYOK key, and the client-supplied "is BYOK" flag is NOT a
+  // trustworthy cost signal, so it is intentionally not honored here. The
+  // company key is reachable ONLY for the internal developer allowlist or a
+  // verified paid user within their monthly allowance (see ai-usage-meter.ts);
+  // everyone else NEVER runs the cloud attempt — go on-device (Ollama) if
+  // reachable, else return a friendly "add your key / use on-device" error.
+  // FAIL-CLOSED by default.
+  const companyTextAccess = await resolveCompanyTextAccess({ isByok: false });
+  if (!companyTextAccess.allowed) {
     const model = await reachableLocalGemma();
     if (model) {
       const text = await opts.localAttempt(model);

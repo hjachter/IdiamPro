@@ -30,6 +30,10 @@ import { isCompanyFundedTasteEnabled } from '@/lib/billing/company-keys';
 import { isAuthEnabled } from '@/lib/auth/auth-config';
 import { resolveTierFromRevenueCat } from '@/lib/billing/revenuecat-client';
 import { getStorage } from '@/lib/storage/adapter';
+import {
+  getServerUserIdentity,
+  isInternalDevIdentity,
+} from '@/lib/billing/ai-usage-meter';
 
 export type { PaidFeature };
 
@@ -228,7 +232,16 @@ export async function enforcePaidFeature(
   let plan: ServerPlan | null = null;
   let usedBefore = 0;
   if (!opts.isByok && companyEnabled) {
-    userId = await getServerUserId();
+    const identity = await getServerUserIdentity();
+    userId = identity.userId;
+    // Internal developer allowlist — "only us as we develop": unlimited,
+    // uncounted. Same allowlist that guards the cloud-text meter, so all
+    // company-funded vendor paths share one gate. Only reachable when a
+    // company key is actually configured (companyEnabled), so this can never
+    // loosen anything while the company keys are absent (today's state).
+    if (isInternalDevIdentity(userId, identity.emails)) {
+      return { ok: true, fund: 'company', plan: 'premium' };
+    }
     if (userId) {
       plan = await resolveServerPlan(userId);
       if (plan !== 'premium') {

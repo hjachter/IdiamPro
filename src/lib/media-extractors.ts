@@ -3,20 +3,24 @@
 import { YoutubeTranscript } from 'youtube-transcript-plus';
 import { ai } from '@/ai/genkit';
 import { getDefaultGeminiModel } from '@/config/gemini-models';
-import { isCompanyTextFallbackEnabled, NoCompanyKeyError } from '@/lib/billing/company-text-fallback';
+import { NoCompanyKeyError } from '@/lib/billing/company-text-fallback';
+import { resolveCompanyTextAccess } from '@/lib/billing/ai-usage-meter';
 
 /**
  * Guarded wrapper around the Genkit `ai.generate` singleton, which uses the
  * app's OWN (company/founder) env key — these import/extraction helpers carry
- * no per-request user key. SAFETY STOPGAP (2026-07-23): when the company-text
- * fallback is off (default), never bill our key — throw a friendly
- * NoCompanyKeyError telling the user to add their own key or use on-device AI.
+ * no per-request user key. Every call runs the SERVER-SIDE AI USAGE METER first:
+ * the company key is reachable ONLY for the internal developer allowlist, or a
+ * verified paid user within their monthly allowance (see ai-usage-meter.ts).
+ * Everyone else gets a friendly NoCompanyKeyError telling them to add their own
+ * key or use on-device AI. FAIL-CLOSED by default.
  */
-function guardedGenerate(
+async function guardedGenerate(
   args: Parameters<typeof ai.generate>[0],
 ): ReturnType<typeof ai.generate> {
-  if (!isCompanyTextFallbackEnabled()) {
-    return Promise.reject(new NoCompanyKeyError()) as ReturnType<typeof ai.generate>;
+  const access = await resolveCompanyTextAccess({ isByok: false });
+  if (!access.allowed) {
+    throw new NoCompanyKeyError();
   }
   return ai.generate(args);
 }

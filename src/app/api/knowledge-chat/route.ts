@@ -4,7 +4,8 @@ import { getBestAvailableModel } from '@/lib/ollama-service';
 import { getDefaultGeminiModel } from '@/config/gemini-models';
 import type { AIDepth } from '@/types';
 import { guardSensitiveRoute } from '@/lib/access/approval-guard';
-import { isCompanyTextFallbackEnabled, NoCompanyKeyError, NO_USER_KEY_MESSAGE } from '@/lib/billing/company-text-fallback';
+import { NO_USER_KEY_MESSAGE } from '@/lib/billing/company-text-fallback';
+import { resolveCompanyTextAccess } from '@/lib/billing/ai-usage-meter';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -171,13 +172,10 @@ async function pipeGemini(
   systemPrompt: string,
   userPrompt: string,
 ) {
-  // SAFETY STOPGAP (2026-07-23): this streams via the Genkit singleton, which
-  // uses the app's OWN (company/founder) env key — no per-request user key is
-  // plumbed here. When the company-text fallback is off (default), never bill
-  // our key: throw so the caller routes to on-device Ollama or a friendly note.
-  if (!isCompanyTextFallbackEnabled()) {
-    throw new NoCompanyKeyError();
-  }
+  // This streams via the Genkit singleton, which uses the app's OWN
+  // (company/founder) env key — no per-request user key is plumbed here. The
+  // SERVER-SIDE AI USAGE METER decides reachability in makeStream/POST; this is
+  // a defensive backstop only.
   const result = await ai.generateStream({
     model: getDefaultGeminiModel('genkit'),
     prompt: `${systemPrompt}\n\n${userPrompt}`,
@@ -208,16 +206,16 @@ function makeStream(
   userPrompt: string,
   ollamaPrompt: string,
   truncated: boolean,
+  cloudAllowed: boolean,
 ): ReadableStream {
   return new ReadableStream({
     async start(controller) {
       let closed = false;
       const close = () => { if (!closed) { closed = true; controller.close(); } };
-      // SAFETY STOPGAP: with the company-text fallback off (default), the cloud
-      // (Gemini) path would bill our OWN env key since no user key is plumbed
-      // here. So never try Gemini — go on-device (Ollama) instead, and if that
-      // isn't reachable, emit a friendly "add your key / use on-device" note.
-      const cloudAllowed = isCompanyTextFallbackEnabled();
+      // cloudAllowed is decided SERVER-SIDE by the AI usage meter in POST: the
+      // company (Gemini) key is reachable only for the internal dev allowlist or
+      // a verified paid user within allowance. Otherwise never bill our key —
+      // go on-device (Ollama), or emit a friendly "add your key" note.
       try {
         if (provider === 'local') {
           await pipeOllama(controller, systemPrompt, ollamaPrompt, truncated);
@@ -343,7 +341,12 @@ Use markdown formatting for clarity.`;
       console.log(`[KnowledgeChat] Context truncated from ${context.length} to ${truncatedContext.length} chars for Ollama`);
     }
 
-    const stream = makeStream(aiProvider, systemPrompt, userPrompt, ollamaPrompt, truncated);
+    // SERVER-SIDE AI USAGE METER: decide whether the company (Gemini) key may be
+    // used for this request BEFORE building the stream. Fail-closed → on-device.
+    const access = await resolveCompanyTextAccess({ isByok: false });
+    const cloudAllowed = access.allowed;
+
+    const stream = makeStream(aiProvider, systemPrompt, userPrompt, ollamaPrompt, truncated, cloudAllowed);
     return new Response(stream, { headers: SSE_HEADERS });
   } catch (error) {
     console.error('Knowledge chat error:', error);

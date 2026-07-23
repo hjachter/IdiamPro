@@ -22,6 +22,7 @@ const plexMono = IBM_Plex_Mono({
 import { Toaster } from "@/components/ui/toaster";
 import { AIProvider } from '@/contexts/ai-context';
 import { UpgradePromptProvider } from '@/components/upgrade-prompt';
+import { AllowanceCapPromptProvider } from '@/components/allowance-cap-prompt';
 import ErrorBoundary from '@/components/error-boundary';
 import { PWAInstaller } from '@/components/pwa-installer';
 import { ThemeProvider } from 'next-themes';
@@ -142,14 +143,19 @@ export default function RootLayout({
                         is off — the gates that trigger it are themselves
                         no-ops with no auth/billing keys. */}
                     <UpgradePromptProvider>
-                      {/* Discovery hints — "Did You Know?" sticky toasts.
-                          Provider holds the dismissed-state and queue;
-                          DiscoveryToastStack renders the cards. Toggling
-                          Professional mode in Settings suppresses them. */}
-                      <DiscoveryProvider>
-                        {children}
-                        <DiscoveryToastStack />
-                      </DiscoveryProvider>
+                      {/* Three-door AI allowance cap prompt (BYOK / overage /
+                          on-device). Dormant until subscriptions are verified
+                          server-side and a paid user hits their allowance. */}
+                      <AllowanceCapPromptProvider>
+                        {/* Discovery hints — "Did You Know?" sticky toasts.
+                            Provider holds the dismissed-state and queue;
+                            DiscoveryToastStack renders the cards. Toggling
+                            Professional mode in Settings suppresses them. */}
+                        <DiscoveryProvider>
+                          {children}
+                          <DiscoveryToastStack />
+                        </DiscoveryProvider>
+                      </AllowanceCapPromptProvider>
                     </UpgradePromptProvider>
                   </FeatureFlagsProvider>
                 </AIProvider>
