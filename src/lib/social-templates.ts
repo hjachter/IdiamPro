@@ -34,7 +34,15 @@ export interface SocialTemplate {
   /** One-line tooltip explaining the action. */
   tooltip: string;
   /** Icon identifier the dialog maps to a rendered glyph. */
-  iconKey: 'x' | 'generic';
+  iconKey: 'x' | 'instagram' | 'generic';
+  /**
+   * Output family this platform belongs to:
+   *   'text'      — text posts (thread / single). X.
+   *   'instagram' — Instagram caption OR branded carousel images.
+   * The dialog branches on this to show the right controls and hand-offs.
+   * Defaults to 'text' when omitted (back-compat with the first template).
+   */
+  outputKind?: 'text' | 'instagram';
   /** Per-post character budget. Hard cap enforced end-to-end. */
   charLimit: number;
   /** Whether a multi-post thread makes sense on this platform. */
@@ -87,8 +95,37 @@ export const X_TEMPLATE: SocialTemplate = {
   fileExtension: 'txt',
 };
 
+/**
+ * Instagram. The second social format template.
+ *
+ * Instagram has NO usable web "compose" intent for posting (especially on
+ * desktop), so there is deliberately NO buildIntentUrl — we never fake an
+ * "Open in Instagram" button. The honest hand-off is: download the images +
+ * copy the caption, then post from the phone. Its two output modes (a caption
+ * with hashtags, or a branded square-image carousel) are handled by the dialog
+ * via outputKind: 'instagram'.
+ */
+export const INSTAGRAM_TEMPLATE: SocialTemplate = {
+  id: 'instagram',
+  label: 'Instagram',
+  shareLabel: 'Share to Instagram',
+  tooltip: 'Turn this branch into an Instagram caption or a branded square-image carousel — you download and post it yourself from your phone.',
+  iconKey: 'instagram',
+  outputKind: 'instagram',
+  charLimit: 2200,
+  supportsThread: false,
+  supportsSingle: false,
+  // Prompt rules live in the Instagram AI flow (generate-instagram-post.ts),
+  // which needs mode-specific guidance the flat promptRules string can't carry.
+  promptRules: 'Platform: Instagram. Warm, human voice; natural hashtags; caption or branded carousel slides.',
+  // No buildIntentUrl by design — Instagram has no honest desktop compose intent.
+  intentNote:
+    'Instagram posts from your phone — download these and post from the Instagram app. IdeaM never posts for you.',
+  fileExtension: 'txt',
+};
+
 /** The registry. Add a new template here to support a new platform. */
-export const SOCIAL_TEMPLATES: SocialTemplate[] = [X_TEMPLATE];
+export const SOCIAL_TEMPLATES: SocialTemplate[] = [X_TEMPLATE, INSTAGRAM_TEMPLATE];
 
 /** Look up a template by id. */
 export function getSocialTemplate(id: string): SocialTemplate | undefined {

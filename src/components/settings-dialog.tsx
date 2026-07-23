@@ -14,9 +14,11 @@ import {
   getSocialExportEnabled,
   getSocialExportConsentGranted,
   getShareToXEnabled,
+  getShareToInstagramEnabled,
   setSocialExportEnabled as persistSocialExportEnabled,
   grantSocialExportConsent,
   setShareToXEnabled as persistShareToXEnabled,
+  setShareToInstagramEnabled as persistShareToInstagramEnabled,
 } from '@/lib/use-social-export-settings';
 import {
   getEmailToolsEnabled,
@@ -181,6 +183,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
   // enable shows a short honest note. Per-platform sub-toggles are extensible.
   const [socialExportEnabled, setSocialExportEnabledState] = useState<boolean>(false);
   const [shareToXEnabled, setShareToXEnabledState] = useState<boolean>(true);
+  const [shareToInstagramEnabled, setShareToInstagramEnabledState] = useState<boolean>(true);
   const [socialConsentMode, setSocialConsentMode] = useState<null | 'enable' | 'review'>(null);
 
   // Outline-backup auto-snapshot toggles (2026-06-10). Both default ON.
@@ -298,6 +301,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
     // Load "Social export" settings (off by default).
     setSocialExportEnabledState(getSocialExportEnabled());
     setShareToXEnabledState(getShareToXEnabled());
+    setShareToInstagramEnabledState(getShareToInstagramEnabled());
 
     // Load API keys
     const savedKeys: Record<string, string> = {};
@@ -341,6 +345,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
       setVoiceUpdatedAt(getVoiceUpdatedAt());
       setSocialExportEnabledState(getSocialExportEnabled());
       setShareToXEnabledState(getShareToXEnabled());
+      setShareToInstagramEnabledState(getShareToInstagramEnabled());
     }
   }, [open]);
 
@@ -893,6 +898,11 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
   const handleShareToXToggle = (checked: boolean) => {
     setShareToXEnabledState(checked);
     persistShareToXEnabled(checked);
+  };
+
+  const handleShareToInstagramToggle = (checked: boolean) => {
+    setShareToInstagramEnabledState(checked);
+    persistShareToInstagramEnabled(checked);
   };
 
   // --- "Your Voice" handlers -------------------------------------------------
@@ -1573,8 +1583,24 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
                   <p className="text-xs text-muted-foreground">
                     Adds a &ldquo;Share to Social&rdquo; action to a selected branch — draft an X thread or single post, optionally in your voice, then copy it, open it in X, or download it.
                   </p>
+
+                  <div className="flex items-center justify-between pt-2">
+                    <Label htmlFor="social-feature-instagram" className="text-sm font-normal">
+                      Share to Instagram (caption or carousel)
+                    </Label>
+                    <Switch
+                      id="social-feature-instagram"
+                      data-testid="social-feature-instagram"
+                      checked={shareToInstagramEnabled}
+                      onCheckedChange={handleShareToInstagramToggle}
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Draft an Instagram caption with natural hashtags, or a branded square-image carousel (a hook cover plus one point per card) — optionally in your voice. Download the images and caption, then post from the Instagram app.
+                  </p>
+
                   <p className="text-xs text-muted-foreground pt-1">
-                    More platforms (Instagram, LinkedIn, Threads, Bluesky, YouTube, and more) are coming — each will appear here as its own switch.
+                    More platforms (LinkedIn, Threads, Bluesky, YouTube, and more) are coming — each will appear here as its own switch.
                   </p>
                 </div>
               </div>

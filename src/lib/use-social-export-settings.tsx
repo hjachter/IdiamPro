@@ -32,6 +32,8 @@ export const SOCIAL_EXPORT_STORAGE_KEYS = {
   consent: 'socialExport.consent',
   /** Per-platform sub-toggle: Share to X. */
   x: 'socialExport.platform.x',
+  /** Per-platform sub-toggle: Share to Instagram. */
+  instagram: 'socialExport.platform.instagram',
 } as const;
 
 /** Fired on any write so every mounted consumer re-reads immediately. */
@@ -63,9 +65,15 @@ export function getSocialExportConsentGranted(): boolean {
 export function getShareToXEnabled(): boolean {
   return readBool(SOCIAL_EXPORT_STORAGE_KEYS.x, true);
 }
+export function getShareToInstagramEnabled(): boolean {
+  return readBool(SOCIAL_EXPORT_STORAGE_KEYS.instagram, true);
+}
 /** The single question the surface asks: is Share to X live right now? */
 export function isShareToXAvailable(): boolean {
   return getSocialExportEnabled() && getShareToXEnabled();
+}
+export function isShareToInstagramAvailable(): boolean {
+  return getSocialExportEnabled() && getShareToInstagramEnabled();
 }
 
 // ---- Plain setters -------------------------------------------------------
@@ -79,6 +87,9 @@ export function grantSocialExportConsent() {
 export function setShareToXEnabled(on: boolean) {
   writeAndNotify(SOCIAL_EXPORT_STORAGE_KEYS.x, on ? 'true' : 'false');
 }
+export function setShareToInstagramEnabled(on: boolean) {
+  writeAndNotify(SOCIAL_EXPORT_STORAGE_KEYS.instagram, on ? 'true' : 'false');
+}
 
 export interface SocialExportSettings {
   /** Master gate — when false, ALL social-export features are hidden/disabled. */
@@ -87,13 +98,18 @@ export interface SocialExportSettings {
   consentGranted: boolean;
   /** Share to X sub-toggle (only meaningful when master is on). */
   shareToXEnabled: boolean;
+  /** Share to Instagram sub-toggle (only meaningful when master is on). */
+  shareToInstagramEnabled: boolean;
   /** Convenience: master AND the Share to X sub-toggle. */
   shareToXAvailable: boolean;
+  /** Convenience: master AND the Share to Instagram sub-toggle. */
+  shareToInstagramAvailable: boolean;
   /** Convenience: is ANY social platform available right now (drives the group). */
   socialExportAvailable: boolean;
   setSocialExportEnabled: (on: boolean) => void;
   grantConsent: () => void;
   setShareToXEnabled: (on: boolean) => void;
+  setShareToInstagramEnabled: (on: boolean) => void;
 }
 
 /**
@@ -105,6 +121,7 @@ export function useSocialExportSettings(): SocialExportSettings {
     socialExportEnabled: false,
     consentGranted: false,
     shareToXEnabled: true,
+    shareToInstagramEnabled: true,
   });
 
   const refresh = useCallback(() => {
@@ -112,6 +129,7 @@ export function useSocialExportSettings(): SocialExportSettings {
       socialExportEnabled: getSocialExportEnabled(),
       consentGranted: getSocialExportConsentGranted(),
       shareToXEnabled: getShareToXEnabled(),
+      shareToInstagramEnabled: getShareToInstagramEnabled(),
     });
   }, []);
 
@@ -127,13 +145,16 @@ export function useSocialExportSettings(): SocialExportSettings {
   }, [refresh]);
 
   const shareToXAvailable = state.socialExportEnabled && state.shareToXEnabled;
+  const shareToInstagramAvailable = state.socialExportEnabled && state.shareToInstagramEnabled;
   return {
     ...state,
     shareToXAvailable,
+    shareToInstagramAvailable,
     // Available if the master is on AND at least one platform sub-toggle is on.
-    socialExportAvailable: state.socialExportEnabled && state.shareToXEnabled,
+    socialExportAvailable: state.socialExportEnabled && (state.shareToXEnabled || state.shareToInstagramEnabled),
     setSocialExportEnabled,
     grantConsent: grantSocialExportConsent,
     setShareToXEnabled,
+    setShareToInstagramEnabled,
   };
 }

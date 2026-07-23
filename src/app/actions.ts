@@ -9,6 +9,7 @@ import { transformOutline, type TransformOutlineInput, type TransformOutlineResu
 import { generateEmail, type GenerateEmailInput, type GenerateEmailResult } from '@/ai/flows/generate-email';
 import { distillVoiceProfile, type DistillVoiceProfileInput, type DistillVoiceProfileResult } from '@/ai/flows/distill-voice-profile';
 import { generateSocialPost, type GenerateSocialPostInput, type GenerateSocialPostResult } from '@/ai/flows/generate-social-post';
+import { generateInstagramPost, type GenerateInstagramInput, type GenerateInstagramResult } from '@/ai/flows/generate-instagram-post';
 import { interpretCommand, type InterpretCommandInput, type InterpretedCommand } from '@/ai/flows/interpret-command';
 import { transcribeAudio as transcribeAudioWithGemini, type TranscribeAudioInput, type TranscribeAudioResult } from '@/ai/flows/transcribe-audio';
 import { refreshNodeContent, type RefreshNodeInput } from '@/ai/flows/refresh-node-content';
@@ -467,6 +468,32 @@ export async function generateSocialPostAction(
     console.error('Error generating social post:', message);
     return {
       posts: [],
+      model: input.useLocal ? 'Local' : 'Gemini',
+      modelProvider: input.useLocal ? 'local' : 'cloud',
+      error: message,
+    };
+  }
+}
+
+/**
+ * Share to Instagram — turn a selected branch into an Instagram caption (with
+ * natural hashtags) OR a carousel: short slide lines the client renders into
+ * branded square images, plus the accompanying caption + hashtags. Sibling of
+ * generateSocialPostAction: same Gemini-with-Ollama fallback, same BYOK contract.
+ * Counts as 1 AI generation (gated on the client via useAIUsageGate).
+ */
+export async function generateInstagramPostAction(
+  input: GenerateInstagramInput,
+): Promise<GenerateInstagramResult> {
+  try {
+    return await generateInstagramPost(input);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Instagram content generation failed';
+    console.error('Error generating Instagram content:', message);
+    return {
+      caption: '',
+      hashtags: [],
+      slides: [],
       model: input.useLocal ? 'Local' : 'Gemini',
       modelProvider: input.useLocal ? 'local' : 'cloud',
       error: message,
