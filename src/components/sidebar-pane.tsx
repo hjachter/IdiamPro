@@ -56,6 +56,7 @@ import { templates, type Template } from '@/lib/templates';
 import type { Outline } from '@/types';
 import type { LazyOutline } from '@/lib/storage-manager';
 import { cn } from '@/lib/utils';
+import { useOutlineSort, sortOutlines, OutlineSortControl } from '@/lib/use-outline-sort';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { fireDiscovery, useDiscovery } from '@/hooks/use-discovery';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -140,6 +141,7 @@ export default function SidebarPane({
   const [contextMenuOutline, setContextMenuOutline] = useState<Outline | null>(null);
   const [contextMenuPosition, setContextMenuPosition] = useState<{ x: number; y: number } | null>(null);
   const [outlineSearch, setOutlineSearch] = useState('');
+  const { sortMode, setSortMode } = useOutlineSort();
 
   // Discovery: fire once on the first sidebar mount so the registry can
   // surface library-organisation tips. Dedupe is handled inside the hook.
@@ -156,10 +158,9 @@ export default function SidebarPane({
     index === self.findIndex(o => o.id === outline.id)
   );
 
-  // Sort user outlines alphabetically by name (case-insensitive)
-  const sortedOutlines = [...uniqueUserOutlines].sort((a, b) => {
-    return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
-  });
+  // Sort user outlines by the user's chosen mode (Recent = most-recently
+  // modified first, the default; or Name = A–Z). Persisted across sessions.
+  const sortedOutlines = sortOutlines(uniqueUserOutlines, sortMode);
 
   // Filter outlines by search query
   const searchLower = outlineSearch.toLowerCase();
@@ -479,7 +480,8 @@ export default function SidebarPane({
         <div className="flex items-center gap-2 px-3 pt-2.5 pb-1.5 bg-muted/40">
           <FileText className="h-4 w-4 text-primary/70" />
           <span className="text-[11px] font-semibold uppercase tracking-wider text-foreground/80">Outlines</span>
-          <span className="ml-auto text-[11px] text-muted-foreground/70 tabular-nums font-medium">
+          <OutlineSortControl sortMode={sortMode} setSortMode={setSortMode} className="ml-auto" />
+          <span className="text-[11px] text-muted-foreground/70 tabular-nums font-medium">
             {outlineSearch ? `${filteredOutlines.length} / ${uniqueUserOutlines.length}` : uniqueUserOutlines.length}
           </span>
         </div>
@@ -836,11 +838,12 @@ function OutlineRow(props: OutlineRowProps) {
           onKeyDown={handleRenameKeyDown}
           onClick={(e) => e.stopPropagation()}
           className="h-6 text-sm flex-1"
+          data-testid="outline-rename-input"
           autoFocus
         />
       ) : (
         <>
-          <span className="truncate flex-1">
+          <span className="truncate flex-1" data-testid="sidebar-outline-name" data-outline-name={outline.name}>
             {outline.name}
             {isOrphanDerivative && (
               <span className="ml-1.5 text-xs text-muted-foreground/70 italic">

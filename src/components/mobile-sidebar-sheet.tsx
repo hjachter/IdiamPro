@@ -45,6 +45,7 @@ import { Input } from '@/components/ui/input';
 import { templates, type Template } from '@/lib/templates';
 import type { Outline } from '@/types';
 import { cn } from '@/lib/utils';
+import { useOutlineSort, sortOutlines, OutlineSortControl } from '@/lib/use-outline-sort';
 
 interface MobileSidebarSheetProps {
   open: boolean;
@@ -77,6 +78,7 @@ export default function MobileSidebarSheet({
 }: MobileSidebarSheetProps) {
   const [templatesOpen, setTemplatesOpen] = useState(false);
   const [outlineSearch, setOutlineSearch] = useState('');
+  const { sortMode, setSortMode } = useOutlineSort();
 
   // Inline rename state
   const [renamingOutlineId, setRenamingOutlineId] = useState<string | null>(null);
@@ -95,10 +97,9 @@ export default function MobileSidebarSheet({
   const guide = outlines.find(o => o.isGuide);
   const userOutlines = outlines.filter(o => !o.isGuide);
 
-  // Sort user outlines alphabetically by name (case-insensitive)
-  const sortedOutlines = [...userOutlines].sort((a, b) => {
-    return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
-  });
+  // Sort user outlines by the user's chosen mode (Recent = most-recently
+  // modified first, the default; or Name = A–Z). Persisted across sessions.
+  const sortedOutlines = sortOutlines(userOutlines, sortMode);
 
   // Filter outlines by search query
   const searchLower = outlineSearch.toLowerCase();
@@ -450,7 +451,8 @@ export default function MobileSidebarSheet({
         <div className="flex-shrink-0 flex items-center gap-2 px-4 py-1 border-b border-border/40 bg-muted/30">
           <FileText className="h-3.5 w-3.5 text-muted-foreground" />
           <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Outlines</span>
-          <span className="ml-auto text-[10px] text-muted-foreground/70 tabular-nums">
+          <OutlineSortControl sortMode={sortMode} setSortMode={setSortMode} className="ml-auto" />
+          <span className="text-[10px] text-muted-foreground/70 tabular-nums">
             {outlineSearch ? `${filteredOutlines.length} / ${userOutlines.length}` : userOutlines.length}
           </span>
         </div>

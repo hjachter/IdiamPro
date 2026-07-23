@@ -191,14 +191,26 @@ export default function OutlinePro() {
           redoStackRef.current = [];
         }
       }
-      for (const outline of next) {
+      // Stamp lastModified on genuinely-changed (non-guide) outlines so the
+      // in-memory list reflects edit recency immediately — this is what lets
+      // the sidebar's "Recent" sort float a just-edited outline to the top
+      // live, and it matches what the autosave already persists to disk. Only
+      // changed outlines get a new object; unchanged ones keep their identity.
+      const now = Date.now();
+      let anyStamped = false;
+      const stamped = next.map(outline => {
         const prevOutline = prev.find(o => o.id === outline.id);
         if (!prevOutline || prevOutline !== outline) {
           dirtyOutlineIdsRef.current.add(outline.id);
-          lastEditTimeRef.current.set(outline.id, Date.now());
+          lastEditTimeRef.current.set(outline.id, now);
+          if (!outline.isGuide) {
+            anyStamped = true;
+            return { ...outline, lastModified: now };
+          }
         }
-      }
-      return next;
+        return outline;
+      });
+      return anyStamped ? stamped : next;
     });
   }, []);
 
