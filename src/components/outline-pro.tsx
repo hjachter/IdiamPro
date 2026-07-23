@@ -54,7 +54,9 @@ import SummarizeOutlineDialog from './summarize-outline-dialog';
 import ImageToOutlineDialog, { type ImageToOutlineApplyPayload } from './image-to-outline-dialog';
 import YoutubePackageDialog from './youtube-package-dialog';
 import GenerateVideoDialog from './generate-video-dialog';
+import ExportEmailDialog from './export-email-dialog';
 import { useFeatureFlag } from './feature-flags-provider';
+import { useEmailToolsSettings } from '@/lib/use-email-tools-settings';
 import { insertProposedNodes } from '@/lib/multimedia/insert-proposed-nodes';
 import type { YoutubePackage } from '@/app/actions';
 import { mergeTransformedSubtreeIntoOutline } from '@/lib/transform-outline-helpers';
@@ -440,6 +442,16 @@ export default function OutlinePro() {
   // Summarize Outline dialog state — distills the WHOLE current outline into a
   // concise gist. Reuses the Transform pipeline + apply handler (2026-07-22).
   const [isSummarizeOutlineOpen, setIsSummarizeOutlineOpen] = useState(false);
+  // Export Email (2026-07-22) — turn the selected branch into a ready-to-send email.
+  // Strictly gated behind the opt-in "Email tools" master switch (off by
+  // default) plus the Export Email sub-toggle. When unavailable, the handler
+  // is undefined so the action doesn't render anywhere in the app.
+  const [isExportEmailOpen, setIsExportEmailOpen] = useState(false);
+  const { exportEmailAvailable } = useEmailToolsSettings();
+  const openExportEmail = React.useMemo(
+    () => (exportEmailAvailable ? () => setIsExportEmailOpen(true) : undefined),
+    [exportEmailAvailable],
+  );
   const [isApplicationsOpen, setIsApplicationsOpen] = useState(false);
   const [runningApplicationId, setRunningApplicationId] = useState<string | null>(null);
 
@@ -4950,6 +4962,7 @@ export default function OutlinePro() {
           onOpenImageToOutline={() => setIsImageToOutlineOpen(true)}
           onOpenYoutubePackage={() => setIsYoutubePackageOpen(true)}
           onOpenGenerateVideo={handleOpenGenerateVideo}
+          onOpenExportEmail={openExportEmail}
           onOpenTemplates={() => setIsTemplatesDialogOpen(true)}
           isGuide={currentOutline?.isGuide ?? false}
           isFocusMode={isFocusMode}
@@ -5032,6 +5045,15 @@ export default function OutlinePro() {
           outline={currentOutline}
           selectedNodeId={selectedNodeId}
         />
+
+<ExportEmailDialog
+  open={isExportEmailOpen}
+  onOpenChange={setIsExportEmailOpen}
+  nodes={currentOutline?.nodes ?? null}
+  rootNodeId={selectedNodeId}
+  scopeLabel={selectedNodeId ? currentOutline?.nodes?.[selectedNodeId]?.name : undefined}
+  outlineName={currentOutline?.name}
+/>
 
         <ReformatDialog
           open={isReformatOpen}
@@ -5338,6 +5360,7 @@ export default function OutlinePro() {
           onOpenImageToOutline={() => setIsImageToOutlineOpen(true)}
           onOpenYoutubePackage={() => setIsYoutubePackageOpen(true)}
           onOpenGenerateVideo={handleOpenGenerateVideo}
+          onOpenExportEmail={openExportEmail}
                 onCreateChildNode={handleCreateSiblingNode}
                 justCreatedNodeId={justCreatedNodeIdRef.current}
                 editingNodeId={editingNodeId}
@@ -5578,6 +5601,15 @@ export default function OutlinePro() {
         outline={currentOutline}
         selectedNodeId={selectedNodeId}
       />
+
+<ExportEmailDialog
+  open={isExportEmailOpen}
+  onOpenChange={setIsExportEmailOpen}
+  nodes={currentOutline?.nodes ?? null}
+  rootNodeId={selectedNodeId}
+  scopeLabel={selectedNodeId ? currentOutline?.nodes?.[selectedNodeId]?.name : undefined}
+  outlineName={currentOutline?.name}
+/>
 
       <ReformatDialog
         open={isReformatOpen}
@@ -5903,6 +5935,7 @@ export default function OutlinePro() {
           onOpenImageToOutline={() => setIsImageToOutlineOpen(true)}
           onOpenYoutubePackage={() => setIsYoutubePackageOpen(true)}
           onOpenGenerateVideo={handleOpenGenerateVideo}
+          onOpenExportEmail={openExportEmail}
                 onCreateChildNode={handleCreateSiblingNode}
                 justCreatedNodeId={justCreatedNodeIdRef.current}
                 editingNodeId={editingNodeId}

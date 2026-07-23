@@ -36,6 +36,7 @@ import {
   WandSparkles,
   Wand2,
   ListTree,
+  Mail,
 } from 'lucide-react';
 import { useInputModePreference } from '@/lib/use-input-mode-preference';
 import { getMicPermissionHelp } from '@/lib/platform-help';
@@ -69,6 +70,7 @@ interface CommandPaletteProps {
   onOpenImageToOutline?: () => void;
   onOpenYoutubePackage?: () => void;
   onOpenGenerateVideo?: () => void;
+  onOpenExportEmail?: () => void;
   isGuide: boolean;
   isFocusMode?: boolean;
   onAICommand?: (text: string) => void;
@@ -99,6 +101,7 @@ export default function CommandPalette({
   onOpenReformat,
   onOpenTransformOutline,
   onOpenSummarizeOutline,
+  onOpenExportEmail,
   isGuide,
   isFocusMode,
   onAICommand,
@@ -499,6 +502,12 @@ export default function CommandPalette({
             <CommandItem onSelect={() => runCommand(onOpenSummarizeOutline)}>
               <ListTree className="mr-2 h-4 w-4" />
               <span>Summarize outline</span>
+            </CommandItem>
+          )}
+          {onOpenExportEmail && !isGuide && (
+            <CommandItem onSelect={() => runCommand(onOpenExportEmail)}>
+              <Mail className="mr-2 h-4 w-4" />
+              <span>Export Email</span>
             </CommandItem>
           )}
           {onOpenBulkResearch && (

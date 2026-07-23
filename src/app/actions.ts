@@ -6,6 +6,7 @@ import { suggestTags } from '@/ai/flows/suggest-tags';
 import { translateNodeContent, type TranslateNodeInput } from '@/ai/flows/translate-node-content';
 import { reformatContent, type ReformatContentInput, type ReformatContentResult } from '@/ai/flows/reformat-content';
 import { transformOutline, type TransformOutlineInput, type TransformOutlineResult } from '@/ai/flows/transform-outline';
+import { generateEmail, type GenerateEmailInput, type GenerateEmailResult } from '@/ai/flows/generate-email';
 import { interpretCommand, type InterpretCommandInput, type InterpretedCommand } from '@/ai/flows/interpret-command';
 import { transcribeAudio as transcribeAudioWithGemini, type TranscribeAudioInput, type TranscribeAudioResult } from '@/ai/flows/transcribe-audio';
 import { refreshNodeContent, type RefreshNodeInput } from '@/ai/flows/refresh-node-content';
@@ -416,6 +417,31 @@ export async function transformOutlineAction(
       model: input.useLocal ? 'Local' : 'Gemini',
       modelProvider: input.useLocal ? 'local' : 'cloud',
       changed: false,
+      error: message,
+    };
+  }
+}
+
+/**
+ * Export Email — turn a selected branch (node + descendants) into a
+ * ready-to-send email (subject + body). Sibling of transformOutlineAction:
+ * same Gemini-with-Ollama fallback, same BYOK contract. Counts as 1 AI
+ * generation (gated on the client via useAIUsageGate 'exportEmail').
+ */
+export async function generateEmailAction(
+  input: GenerateEmailInput,
+): Promise<GenerateEmailResult> {
+  try {
+    return await generateEmail(input);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Email draft failed';
+    console.error('Error generating email:', message);
+    return {
+      subject: '',
+      bodyHtml: '',
+      bodyText: '',
+      model: input.useLocal ? 'Local' : 'Gemini',
+      modelProvider: input.useLocal ? 'local' : 'cloud',
       error: message,
     };
   }

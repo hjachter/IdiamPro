@@ -7,7 +7,18 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { Folder, Info, Smartphone, Cpu, Cloud, Loader2, CheckCircle, XCircle, Crown, Shield, Moon, Sun, Download, Trash2, AlertTriangle, Play, Sparkles, ShieldCheck, KeyRound, UserX, Settings as SettingsIcon, Mail, FlaskConical } from 'lucide-react';
+import { Folder, Info, Smartphone, Cpu, Cloud, Loader2, CheckCircle, XCircle, Crown, Shield, Moon, Sun, Download, Trash2, AlertTriangle, Play, Sparkles, ShieldCheck, KeyRound, UserX, Settings as SettingsIcon, Mail, FlaskConical, Briefcase } from 'lucide-react';
+import EmailToolsConsentDialog from './email-tools-consent-dialog';
+import {
+  getEmailToolsEnabled,
+  getEmailToolsConsentGranted,
+  getUserEmailAddress,
+  getExportEmailEnabled,
+  setEmailToolsEnabled as persistEmailToolsEnabled,
+  grantEmailToolsConsent,
+  setUserEmailAddress,
+  setExportEmailEnabled as persistExportEmailEnabled,
+} from '@/lib/use-email-tools-settings';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -59,7 +70,7 @@ import {
 const APP_VERSION = '1.0.0';
 
 // Settings categories for the side navigation.
-type SettingsCategory = 'general' | 'ai' | 'privacy' | 'account' | 'backups' | 'about' | 'developer';
+type SettingsCategory = 'general' | 'professional' | 'ai' | 'privacy' | 'account' | 'backups' | 'about' | 'developer';
 
 // Check if running in Capacitor native app (but NOT Electron)
 function isCapacitor(): boolean {
@@ -108,6 +119,15 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
 
   // AI depth setting
   const [aiDepth, setAiDepth] = useState<AIDepth>('standard');
+
+  // Professional Customization — opt-in Email tools (2026-07-22).
+  // Master gate is OFF by default; nothing email-related runs until it's on,
+  // and the first enable shows an honest consent/warning.
+  const [emailToolsEnabled, setEmailToolsEnabled] = useState<boolean>(false);
+  const [exportEmailEnabled, setExportEmailEnabled] = useState<boolean>(true);
+  const [userEmail, setUserEmail] = useState<string>('');
+  // Consent dialog: 'enable' = gating a fresh turn-on; 'review' = info-only.
+  const [emailConsentMode, setEmailConsentMode] = useState<null | 'enable' | 'review'>(null);
 
   // Outline-backup auto-snapshot toggles (2026-06-10). Both default ON.
   // Persisted to localStorage via snapshot-storage.ts.
@@ -209,6 +229,11 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
     setAutoSnapshotTransform(getAutoSnapshotBeforeTransform());
     setAutoSnapshotRestore(getAutoSnapshotBeforeRestore());
 
+    // Load Professional Customization / Email tools settings.
+    setEmailToolsEnabled(getEmailToolsEnabled());
+    setExportEmailEnabled(getExportEmailEnabled());
+    setUserEmail(getUserEmailAddress());
+
     // Load API keys
     const savedKeys: Record<string, string> = {};
     for (const provider of ['gemini', 'openai', 'anthropic', 'mistral', 'groq', 'assemblyai']) {
@@ -235,6 +260,18 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
     if (open) refreshUsageState();
   }, [open, refreshUsageState]);
 
+  // Re-sync the Professional Customization / Email tools controls each time the
+  // dialog opens, so they always reflect the current persisted state — these
+  // can change from outside this dialog (e.g. the Export Email flow's deep-link
+  // or a future surface), and the initial mount-time read alone would go stale.
+  useEffect(() => {
+    if (open) {
+      setEmailToolsEnabled(getEmailToolsEnabled());
+      setExportEmailEnabled(getExportEmailEnabled());
+      setUserEmail(getUserEmailAddress());
+    }
+  }, [open]);
+
   // Deep-link target: when any surface (e.g. the paywall dialog's "Use own
   // key" button) fires 'open-ai-key-settings', open Settings and scroll the
   // AI Service Keys section into view so the user lands right on it.
@@ -253,6 +290,24 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
     window.addEventListener('open-ai-key-settings', handleOpenAiKeys);
     return () =>
       window.removeEventListener('open-ai-key-settings', handleOpenAiKeys);
+  }, [setOpen]);
+
+  // Deep-link: surfaces (e.g. the Export Email dialog's "add your email"
+  // prompt) fire 'open-professional-settings' to land the user right on the
+  // Professional Customization panel where the email address lives.
+  useEffect(() => {
+    const handleOpenProfessional = () => {
+      setOpen(true);
+      setActiveCategory('professional');
+      setTimeout(() => {
+        document
+          .getElementById('email-tools-section')
+          ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 250);
+    };
+    window.addEventListener('open-professional-settings', handleOpenProfessional);
+    return () =>
+      window.removeEventListener('open-professional-settings', handleOpenProfessional);
   }, [setOpen]);
 
   // Check Ollama status when dialog opens
@@ -673,6 +728,53 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
     });
   };
 
+  // --- Professional Customization / Email tools handlers ---
+
+  // Master toggle. Turning ON the FIRST time (no prior consent) shows the
+  // consent/warning first and does NOT enable until the user picks "Enable".
+  // Turning ON again (consent already granted) enables directly. Turning OFF
+  // disables immediately (consent is remembered so it won't re-prompt).
+  const handleEmailToolsToggle = (checked: boolean) => {
+    if (checked) {
+      if (getEmailToolsConsentGranted()) {
+        setEmailToolsEnabled(true);
+        persistEmailToolsEnabled(true);
+      } else {
+        // Defer the actual enable to the consent dialog's "Enable".
+        setEmailConsentMode('enable');
+      }
+    } else {
+      setEmailToolsEnabled(false);
+      persistEmailToolsEnabled(false);
+    }
+  };
+
+  const handleEmailConsentEnable = () => {
+    grantEmailToolsConsent();
+    setEmailToolsEnabled(true);
+    persistEmailToolsEnabled(true);
+    setEmailConsentMode(null);
+    toast({
+      title: 'Email tools enabled',
+      description: 'Export Email is now available on a selected branch. You can turn this off anytime.',
+    });
+  };
+
+  const handleEmailConsentCancel = () => {
+    // Enabling did NOT proceed — the master stays off.
+    setEmailConsentMode(null);
+  };
+
+  const handleExportEmailToggle = (checked: boolean) => {
+    setExportEmailEnabled(checked);
+    persistExportEmailEnabled(checked);
+  };
+
+  const handleUserEmailChange = (value: string) => {
+    setUserEmail(value);
+    setUserEmailAddress(value.trim());
+  };
+
   const handleSelectFolder = async () => {
     try {
       // Use Electron dialog if available
@@ -762,6 +864,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
           <nav className="flex sm:flex-col gap-1 overflow-x-auto sm:w-44 sm:shrink-0 -mx-1 px-1 sm:mx-0 sm:px-0">
             {([
               { id: 'general', label: 'General', icon: SettingsIcon },
+              { id: 'professional', label: 'Professional Customization', icon: Briefcase },
               { id: 'ai', label: 'AI', icon: Sparkles },
               { id: 'privacy', label: 'Privacy & Data', icon: Shield },
               { id: 'account', label: 'Account', icon: Crown },
@@ -919,6 +1022,90 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
                 Restore
               </Button>
             </div>
+          </div>
+          </>)}
+
+          {activeCategory === 'professional' && (<>
+          <div id="email-tools-section" className="space-y-3">
+            <h3 className="text-sm font-medium flex items-center gap-2">
+              <Briefcase className="h-4 w-4" />
+              Email tools
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              Opt-in power features for turning your outlines into emails. Off until you turn them on — IdeaM never touches your email automatically, and you always review and hit send yourself.
+            </p>
+
+            {/* MASTER toggle — off by default. */}
+            <div className="flex items-center justify-between pt-1">
+              <div className="flex items-center gap-1.5">
+                <Label htmlFor="email-tools-master" className="text-sm">
+                  Email tools
+                </Label>
+                <button
+                  type="button"
+                  data-testid="email-tools-info"
+                  aria-label="What email tools do"
+                  onClick={() => setEmailConsentMode('review')}
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  <Info className="h-3.5 w-3.5" />
+                </button>
+              </div>
+              <Switch
+                id="email-tools-master"
+                data-testid="email-tools-master"
+                checked={emailToolsEnabled}
+                onCheckedChange={handleEmailToolsToggle}
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Master switch. When off, everything email-related is hidden. Turning it on the first time shows a short, honest explanation before anything is enabled.
+            </p>
+
+            {emailToolsEnabled && (
+              <div className="space-y-4 rounded-lg border border-border/60 p-3">
+                {/* Your email address */}
+                <div className="space-y-1.5">
+                  <Label htmlFor="email-tools-address" className="text-sm">
+                    Your email address <span className="text-muted-foreground font-normal">(optional)</span>
+                  </Label>
+                  <Input
+                    id="email-tools-address"
+                    data-testid="email-tools-address"
+                    type="email"
+                    inputMode="email"
+                    autoComplete="email"
+                    placeholder="you@example.com"
+                    value={userEmail}
+                    onChange={(e) => handleUserEmailChange(e.target.value)}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Used to open Gmail on the right account and to sign off drafts as you. Kept on your device.
+                  </p>
+                </div>
+
+                {/* Granular sub-toggles (extensible — Import & Filter come later). */}
+                <div className="space-y-2">
+                  <Label className="text-xs uppercase tracking-wide text-muted-foreground">
+                    Features
+                  </Label>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="email-feature-export" className="text-sm font-normal">
+                      Turn an outline into an email (Export Email)
+                    </Label>
+                    <Switch
+                      id="email-feature-export"
+                      data-testid="email-feature-export"
+                      checked={exportEmailEnabled}
+                      onCheckedChange={handleExportEmailToggle}
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Adds an &ldquo;Export Email&rdquo; action to a selected branch — draft it, then hand off to Gmail, your mail app, the clipboard, or a download.
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
           </>)}
 
@@ -1862,6 +2049,14 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Email tools consent / warning — first enable, and info-review. */}
+      <EmailToolsConsentDialog
+        open={emailConsentMode !== null}
+        reviewOnly={emailConsentMode === 'review'}
+        onEnable={handleEmailConsentEnable}
+        onCancel={handleEmailConsentCancel}
+      />
     </Dialog>
   );
 }
