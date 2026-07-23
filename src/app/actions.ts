@@ -7,6 +7,7 @@ import { translateNodeContent, type TranslateNodeInput } from '@/ai/flows/transl
 import { reformatContent, type ReformatContentInput, type ReformatContentResult } from '@/ai/flows/reformat-content';
 import { transformOutline, type TransformOutlineInput, type TransformOutlineResult } from '@/ai/flows/transform-outline';
 import { generateEmail, type GenerateEmailInput, type GenerateEmailResult } from '@/ai/flows/generate-email';
+import { distillVoiceProfile, type DistillVoiceProfileInput, type DistillVoiceProfileResult } from '@/ai/flows/distill-voice-profile';
 import { interpretCommand, type InterpretCommandInput, type InterpretedCommand } from '@/ai/flows/interpret-command';
 import { transcribeAudio as transcribeAudioWithGemini, type TranscribeAudioInput, type TranscribeAudioResult } from '@/ai/flows/transcribe-audio';
 import { refreshNodeContent, type RefreshNodeInput } from '@/ai/flows/refresh-node-content';
@@ -442,6 +443,30 @@ export async function generateEmailAction(
       subject: '',
       bodyHtml: '',
       bodyText: '',
+      model: input.useLocal ? 'Local' : 'Gemini',
+      modelProvider: input.useLocal ? 'local' : 'cloud',
+      error: message,
+    };
+  }
+}
+
+/**
+ * Your Voice — distill a reusable VOICE PROFILE from the user's OWN writing
+ * samples (pasted text and/or a sample of their Second Brain). Sibling of
+ * generateEmailAction: same Gemini-with-Ollama fallback, same BYOK contract.
+ * Counts as 1 AI generation (gated on the client via useAIUsageGate). The
+ * result is the user's own style description — never a third-party impersonation.
+ */
+export async function distillVoiceProfileAction(
+  input: DistillVoiceProfileInput,
+): Promise<DistillVoiceProfileResult> {
+  try {
+    return await distillVoiceProfile(input);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Voice profile failed';
+    console.error('Error distilling voice profile:', message);
+    return {
+      profile: '',
       model: input.useLocal ? 'Local' : 'Gemini',
       modelProvider: input.useLocal ? 'local' : 'cloud',
       error: message,

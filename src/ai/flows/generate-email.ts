@@ -45,6 +45,11 @@ export interface GenerateEmailInput {
   guidance?: string;
   /** The sender's own email address — personalizes the sign-off if provided. */
   senderEmail?: string;
+  /** "Your Voice" — the user's OWN distilled writing-style profile. When set,
+   *  the email is drafted to match the sender's personal voice. Never a
+   *  third-party impersonation; this is the user's own style, from their own
+   *  samples (see distill-voice-profile). */
+  voiceProfile?: string;
   /** Force local Ollama. */
   useLocal?: boolean;
   /** Optional BYOK Gemini key. */
@@ -148,10 +153,17 @@ function buildPrompt(input: GenerateEmailInput): string {
   const tone = input.tone || 'friendly-professional';
   const guidance = input.guidance?.trim();
   const senderName = nameFromEmail(input.senderEmail);
+  const voice = input.voiceProfile?.trim();
+  // "In my voice" — the sender's own distilled style takes priority over the
+  // generic tone preset. It describes THIS person's writing, from their own
+  // samples; it is never an impersonation of anyone else.
+  const voiceBlock = voice
+    ? `\nWRITE IN THE SENDER'S OWN VOICE. Match this description of the sender's personal writing style as closely as you can — its tone, formality, sentence rhythm, vocabulary, punctuation, and any emoji/quirks — while still producing a coherent email. This is the sender's OWN voice, from their own writing; do not imitate anyone else:\n"""\n${voice}\n"""\n`
+    : '';
   return `${SYSTEM_INSTRUCTIONS}
 
 TONE: ${TONE_GUIDANCE[tone]}
-${guidance ? `\nEXTRA INSTRUCTION FROM THE SENDER: "${guidance}"\n` : ''}${senderName ? `\nSENDER NAME (use it on the sign-off name line, e.g. "Best regards,\\n${senderName}"): ${senderName}\n` : ''}
+${voiceBlock}${guidance ? `\nEXTRA INSTRUCTION FROM THE SENDER: "${guidance}"\n` : ''}${senderName ? `\nSENDER NAME (use it on the sign-off name line, e.g. "Best regards,\\n${senderName}"): ${senderName}\n` : ''}
 OUTLINE NAME: ${input.currentOutlineName || '(untitled)'}
 
 OUTLINE BRANCH TO TURN INTO AN EMAIL:

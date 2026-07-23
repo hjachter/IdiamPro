@@ -54,7 +54,22 @@ import {
   setAutoSnapshotBeforeRestore,
   showSnapshotsFolder,
 } from '@/lib/snapshot-storage';
-import { checkOllamaStatusAction } from '@/app/actions';
+import { checkOllamaStatusAction, distillVoiceProfileAction } from '@/app/actions';
+import {
+  getVoiceEnabled,
+  getVoiceProfile,
+  getVoiceUpdatedAt,
+  setVoiceEnabled as persistVoiceEnabled,
+  setVoiceProfile as persistVoiceProfile,
+  clearVoiceProfile as persistClearVoiceProfile,
+} from '@/lib/use-voice-profile';
+import { loadStorageData } from '@/lib/storage-manager';
+import { getUserApiKey } from '@/lib/byok-keys';
+import { useAIUsageGate } from '@/lib/use-ai-usage-gate';
+import type { OutlineNode } from '@/types';
+import { Textarea } from '@/components/ui/textarea';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Mic } from 'lucide-react';
 import type { AIProvider, AIDepth } from '@/types';
 import { AI_DEPTH_CONFIG } from '@/types';
 import {
@@ -134,6 +149,22 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
   const [userEmail, setUserEmail] = useState<string>('');
   // Consent dialog: 'enable' = gating a fresh turn-on; 'review' = info-only.
   const [emailConsentMode, setEmailConsentMode] = useState<null | 'enable' | 'review'>(null);
+
+  // Professional Customization — "Your Voice" personal writing-style emulation
+  // (2026-07-22). Independent of Email tools; off by default. The user pastes
+  // (and/or pulls from their Second Brain) samples of their OWN writing, then
+  // the AI distills a reusable, editable VOICE PROFILE that the output wizards
+  // can apply via an "In my voice" option. Strictly the user's own voice —
+  // there is no third-party-impersonation path anywhere.
+  const [voiceEnabled, setVoiceEnabledState] = useState<boolean>(false);
+  const [voiceProfileText, setVoiceProfileText] = useState<string>('');
+  const [voiceUpdatedAt, setVoiceUpdatedAt] = useState<string>('');
+  const [voiceSamples, setVoiceSamples] = useState<string>('');
+  const [voiceUseLocal, setVoiceUseLocal] = useState<boolean>(false);
+  const [voiceGenerating, setVoiceGenerating] = useState<boolean>(false);
+  const [voiceError, setVoiceError] = useState<string | null>(null);
+  const [voiceBrainNote, setVoiceBrainNote] = useState<string | null>(null);
+  const { gate: aiUsageGate } = useAIUsageGate();
 
   // Outline-backup auto-snapshot toggles (2026-06-10). Both default ON.
   // Persisted to localStorage via snapshot-storage.ts.
@@ -242,6 +273,11 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
     setFileJunkAsideEnabled(getFileJunkAsideEnabled());
     setUserEmail(getUserEmailAddress());
 
+    // Load "Your Voice" settings (off by default).
+    setVoiceEnabledState(getVoiceEnabled());
+    setVoiceProfileText(getVoiceProfile());
+    setVoiceUpdatedAt(getVoiceUpdatedAt());
+
     // Load API keys
     const savedKeys: Record<string, string> = {};
     for (const provider of ['gemini', 'openai', 'anthropic', 'mistral', 'groq', 'assemblyai']) {
@@ -279,6 +315,9 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
       setImportEmailEnabled(getImportEmailEnabled());
       setFileJunkAsideEnabled(getFileJunkAsideEnabled());
       setUserEmail(getUserEmailAddress());
+      setVoiceEnabledState(getVoiceEnabled());
+      setVoiceProfileText(getVoiceProfile());
+      setVoiceUpdatedAt(getVoiceUpdatedAt());
     }
   }, [open]);
 
@@ -795,6 +834,108 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
     setUserEmailAddress(value.trim());
   };
 
+  // --- "Your Voice" handlers -------------------------------------------------
+
+  const handleVoiceToggle = (checked: boolean) => {
+    setVoiceEnabledState(checked);
+    persistVoiceEnabled(checked);
+    if (!checked) setVoiceError(null);
+  };
+
+  // Edit the distilled profile inline — persisted immediately so the output
+  // wizards pick it up. The user is always free to tweak what the AI "learned".
+  const handleVoiceProfileEdit = (value: string) => {
+    setVoiceProfileText(value);
+    persistVoiceProfile(value);
+    setVoiceUpdatedAt(new Date().toISOString());
+  };
+
+  const handleClearVoiceProfile = () => {
+    setVoiceProfileText('');
+    setVoiceUpdatedAt('');
+    persistClearVoiceProfile();
+  };
+
+  // Pull a representative sample of the user's OWN Second Brain content to use
+  // as source material, appended to whatever they've pasted. Second Brain is an
+  // ordinary outline flagged isSecondBrain; we walk it and collect readable text.
+  const handleLearnFromSecondBrain = async () => {
+    setVoiceBrainNote(null);
+    setVoiceError(null);
+    try {
+      const { outlines } = await loadStorageData();
+      const brain = outlines.find((o) => o.isSecondBrain);
+      if (!brain) {
+        setVoiceBrainNote("I couldn't find your Second Brain. Paste a few things you've written instead.");
+        return;
+      }
+      const parts: string[] = [];
+      const stripHtml = (html: string) =>
+        (html || '')
+          .replace(/<[^>]+>/g, ' ')
+          .replace(/&nbsp;/gi, ' ')
+          .replace(/&amp;/gi, '&')
+          .replace(/&lt;/gi, '<')
+          .replace(/&gt;/gi, '>')
+          .replace(/\s+/g, ' ')
+          .trim();
+      const walk = (id: string) => {
+        const n: OutlineNode | undefined = brain.nodes[id];
+        if (!n) return;
+        const text = stripHtml(n.content);
+        // Only collect substantive prose — skip bare labels/headers so the
+        // profile is drawn from real writing, not one-word node names.
+        if (text && text.length > 40) parts.push(text);
+        for (const childId of n.childrenIds || []) walk(childId);
+      };
+      walk(brain.rootNodeId);
+      const collected = parts.join('\n\n').slice(0, 8000);
+      if (!collected || collected.length < 60) {
+        setVoiceBrainNote('Your Second Brain doesn\'t have enough written content yet. Paste a few things you\'ve written instead.');
+        return;
+      }
+      setVoiceSamples((prev) => (prev.trim() ? `${prev.trim()}\n\n${collected}` : collected));
+      setVoiceBrainNote('Pulled a sample from your Second Brain into the box below. Generate your profile when ready.');
+    } catch {
+      setVoiceBrainNote("I couldn't read your Second Brain just now. Paste a few things you've written instead.");
+    }
+  };
+
+  const handleGenerateVoiceProfile = async () => {
+    const samples = voiceSamples.trim();
+    if (samples.length < 60) {
+      setVoiceError('Add a bit more of your own writing first — a few hundred words works best.');
+      return;
+    }
+    // Counts as 1 AI generation, exactly like the output wizards.
+    if (!aiUsageGate({ feature: 'distillVoiceProfile' })) return;
+    setVoiceError(null);
+    setVoiceGenerating(true);
+    try {
+      const r = await distillVoiceProfileAction({
+        samples,
+        existingProfile: voiceProfileText.trim() || undefined,
+        useLocal: voiceUseLocal,
+        userApiKey: getUserApiKey('gemini'),
+      });
+      if (r.error || !r.profile.trim()) {
+        setVoiceError(
+          `I couldn't build your voice profile. ${r.error || 'The AI returned nothing usable.'} Try again, switch to local AI, or check your API key in Settings.`,
+        );
+        return;
+      }
+      setVoiceProfileText(r.profile);
+      persistVoiceProfile(r.profile);
+      setVoiceUpdatedAt(new Date().toISOString());
+      toast({ title: 'Voice profile ready', description: 'Review and tweak it below — then pick "In my voice" in the output wizards.' });
+    } catch (e) {
+      const raw = e instanceof Error ? e.message : String(e);
+      setVoiceError(`Building your voice profile didn't go through. ${raw ? `Reason: ${raw}. ` : ''}Try again or switch to local AI.`);
+    } finally {
+      setVoiceGenerating(false);
+    }
+  };
+
   const handleSelectFolder = async () => {
     try {
       // Use Electron dialog if available
@@ -1160,6 +1301,155 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
                     </div>
                   )}
                 </div>
+              </div>
+            )}
+          </div>
+
+          {/* ── Your Voice — personal writing-style emulation (2026-07-22) ──── */}
+          <div id="your-voice-section" className="space-y-3 pt-6 mt-4 border-t border-border/60">
+            <h3 className="text-sm font-medium flex items-center gap-2">
+              <Mic className="h-4 w-4" />
+              Your Voice
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              Teach IdeaM your own writing style from samples of your writing, then generate outputs that sound like you. Strictly <strong>your own</strong> voice — this never imitates anyone else. Off until you turn it on, and you always review and edit what it produces.
+            </p>
+
+            {/* MASTER toggle — off by default. Independent of Email tools. */}
+            <div className="flex items-center justify-between pt-1">
+              <div className="flex items-center gap-1.5">
+                <Label htmlFor="your-voice-master" className="text-sm">
+                  Your Voice
+                </Label>
+                <TooltipProvider delayDuration={300}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="text-muted-foreground hover:text-foreground cursor-help">
+                        <Info className="h-3.5 w-3.5" />
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs">
+                      Learns your personal writing style from your own samples (and optionally your Second Brain), then adds an &ldquo;In my voice&rdquo; option to output wizards like Export Email and Summarize.
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              <Switch
+                id="your-voice-master"
+                data-testid="your-voice-master"
+                checked={voiceEnabled}
+                onCheckedChange={handleVoiceToggle}
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Master switch. When off, nothing style-related runs and the &ldquo;In my voice&rdquo; option stays hidden in the wizards.
+            </p>
+
+            {voiceEnabled && (
+              <div className="space-y-4 rounded-lg border border-border/60 p-3">
+                {/* Samples input — paste + optional Second Brain pull. */}
+                <div className="space-y-1.5">
+                  <Label htmlFor="voice-samples" className="text-sm">
+                    Paste a few things you&rsquo;ve written
+                  </Label>
+                  <Textarea
+                    id="voice-samples"
+                    data-testid="voice-samples"
+                    value={voiceSamples}
+                    onChange={(e) => setVoiceSamples(e.target.value)}
+                    placeholder="Paste some of your own posts, emails, or notes — a few hundred words is plenty. The more it sounds like you, the better."
+                    className="min-h-[140px] text-sm"
+                  />
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      data-testid="voice-learn-brain"
+                      onClick={handleLearnFromSecondBrain}
+                    >
+                      <Sparkles className="h-3.5 w-3.5 mr-1" />
+                      Learn from my Second Brain
+                    </Button>
+                    <span className="text-xs text-muted-foreground">
+                      Pulls a sample of your own saved writing into the box.
+                    </span>
+                  </div>
+                  {voiceBrainNote && (
+                    <p className="text-xs text-muted-foreground">{voiceBrainNote}</p>
+                  )}
+                </div>
+
+                {/* Local AI option — private, on-device. */}
+                <div className="flex items-center gap-2">
+                  <Switch
+                    id="voice-local"
+                    data-testid="voice-local"
+                    checked={voiceUseLocal}
+                    onCheckedChange={setVoiceUseLocal}
+                  />
+                  <Label htmlFor="voice-local" className="text-sm font-normal cursor-pointer">
+                    <Cpu className="inline h-3.5 w-3.5 mr-1" />
+                    Use local AI (private, on your machine)
+                  </Label>
+                </div>
+
+                {voiceError && (
+                  <div className="rounded-md border border-destructive/30 bg-destructive/10 p-2.5 text-xs text-destructive">
+                    <AlertTriangle className="inline h-3.5 w-3.5 mr-1" />
+                    {voiceError}
+                  </div>
+                )}
+
+                <Button
+                  type="button"
+                  data-testid="voice-generate"
+                  onClick={handleGenerateVoiceProfile}
+                  disabled={voiceGenerating}
+                >
+                  {voiceGenerating ? (
+                    <><Loader2 className="h-4 w-4 mr-1 animate-spin" /> Learning your voice…</>
+                  ) : (
+                    <><Sparkles className="h-4 w-4 mr-1" /> {voiceProfileText.trim() ? 'Update my voice profile' : 'Learn my voice'}</>
+                  )}
+                </Button>
+                <p className="text-xs text-muted-foreground">
+                  Counts as 1 AI generation. You can regenerate anytime as you add more samples.
+                </p>
+
+                {/* The distilled, editable profile. */}
+                {voiceProfileText.trim() && (
+                  <div className="space-y-1.5 pt-2 border-t border-border/60">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="voice-profile" className="text-sm">
+                        Your voice profile
+                      </Label>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        data-testid="voice-clear"
+                        onClick={handleClearVoiceProfile}
+                        className="h-7 text-xs text-muted-foreground"
+                      >
+                        Clear
+                      </Button>
+                    </div>
+                    <Textarea
+                      id="voice-profile"
+                      data-testid="voice-profile"
+                      value={voiceProfileText}
+                      onChange={(e) => handleVoiceProfileEdit(e.target.value)}
+                      className="min-h-[160px] text-sm"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      This is what IdeaM learned about how you write. Tweak anything — your edits are saved and used when you pick &ldquo;In my voice&rdquo; in the output wizards.
+                      {voiceUpdatedAt && (
+                        <> Updated {new Date(voiceUpdatedAt).toLocaleDateString()}.</>
+                      )}
+                    </p>
+                  </div>
+                )}
               </div>
             )}
           </div>

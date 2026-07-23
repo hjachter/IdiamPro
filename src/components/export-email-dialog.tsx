@@ -48,6 +48,7 @@ import { serializeSubtree } from '@/lib/transform-outline-helpers';
 import { getUserApiKey } from '@/lib/byok-keys';
 import { useAIUsageGate } from '@/lib/use-ai-usage-gate';
 import { useEmailToolsSettings } from '@/lib/use-email-tools-settings';
+import { useVoiceProfile } from '@/lib/use-voice-profile';
 import { openExternalUrl } from '@/lib/electron-storage';
 import { useToast } from '@/hooks/use-toast';
 import type { NodeMap } from '@/types';
@@ -134,8 +135,13 @@ export default function ExportEmailDialog({
 }: ExportEmailDialogProps) {
   const { gate } = useAIUsageGate();
   const { userEmail } = useEmailToolsSettings();
+  // "Your Voice" — when the user has a distilled personal style profile, offer
+  // to draft the email in their own voice. Hidden entirely when unavailable.
+  const { voiceAvailable, voiceProfile } = useVoiceProfile();
   const { toast } = useToast();
   const [phase, setPhase] = useState<Phase>('input');
+  // Draft in the user's own voice (only offered when a profile exists).
+  const [inMyVoice, setInMyVoice] = useState(false);
   // Shown when the user taps "Open in Gmail" without an email address set —
   // instead of opening a broken Gmail compose we prompt them to add it.
   const [showGmailNoEmail, setShowGmailNoEmail] = useState(false);
@@ -160,6 +166,7 @@ export default function ExportEmailDialog({
       setPhase('input');
       setTone('friendly-professional');
       setGuidance('');
+      setInMyVoice(false);
       setUseLocal(false);
       setErrorMsg(null);
       setModelLabel(null);
@@ -235,6 +242,7 @@ export default function ExportEmailDialog({
         tone,
         guidance: guidance.trim() || undefined,
         senderEmail: userEmail.trim() || undefined,
+        voiceProfile: inMyVoice && voiceAvailable ? voiceProfile.trim() : undefined,
         useLocal,
         userApiKey,
       });
@@ -361,6 +369,35 @@ export default function ExportEmailDialog({
                   ))}
                 </RadioGroup>
               </div>
+
+              {voiceAvailable && (
+                <div className="flex items-start gap-2 pt-1">
+                  <Checkbox
+                    id="email-in-my-voice"
+                    data-testid="email-in-my-voice"
+                    checked={inMyVoice}
+                    onCheckedChange={(c) => setInMyVoice(!!c)}
+                  />
+                  <div className="grid gap-1">
+                    <TooltipProvider delayDuration={300}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Label htmlFor="email-in-my-voice" className="text-sm font-medium cursor-pointer">
+                            <Sparkles className="inline h-3.5 w-3.5 mr-1" />
+                            In my voice
+                          </Label>
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          Draft this email in your own writing style, learned from your samples in Settings &rarr; Professional Customization &rarr; Your Voice.
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                    <p className="text-xs text-muted-foreground">
+                      Uses your saved voice profile so the email sounds like you.
+                    </p>
+                  </div>
+                </div>
+              )}
 
               <div className="space-y-2">
                 <Label htmlFor="email-guidance" className="text-sm font-medium">

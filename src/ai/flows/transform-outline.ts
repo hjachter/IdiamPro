@@ -49,6 +49,11 @@ export interface TransformOutlineInput {
   instruction: string;
   /** Optional outline name for context. */
   currentOutlineName?: string;
+  /** "Your Voice" — the user's OWN distilled writing-style profile. When set,
+   *  any node CONTENT the transform rewrites should be written in the user's
+   *  personal voice. Only takes effect if the instruction actually rewrites
+   *  content (e.g. Summarize). Never a third-party impersonation. */
+  voiceProfile?: string;
   /** Force local Ollama. */
   useLocal?: boolean;
   /** Optional BYOK Gemini key. */
@@ -115,10 +120,17 @@ GUIDELINES:
 OUTPUT JSON ONLY.`;
 
 function buildPrompt(input: TransformOutlineInput): string {
+  const voice = input.voiceProfile?.trim();
+  // "In my voice" — when rewriting node CONTENT (e.g. Summarize), match the
+  // user's own distilled writing style. This describes the user's OWN voice,
+  // from their own samples; it is never an impersonation of anyone else.
+  const voiceBlock = voice
+    ? `\nWRITE ANY REWRITTEN NODE CONTENT IN THE USER'S OWN VOICE. Match this description of the user's personal writing style — its tone, formality, sentence rhythm, vocabulary, punctuation, and any emoji/quirks. This is the user's OWN voice, from their own writing; do not imitate anyone else:\n"""\n${voice}\n"""\n`
+    : '';
   return `${SYSTEM_INSTRUCTIONS}
 
 OUTLINE NAME: ${input.currentOutlineName || '(untitled)'}
-
+${voiceBlock}
 USER INSTRUCTION:
 """
 ${input.instruction.trim() || '(no instruction provided)'}

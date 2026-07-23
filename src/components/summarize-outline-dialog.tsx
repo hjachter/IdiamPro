@@ -57,6 +57,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Separator } from '@/components/ui/separator';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Sparkles, Loader2, AlertTriangle, Cpu, ArrowLeft, ListTree } from 'lucide-react';
 import { transformOutlineAction } from '@/app/actions';
 import { isLocalAIReachable, notifyLocalAIDown } from '@/lib/local-ai';
@@ -64,6 +65,7 @@ import { serializeSubtree } from '@/lib/transform-outline-helpers';
 import type { SerializedNode, TransformOutlineResult } from '@/ai/flows/transform-outline';
 import { getUserApiKey } from '@/lib/byok-keys';
 import { useAIUsageGate } from '@/lib/use-ai-usage-gate';
+import { useVoiceProfile } from '@/lib/use-voice-profile';
 import type { NodeMap } from '@/types';
 import DerivationChoice, { type DerivationMode } from './derivation-choice';
 
@@ -121,8 +123,11 @@ export default function SummarizeOutlineDialog({
   onApply,
 }: SummarizeOutlineDialogProps) {
   const { gate } = useAIUsageGate();
+  // "Your Voice" — offer to write the summary's content in the user's own style.
+  const { voiceAvailable, voiceProfile } = useVoiceProfile();
   const [phase, setPhase] = useState<Phase>('input');
   const [depth, setDepth] = useState<Depth>('standard');
+  const [inMyVoice, setInMyVoice] = useState(false);
   const [useLocal, setUseLocal] = useState(false);
   const [result, setResult] = useState<TransformOutlineResult | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -153,6 +158,7 @@ export default function SummarizeOutlineDialog({
     if (open) {
       setPhase('input');
       setDepth('standard');
+      setInMyVoice(false);
       setResult(null);
       setErrorMsg(null);
       setDerivationMode('derivative');
@@ -186,11 +192,16 @@ export default function SummarizeOutlineDialog({
     try {
       const { subtreeNodes } = serializeSubtree(nodes, rootNodeId);
       const userApiKey = getUserApiKey('gemini');
+      const useVoice = inMyVoice && voiceAvailable;
+      const instruction = useVoice
+        ? `${buildSummarizeInstruction(depth)} Write the content of each node in the user's own writing voice as described in the voice profile.`
+        : buildSummarizeInstruction(depth);
       const r = await transformOutlineAction({
         subtreeNodes,
         rootNodeId,
-        instruction: buildSummarizeInstruction(depth),
+        instruction,
         currentOutlineName: outlineName,
+        voiceProfile: useVoice ? voiceProfile.trim() : undefined,
         useLocal,
         userApiKey,
       });
@@ -294,6 +305,35 @@ export default function SummarizeOutlineDialog({
                     </div>
                   </RadioGroup>
                 </div>
+
+                {voiceAvailable && (
+                  <div className="flex items-start gap-2 pt-1">
+                    <Checkbox
+                      id="summarize-in-my-voice"
+                      data-testid="summarize-in-my-voice"
+                      checked={inMyVoice}
+                      onCheckedChange={(c) => setInMyVoice(!!c)}
+                    />
+                    <div className="grid gap-1">
+                      <TooltipProvider delayDuration={300}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Label htmlFor="summarize-in-my-voice" className="text-sm font-medium cursor-pointer">
+                              <Sparkles className="inline h-3.5 w-3.5 mr-1" />
+                              In my voice
+                            </Label>
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-xs">
+                            Write the summary in your own writing style, learned from your samples in Settings &rarr; Professional Customization &rarr; Your Voice.
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                      <p className="text-xs text-muted-foreground">
+                        Uses your saved voice profile so the summary sounds like you.
+                      </p>
+                    </div>
+                  </div>
+                )}
 
                 <div className="flex items-start gap-2 pt-1">
                   <Checkbox
