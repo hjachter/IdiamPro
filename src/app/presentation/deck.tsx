@@ -353,7 +353,7 @@ function SlideShowcase() {
     { icon: Share2, label: 'Instagram' },
     { icon: Share2, label: 'Threads' },
     { icon: Share2, label: 'Bluesky' },
-    { icon: Share2, label: 'Reddit' },
+    { icon: Share2, label: 'YouTube' },
   ];
   return (
     <div style={{ maxWidth: '1280px', width: '100%' }}>
