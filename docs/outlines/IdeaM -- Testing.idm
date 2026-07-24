@@ -14,6 +14,7 @@
         "0583ce26-e6a3-46c9-9c39-34b645c986b7",
         "eed9c1a2-5d78-4907-8c1e-40da89fdb378",
         "ccc00e4d-d9d1-4a6d-9018-8126f97ae6d0",
+        "a00b0508-a6b6-4022-8410-21a980abbb36",
         "cert-gemma-2026-07-21",
         "cert-free-voice-2026-07-21",
         "quick-ref",
@@ -1566,6 +1567,15 @@
       "id": "ccc00e4d-d9d1-4a6d-9018-8126f97ae6d0",
       "name": "How our modularity compares to manual coders — above median (2026-07-24)",
       "content": "<p><strong>How our modularity compares to most manual (hand-written) codebases (2026-07-24): above the median for real-world production code.</strong></p><ul><li><p><strong>Beats most on structure:</strong> zero circular dependencies is above-average (most codebases this size accumulate some); clean layering, isolated concerns, and 43 self-contained feature dialogs are more disciplined than the typical solo/startup codebase, which often tangles logic into the UI.</p></li><li><p><strong>Only typical (not worse) on god-files:</strong> oversized files are the most common smell in ALL fast development, human or AI &mdash; everyone carries this debt, and ours is at least cleanly bounded inside a few files.</p></li><li><p><strong>Candid net:</strong> a B sits in solid competent-professional territory &mdash; better than the average practitioner, below the disciplined-architect ideal. An honest audit of most shipped software (including at name-brand companies) would find MORE problems, not fewer.</p></li><li><p><strong>AI-build nuance:</strong> the profile (clean structure + accreted god-files) is characteristic of AI-assisted rapid development &mdash; AI writes tidy new modules (clean hubs, zero cycles) but tends to grow files rather than split them (the elephant). Fix = periodic refactoring passes, scheduled post-launch.</p></li></ul><p><strong>Codebase size (2026-07-24):</strong> ~102,464 lines of app source across 385 TypeScript files (src/), and ~134,861 lines total including tests, the Electron shell, and the MCP server.</p>",
+      "parentId": "root",
+      "childrenIds": [],
+      "type": "document",
+      "prefix": "1"
+    },
+    "a00b0508-a6b6-4022-8410-21a980abbb36": {
+      "id": "a00b0508-a6b6-4022-8410-21a980abbb36",
+      "name": "Industry context — AI coding adoption & where we sit (~15% AI-first frontier)",
+      "content": "<p><strong>Industry context &mdash; AI coding adoption (2025 Stack Overflow Developer Survey) and where we sit:</strong></p><ul><li><p><strong>~80&ndash;84% of developers use (or plan to use) AI tools</strong> (up from 76% the prior year); ~51% of professionals use them <em>daily</em>. Only ~16&ndash;20% don't use AI at all.</p></li><li><p><strong>The trust twist:</strong> adoption is at an all-time high while trust is at an all-time low &mdash; only ~29% trust AI output, 66% call it &lsquo;almost right but not quite,&rsquo; and 45% lose significant time debugging AI-generated code.</p></li><li><p><strong>Assisted vs. driven:</strong> most of that 80% are AI-<em>assisted</em> (autocomplete, ask-a-question). The truly AI-<em>driven</em> / &lsquo;vibe coding&rsquo; cohort &mdash; AI writes most of the code and the human directs, whole builds run through an agent (what we do) &mdash; is a much smaller frontier: roughly <strong>~10&ndash;25% today</strong> (bracketed by Cursor ~18% and Claude Code ~10% adoption), rising fast.</p></li><li><p><strong>Where we sit:</strong> not in the 80% majority &mdash; in the ~15% AI-first <em>frontier</em> that lets AI do the heavy lifting and directs it. And our result (a ~135k-line, B-grade, above-median, zero-circular-dependency codebase built this way) demonstrates the approach WORKS &mdash; putting us on the RIGHT side of the industry's trust gap. Strong potential positioning / marketing angle.</p></li></ul><p><strong>Source:</strong> 2025 Stack Overflow Developer Survey (AI section).</p>",
       "parentId": "root",
       "childrenIds": [],
       "type": "document",
