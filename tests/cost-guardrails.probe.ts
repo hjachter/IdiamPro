@@ -18,6 +18,7 @@
  * PROBE_DONE. The JS harness (cost-guardrails-test.js) parses these lines.
  */
 
+import type { SubscriptionTierId } from '@/config/subscription-tiers';
 import { resolveApiKey, requireApiKey } from '@/lib/byok-keys';
 import { isNoCompanyKeyError } from '@/lib/billing/company-text-fallback';
 import {
@@ -210,6 +211,87 @@ async function main() {
     };
     const d = await evaluateCompanyTextAccess(paid, {}, deps);
     check('uncountable_fails_closed', !d.allowed, JSON.stringify(d));
+  }
+
+  // ========================================================================
+  // ADVERSARIAL / HOSTILE cases — bypass attempts, not happy paths.
+  // ========================================================================
+
+  // ---- (A) FORGED dev claim: an attacker who is NOT on the allowlist -------
+  // isDev is NOT a client-trusted boolean — it is computed server-side by
+  // isInternalDevIdentity from the account's real Clerk emails. An attacker who
+  // supplies a random email must resolve isDev=false and be BLOCKED, even if
+  // they *try* to look like an internal dev.
+  {
+    const attackerEmails = ['attacker@evil.example', 'devs@not-us.example'];
+    const forgedIsDev = isInternalDevIdentity('user_attacker', attackerEmails);
+    const attacker: MeterIdentity = {
+      userId: 'user_attacker',
+      emails: attackerEmails,
+      isDev: forgedIsDev, // computed by the real allowlist, not asserted by them
+    };
+    const d = await evaluateCompanyTextAccess(attacker, {}, depsUnverified);
+    check(
+      'forged_dev_email_rejected',
+      forgedIsDev === false && !d.allowed,
+      `forgedIsDev=${forgedIsDev} decision=${JSON.stringify(d)}`,
+    );
+  }
+
+  // ---- (B) SECOND-WAVE bypass: exhaust the cap, then attack again ----------
+  // A user who burned their whole monthly allowance cannot reset it by simply
+  // trying again in the same period — the atomic counter persists, so wave 2
+  // lets ZERO extra calls through.
+  {
+    const store = makeAtomicStore();
+    const paid: MeterIdentity = { userId: 'user_secondwave', emails: ['sw@x.com'], isDev: false };
+    const deps: MeterDeps = {
+      areSubscriptionsVerified: () => true,
+      resolvePlan: async () => 'pro',
+      increment: store.increment,
+    };
+    let wave1 = 0;
+    for (let i = 0; i < ALLOWANCE; i++) {
+      if ((await evaluateCompanyTextAccess(paid, {}, deps)).allowed) wave1++;
+    }
+    // Wave 2: hammer it again — must all be blocked (same period, same counter).
+    let wave2Allowed = 0;
+    for (let i = 0; i < ALLOWANCE + 5; i++) {
+      if ((await evaluateCompanyTextAccess(paid, {}, deps)).allowed) wave2Allowed++;
+    }
+    check(
+      'cap_persists_second_wave',
+      wave1 === ALLOWANCE && wave2Allowed === 0,
+      `wave1=${wave1} wave2Allowed=${wave2Allowed}`,
+    );
+  }
+
+  // ---- (C) FORGED / UNKNOWN tier id can't unlock the company key -----------
+  // If a bogus tier that isn't in AI_TEXT_ALLOWANCES is somehow resolved, the
+  // limit defaults to 0 and the request is BLOCKED (fail-closed), never granted.
+  {
+    const paid: MeterIdentity = { userId: 'user_bogustier', emails: ['bt@x.com'], isDev: false };
+    const deps = {
+      areSubscriptionsVerified: () => true,
+      // Cast a nonsense tier through — models an attacker-forged/unknown plan.
+      resolvePlan: async () => 'ENTERPRISE_HACK' as unknown as SubscriptionTierId,
+      increment: makeAtomicStore().increment,
+    } as unknown as MeterDeps;
+    const d = await evaluateCompanyTextAccess(paid, {}, deps);
+    check('unknown_tier_fails_closed', !d.allowed, JSON.stringify(d));
+  }
+
+  // ---- (D) EMPTY userId can't share one global counter bucket --------------
+  // A blank/missing user id must be treated as signed-out (blocked), not as a
+  // shared anonymous account that pools everyone's usage into one bucket.
+  {
+    const blank: MeterIdentity = { userId: '', emails: [], isDev: false };
+    const d = await evaluateCompanyTextAccess(blank, {}, {
+      areSubscriptionsVerified: () => true,
+      resolvePlan: async () => 'pro',
+      increment: makeAtomicStore().increment,
+    });
+    check('empty_userid_signed_out', !d.allowed && d.reason === 'signed-out', JSON.stringify(d));
   }
 
   console.log('PROBE_DONE');

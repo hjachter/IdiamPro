@@ -59,6 +59,11 @@ function runBehavioralProbe() {
     'over_allowance_blocked',
     'concurrency_safe',
     'uncountable_fails_closed',
+    // Adversarial / hostile bypass attempts (2026-07-24):
+    'forged_dev_email_rejected',
+    'cap_persists_second_wave',
+    'unknown_tier_fails_closed',
+    'empty_userid_signed_out',
   ];
   const seen = new Set();
   for (const line of lines) {

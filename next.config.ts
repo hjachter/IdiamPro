@@ -3,6 +3,12 @@ import {withSentryConfig} from '@sentry/nextjs';
 
 const nextConfig: NextConfig = {
   /* config options here */
+  // Build output directory. Defaults to `.next` (what `npm run dev` on port
+  // 9002 and the Electron shell serve live). A test-time or CI build can set
+  // NEXT_DIST_DIR to a SEPARATE folder (e.g. `.next-isolated`) so it can NEVER
+  // overwrite the running dev server's `.next` and serve it broken/404 assets.
+  // See scripts/guard-build.js + the `build:isolated` npm script.
+  distDir: process.env.NEXT_DIST_DIR || '.next',
   experimental: {
     serverActions: {
       // Voice transcription posts base64-encoded audio via a Server Action.
