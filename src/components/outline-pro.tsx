@@ -54,6 +54,7 @@ import SummarizeOutlineDialog from './summarize-outline-dialog';
 import ImageToOutlineDialog, { type ImageToOutlineApplyPayload } from './image-to-outline-dialog';
 import YoutubePackageDialog from './youtube-package-dialog';
 import GenerateVideoDialog from './generate-video-dialog';
+import SlideDeckDialog from './slide-deck-dialog';
 import ExportEmailDialog from './export-email-dialog';
 import ShareToSocialDialog from './share-to-social-dialog';
 import EmailImportDialog, { type EmailImportOutputMode } from './email-import-dialog';
@@ -438,6 +439,10 @@ export default function OutlinePro() {
   // Generate Video (Phase 2, 2026-07) — render the selected chapter into a
   // narrated slideshow MP4 (Electron desktop only).
   const [isGenerateVideoOpen, setIsGenerateVideoOpen] = useState(false);
+  // Slide Deck (2026-07-24) — turn the selected branch into a branded .pptx that
+  // opens in PowerPoint or Keynote. Deterministic (no AI); another "Turn Into"
+  // output-family member.
+  const [isSlideDeckOpen, setIsSlideDeckOpen] = useState(false);
 
   // Feature Switchboard: an ADDITIONAL outer switch over Generate Video. The
   // admin can kill it or target it to Everyone/Free/Pro from /admin/flags,
@@ -5068,6 +5073,7 @@ export default function OutlinePro() {
           onOpenImageToOutline={() => setIsImageToOutlineOpen(true)}
           onOpenYoutubePackage={() => setIsYoutubePackageOpen(true)}
           onOpenGenerateVideo={handleOpenGenerateVideo}
+          onOpenSlideDeck={() => setIsSlideDeckOpen(true)}
           onOpenExportEmail={openExportEmail}
           onOpenShareSocial={openShareSocial}
           onOpenTemplates={() => setIsTemplatesDialogOpen(true)}
@@ -5151,6 +5157,15 @@ export default function OutlinePro() {
           onOpenChange={setIsGenerateVideoOpen}
           outline={currentOutline}
           selectedNodeId={selectedNodeId}
+        />
+
+        <SlideDeckDialog
+          open={isSlideDeckOpen}
+          onOpenChange={setIsSlideDeckOpen}
+          nodes={currentOutline?.nodes ?? null}
+          rootNodeId={selectedNodeId}
+          scopeLabel={selectedNodeId ? currentOutline?.nodes?.[selectedNodeId]?.name : undefined}
+          outlineName={currentOutline?.name}
         />
 
 <ExportEmailDialog
@@ -5486,6 +5501,7 @@ export default function OutlinePro() {
           onOpenImageToOutline={() => setIsImageToOutlineOpen(true)}
           onOpenYoutubePackage={() => setIsYoutubePackageOpen(true)}
           onOpenGenerateVideo={handleOpenGenerateVideo}
+          onOpenSlideDeck={() => setIsSlideDeckOpen(true)}
           onOpenExportEmail={openExportEmail}
           onOpenShareSocial={openShareSocial}
                 onCreateChildNode={handleCreateSiblingNode}
@@ -5727,6 +5743,15 @@ export default function OutlinePro() {
         onOpenChange={setIsGenerateVideoOpen}
         outline={currentOutline}
         selectedNodeId={selectedNodeId}
+      />
+
+      <SlideDeckDialog
+        open={isSlideDeckOpen}
+        onOpenChange={setIsSlideDeckOpen}
+        nodes={currentOutline?.nodes ?? null}
+        rootNodeId={selectedNodeId}
+        scopeLabel={selectedNodeId ? currentOutline?.nodes?.[selectedNodeId]?.name : undefined}
+        outlineName={currentOutline?.name}
       />
 
 <ExportEmailDialog
@@ -6081,6 +6106,7 @@ export default function OutlinePro() {
           onOpenImageToOutline={() => setIsImageToOutlineOpen(true)}
           onOpenYoutubePackage={() => setIsYoutubePackageOpen(true)}
           onOpenGenerateVideo={handleOpenGenerateVideo}
+          onOpenSlideDeck={() => setIsSlideDeckOpen(true)}
           onOpenExportEmail={openExportEmail}
           onOpenShareSocial={openShareSocial}
                 onCreateChildNode={handleCreateSiblingNode}

@@ -10,7 +10,7 @@ import FileImportDialog from './file-import-dialog';
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuCheckboxItem } from "@/components/ui/dropdown-menu";
-import { Plus, Trash2, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, ChevronsDownUp, Settings, Search, Command, PanelLeft, PanelLeftClose, Brain, StopCircle, Inbox, LayoutDashboard, Focus, Sparkles, Mic, MessageSquare, BookDown, BookUp, Share2, ExternalLink, RefreshCw, MoreHorizontal, HelpCircle, Send, ShieldCheck, GitFork, Video, Mail, ChevronDown, Sun, Moon, Info, User } from 'lucide-react';
+import { Plus, Trash2, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, ChevronsDownUp, Settings, Search, Command, PanelLeft, PanelLeftClose, Brain, StopCircle, Inbox, LayoutDashboard, Focus, Sparkles, Mic, MessageSquare, BookDown, BookUp, Share2, ExternalLink, RefreshCw, MoreHorizontal, HelpCircle, Send, ShieldCheck, GitFork, Video, Mail, Presentation, ChevronDown, Sun, Moon, Info, User } from 'lucide-react';
 import { AmplifyMark } from '@/components/brand/amplify-mark';
 import { useTheme } from 'next-themes';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter } from "@/components/ui/alert-dialog";
@@ -154,6 +154,7 @@ interface OutlinePaneProps {
   onOpenImageToOutline?: () => void;
   onOpenYoutubePackage?: () => void;
   onOpenGenerateVideo?: () => void;
+  onOpenSlideDeck?: () => void;
   onOpenExportEmail?: () => void;
   onOpenShareSocial?: () => void;
   // Double-click child node creation
@@ -252,6 +253,7 @@ export default function OutlinePane({
   onOpenImageToOutline,
   onOpenYoutubePackage,
   onOpenGenerateVideo,
+  onOpenSlideDeck,
   onOpenExportEmail,
   onOpenShareSocial,
   onCreateChildNode,
@@ -1084,6 +1086,16 @@ export default function OutlinePane({
           title={selectedNodeId ? undefined : 'Select a chapter first'}
         >
           <Video className="mr-2 h-4 w-4" /> Generate Video
+        </DropdownMenuItem>
+      )}
+      {onOpenSlideDeck && (
+        <DropdownMenuItem
+          onSelect={() => onOpenSlideDeck?.()}
+          disabled={!selectedNodeId}
+          className="cursor-pointer py-1"
+          title={selectedNodeId ? 'Turn the selected branch into a branded PowerPoint deck (.pptx) that opens in PowerPoint or Keynote' : 'Select a branch first'}
+        >
+          <Presentation className="mr-2 h-4 w-4" /> Slide Deck
         </DropdownMenuItem>
       )}
       {onOpenExportEmail && (

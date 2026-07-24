@@ -30,6 +30,36 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  webpack: (config, { isServer, webpack }) => {
+    // pptxgenjs (used by the "Slide Deck" .pptx export) statically references
+    // Node built-ins via the `node:` scheme (e.g. `node:fs`) for its Node
+    // file-writing path. In the BROWSER those code paths are never taken (we
+    // download the .pptx via a Blob), but webpack still tries to bundle them and
+    // fails with UnhandledSchemeError. On the client: rewrite `node:foo` → `foo`
+    // and stub those built-ins to empty, so the browser bundle builds clean.
+    if (!isServer) {
+      config.plugins = config.plugins || [];
+      config.plugins.push(
+        new webpack.NormalModuleReplacementPlugin(/^node:/, (resource: { request: string }) => {
+          resource.request = resource.request.replace(/^node:/, '');
+        }),
+      );
+      config.resolve = config.resolve || {};
+      config.resolve.fallback = {
+        ...(config.resolve.fallback || {}),
+        fs: false,
+        https: false,
+        http: false,
+        os: false,
+        path: false,
+        url: false,
+        zlib: false,
+        stream: false,
+        crypto: false,
+      };
+    }
+    return config;
+  },
   images: {
     remotePatterns: [
       {

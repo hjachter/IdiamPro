@@ -37,6 +37,7 @@ import {
   Wand2,
   ListTree,
   Mail,
+  Presentation,
   Share2,
 } from 'lucide-react';
 import { useInputModePreference } from '@/lib/use-input-mode-preference';
@@ -71,6 +72,7 @@ interface CommandPaletteProps {
   onOpenImageToOutline?: () => void;
   onOpenYoutubePackage?: () => void;
   onOpenGenerateVideo?: () => void;
+  onOpenSlideDeck?: () => void;
   onOpenExportEmail?: () => void;
   onOpenShareSocial?: () => void;
   isGuide: boolean;
@@ -103,6 +105,7 @@ export default function CommandPalette({
   onOpenReformat,
   onOpenTransformOutline,
   onOpenSummarizeOutline,
+  onOpenSlideDeck,
   onOpenExportEmail,
   onOpenShareSocial,
   isGuide,
@@ -505,6 +508,12 @@ export default function CommandPalette({
             <CommandItem onSelect={() => runCommand(onOpenSummarizeOutline)}>
               <ListTree className="mr-2 h-4 w-4" />
               <span>Summarize outline</span>
+            </CommandItem>
+          )}
+          {onOpenSlideDeck && !isGuide && (
+            <CommandItem onSelect={() => runCommand(onOpenSlideDeck)}>
+              <Presentation className="mr-2 h-4 w-4" />
+              <span>Slide Deck</span>
             </CommandItem>
           )}
           {onOpenExportEmail && !isGuide && (
