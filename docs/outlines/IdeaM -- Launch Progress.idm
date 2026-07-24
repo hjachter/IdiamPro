@@ -2,7 +2,7 @@
   "id": "launch-progress",
   "name": "IdeaM -- Launch Progress",
   "rootNodeId": "lp-root",
-  "lastModified": 1784814066402,
+  "lastModified": 1784814066403,
   "nodes": {
     "lp-root": {
       "id": "lp-root",
@@ -63,9 +63,11 @@
     },
     "lp-deferred": {
       "id": "lp-deferred",
-      "name": "Post-launch / deferred (10)",
+      "name": "Post-launch / deferred (11)",
       "parentId": "lp-root",
-      "childrenIds": [],
+      "childrenIds": [
+        "lp-deferred-screenshot-reshoot"
+      ],
       "type": "chapter",
       "content": "<p>Not launch-blocking. These ship after the Apple version is live and monetized.</p><p></p><p>LIVE BOOKS — design + implementation (the 6 open design questions remain)</p><p>Android Capacitor scaffolding</p><p>Windows distributed build</p><p>Linux distributed build</p><p>MCP Server Phase 2 (free CRUD tools)</p><p>MCP Server Phase 3 (premium AI/ingest tools)</p><p>MCP Server Phase 4 (dual-licensing strategy)</p><p>MCP Server Test 8 (Claude Desktop end-to-end)</p><p>Collaboration / Group features — entire Group outline is design-only</p><p>Build managed API proxy tier (v2 of monetization, after first enterprise agreement)</p><p>iOS multi-select audit (refinement)</p><p>Clerk dev→production environment swap (one-time cutover; clears all current test users + sessions; coordinate with first ~10 real beta users before pulling the trigger)</p>",
       "isCollapsed": false,
@@ -77,6 +79,16 @@
       "content": "<p>🔴 <strong>HARD LAUNCH BLOCKER — do NOT OK launch until this is in.</strong> SecondBrainWare LLC needs a real physical business mailing address, required by CAN-SPAM (in commercial email footers), the Privacy Policy, and app-store listings — and it belongs on the About page. Home address should NOT be published.</p><p><strong>Howard's action (~10 min once he picks a provider):</strong> sign up for a virtual mailbox (recommended: Traveling Mailbox ~$15/mo; or check the community-mailbox second-compartment option first) → they issue a street address → hand it to Claude, who plugs it into the About page, Privacy Policy, and email footers in one pass. Until then the About page shows only the support@ email (address deferred, no placeholder live).</p><p><strong>Status:</strong> PENDING Howard. Claude to raise this every time launch-readiness comes up.</p>",
       "parentId": "lp-decisions",
       "childrenIds": []
+    },
+    "lp-deferred-screenshot-reshoot": {
+      "id": "lp-deferred-screenshot-reshoot",
+      "name": "Re-shoot marketing screenshots (drop the old “IdiamPro” name)",
+      "parentId": "lp-deferred",
+      "childrenIds": [],
+      "type": "document",
+      "isCollapsed": false,
+      "prefix": "",
+      "content": "<p><strong>What:</strong> Several product screenshots on the marketing site (home “Seeing is believing” gallery, Features) were captured before the rename and still show the old name <strong>“IdiamPro”</strong> — in the app wordmark, the “IdiamPro User Guide” title, an “IdiamPro – Content Showcase” outline title, and (in languages.png) the body text itself.</p><p><strong>Good news:</strong> the app is already fully rebranded to IdeaM, and the top of every page (hero, process diagram, “runs on your machine” panel) uses live graphics with no stale images — so first impressions are clean. The old-name shots sit lower on the page.</p><p><strong>Why it’s a real job, not a quick swap:</strong> the original demo outlines (Climate Strategy mind-map, Q4 budget sheet, status board, etc.) no longer exist on disk — no backup — so they must be rebuilt from scratch in the rebranded app, then re-captured (~15 images) and dropped in over the existing files (same filenames, no code change).</p><p><strong>How to do it well:</strong> rebuild the handful of demo outlines in the app (local AI is available for diagrams/mind-maps), best with Howard’s eyes on the demo content since it’s what visitors read; capture at high-DPI; verify each looks clean and on-brand before replacing.</p><p><em>Deferred by Howard 2026-07-24 — hold until he’s back; do it deliberately, not against a deadline.</em></p>"
     }
   },
   "isGuide": false,
