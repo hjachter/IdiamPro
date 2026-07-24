@@ -24,12 +24,10 @@ import {
   Briefcase,
   GraduationCap,
   Lightbulb,
-  PenTool,
   FolderTree,
   Target,
   Users,
   Scale,
-  Microscope,
   BookMarked,
   Search,
   Heart,
@@ -43,7 +41,6 @@ import {
   Save,
   GitBranch,
   Globe,
-  Import,
   Youtube,
   FileUp,
   Network,
@@ -73,11 +70,7 @@ import {
   SpeakerIcon,
   Volume2,
   BarChart3,
-  Languages,
-  Mail,
-  Shuffle,
-  Send,
-  Share2
+  Languages
 } from 'lucide-react';
 
 // ============================================
@@ -457,57 +450,14 @@ function SeeItShowcase() {
   );
 }
 
-// Condensed "What IdeaM can do" band — a tight, scannable map of the full
-// capability set grouped by the idea-development lifecycle (Bring it in →
-// Research → Develop → Produce → Publish). Intentionally terse: names + a
-// 2–5 word descriptor each; the full sentences live on /capabilities, which
-// the prominent CTA links to. Matches the homepage's card / eyebrow / blue-600
-// language so it reads native, not bolted on.
+// "Everything IdeaM can do" band — the homepage no longer recapitulates the
+// whole feature list inline (that was redundant with the dedicated page). It's
+// now a clean, prominent invitation: a tight heading + a strong CTA that carries
+// the visitor to /capabilities (the full summary, which links on to /guide for
+// detail). Matches the homepage's card / eyebrow / blue-600 language so it reads
+// native, not bolted on. A single spotlighted feature (the new Slide Deck output,
+// with a live downloadable example) sits between as a taste of what's inside.
 function CapabilitiesCondensed() {
-  const groups: {
-    stage: string;
-    items: { name: string; descriptor: string; icon: React.ElementType }[];
-  }[] = [
-    {
-      stage: 'Bring it in',
-      items: [
-        { name: 'Bring In Anything', descriptor: 'PDFs, videos, web, audio', icon: Import },
-        { name: 'Bring In Email', descriptor: 'Inbox to clean outline', icon: Mail },
-      ],
-    },
-    {
-      stage: 'Research',
-      items: [
-        { name: 'Research', descriptor: 'Many sources, one synthesis', icon: Microscope },
-        { name: 'Ask Your Knowledge', descriptor: 'Question your private library', icon: Brain },
-      ],
-    },
-    {
-      stage: 'Develop',
-      items: [
-        { name: 'Get the Gist', descriptor: 'Dense outline to essentials', icon: Zap },
-        { name: 'Reshape Your Outline', descriptor: 'Restructure, resize, restyle', icon: Shuffle },
-        { name: 'Your Voice', descriptor: 'Drafts that sound like you', icon: PenTool },
-      ],
-    },
-    {
-      stage: 'Produce',
-      items: [
-        { name: 'Make a Podcast', descriptor: 'Narrated audio episodes', icon: Podcast },
-        { name: 'Make a Video', descriptor: 'Branded narrated slideshows', icon: Video },
-        { name: 'Make a Slide Deck', descriptor: 'PowerPoint & Keynote decks', icon: Presentation },
-        { name: 'Translate', descriptor: '21 languages', icon: Languages },
-      ],
-    },
-    {
-      stage: 'Publish',
-      items: [
-        { name: 'Turn Into an Email', descriptor: 'Ready-to-send email', icon: Send },
-        { name: 'Share to Social', descriptor: 'Posts for every platform', icon: Share2 },
-      ],
-    },
-  ];
-
   return (
     <section className="px-6 py-24 lg:px-12 border-t border-[#dde5f2] bg-gradient-to-b from-white to-[#f7faff]">
       <div className="max-w-[1600px] mx-auto">
@@ -521,38 +471,8 @@ function CapabilitiesCondensed() {
             Everything IdeaM can do.
           </h2>
           <p className="text-lg md:text-xl font-medium text-[#2b3a5c] leading-relaxed max-w-[720px] mx-auto">
-            From raw sources to finished, published work — the whole toolkit, grouped by how an idea travels from first spark to shipped.
+            From raw sources to finished, published work — the whole toolkit, from first spark to shipped. See it all on one page.
           </p>
-        </div>
-
-        {/* Lifecycle grid — one card per stage, each a short list of capabilities */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-5">
-          {groups.map((group) => (
-            <div
-              key={group.stage}
-              className="flex flex-col rounded-2xl border border-[#dde5f2] bg-[#f7faff] p-6"
-            >
-              <div className="text-xs font-mono font-semibold uppercase tracking-wider text-[#1e40af] mb-4">
-                {group.stage}
-              </div>
-              <ul className="space-y-4">
-                {group.items.map((item) => {
-                  const Icon = item.icon;
-                  return (
-                    <li key={item.name} className="flex items-start gap-3">
-                      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-600/10 border border-blue-600/25 text-[#1e40af]">
-                        <Icon className="h-4 w-4" />
-                      </div>
-                      <div>
-                        <div className="text-sm font-bold text-[#0b1533] leading-tight">{item.name}</div>
-                        <div className="text-sm font-medium text-[#5b6b85] leading-snug mt-0.5">{item.descriptor}</div>
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          ))}
         </div>
 
         {/* Honorable mention — the new Slide Deck output, spotlighted with a live
@@ -593,14 +513,15 @@ function CapabilitiesCondensed() {
           </div>
         </div>
 
-        {/* CTA — the full page has the complete descriptions + Foundations + Coming soon */}
+        {/* CTA — the focal invitation: the full page has every capability's
+            complete description + Foundations + Coming soon, and links on to the guide. */}
         <div className="text-center mt-12">
           <Link
             href="/capabilities"
-            className="inline-flex items-center gap-2 rounded-full bg-gradient-to-br from-[#38bdf8] via-[#2563eb] to-[#4f46e5] hover:from-[#2563eb] hover:to-[#4338ca] px-6 py-3 text-base font-bold text-white shadow-lg shadow-blue-700/30 transition-colors"
+            className="group inline-flex items-center gap-2.5 rounded-full bg-gradient-to-br from-[#38bdf8] via-[#2563eb] to-[#4f46e5] hover:from-[#2563eb] hover:to-[#4338ca] px-8 py-4 text-lg font-bold text-white shadow-xl shadow-blue-700/35 transition-all"
           >
             See everything IdeaM can do
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-0.5" />
           </Link>
         </div>
       </div>
