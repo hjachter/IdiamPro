@@ -229,6 +229,15 @@ When the user says **"TEST EVERYTHING"** (or any clear variant: "run all tests",
 
 The user wants this to be a one-word command — they should never have to babysit a test run.
 
+**Testing strategy — match effort to where failures hide (codified 2026-07-24).** Blindly re-running everything wastes time on the deterministic majority while under-testing the flaky/AI parts. So TEST EVERYTHING runs TIERED:
+
+- **Deterministic tests** (routing, links, rendering, pure logic, cost-meter math) — run **ONCE**, but keep them **isolated** (fresh data/state, no cross-test pollution) so one pass is trustworthy. A second run of these is duplication.
+- **Nondeterministic / AI-driven tests** (any feature whose output comes from an LLM — Digest, Summarize, Your Voice, email/social generation, the verifier, inbound extraction) — run each **5×** and assert **INVARIANTS, not exact output**: non-empty & well-formed, within limits (e.g. tweet ≤ 280, junk *quarantined not deleted*), and it **NEVER does the forbidden thing** (never bills our AI key, never auto-sends/posts, verifier catches a planted error). Fail if ANY of the 5 runs violates an invariant — that is how flaky/drift bugs surface. (LLMs give different output every run, so a single sample is not enough; invariants + repeats are.)
+- **Guardrail tests** (financial-safety, privacy, auth/gating) — run **ADVERSARIALLY** (hostile inputs, bypass attempts, concurrency bursts), not just happy-path. RELEASE BLOCKERS; call out the financial-safety result explicitly every run.
+- **Never clobber the live environment:** test runs must NOT run `npm run build` against the live dev server (it clobbers `.next` and breaks Howard's running app — this has bitten repeatedly). Use the running dev server or an isolated build dir/port. A stable environment is the foundation of reliable results.
+- **Pre-launch soak:** in the final pre-launch window, ALSO run the suite **a day apart / at intervals** to catch *environment* drift (vendor/API/quota changes, accumulated data, cron jobs, cert/domain state) that a point-in-time run misses. Immediate repeats catch AI randomness; day-apart runs catch environment drift — they are different animals.
+- **Weight by blast radius:** hammer money/privacy/auth hardest; sample the AI features; one-pass the marketing UI. Production **Sentry** monitoring is the backstop for the long tail tests can't catch.
+
 ### Writing New Tests
 
 When adding new tests, follow the patterns in `tests/electron-test.js` and `tests/gemma4-smoke-test.js`:
