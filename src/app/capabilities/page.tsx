@@ -25,6 +25,7 @@ import {
   PenTool,
   Podcast,
   Video,
+  Presentation,
   Languages,
   Send,
   Share2,
@@ -132,6 +133,12 @@ const GROUPS: Group[] = [
         what: 'Turn a chapter into a finished, branded narrated slideshow video.',
         anchor: 'make-a-video',
         icon: Video,
+      },
+      {
+        name: 'Make a Slide Deck',
+        what: 'Turn an outline into a branded slide deck that opens in PowerPoint or Keynote — with your data auto-charted.',
+        anchor: 'slide-deck',
+        icon: Presentation,
       },
       {
         name: 'Translate',

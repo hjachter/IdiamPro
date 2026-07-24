@@ -203,6 +203,21 @@ const GROUPS: Group[] = [
         ],
       },
       {
+        anchor: 'slide-deck',
+        title: 'Make a Slide Deck',
+        note: 'Desktop app → Turn Into (Export) menu → Slide Deck',
+        body: [
+          'Turn an outline into a branded slide deck — a real .pptx file that opens in both PowerPoint and Keynote (and Google Slides). Each chapter becomes a slide with a clear title and tidy bullets, styled with your brand look, so you can present straight away or fine-tune it in the app you already use.',
+          'When a section contains numbers — a small table or a list of figures — IdeaM automatically turns them into a clean chart on the slide, so your data shows up as a visual instead of a wall of digits.',
+        ],
+        bullets: [
+          'Opens natively in PowerPoint, Keynote, and Google Slides — no conversion, no lock-in.',
+          'Your logo, accent color, and a light or dark theme on every slide.',
+          'Numeric data is auto-charted; the rest becomes clean titles and bullets.',
+          'Pick how deep the deck goes, then save the .pptx and present or edit it anywhere.',
+        ],
+      },
+      {
         anchor: 'translate',
         title: 'Translate',
         note: 'Smart Tools menu → Translate this section',

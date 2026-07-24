@@ -495,6 +495,7 @@ function CapabilitiesCondensed() {
       items: [
         { name: 'Make a Podcast', descriptor: 'Narrated audio episodes', icon: Podcast },
         { name: 'Make a Video', descriptor: 'Branded narrated slideshows', icon: Video },
+        { name: 'Make a Slide Deck', descriptor: 'PowerPoint & Keynote decks', icon: Presentation },
         { name: 'Translate', descriptor: '21 languages', icon: Languages },
       ],
     },
@@ -552,6 +553,34 @@ function CapabilitiesCondensed() {
               </ul>
             </div>
           ))}
+        </div>
+
+        {/* Honorable mention — the new Slide Deck output, spotlighted with a live
+            downloadable example deck (hosted at /ideam-seminar.pptx). Additive
+            callout; links straight to the real .pptx a prospect can open. */}
+        <div className="mt-10 rounded-2xl border border-[#dde5f2] bg-white p-6 md:p-7 flex flex-col md:flex-row md:items-center gap-5 shadow-[0_1px_3px_rgba(12,34,36,0.06),0_8px_24px_rgba(12,34,36,0.05)]">
+          <div className="flex items-start gap-4 flex-1">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-600/10 border border-blue-600/25 text-[#1e40af]">
+              <Presentation className="h-5 w-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-[#1e40af]">New</span>
+                <h3 className="text-lg md:text-xl font-extrabold text-[#0b1533] tracking-tight leading-tight">
+                  Generate PowerPoint &amp; Keynote decks straight from your outline
+                </h3>
+              </div>
+              <p className="text-sm md:text-base font-medium text-[#5b6b85] leading-relaxed mt-1">
+                One outline becomes a branded slide deck that opens in PowerPoint <span className="text-[#2b3a5c] font-semibold">and</span> Keynote — with your data auto-charted.
+              </p>
+            </div>
+          </div>
+          <a
+            href="/ideam-seminar.pptx"
+            className="inline-flex items-center gap-2 rounded-full border border-blue-600/40 bg-blue-600/5 px-5 py-3 text-sm font-bold text-[#1e40af] hover:bg-blue-600/10 hover:gap-3 transition-all shrink-0 self-start md:self-auto"
+          >
+            See our presentation <ArrowRight className="h-4 w-4" />
+          </a>
         </div>
 
         {/* CTA — the full page has the complete descriptions + Foundations + Coming soon */}
