@@ -73,7 +73,11 @@ import {
   SpeakerIcon,
   Volume2,
   BarChart3,
-  Languages
+  Languages,
+  Mail,
+  Shuffle,
+  Send,
+  Share2
 } from 'lucide-react';
 
 // ============================================
@@ -453,6 +457,118 @@ function SeeItShowcase() {
   );
 }
 
+// Condensed "What IdeaM can do" band — a tight, scannable map of the full
+// capability set grouped by the idea-development lifecycle (Bring it in →
+// Research → Develop → Produce → Publish). Intentionally terse: names + a
+// 2–5 word descriptor each; the full sentences live on /capabilities, which
+// the prominent CTA links to. Matches the homepage's card / eyebrow / blue-600
+// language so it reads native, not bolted on.
+function CapabilitiesCondensed() {
+  const groups: {
+    stage: string;
+    items: { name: string; descriptor: string; icon: React.ElementType }[];
+  }[] = [
+    {
+      stage: 'Bring it in',
+      items: [
+        { name: 'Bring In Anything', descriptor: 'PDFs, videos, web, audio', icon: Import },
+        { name: 'Bring In Email', descriptor: 'Inbox to clean outline', icon: Mail },
+      ],
+    },
+    {
+      stage: 'Research',
+      items: [
+        { name: 'Research', descriptor: 'Many sources, one synthesis', icon: Microscope },
+        { name: 'Ask Your Knowledge', descriptor: 'Question your private library', icon: Brain },
+      ],
+    },
+    {
+      stage: 'Develop',
+      items: [
+        { name: 'Get the Gist', descriptor: 'Dense outline to essentials', icon: Zap },
+        { name: 'Reshape Your Outline', descriptor: 'Restructure, resize, restyle', icon: Shuffle },
+        { name: 'Your Voice', descriptor: 'Drafts that sound like you', icon: PenTool },
+      ],
+    },
+    {
+      stage: 'Produce',
+      items: [
+        { name: 'Make a Podcast', descriptor: 'Narrated audio episodes', icon: Podcast },
+        { name: 'Make a Video', descriptor: 'Branded narrated slideshows', icon: Video },
+        { name: 'Translate', descriptor: '21 languages', icon: Languages },
+      ],
+    },
+    {
+      stage: 'Publish',
+      items: [
+        { name: 'Turn Into an Email', descriptor: 'Ready-to-send email', icon: Send },
+        { name: 'Share to Social', descriptor: 'Posts for every platform', icon: Share2 },
+      ],
+    },
+  ];
+
+  return (
+    <section className="px-6 py-24 lg:px-12 border-t border-[#dde5f2] bg-gradient-to-b from-white to-[#f7faff]">
+      <div className="max-w-[1600px] mx-auto">
+        {/* Heading */}
+        <div className="text-center max-w-3xl mx-auto mb-14">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-600/15 border border-blue-600/40 mb-6">
+            <Sparkles className="w-4 h-4 text-[#1e40af]" />
+            <span className="text-sm font-semibold text-[#1e40af]">What IdeaM can do</span>
+          </div>
+          <h2 className="text-4xl md:text-5xl font-extrabold text-[#0b1533] mb-4 tracking-tight">
+            Everything IdeaM can do.
+          </h2>
+          <p className="text-lg md:text-xl font-medium text-[#2b3a5c] leading-relaxed max-w-[720px] mx-auto">
+            From raw sources to finished, published work — the whole toolkit, grouped by how an idea travels from first spark to shipped.
+          </p>
+        </div>
+
+        {/* Lifecycle grid — one card per stage, each a short list of capabilities */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-5">
+          {groups.map((group) => (
+            <div
+              key={group.stage}
+              className="flex flex-col rounded-2xl border border-[#dde5f2] bg-[#f7faff] p-6"
+            >
+              <div className="text-xs font-mono font-semibold uppercase tracking-wider text-[#1e40af] mb-4">
+                {group.stage}
+              </div>
+              <ul className="space-y-4">
+                {group.items.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <li key={item.name} className="flex items-start gap-3">
+                      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-600/10 border border-blue-600/25 text-[#1e40af]">
+                        <Icon className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <div className="text-sm font-bold text-[#0b1533] leading-tight">{item.name}</div>
+                        <div className="text-sm font-medium text-[#5b6b85] leading-snug mt-0.5">{item.descriptor}</div>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
+        </div>
+
+        {/* CTA — the full page has the complete descriptions + Foundations + Coming soon */}
+        <div className="text-center mt-12">
+          <Link
+            href="/capabilities"
+            className="inline-flex items-center gap-2 rounded-full bg-gradient-to-br from-[#38bdf8] via-[#2563eb] to-[#4f46e5] hover:from-[#2563eb] hover:to-[#4338ca] px-6 py-3 text-base font-bold text-white shadow-lg shadow-blue-700/30 transition-colors"
+          >
+            See everything IdeaM can do
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ============================================
 // MAIN PAGE
 // ============================================
@@ -692,6 +808,11 @@ export default function MarketingPage() {
             </div>
           </div>
         </section>
+
+        {/* Condensed capabilities — a tight, scannable map of the full toolkit,
+            placed high (right after the category is established) with a CTA to
+            the complete /capabilities page. Full descriptions live there. */}
+        <CapabilitiesCondensed />
 
         {/* Sizzle reel — a 30-second "coming attractions" trailer of the three
             workflow stories, placed early as a fast emotional hook right before
@@ -1300,10 +1421,14 @@ export default function MarketingPage() {
                 <h4 className="text-[#0b1533] font-semibold mb-4">Product</h4>
                 <ul className="space-y-2">
                   <li><a href="/features" className="text-[#475569] hover:text-[#0b1533] text-sm transition-colors">Features</a></li>
+                  <li><a href="/capabilities" className="text-[#475569] hover:text-[#0b1533] text-sm transition-colors">Capabilities</a></li>
+                  <li><a href="/workflows" className="text-[#475569] hover:text-[#0b1533] text-sm transition-colors">Workflows</a></li>
+                  <li><a href="/guide" className="text-[#475569] hover:text-[#0b1533] text-sm transition-colors">Guide</a></li>
                   <li><a href="/pricing" className="text-[#475569] hover:text-[#0b1533] text-sm transition-colors">Pricing</a></li>
                   <li><a href="/use-cases" className="text-[#475569] hover:text-[#0b1533] text-sm transition-colors">Use Cases</a></li>
+                  <li><a href="/examples" className="text-[#475569] hover:text-[#0b1533] text-sm transition-colors">Examples</a></li>
                   <li><a href="/faq" className="text-[#475569] hover:text-[#0b1533] text-sm transition-colors">FAQ</a></li>
-                  <li><a href="/founder" className="text-[#475569] hover:text-[#0b1533] text-sm transition-colors">About the Founder</a></li>
+                  <li><a href="/about" className="text-[#475569] hover:text-[#0b1533] text-sm transition-colors">About</a></li>
                 </ul>
               </div>
 

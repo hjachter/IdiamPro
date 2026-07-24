@@ -20,9 +20,12 @@ const launchApp = () => {
 
 const NAV_LINKS = [
   { href: '/features', label: 'Features' },
+  { href: '/capabilities', label: 'Capabilities' },
+  { href: '/guide', label: 'Guide' },
   { href: '/use-cases', label: 'Use Cases' },
   { href: '/pricing', label: 'Pricing' },
   { href: '/faq', label: 'FAQ' },
+  { href: '/about', label: 'About' },
 ];
 
 export function MarketingHeader() {
