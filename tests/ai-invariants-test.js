@@ -105,14 +105,25 @@ const SOURCE =
 // src/lib/ai/hallucination-verifier.ts). Kept in sync so this suite exercises
 // the REAL verification behaviour, not an ad-hoc paraphrase.
 function verifyPrompt(source, draft, kind = 'text') {
-  return `You are a careful fact-checker. You are given a SOURCE and a DRAFT (${kind}) that was written FROM that source.
+  return `You are a careful, literal fact-checker. You are given a SOURCE and a DRAFT (${kind}) that was written FROM that source.
 
-Your ONLY job: find factual claims in the DRAFT that are NOT supported by the SOURCE — invented names, numbers, dates, statistics, quotes, commitments, features, or facts that do not appear in (and cannot be reasonably inferred from) the SOURCE. These are the risky "hallucinations".
+Your ONLY job: find factual claims in the DRAFT that are NOT supported by the SOURCE — things the SOURCE does not state and that do not directly follow from it. These unsupported claims are the risky "hallucinations".
+
+FIRST, scan the DRAFT for every SPECIFIC, checkable detail and verify each one appears in (or directly follows from) the SOURCE. Pay special attention to:
+- Money: dollar amounts, prices, funding, revenue, costs (e.g. "$5M", "raised $2 million", "20% cheaper").
+- Numbers: statistics, percentages, counts, quantities, metrics, ranks.
+- Dates & time: dates, years, durations, deadlines, timeframes.
+- Names: people, companies, products, places, teams, titles.
+- Quotes: any statement or figure attributed to a person or source.
+- Any other concrete claim: awards, commitments, guarantees, or invented features.
+
+For EACH such specific in the DRAFT: if that exact figure / name / date / quote / fact is NOT present in the SOURCE and cannot be directly derived from it, FLAG it as unsupported. A specific number or name that does not appear anywhere in the SOURCE is almost always a hallucination — do NOT give it the benefit of the doubt.
 
 Rules:
-- Judge ONLY against the SOURCE. Do not use outside knowledge.
+- Judge ONLY against the SOURCE. Do NOT use outside knowledge and do NOT assume real-world facts.
 - Ignore pure style, wording, tone, formatting, greetings, and sign-offs.
-- Reasonable paraphrase or summary of the source is SUPPORTED — do not flag it.
+- General paraphrase or a fair summary of what the SOURCE actually says is SUPPORTED — do not flag ordinary prose just for being reworded.
+- Concentrate your flags on unsupported SPECIFICS (figures, names, dates, quotes, invented facts), not on harmless rephrasing. Do not over-flag normal prose.
 - Flag at most the 5 most important unsupported claims. If everything is supported, return an empty list.
 
 OUTPUT FORMAT — REPLY WITH JSON ONLY. NO MARKDOWN, NO PROSE, NO CODE FENCES:

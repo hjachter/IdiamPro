@@ -198,7 +198,41 @@ export function getRecommendedGemma4Variant(): string {
 }
 
 /**
- * Generate text using Ollama (non-streaming)
+ * Friendly, user-facing message shown when the on-device model keeps returning
+ * a blank result even after retries. Deliberately actionable (try again / switch
+ * provider) and never a raw error dump. The wizards + dialogs surface this.
+ */
+export const ON_DEVICE_EMPTY_MESSAGE =
+  "Couldn't generate that — please try again, or switch AI provider in Settings.";
+
+/**
+ * How many times we attempt an on-device generation before giving up. BOUNDED
+ * on purpose (1 initial try + 2 retries). Raw gemma4:e4b intermittently returns
+ * a completely EMPTY completion (~1 in 5 for some prompts); a blank draft must
+ * never reach the user, so an empty/whitespace-only result is treated as a
+ * FAILED generation and retried within this cap — never beyond it.
+ */
+const MAX_GENERATION_ATTEMPTS = 3;
+
+/** Marks an attempt that produced no usable text, so we retry rather than fail. */
+class EmptyGenerationError extends Error {
+  constructor() {
+    super('on-device model returned an empty completion');
+    this.name = 'EmptyGenerationError';
+  }
+}
+
+/**
+ * Generate text using Ollama (non-streaming).
+ *
+ * SHARED empty-guard + bounded retry (2026-07-24): every wizard (email, social,
+ * summarize, Your Voice, inbound extraction, translate, reformat, …) funnels
+ * through here, so the blank-draft protection lives here ONCE. An empty or
+ * whitespace-only completion is a failed generation, not content — we retry it
+ * within MAX_GENERATION_ATTEMPTS (nudging temperature up on retries so a
+ * deterministic temp-0 blank actually explores a different completion). If it is
+ * STILL blank after the cap, we throw a clear, friendly message instead of
+ * returning an empty string — so a blank result can never silently succeed.
  */
 export async function generateWithOllama(options: OllamaGenerateOptions): Promise<string> {
   const model = options.model || await getBestAvailableModel();
@@ -207,31 +241,65 @@ export async function generateWithOllama(options: OllamaGenerateOptions): Promis
     throw new Error('No Ollama models installed. Please install a model with: ollama pull gemma4:e4b (or ollama pull llama3.2 for low-memory systems)');
   }
 
-  const response = await fetch(`${OLLAMA_BASE_URL}/api/generate`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model,
-      prompt: options.prompt,
-      system: options.system,
-      stream: false,
-      think: false, // Disable Gemma 4 reasoning mode — it consumes the token budget and leaves content empty
-      options: {
-        temperature: options.temperature ?? 0.7,
-        num_predict: options.maxTokens ?? 2000,
-      },
-    }),
-  });
+  const baseTemp = options.temperature ?? 0.7;
+  let sawEmpty = false;
+  let lastError: unknown;
 
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`Ollama generation failed: ${error}`);
+  for (let attempt = 0; attempt < MAX_GENERATION_ATTEMPTS; attempt++) {
+    // First attempt honors the caller's temperature (keeps temp-0 verifier
+    // calls deterministic). Retries nudge it up so a repeated blank actually
+    // samples a different completion rather than reproducing the same empty one.
+    const temperature = attempt === 0 ? baseTemp : Math.max(baseTemp, 0.4);
+    try {
+      const response = await fetch(`${OLLAMA_BASE_URL}/api/generate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model,
+          prompt: options.prompt,
+          system: options.system,
+          stream: false,
+          think: false, // Disable Gemma 4 reasoning mode — it consumes the token budget and leaves content empty
+          options: {
+            temperature,
+            num_predict: options.maxTokens ?? 2000,
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.text();
+        throw new Error(`Ollama generation failed: ${error}`);
+      }
+
+      const data: OllamaResponse = await response.json();
+      const text = data.response ?? '';
+      if (text.trim().length === 0) {
+        // Empty/whitespace-only completion = a FAILED generation. Retry it.
+        sawEmpty = true;
+        throw new EmptyGenerationError();
+      }
+      return text;
+    } catch (err) {
+      lastError = err;
+      // Brief backoff before retrying (bounded).
+      if (attempt < MAX_GENERATION_ATTEMPTS - 1) {
+        await new Promise((res) => setTimeout(res, 400 * (attempt + 1)));
+      }
+    }
   }
 
-  const data: OllamaResponse = await response.json();
-  return data.response;
+  // Exhausted the retry cap. A persistent blank becomes a friendly, actionable
+  // message; any other transport error propagates as before so callers can
+  // classify it (availability, billing fallback, etc.).
+  if (sawEmpty && lastError instanceof EmptyGenerationError) {
+    throw new Error(ON_DEVICE_EMPTY_MESSAGE);
+  }
+  throw lastError instanceof Error
+    ? lastError
+    : new Error(`Ollama generation failed: ${String(lastError)}`);
 }
 
 /**
