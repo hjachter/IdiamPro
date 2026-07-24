@@ -172,7 +172,7 @@ export default function PricingPage() {
             <h1 className="text-4xl md:text-5xl font-bold text-[#0b1533]">Pricing</h1>
           </div>
         {/* Plan Benefits — the "why" behind each plan (complements the comparison grid's "what") */}
-        <section className="px-6 pt-24 pb-8 lg:px-12">
+        <section className="px-6 pt-10 pb-8 lg:px-12">
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-14">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-600/20 border border-blue-600/30 mb-6">
