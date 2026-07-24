@@ -575,12 +575,22 @@ function CapabilitiesCondensed() {
               </p>
             </div>
           </div>
-          <a
-            href="/ideam-seminar.pptx"
-            className="inline-flex items-center gap-2 rounded-full border border-blue-600/40 bg-blue-600/5 px-5 py-3 text-sm font-bold text-[#1e40af] hover:bg-blue-600/10 hover:gap-3 transition-all shrink-0 self-start md:self-auto"
-          >
-            See our presentation <ArrowRight className="h-4 w-4" />
-          </a>
+          <div className="flex flex-col items-stretch gap-2.5 shrink-0 self-start md:self-auto">
+            <a
+              href="/presentation"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-br from-[#38bdf8] via-[#2563eb] to-[#4f46e5] px-5 py-3 text-sm font-bold text-white shadow-lg shadow-blue-700/30 hover:gap-3 transition-all"
+            >
+              See our presentation <ArrowRight className="h-4 w-4" />
+            </a>
+            <a
+              href="/ideam-seminar.pptx"
+              className="inline-flex items-center justify-center gap-1.5 text-xs font-semibold text-[#5b6b85] hover:text-[#1e40af] transition-colors"
+            >
+              Download the slides (PowerPoint / Keynote)
+            </a>
+          </div>
         </div>
 
         {/* CTA — the full page has the complete descriptions + Foundations + Coming soon */}
