@@ -34,8 +34,9 @@ import { DevSimulateFreeIndicator } from '@/components/dev-simulate-free-indicat
 import { FeatureFlagsProvider } from '@/components/feature-flags-provider';
 import BackupHealthWatcher from '@/components/backup-health-watcher';
 
-// NOTE: /og-image.png is referenced below but has not been designed yet.
-// A 1200x630 PNG should be added to /public/og-image.png before production launch.
+// Social link-preview image: /public/og-image.png (1200x630). Premium
+// "one idea → many outputs" card, IdeaM-branded. Re-render/edit the source at
+// /public/og/og-preview.html via `node scripts/og/render-og.js`.
 export const metadata: Metadata = {
   metadataBase: new URL('https://2ndbrainware.com'),
   title: {
@@ -75,7 +76,6 @@ export const metadata: Metadata = {
       'An AI-native outliner that helps you think, research, and write. Local-first, BYOK, cross-platform. From SecondBrainWare.',
     images: [
       {
-        // TODO: design and add /public/og-image.png (1200x630)
         url: '/og-image.png',
         width: 1200,
         height: 630,

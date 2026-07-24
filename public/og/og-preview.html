@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body { width: 1200px; height: 630px; }
+
+  #card {
+    position: relative;
+    width: 1200px;
+    height: 630px;
+    overflow: hidden;
+    font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+    /* Deep premium navy → near-black, brand-tinted */
+    background:
+      radial-gradient(1100px 780px at 78% 46%, rgba(37,99,235,0.30) 0%, rgba(37,99,235,0.10) 34%, rgba(6,9,18,0) 62%),
+      radial-gradient(900px 700px at 96% 88%, rgba(79,70,229,0.26) 0%, rgba(79,70,229,0) 58%),
+      radial-gradient(760px 620px at 10% 8%, rgba(56,189,248,0.14) 0%, rgba(56,189,248,0) 55%),
+      linear-gradient(150deg, #0b1230 0%, #070b1a 46%, #04060f 100%);
+    color: #fff;
+  }
+
+  /* Faint engineered dot-grid texture for the serious-tool feel */
+  #grid {
+    position: absolute; inset: 0;
+    background-image: radial-gradient(rgba(120,150,220,0.10) 1px, transparent 1.4px);
+    background-size: 34px 34px;
+    mask-image: radial-gradient(1200px 700px at 50% 45%, #000 0%, rgba(0,0,0,0.35) 70%, transparent 100%);
+    -webkit-mask-image: radial-gradient(1200px 700px at 50% 45%, #000 0%, rgba(0,0,0,0.35) 70%, transparent 100%);
+  }
+
+  /* Hairline top accent line */
+  #topline {
+    position: absolute; top: 0; left: 0; right: 0; height: 5px;
+    background: linear-gradient(90deg, #38bdf8 0%, #2563eb 46%, #4f46e5 100%);
+    opacity: 0.9;
+  }
+
+  /* ---------- LEFT: brand + tagline ---------- */
+  #left {
+    position: absolute;
+    left: 76px; top: 0; bottom: 0;
+    width: 560px;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+
+  #eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: 0.34em;
+    text-transform: uppercase;
+    color: #7f93c0;
+    margin-bottom: 26px;
+  }
+
+  #lockup { display: flex; align-items: center; gap: 22px; margin-bottom: 30px; }
+
+  #mark {
+    width: 86px; height: 86px; border-radius: 22px;
+    background: linear-gradient(150deg, #3b82f6 0%, #2563eb 48%, #1d4ed8 100%);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 12px 40px rgba(37,99,235,0.55), inset 0 1px 0 rgba(255,255,255,0.30);
+  }
+  #mark svg { width: 60%; height: 60%; }
+
+  #wordmark {
+    font-weight: 700;
+    font-size: 96px;
+    line-height: 0.92;
+    letter-spacing: -0.03em;
+  }
+  #wordmark .idea { color: #f4f7ff; }
+  #wordmark .m {
+    background: linear-gradient(135deg, #60c6ff 0%, #3b82f6 50%, #6366f1 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+
+  /* EDITABLE TAGLINE — Howard can swap this one line */
+  #tagline {
+    font-weight: 500;
+    font-size: 33px;
+    line-height: 1.32;
+    letter-spacing: -0.01em;
+    color: #c5d2ee;
+    max-width: 520px;
+    margin-bottom: 40px;
+  }
+  #tagline b { color: #ffffff; font-weight: 600; }
+
+  #url {
+    display: inline-flex; align-items: center; gap: 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 500; font-size: 19px; letter-spacing: 0.02em;
+    color: #8fa2ca;
+  }
+  #url .dot { width: 9px; height: 9px; border-radius: 50%; background: #38bdf8; box-shadow: 0 0 12px 2px rgba(56,189,248,0.85); }
+
+  /* ---------- RIGHT: one-idea → many-outputs motif ---------- */
+  #motif { position: absolute; right: 0; top: 0; width: 640px; height: 630px; }
+</style>
+</head>
+<body>
+  <div id="card">
+    <div id="grid"></div>
+    <div id="topline"></div>
+
+    <!-- Motif SVG: central idea spark → four output glyphs -->
+    <svg id="motif" viewBox="560 0 640 630" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="line" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#60c6ff"/>
+          <stop offset="1" stop-color="#6366f1"/>
+        </linearGradient>
+        <linearGradient id="chip" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="rgba(255,255,255,0.10)"/>
+          <stop offset="1" stop-color="rgba(255,255,255,0.03)"/>
+        </linearGradient>
+        <radialGradient id="core" cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0" stop-color="#bfe0ff"/>
+          <stop offset="0.5" stop-color="#3b82f6"/>
+          <stop offset="1" stop-color="#1d4ed8"/>
+        </radialGradient>
+        <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+          <feGaussianBlur stdDeviation="7" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="softglow" x="-120%" y="-120%" width="340%" height="340%">
+          <feGaussianBlur stdDeviation="16"/>
+        </filter>
+      </defs>
+
+      <!-- Central hub coordinates: (720, 315). Output nodes fan to the right. -->
+
+      <!-- soft aura behind hub -->
+      <circle cx="720" cy="315" r="96" fill="#2563eb" opacity="0.35" filter="url(#softglow)"/>
+
+      <!-- connector lines (draw under nodes) -->
+      <g fill="none" stroke="url(#line)" stroke-width="3" opacity="0.85" filter="url(#glow)">
+        <path d="M720 315 C 820 250, 880 150, 1004 118"/>
+        <path d="M720 315 C 850 300, 900 250, 1030 232"/>
+        <path d="M720 315 C 850 330, 900 380, 1030 398"/>
+        <path d="M720 315 C 820 380, 880 480, 1004 512"/>
+      </g>
+      <!-- travelling dots along the lines -->
+      <g fill="#bfe0ff">
+        <circle cx="880" cy="150" r="4.5"/>
+        <circle cx="905" cy="252" r="4.5"/>
+        <circle cx="905" cy="378" r="4.5"/>
+        <circle cx="880" cy="480" r="4.5"/>
+      </g>
+
+      <!-- output-node labels: mono, muted, centered below each chip -->
+      <g font-family="'IBM Plex Mono', monospace" font-size="14" font-weight="600"
+         letter-spacing="1.6" fill="#8ea3cc" text-anchor="middle">
+        <text x="1050" y="180">WRITE</text>
+        <text x="1076" y="294">PODCAST</text>
+        <text x="1076" y="460">VIDEO</text>
+        <text x="1050" y="574">SHARE</text>
+      </g>
+
+      <!-- ===== Output node 1: WRITE (document) at (1050,118) ===== -->
+      <g transform="translate(1050,118)">
+        <circle r="42" fill="url(#chip)" stroke="rgba(120,150,220,0.42)" stroke-width="1.5"/>
+        <circle r="42" fill="none" stroke="#60c6ff" stroke-width="1" opacity="0.25"/>
+        <g stroke="#eaf2ff" stroke-width="2.6" stroke-linecap="round" fill="none">
+          <rect x="-13" y="-16" width="26" height="32" rx="4" stroke="#eaf2ff" stroke-width="2.6"/>
+          <line x1="-7" y1="-7" x2="7" y2="-7"/>
+          <line x1="-7" y1="0" x2="7" y2="0"/>
+          <line x1="-7" y1="7" x2="2" y2="7"/>
+        </g>
+      </g>
+
+      <!-- ===== Output node 2: PODCAST (waveform) at (1076,232) ===== -->
+      <g transform="translate(1076,232)">
+        <circle r="42" fill="url(#chip)" stroke="rgba(120,150,220,0.42)" stroke-width="1.5"/>
+        <circle r="42" fill="none" stroke="#60c6ff" stroke-width="1" opacity="0.25"/>
+        <g stroke="#eaf2ff" stroke-width="3.4" stroke-linecap="round">
+          <line x1="-16" y1="-6" x2="-16" y2="6"/>
+          <line x1="-8"  y1="-12" x2="-8"  y2="12"/>
+          <line x1="0"   y1="-18" x2="0"   y2="18"/>
+          <line x1="8"   y1="-11" x2="8"   y2="11"/>
+          <line x1="16"  y1="-5" x2="16"  y2="5"/>
+        </g>
+      </g>
+
+      <!-- ===== Output node 3: VIDEO (play) at (1076,398) ===== -->
+      <g transform="translate(1076,398)">
+        <circle r="42" fill="url(#chip)" stroke="rgba(120,150,220,0.42)" stroke-width="1.5"/>
+        <circle r="42" fill="none" stroke="#60c6ff" stroke-width="1" opacity="0.25"/>
+        <path d="M-9 -14 L15 0 L-9 14 Z" fill="#eaf2ff"/>
+      </g>
+
+      <!-- ===== Output node 4: SHARE (social) at (1050,512) ===== -->
+      <g transform="translate(1050,512)">
+        <circle r="42" fill="url(#chip)" stroke="rgba(120,150,220,0.42)" stroke-width="1.5"/>
+        <circle r="42" fill="none" stroke="#60c6ff" stroke-width="1" opacity="0.25"/>
+        <g stroke="#eaf2ff" stroke-width="2.6" fill="none">
+          <circle cx="-13" cy="0" r="5" fill="#eaf2ff" stroke="none"/>
+          <circle cx="12" cy="-11" r="5" fill="#eaf2ff" stroke="none"/>
+          <circle cx="12" cy="11" r="5" fill="#eaf2ff" stroke="none"/>
+          <line x1="-9" y1="-2" x2="8" y2="-9" stroke-linecap="round"/>
+          <line x1="-9" y1="2" x2="8" y2="9" stroke-linecap="round"/>
+        </g>
+      </g>
+
+      <!-- ===== Central HUB: the one idea (Amplify mark) ===== -->
+      <g transform="translate(720,315)">
+        <circle r="58" fill="url(#core)" filter="url(#glow)"/>
+        <circle r="58" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="1.5"/>
+        <g transform="translate(-33,-33) scale(0.66)">
+          <rect x="20" y="56" width="12" height="20" rx="6" fill="#fff"/>
+          <rect x="38" y="42" width="12" height="34" rx="6" fill="#fff"/>
+          <rect x="56" y="28" width="12" height="48" rx="6" fill="#fff"/>
+          <rect x="74" y="14" width="12" height="62" rx="6" fill="#fff"/>
+        </g>
+      </g>
+    </svg>
+
+    <!-- LEFT brand block -->
+    <div id="left">
+      <div id="eyebrow">By SecondBrainWare</div>
+      <div id="lockup">
+        <div id="mark">
+          <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <rect x="20" y="56" width="12" height="20" rx="6" fill="#fff"/>
+            <rect x="38" y="42" width="12" height="34" rx="6" fill="#fff"/>
+            <rect x="56" y="28" width="12" height="48" rx="6" fill="#fff"/>
+            <rect x="74" y="14" width="12" height="62" rx="6" fill="#fff"/>
+          </svg>
+        </div>
+        <div id="wordmark"><span class="idea">Idea</span><span class="m">M</span></div>
+      </div>
+
+      <!-- ===== EDITABLE TAGLINE (swap this line only) ===== -->
+      <div id="tagline">Your <b>AI-native second brain</b> for thinkers and researchers.</div>
+      <!-- ================================================= -->
+
+      <div id="url"><span class="dot"></span>2ndbrainware.com</div>
+    </div>
+  </div>
+</body>
+</html>
