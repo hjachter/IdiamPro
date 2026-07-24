@@ -1,0 +1,190 @@
+{
+  "id": "ideam-demo-video-script-storyboard",
+  "name": "IdeaM Demo Video — Script & Storyboard",
+  "rootNodeId": "demo-root",
+  "nodes": {
+    "demo-root": {
+      "id": "demo-root",
+      "name": "IdeaM Demo Video — Script & Storyboard",
+      "content": "<p><strong>The one central demo video for IdeaM.</strong> Runtime target: <strong>8–10 minutes</strong>. Visual direction: <strong>light theme</strong> throughout (matches the new marketing site), real content in the content pane the whole way, and every menu shown physically <em>dropping down</em> as it's narrated.</p><p><strong>The story:</strong> Maya Okonkwo, a solo management consultant, has one weekend to turn four scattered sources into a hospital-board recommendation — and every finished deliverable that goes with it. We watch her bring the sources in, let IdeaM merge them into one line of thinking, develop the idea, absorb a client email that changes everything mid-flow, and then fan the single outline out into a slide deck, a podcast, an email, and a social post.</p><p><strong>How to read this file:</strong> one section per scene. Each scene's content holds two blocks — <strong>ON SCREEN</strong> (the storyboard: which menu drops, what's in the content pane, the action, rough duration) and <strong>NARRATION</strong> (the exact voiceover words for a warm, confident human voice to read).</p><p><em>Total narration ≈ 1,460 words · 11 scenes · fits comfortably under 10 minutes.</em></p>",
+      "type": "root",
+      "parentId": null,
+      "childrenIds": [
+        "scene-1",
+        "scene-2",
+        "scene-3",
+        "scene-4",
+        "scene-5",
+        "scene-6",
+        "scene-7",
+        "scene-8",
+        "scene-9",
+        "scene-10",
+        "scene-11",
+        "scene-prod"
+      ],
+      "prefix": "",
+      "metadata": {
+        "createdAt": 1784908803154,
+        "updatedAt": 1784908803154
+      }
+    },
+    "scene-1": {
+      "id": "scene-1",
+      "name": "Scene 1 — Cold Open: The Friday-Night Pile",
+      "content": "<p><strong>ON SCREEN</strong> (≈45s)</p><ul><li>Live-action / stylized: Maya at a desk, warm lamp light, a laptop and a physical mess — a paused YouTube talk, a fat printed report, a browser with a dozen tabs, a spiral notebook.</li><li>Clock in the corner reads 9:07 PM, Friday. A calendar chip says “Board meeting · Monday 9:00 AM.”</li><li>Cut to a clean IdeaM window opening on the <strong>light theme</strong> — an empty outline titled “AI Scribes — Board Recommendation.” Cursor blinking. Anticipation.</li></ul><p><strong>NARRATION</strong></p><p>It's Friday, a little after nine. Maya is an independent consultant, and on Monday morning she has to walk into a hospital boardroom and answer one question: should they give their doctors AI scribes? Right now, that answer is a mess on her desk. A conference talk she half-watched. A ninety-page vendor report she hasn't opened. A journal article buried in twelve browser tabs. And her own scribbled notes from two physician interviews. Four sources, four formats, one weekend — and nothing that looks remotely like a decision. This is the exact moment IdeaM was built for. Let's watch her turn that pile into finished work.</p>",
+      "type": "chapter",
+      "parentId": "demo-root",
+      "childrenIds": [],
+      "prefix": "1",
+      "metadata": {
+        "createdAt": 1784908803154,
+        "updatedAt": 1784908803154
+      }
+    },
+    "scene-2": {
+      "id": "scene-2",
+      "name": "Scene 2 — Bring In: Four Sources, One Door",
+      "content": "<p><strong>ON SCREEN</strong> (≈60s)</p><ul><li>Toolbar in focus. Cursor moves to <strong>Bring In</strong> (the import button). The menu <em>drops down</em>: <em>Research &amp; Import · Import Outline · Refresh from Web.</em></li><li>She clicks <strong>Research &amp; Import</strong>. Dialog opens with a single “add your sources” box.</li><li>In quick succession: pastes a <strong>YouTube</strong> link (the conference talk), drags in the <strong>PDF</strong> (the 90-page vendor report), pastes the <strong>web article</strong> URL (the journal piece), and pastes her raw <strong>interview notes</strong> as text. Four chips appear stacked in the box.</li><li>Clicks <strong>Combine</strong>. A tidy progress list appears: “Watching video… Reading PDF… Reading article…”</li></ul><p><strong>NARRATION</strong></p><p>She starts where the work actually lives — with the sources. Up in the toolbar she clicks Bring In. That's IdeaM's front door for anything from the outside world. The menu drops down: Research and Import, Import Outline, Refresh from Web. She picks Research and Import. Now watch — she doesn't handle these one at a time. She pastes the YouTube link to the conference talk. She drags in the ninety-page report. She drops in the journal article's web address. And she pastes her raw interview notes right into the box. Four completely different kinds of source, all going in together. She clicks Combine. And IdeaM reads every one of them — it watches the video, reads the report, opens the article — so she doesn't have to.</p>",
+      "type": "chapter",
+      "parentId": "demo-root",
+      "childrenIds": [],
+      "prefix": "2",
+      "metadata": {
+        "createdAt": 1784908803154,
+        "updatedAt": 1784908803154
+      }
+    },
+    "scene-3": {
+      "id": "scene-3",
+      "name": "Scene 3 — The Merge: A Pile Becomes One Idea",
+      "content": "<p><strong>ON SCREEN</strong> (≈55s)</p><ul><li>Progress finishes: “Synthesizing across 4 sources…” Then the outline pane <em>blooms</em> — an empty tree fills top-down into real chapters: <em>The Case For · The Case Against · Cost &amp; Return · What the Doctors Said · Vendor Landscape.</em></li><li>Content pane (right) shows one section open with clean synthesized prose + bullets — clearly stitched from multiple sources, not one.</li><li>Hover reveals a small <strong>Sources</strong> chip on a node — the citations tracked underneath.</li></ul><p><strong>NARRATION</strong></p><p>And here's the moment that makes IdeaM different from a folder of downloads. It doesn't just pile the four sources up next to each other. It reads across all of them at once and finds the through-lines — the places where the analyst, the report, the journal, and Maya's own interviews are all talking about the same thing. In a few seconds, the pile becomes an outline. The case for. The case against. Cost and return. What the doctors actually said. And underneath every point, IdeaM tracks exactly which source it came from, so she can always trace a claim back to where it started. She didn't organize any of this. She brought in four things — and got back one coherent line of thinking.</p>",
+      "type": "chapter",
+      "parentId": "demo-root",
+      "childrenIds": [],
+      "prefix": "3",
+      "metadata": {
+        "createdAt": 1784908803154,
+        "updatedAt": 1784908803154
+      }
+    },
+    "scene-4": {
+      "id": "scene-4",
+      "name": "Scene 4 — Explore: Holding It All In One Hand",
+      "content": "<p><strong>ON SCREEN</strong> (≈40s)</p><ul><li>Maya clicks through nodes; the content pane fills with genuinely readable synthesis (real sentences, not lorem).</li><li>She opens <strong>Search</strong>, types “burnout” — the tree compresses in real time to just the matches and their parents.</li><li>She <strong>Zooms In</strong> on “What the Doctors Said,” and everything else tucks away; a breadcrumb shows the way back.</li></ul><p><strong>NARRATION</strong></p><p>Now she can actually think. She clicks through the outline and the full detail opens on the right — real, readable synthesis, not just headlines. She wants everything the sources said about burnout, so she searches the word, and the outline folds down to just the matches. She zooms into the physician branch to work on it alone, with everything else tucked out of the way. A big pile of research a minute ago — and now she's holding all of it in one hand.</p>",
+      "type": "chapter",
+      "parentId": "demo-root",
+      "childrenIds": [],
+      "prefix": "4",
+      "metadata": {
+        "createdAt": 1784908803154,
+        "updatedAt": 1784908803154
+      }
+    },
+    "scene-5": {
+      "id": "scene-5",
+      "name": "Scene 5 — Develop the Idea: Smart Tools & Your Voice",
+      "content": "<p><strong>ON SCREEN</strong> (≈70s)</p><ul><li>Toolbar <strong>Smart Tools</strong> menu <em>drops down</em>: <em>Summarize outline · Transform outline with AI · Translate this section.</em></li><li>Picks <strong>Summarize outline</strong> → chooses “Brief” → a new “… — Summary” outline appears nested under the original (original untouched).</li><li>Picks <strong>Transform outline with AI</strong> → types “Put Cost &amp; Return first; merge the two vendor sections.” Before/after tree shows color-coded changes (green added, blue moved, amber renamed) with a one-line summary. Clicks Apply.</li><li>Brief glimpse of Settings → <strong>Your Voice</strong> profile already learned; an “<strong>In my voice</strong>” checkbox visible in a wizard.</li></ul><p><strong>NARRATION</strong></p><p>The research is solid — but it's dense, and a board doesn't want dense. So she opens Smart Tools. First, Summarize: one click distills the whole thing down to the handful of points that actually matter, saved as its own summary so the detailed version stays safe. Then Transform — she just types what she wants in plain English: put cost and return first, and merge the two vendor sections into one. IdeaM shows her exactly what it'll change — added, moved, merged, all color-coded — before a single thing actually moves. And because she taught IdeaM how she writes earlier, there's an “in my voice” option waiting. From here on, whatever she generates will sound like Maya — not like a robot, and not like everybody else.</p>",
+      "type": "chapter",
+      "parentId": "demo-root",
+      "childrenIds": [],
+      "prefix": "5",
+      "metadata": {
+        "createdAt": 1784908803154,
+        "updatedAt": 1784908803154
+      }
+    },
+    "scene-6": {
+      "id": "scene-6",
+      "name": "Scene 6 — The Email Interruption (the curveball)",
+      "content": "<p><strong>ON SCREEN</strong> (≈75s)</p><ul><li>A mail notification slides in over the app: <em>“Chief Medical Officer — re: Scribe recommendation.”</em> Maya reacts — this is the moment a normal Friday derails.</li><li>Instead of leaving IdeaM, she opens <strong>Bring In</strong> → <strong>Import Email</strong> (menu drops). Pastes the email thread into the box; chooses <strong>Add to current outline</strong>.</li><li>IdeaM produces a clean sub-branch: <em>CMO Constraints — Summary · Key Points · Decisions · Action Items</em> (a hard budget cap; a nursing-staff concern to address).</li><li>A small labeled “Filtered — likely junk” note shows one off-topic reply set aside (not deleted).</li></ul><p><strong>NARRATION</strong></p><p>And then — because this is real life — the phone buzzes. It's an email from the hospital's chief medical officer, and it changes things. There's now a hard budget cap, and the nursing staff have raised a concern that has to be addressed in the recommendation. On any normal Friday, this is where the whole evening derails. Not here. Maya doesn't leave IdeaM to go wrestle with her inbox. She opens Bring In, chooses Import Email, and pastes the thread straight in. IdeaM reads it and turns that wall of back-and-forth into a clean little outline of its own — the summary, the key points, the decisions, the action items — and folds it right into her research. It even quietly sets one junk reply aside, without deleting a thing. The curveball just became another organized source.</p>",
+      "type": "chapter",
+      "parentId": "demo-root",
+      "childrenIds": [],
+      "prefix": "6",
+      "metadata": {
+        "createdAt": 1784908803154,
+        "updatedAt": 1784908803154
+      }
+    },
+    "scene-7": {
+      "id": "scene-7",
+      "name": "Scene 7 — Reshape Around the New Reality",
+      "content": "<p><strong>ON SCREEN</strong> (≈40s)</p><ul><li>Maya drags the budget-cap point into <strong>Cost &amp; Return</strong> and the nursing concern into <strong>What the Doctors Said</strong> — or re-runs Transform to place them. Tree settles.</li><li>Right-clicks the Vendor pricing node → <strong>Refresh from Web</strong> → side-by-side preview updates the figures to the latest; she accepts. A “Refreshed” sources chip appears.</li></ul><p><strong>NARRATION</strong></p><p>With the new constraints in hand, she reshapes one more time — the budget cap slots into the cost section, the nursing concern into the physician branch — so the recommendation answers the question the client is actually asking now. She even refreshes the vendor pricing against the live web, so the numbers she presents Monday are the numbers as of this weekend, not last quarter. Twenty minutes in, and the thinking is done. Now comes the fun part — turning one outline into everything she has to deliver.</p>",
+      "type": "chapter",
+      "parentId": "demo-root",
+      "childrenIds": [],
+      "prefix": "7",
+      "metadata": {
+        "createdAt": 1784908803154,
+        "updatedAt": 1784908803154
+      }
+    },
+    "scene-8": {
+      "id": "scene-8",
+      "name": "Scene 8 — The Payoff (1): Turn Into → Slide Deck",
+      "content": "<p><strong>ON SCREEN</strong> (≈75s)</p><ul><li>Cursor to the toolbar <strong>Turn Into</strong> button. The menu <em>drops down and we hold on it</em> so the full breadth reads: <em>Slide Deck · Generate Video · Generate Podcast · Export Email · Share to Social · Website · Interactive Outline · PDF · Markdown · HTML · OPML · Obsidian · CSV · JSON.</em> (Let the list linger — this is the “whoa” beat.)</li><li>Picks <strong>Slide Deck</strong>. Small dialog: <strong>light theme</strong>, accent color, depth. Clicks Create.</li><li>A real <strong>.pptx</strong> renders: title slide, one slide per section with her bullets, and a slide where cost-per-doctor / hours-saved numbers become an <strong>editable bar chart</strong> instead of text.</li></ul><p><strong>NARRATION</strong></p><p>This is the payoff. She clicks Turn Into — and just look at everything one outline can become. A slide deck. A narrated video. A podcast. An email. Posts for every social network. A whole website. A PDF, and more besides — the same thinking, ready for a dozen different destinations. The board wants slides, so she picks Slide Deck. She chooses a clean light theme and her accent color, and IdeaM builds a real PowerPoint — one that opens in Keynote too — straight from her outline. One slide per section, her points as the bullets. And where she has numbers — cost per doctor, hours saved — IdeaM doesn't dump digits on a slide; it draws them as an actual chart she can still edit. No designer. No midnight in PowerPoint. A boardroom-ready deck, built from work she'd already done.</p>",
+      "type": "chapter",
+      "parentId": "demo-root",
+      "childrenIds": [],
+      "prefix": "8",
+      "metadata": {
+        "createdAt": 1784908803154,
+        "updatedAt": 1784908803154
+      }
+    },
+    "scene-9": {
+      "id": "scene-9",
+      "name": "Scene 9 — The Payoff (2): Generate Podcast",
+      "content": "<p><strong>ON SCREEN</strong> (≈50s)</p><ul><li>Maya <strong>right-clicks</strong> the outline root (or a chapter) → context menu → <strong>Generate Podcast</strong>.</li><li>Dialog: style <strong>Two-Host</strong>, two voices assigned, length <strong>Standard</strong>. Clicks Generate.</li><li>An audio player + waveform appears; she hits play and two natural voices are heard discussing her recommendation. Saves as MP3.</li></ul><p><strong>NARRATION</strong></p><p>But two members of the steering committee never read the deck — they listen on their commute. So Maya gives them something to listen to. She right-clicks her outline and chooses Generate Podcast. She picks a two-host style, and IdeaM writes a natural back-and-forth from her research and reads it aloud in real voices — a genuine little briefing episode, two people talking through her recommendation. She previews it right in the app and saves it as audio. The same outline that became a deck is now a five-minute podcast — and she never recorded a single word.</p>",
+      "type": "chapter",
+      "parentId": "demo-root",
+      "childrenIds": [],
+      "prefix": "9",
+      "metadata": {
+        "createdAt": 1784908803154,
+        "updatedAt": 1784908803154
+      }
+    },
+    "scene-10": {
+      "id": "scene-10",
+      "name": "Scene 10 — The Payoff (3): Email & Social, In Her Voice",
+      "content": "<p><strong>ON SCREEN</strong> (≈60s)</p><ul><li><strong>Turn Into</strong> → <strong>Export Email</strong>. Tone “Friendly professional,” <strong>In my voice</strong> ticked. An editable preview shows a real subject line + body.</li><li>A gentle <strong>“Please review these”</strong> quality-check note flags one claim to double-check against her sources — she confirms it. Clicks <strong>Open in Gmail</strong>; a pre-filled compose window appears.</li><li>Then <strong>Turn Into</strong> → <strong>Share to Social</strong> → platform picker → <strong>LinkedIn</strong>, <strong>In my voice</strong>. Editable post preview with a live character count. She reviews; nothing auto-posts.</li></ul><p><strong>NARRATION</strong></p><p>The chief medical officer asked for a heads-up before Monday, so she turns the recommendation into an email — Turn Into, Export Email. She keeps it warm and professional, in her own voice, and IdeaM writes a real message: a subject line, a proper greeting, the key points, a sign-off. And before it hands the draft over, it quietly checks it against her own research and flags anything the sources don't actually support — so she never sends a number she can't stand behind. One click opens it in Gmail, ready to go. Then, to build her own name in the field, she shares a short version to LinkedIn — again, in her voice, written to fit, ready to post. She reviews every word. IdeaM never sends anything for her.</p>",
+      "type": "chapter",
+      "parentId": "demo-root",
+      "childrenIds": [],
+      "prefix": "10",
+      "metadata": {
+        "createdAt": 1784908803154,
+        "updatedAt": 1784908803154
+      }
+    },
+    "scene-11": {
+      "id": "scene-11",
+      "name": "Scene 11 — Close: A Decision, Not a Pile",
+      "content": "<p><strong>ON SCREEN</strong> (≈40s)</p><ul><li>Monday, 9:00 AM. Maya walks into a bright boardroom; her deck is up on the big screen; heads nod.</li><li>Fast montage: the four scattered sources → one clean outline → the deck, the podcast player, the sent email, the LinkedIn post — radiating out from a single IdeaM window (light theme).</li><li>End card: IdeaM logo on light background. Tagline lands line by line.</li></ul><p><strong>NARRATION</strong></p><p>Monday morning. Maya walks into that boardroom with a decision — not a pile. A deck on the screen. A podcast already in the committee's ears. An email that's been read. And her own voice out in the world. Friday night, she had four scattered sources and a knot in her stomach. She didn't work all weekend. She brought her sources into one place, let them become one clear idea, and turned that idea into everything she needed to deliver. That's IdeaM. Bring in anything. Think it through once. Send it everywhere.</p>",
+      "type": "chapter",
+      "parentId": "demo-root",
+      "childrenIds": [],
+      "prefix": "11",
+      "metadata": {
+        "createdAt": 1784908803154,
+        "updatedAt": 1784908803154
+      }
+    },
+    "scene-prod": {
+      "id": "scene-prod",
+      "name": "Production Notes (for the editor & voice talent)",
+      "content": "<p><strong>ON SCREEN / DIRECTION</strong></p><ul><li><strong>Theme:</strong> light theme in every app shot — consistency with the marketing site is deliberate.</li><li><strong>Menus:</strong> every menu should be filmed physically <em>dropping down</em> and held a beat while narrated; the Turn Into menu in Scene 8 is the hero shot — hold longest so viewers absorb the breadth of formats.</li><li><strong>Content pane:</strong> always show real, legible synthesis — never placeholder text. The believability of the content sells the product.</li><li><strong>Real feature names used (all verified against the app):</strong> Bring In → Research &amp; Import / Import Email / Refresh from Web; Smart Tools → Summarize outline / Transform outline with AI / Translate; Your Voice (“In my voice”); Turn Into → Slide Deck / Generate Video / Generate Podcast / Export Email / Share to Social (X, Instagram, LinkedIn, Facebook, Threads, Bluesky, YouTube) / Website / PDF / Markdown / OPML / Obsidian / CSV / JSON; automatic quality check; the Sources chip.</li><li><strong>Voice talent:</strong> warm, confident, unhurried; a friend who happens to be brilliant — not an ad announcer. Let the payoff scenes breathe. Smile audible on the last three lines.</li><li><strong>Pacing:</strong> Scenes 1–7 build the story (≈5 min); Scenes 8–10 are the rapid, satisfying payoff (≈3 min); Scene 11 lands it (≈40s). Total ≈ 8–10 min.</li><li><strong>Honesty note:</strong> keep the “IdeaM never sends anything for her / you always review” beat — it's true and it builds trust.</li></ul>",
+      "type": "chapter",
+      "parentId": "demo-root",
+      "childrenIds": [],
+      "prefix": "12",
+      "metadata": {
+        "createdAt": 1784908803154,
+        "updatedAt": 1784908803154
+      }
+    }
+  },
+  "lastModified": 1784908803154
+}
