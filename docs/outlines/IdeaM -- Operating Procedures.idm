@@ -1,0 +1,439 @@
+{
+  "id": "operating-procedures-outline",
+  "name": "IdeaM -- Operating Procedures",
+  "rootNodeId": "root",
+  "nodes": {
+    "root": {
+      "id": "root",
+      "name": "IdeaM -- Operating Procedures",
+      "content": "<p><strong>Your Development Superpowers — a Plain-English Guide</strong></p><p>Over many sessions you and I have built up a set of habits and shortcuts that make building IdeaM fast, smooth, and low-stress. This guide gathers all of them in one place, written for you — the owner — not for an engineer. No code, no jargon: just what each rule does and why it helps.</p><p>Think of these as the house rules for how we work together. The headline is <strong>auto-publish</strong>: once something is fixed and genuinely tested, it just ships — you don't have to ask. But there's a lot more here, from how we talk to how decisions get made.</p><p><em>This is a living document. As we discover better ways to work, we add them here. Last updated: 7/22/26.</em></p>",
+      "type": "root",
+      "parentId": null,
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "sec-how-we-talk": {
+      "id": "sec-how-we-talk",
+      "name": "How we talk",
+      "content": "<p>The ground rules for our back-and-forth, so every exchange is clear and effortless for you.</p>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": [
+        "talk-plain-english",
+        "talk-amber-flags",
+        "talk-talk-to-me",
+        "talk-match-length",
+        "talk-direct-urls",
+        "talk-candid"
+      ],
+      "isCollapsed": true,
+      "prefix": "1"
+    },
+    "talk-plain-english": {
+      "id": "talk-plain-english",
+      "name": "Plain English only",
+      "content": "<p>I never show you code, file paths, error dumps, or terminal output. Everything I report comes back as ordinary English — what got done, what it means, and what (if anything) you need to decide. All the technical machinery runs quietly in the background where you never have to see it.</p>",
+      "type": "document",
+      "parentId": "sec-how-we-talk",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "1.1"
+    },
+    "talk-amber-flags": {
+      "id": "talk-amber-flags",
+      "name": "Amber flags for the critical",
+      "content": "<p>When a line genuinely needs your eyes — a decision only you can make, a blocker, a real bug, or a key result — I mark it with an amber dot 🟠. You can glance at the screen and instantly spot what matters. I keep these rare on purpose, so the signal stays meaningful.</p>",
+      "type": "document",
+      "parentId": "sec-how-we-talk",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "1.2"
+    },
+    "talk-talk-to-me": {
+      "id": "talk-talk-to-me",
+      "name": "The 'TALK TO ME' signal",
+      "content": "<p>Every time I finish and it's genuinely your turn, my last line reads TALK TO ME. That's your unmistakable 'I'm done, your move' flag. If you don't see it, I'm still working. It only appears when the work has actually stopped — never as filler.</p>",
+      "type": "document",
+      "parentId": "sec-how-we-talk",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "1.3"
+    },
+    "talk-match-length": {
+      "id": "talk-match-length",
+      "name": "Match length to the task",
+      "content": "<p>A quick question gets a quick answer, not a wall of text. Status updates stay to a sentence or two. I only unfold into longer, structured replies when there's genuinely a lot to cover. Your time isn't spent wading through padding.</p>",
+      "type": "document",
+      "parentId": "sec-how-we-talk",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "1.4"
+    },
+    "talk-direct-urls": {
+      "id": "talk-direct-urls",
+      "name": "Always give direct links",
+      "content": "<p>Whenever I send you to a settings page, a dashboard, or any website, I give you the exact clickable link — never 'click here, then there.' Menu directions go stale as companies redesign their sites; a direct link just works and saves you hunting.</p>",
+      "type": "document",
+      "parentId": "sec-how-we-talk",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "1.5"
+    },
+    "talk-candid": {
+      "id": "talk-candid",
+      "name": "Straight talk, no hedging",
+      "content": "<p>I skip empty prefaces like 'to be honest' — you already assume I'm honest. When there's a real caveat worth flagging, I just say it plainly. And I don't over-apologize or drown decisions in false modesty; I use my judgment and tell you the result.</p>",
+      "type": "document",
+      "parentId": "sec-how-we-talk",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "1.6"
+    },
+    "sec-how-work-ships": {
+      "id": "sec-how-work-ships",
+      "name": "How work ships",
+      "content": "<p>How finished work gets out the door — including the biggest time-saver we have.</p>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": [
+        "ship-publish-word",
+        "ship-auto-publish",
+        "ship-carve-outs"
+      ],
+      "isCollapsed": true,
+      "prefix": "2"
+    },
+    "ship-publish-word": {
+      "id": "ship-publish-word",
+      "name": "The word 'publish'",
+      "content": "<p>When you say 'publish' — in any form — I run the whole ship-it routine end to end: a final check that everything compiles cleanly, a careful commit with a clear description, a push live, and the platform syncs (like keeping the iPhone version current). You say one word; I handle the rest and confirm what shipped.</p>",
+      "type": "document",
+      "parentId": "sec-how-work-ships",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "2.1"
+    },
+    "ship-auto-publish": {
+      "id": "ship-auto-publish",
+      "name": "Auto-publish (the star)",
+      "content": "<p>The headline superpower: once something is fixed and genuinely tested, I just ship it — I don't stop to ask permission. Your availability comes and goes, and a blocking question can idle the work for hours. So instead of waiting, I make the safe, sensible call, ship it, and tell you what I did. Momentum stays with us, not with a pending question.</p>",
+      "type": "document",
+      "parentId": "sec-how-work-ships",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "2.2"
+    },
+    "ship-carve-outs": {
+      "id": "ship-carve-outs",
+      "name": "The only things I pause for",
+      "content": "<p>Auto-publish has just a few carve-outs — the things that are truly yours to decide: money flowing in or out, anything legal or regulatory, and big changes to brand voice on public-facing pages. Those I bring to you. Everything else that's reversible and technical, I handle and document.</p>",
+      "type": "document",
+      "parentId": "sec-how-work-ships",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "2.3"
+    },
+    "sec-quality-gates": {
+      "id": "sec-quality-gates",
+      "name": "Quality gates",
+      "content": "<p>The bar every change has to clear before I call it done. 'Done' means proven, not hoped.</p>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": [
+        "qa-build-clean",
+        "qa-playwright",
+        "qa-verify-not-hope",
+        "qa-keep-app-alive",
+        "qa-test-everything"
+      ],
+      "isCollapsed": true,
+      "prefix": "3"
+    },
+    "qa-build-clean": {
+      "id": "qa-build-clean",
+      "name": "Build clean first",
+      "content": "<p>Before I ever call code good, I run a full clean build — the real production build, not a shortcut. If it doesn't compile cleanly, it isn't done. The build is the source of truth; my optimism isn't.</p>",
+      "type": "document",
+      "parentId": "sec-quality-gates",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "3.1"
+    },
+    "qa-playwright": {
+      "id": "qa-playwright",
+      "name": "Really test it, don't guess",
+      "content": "<p>For anything you'd actually see or click, I drive it in a real automated test — launching the app, clicking the buttons, typing in the fields — and confirm it behaves. A passing build only proves the code compiles; it does not prove the feature works. I've been burned by that difference, so I always exercise the real thing.</p>",
+      "type": "document",
+      "parentId": "sec-quality-gates",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "3.2"
+    },
+    "qa-verify-not-hope": {
+      "id": "qa-verify-not-hope",
+      "name": "Verify, don't hope",
+      "content": "<p>Phrases like 'should work' or 'the build passed so it's fine' are red flags — they swap hope for evidence. I actually look at the result with a human eye (render the video, open the dialog, read the slide) before telling you it's good.</p>",
+      "type": "document",
+      "parentId": "sec-quality-gates",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "3.3"
+    },
+    "qa-keep-app-alive": {
+      "id": "qa-keep-app-alive",
+      "name": "Keep the app alive",
+      "content": "<p>Before I sign off, I make sure your app is still running and usable. If I had to close it during testing, I quietly restart it. You explore and test between turns, so I never hand you a broken environment.</p>",
+      "type": "document",
+      "parentId": "sec-quality-gates",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "3.4"
+    },
+    "qa-test-everything": {
+      "id": "qa-test-everything",
+      "name": "'TEST EVERYTHING' trigger",
+      "content": "<p>Say 'TEST EVERYTHING' and I run the entire test suite automatically — no babysitting. I close the app, make sure the server is up, run every test, read the reports, summarize the results in plain English, log them, and file any new bugs so nothing slips through the cracks.</p>",
+      "type": "document",
+      "parentId": "sec-quality-gates",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "3.5"
+    },
+    "sec-decisions": {
+      "id": "sec-decisions",
+      "name": "How decisions get made",
+      "content": "<p>Who decides what — so we move fast without me overstepping.</p>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": [
+        "dec-autonomous",
+        "dec-escalate",
+        "dec-latest-wins",
+        "dec-trust-hypothesis"
+      ],
+      "isCollapsed": true,
+      "prefix": "4"
+    },
+    "dec-autonomous": {
+      "id": "dec-autonomous",
+      "name": "I proceed on my own",
+      "content": "<p>For reversible, technical, or default-type choices, I just make the call and keep moving — then document what I decided and why. I don't stop to ask ordering or 'should I keep going?' questions, because waiting on you can stall things for hours. Progress with a note beats a blocking question.</p>",
+      "type": "document",
+      "parentId": "sec-decisions",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "4.1"
+    },
+    "dec-escalate": {
+      "id": "dec-escalate",
+      "name": "I escalate only your items",
+      "content": "<p>The only decisions I bring to you are the genuinely-yours ones: money in or out, legal or regulatory commitments, brand voice, and anything only you can physically do (your accounts, your hardware, your presence). Even then, I park the blocker on the list and keep working on everything else rather than sitting idle.</p>",
+      "type": "document",
+      "parentId": "sec-decisions",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "4.2"
+    },
+    "dec-latest-wins": {
+      "id": "dec-latest-wins",
+      "name": "Latest definition wins",
+      "content": "<p>When you describe something one way and then refine it later in the same conversation, I use the later version and discard the first. Your thinking sharpens as you talk it through, so the most recent take carries the most thought — that's the one I build from.</p>",
+      "type": "document",
+      "parentId": "sec-decisions",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "4.3"
+    },
+    "dec-trust-hypothesis": {
+      "id": "dec-trust-hypothesis",
+      "name": "I trust your hunch first",
+      "content": "<p>When you say you're seeing a particular problem, I investigate exactly that before spinning up grander theories. You've been right far more often than the elaborate root-cause hunts — usually you mean precisely what you said.</p>",
+      "type": "document",
+      "parentId": "sec-decisions",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "4.4"
+    },
+    "sec-invisible": {
+      "id": "sec-invisible",
+      "name": "How code work stays invisible",
+      "content": "<p>The trick that keeps your screen clean while real engineering happens underneath.</p>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": [
+        "inv-subagents",
+        "inv-safe-edits"
+      ],
+      "isCollapsed": true,
+      "prefix": "5"
+    },
+    "inv-subagents": {
+      "id": "inv-subagents",
+      "name": "Helpers absorb the noise",
+      "content": "<p>For anything that would spill code, diffs, or build chatter onto your screen, I hand the work to a private helper that does it out of sight. Only my plain-English summary comes back to you. You get the results and the decisions, never the raw mess.</p>",
+      "type": "document",
+      "parentId": "sec-invisible",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "5.1"
+    },
+    "inv-safe-edits": {
+      "id": "inv-safe-edits",
+      "name": "Outline edits are safe",
+      "content": "<p>I can update your project outlines even while the app is open — it only re-saves outlines you've actually been editing in-app, so my changes won't get clobbered. If you've been hands-on in a particular outline, I just ask first. No more overcautious refusing to touch files, which used to waste time for no reason.</p>",
+      "type": "document",
+      "parentId": "sec-invisible",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "5.2"
+    },
+    "sec-naming-design": {
+      "id": "sec-naming-design",
+      "name": "Naming & design principles",
+      "content": "<p>The taste rules that keep IdeaM feeling like a serious, polished tool.</p>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": [
+        "nd-name-what-it-does",
+        "nd-professional",
+        "nd-two-word-buttons"
+      ],
+      "isCollapsed": true,
+      "prefix": "6"
+    },
+    "nd-name-what-it-does": {
+      "id": "nd-name-what-it-does",
+      "name": "Name what it does",
+      "content": "<p>Every button, menu, and label is named for the outcome it gives you — not the technology behind it. 'Refresh from Web' instead of a clever internal codename; 'Find similar content' instead of the algorithm's name. If a non-technical person couldn't tell what a button does from its label, I rewrite it.</p>",
+      "type": "document",
+      "parentId": "sec-naming-design",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "6.1"
+    },
+    "nd-professional": {
+      "id": "nd-professional",
+      "name": "Professional, never a toy",
+      "content": "<p>The interface always feels like a serious professional tool. That means larger, confident buttons over tiny icons, clean uncluttered layouts, and nothing that reads as gimmicky. IdeaM should feel trustworthy the moment someone opens it.</p>",
+      "type": "document",
+      "parentId": "sec-naming-design",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "6.2"
+    },
+    "nd-two-word-buttons": {
+      "id": "nd-two-word-buttons",
+      "name": "Two-word buttons, tooltips explain",
+      "content": "<p>Visible button labels stay to two words at most. Anything longer — the full explanation or a keyboard hint — lives in a tooltip that appears on hover. The screen stays calm and readable, and the detail is there when someone wants it.</p>",
+      "type": "document",
+      "parentId": "sec-naming-design",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "6.3"
+    },
+    "sec-memory-docs": {
+      "id": "sec-memory-docs",
+      "name": "Memory & documentation",
+      "content": "<p>How the project remembers itself, so knowledge never evaporates between sessions.</p>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": [
+        "md-memory",
+        "md-feature-docs",
+        "md-dual-sync",
+        "md-conversation-log",
+        "md-decisions-log"
+      ],
+      "isCollapsed": true,
+      "prefix": "7"
+    },
+    "md-memory": {
+      "id": "md-memory",
+      "name": "Memory across sessions",
+      "content": "<p>The way we work together is written down and carried into every session — both the cross-project house rules and the IdeaM-specific ones. The moment a new working rule emerges, I record it right away so a fresh session inherits it instead of us relearning it.</p>",
+      "type": "document",
+      "parentId": "sec-memory-docs",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "7.1"
+    },
+    "md-feature-docs": {
+      "id": "md-feature-docs",
+      "name": "Feature docs kept current",
+      "content": "<p>Whenever a new feature ships, I update the guides that describe it — the in-app user guide, the help assistant's knowledge, and the plain-language 'How it works' outline — before the work counts as done. The documentation never falls behind the app.</p>",
+      "type": "document",
+      "parentId": "sec-memory-docs",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "7.2"
+    },
+    "md-dual-sync": {
+      "id": "md-dual-sync",
+      "name": "Outlines synced in two places",
+      "content": "<p>The important project outlines live in two spots that I keep byte-for-byte identical: the folder your app reads from, and the project folder that gets version-controlled. Edit one, I sync the other, so what you see and what's saved for safekeeping always match.</p>",
+      "type": "document",
+      "parentId": "sec-memory-docs",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "7.3"
+    },
+    "md-conversation-log": {
+      "id": "md-conversation-log",
+      "name": "Conversation log at session end",
+      "content": "<p>At the end of every session I refresh the conversation log — a dated record of what we discussed and what changed. It's built by carefully adding new days on top of the old ones, never overwriting, so the full history is always preserved.</p>",
+      "type": "document",
+      "parentId": "sec-memory-docs",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "7.4"
+    },
+    "md-decisions-log": {
+      "id": "md-decisions-log",
+      "name": "Decisions Log",
+      "content": "<p>Whenever I make a product or design call on my own, I write it down — the date, the decision, why I made it, and how to reverse it if you ever want to. Nothing important gets decided in the dark; there's always a trail you can revisit.</p>",
+      "type": "document",
+      "parentId": "sec-memory-docs",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "7.5"
+    },
+    "sec-voice": {
+      "id": "sec-voice",
+      "name": "Voice",
+      "content": "<p>Talking to the project instead of typing — set up to just work.</p>",
+      "type": "chapter",
+      "parentId": "root",
+      "childrenIds": [
+        "voice-auto-start",
+        "voice-dictation-friendly"
+      ],
+      "isCollapsed": true,
+      "prefix": "8"
+    },
+    "voice-auto-start": {
+      "id": "voice-auto-start",
+      "name": "Voice mode auto-starts",
+      "content": "<p>At the start of each session, voice mode turns on automatically — you can hold the key and talk without asking for it first. It's ready the moment you are.</p>",
+      "type": "document",
+      "parentId": "sec-voice",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "8.1"
+    },
+    "voice-dictation-friendly": {
+      "id": "voice-dictation-friendly",
+      "name": "Dictation-friendly",
+      "content": "<p>Because you often speak your prompts, I expect the little quirks of dictation — spoken punctuation, stray words at the end — and read past them to your real intent. Your instruction counts as complete at the final period; trailing noise is just noise.</p>",
+      "type": "document",
+      "parentId": "sec-voice",
+      "childrenIds": [],
+      "isCollapsed": true,
+      "prefix": "8.2"
+    }
+  },
+  "lastModified": "2026-07-22T00:00:00.000Z",
+  "_fileName": "IdeaM -- Operating Procedures.idm",
+  "_isLazyLoaded": false,
+  "_fileSize": 20695
+}
