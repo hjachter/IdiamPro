@@ -33,7 +33,9 @@
       "id": "lp-decisions",
       "name": "Waiting on your decisions (5)",
       "parentId": "lp-root",
-      "childrenIds": [],
+      "childrenIds": [
+        "e34f253f-297a-4a86-866e-bc2fe6528643"
+      ],
       "type": "chapter",
       "content": "<p><strong>1. Support email confirmation</strong> — support@2ndbrainware.com or something else? Affects refund policy, incident response, and customer-support setup.</p><p><strong>2. Status page vendor</strong> — pick a provider (e.g., Statuspage, Instatus, BetterStack) so the incident-response playbook can name a real surface for users to check during outages.</p><p><strong>3. Postgres provider</strong> — pick a managed Postgres host (e.g., Neon, Supabase, Railway, RDS) so backend persistence can be configured.</p><p><strong>4. Lawyer on call</strong> — choose the lawyer who will sign off on the Privacy Policy / Terms of Service drafts and be on call for incident-response and disputes.</p><p><strong>5. Legal jurisdiction</strong> — confirm the legal jurisdiction the company operates under so the TOS, Privacy Policy, and Refund Policy can name it explicitly.</p>",
       "isCollapsed": false,
@@ -68,6 +70,13 @@
       "content": "<p>Not launch-blocking. These ship after the Apple version is live and monetized.</p><p></p><p>LIVE BOOKS — design + implementation (the 6 open design questions remain)</p><p>Android Capacitor scaffolding</p><p>Windows distributed build</p><p>Linux distributed build</p><p>MCP Server Phase 2 (free CRUD tools)</p><p>MCP Server Phase 3 (premium AI/ingest tools)</p><p>MCP Server Phase 4 (dual-licensing strategy)</p><p>MCP Server Test 8 (Claude Desktop end-to-end)</p><p>Collaboration / Group features — entire Group outline is design-only</p><p>Build managed API proxy tier (v2 of monetization, after first enterprise agreement)</p><p>iOS multi-select audit (refinement)</p><p>Clerk dev→production environment swap (one-time cutover; clears all current test users + sessions; coordinate with first ~10 real beta users before pulling the trigger)</p>",
       "isCollapsed": false,
       "prefix": "5"
+    },
+    "e34f253f-297a-4a86-866e-bc2fe6528643": {
+      "id": "e34f253f-297a-4a86-866e-bc2fe6528643",
+      "name": "🔴 LAUNCH BLOCKER — Business mailing address (required before launch)",
+      "content": "<p>🔴 <strong>HARD LAUNCH BLOCKER — do NOT OK launch until this is in.</strong> SecondBrainWare LLC needs a real physical business mailing address, required by CAN-SPAM (in commercial email footers), the Privacy Policy, and app-store listings — and it belongs on the About page. Home address should NOT be published.</p><p><strong>Howard's action (~10 min once he picks a provider):</strong> sign up for a virtual mailbox (recommended: Traveling Mailbox ~$15/mo; or check the community-mailbox second-compartment option first) → they issue a street address → hand it to Claude, who plugs it into the About page, Privacy Policy, and email footers in one pass. Until then the About page shows only the support@ email (address deferred, no placeholder live).</p><p><strong>Status:</strong> PENDING Howard. Claude to raise this every time launch-readiness comes up.</p>",
+      "parentId": "lp-decisions",
+      "childrenIds": []
     }
   },
   "isGuide": false,
