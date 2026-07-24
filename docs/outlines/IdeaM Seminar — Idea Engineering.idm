@@ -10,9 +10,9 @@
       "type": "document",
       "content": "<p>A seminar for Western Washington University. This is a working skeleton — the structure and the key facts are here; Howard shapes the voice and the stories on top of it.</p><p><strong>The arc in one breath:</strong> everyone uses AI but almost nobody trusts it → a genuinely new category of software is emerging that engineers <em>ideas</em>, not just answers → here is that tool (IdeaM) → here is the honest story of building it <em>with</em> AI → here is the discipline that makes AI output trustworthy → here is why a university should care → live demo and the reveal.</p>",
       "childrenIds": [
-        "sec-hook",
         "sec-category",
         "sec-tool",
+        "sec-hook",
         "sec-casestudy",
         "sec-why",
         "sec-takeaways",
