@@ -26,6 +26,7 @@
         "24012bb0-25b8-4c07-ad1c-cec65f144740",
         "unrealized-todo-20260513",
         "video-generation-feasibility-2026-06-04",
+        "business-mailing-address-8247c0df",
         "tech-stack-bootstrap-note-2026-06-06",
         "14d2a7be-30b4-4bdb-bbdd-95e79b91ac44"
       ],
@@ -1158,6 +1159,105 @@
         "createdAt": 1784189095629,
         "updatedAt": 1784189095629
       }
+    },
+    "bma-449052cbb9": {
+      "id": "bma-449052cbb9",
+      "name": "Why It's Needed",
+      "content": "<p>SecondBrainWare LLC needs a <strong>real physical postal address</strong> that can be published. It's required in several places:</p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\"><p><strong>CAN-SPAM compliance:</strong> U.S. law requires a valid physical postal address in every commercial email. Our email / newsletter features trigger this.</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p><strong>Privacy Policy:</strong> a real business contact address.</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p><strong>App-store listings:</strong> Apple/Google expect a real contact/support address.</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p><strong>About page contact block:</strong> a professional way for users to reach the company.</p></li></ul><p><strong>Why not just the home address:</strong> using it is legal, but it publishes Howard's home address publicly across emails, the app stores, and the website. Avoid — keep the home address private.</p>",
+      "type": "document",
+      "parentId": "business-mailing-address-8247c0df",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "18.1"
+    },
+    "bma-e728143768": {
+      "id": "bma-e728143768",
+      "name": "Recommendation — Virtual Mailbox (the pick)",
+      "content": "<p><strong>Recommendation: a virtual mailbox, fully paperless</strong> (Howard hates paper).</p><p><strong>The pick: Traveling Mailbox — about $15/month.</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\"><p>It runs its <strong>own scanning facilities</strong> (not a franchise network), so handling is consistent and reliable — it avoids the location-to-location variability you get with aggregator networks.</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>The base plan is all-inclusive: they open and scan your mail for you.</p></li></ul><p>Best balance of <strong>business quality at the lowest cost without compromising reliability.</strong></p>",
+      "type": "document",
+      "parentId": "business-mailing-address-8247c0df",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "18.2"
+    },
+    "bma-b078dfc222": {
+      "id": "bma-b078dfc222",
+      "name": "Alternatives + Cheapest Option to Explore First",
+      "content": "<p><strong>Alternatives considered:</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\"><p><strong>Stable:</strong> business/LLC-grade, offers a <strong>Bellingham WA</strong> address — tidier for a Washington LLC — but a bit pricier.</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p><strong>Anytime Mailbox / iPostal1:</strong> cheapest (~$9.99+/month) and the widest choice of locations, BUT reliability varies by the local operator running that address — you must vet the specific location before committing.</p></li></ul><p><strong>Cheapest option to explore first:</strong> ask the community-mailbox provider whether they'll rent a <strong>second compartment in the company's name</strong>. That gives privacy (company name, not home) plus home convenience with no travel and likely lowest cost. Howard to check availability.</p>",
+      "type": "document",
+      "parentId": "business-mailing-address-8247c0df",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "18.3"
+    },
+    "bma-51698051cb": {
+      "id": "bma-51698051cb",
+      "name": "How It Works — Paperless",
+      "content": "<p>You get a <strong>real street address</strong>. When mail arrives, the provider <strong>receives it, opens it, and scans it to a PDF.</strong> Online you then choose to <strong>read, forward, or shred</strong> each item.</p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\"><p><strong>Zero paper</strong> — everything is digital.</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p><strong>No travel</strong> — nothing to pick up in person.</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>The digital address can be in <strong>any city</strong> — it doesn't have to be where Howard lives.</p></li></ul>",
+      "type": "document",
+      "parentId": "business-mailing-address-8247c0df",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "18.4"
+    },
+    "bma-0fa603591b": {
+      "id": "bma-0fa603591b",
+      "name": "Setup Steps",
+      "content": "<ol><li><p><strong>Pick a provider</strong> (recommended: Traveling Mailbox).</p></li><li><p><strong>Sign up</strong> — about $15/month.</p></li><li><p><strong>File a notarized USPS Form 1583</strong> (authorizes them to receive your mail). Use an online notary — about 10 minutes.</p></li><li><p><strong>Mail then arrives as scans</strong> in your online inbox.</p></li></ol>",
+      "type": "document",
+      "parentId": "business-mailing-address-8247c0df",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "18.5"
+    },
+    "bma-983c2a8fff": {
+      "id": "bma-983c2a8fff",
+      "name": "Reliability Note",
+      "content": "<p>The category itself is reliable (for example, iPostal1 has roughly a 4.3-star rating across 9,000+ reviews).</p><p>The real risk is <strong>location-dependent handling with franchise aggregators</strong> — one bad local operator. Mitigate it by choosing a <strong>single-facility provider</strong> (Traveling Mailbox) or a specific, well-reviewed location.</p><p><strong>Legal mail is separate:</strong> critical legal documents (service of process) are handled by the LLC's <strong>registered agent</strong>, not the virtual mailbox — so this doesn't carry that risk.</p>",
+      "type": "document",
+      "parentId": "business-mailing-address-8247c0df",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "18.6"
+    },
+    "bma-c3ed1e7c58": {
+      "id": "bma-c3ed1e7c58",
+      "name": "Future Product Tie-In — OCR Physical Mail into an Outline",
+      "content": "<p><strong>Cross-reference the backlog.</strong> Once the mailbox is scanning physical mail to PDF, we can <strong>OCR those scans and import them into an outline</strong> via a modification of the existing inbound email &rarr; outline system.</p><p>That turns IdeaM into <strong>\"one inbox for all correspondence\"</strong> — email plus physical mail landing in the same place. A post-launch fast-follow.</p><p>It also reinforces the provider choice: pick one with <strong>clean OCR-friendly PDF scans</strong> so this feature works well later.</p>",
+      "type": "document",
+      "parentId": "business-mailing-address-8247c0df",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "18.7"
+    },
+    "bma-00a163f4ea": {
+      "id": "bma-00a163f4ea",
+      "name": "Status",
+      "content": "<p><strong>PENDING Howard.</strong></p><ul data-type=\"taskList\"><li data-type=\"taskItem\" data-checked=\"false\"><p>Decide on / sign up for the virtual mailbox (or explore the community-mailbox second-compartment option first).</p></li><li data-type=\"taskItem\" data-checked=\"false\"><p>Then provide the address to plug into the <strong>About page</strong>, <strong>Privacy Policy</strong>, and <strong>email footers</strong>.</p></li></ul>",
+      "type": "document",
+      "parentId": "business-mailing-address-8247c0df",
+      "childrenIds": [],
+      "isCollapsed": false,
+      "prefix": "18.8"
+    },
+    "business-mailing-address-8247c0df": {
+      "id": "business-mailing-address-8247c0df",
+      "name": "Business Mailing Address (Virtual Mailbox)",
+      "content": "<p>SecondBrainWare LLC needs a real, publishable physical postal address (CAN-SPAM email footers, Privacy Policy, app-store listings, About page). Recommendation: a paperless <strong>virtual mailbox</strong> — pick Traveling Mailbox (~$15/mo). Mail is received, opened, and scanned to PDF; read/forward/shred online, no paper, no travel.</p>",
+      "type": "chapter",
+      "parentId": "root-bootstrap",
+      "childrenIds": [
+        "bma-449052cbb9",
+        "bma-e728143768",
+        "bma-b078dfc222",
+        "bma-51698051cb",
+        "bma-0fa603591b",
+        "bma-983c2a8fff",
+        "bma-c3ed1e7c58",
+        "bma-00a163f4ea"
+      ],
+      "isCollapsed": false,
+      "prefix": "18"
     }
   },
   "isGuide": false,
