@@ -197,9 +197,13 @@ function addSectionSlide(pptx: PptxGenJSType, slide: Slide, pal: DeckPalette, br
   });
 
   const hasChart = !!s.chart && s.chart.length > 0;
+  // `breakLine: true` is REQUIRED: without it pptxgenjs renders an array of text
+  // objects as consecutive RUNS inside a single paragraph — so every bullet fuses
+  // into one blob with no line break and (for text lacking end punctuation) no
+  // space between them ("mattersWhy…"). breakLine forces one paragraph per bullet.
   const bulletItems = s.bullets.map((b) => ({
     text: b,
-    options: { bullet: { code: '2022', indent: 18 }, color: pal.text, fontSize: 18, paraSpaceAfter: 10 },
+    options: { bullet: { code: '2022', indent: 18 }, breakLine: true, color: pal.text, fontSize: 18, paraSpaceAfter: 10 },
   }));
 
   if (hasChart && s.bullets.length > 0) {
