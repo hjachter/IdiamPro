@@ -35,21 +35,21 @@ import { FeatureFlagsProvider } from '@/components/feature-flags-provider';
 import BackupHealthWatcher from '@/components/backup-health-watcher';
 
 // Social link-preview image: /public/og-image.png (1200x630). Premium
-// "one idea → many outputs" card, IdeaM-branded. Re-render/edit the source at
-// /public/og/og-preview.html via `node scripts/og/render-og.js`.
+// "raw thought → engineered idea → finished work" card, IdeaM-branded. Re-render/
+// edit the source at /public/og/og-preview.html via `node scripts/og/render-og.js`.
 export const metadata: Metadata = {
   metadataBase: new URL('https://2ndbrainware.com'),
   title: {
-    default: 'IdeaM — AI-native outliner for thinkers and researchers',
+    default: 'IdeaM — The Idea Workbench',
     template: '%s | IdeaM',
   },
   description:
-    'IdeaM, by SecondBrainWare, is an AI-native outliner that helps you think, research, and write. Local-first, BYOK, cross-platform — the outline editor your second brain deserves.',
+    'The engineering of thought. Turn raw thoughts into finished work — then get it out to every major platform in your voice, and handle your email at a whole new level. For professional thinkers and students.',
   manifest: '/manifest.json',
   applicationName: 'IdeaM',
   creator: 'SecondBrainWare',
   publisher: 'SecondBrainWare',
-  keywords: ['SecondBrainWare', 'Second Brain Ware', 'IdeaM', 'AI outliner', 'second brain app', 'AI-native outliner', 'consolidate ideas'],
+  keywords: ['SecondBrainWare', 'Second Brain Ware', 'IdeaM', 'idea workbench', 'second brain app', 'thinking tool', 'consolidate ideas'],
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
@@ -71,23 +71,23 @@ export const metadata: Metadata = {
     locale: 'en_US',
     url: 'https://2ndbrainware.com',
     siteName: 'IdeaM',
-    title: 'IdeaM — AI-native outliner for thinkers and researchers',
+    title: 'IdeaM — The Idea Workbench',
     description:
-      'An AI-native outliner that helps you think, research, and write. Local-first, BYOK, cross-platform. From SecondBrainWare.',
+      'The engineering of thought. Turn raw thoughts into finished work — then get it out to every major platform in your voice, and handle your email at a whole new level. For professional thinkers and students.',
     images: [
       {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'IdeaM — AI-native outliner',
+        alt: 'IdeaM — The Idea Workbench',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'IdeaM — AI-native outliner for thinkers and researchers',
+    title: 'IdeaM — The Idea Workbench',
     description:
-      'An AI-native outliner that helps you think, research, and write. Local-first, BYOK, cross-platform. From SecondBrainWare.',
+      'The engineering of thought. Turn raw thoughts into finished work — then get it out to every major platform in your voice, and handle your email at a whole new level. For professional thinkers and students.',
     images: ['/og-image.png'],
   },
   robots: {
