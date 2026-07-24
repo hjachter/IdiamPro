@@ -10,6 +10,7 @@
       "type": "root",
       "parentId": null,
       "childrenIds": [
+        "9d6c2c25-9206-4c5b-8bb4-a7969a90765c",
         "cert-gemma-2026-07-21",
         "cert-free-voice-2026-07-21",
         "quick-ref",
@@ -1530,6 +1531,15 @@
       "parentId": "test-run-log",
       "childrenIds": [],
       "prefix": ""
+    },
+    "9d6c2c25-9206-4c5b-8bb4-a7969a90765c": {
+      "id": "9d6c2c25-9206-4c5b-8bb4-a7969a90765c",
+      "name": "Testing Strategy — Tiered (deterministic once / AI 5&times; with invariants)",
+      "content": "<p><strong>Match test effort to where failures hide — don't re-run everything blindly.</strong></p><ul><li><p><strong>Deterministic tests</strong> (logic, routing, links, rendering, math): run ONCE, kept isolated so a single pass is trustworthy. Re-running them is duplication.</p></li><li><p><strong>Nondeterministic / AI-driven tests</strong> (any LLM-output feature — Digest, Summarize, Your Voice, email/social generation, the verifier, inbound extraction): run each ~5&times; and assert INVARIANTS, not exact output — well-formed, within limits (tweet &le;280, junk quarantined not deleted), and it NEVER does the forbidden thing (never bills our AI key, never auto-sends/posts, verifier catches a planted error). Fail if ANY run breaks an invariant.</p></li><li><p><strong>Guardrail tests</strong> (financial-safety, privacy, auth): run ADVERSARIALLY (hostile inputs, bypass attempts, concurrency bursts). Release blockers; call out the financial-safety result every run.</p></li><li><p><strong>Never clobber the live dev environment</strong> — no production build against the running dev server's .next; it breaks Howard's app.</p></li><li><p><strong>Pre-launch soak</strong>: run the suite a day apart / at intervals to catch environment drift (vendor/quota/data/cron/cert state) that a point-in-time run misses.</p></li><li><p><strong>Economics</strong>: the AI portion is a minority of the suite, so repeating only that slice adds little total overhead for a large reliability gain — small cost, big win.</p></li></ul>",
+      "parentId": "root",
+      "childrenIds": [],
+      "type": "document",
+      "prefix": "1"
     }
   },
   "_fileSize": 149937,
