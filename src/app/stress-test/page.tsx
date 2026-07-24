@@ -10,7 +10,6 @@ import {
   BarChart3,
   Cpu,
   HardDrive,
-  Clock,
   Layers,
   ArrowLeft,
   Home
@@ -195,6 +194,7 @@ export default function StressTestPage() {
   const [currentTest, setCurrentTest] = useState<string>('');
   const [maxSuccessful, setMaxSuccessful] = useState<number>(0);
   const [mounted, setMounted] = useState(false);
+  const autoStartedRef = React.useRef(false);
 
   // Only render client-specific info after mount to avoid hydration mismatch
   React.useEffect(() => {
@@ -281,6 +281,18 @@ export default function StressTestPage() {
     setIsRunning(false);
   };
 
+  // Auto-run once on arrival: visitors reach this page by clicking "Run the live
+  // benchmark on your computer", so they've opted in and expect it to run. The
+  // escalating tiers self-limit (they stop on the first failure), and the pauses
+  // between tiers let the UI repaint so the chart/table fill in live.
+  React.useEffect(() => {
+    if (!mounted || autoStartedRef.current) return;
+    autoStartedRef.current = true;
+    const t = setTimeout(() => { void runAllTests(); }, 400);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mounted]);
+
   const formatTime = (ms: number) => {
     if (ms < 1000) return `${ms.toFixed(0)}ms`;
     return `${(ms / 1000).toFixed(2)}s`;
@@ -292,158 +304,204 @@ export default function StressTestPage() {
     return `${(mb / 1024).toFixed(2)}GB`;
   };
 
+  const passed = results.filter((r) => r.passed);
+  const maxTotal = Math.max(
+    1,
+    ...passed.map((r) => r.generateTime + r.serializeTime + r.deserializeTime),
+  );
+
   return (
-    <div className="min-h-screen h-full bg-gray-950 text-white p-8 overflow-y-auto">
-      {/* Sticky escape hatch — keeps a way out visible at all times so the user
-          is never trapped on this page (matters most on iPhone where the
-          summary card after a completed run can dominate the viewport). */}
-      <div className="sticky top-0 z-10 -mx-8 px-8 py-3 mb-6 bg-gray-950/90 backdrop-blur border-b border-white/10 flex items-center justify-between">
+    <div className="min-h-screen h-full bg-white text-[#0b1533] overflow-y-auto">
+      {/* Sticky escape hatch — a way out is always visible so the visitor is
+          never trapped (matters most on iPhone where the summary can dominate). */}
+      <div className="sticky top-0 z-10 px-6 lg:px-12 py-3 bg-white/85 backdrop-blur border-b border-[#dde5f2] flex items-center justify-between">
         <a
           href="/"
-          className="inline-flex items-center gap-1.5 text-sm text-white/70 hover:text-white transition-colors"
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-[#475569] hover:text-[#0b1533] transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to IdeaM
         </a>
         <a
           href="/"
-          className="inline-flex items-center gap-1.5 text-sm text-white/70 hover:text-white transition-colors"
+          className="inline-flex items-center gap-1.5 text-sm text-[#475569] hover:text-[#0b1533] transition-colors"
           aria-label="Home"
         >
           <Home className="w-4 h-4" />
         </a>
       </div>
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-2">IdeaM Stress Test</h1>
-        <p className="text-white/60 mb-8">
-          Testing node capacity limits across different scales
-        </p>
 
-        {/* System Info */}
-        <div className="bg-white/5 rounded-xl p-6 mb-8 border border-white/10">
-          <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            <Cpu className="w-5 h-5 text-violet-400" />
-            System Information
-          </h2>
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <span className="text-white/40">Platform:</span>
-              <span className="ml-2">{mounted ? getPlatformInfo() : 'Loading...'}</span>
-            </div>
-            <div>
-              <span className="text-white/40">Browser:</span>
-              <span className="ml-2">{mounted ? navigator.userAgent.split(' ').pop() : 'Loading...'}</span>
-            </div>
-            <div>
-              <span className="text-white/40">Cores:</span>
-              <span className="ml-2">{mounted ? navigator.hardwareConcurrency : 'Loading...'}</span>
-            </div>
+      <div className="max-w-4xl mx-auto px-6 lg:px-12 py-12 lg:py-16">
+        {/* Header */}
+        <div className="mb-10">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-600/12 border border-blue-600/30 mb-5">
+            <Cpu className="w-4 h-4 text-[#1e40af]" />
+            <span className="text-sm font-semibold text-[#1e40af]">Live benchmark · your machine</span>
           </div>
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-3">
+            How IdeaM performs on <span className="text-[#1e40af]">your</span> computer.
+          </h1>
+          <p className="text-lg font-medium text-[#2b3a5c] leading-relaxed max-w-2xl">
+            This is a real test, running right now in your browser — building, saving, and re-loading outlines from ten thousand nodes all the way up to a million, and timing every step on your actual hardware.
+          </p>
         </div>
 
-        {/* Run Tests Button */}
-        <Button
-          onClick={runAllTests}
-          disabled={isRunning}
-          className="mb-8 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500"
-        >
-          {isRunning ? (
-            <>
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              {currentTest}
-            </>
-          ) : (
-            <>
-              <Play className="w-4 h-4 mr-2" />
-              Run All Tests
-            </>
+        {/* System Info */}
+        <div className="grid sm:grid-cols-3 gap-4 mb-8">
+          {[
+            { icon: Cpu, label: 'Platform', value: mounted ? getPlatformInfo() : '…' },
+            { icon: Layers, label: 'Processing cores', value: mounted ? String(navigator.hardwareConcurrency || '—') : '…' },
+            { icon: HardDrive, label: 'Browser', value: mounted ? (navigator.userAgent.split(' ').pop() || '—') : '…' },
+          ].map((s) => {
+            const SIcon = s.icon;
+            return (
+              <div key={s.label} className="rounded-2xl border border-[#dde5f2] bg-[#f7faff] p-5">
+                <div className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-blue-600/10 border border-blue-600/25 mb-3">
+                  <SIcon className="w-4 h-4 text-[#1e40af]" />
+                </div>
+                <div className="text-[11px] font-mono font-semibold uppercase tracking-wider text-[#5b6b85] mb-1">{s.label}</div>
+                <div className="text-base font-extrabold text-[#0b1533] leading-tight break-words">{s.value}</div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Live status / run controls */}
+        <div className="flex flex-wrap items-center gap-4 mb-10">
+          <Button
+            onClick={runAllTests}
+            disabled={isRunning}
+            className="bg-gradient-to-br from-[#38bdf8] via-[#2563eb] to-[#4f46e5] hover:from-[#2563eb] hover:to-[#4338ca] text-white font-bold shadow-lg shadow-blue-700/30"
+          >
+            {isRunning ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                {currentTest || 'Running…'}
+              </>
+            ) : results.length > 0 ? (
+              <>
+                <Play className="w-4 h-4 mr-2" />
+                Run again
+              </>
+            ) : (
+              <>
+                <Play className="w-4 h-4 mr-2" />
+                Run the benchmark
+              </>
+            )}
+          </Button>
+          {isRunning && (
+            <span className="text-sm font-medium text-[#5b6b85]">Timing on your hardware — the results fill in as it runs.</span>
           )}
-        </Button>
+        </div>
 
         {/* Results */}
         {results.length > 0 && (
-          <div className="space-y-4">
-            <h2 className="text-lg font-semibold flex items-center gap-2">
-              <BarChart3 className="w-5 h-5 text-blue-400" />
-              Test Results
-            </h2>
-
+          <div className="space-y-8">
             {/* Summary */}
-            {!isRunning && maxSuccessful > 0 && (
-              <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-6 mb-6">
-                <div className="flex items-center gap-3 mb-2">
-                  <CheckCircle2 className="w-6 h-6 text-blue-400" />
-                  <span className="text-xl font-bold text-blue-400">
-                    Maximum Tested: {maxSuccessful.toLocaleString()} nodes
+            {maxSuccessful > 0 && (
+              <div className="rounded-2xl border border-blue-600/30 bg-gradient-to-br from-[#eff4ff] to-[#dbe7ff] p-6 md:p-7">
+                <div className="flex items-center gap-3 mb-1.5">
+                  <CheckCircle2 className="w-6 h-6 text-[#1e40af]" />
+                  <span className="text-2xl md:text-3xl font-black tracking-tight text-[#1e40af]">
+                    {maxSuccessful.toLocaleString()} nodes
                   </span>
+                  <span className="text-lg font-bold text-[#2b3a5c]">handled {isRunning ? 'so far' : 'on your machine'}</span>
                 </div>
-                <p className="text-white/60">
-                  Successfully created, serialized, and parsed an outline with {maxSuccessful.toLocaleString()} nodes.
+                <p className="text-[#2b3a5c] font-medium">
+                  Built, saved, and re-loaded a single outline of {maxSuccessful.toLocaleString()} nodes — right here, on the computer you&apos;re using now.
                 </p>
               </div>
             )}
 
-            {/* Results Table */}
-            <div className="bg-white/5 rounded-xl border border-white/10 overflow-hidden">
-              <table className="w-full text-sm">
-                <thead className="bg-white/5">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-white/60">Nodes</th>
-                    <th className="px-4 py-3 text-left text-white/60">Status</th>
-                    <th className="px-4 py-3 text-left text-white/60">Generate</th>
-                    <th className="px-4 py-3 text-left text-white/60">Save</th>
-                    <th className="px-4 py-3 text-left text-white/60">Load</th>
-                    <th className="px-4 py-3 text-left text-white/60">File Size</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {results.map((result, i) => (
-                    <tr key={i} className="border-t border-white/5">
-                      <td className="px-4 py-3 font-medium">
-                        <div className="flex items-center gap-2">
-                          <Layers className="w-4 h-4 text-violet-400" />
-                          {result.nodeCount.toLocaleString()}
+            {/* Chart — the impressive diagram: how total processing time scales as
+                the outline grows. Bars fill live as each tier completes. */}
+            {passed.length > 0 && (
+              <div className="rounded-2xl border border-[#dde5f2] bg-white p-6 md:p-7 shadow-[0_1px_3px_rgba(12,34,36,0.06),0_12px_32px_rgba(12,34,36,0.06)]">
+                <div className="flex items-center gap-2 mb-1">
+                  <BarChart3 className="w-5 h-5 text-[#1e40af]" />
+                  <h2 className="text-lg font-extrabold text-[#0b1533]">Response time as your outline grows</h2>
+                </div>
+                <p className="text-sm text-[#5b6b85] mb-6">Total time to build + save + re-load, at each size. Lower is faster.</p>
+                <div className="space-y-3">
+                  {passed.map((r, i) => {
+                    const total = r.generateTime + r.serializeTime + r.deserializeTime;
+                    const pct = Math.max(3, (total / maxTotal) * 100);
+                    const isTop = r.nodeCount === maxSuccessful;
+                    return (
+                      <div key={i} className="flex items-center gap-3">
+                        <div className="w-20 sm:w-24 shrink-0 text-right text-sm font-bold text-[#0b1533] tabular-nums">
+                          {r.nodeCount >= 1000 ? `${(r.nodeCount / 1000).toLocaleString()}K` : r.nodeCount}
                         </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        {result.passed ? (
-                          <span className="flex items-center gap-1 text-blue-400">
-                            <CheckCircle2 className="w-4 h-4" /> Pass
-                          </span>
-                        ) : (
-                          <span className="flex items-center gap-1 text-red-400">
-                            <XCircle className="w-4 h-4" /> Fail
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-4 py-3 text-white/60">
-                        <div className="flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          {formatTime(result.generateTime)}
+                        <div className="flex-1 h-7 rounded-lg bg-[#f1f5f9] overflow-hidden">
+                          <div
+                            className={`h-full rounded-lg transition-all duration-500 ${isTop ? 'bg-gradient-to-r from-[#2563eb] to-[#4f46e5]' : 'bg-gradient-to-r from-[#7dd3fc] to-[#38bdf8]'}`}
+                            style={{ width: `${pct}%` }}
+                          />
                         </div>
-                      </td>
-                      <td className="px-4 py-3 text-white/60">{formatTime(result.serializeTime)}</td>
-                      <td className="px-4 py-3 text-white/60">{formatTime(result.deserializeTime)}</td>
-                      <td className="px-4 py-3 text-white/60">
-                        <div className="flex items-center gap-1">
-                          <HardDrive className="w-3 h-3" />
-                          {result.fileSizeMB.toFixed(1)}MB
-                        </div>
-                      </td>
+                        <div className="w-16 shrink-0 text-sm font-semibold text-[#2b3a5c] tabular-nums">{formatTime(total)}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Results Table — the detail behind the chart */}
+            <div className="rounded-2xl border border-[#dde5f2] bg-white overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead className="bg-[#f7faff] border-b border-[#dde5f2]">
+                    <tr>
+                      {['Nodes', 'Status', 'Generate', 'Save', 'Load', 'File size'].map((h) => (
+                        <th key={h} className="px-4 py-3 text-left font-semibold text-[#5b6b85] whitespace-nowrap">{h}</th>
+                      ))}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {results.map((result, i) => (
+                      <tr key={i} className="border-t border-[#eef2f9]">
+                        <td className="px-4 py-3 font-medium">
+                          <div className="flex items-center gap-2">
+                            <Layers className="w-4 h-4 text-[#1e40af]" />
+                            {result.nodeCount.toLocaleString()}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          {result.passed ? (
+                            <span className="inline-flex items-center gap-1 text-[#1e40af] font-semibold">
+                              <CheckCircle2 className="w-4 h-4" /> Pass
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 text-red-600 font-semibold">
+                              <XCircle className="w-4 h-4" /> Limit
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3 text-[#5b6b85] tabular-nums">{formatTime(result.generateTime)}</td>
+                        <td className="px-4 py-3 text-[#5b6b85] tabular-nums">{formatTime(result.serializeTime)}</td>
+                        <td className="px-4 py-3 text-[#5b6b85] tabular-nums">{formatTime(result.deserializeTime)}</td>
+                        <td className="px-4 py-3 text-[#5b6b85] tabular-nums">
+                          <div className="flex items-center gap-1">
+                            <HardDrive className="w-3 h-3" />
+                            {result.fileSizeMB.toFixed(1)}MB
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
 
-            {/* Hardware Assumptions */}
-            <div className="mt-8 p-6 bg-white/5 rounded-xl border border-white/10">
-              <h3 className="font-semibold mb-3">Hardware & System Assumptions</h3>
-              <div className="text-sm text-white/60 space-y-2">
-                <p><strong>Web Version:</strong> Performance depends on browser memory limits (typically 2-4GB heap). Chrome/Edge perform best. Safari has stricter limits.</p>
-                <p><strong>Desktop (Electron):</strong> Has access to full system RAM. Can handle larger outlines than web browsers.</p>
-                <p><strong>Mobile (iOS/Android):</strong> More constrained memory. Recommend keeping outlines under 50,000 nodes for smooth performance.</p>
-                <p><strong>Storage:</strong> IndexedDB (web) can store gigabytes. Local filesystem (desktop) has no practical limit.</p>
+            {/* Honest context on what the numbers mean */}
+            <div className="rounded-2xl border border-[#dde5f2] bg-[#f7faff] p-6">
+              <h3 className="font-bold text-[#0b1533] mb-3">What this means</h3>
+              <div className="text-sm text-[#5b6b85] space-y-2 leading-relaxed">
+                <p><strong className="text-[#2b3a5c]">In your browser:</strong> speed depends on the browser&apos;s memory (typically 2–4GB); Chrome and Edge run the largest tests. This is the most constrained way to run IdeaM.</p>
+                <p><strong className="text-[#2b3a5c]">On the desktop app:</strong> IdeaM uses your full system memory, so it comfortably handles larger outlines than a browser tab.</p>
+                <p><strong className="text-[#2b3a5c]">On phone &amp; tablet:</strong> memory is tighter — outlines up to ~50,000 nodes stay smooth.</p>
+                <p>These are your real numbers, measured just now. No artificial caps — IdeaM scales until your hardware says stop.</p>
               </div>
             </div>
           </div>
