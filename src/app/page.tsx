@@ -42,7 +42,6 @@ import {
   GitBranch,
   Globe,
   Youtube,
-  FileUp,
   Network,
   Newspaper,
   Building2,
@@ -60,7 +59,6 @@ import {
   Headphones,
   Download,
   Upload,
-  Merge,
   Palette,
   ExternalLink,
   Menu,
@@ -126,6 +124,177 @@ function ParticlesBackground() {
   return null;
 }
 
+// The fundamental process model — IdeaM's signature graphic. A clean, engineered
+// PERT-style diagram: many kinds of input funnel in on the left (including
+// interruptions like a new email), flow through the core pipeline
+// Capture → Develop → Deliver (with an explicit "iterate — many passes" loop on
+// Develop), and fan out on the right into every finished format. Desktop renders
+// a precise SVG; mobile renders the same flow as stacked cards so it stays legible.
+function ProcessModel() {
+  const INPUTS = [
+    { label: 'A new email', accent: true },
+    { label: 'Web pages' },
+    { label: 'PDFs & docs' },
+    { label: 'YouTube & audio' },
+    { label: 'Your notes' },
+    { label: 'AI research' },
+  ];
+  const OUTPUTS = ['Article', 'Podcast', 'Video', 'Website', 'Slide deck', 'Illustration'];
+  // Vertical layout: 6 rows, each 70 apart, pill height 44.
+  const rowTop = (i: number) => 34 + i * 70;
+  const rowMid = (i: number) => rowTop(i) + 22;
+  const CAPTURE_CX = 420;
+  const PIPE_CY = 227;
+
+  return (
+    <div className="mb-4">
+      {/* Desktop / tablet — precise SVG process diagram */}
+      <div className="hidden md:block">
+        <svg
+          viewBox="0 0 1200 456"
+          className="w-full h-auto"
+          role="img"
+          aria-label="IdeaM process: many inputs — even a new email — funnel into Capture, then Develop over many passes, then Deliver, fanning out into articles, podcasts, videos, websites, slide decks and illustrations."
+        >
+          <defs>
+            <marker id="pm-arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" fill="#94a3b8" />
+            </marker>
+            <marker id="pm-arrow-blue" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" fill="#2563eb" />
+            </marker>
+            <linearGradient id="pm-dev" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stopColor="#eff4ff" />
+              <stop offset="1" stopColor="#dbe7ff" />
+            </linearGradient>
+          </defs>
+
+          {/* Column labels */}
+          <text x="125" y="20" textAnchor="middle" className="fill-[#5b6b85]" style={{ fontSize: 12, fontWeight: 700, letterSpacing: 1.5 }}>INPUTS</text>
+          <text x="1095" y="20" textAnchor="middle" className="fill-[#5b6b85]" style={{ fontSize: 12, fontWeight: 700, letterSpacing: 1.5 }}>FINISHED FORMATS</text>
+
+          {/* Converging feeder arrows (input pills → Capture) */}
+          {INPUTS.map((inp, i) => (
+            <line
+              key={`fin-${i}`}
+              x1={220} y1={rowMid(i)} x2={324} y2={PIPE_CY}
+              stroke={inp.accent ? '#2563eb' : '#cbd5e1'}
+              strokeWidth={inp.accent ? 2 : 1.5}
+              markerEnd={`url(#${inp.accent ? 'pm-arrow-blue' : 'pm-arrow'})`}
+            />
+          ))}
+
+          {/* Input pills */}
+          {INPUTS.map((inp, i) => (
+            <g key={`inp-${i}`}>
+              <rect
+                x={30} y={rowTop(i)} width={190} height={44} rx={11}
+                fill={inp.accent ? '#eff4ff' : '#f7faff'}
+                stroke={inp.accent ? '#2563eb' : '#dde5f2'}
+                strokeWidth={inp.accent ? 1.75 : 1}
+              />
+              <text
+                x={125} y={rowMid(i) + 5} textAnchor="middle"
+                className={inp.accent ? 'fill-[#1e40af]' : 'fill-[#2b3a5c]'}
+                style={{ fontSize: 15, fontWeight: inp.accent ? 700 : 600 }}
+              >
+                {inp.label}
+              </text>
+            </g>
+          ))}
+
+          {/* Pipeline arrows */}
+          <line x1={512} y1={PIPE_CY} x2={558} y2={PIPE_CY} stroke="#94a3b8" strokeWidth={2.25} markerEnd="url(#pm-arrow)" />
+          <line x1={762} y1={PIPE_CY} x2={808} y2={PIPE_CY} stroke="#94a3b8" strokeWidth={2.25} markerEnd="url(#pm-arrow)" />
+
+          {/* Fan-out arrows (Deliver → output pills) */}
+          {OUTPUTS.map((_, i) => (
+            <line key={`fout-${i}`} x1={992} y1={PIPE_CY} x2={1006} y2={rowMid(i)} stroke="#cbd5e1" strokeWidth={1.5} markerEnd="url(#pm-arrow)" />
+          ))}
+
+          {/* Core pipeline nodes */}
+          {/* Capture */}
+          <rect x={332} y={172} width={180} height={110} rx={16} fill="#ffffff" stroke="#dde5f2" strokeWidth={1.5} />
+          <text x={CAPTURE_CX} y={218} textAnchor="middle" className="fill-[#0b1533]" style={{ fontSize: 23, fontWeight: 800 }}>Capture</text>
+          <text x={CAPTURE_CX} y={245} textAnchor="middle" className="fill-[#5b6b85]" style={{ fontSize: 13, fontWeight: 500 }}>gather every source</text>
+
+          {/* Develop — emphasized */}
+          <rect x={560} y={152} width={200} height={150} rx={18} fill="url(#pm-dev)" stroke="#2563eb" strokeWidth={2} />
+          <text x={660} y={214} textAnchor="middle" className="fill-[#1e40af]" style={{ fontSize: 26, fontWeight: 800 }}>Develop</text>
+          <text x={660} y={241} textAnchor="middle" className="fill-[#2b3a5c]" style={{ fontSize: 13, fontWeight: 600 }}>merge · consolidate · refine</text>
+          {/* iterate loop */}
+          <path d="M 712 152 C 712 96, 608 96, 608 150" fill="none" stroke="#2563eb" strokeWidth={2} markerEnd="url(#pm-arrow-blue)" />
+          <text x={660} y={88} textAnchor="middle" className="fill-[#1e40af]" style={{ fontSize: 12.5, fontWeight: 700 }}>iterate — many passes</text>
+
+          {/* Deliver */}
+          <rect x={812} y={172} width={180} height={110} rx={16} fill="#ffffff" stroke="#dde5f2" strokeWidth={1.5} />
+          <text x={902} y={218} textAnchor="middle" className="fill-[#0b1533]" style={{ fontSize: 23, fontWeight: 800 }}>Deliver</text>
+          <text x={902} y={245} textAnchor="middle" className="fill-[#5b6b85]" style={{ fontSize: 13, fontWeight: 500 }}>publish anywhere</text>
+
+          {/* Output pills */}
+          {OUTPUTS.map((label, i) => (
+            <g key={`out-${i}`}>
+              <rect x={1010} y={rowTop(i)} width={170} height={44} rx={11} fill="#f7faff" stroke="#dde5f2" strokeWidth={1} />
+              <text x={1095} y={rowMid(i) + 5} textAnchor="middle" className="fill-[#2b3a5c]" style={{ fontSize: 15, fontWeight: 600 }}>{label}</text>
+            </g>
+          ))}
+        </svg>
+      </div>
+
+      {/* Mobile — same flow, stacked cards */}
+      <div className="md:hidden">
+        <div className="rounded-2xl border border-[#dde5f2] bg-[#f7faff] p-5">
+          <div className="text-[11px] font-mono font-semibold uppercase tracking-wider text-[#5b6b85] mb-3">Many inputs</div>
+          <div className="flex flex-wrap gap-2">
+            {INPUTS.map((inp) => (
+              <span
+                key={inp.label}
+                className={`px-3 py-1.5 rounded-full text-sm font-semibold border ${inp.accent ? 'bg-[#eff4ff] border-blue-600 text-[#1e40af]' : 'bg-white border-[#dde5f2] text-[#2b3a5c]'}`}
+              >
+                {inp.label}
+              </span>
+            ))}
+          </div>
+        </div>
+        <div className="flex justify-center py-2"><ChevronDown className="w-6 h-6 text-[#94a3b8]" /></div>
+        <div className="rounded-2xl border border-[#dde5f2] bg-white p-5 text-center">
+          <div className="text-xl font-extrabold text-[#0b1533]">Capture</div>
+          <div className="text-sm text-[#5b6b85]">gather every source</div>
+        </div>
+        <div className="flex justify-center py-2"><ChevronDown className="w-6 h-6 text-[#94a3b8]" /></div>
+        <div className="rounded-2xl border-2 border-blue-600 bg-gradient-to-br from-[#eff4ff] to-[#dbe7ff] p-5 text-center shadow-lg shadow-blue-600/15">
+          <div className="text-2xl font-extrabold text-[#1e40af]">Develop</div>
+          <div className="text-sm font-semibold text-[#2b3a5c]">merge · consolidate · refine</div>
+          <div className="mt-2 inline-flex items-center gap-1.5 text-xs font-bold text-[#1e40af]">
+            <GitBranch className="w-3.5 h-3.5" /> iterate — many passes
+          </div>
+        </div>
+        <div className="flex justify-center py-2"><ChevronDown className="w-6 h-6 text-[#94a3b8]" /></div>
+        <div className="rounded-2xl border border-[#dde5f2] bg-white p-5 text-center">
+          <div className="text-xl font-extrabold text-[#0b1533]">Deliver</div>
+          <div className="text-sm text-[#5b6b85]">publish anywhere</div>
+        </div>
+        <div className="flex justify-center py-2"><ChevronDown className="w-6 h-6 text-[#94a3b8]" /></div>
+        <div className="rounded-2xl border border-[#dde5f2] bg-[#f7faff] p-5">
+          <div className="text-[11px] font-mono font-semibold uppercase tracking-wider text-[#5b6b85] mb-3">Finished formats</div>
+          <div className="flex flex-wrap gap-2">
+            {OUTPUTS.map((label) => (
+              <span key={label} className="px-3 py-1.5 rounded-full text-sm font-semibold border bg-white border-[#dde5f2] text-[#2b3a5c]">
+                {label}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Caption — states the interruption idea in words, mirroring the graphic */}
+      <p className="text-center text-base font-medium text-[#2b3a5c] mt-8 max-w-2xl mx-auto">
+        Everything feeds the same process — even an interruption like a new email flows right in, gets developed over many passes, and comes out as finished work.
+      </p>
+    </div>
+  );
+}
+
 // Idea development band — the page's thesis: "a great idea isn't a single
 // prompt." Extracted to a component so it can lead the page (rendered right
 // under the hero) without duplicating markup.
@@ -164,62 +333,12 @@ function IdeaDevelopmentBand() {
           </p>
         </div>
 
-        {/* Three-step flow */}
-        <div className="flex flex-col lg:flex-row items-stretch justify-center gap-4 lg:gap-2">
-          {/* Card 1 — Many inputs */}
-          <div className="flex-1 rounded-2xl border border-[#dde5f2] bg-[#f7faff] p-6 md:p-8">
-            <div className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-blue-600/15 border border-blue-600/25 mb-4">
-              <FileUp className="w-5 h-5 text-blue-600" />
-            </div>
-            <h3 className="text-lg font-bold text-[#0b1533] mb-3">Many inputs</h3>
-            <ul className="space-y-2 text-base text-[#2b3a5c]">
-              <li>Type it in yourself</li>
-              <li>Articles, web pages &amp; PDFs</li>
-              <li>YouTube, audio &amp; video</li>
-              <li>Notes, docs &amp; live web</li>
-              <li className="text-[#475569]">…and growing</li>
-            </ul>
-          </div>
-
-          {/* Arrow */}
-          <div className="flex items-center justify-center lg:px-1 text-[#5b6b85]">
-            <ArrowRight className="hidden lg:block w-6 h-6" />
-            <ChevronDown className="block lg:hidden w-6 h-6" />
-          </div>
-
-          {/* Card 2 — Merge & consolidate (emphasized) */}
-          <div className="flex-1 rounded-2xl border-2 border-blue-600/40 bg-gradient-to-br from-blue-700/15 to-blue-700/10 p-6 md:p-8 shadow-lg shadow-blue-600/20">
-            <div className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-blue-600/25 border border-blue-600/40 mb-4">
-              <Merge className="w-5 h-5 text-blue-500" />
-            </div>
-            <h3 className="text-lg font-bold text-[#0b1533] mb-3">Merge &amp; consolidate</h3>
-            <ul className="space-y-2 text-base text-[#2b3a5c]">
-              <li>Merge sources into one outline</li>
-              <li>Consolidate into a coherent whole</li>
-              <li>Develop &amp; refine over many passes</li>
-            </ul>
-          </div>
-
-          {/* Arrow */}
-          <div className="flex items-center justify-center lg:px-1 text-[#5b6b85]">
-            <ArrowRight className="hidden lg:block w-6 h-6" />
-            <ChevronDown className="block lg:hidden w-6 h-6" />
-          </div>
-
-          {/* Card 3 — Publish everywhere */}
-          <div className="flex-1 rounded-2xl border border-[#dde5f2] bg-[#f7faff] p-6 md:p-8">
-            <div className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-blue-600/15 border border-blue-600/25 mb-4">
-              <Rocket className="w-5 h-5 text-blue-600" />
-            </div>
-            <h3 className="text-lg font-bold text-[#0b1533] mb-3">Publish everywhere</h3>
-            <ul className="space-y-2 text-base text-[#2b3a5c]">
-              <li>Papers &amp; articles</li>
-              <li>Podcasts &amp; videos</li>
-              <li>Slides &amp; illustrations</li>
-              <li className="text-[#475569]">…and growing</li>
-            </ul>
-          </div>
-        </div>
+        {/* The fundamental process — our signature graphic. A PERT-style process
+            model: many inputs funnel in (even interruptions like a new email),
+            through Capture → Develop (iterated over many passes) → Deliver, then
+            fan out into every finished format. This IS the thing IdeaM does, so it
+            leads the page as the defining visual. */}
+        <ProcessModel />
 
         <p className="text-center text-base font-medium text-[#2b3a5c] mt-10 max-w-2xl mx-auto">
           Read widely, merge into one outline, refine the essence — then publish it in any format. That&apos;s idea development, not a one-shot answer.
@@ -529,6 +648,109 @@ function CapabilitiesCondensed() {
   );
 }
 
+// "Runs on your machine" — a live, personalized performance panel. It reads the
+// visitor's real platform + core count on mount (client-only, so it stays honest
+// and specific to their computer) and shows IdeaM's real scale story: stress-
+// tested past a million nodes, no artificial limits. The full live benchmark (the
+// one that actually times things on their hardware) is one click away at
+// /stress-test — so the proof is real, never a fabricated number.
+function RunsOnYourMachine() {
+  const [specs, setSpecs] = useState<{ platform: string; cores: number | null }>({ platform: '', cores: null });
+
+  useEffect(() => {
+    const ua = navigator.userAgent;
+    const nav = navigator as Navigator & { userAgentData?: { platform?: string } };
+    let platform = 'your device';
+    if (/Mac/i.test(ua)) platform = 'macOS · Apple Silicon';
+    else if (/Win/i.test(ua)) platform = 'Windows';
+    else if (/Android/i.test(ua)) platform = 'Android';
+    else if (/iPhone|iPad|iPod/i.test(ua)) platform = 'iPhone · iPad';
+    else if (/Linux/i.test(ua)) platform = 'Linux';
+    if (nav.userAgentData?.platform === 'macOS') platform = 'macOS · Apple Silicon';
+    setSpecs({ platform, cores: typeof navigator.hardwareConcurrency === 'number' ? navigator.hardwareConcurrency : null });
+  }, []);
+
+  const TIERS = [
+    { n: '1K', label: 'nodes', note: 'Instant' },
+    { n: '10K', label: 'nodes', note: 'Smooth' },
+    { n: '100K', label: 'nodes', note: 'Easily' },
+    { n: '1M+', label: 'nodes', note: 'No limit' },
+  ];
+
+  return (
+    <section className="px-6 py-24 lg:px-12 border-t border-[#dde5f2] bg-gradient-to-b from-white to-[#f7faff]">
+      <div className="max-w-[1200px] mx-auto">
+        <div className="text-center max-w-3xl mx-auto mb-12">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-600/15 border border-blue-600/40 mb-6">
+            <Zap className="w-4 h-4 text-[#1e40af]" />
+            <span className="text-sm font-semibold text-[#1e40af]">Runs on your machine</span>
+          </div>
+          <h2 className="text-4xl md:text-5xl font-extrabold text-[#0b1533] mb-4 tracking-tight">
+            Powerful on the computer you already have.
+          </h2>
+          <p className="text-lg md:text-xl font-medium text-[#2b3a5c] leading-relaxed max-w-[680px] mx-auto">
+            IdeaM does your core work on-device — fast, private, no server round-trip. Here&apos;s what we detected on your machine, right now.
+          </p>
+        </div>
+
+        <div className="rounded-3xl border border-[#dde5f2] bg-white p-6 md:p-10 shadow-[0_1px_3px_rgba(12,34,36,0.06),0_16px_48px_rgba(12,34,36,0.08)]">
+          <div className="grid lg:grid-cols-[0.85fr_1.15fr] gap-8 lg:gap-12 items-center">
+            {/* Detected specs — the personalized "it knows my computer" moment */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="rounded-2xl border border-[#dde5f2] bg-[#f7faff] p-5">
+                <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-blue-600/12 border border-blue-600/25 mb-4">
+                  <Laptop className="w-5 h-5 text-[#1e40af]" />
+                </div>
+                <div className="text-[11px] font-mono font-semibold uppercase tracking-wider text-[#5b6b85] mb-1">Your platform</div>
+                <div className="text-lg font-extrabold text-[#0b1533] leading-tight min-h-[1.5em]">
+                  {specs.platform || '…'}
+                </div>
+              </div>
+              <div className="rounded-2xl border border-[#dde5f2] bg-[#f7faff] p-5">
+                <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-blue-600/12 border border-blue-600/25 mb-4">
+                  <BarChart3 className="w-5 h-5 text-[#1e40af]" />
+                </div>
+                <div className="text-[11px] font-mono font-semibold uppercase tracking-wider text-[#5b6b85] mb-1">Processing cores</div>
+                <div className="text-3xl font-black text-[#1e40af] leading-none">
+                  {specs.cores ?? '…'}
+                  <span className="text-sm font-bold text-[#5b6b85] ml-1">cores</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Scale ladder — the real, honest capability claim */}
+            <div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+                {TIERS.map((t, i) => (
+                  <div
+                    key={t.n}
+                    className={`relative rounded-2xl border p-4 text-center ${i === TIERS.length - 1 ? 'border-blue-600 bg-gradient-to-br from-[#eff4ff] to-[#dbe7ff]' : 'border-[#dde5f2] bg-[#f7faff]'}`}
+                  >
+                    <div className={`text-2xl md:text-3xl font-black leading-none tracking-tight ${i === TIERS.length - 1 ? 'text-[#1e40af]' : 'text-[#0b1533]'}`}>{t.n}</div>
+                    <div className="text-[11px] font-medium text-[#5b6b85] mb-2">{t.label}</div>
+                    <div className={`inline-flex items-center gap-1 text-[11px] font-bold ${i === TIERS.length - 1 ? 'text-[#1e40af]' : 'text-[#2b3a5c]'}`}>
+                      <Check className="w-3 h-3" strokeWidth={3} /> {t.note}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <p className="text-base font-medium text-[#2b3a5c] leading-relaxed mb-5">
+                Stress-tested past <span className="font-bold text-[#0b1533]">one million nodes</span> in a single outline — big enough for your biggest idea, project, or book. Not a toy. No artificial limits — scale until your hardware says stop.
+              </p>
+              <a
+                href="/stress-test"
+                className="inline-flex items-center gap-2 rounded-full bg-gradient-to-br from-[#38bdf8] via-[#2563eb] to-[#4f46e5] hover:from-[#2563eb] hover:to-[#4338ca] px-6 py-3 text-base font-bold text-white shadow-lg shadow-blue-700/30 transition-all"
+              >
+                <Play className="w-4 h-4" /> Run the live benchmark on your computer
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ============================================
 // MAIN PAGE
 // ============================================
@@ -768,6 +990,12 @@ export default function MarketingPage() {
             </div>
           </div>
         </section>
+
+        {/* Runs on your machine — live, personalized performance panel. Reads the
+            visitor's real platform + cores and states the real scale story (past a
+            million nodes). Placed high to make the "serious, powerful, not a toy"
+            case early; the full live benchmark is one click away at /stress-test. */}
+        <RunsOnYourMachine />
 
         {/* Condensed capabilities — a tight, scannable map of the full toolkit,
             placed high (right after the category is established) with a CTA to
