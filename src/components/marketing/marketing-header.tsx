@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { SignedIn, SignedOut } from '@/lib/auth/signed-gates';
 import { ArrowRight, Menu, X } from 'lucide-react';
 import { AmplifyMark } from '@/components/brand/amplify-mark';
+import { AdminNavLink } from '@/components/marketing/admin-nav-link';
 
 const SIGNUP_URL = '/signup';
 const launchApp = () => {
@@ -63,6 +64,9 @@ export function MarketingHeader() {
         </div>
 
         <div className="flex items-center gap-4">
+          {/* Admin-only convenience link to the internal tools index. Renders
+              nothing for signed-out / non-admin visitors (server-decided). */}
+          <AdminNavLink className="hidden md:inline-flex items-center gap-1.5 text-sm text-amber-700 hover:text-amber-900 transition-colors" />
           <SignedOut>
             <Button
               onClick={launchApp}
@@ -123,6 +127,11 @@ export function MarketingHeader() {
                 Open IdeaM
               </Button>
             </SignedIn>
+            {/* Admin-only convenience link (hidden for everyone else). */}
+            <AdminNavLink
+              onClick={() => setMobileMenuOpen(false)}
+              className="inline-flex items-center gap-1.5 py-2 text-sm text-amber-700 hover:text-amber-900"
+            />
           </div>
         </div>
       )}
