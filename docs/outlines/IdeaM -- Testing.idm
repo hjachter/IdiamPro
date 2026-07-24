@@ -13,6 +13,7 @@
         "9d6c2c25-9206-4c5b-8bb4-a7969a90765c",
         "0583ce26-e6a3-46c9-9c39-34b645c986b7",
         "eed9c1a2-5d78-4907-8c1e-40da89fdb378",
+        "ccc00e4d-d9d1-4a6d-9018-8126f97ae6d0",
         "cert-gemma-2026-07-21",
         "cert-free-voice-2026-07-21",
         "quick-ref",
@@ -1556,6 +1557,15 @@
       "id": "eed9c1a2-5d78-4907-8c1e-40da89fdb378",
       "name": "Codebase modularity assessment — Grade B (2026-07-24): sound plumbing, a few god-files",
       "content": "<p><strong>Codebase modularity assessment (evidence-based, 2026-07-24). Overall grade: B &mdash; moderately-to-highly modular.</strong> The architecture is fundamentally sound; coupling risk is <em>concentrated</em> in a few oversized files, not systemic &mdash; the fixable kind.</p><p><strong>Strong positives (measured):</strong></p><ul><li><p><strong>Zero circular dependencies</strong> across all 388 source files. Rare and excellent &mdash; no tangled import web anywhere. The single best modularity signal, passed clean.</p></li><li><p><strong>Shared hubs are thin &amp; clean, not leaky.</strong> The most-depended-on files are the right kind &mdash; type definitions, the button component, a small utils file, the dialog shell: many callers, simple interfaces, nobody reaching into another feature's internals.</p></li><li><p><strong>Clean areas:</strong> 43 self-contained feature dialogs; the lib folder cleanly split (access, auth, billing, export, storage, AI); config and access/admin isolated; AI flows in their own files.</p></li></ul><p><strong>Coupling hotspots &mdash; all the same shape: oversized &lsquo;god-files,&rsquo; not bad wiring:</strong></p><ul><li><p>outline-pro.tsx &mdash; <strong>6,164 lines, 98 pieces of state, 70 imports</strong> (the elephant).</p></li><li><p>content-pane.tsx &mdash; 3,830 lines, 54 state pieces.</p></li><li><p>actions.ts &mdash; 3,280 lines, 29 server functions in one file, 19 other files import it.</p></li><li><p>settings-dialog.tsx &mdash; 2,694 lines.</p></li></ul><p><strong>Testing implication (maps directly to the two-mode rule):</strong> touching a dialog, an AI flow, a config value, or the access module &rarr; small blast radius, fast targeted test. Touching outline-pro, content-pane, or actions.ts &rarr; wide ripple, needs the full run every time.</p><p><strong>Recommendation (POST-LAUNCH tech debt &mdash; do NOT refactor the core right before shipping):</strong> split outline-pro (extract state into custom hooks) and actions.ts (by domain); same treatment for content-pane. This also expands the &lsquo;fast targeted test&rsquo; safe zone.</p>",
+      "parentId": "root",
+      "childrenIds": [],
+      "type": "document",
+      "prefix": "1"
+    },
+    "ccc00e4d-d9d1-4a6d-9018-8126f97ae6d0": {
+      "id": "ccc00e4d-d9d1-4a6d-9018-8126f97ae6d0",
+      "name": "How our modularity compares to manual coders — above median (2026-07-24)",
+      "content": "<p><strong>How our modularity compares to most manual (hand-written) codebases (2026-07-24): above the median for real-world production code.</strong></p><ul><li><p><strong>Beats most on structure:</strong> zero circular dependencies is above-average (most codebases this size accumulate some); clean layering, isolated concerns, and 43 self-contained feature dialogs are more disciplined than the typical solo/startup codebase, which often tangles logic into the UI.</p></li><li><p><strong>Only typical (not worse) on god-files:</strong> oversized files are the most common smell in ALL fast development, human or AI &mdash; everyone carries this debt, and ours is at least cleanly bounded inside a few files.</p></li><li><p><strong>Candid net:</strong> a B sits in solid competent-professional territory &mdash; better than the average practitioner, below the disciplined-architect ideal. An honest audit of most shipped software (including at name-brand companies) would find MORE problems, not fewer.</p></li><li><p><strong>AI-build nuance:</strong> the profile (clean structure + accreted god-files) is characteristic of AI-assisted rapid development &mdash; AI writes tidy new modules (clean hubs, zero cycles) but tends to grow files rather than split them (the elephant). Fix = periodic refactoring passes, scheduled post-launch.</p></li></ul><p><strong>Codebase size (2026-07-24):</strong> ~102,464 lines of app source across 385 TypeScript files (src/), and ~134,861 lines total including tests, the Electron shell, and the MCP server.</p>",
       "parentId": "root",
       "childrenIds": [],
       "type": "document",
