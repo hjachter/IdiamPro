@@ -136,6 +136,10 @@ export default function SidebarPane({
   const { isProfessional } = useDiscovery();
   const DELETE_OUTLINE_SUPPRESS_KEY = 'confirm.deleteOutline.suppressed';
   const [selectedOutlineIds, setSelectedOutlineIds] = useState<Set<string>>(new Set());
+  // Anchor for Shift-click range selection: the last row clicked without Shift.
+  // Tracked separately from the selection set so a normal click (which clears the
+  // set) still leaves a valid anchor for a following Shift-click to extend from.
+  const [anchorOutlineId, setAnchorOutlineId] = useState<string | null>(null);
   const [renamingOutlineId, setRenamingOutlineId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
   const [contextMenuOutline, setContextMenuOutline] = useState<Outline | null>(null);
@@ -299,9 +303,16 @@ export default function SidebarPane({
 
   const handleOutlineClick = (outline: Outline, e: React.MouseEvent) => {
     if (e.metaKey || e.ctrlKey) {
-      // Toggle selection with Cmd/Ctrl click
+      // ⌘/Ctrl-click: toggle this outline in/out of the selection (non-contiguous)
       setSelectedOutlineIds(prev => {
         const next = new Set(prev);
+        // Starting a fresh multi-select from a single open outline: fold that
+        // open outline into the selection too. Without this it looks selected
+        // (it's highlighted as the current outline) but isn't actually in the
+        // set — so a following bulk delete would silently skip it.
+        if (next.size === 0 && currentOutlineId && currentOutlineId !== outline.id) {
+          next.add(currentOutlineId);
+        }
         if (next.has(outline.id)) {
           next.delete(outline.id);
         } else {
@@ -309,41 +320,67 @@ export default function SidebarPane({
         }
         return next;
       });
-    } else if (e.shiftKey && selectedOutlineIds.size > 0) {
-      // Range selection with Shift click
-      const lastSelectedId = Array.from(selectedOutlineIds).pop();
-      const lastIndex = sortedOutlines.findIndex(o => o.id === lastSelectedId);
+      setAnchorOutlineId(outline.id);
+    } else if (e.shiftKey) {
+      // Shift-click: select the contiguous range from the anchor to this row,
+      // INCLUSIVE of both ends. The anchor is the last row clicked without a
+      // modifier (falls back to the currently-open outline, then to this row).
+      const anchor = anchorOutlineId ?? currentOutlineId ?? outline.id;
+      const anchorIndex = sortedOutlines.findIndex(o => o.id === anchor);
       const currentIndex = sortedOutlines.findIndex(o => o.id === outline.id);
-      if (lastIndex !== -1 && currentIndex !== -1) {
-        const start = Math.min(lastIndex, currentIndex);
-        const end = Math.max(lastIndex, currentIndex);
-        const rangeIds = sortedOutlines.slice(start, end + 1).map(o => o.id);
-        setSelectedOutlineIds(prev => new Set([...prev, ...rangeIds]));
+      if (anchorIndex !== -1 && currentIndex !== -1) {
+        const start = Math.min(anchorIndex, currentIndex);
+        const end = Math.max(anchorIndex, currentIndex);
+        setSelectedOutlineIds(new Set(sortedOutlines.slice(start, end + 1).map(o => o.id)));
+      } else {
+        setSelectedOutlineIds(new Set([outline.id]));
       }
+      if (anchorOutlineId == null) setAnchorOutlineId(anchor);
     } else {
-      // Normal click - clear selection and select outline
+      // Normal click: open the outline, reset the multi-selection, set the anchor
       setSelectedOutlineIds(new Set());
+      setAnchorOutlineId(outline.id);
       onSelectOutline(outline.id);
     }
   };
 
   const handleBulkDeleteClick = () => {
-    const legacyConfirmDelete = localStorage.getItem('confirmDelete') !== 'false';
-    const perPromptSuppressed = localStorage.getItem(DELETE_OUTLINE_SUPPRESS_KEY) === 'true';
-    if (isProfessional || perPromptSuppressed || !legacyConfirmDelete) {
-      // Delete all selected outlines
-      const idsToDelete = Array.from(selectedOutlineIds);
-      idsToDelete.forEach(id => onDeleteOutline(id));
-      setSelectedOutlineIds(new Set());
-    } else {
-      setOutlineToDelete(null); // null indicates bulk delete
-      setDeleteDontAskAgain(false);
-      // Small delay so a triggering context/dropdown menu closes first —
-      // Radix restores focus on close and can immediately dismiss a dialog
-      // opened in the same tick.
-      setTimeout(() => setDeleteDialogOpen(true), 100);
-    }
+    if (selectedOutlineIds.size === 0) return;
+    // Bulk delete ALWAYS asks first — removing several outlines at once is
+    // destructive enough that we never skip the warning, even for Professional
+    // accounts. (Single-outline delete still honors the per-user suppress
+    // setting.) The outlines are moved to the Trash, so they stay recoverable.
+    setOutlineToDelete(null); // null indicates bulk delete
+    setDeleteDontAskAgain(false);
+    // Small delay so a triggering context/dropdown menu closes first — Radix
+    // restores focus on close and can immediately dismiss a dialog opened in
+    // the same tick.
+    setTimeout(() => setDeleteDialogOpen(true), 100);
   };
+
+  // Delete / Backspace on the current multi-selection triggers the bulk-delete
+  // confirmation — but only when a selection exists and the user isn't typing in
+  // a field (rename box, search, editor), so it never fires mid-edit.
+  useEffect(() => {
+    if (selectedOutlineIds.size === 0) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      const el = document.activeElement as HTMLElement | null;
+      const typing = !!el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable);
+      // Escape clears the selection (matches clicking away onto another outline).
+      if (e.key === 'Escape' && !typing) {
+        setSelectedOutlineIds(new Set());
+        setAnchorOutlineId(null);
+        return;
+      }
+      if (e.key !== 'Delete' && e.key !== 'Backspace') return;
+      if (typing) return;
+      e.preventDefault();
+      handleBulkDeleteClick();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedOutlineIds]);
 
   const handleStartRename = (outline: Outline) => {
     setRenamingOutlineId(outline.id);
@@ -617,8 +654,8 @@ export default function SidebarPane({
             </AlertDialogTitle>
             <AlertDialogDescription>
               {outlineToDelete
-                ? `This will permanently delete "${outlineToDelete.name}" and all its content.`
-                : `This will permanently delete ${selectedOutlineIds.size} outlines and all their content.`}
+                ? `"${outlineToDelete.name}" will be removed from your sidebar and moved to the Trash — you can recover it from there if you change your mind.`
+                : `These ${selectedOutlineIds.size} outlines will be removed from your sidebar and moved to the Trash — you can recover them from there if you change your mind.`}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="flex items-center gap-2 py-2">

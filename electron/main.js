@@ -1061,8 +1061,15 @@ ipcMain.handle('delete-outline-file', async (event, dirPath, fileName) => {
   try {
     const filePath = validateFilePath(dirPath, fileName);
     if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
-      console.log(`Deleted outline: ${fileName}`);
+      // Move to the system Trash so a deleted outline stays recoverable, instead
+      // of hard-unlinking it. Fall back to a hard delete only if trashing fails.
+      try {
+        await shell.trashItem(filePath);
+        console.log(`Moved outline to Trash: ${fileName}`);
+      } catch (trashErr) {
+        console.warn(`Trash failed for ${fileName}, hard-deleting instead:`, trashErr.message);
+        fs.unlinkSync(filePath);
+      }
     }
     setImmediate(() => rebuildKnowledgeBase(dirPath, false));
     return { success: true };
