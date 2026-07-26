@@ -31,7 +31,8 @@
         "manual-plan-full",
         "testing-guidance",
         "known-gaps",
-        "test-run-log"
+        "test-run-log",
+        "test-ondevice-ai-architecture"
       ],
       "prefix": ""
     },
@@ -1580,6 +1581,16 @@
       "childrenIds": [],
       "type": "document",
       "prefix": "1"
+    },
+    "test-ondevice-ai-architecture": {
+      "id": "test-ondevice-ai-architecture",
+      "parentId": "root",
+      "childrenIds": [],
+      "type": "document",
+      "isCollapsed": false,
+      "prefix": "",
+      "name": "On-Device AI architecture — tests (add to TEST EVERYTHING)",
+      "content": "<p><strong>On-device AI architecture — add to TEST EVERYTHING (Howard, 2026-07-25).</strong> The free tier depends on local inference, and we just hit a real reliability failure (Gemma-on-Ollama returned blank). These run before every release; AI ones follow the tiered rule (repeat ~5×, assert invariants not exact output).</p><ul><li><strong>Never-blank invariant (AI, ~5× each):</strong> every on-device wizard returns <em>non-empty, well-formed</em> output. Fail if ANY of the 5 runs is blank — the exact bug we hit; it must never regress.</li><li><strong>Model cascade / failover:</strong> simulate the primary local model returning empty → assert failover to the next working local model (llama3.2), then to cloud; the user never sees a blank.</li><li><strong>Endpoint correctness:</strong> each local model is called on the endpoint that works for it (chat vs generate); regression-guard the Gemma <code>/api/generate</code> empty-output case.</li><li><strong>Money guardrail (adversarial, release blocker):</strong> the free on-device path NEVER calls the company cloud key or touches the paid meter — assert under load and with a forced local failure.</li><li><strong>Post-launch (embedded engine):</strong> when node-llama-cpp / MLX lands (Step 2), test it produces valid output with <em>Ollama absent</em>.</li></ul>"
     }
   },
   "_fileSize": 149937,

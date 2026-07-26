@@ -28,7 +28,8 @@
         "video-generation-feasibility-2026-06-04",
         "business-mailing-address-8247c0df",
         "tech-stack-bootstrap-note-2026-06-06",
-        "14d2a7be-30b4-4bdb-bbdd-95e79b91ac44"
+        "14d2a7be-30b4-4bdb-bbdd-95e79b91ac44",
+        "bootstrap-postlaunch-todo"
       ],
       "isCollapsed": false,
       "prefix": ""
@@ -1346,10 +1347,32 @@
       "childrenIds": [],
       "type": "document",
       "prefix": "18.9.1"
+    },
+    "bootstrap-postlaunch-todo": {
+      "id": "bootstrap-postlaunch-todo",
+      "parentId": "root-bootstrap",
+      "childrenIds": [
+        "postlaunch-embed-ondevice-ai"
+      ],
+      "type": "folder",
+      "isCollapsed": false,
+      "prefix": "",
+      "name": "Post-Launch To-Do List",
+      "content": "<p><strong>Things intentionally deferred until after launch</strong> — captured so they're not forgotten. Each item says why it waits and what triggers it.</p>"
+    },
+    "postlaunch-embed-ondevice-ai": {
+      "id": "postlaunch-embed-ondevice-ai",
+      "parentId": "bootstrap-postlaunch-todo",
+      "childrenIds": [],
+      "type": "document",
+      "isCollapsed": false,
+      "prefix": "",
+      "name": "Embed on-device AI — drop the Ollama install dependency (Step 2)",
+      "content": "<p><strong>What:</strong> Replace the external Ollama dependency for the free on-device AI tier by <strong>embedding the inference engine directly in the desktop app</strong> — llama.cpp via <code>node-llama-cpp</code>, and/or <strong>MLX</strong> on Apple Silicon — so users get free on-device AI with <strong>nothing to install</strong> and no separate model pull.</p><p><strong>Why it waits:</strong> Step 1 (ship at launch) already makes the free tier reliable by switching the on-device model from Gemma to <strong>llama3.2 on Ollama</strong> — the smallest change that works today. Embedding the engine is a bigger effort (bundling a runtime + model, desktop-only, larger download), best done deliberately after launch.</p><p><strong>Why it matters:</strong> “Install Ollama, then pull a model” is real friction for a free tier. Embedding removes it entirely and gives full control of the API (which also permanently kills the Gemma /api/generate empty-output class of bug).</p><p><strong>Background (2026-07-25):</strong> Gemma-on-Ollama proved unreliable — empty responses, documented Apple-Silicon bugs (Ollama issues #15428, #16562). llama3.2 on Ollama is the reliable interim.</p><p><strong>Trigger:</strong> post-launch, once the core product is stable.</p>"
     }
   },
   "isGuide": false,
-  "lastModified": 1784814066402,
+  "lastModified": 1784814066403,
   "_fileName": "IdeaM -- Bootstrap Plan.idm",
   "_isLazyLoaded": false,
   "_fileSize": 161402,

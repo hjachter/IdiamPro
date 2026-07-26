@@ -81,7 +81,8 @@
         "decisions-log-2026-06-10-beta-feedback",
         "decision-multimedia-ai-2026-06-11",
         "decision-email-smtp-pivot-2026-06-11",
-        "decision-storage-adapter-2026-06-11"
+        "decision-storage-adapter-2026-06-11",
+        "dev-ondevice-ai-architecture-2026-07-25"
       ],
       "isCollapsed": false,
       "prefix": ""
@@ -1998,6 +1999,16 @@
         "createdAt": 1784814066402,
         "updatedAt": 1784814066402
       }
+    },
+    "dev-ondevice-ai-architecture-2026-07-25": {
+      "id": "dev-ondevice-ai-architecture-2026-07-25",
+      "parentId": "17a29ec6-74ba-4196-8f2f-f7dc8a59f862",
+      "childrenIds": [],
+      "type": "document",
+      "isCollapsed": false,
+      "prefix": "",
+      "name": "On-Device AI architecture + platform-requirements revision (2026-07-25)",
+      "content": "<p><strong>Decision (2026-07-25): On-device AI architecture + platform-requirements revision.</strong></p><p><strong>Root cause found:</strong> the free-tier on-device model (Gemma via Ollama) returned <em>blank</em> — Gemma fails on Ollama's <code>/api/generate</code> (works on <code>/api/chat</code>), and Gemma-on-Ollama is documented-flaky, esp. on Apple Silicon (Ollama issues #15428, #16562). llama3.2 works reliably on both endpoints.</p><p><strong>Step 1 (ship at launch) — reliability cascade, no capability lost:</strong></p><ul><li>Call Gemma the right way (<code>/api/chat</code>) so it works and we KEEP Gemma's capability for setups that run it well.</li><li>Fail over to <strong>llama3.2</strong> when Gemma still returns empty (small, reliable, comparable to Gemma 3n E4B).</li><li>Fail over to <strong>cloud</strong> as last resort. Net: the user never sees a blank.</li><li>Bonus: llama3.2 (~3 GB) lowers the free-tier RAM floor from the Gemma-heavy 16–40 GB brackets to comfortably running on an <strong>8 GB Mac</strong>.</li></ul><p><strong>Step 2 (post-launch — see Bootstrap Plan → Post-Launch To-Do List):</strong> embed the inference engine in the desktop app — <code>node-llama-cpp</code> (Apple Silicon + Intel + Windows/Linux) and/or <strong>MLX</strong> (fastest on Apple Silicon, Silicon-only) — to <strong>drop the Ollama install dependency entirely</strong>; model downloaded on first run.</p><p><strong>Platform-requirements revision — update EVERY copy</strong> (they live in: Marketing/customer-facing pages, Current Features, the setup wizard in <code>settings-dialog.tsx</code>, and the Guide):</p><ul><li><strong>At launch:</strong> lower the recommended RAM for free on-device AI to ~8 GB; stop naming the model (“free on-device AI”, not “Google Gemma”); still supports Apple Silicon &amp; Intel (via Ollama).</li><li><strong>Post-launch:</strong> remove “install Ollama”; add a first-run model download (~2–4 GB disk); note “Apple Silicon recommended for best on-device speed” (MLX path).</li></ul><p><strong>Test procedures:</strong> on-device AI tests added to TEST EVERYTHING (Testing outline): never-blank invariant (~5× per wizard), cascade/failover, endpoint correctness, free-tier money guardrail (adversarial), and a post-launch embedded-engine test with Ollama absent.</p>"
     }
   },
   "isGuide": false,
