@@ -234,66 +234,96 @@ class EmptyGenerationError extends Error {
  * STILL blank after the cap, we throw a clear, friendly message instead of
  * returning an empty string — so a blank result can never silently succeed.
  */
-export async function generateWithOllama(options: OllamaGenerateOptions): Promise<string> {
-  const model = options.model || await getBestAvailableModel();
+/**
+ * Ordered model cascade: the best available model first, then a RELIABLE
+ * fallback (llama3.2), then any other installed model. Gemma-on-Ollama is
+ * documented to return empty completions — especially on Apple Silicon (Ollama
+ * issues #15428 / #16562) — so we never bet the free tier on Gemma alone: if it
+ * goes blank we fall straight to llama3.2, which has been stable in testing.
+ */
+async function getModelCascade(preferred?: string): Promise<string[]> {
+  const installed = (await getOllamaModels()).map((m) => m.name);
+  const order: string[] = [];
+  const best = preferred || (await getBestAvailableModel());
+  if (best) order.push(best);
+  const llama =
+    installed.find((n) => n.startsWith('llama3.2')) ||
+    installed.find((n) => n.startsWith('llama3'));
+  if (llama && !order.includes(llama)) order.push(llama);
+  for (const n of installed) if (!order.includes(n)) order.push(n);
+  return order;
+}
 
-  if (!model) {
-    throw new Error('No Ollama models installed. Please install a model with: ollama pull gemma4:e4b (or ollama pull llama3.2 for low-memory systems)');
-  }
-
-  const baseTemp = options.temperature ?? 0.7;
-  let sawEmpty = false;
-  let lastError: unknown;
-
+/**
+ * Generate from ONE model via Ollama's CHAT endpoint, with a bounded empty-retry.
+ * We ALWAYS use /api/chat (never /api/generate): Gemma 3n models return an empty
+ * completion on the plain generate endpoint but work correctly on chat, because
+ * chat applies the model's prompt template. Throws EmptyGenerationError if the
+ * model is still blank after the retry cap, so the caller can fall to the next
+ * model in the cascade.
+ */
+async function generateOnceViaChat(
+  model: string,
+  system: string | undefined,
+  prompt: string,
+  baseTemp: number,
+  maxTokens: number,
+): Promise<string> {
   for (let attempt = 0; attempt < MAX_GENERATION_ATTEMPTS; attempt++) {
-    // First attempt honors the caller's temperature (keeps temp-0 verifier
-    // calls deterministic). Retries nudge it up so a repeated blank actually
-    // samples a different completion rather than reproducing the same empty one.
     const temperature = attempt === 0 ? baseTemp : Math.max(baseTemp, 0.4);
-    try {
-      const response = await fetch(`${OLLAMA_BASE_URL}/api/generate`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model,
-          prompt: options.prompt,
-          system: options.system,
-          stream: false,
-          think: false, // Disable Gemma 4 reasoning mode — it consumes the token budget and leaves content empty
-          options: {
-            temperature,
-            num_predict: options.maxTokens ?? 2000,
-          },
-        }),
-      });
-
-      if (!response.ok) {
-        const error = await response.text();
-        throw new Error(`Ollama generation failed: ${error}`);
-      }
-
-      const data: OllamaResponse = await response.json();
-      const text = data.response ?? '';
-      if (text.trim().length === 0) {
-        // Empty/whitespace-only completion = a FAILED generation. Retry it.
-        sawEmpty = true;
-        throw new EmptyGenerationError();
-      }
-      return text;
-    } catch (err) {
-      lastError = err;
-      // Brief backoff before retrying (bounded).
-      if (attempt < MAX_GENERATION_ATTEMPTS - 1) {
-        await new Promise((res) => setTimeout(res, 400 * (attempt + 1)));
-      }
+    const messages: Array<{ role: string; content: string }> = [];
+    if (system && system.trim()) messages.push({ role: 'system', content: system });
+    messages.push({ role: 'user', content: prompt });
+    const response = await fetch(`${OLLAMA_BASE_URL}/api/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model,
+        messages,
+        stream: false,
+        think: false, // Gemma reasoning mode eats the token budget and returns empty
+        options: { temperature, num_predict: maxTokens },
+      }),
+    });
+    if (!response.ok) {
+      throw new Error(`Ollama generation failed: ${await response.text()}`);
+    }
+    const data = await response.json();
+    const text = (data?.message?.content ?? '').trim();
+    if (text.length > 0) return text;
+    if (attempt < MAX_GENERATION_ATTEMPTS - 1) {
+      await new Promise((res) => setTimeout(res, 400 * (attempt + 1)));
     }
   }
+  throw new EmptyGenerationError();
+}
 
-  // Exhausted the retry cap. A persistent blank becomes a friendly, actionable
-  // message; any other transport error propagates as before so callers can
-  // classify it (availability, billing fallback, etc.).
+/**
+ * Generate text with Ollama, reliably. Uses the CHAT endpoint (so Gemma never
+ * returns blank on /api/generate) and CASCADES across models: if the preferred
+ * model (e.g. Gemma) stays empty after its bounded retries, we fall over to the
+ * next model (llama3.2) before giving up. A blank never silently succeeds, and a
+ * flaky Gemma never dead-ends the free tier. If every local model fails, we
+ * throw — the higher-level failover can then try cloud for users who have a key.
+ */
+export async function generateWithOllama(options: OllamaGenerateOptions): Promise<string> {
+  const cascade = await getModelCascade(options.model);
+  if (cascade.length === 0) {
+    throw new Error('No Ollama models installed. Please install a model with: ollama pull llama3.2');
+  }
+  const baseTemp = options.temperature ?? 0.7;
+  const maxTokens = options.maxTokens ?? 2000;
+  let sawEmpty = false;
+  let lastError: unknown;
+  for (const model of cascade) {
+    try {
+      return await generateOnceViaChat(model, options.system, options.prompt, baseTemp, maxTokens);
+    } catch (err) {
+      lastError = err;
+      if (err instanceof EmptyGenerationError) sawEmpty = true;
+      // Fall through to the next model in the cascade on empty OR transport error.
+    }
+  }
   if (sawEmpty && lastError instanceof EmptyGenerationError) {
     throw new Error(ON_DEVICE_EMPTY_MESSAGE);
   }
@@ -311,20 +341,24 @@ export async function* generateWithOllamaStream(
   const model = options.model || await getBestAvailableModel();
 
   if (!model) {
-    throw new Error('No Ollama models installed. Please install a model with: ollama pull gemma4:e4b (or ollama pull llama3.2 for low-memory systems)');
+    throw new Error('No Ollama models installed. Please install a model with: ollama pull llama3.2');
   }
 
-  const response = await fetch(`${OLLAMA_BASE_URL}/api/generate`, {
+  // Use the CHAT endpoint (Gemma returns blank on /api/generate — see generateWithOllama).
+  const messages: Array<{ role: string; content: string }> = [];
+  if (options.system && options.system.trim()) messages.push({ role: 'system', content: options.system });
+  messages.push({ role: 'user', content: options.prompt });
+
+  const response = await fetch(`${OLLAMA_BASE_URL}/api/chat`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
       model,
-      prompt: options.prompt,
-      system: options.system,
+      messages,
       stream: true,
-      think: false, // See note in generateWithOllama
+      think: false, // Gemma reasoning mode eats the token budget and returns empty
       options: {
         temperature: options.temperature ?? 0.7,
         num_predict: options.maxTokens ?? 2000,
@@ -351,9 +385,10 @@ export async function* generateWithOllamaStream(
 
     for (const line of lines) {
       try {
-        const data: OllamaResponse = JSON.parse(line);
-        if (data.response) {
-          yield data.response;
+        const data = JSON.parse(line);
+        const chunk: string | undefined = data?.message?.content;
+        if (chunk) {
+          yield chunk;
         }
       } catch {
         // Skip invalid JSON lines
@@ -372,7 +407,7 @@ export async function chatWithOllama(
   const model = options?.model || await getBestAvailableModel();
 
   if (!model) {
-    throw new Error('No Ollama models installed. Please install a model with: ollama pull gemma4:e4b (or ollama pull llama3.2 for low-memory systems)');
+    throw new Error('No Ollama models installed. Please install a model with: ollama pull llama3.2');
   }
 
   const response = await fetch(`${OLLAMA_BASE_URL}/api/chat`, {

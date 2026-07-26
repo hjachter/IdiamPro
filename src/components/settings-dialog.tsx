@@ -2478,7 +2478,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
                       </span>
                     ) : aiProvider !== 'cloud' ? (
                       <span className="block mt-1">
-                        Install Ollama from <strong>ollama.com</strong> (v0.20+) and run <code className="bg-muted px-1 rounded">ollama pull gemma4:e4b</code>
+                        Install Ollama from <strong>ollama.com</strong> (v0.20+) and run <code className="bg-muted px-1 rounded">ollama pull llama3.2</code>
                       </span>
                     ) : null
                   )}
