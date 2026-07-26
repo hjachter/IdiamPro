@@ -513,9 +513,10 @@ export default function MobileSidebarSheet({
                 {selectedOutlineIds.size === 1 ? 'Outline' : 'Outlines'}?
               </AlertDialogTitle>
               <AlertDialogDescription>
-                This will permanently delete {selectedOutlineIds.size}{' '}
-                {selectedOutlineIds.size === 1 ? 'outline' : 'outlines'} and all
-                their content.
+                {selectedOutlineIds.size === 1 ? 'This outline' : `These ${selectedOutlineIds.size} outlines`}{' '}
+                will be removed from your sidebar and moved to the Trash — you can
+                recover {selectedOutlineIds.size === 1 ? 'it' : 'them'} from there
+                if you change your mind.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter className="flex-col gap-2 sm:flex-row">
