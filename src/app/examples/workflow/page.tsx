@@ -45,9 +45,9 @@ export default function WorkflowExamplePage() {
         <>
           This one began as a single conversation about a big topic — the future
           of AI and society. Inside one tool, it became a structured outline, a
-          formatted brief, a designed shareable document, and a ready-to-shoot
-          video script. That is IdeaM&apos;s whole promise: start with an idea,
-          finish in every format you need.
+          formatted brief, a designed shareable document, a ready-to-shoot video
+          script, a podcast, and a video. That is IdeaM&apos;s whole promise:
+          start with an idea, finish in every format you need.
         </>
       }
     >
@@ -77,6 +77,59 @@ export default function WorkflowExamplePage() {
             </p>
           </div>
         ))}
+
+        {/* Step 5 — the podcast (native audio) */}
+        <div>
+          <div className="flex items-center gap-2 flex-wrap mb-4 px-1">
+            <span className="text-xs font-semibold text-[#1e40af] bg-blue-600/12 border border-blue-600/30 rounded-full px-2.5 py-0.5">
+              Step 5
+            </span>
+            <span className="text-lg md:text-xl font-bold text-[#0b1533]">
+              Hear it — the podcast
+            </span>
+          </div>
+          <div className="rounded-2xl overflow-hidden border border-[#dde5f2] bg-white shadow-xl shadow-blue-900/[0.06] p-4 md:p-5">
+            <audio
+              controls
+              preload="metadata"
+              src="/examples/reflections-podcast.mp3"
+              className="w-full block"
+            >
+              Your browser does not support the audio element.
+            </audio>
+          </div>
+          <p className="text-sm md:text-base text-[#475569] mt-4 px-1 max-w-2xl">
+            The same idea as a two-minute audio episode, narrated with a natural
+            AI voice.
+          </p>
+        </div>
+
+        {/* Step 6 — the video (native video) */}
+        <div>
+          <div className="flex items-center gap-2 flex-wrap mb-4 px-1">
+            <span className="text-xs font-semibold text-[#1e40af] bg-blue-600/12 border border-blue-600/30 rounded-full px-2.5 py-0.5">
+              Step 6
+            </span>
+            <span className="text-lg md:text-xl font-bold text-[#0b1533]">
+              Watch it — the video
+            </span>
+          </div>
+          <div className="rounded-2xl overflow-hidden border border-[#dde5f2] bg-white shadow-xl shadow-blue-900/[0.06]">
+            <video
+              controls
+              preload="metadata"
+              playsInline
+              poster="/examples/reflections-video-poster.jpg"
+              src="/examples/reflections-video.mp4"
+              className="w-full h-auto max-w-full block"
+            >
+              Your browser does not support the video element.
+            </video>
+          </div>
+          <p className="text-sm md:text-base text-[#475569] mt-4 px-1 max-w-2xl">
+            …and as a narrated explainer video — every format from the one idea.
+          </p>
+        </div>
       </div>
 
       {/* Tasteful "developed with Claude" note */}
