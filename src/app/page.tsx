@@ -751,6 +751,94 @@ function RunsOnYourMachine() {
   );
 }
 
+// "See it in action" — a compact proof gallery of six real app screens, each
+// produced from a plain-English prompt, an imported file, or a pasted link.
+// Two-column on desktop, single-column on mobile. Matches the homepage's Carbon
+// card language: rounded-2xl, thin #dde5f2 border, subtle shadow, blue accents.
+function ShowcaseGallery() {
+  const SHOTS = [
+    {
+      src: '/showcase/mind-map.jpg',
+      title: 'Mind map, from a prompt',
+      caption: 'Turn a research outline into a colorful mind map with one plain-English request.',
+    },
+    {
+      src: '/showcase/process-diagram.jpg',
+      title: 'Idea to finished work',
+      caption: 'Many sources in, one idea developed, many finished formats out — drawn from a prompt.',
+    },
+    {
+      src: '/showcase/spreadsheet.jpg',
+      title: 'A live spreadsheet',
+      caption: 'A real, editable, color-coded spreadsheet living right inside your outline.',
+    },
+    {
+      src: '/showcase/data-chart.jpg',
+      title: 'Data as a chart',
+      caption: 'A table of results becomes an at-a-glance chart from a single prompt.',
+    },
+    {
+      src: '/showcase/imported-document.jpg',
+      title: 'Your document, transformed',
+      caption: 'Import a document and turn it into finished, structured, visual work.',
+    },
+    {
+      src: '/showcase/live-embed.jpg',
+      title: 'Embed a live source',
+      caption: 'Pull a YouTube source into your notes and watch it in place while you work.',
+    },
+  ];
+
+  return (
+    <section className="px-6 py-24 lg:px-12 border-t border-[#dde5f2] bg-gradient-to-b from-white to-[#f7faff]">
+      <div className="max-w-[1400px] mx-auto">
+        {/* Heading */}
+        <div className="text-center max-w-3xl mx-auto mb-14">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-600/15 border border-blue-600/40 mb-6">
+            <Sparkles className="w-4 h-4 text-[#1e40af]" />
+            <span className="text-sm font-semibold text-[#1e40af]">See it in action</span>
+          </div>
+          <h2 className="text-4xl md:text-5xl font-extrabold text-[#0b1533] mb-4 tracking-tight">
+            See it in action.
+          </h2>
+          <p className="text-lg md:text-xl font-medium text-[#2b3a5c] leading-relaxed max-w-[720px] mx-auto">
+            Real screens from IdeaM — every one produced from a plain-English prompt, an imported file, or a pasted link.
+          </p>
+        </div>
+
+        {/* Gallery — 1 column mobile, 2 columns desktop */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+          {SHOTS.map((shot) => (
+            <div
+              key={shot.src}
+              className="group flex flex-col rounded-2xl border border-[#dde5f2] bg-white overflow-hidden shadow-[0_1px_3px_rgba(12,34,36,0.06),0_8px_24px_rgba(12,34,36,0.05)] transition-all duration-300 hover:shadow-[0_4px_12px_rgba(12,34,36,0.10),0_16px_40px_rgba(12,60,60,0.12)] hover:-translate-y-1"
+            >
+              <div className="border-b border-[#dde5f2] overflow-hidden">
+                <img
+                  src={shot.src}
+                  alt={shot.title}
+                  loading="lazy"
+                  decoding="async"
+                  className="block w-full h-auto"
+                  style={{ width: '100%', height: 'auto' }}
+                />
+              </div>
+              <div className="p-6">
+                <h3 className="text-xl font-extrabold text-[#0b1533] tracking-tight mb-1.5">
+                  {shot.title}
+                </h3>
+                <p className="text-base font-medium text-[#5b6b85] leading-relaxed">
+                  {shot.caption}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ============================================
 // MAIN PAGE
 // ============================================
@@ -879,6 +967,11 @@ export default function MarketingPage() {
         {/* FIRST video — the conceptual film + the "Who IdeaM Is For" segments,
             leading the page (audience first). Founder's story follows below. */}
         <IdeaDevelopmentBand />
+
+        {/* See it in action — a compact proof gallery of six real app screens,
+            each produced from a prompt, an imported file, or a pasted link.
+            Sits right after the process-model band, before the deeper dives. */}
+        <ShowcaseGallery />
 
         {/* Three categories — the crisp crystallization of IdeaM's category:
             query box ANSWERS, outliner STORES, IdeaM DEVELOPS. Light Clarity
