@@ -201,7 +201,19 @@ export default function OutlinePro() {
       let anyStamped = false;
       const stamped = next.map(outline => {
         const prevOutline = prev.find(o => o.id === outline.id);
-        if (!prevOutline || prevOutline !== outline) {
+        // Only treat this as a genuine edit when the outline's CONTENT actually
+        // changed — its node map or its name — not when the outline object was
+        // merely re-referenced (e.g. selecting/opening it, or an internal
+        // re-render). This is what stops the "Recent" sort from floating a
+        // just-clicked outline to the top: a click doesn't change nodes/name, so
+        // it no longer marks the outline dirty or restamps lastModified. Genuine
+        // edits (add/update/move/remove a node, or a rename) all replace the node
+        // map, so they still stamp correctly. New outlines (no prev) always count.
+        const contentChanged =
+          !prevOutline ||
+          prevOutline.nodes !== outline.nodes ||
+          prevOutline.name !== outline.name;
+        if (contentChanged) {
           dirtyOutlineIdsRef.current.add(outline.id);
           lastEditTimeRef.current.set(outline.id, now);
           if (!outline.isGuide) {
