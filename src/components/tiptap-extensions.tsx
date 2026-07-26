@@ -157,26 +157,32 @@ const MermaidRenderer = ({ code }: { code: string }) => {
         // Just call render without a container - mermaid will handle it
         let { svg } = await mermaid.render(id, sanitizedCode);
 
-        // Post-process SVG: Add a class to node shapes so CSS can style them
-        // Replace problematic fill colors with a CSS variable
-        const keepColors = ['none', 'transparent', '#16a34a', '#ffffff', '#000000', '#fff', '#000'];
+        // Post-process SVG: neutralize ONLY mermaid's DEFAULT slate node
+        // backgrounds so un-styled diagrams stay clean and dark-mode-adaptive,
+        // while PASSING THROUGH any author/AI-specified fill unchanged (so
+        // explicitly styled diagrams keep their vivid colors).
+        // These are the slate defaults from the themeVariables config above,
+        // plus common close variants.
+        const defaultNodeBgs = ['#f1f5f9', '#e2e8f0', '#cbd5e1', '#f8fafc'];
 
-        // Replace fill="..." attributes with CSS variable
+        // Replace fill="..." attributes ONLY when they match a default bg
         svg = svg.replace(/fill="([^"]*)"/gi, (match, color) => {
           const c = color.toLowerCase().trim();
-          if (keepColors.includes(c) || c === '') return match;
-          // Keep greens for arrows
-          if (c.startsWith('#1') && c.includes('a3')) return match;
-          // Use CSS variable for node fills
-          return 'fill="var(--mermaid-node-bg, #f1f5f9)"';
+          if (defaultNodeBgs.includes(c)) {
+            return 'fill="var(--mermaid-node-bg, #f1f5f9)"';
+          }
+          // Everything else (green arrows, author colors, none/transparent/
+          // white/black) passes through untouched.
+          return match;
         });
 
-        // Replace fill: ... in style attributes
+        // Replace fill: ... in style attributes ONLY when it matches a default bg
         svg = svg.replace(/fill:\s*([^;}"'\s]+)/gi, (match, color) => {
           const c = color.toLowerCase().trim();
-          if (keepColors.includes(c) || c === '') return match;
-          if (c.startsWith('#1') && c.includes('a3')) return match;
-          return 'fill: var(--mermaid-node-bg, #f1f5f9)';
+          if (defaultNodeBgs.includes(c)) {
+            return 'fill: var(--mermaid-node-bg, #f1f5f9)';
+          }
+          return match;
         });
 
         if (!cancelled) {
