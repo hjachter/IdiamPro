@@ -546,6 +546,38 @@ export default function PricingPage() {
           </div>
         </section>
 
+        {/* System requirements — what a prospect needs to run IdeaM, stated plainly
+            right where they evaluate. Facts verified from code: on-device AI is
+            Mac-only (Ollama); the app itself runs on Mac/iPhone/iPad/web, so
+            Windows & Linux use the browser; cloud AI works everywhere. */}
+        <section className="px-6 py-24 lg:px-12 border-t border-[#dde5f2] bg-gradient-to-b from-white to-[#f7faff]">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-12">
+              <div className="text-sm font-mono font-semibold text-[#1e40af] uppercase tracking-wider mb-2">What you&apos;ll need</div>
+              <h2 className="text-3xl md:text-4xl font-bold text-[#0b1533]">System requirements</h2>
+              <p className="mt-3 text-lg text-[#5b6b85] max-w-2xl mx-auto">Mostly nothing. Here&apos;s exactly what runs where — no surprises.</p>
+            </div>
+            <div className="grid md:grid-cols-2 gap-5">
+              <div className="rounded-2xl border border-[#dde5f2] bg-white p-6">
+                <h3 className="text-lg font-bold text-[#0b1533] mb-2">Runs on</h3>
+                <p className="text-[#2b3a5c] leading-relaxed">Mac (Apple Silicon &amp; Intel), iPhone, iPad, and any modern web browser — so <strong>Windows and Linux work too, right in the browser</strong>. Your work syncs across all of them.</p>
+              </div>
+              <div className="rounded-2xl border border-[#dde5f2] bg-white p-6">
+                <h3 className="text-lg font-bold text-[#0b1533] mb-2">Cloud AI — every platform</h3>
+                <p className="text-[#2b3a5c] leading-relaxed">Bring your own API key (free) or upgrade to Pro. Works everywhere with nothing to install.</p>
+              </div>
+              <div className="rounded-2xl border-2 border-blue-600/30 bg-blue-600/[0.04] p-6">
+                <h3 className="text-lg font-bold text-[#0b1533] mb-2">Free on-device AI — Mac only</h3>
+                <p className="text-[#2b3a5c] leading-relaxed">Private AI that runs entirely on your Mac at <strong>$0</strong>. Needs the free Ollama app and <strong>8&nbsp;GB RAM</strong> (16&nbsp;GB recommended for larger models). Not available on iPhone, iPad, or in the browser — those use cloud AI.</p>
+              </div>
+              <div className="rounded-2xl border border-[#dde5f2] bg-white p-6">
+                <h3 className="text-lg font-bold text-[#0b1533] mb-2">Your data</h3>
+                <p className="text-[#2b3a5c] leading-relaxed">Your outlines are plain files on your own device. Back them up or sync via iCloud, Dropbox, or any service you trust.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section className="px-6 py-20 lg:px-12">
           <div className="max-w-4xl mx-auto text-center">
             <Link href="/" className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#38bdf8] via-[#2563eb] to-[#4f46e5] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/25 hover:from-[#2563eb] hover:to-[#4338ca] transition-colors">

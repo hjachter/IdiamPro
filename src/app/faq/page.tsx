@@ -110,6 +110,10 @@ export default function FaqPage() {
       answer: 'IdeaM is purpose-built for research synthesis and content creation. Unlike general note-taking apps, we focus on importing multiple sources (YouTube, PDFs, audio) and using AI to synthesize them into structured outlines. Our multi-source analysis and speaker diarization features are unique to IdeaM.'
     },
     {
+      question: 'What are the system requirements? What do I need to run it?',
+      answer: 'The app runs on Mac (Apple Silicon and Intel), iPhone, iPad, and any modern web browser — so Windows and Linux work too, right in the browser. Cloud AI works on every platform (bring your own API key for free, or upgrade to Pro) with nothing to install. Free on-device AI — private AI that runs entirely on your Mac at no cost — is Mac only: it needs the free Ollama app and 8 GB of RAM (16 GB recommended for larger models), and is not available on iPhone, iPad, or in the browser. Your outlines are plain files on your own device that you can back up or sync via iCloud, Dropbox, or any service you trust.'
+    },
+    {
       question: 'Can I import my existing notes?',
       answer: 'Yes! IdeaM supports importing from Markdown, OPML, plain text, and JSON formats. You can also import content from PDFs, Word documents, web pages, and even YouTube videos with automatic transcription.'
     },
