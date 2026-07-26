@@ -5,9 +5,18 @@
 import React from 'react';
 import Link from 'next/link';
 import { ExamplesShell } from '@/components/marketing/examples-shell';
-import { Sparkles, Video, Globe, Podcast, ArrowRight } from 'lucide-react';
+import { Sparkles, Video, Globe, Podcast, Workflow, ArrowRight } from 'lucide-react';
 
 const GALLERIES = [
+  {
+    href: '/examples/workflow',
+    icon: Workflow,
+    title: 'One idea, many formats',
+    desc: 'A single idea followed end to end — outline, brief, designed page, and video script.',
+    tint: 'from-[#1e40af]/12 to-[#4f46e5]/8',
+    featured: true,
+    cta: 'See the walkthrough',
+  },
   {
     href: '/examples/videos',
     icon: Video,
@@ -51,7 +60,7 @@ export default function ExamplesHubPage() {
             <Link
               key={g.href}
               href={g.href}
-              className={`group flex flex-col rounded-2xl border border-[#dde5f2] bg-gradient-to-br ${g.tint} p-7 shadow-lg shadow-blue-900/[0.05] hover:shadow-xl hover:border-blue-600/50 transition-all`}
+              className={`group flex flex-col rounded-2xl border border-[#dde5f2] bg-gradient-to-br ${g.tint} p-7 shadow-lg shadow-blue-900/[0.05] hover:shadow-xl hover:border-blue-600/50 transition-all ${g.featured ? 'md:col-span-3' : ''}`}
             >
               <div className="w-12 h-12 rounded-xl bg-white border border-[#dde5f2] flex items-center justify-center mb-5 shadow-sm group-hover:scale-105 transition-transform">
                 <Icon className="w-6 h-6 text-[#1e40af]" />
@@ -59,7 +68,7 @@ export default function ExamplesHubPage() {
               <div className="text-xl font-extrabold text-[#0b1533] mb-2">{g.title}</div>
               <p className="text-sm text-[#475569] flex-1">{g.desc}</p>
               <span className="inline-flex items-center gap-1.5 mt-5 text-sm font-semibold text-[#1e40af]">
-                View gallery
+                {g.cta ?? 'View gallery'}
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </span>
             </Link>
