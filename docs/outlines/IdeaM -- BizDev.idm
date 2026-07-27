@@ -20,7 +20,8 @@
         "fundraising",
         "gtm-strategy",
         "product-roadmap",
-        "tech-stack-investor-framing-2026-06-06"
+        "tech-stack-investor-framing-2026-06-06",
+        "bizdev-pm-competitive-2026-07"
       ],
       "prefix": ""
     },
@@ -476,7 +477,7 @@
       "parentId": "root-biz",
       "childrenIds": [],
       "isCollapsed": false,
-      "prefix": null
+      "prefix": ""
     },
     "partnerships-api-providers-2026-06-11": {
       "id": "partnerships-api-providers-2026-06-11",
@@ -543,9 +544,21 @@
       "childrenIds": [],
       "isCollapsed": false,
       "prefix": "10.4"
+    },
+    "bizdev-pm-competitive-2026-07": {
+      "id": "bizdev-pm-competitive-2026-07",
+      "name": "Competitive Landscape — AI Project Management (2026-07)",
+      "parentId": "root-biz",
+      "childrenIds": [],
+      "type": "text",
+      "content": "<h2>Competitive Landscape — AI Project Management</h2><p><em>Scan: 27 Jul 2026. Context: IdeaM adding PM via a flexible outline + free-form colored tags + filter-by-tag + AI that reads the tags to manage the project.</em></p><p><strong>Incumbents</strong> (Asana, ClickUp, Monday, Jira, Linear, MS Project, Smartsheet, Trello): boards / lists / Gantt timelines you conform to; all bolted on AI &ldquo;agents&rdquo; in 2026 that watch Slack/GitHub/email and auto-push status. Powerful but heavy — you conform to their schema, and the plan is still a chart that goes stale.</p><p><strong>Closest analogs (our real competitive set — outliner + tags + AI):</strong></p><ul><li><strong>Tana</strong> — nearest competitor. &ldquo;Supertags&rdquo; turn any outline node into structured data; AI meeting agent extracts action items and rolls up multi-workstream status. Study hardest.</li><li><strong>Notion</strong> — mass-market version. Databases-as-views + a strong 2026 AI agent that auto-fills properties and answers &ldquo;what&rsquo;s the status?&rdquo;</li><li><strong>Workflowy / Roam / Logseq</strong> — share the outline DNA but are largely manual and static, with thin AI.</li></ul><p><strong>Our wedge (honest, not cheerleading):</strong> the outline is the plan <em>and</em> the workspace — no translating into a rigid board. Free-form colored tags are lighter and more fluid than Tana&rsquo;s typed-field supertags or Notion&rsquo;s schemas — anyone can tag instantly with zero setup, and the AI reads those tags for status and reports. The bet: the fastest, lowest-ceremony &ldquo;brain-dump to managed project&rdquo; for solo founders and small teams. <strong>Plus our email integration (in and out) partially closes the &ldquo;no integrations&rdquo; gap</strong> — an email can flow straight into the project.</p><p><strong>Honest gaps at launch:</strong> no Slack/GitHub ingest, no Gantt/timeline, thin team/permissions, no cross-tool monitoring agents — all things Tana, Notion, and the incumbents already ship. Recommendation: don&rsquo;t chase these at launch; lean entirely into the wedge.</p><p><strong>Watch closely:</strong> Tana, Notion, ClickUp.</p><p><strong>Positioning line:</strong> &ldquo;Your plan lives in the outline, not a chart that&rsquo;s stale by lunch — tag your thinking, and AI runs the project.&rdquo;</p><p><strong>Sources:</strong> makerstack.co/reviews/tana-review · toolchase.com/tool/tana · ainotely.com/blog/notion-ai-features-2026 · apm.org.uk (AI-native PM 2026) · productive.io/blog/ai-project-management-tools · efficient.app/compare/linear-vs-clickup · storyflow.so/blog/best-tana-alternatives-2026 · blog.saner.ai/best-workflowy-alternatives</p>",
+      "isCollapsed": false,
+      "prefix": ""
     }
   },
   "lastModified": 1781164800000,
   "createdAt": 1736306400000,
-  "_fileName": "IdeaM -- BizDev.idm"
+  "_fileName": "IdeaM -- BizDev.idm",
+  "_fileSize": 69596,
+  "_isLazyLoaded": false
 }
