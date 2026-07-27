@@ -51,6 +51,10 @@ interface NodeItemProps {
   // Search highlighting
   searchTerm?: string;
   highlightedNodeIds?: Set<string>;
+  // Tag filter: when defined, only child nodes whose id is in this set are
+  // rendered (matches + their ancestors + their descendants). Undefined means
+  // no filter is active and every child renders normally.
+  visibleNodeIds?: Set<string>;
   // AI content generation
   onGenerateContentForChildren?: (nodeId: string) => void;
   // Create child node
@@ -173,6 +177,7 @@ export default function NodeItem({
   onOutdent,
   searchTerm,
   highlightedNodeIds,
+  visibleNodeIds,
   onGenerateContentForChildren,
   onCreateChildNode,
   editingNodeId,
@@ -942,7 +947,9 @@ export default function NodeItem({
                 </div>
               ) : (
                 <ul role="group">
-                {node.childrenIds.map((childId) => (
+                {node.childrenIds
+                  .filter((childId) => !visibleNodeIds || visibleNodeIds.has(childId))
+                  .map((childId) => (
                     <NodeItem
                         key={childId}
                         nodeId={childId}
@@ -966,6 +973,7 @@ export default function NodeItem({
                         onOutdent={onOutdent}
                         searchTerm={searchTerm}
                         highlightedNodeIds={highlightedNodeIds}
+                        visibleNodeIds={visibleNodeIds}
                         onGenerateContentForChildren={onGenerateContentForChildren}
                         onCreateChildNode={onCreateChildNode}
                         editingNodeId={editingNodeId}

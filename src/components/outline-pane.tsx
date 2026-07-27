@@ -5,12 +5,14 @@ import type { Outline, OutlineNode, NodeMap, ExternalSourceInput, IngestPreview,
 import NodeItem from './node-item';
 import AIMenu from './ai-menu';
 import OutlineSearch, { type SearchMatch } from './outline-search';
+import OutlineTagFilter from './outline-tag-filter';
+import { getAllTags, filterNodesByTags, getTagFilterVisibleIds } from '@/lib/tag-utils';
 import { MultiSelectToolbar } from './multi-select-toolbar';
 import FileImportDialog from './file-import-dialog';
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuCheckboxItem } from "@/components/ui/dropdown-menu";
-import { Plus, Trash2, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, ChevronsDownUp, Settings, Search, Command, PanelLeft, PanelLeftClose, Brain, StopCircle, Inbox, LayoutDashboard, Focus, Sparkles, Mic, MessageSquare, BookDown, BookUp, Share2, ExternalLink, RefreshCw, MoreHorizontal, HelpCircle, Send, ShieldCheck, GitFork, Video, Mail, Presentation, ChevronDown, Sun, Moon, Info, User } from 'lucide-react';
+import { Plus, Trash2, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, ChevronsDownUp, Settings, Search, Command, PanelLeft, PanelLeftClose, Brain, StopCircle, Inbox, LayoutDashboard, Focus, Sparkles, Mic, MessageSquare, BookDown, BookUp, Share2, ExternalLink, RefreshCw, MoreHorizontal, HelpCircle, Send, ShieldCheck, GitFork, Video, Mail, Presentation, ChevronDown, Sun, Moon, Info, User, Tag } from 'lucide-react';
 import { AmplifyMark } from '@/components/brand/amplify-mark';
 import { useTheme } from 'next-themes';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter } from "@/components/ui/alert-dialog";
@@ -357,7 +359,7 @@ export default function OutlinePane({
   const _aBtn = isMobile ? 50 : 44;                 // one icon button + gap
   const _aReserved =
     (_aBtn + 30) /* New split (chevron half) */ +
-    _aBtn /* Search */ + _aBtn /* AI */ + _aBtn /* Help */ +
+    _aBtn /* Search */ + _aBtn /* Tag filter */ + _aBtn /* AI */ + _aBtn /* Help */ +
     14 * 3 /* separators */ + 16 /* container padding margin */;
   let _aAvail = (Number.isFinite(actionToolbarWidth) ? actionToolbarWidth : 100000) - _aReserved;
   let actionMiddleVisible = Math.max(0, Math.min(ACTION_MIDDLE_COUNT, Math.floor(_aAvail / _aBtn)));
@@ -424,6 +426,54 @@ export default function OutlinePane({
   const prevSearchTermRef = useRef('');
   const currentOutlineRef = useRef(currentOutline);
   currentOutlineRef.current = currentOutline;
+
+  // Tag filter state — the first project-management view control. Selecting one
+  // or more tags narrows the tree to matching nodes (plus their ancestors for
+  // context and their descendants so a matched branch shows in full). Uses OR
+  // semantics: the more tags picked, the more you see.
+  const [isTagFilterOpen, setIsTagFilterOpen] = useState(false);
+  const [activeTags, setActiveTags] = useState<string[]>([]);
+
+  // Every tag actually present in the current outline (with their colors shown
+  // by the TagBadge chips in the filter control).
+  const availableTags = useMemo(
+    () => (currentOutline ? getAllTags(currentOutline.nodes) : []),
+    [currentOutline]
+  );
+
+  // The set of node IDs that stay visible under the active tag filter. Null
+  // means "no filter — render everything".
+  const tagFilterVisibleIds = useMemo(() => {
+    if (!currentOutline || activeTags.length === 0) return null;
+    return getTagFilterVisibleIds(currentOutline.nodes, activeTags, 'any');
+  }, [currentOutline, activeTags]);
+
+  // How many nodes match the active tag filter (for the count line).
+  const tagFilterMatchCount = useMemo(() => {
+    if (!currentOutline || activeTags.length === 0) return 0;
+    return filterNodesByTags(currentOutline.nodes, activeTags, 'any').length;
+  }, [currentOutline, activeTags]);
+
+  const handleToggleTagFilter = useCallback((tag: string) => {
+    setActiveTags(prev =>
+      prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
+    );
+  }, []);
+
+  const handleClearTagFilter = useCallback(() => {
+    setActiveTags([]);
+  }, []);
+
+  // When the filter is active, make sure every kept node is actually reachable:
+  // a match can sit under a collapsed ancestor, which would otherwise hide it
+  // entirely (the tree only renders children of expanded nodes). Expanding the
+  // whole visible set mirrors how text search expands ancestors of its matches.
+  useEffect(() => {
+    if (!tagFilterVisibleIds || tagFilterVisibleIds.size === 0) return;
+    if (onExpandAncestors) {
+      onExpandAncestors(Array.from(tagFilterVisibleIds));
+    }
+  }, [tagFilterVisibleIds, onExpandAncestors]);
   // const [highlightedNodeIds, setHighlightedNodeIds] = useState<Set<string>>(new Set());
 
   // Progressive rendering for large outlines
@@ -507,6 +557,9 @@ export default function OutlinePane({
       setSearchTerm('');
       setCurrentMatchIndex(0);
       prevSearchTermRef.current = '';
+      // Reset the tag filter too — tags are outline-specific.
+      setIsTagFilterOpen(false);
+      setActiveTags([]);
       if (onSearchTermChange) {
         onSearchTermChange('');
       }
@@ -1558,6 +1611,36 @@ export default function OutlinePane({
             <TooltipContent>{!currentOutline ? 'Search outline — open an outline first' : `Search outline${!isMobile ? ' (⌘F)' : ''}`}</TooltipContent>
           </Tooltip>
 
+          {/* 2b. Filter by tag */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span tabIndex={-1} className="inline-flex shrink-0">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setIsTagFilterOpen(prev => !prev)}
+                  disabled={!currentOutline}
+                  className={cn(
+                    'min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0',
+                    activeTags.length > 0 && 'bg-primary text-primary-foreground border-transparent hover:bg-primary/90'
+                  )}
+                  aria-label="Filter by tag"
+                  aria-pressed={isTagFilterOpen}
+                  data-testid="tag-filter-toggle"
+                >
+                  <Tag className="h-4 w-4" strokeWidth={2.5} />
+                </Button>
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>
+              {!currentOutline
+                ? 'Filter by tag — open an outline first'
+                : activeTags.length > 0
+                  ? `Filtering by ${activeTags.length} tag${activeTags.length !== 1 ? 's' : ''}`
+                  : 'Filter by tag'}
+            </TooltipContent>
+          </Tooltip>
+
           {/* 3. AI */}
           <AIMenu
             onGenerateOutline={onGenerateOutline}
@@ -1824,6 +1907,17 @@ export default function OutlinePane({
         onPrevMatch={handlePrevMatch}
       />
 
+      {/* Tag filter panel */}
+      <OutlineTagFilter
+        isOpen={isTagFilterOpen}
+        onClose={() => setIsTagFilterOpen(false)}
+        availableTags={availableTags}
+        activeTags={activeTags}
+        onToggleTag={handleToggleTagFilter}
+        onClear={handleClearTagFilter}
+        matchCount={tagFilterMatchCount}
+      />
+
       <div
         className="flex-grow overflow-y-auto pr-2"
         onClick={(e) => {
@@ -1869,6 +1963,7 @@ export default function OutlinePane({
               onOutdent={handleOutdent}
               searchTerm={searchTerm}
               highlightedNodeIds={currentOutlineHighlights}
+              visibleNodeIds={tagFilterVisibleIds ?? undefined}
               onGenerateContentForChildren={currentOutline.isGuide ? undefined : onGenerateContentForChildren}
               onCreateChildNode={currentOutline.isGuide ? undefined : onCreateChildNode}
               editingNodeId={currentOutline.isGuide ? null : editingNodeId}
