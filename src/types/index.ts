@@ -20,6 +20,11 @@ export type NodeType =
   | 'map'
   | 'canvas';
 
+// Task PRIORITY — a structured, machine-readable metatag for Task nodes
+// (project-management). Fixed three-level scale so meaning + color are
+// consistent across every outline, and AI can read/compare it directly.
+export type TaskPriority = 'Low' | 'Medium' | 'High';
+
 export type NodeColor =
   | 'default'
   | 'red'
@@ -59,6 +64,11 @@ export interface OutlineNode {
     // dueDate) are just added keys later. Optional + backward-compatible:
     // outlines saved before this feature omit the key and load fine.
     prerequisites?: string[];  // Node IDs this task depends on
+
+    // STRUCTURED task metatags (project-management). Both optional +
+    // backward-compatible — outlines saved before this feature omit them and
+    // load fine. Stored as typed keys (not prose) so AI can read them.
+    priority?: TaskPriority;   // Task priority: Low / Medium / High
 
     color?: NodeColor;         // Visual color
     isCompleted?: boolean;     // For task nodes

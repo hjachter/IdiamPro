@@ -12,7 +12,7 @@ import FileImportDialog from './file-import-dialog';
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuCheckboxItem } from "@/components/ui/dropdown-menu";
-import { Plus, Trash2, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, ChevronsDownUp, Settings, Search, Command, PanelLeft, PanelLeftClose, Brain, StopCircle, Inbox, LayoutDashboard, Focus, Sparkles, Mic, MessageSquare, BookDown, BookUp, Share2, ExternalLink, RefreshCw, MoreHorizontal, HelpCircle, Send, ShieldCheck, GitFork, Video, Mail, Presentation, ChevronDown, Sun, Moon, Info, User, Tag } from 'lucide-react';
+import { Plus, Trash2, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, ChevronsDownUp, Settings, Search, Command, PanelLeft, PanelLeftClose, Brain, StopCircle, Inbox, LayoutDashboard, Focus, Sparkles, Mic, MessageSquare, BookDown, BookUp, Share2, ExternalLink, RefreshCw, MoreHorizontal, HelpCircle, Send, ShieldCheck, GitFork, Video, Mail, Presentation, ChevronDown, Sun, Moon, Info, User, Tag, ListTodo } from 'lucide-react';
 import { AmplifyMark } from '@/components/brand/amplify-mark';
 import { useTheme } from 'next-themes';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter } from "@/components/ui/alert-dialog";
@@ -1603,6 +1603,24 @@ export default function OutlinePane({
                 <DropdownMenuItem onSelect={() => onCreateOutline()} className="cursor-pointer">
                   <FileDown className="mr-2 h-4 w-4" /> New from Template…
                 </DropdownMenuItem>
+                {/* Task node type — a typed node that comes pre-loaded with a
+                    project-management template (Status / Depends on / Priority /
+                    Due date). Offered ONLY when the Project Management capability
+                    is on, reusing the same gate as the Project features. Creates
+                    the Task as a sibling after the selected item. */}
+                {pmEnabled && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onSelect={() => onCreateNode('task')}
+                      disabled={!selectedNodeId}
+                      className="cursor-pointer"
+                      data-testid="new-task-node"
+                    >
+                      <ListTodo className="mr-2 h-4 w-4" /> New Task
+                    </DropdownMenuItem>
+                  </>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </span>

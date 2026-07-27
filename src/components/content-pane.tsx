@@ -198,9 +198,10 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import { BubbleMenu } from '@tiptap/react/menus';
 import { marked } from 'marked';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { ListChecks, Link2, AlertTriangle, Plus as PlusIcon, X as XIcon } from 'lucide-react';
+import { ListChecks, Link2, AlertTriangle, Plus as PlusIcon, X as XIcon, ListTodo } from 'lucide-react';
 import { getBlockingPrerequisites, isNodeDone } from '@/lib/prerequisites';
-import { STATUS_TAGS } from '@/lib/status-tags';
+import { STATUS_TAGS, applyStatusToTags } from '@/lib/status-tags';
+import { TASK_PRIORITIES } from '@/lib/task-metatags';
 import { cn } from '@/lib/utils';
 import StarterKit from '@tiptap/starter-kit';
 import ImageExt from '@tiptap/extension-image';
@@ -3198,6 +3199,115 @@ export default function ContentPane({
             </CardContent>
           </Card>
         )}
+
+        {/* TASK template — a light inline project-management form pre-loaded on
+            every Task node. Shows Status (reserved status tags), Priority (Low /
+            Medium / High) and Due date. "Depends on" (prerequisites) renders in
+            the header above. Gated on the Project Management capability: when it
+            is OFF the whole form is hidden but the underlying metadata (status,
+            priority, dueDate, prerequisites) is preserved untouched. The normal
+            free content editor still renders below. */}
+        {node.type === 'task' && pmEnabled && (() => {
+          const currentStatus = STATUS_TAGS.find((s) => node.metadata?.tags?.includes(s.label))?.label ?? null;
+          const currentPriority = node.metadata?.priority ?? null;
+          return (
+            <Card className="border-l-4 border-l-primary" data-testid="task-template">
+              <CardContent className="p-4 space-y-4">
+                <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
+                  <ListTodo className="h-4 w-4" />
+                  Task details
+                </div>
+
+                {/* Status — reuses the reserved status tags + data */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-muted-foreground">Status</label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {STATUS_TAGS.map((s) => {
+                      const active = currentStatus === s.label;
+                      return (
+                        <button
+                          key={s.label}
+                          type="button"
+                          onClick={() =>
+                            onUpdate(node.id, {
+                              metadata: {
+                                ...node.metadata,
+                                tags: applyStatusToTags(node.metadata?.tags, active ? null : s.label),
+                              },
+                            })
+                          }
+                          className={cn(
+                            'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs border transition-colors',
+                            active
+                              ? cn(s.colorClass, 'border-transparent ring-1 ring-inset ring-black/10 dark:ring-white/15')
+                              : 'border-border text-muted-foreground hover:text-foreground hover:border-foreground/40'
+                          )}
+                        >
+                          <span className={cn('h-2 w-2 rounded-full shrink-0', s.dotClass)} />
+                          {s.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Priority — NEW structured metatag (metadata.priority) */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-muted-foreground">Priority</label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {TASK_PRIORITIES.map((p) => {
+                      const active = currentPriority === p.label;
+                      return (
+                        <button
+                          key={p.label}
+                          type="button"
+                          data-testid={`priority-${p.label}`}
+                          onClick={() =>
+                            onUpdate(node.id, {
+                              metadata: {
+                                ...node.metadata,
+                                priority: active ? undefined : p.label,
+                              },
+                            })
+                          }
+                          className={cn(
+                            'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs border transition-colors',
+                            active
+                              ? cn(p.colorClass, 'border-transparent ring-1 ring-inset ring-black/10 dark:ring-white/15')
+                              : 'border-border text-muted-foreground hover:text-foreground hover:border-foreground/40'
+                          )}
+                        >
+                          <span className={cn('h-2 w-2 rounded-full shrink-0', p.dotClass)} />
+                          {p.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Due date — NEW structured metatag (metadata.dueDate) */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-muted-foreground">Due date</label>
+                  <Input
+                    type="date"
+                    data-testid="task-due-date"
+                    value={node.metadata?.dueDate ? new Date(node.metadata.dueDate).toISOString().split('T')[0] : ''}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      onUpdate(node.id, {
+                        metadata: {
+                          ...node.metadata,
+                          dueDate: v ? new Date(v).getTime() : undefined,
+                        },
+                      });
+                    }}
+                    className="w-full max-w-[220px]"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })()}
 
         {/* Text editor for standard nodes only (not special types with custom editors) */}
         {shouldUseRichTextEditor && (
