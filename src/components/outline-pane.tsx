@@ -174,6 +174,8 @@ interface OutlinePaneProps {
   onBulkDelete?: () => void;
   onBulkChangeColor?: (color: string | undefined) => void;
   onBulkAddTag?: (tag: string) => void;
+  // Set/clear the reserved status tag on the current selection (single or bulk).
+  onSetStatus?: (nodeId: string, status: string | null) => void;
   // Search term for content highlighting
   onSearchTermChange?: (searchTerm: string, matchType?: 'name' | 'content' | 'both', matchIndex?: number) => void;
   // Export subtree
@@ -270,6 +272,7 @@ export default function OutlinePane({
   onBulkDelete,
   onBulkChangeColor,
   onBulkAddTag,
+  onSetStatus,
   onSearchTermChange,
   onExportSubtree,
   onSaveToSecondBrain,
@@ -1977,6 +1980,7 @@ export default function OutlinePane({
               onInsertOutlineLink={currentOutline.isGuide ? undefined : onOpenLinkToOutline}
               onZoomNode={(id) => { onSelectNode(id); onToggleFocusMode?.(); }}
               onRefreshFromWeb={currentOutline.isGuide ? undefined : (id) => { onSelectNode(id); onOpenLiveBooks?.(); }}
+              onSetStatus={currentOutline.isGuide ? undefined : onSetStatus}
               isReadOnly={!!currentOutline.isGuide}
             />
           </ul>

@@ -5,7 +5,7 @@ import type { OutlineNode, NodeMap } from '@/types';
 import NodeIcon from './node-icon';
 import { TagBadge } from './tag-badge';
 import NodePropertiesDialog from './node-properties-dialog';
-import { ChevronRight, Plus, Trash2, Edit3, ChevronDown, ChevronUp, ChevronsDown, ChevronsUp, Copy, Scissors, ClipboardPaste, CopyPlus, Sparkles, CheckSquare2, Square, Sliders, Share, Globe, ExternalLink, Focus, RefreshCw } from 'lucide-react';
+import { ChevronRight, Plus, Trash2, Edit3, ChevronDown, ChevronUp, ChevronsDown, ChevronsUp, Copy, Scissors, ClipboardPaste, CopyPlus, Sparkles, CheckSquare2, Square, Sliders, Share, Globe, ExternalLink, Focus, RefreshCw, CircleDot, Check, Eraser } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import {
@@ -20,7 +20,11 @@ import {
   ContextMenuSeparator,
   ContextMenuShortcut,
   ContextMenuTrigger,
+  ContextMenuSub,
+  ContextMenuSubContent,
+  ContextMenuSubTrigger,
 } from '@/components/ui/context-menu';
+import { STATUS_TAGS } from '@/lib/status-tags';
 
 // Module-level variable to track the currently dragged node ID
 // (dataTransfer.getData() is not accessible during dragover events)
@@ -78,6 +82,11 @@ interface NodeItemProps {
   onZoomNode?: (nodeId: string) => void;
   // Refresh this node's subtree from the latest web info (selects it, opens LIVE BOOKS)
   onRefreshFromWeb?: (nodeId: string) => void;
+  // Set/clear the reserved status tag on the current selection (single node or
+  // multiselection). Pass a status label to set it (replaces any existing
+  // status — mutually exclusive) or null to clear the status. Parent decides
+  // whether to apply to just this node or the whole multiselection.
+  onSetStatus?: (nodeId: string, status: string | null) => void;
   // Read-only mode (e.g. User Guide outline) — suppresses rename + always-shown
   // mutator items in the context menu, and blocks F2/double-click rename. The
   // optional mutator callbacks should already be undefined when isReadOnly is
@@ -191,6 +200,7 @@ export default function NodeItem({
   onInsertOutlineLink,
   onZoomNode,
   onRefreshFromWeb,
+  onSetStatus,
   isReadOnly = false,
 }: NodeItemProps) {
   const node = nodes[nodeId];
@@ -877,6 +887,38 @@ export default function NodeItem({
               </ContextMenuItem>
             )}
 
+            {onSetStatus && !isReadOnly && !isRoot && (
+              <>
+                <ContextMenuSeparator />
+                <ContextMenuSub>
+                  <ContextMenuSubTrigger>
+                    <CircleDot className="mr-2 h-4 w-4" />
+                    Status
+                  </ContextMenuSubTrigger>
+                  <ContextMenuSubContent>
+                    {STATUS_TAGS.map((s) => {
+                      const isCurrent = node.metadata?.tags?.includes(s.label);
+                      return (
+                        <ContextMenuItem
+                          key={s.label}
+                          onClick={(e) => { e.stopPropagation(); onSetStatus(node.id, s.label); }}
+                        >
+                          <span className={cn('mr-2 h-3 w-3 rounded-full shrink-0', s.dotClass)} />
+                          {s.label}
+                          {isCurrent && <Check className="ml-auto h-4 w-4" />}
+                        </ContextMenuItem>
+                      );
+                    })}
+                    <ContextMenuSeparator />
+                    <ContextMenuItem onClick={(e) => { e.stopPropagation(); onSetStatus(node.id, null); }}>
+                      <Eraser className="mr-2 h-4 w-4" />
+                      Clear Status
+                    </ContextMenuItem>
+                  </ContextMenuSubContent>
+                </ContextMenuSub>
+              </>
+            )}
+
             <ContextMenuSeparator />
             {onCopySubtree && (
               <ContextMenuItem onClick={(e) => { e.stopPropagation(); onCopySubtree(node.id); }}>
@@ -987,6 +1029,7 @@ export default function NodeItem({
                         onInsertOutlineLink={onInsertOutlineLink}
                         onZoomNode={onZoomNode}
                         onRefreshFromWeb={onRefreshFromWeb}
+                        onSetStatus={onSetStatus}
                         isReadOnly={isReadOnly}
                     />
                 ))}

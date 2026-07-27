@@ -11,6 +11,7 @@ import { getInitialGuide } from '@/lib/initial-guide';
 import { getWelcomeOutline, hasSeenWelcome, markWelcomeSeen } from '@/lib/welcome-outline';
 import { addNode, addNodeAfter, removeNode, updateNode, moveNode, parseMarkdownToNodes, recalculatePrefixesForBranch, buildOutlineTreeString, generateMindmapFromSubtree, generateFlowchartFromSubtree } from '@/lib/outline-utils';
 import OutlinePane from './outline-pane';
+import { applyStatusToTags } from '@/lib/status-tags';
 import BackupRestoreDialog from './backup-restore-dialog';
 import { snapshotBeforeTransform } from '@/lib/snapshot-storage';
 import type { SnapshotMeta } from '@/lib/snapshot-storage';
@@ -4591,6 +4592,47 @@ export default function OutlinePro() {
     });
   }, [selectedNodeIds, currentOutlineId, currentOutline, toast]);
 
+  // Set/clear a reserved STATUS on the current selection. If a multiselection is
+  // active it applies to every selected node (bulk); otherwise just to the
+  // right-clicked node. Status is mutually exclusive — setting one replaces any
+  // existing status while leaving free-form tags untouched.
+  const handleSetStatus = useCallback((nodeId: string, status: string | null) => {
+    if (currentOutline?.isGuide) {
+      toast({ title: "User Guide is read-only", description: "Make personal notes in your own outline instead." });
+      return;
+    }
+    const targets = selectedNodeIds.size > 0 ? Array.from(selectedNodeIds) : [nodeId];
+
+    setOutlines(currentOutlines => {
+      return currentOutlines.map(o => {
+        if (o.id === currentOutlineId) {
+          const newNodes = { ...o.nodes };
+          targets.forEach(id => {
+            if (newNodes[id]) {
+              const newTags = applyStatusToTags(newNodes[id].metadata?.tags, status);
+              newNodes[id] = {
+                ...newNodes[id],
+                metadata: {
+                  ...newNodes[id].metadata,
+                  tags: newTags.length > 0 ? newTags : undefined,
+                },
+              };
+            }
+          });
+          return { ...o, nodes: newNodes };
+        }
+        return o;
+      });
+    });
+
+    toast({
+      title: status ? "Status Set" : "Status Cleared",
+      description: status
+        ? `Set "${status}" on ${targets.length} item${targets.length > 1 ? 's' : ''}.`
+        : `Cleared status on ${targets.length} item${targets.length > 1 ? 's' : ''}.`,
+    });
+  }, [selectedNodeIds, currentOutlineId, currentOutline, toast]);
+
   // Export handlers
   const handleSaveToSecondBrain = useCallback((nodeId: string) => {
     const sourceOutline = outlines.find(o => o.id === currentOutlineId);
@@ -5552,6 +5594,7 @@ export default function OutlinePro() {
                 onBulkDelete={handleBulkDelete}
                 onBulkChangeColor={handleBulkChangeColor}
                 onBulkAddTag={handleBulkAddTag}
+                onSetStatus={handleSetStatus}
                 onSearchTermChange={handleSearchTermChange}
                 onExportSubtree={handleExportSubtree}
                 onSaveToSecondBrain={handleSaveToSecondBrain}
@@ -6157,6 +6200,7 @@ export default function OutlinePro() {
                 onBulkDelete={handleBulkDelete}
                 onBulkChangeColor={handleBulkChangeColor}
                 onBulkAddTag={handleBulkAddTag}
+                onSetStatus={handleSetStatus}
                 onSearchTermChange={handleSearchTermChange}
                 onExportSubtree={handleExportSubtree}
                 onSaveToSecondBrain={handleSaveToSecondBrain}

@@ -3,6 +3,7 @@
 import React from 'react';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { getStatusTagColor } from '@/lib/status-tags';
 
 interface TagBadgeProps {
   tag: string;
@@ -15,6 +16,10 @@ interface TagBadgeProps {
 
 // Simple hash function to get consistent colors for tags
 function getTagColor(tag: string): string {
+  // Reserved status tags always use their fixed color, never the hash palette.
+  const statusColor = getStatusTagColor(tag);
+  if (statusColor) return statusColor;
+
   let hash = 0;
   for (let i = 0; i < tag.length; i++) {
     hash = tag.charCodeAt(i) + ((hash << 5) - hash);
