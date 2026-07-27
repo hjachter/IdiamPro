@@ -68,7 +68,10 @@ import {
   SpeakerIcon,
   Volume2,
   BarChart3,
-  Languages
+  Languages,
+  Megaphone,
+  Mail,
+  FolderSearch
 } from 'lucide-react';
 
 // ============================================
@@ -839,6 +842,113 @@ function ShowcaseGallery() {
   );
 }
 
+// "What's new" — an HONEST capabilities spotlight for four newer powers, each
+// carrying a plain availability badge so nothing is overstated:
+//   • New        — shipped and working right now.
+//   • At launch  — real and ready for the public launch.
+//   • Coming soon — on the roadmap, not built yet.
+// Copy is deliberately outcome-focused and conservative: it names the value to
+// the user and is careful never to imply auto-posting, a live inbox, or
+// auto-send where none exists. Matches the homepage Carbon card language
+// (rounded-2xl, #dde5f2 border, blue-600 accents, mono uppercase eyebrows).
+function WhatsNew() {
+  type Availability = 'new' | 'launch' | 'soon';
+  const BADGE: Record<Availability, { label: string; className: string }> = {
+    new: { label: 'New', className: 'bg-gradient-to-r from-blue-600 to-[#1e40af] text-white' },
+    launch: { label: 'At launch', className: 'bg-blue-600/12 border border-blue-600/30 text-[#1e40af]' },
+    soon: { label: 'Coming soon', className: 'bg-[#eef2f9] border border-[#dde5f2] text-[#5b6b85]' },
+  };
+
+  const ITEMS: {
+    icon: React.ElementType;
+    availability: Availability;
+    title: string;
+    body: string;
+  }[] = [
+    {
+      icon: Megaphone,
+      availability: 'new',
+      title: 'Post to social in your own voice',
+      body:
+        'Turn any part of your outline into ready-to-post content for X, LinkedIn, Instagram, and more — written in your own voice. You review every word and post it yourself; IdeaM never posts for you.',
+    },
+    {
+      icon: Mail,
+      availability: 'launch',
+      title: 'Turn email into outlines — and draft replies',
+      body:
+        'Drop in an email and IdeaM organizes it into a clean outline of key points, decisions, and action items. Turn any idea back into a polished email draft in your voice, ready to open in Gmail or Mail and send. Off by default — you switch it on.',
+    },
+    {
+      icon: Kanban,
+      availability: 'launch',
+      title: 'Organize your work with tags',
+      body:
+        'Tag anything across your outlines, then filter to just what matters with a single click. Status tags — to-do, in progress, done — are landing next.',
+    },
+    {
+      icon: FolderSearch,
+      availability: 'soon',
+      title: 'Understand your drive',
+      body:
+        'Point IdeaM at a folder and it sorts your files by meaning, not filename — turning a messy drive into an organized outline you can actually navigate. On the roadmap, arriving after launch.',
+    },
+  ];
+
+  return (
+    <section className="px-6 py-24 lg:px-12 border-t border-[#dde5f2] bg-gradient-to-b from-white to-[#f7faff]">
+      <div className="max-w-[1400px] mx-auto">
+        {/* Heading */}
+        <div className="text-center max-w-3xl mx-auto mb-14">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-600/15 border border-blue-600/40 mb-6">
+            <Sparkles className="w-4 h-4 text-[#1e40af]" />
+            <span className="text-sm font-semibold text-[#1e40af]">What&apos;s new</span>
+          </div>
+          <h2 className="text-4xl md:text-5xl font-extrabold text-[#0b1533] mb-4 tracking-tight">
+            Fresh powers, honestly labeled.
+          </h2>
+          <p className="text-lg md:text-xl font-medium text-[#2b3a5c] leading-relaxed max-w-[720px] mx-auto">
+            The newest ways to move from idea to finished work — each marked with exactly where it stands today. No hype, no surprises.
+          </p>
+        </div>
+
+        {/* Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+          {ITEMS.map((item) => {
+            const Icon = item.icon;
+            const badge = BADGE[item.availability];
+            return (
+              <div
+                key={item.title}
+                data-testid={`whats-new-${item.availability}`}
+                className="flex flex-col rounded-2xl border border-[#dde5f2] bg-white p-6 md:p-7 shadow-[0_1px_3px_rgba(12,34,36,0.06),0_8px_24px_rgba(12,34,36,0.05)] transition-all duration-300 hover:shadow-[0_4px_12px_rgba(12,34,36,0.10),0_16px_40px_rgba(12,60,60,0.12)] hover:-translate-y-1"
+              >
+                <div className="flex items-start justify-between gap-3 mb-5">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-600/10 border border-blue-600/25 text-[#1e40af]">
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <span
+                    data-testid="whats-new-badge"
+                    className={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-mono font-semibold uppercase tracking-wider ${badge.className}`}
+                  >
+                    {badge.label}
+                  </span>
+                </div>
+                <h3 className="text-xl md:text-2xl font-extrabold text-[#0b1533] tracking-tight leading-tight mb-2">
+                  {item.title}
+                </h3>
+                <p className="text-base font-medium text-[#5b6b85] leading-relaxed">
+                  {item.body}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ============================================
 // MAIN PAGE
 // ============================================
@@ -1094,6 +1204,11 @@ export default function MarketingPage() {
             placed high (right after the category is established) with a CTA to
             the complete /capabilities page. Full descriptions live there. */}
         <CapabilitiesCondensed />
+
+        {/* What's new — an honest spotlight of four newer capabilities, each
+            with a plain availability badge (New / At launch / Coming soon) so
+            nothing is overstated. Sits right after the capabilities map. */}
+        <WhatsNew />
 
         {/* Sizzle reel — a 30-second "coming attractions" trailer of the three
             workflow stories, placed early as a fast emotional hook right before
