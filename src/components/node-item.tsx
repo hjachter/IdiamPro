@@ -5,7 +5,7 @@ import type { OutlineNode, NodeMap } from '@/types';
 import NodeIcon from './node-icon';
 import { TagBadge } from './tag-badge';
 import NodePropertiesDialog from './node-properties-dialog';
-import { ChevronRight, Plus, Trash2, Edit3, ChevronDown, ChevronUp, ChevronsDown, ChevronsUp, Copy, Scissors, ClipboardPaste, CopyPlus, Sparkles, CheckSquare2, Square, Sliders, Share, Globe, ExternalLink, Focus, RefreshCw, CircleDot, Check, Eraser } from 'lucide-react';
+import { ChevronRight, Plus, Trash2, Edit3, ChevronDown, ChevronUp, ChevronsDown, ChevronsUp, Copy, Scissors, ClipboardPaste, CopyPlus, Sparkles, CheckSquare2, Square, Sliders, Share, Globe, ExternalLink, Focus, RefreshCw, CircleDot, Check, Eraser, Link2, FolderKanban, AlertTriangle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import {
@@ -25,6 +25,7 @@ import {
   ContextMenuSubTrigger,
 } from '@/components/ui/context-menu';
 import { STATUS_TAGS } from '@/lib/status-tags';
+import { getBlockingPrerequisites } from '@/lib/prerequisites';
 
 // Module-level variable to track the currently dragged node ID
 // (dataTransfer.getData() is not accessible during dragover events)
@@ -87,6 +88,9 @@ interface NodeItemProps {
   // status — mutually exclusive) or null to clear the status. Parent decides
   // whether to apply to just this node or the whole multiselection.
   onSetStatus?: (nodeId: string, status: string | null) => void;
+  // Open the prerequisite picker for this node — choose the task(s) it depends
+  // on. Lives under the context menu's "Project" submenu alongside Set Status.
+  onSetPrerequisite?: (nodeId: string) => void;
   // Read-only mode (e.g. User Guide outline) — suppresses rename + always-shown
   // mutator items in the context menu, and blocks F2/double-click rename. The
   // optional mutator callbacks should already be undefined when isReadOnly is
@@ -201,6 +205,7 @@ export default function NodeItem({
   onZoomNode,
   onRefreshFromWeb,
   onSetStatus,
+  onSetPrerequisite,
   isReadOnly = false,
 }: NodeItemProps) {
   const node = nodes[nodeId];
@@ -382,6 +387,11 @@ export default function NodeItem({
   const isSelected = selectedNodeId === node.id;
   const isHighlighted = highlightedNodeIds?.has(node.id) ?? false;
   const numbering = node.prefix;
+
+  // Computed "blocked" surfacing: any prerequisite not yet Done blocks this
+  // node. This is display-only — it never overrides the user's manual status.
+  const blockingPrereqs = getBlockingPrerequisites(nodes, node.id);
+  const blockedByNames = blockingPrereqs.map((p) => p.name || 'Untitled');
 
   const handleDragStart = (e: React.DragEvent) => {
     if (isRoot) {
@@ -738,6 +748,18 @@ export default function NodeItem({
                             )}
                         </div>
                     )}
+                    {blockingPrereqs.length > 0 && (
+                        <span
+                            className="inline-flex items-center gap-1 text-[10px] font-medium rounded px-1.5 py-0.5 border border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-700/50 dark:bg-amber-900/30 dark:text-amber-300 shrink-0 max-w-[220px]"
+                            title={`Blocked by: ${blockedByNames.join(', ')}`}
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <AlertTriangle className="h-2.5 w-2.5 shrink-0" />
+                            <span className="truncate">
+                                Blocked by: {blockedByNames.join(', ')}
+                            </span>
+                        </span>
+                    )}
                     {node.metadata?.transform && (
                         <Popover>
                             <PopoverTrigger asChild>
@@ -887,33 +909,49 @@ export default function NodeItem({
               </ContextMenuItem>
             )}
 
-            {onSetStatus && !isReadOnly && !isRoot && (
+            {(onSetStatus || onSetPrerequisite) && !isReadOnly && !isRoot && (
               <>
                 <ContextMenuSeparator />
                 <ContextMenuSub>
                   <ContextMenuSubTrigger>
-                    <CircleDot className="mr-2 h-4 w-4" />
-                    Status
+                    <FolderKanban className="mr-2 h-4 w-4" />
+                    Project
                   </ContextMenuSubTrigger>
                   <ContextMenuSubContent>
-                    {STATUS_TAGS.map((s) => {
-                      const isCurrent = node.metadata?.tags?.includes(s.label);
-                      return (
-                        <ContextMenuItem
-                          key={s.label}
-                          onClick={(e) => { e.stopPropagation(); onSetStatus(node.id, s.label); }}
-                        >
-                          <span className={cn('mr-2 h-3 w-3 rounded-full shrink-0', s.dotClass)} />
-                          {s.label}
-                          {isCurrent && <Check className="ml-auto h-4 w-4" />}
-                        </ContextMenuItem>
-                      );
-                    })}
-                    <ContextMenuSeparator />
-                    <ContextMenuItem onClick={(e) => { e.stopPropagation(); onSetStatus(node.id, null); }}>
-                      <Eraser className="mr-2 h-4 w-4" />
-                      Clear Status
-                    </ContextMenuItem>
+                    {onSetStatus && (
+                      <ContextMenuSub>
+                        <ContextMenuSubTrigger>
+                          <CircleDot className="mr-2 h-4 w-4" />
+                          Set Status
+                        </ContextMenuSubTrigger>
+                        <ContextMenuSubContent>
+                          {STATUS_TAGS.map((s) => {
+                            const isCurrent = node.metadata?.tags?.includes(s.label);
+                            return (
+                              <ContextMenuItem
+                                key={s.label}
+                                onClick={(e) => { e.stopPropagation(); onSetStatus(node.id, s.label); }}
+                              >
+                                <span className={cn('mr-2 h-3 w-3 rounded-full shrink-0', s.dotClass)} />
+                                {s.label}
+                                {isCurrent && <Check className="ml-auto h-4 w-4" />}
+                              </ContextMenuItem>
+                            );
+                          })}
+                          <ContextMenuSeparator />
+                          <ContextMenuItem onClick={(e) => { e.stopPropagation(); onSetStatus(node.id, null); }}>
+                            <Eraser className="mr-2 h-4 w-4" />
+                            Clear Status
+                          </ContextMenuItem>
+                        </ContextMenuSubContent>
+                      </ContextMenuSub>
+                    )}
+                    {onSetPrerequisite && (
+                      <ContextMenuItem onClick={(e) => { e.stopPropagation(); onSetPrerequisite(node.id); }}>
+                        <Link2 className="mr-2 h-4 w-4" />
+                        Set Prerequisite…
+                      </ContextMenuItem>
+                    )}
                   </ContextMenuSubContent>
                 </ContextMenuSub>
               </>
@@ -1030,6 +1068,7 @@ export default function NodeItem({
                         onZoomNode={onZoomNode}
                         onRefreshFromWeb={onRefreshFromWeb}
                         onSetStatus={onSetStatus}
+                        onSetPrerequisite={onSetPrerequisite}
                         isReadOnly={isReadOnly}
                     />
                 ))}

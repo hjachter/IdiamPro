@@ -50,6 +50,16 @@ export interface OutlineNode {
   // Metadata for enhanced features
   metadata?: {
     tags?: string[];           // Tags for organization
+
+    // RELATIONAL metatags (project-management infrastructure, 2026-07).
+    // Structured, machine-readable links between nodes — NOT text markers in
+    // the prose. `prerequisites` is the first: the IDs of other nodes in the
+    // SAME outline that this task depends on (must be Done before this can
+    // start). Kept as an open shape so more typed metatags (priority, owner,
+    // dueDate) are just added keys later. Optional + backward-compatible:
+    // outlines saved before this feature omit the key and load fine.
+    prerequisites?: string[];  // Node IDs this task depends on
+
     color?: NodeColor;         // Visual color
     isCompleted?: boolean;     // For task nodes
     codeLanguage?: string;     // For code nodes

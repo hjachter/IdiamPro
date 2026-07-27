@@ -176,6 +176,8 @@ interface OutlinePaneProps {
   onBulkAddTag?: (tag: string) => void;
   // Set/clear the reserved status tag on the current selection (single or bulk).
   onSetStatus?: (nodeId: string, status: string | null) => void;
+  // Open the prerequisite picker for a node (Project submenu → Set Prerequisite).
+  onSetPrerequisite?: (nodeId: string) => void;
   // Search term for content highlighting
   onSearchTermChange?: (searchTerm: string, matchType?: 'name' | 'content' | 'both', matchIndex?: number) => void;
   // Export subtree
@@ -273,6 +275,7 @@ export default function OutlinePane({
   onBulkChangeColor,
   onBulkAddTag,
   onSetStatus,
+  onSetPrerequisite,
   onSearchTermChange,
   onExportSubtree,
   onSaveToSecondBrain,
@@ -1981,6 +1984,7 @@ export default function OutlinePane({
               onZoomNode={(id) => { onSelectNode(id); onToggleFocusMode?.(); }}
               onRefreshFromWeb={currentOutline.isGuide ? undefined : (id) => { onSelectNode(id); onOpenLiveBooks?.(); }}
               onSetStatus={currentOutline.isGuide ? undefined : onSetStatus}
+              onSetPrerequisite={currentOutline.isGuide ? undefined : onSetPrerequisite}
               isReadOnly={!!currentOutline.isGuide}
             />
           </ul>

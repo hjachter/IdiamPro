@@ -198,7 +198,10 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import { BubbleMenu } from '@tiptap/react/menus';
 import { marked } from 'marked';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { ListChecks } from 'lucide-react';
+import { ListChecks, Link2, AlertTriangle, Plus as PlusIcon, X as XIcon } from 'lucide-react';
+import { getBlockingPrerequisites, isNodeDone } from '@/lib/prerequisites';
+import { STATUS_TAGS } from '@/lib/status-tags';
+import { cn } from '@/lib/utils';
 import StarterKit from '@tiptap/starter-kit';
 import ImageExt from '@tiptap/extension-image';
 import Youtube from '@tiptap/extension-youtube';
@@ -368,6 +371,21 @@ interface ContentPaneProps {
    * Content right-click home.
    */
   onExportContent?: (nodeId: string) => void;
+  /**
+   * Project-management: open the prerequisite picker for this node (add a
+   * dependency). Wired from outline-pro. Absent on the read-only User Guide.
+   */
+  onSetPrerequisite?: (nodeId: string) => void;
+  /**
+   * Toggle a single prerequisite on/off for a node — used by the inline
+   * remove button on each prerequisite chip in the content pane.
+   */
+  onTogglePrerequisite?: (nodeId: string, prerequisiteId: string) => void;
+  /**
+   * Navigate to (select + open) another node — used to make each prerequisite
+   * render as a clickable link that jumps to that task.
+   */
+  onNavigateToNode?: (nodeId: string) => void;
 }
 
 const YouTubeEmbed = ({ url }: { url: string }) => {
@@ -419,6 +437,9 @@ export default function ContentPane({
   onOpenReformat,
   onInsertOutlineLink,
   onExportContent,
+  onSetPrerequisite,
+  onTogglePrerequisite,
+  onNavigateToNode,
 }: ContentPaneProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [conflictDialogOpen, setConflictDialogOpen] = useState(false);
@@ -2596,6 +2617,86 @@ export default function ContentPane({
                 </div>
               )}
               <h1 className="text-2xl font-bold font-headline break-words">{node.name}</h1>
+
+              {/* PREREQUISITES — task dependencies (project-management). Shows
+                  each prerequisite as a clickable link that jumps to that task;
+                  a not-yet-Done prereq turns amber and drives the "Blocked by"
+                  banner below. Add/remove inline (unless read-only). */}
+              {(() => {
+                if (!node || !nodes) return null;
+                const prereqIds = node.metadata?.prerequisites ?? [];
+                const blockers = getBlockingPrerequisites(nodes, node.id);
+                const canEdit = !isGuide && !!onTogglePrerequisite;
+                if (prereqIds.length === 0 && !onSetPrerequisite) return null;
+                return (
+                  <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                    <span className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground mr-0.5">
+                      <Link2 className="h-3.5 w-3.5" />
+                      Depends on
+                    </span>
+                    {prereqIds.length === 0 && (
+                      <span className="text-xs text-muted-foreground italic">nothing yet</span>
+                    )}
+                    {prereqIds.map((pid) => {
+                      const prereq = nodes[pid];
+                      if (!prereq) return null;
+                      const done = isNodeDone(prereq);
+                      const status = STATUS_TAGS.find((s) => prereq.metadata?.tags?.includes(s.label));
+                      return (
+                        <span
+                          key={pid}
+                          className={cn(
+                            'inline-flex items-center gap-1 text-xs rounded-full pl-2 pr-1 py-0.5 border',
+                            done
+                              ? 'border-green-300 bg-green-50 text-green-700 dark:border-green-700/50 dark:bg-green-900/25 dark:text-green-300'
+                              : 'border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-700/50 dark:bg-amber-900/25 dark:text-amber-300'
+                          )}
+                        >
+                          <span className={cn('h-2 w-2 rounded-full shrink-0', status ? status.dotClass : 'bg-muted-foreground/40')} />
+                          <button
+                            type="button"
+                            className="hover:underline max-w-[180px] truncate font-medium"
+                            title={`Go to "${prereq.name || 'Untitled'}"${status ? ` — ${status.label}` : ''}`}
+                            onClick={() => onNavigateToNode?.(pid)}
+                          >
+                            {prereq.name || 'Untitled'}
+                          </button>
+                          {canEdit && (
+                            <button
+                              type="button"
+                              className="rounded-full hover:bg-black/10 dark:hover:bg-white/10 p-0.5"
+                              title="Remove prerequisite"
+                              onClick={() => onTogglePrerequisite?.(node.id, pid)}
+                            >
+                              <XIcon className="h-3 w-3" />
+                            </button>
+                          )}
+                        </span>
+                      );
+                    })}
+                    {!isGuide && onSetPrerequisite && (
+                      <button
+                        type="button"
+                        className="inline-flex items-center gap-1 text-xs rounded-full px-2 py-0.5 border border-dashed border-border text-muted-foreground hover:text-foreground hover:border-foreground/40"
+                        title="Add a prerequisite"
+                        onClick={() => onSetPrerequisite(node.id)}
+                      >
+                        <PlusIcon className="h-3 w-3" />
+                        Add
+                      </button>
+                    )}
+                    {blockers.length > 0 && (
+                      <span
+                        className="inline-flex items-center gap-1 text-xs font-medium rounded px-2 py-0.5 border border-amber-300 bg-amber-100 text-amber-800 dark:border-amber-700/50 dark:bg-amber-900/40 dark:text-amber-200 w-full sm:w-auto mt-1 sm:mt-0"
+                        title={`Blocked by: ${blockers.map((b) => b.name || 'Untitled').join(', ')}`}
+                      >
+                        <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+                        Blocked by: {blockers.map((b) => b.name || 'Untitled').join(', ')}
+                      </span>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
         </div>
       </header>

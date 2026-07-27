@@ -68,6 +68,7 @@ import { mergeTransformedSubtreeIntoOutline } from '@/lib/transform-outline-help
 import { buildDerivativeOutline, cloneNodesWithSingleContent, deepCloneNodes } from '@/lib/derivation/build-derivative';
 import type { DerivationMode } from './derivation-choice';
 import OutlineLinkPickerDialog from './outline-link-picker-dialog';
+import PrerequisitePickerDialog from './prerequisite-picker-dialog';
 import HelpChatDialog from './help-chat-dialog';
 import KnowledgeChatDialog from './knowledge-chat-dialog';
 import AIConsentDialog from './ai-consent-dialog';
@@ -524,6 +525,11 @@ export default function OutlinePro() {
   // and inserts an 'outline-link' node into the current outline as a child of
   // the selected node (or the root if nothing is selected).
   const [isOutlineLinkPickerOpen, setIsOutlineLinkPickerOpen] = useState(false);
+
+  // Prerequisite picker (project-management: task dependencies). Tracks WHICH
+  // node's prerequisites are being edited; the picker lists the other nodes in
+  // the current outline and toggles them in metadata.prerequisites.
+  const [prerequisitePickerNodeId, setPrerequisitePickerNodeId] = useState<string | null>(null);
 
   // Backup / Restore dialog state (2026-06-10). One dialog, two tabs — the
   // initial tab depends on whether the user clicked Backup or Restore.
@@ -4605,6 +4611,47 @@ export default function OutlinePro() {
     // Success is silent — the status change is immediately visible on the nodes.
   }, [selectedNodeIds, currentOutlineId, currentOutline, toast]);
 
+  // Open the prerequisite picker for a node (Project submenu → Set Prerequisite).
+  const handleSetPrerequisite = useCallback((nodeId: string) => {
+    if (currentOutline?.isGuide) {
+      toast({ title: "User Guide is read-only", description: "Make personal notes in your own outline instead." });
+      return;
+    }
+    setPrerequisitePickerNodeId(nodeId);
+  }, [currentOutline, toast]);
+
+  // Toggle a single prerequisite on/off for a node. Used by the picker dialog
+  // AND by the content pane's inline add/remove. Structured metadata only —
+  // never touches the node's prose or its manually-set status.
+  const handleTogglePrerequisite = useCallback((nodeId: string, prerequisiteId: string) => {
+    setOutlines(currentOutlines => {
+      return currentOutlines.map(o => {
+        if (o.id !== currentOutlineId) return o;
+        const node = o.nodes[nodeId];
+        if (!node) return o;
+        if (nodeId === prerequisiteId) return o;            // no self-dependency
+        if (!o.nodes[prerequisiteId]) return o;             // target must exist
+        const existing = node.metadata?.prerequisites ?? [];
+        const next = existing.includes(prerequisiteId)
+          ? existing.filter(id => id !== prerequisiteId)
+          : [...existing, prerequisiteId];
+        return {
+          ...o,
+          nodes: {
+            ...o.nodes,
+            [nodeId]: {
+              ...node,
+              metadata: {
+                ...node.metadata,
+                prerequisites: next.length > 0 ? next : undefined,
+              },
+            },
+          },
+        };
+      });
+    });
+  }, [currentOutlineId, setOutlines]);
+
   // Export handlers
   const handleSaveToSecondBrain = useCallback((nodeId: string) => {
     const sourceOutline = outlines.find(o => o.id === currentOutlineId);
@@ -5300,6 +5347,14 @@ export default function OutlinePro() {
           onPick={handleInsertOutlineLink}
         />
 
+        <PrerequisitePickerDialog
+          open={prerequisitePickerNodeId !== null}
+          onOpenChange={(open) => { if (!open) setPrerequisitePickerNodeId(null); }}
+          nodes={currentOutline?.nodes ?? {}}
+          nodeId={prerequisitePickerNodeId}
+          onToggle={handleTogglePrerequisite}
+        />
+
         <HelpChatDialog
           open={isHelpChatOpen}
           onOpenChange={setIsHelpChatOpen}
@@ -5567,6 +5622,7 @@ export default function OutlinePro() {
                 onBulkChangeColor={handleBulkChangeColor}
                 onBulkAddTag={handleBulkAddTag}
                 onSetStatus={handleSetStatus}
+                onSetPrerequisite={handleSetPrerequisite}
                 onSearchTermChange={handleSearchTermChange}
                 onExportSubtree={handleExportSubtree}
                 onSaveToSecondBrain={handleSaveToSecondBrain}
@@ -5634,6 +5690,9 @@ export default function OutlinePro() {
             onUpdate={handleUpdateNode}
             onBack={() => setMobileView('stacked')}
             onInsertOutlineLink={currentOutline?.isGuide ? undefined : () => setIsOutlineLinkPickerOpen(true)}
+            onSetPrerequisite={currentOutline?.isGuide ? undefined : handleSetPrerequisite}
+            onTogglePrerequisite={handleTogglePrerequisite}
+            onNavigateToNode={(id) => handleSelectNode(id, true)}
             onExportContent={handleExportSubtree}
             onExpandContent={handleExpandContent}
             onGenerateContent={handleGenerateContentForNode}
@@ -5885,6 +5944,14 @@ export default function OutlinePro() {
         onPick={handleInsertOutlineLink}
       />
 
+      <PrerequisitePickerDialog
+        open={prerequisitePickerNodeId !== null}
+        onOpenChange={(open) => { if (!open) setPrerequisitePickerNodeId(null); }}
+        nodes={currentOutline?.nodes ?? {}}
+        nodeId={prerequisitePickerNodeId}
+        onToggle={handleTogglePrerequisite}
+      />
+
       <TemplatesDialog
         open={isTemplatesDialogOpen}
         onOpenChange={setIsTemplatesDialogOpen}
@@ -6080,6 +6147,9 @@ export default function OutlinePro() {
             ancestorPath={selectedNodeAncestorPath}
             onUpdate={handleUpdateNode}
             onInsertOutlineLink={currentOutline?.isGuide ? undefined : () => setIsOutlineLinkPickerOpen(true)}
+            onSetPrerequisite={currentOutline?.isGuide ? undefined : handleSetPrerequisite}
+            onTogglePrerequisite={handleTogglePrerequisite}
+            onNavigateToNode={(id) => handleSelectNode(id, true)}
             onExportContent={handleExportSubtree}
             onExpandContent={handleExpandContent}
             onGenerateContent={handleGenerateContentForNode}
@@ -6173,6 +6243,7 @@ export default function OutlinePro() {
                 onBulkChangeColor={handleBulkChangeColor}
                 onBulkAddTag={handleBulkAddTag}
                 onSetStatus={handleSetStatus}
+                onSetPrerequisite={handleSetPrerequisite}
                 onSearchTermChange={handleSearchTermChange}
                 onExportSubtree={handleExportSubtree}
                 onSaveToSecondBrain={handleSaveToSecondBrain}
@@ -6209,6 +6280,9 @@ export default function OutlinePro() {
                 ancestorPath={selectedNodeAncestorPath}
                 onUpdate={handleUpdateNode}
                 onInsertOutlineLink={currentOutline?.isGuide ? undefined : () => setIsOutlineLinkPickerOpen(true)}
+                onSetPrerequisite={currentOutline?.isGuide ? undefined : handleSetPrerequisite}
+                onTogglePrerequisite={handleTogglePrerequisite}
+                onNavigateToNode={(id) => handleSelectNode(id, true)}
                 onExportContent={handleExportSubtree}
                 onExpandContent={handleExpandContent}
                 onGenerateContent={handleGenerateContentForNode}

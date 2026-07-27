@@ -50,6 +50,13 @@ export const STATUS_TAGS: StatusTagDef[] = [
 /** All reserved status labels, in display order. */
 export const STATUS_LABELS: string[] = STATUS_TAGS.map((s) => s.label);
 
+/**
+ * The reserved "Done" status label. A task counts as complete for
+ * dependency/blocked calculations when it carries this status. Kept as a named
+ * constant so the prerequisites logic never hard-codes the string.
+ */
+export const DONE_STATUS_LABEL = 'Done';
+
 /** True when a tag string is one of the reserved statuses. */
 export function isStatusTag(tag: string): boolean {
   return STATUS_LABELS.includes(tag);
