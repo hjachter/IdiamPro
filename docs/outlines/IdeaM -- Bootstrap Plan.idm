@@ -29,7 +29,8 @@
         "business-mailing-address-8247c0df",
         "tech-stack-bootstrap-note-2026-06-06",
         "14d2a7be-30b4-4bdb-bbdd-95e79b91ac44",
-        "bootstrap-postlaunch-todo"
+        "bootstrap-postlaunch-todo",
+        "bootstrap-ebook-publishing-plan"
       ],
       "isCollapsed": false,
       "prefix": ""
@@ -1369,10 +1370,20 @@
       "prefix": "",
       "name": "Embed on-device AI — drop the Ollama install dependency (Step 2)",
       "content": "<p><strong>What:</strong> Replace the external Ollama dependency for the free on-device AI tier by <strong>embedding the inference engine directly in the desktop app</strong> — llama.cpp via <code>node-llama-cpp</code>, and/or <strong>MLX</strong> on Apple Silicon — so users get free on-device AI with <strong>nothing to install</strong> and no separate model pull.</p><p><strong>Why it waits:</strong> Step 1 (ship at launch) already makes the free tier reliable by switching the on-device model from Gemma to <strong>llama3.2 on Ollama</strong> — the smallest change that works today. Embedding the engine is a bigger effort (bundling a runtime + model, desktop-only, larger download), best done deliberately after launch.</p><p><strong>Why it matters:</strong> “Install Ollama, then pull a model” is real friction for a free tier. Embedding removes it entirely and gives full control of the API (which also permanently kills the Gemma /api/generate empty-output class of bug).</p><p><strong>Background (2026-07-25):</strong> Gemma-on-Ollama proved unreliable — empty responses, documented Apple-Silicon bugs (Ollama issues #15428, #16562). llama3.2 on Ollama is the reliable interim.</p><p><strong>Trigger:</strong> post-launch, once the core product is stable.</p>"
+    },
+    "bootstrap-ebook-publishing-plan": {
+      "id": "bootstrap-ebook-publishing-plan",
+      "name": "Ebook — “Idea Engineering” Publishing Plan",
+      "parentId": "root-bootstrap",
+      "childrenIds": [],
+      "type": "text",
+      "content": "<h2>Ebook — &ldquo;Idea Engineering&rdquo; Publishing Plan</h2><p><strong>Goal:</strong> publish the field-defining manifesto that establishes and <em>owns</em> the idea-engineering category, cements Howard&rsquo;s ownership as its <strong>creator</strong> (1980s) and <strong>implementer</strong> (IdeaM), and funnels readers into IdeaM.</p><p><strong>Provenance backbone (the credibility spine):</strong> discipline created in the 1980s → <strong>presented to the WWU Computer Science faculty in 2005</strong> (witnessed, datable; some faculty will remember) → realized with AI in IdeaM, 2026. Every claim backed by the record + research (the field is otherwise unclaimed — no established theory, taxonomy, or leader).</p><p><strong>Production (dogfood):</strong> write and refine the book <em>in IdeaM</em>, then export it as EPUB + PDF <em>from IdeaM</em> — the ultimate proof: the manifesto for idea engineering, produced by the idea-engineering tool. Keep it a tight, high-signal short book / long essay (concise definition → research → practice), not a doorstop.</p><p><strong>Distribution:</strong></p><ul><li><strong>Free PDF on the IdeaM site</strong> — email-gated lead magnet + cornerstone; funnels to the app.</li><li><strong>Amazon Kindle (KDP)</strong> — reach + the credibility of a published book.</li><li><strong>Direct / Gumroad</strong> — optional paid edition.</li><li><strong>Serialize</strong> key chapters on LinkedIn / Medium / Substack to seed the term and drive traffic.</li></ul><p><strong>Positioning assets:</strong> a &ldquo;What is Idea Engineering?&rdquo; cornerstone page on the site (owns the term in search); the line <em>&ldquo;IdeaM — the idea-engineering platform.&rdquo;</em></p><p><strong>Promotion:</strong> LinkedIn thought-leadership; the 1980s-creator + WWU-2005 story as the PR hook; outreach via the Creator/Evangelist list (Marketing outline); consider reconnecting with WWU faculty who recall the 2005 talk (corroboration + a great origin story).</p><p><strong>Sequence:</strong> first draft (done) → refine with Claude → produce via IdeaM → cornerstone page + free PDF at/near app launch → Kindle → serialization → ongoing category-building. <strong>Timing:</strong> ship the ebook as a thought-leadership asset around the app launch — it establishes the category the app leads.</p><p><strong>Win condition:</strong> &ldquo;idea engineering&rdquo; starts to mean what we say it means, and IdeaM becomes synonymous with it.</p>",
+      "isCollapsed": false,
+      "prefix": ""
     }
   },
   "isGuide": false,
-  "lastModified": 1784814066403,
+  "lastModified": 1785184194700,
   "_fileName": "IdeaM -- Bootstrap Plan.idm",
   "_isLazyLoaded": false,
   "_fileSize": 161402,
