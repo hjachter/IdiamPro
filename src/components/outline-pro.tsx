@@ -13,6 +13,7 @@ import { addNode, addNodeAfter, removeNode, updateNode, moveNode, parseMarkdownT
 import OutlinePane from './outline-pane';
 import { applyStatusToTags } from '@/lib/status-tags';
 import { useProjectManagementEnabled } from '@/lib/use-capabilities';
+import { buildPmReport, type PmReportId } from '@/lib/pm-reports';
 import BackupRestoreDialog from './backup-restore-dialog';
 import { snapshotBeforeTransform } from '@/lib/snapshot-storage';
 import type { SnapshotMeta } from '@/lib/snapshot-storage';
@@ -3182,6 +3183,35 @@ export default function OutlinePro() {
     }
   }, [currentOutline, toast, handleOpenGenerateVideo]);
 
+  // Project-management REPORT wizards — PURE LOGIC, NO AI. Each reads the
+  // current outline's task statuses + dependencies and drops a read-only
+  // summary note into the outline. It never calls AI, costs nothing, and never
+  // modifies an existing task (it only inserts a fresh note). Gated behind the
+  // Project Management capability at the UI layer.
+  const handleRunPmReport = useCallback((reportId: PmReportId) => {
+    setIsApplicationsOpen(false);
+    if (!currentOutline) {
+      toast({
+        title: 'Open an outline first',
+        description: 'Reports read the tasks in your current outline — open or create one, then try again.',
+      });
+      return;
+    }
+    const { title, body } = buildPmReport(currentOutline.nodes, reportId);
+    let createdId: string | null = null;
+    setOutlines(curr => curr.map(o => {
+      if (o.id !== currentOutline.id) return o;
+      const { newNodes, newNodeId } = addNode(o.nodes, o.rootNodeId, 'note', title, body);
+      createdId = newNodeId;
+      return { ...o, nodes: newNodes, lastModified: Date.now() };
+    }));
+    if (createdId) setSelectedNodeId(createdId);
+    toast({
+      title: 'Report added',
+      description: `"${title}" — a read-only snapshot added to your outline. Nothing was changed.`,
+    });
+  }, [currentOutline, toast, setOutlines]);
+
   // FIXED: handleExpandContent uses functional update pattern (legacy)
   const handleExpandContent = useCallback(async () => {
     if (!selectedNode) return;
@@ -5209,6 +5239,7 @@ export default function OutlinePro() {
           onRun={handleRunApplication}
           runningId={runningApplicationId}
           onLaunchEngine={handleLaunchWizardEngine}
+          onRunReport={handleRunPmReport}
         />
 
         {currentOutline && (
@@ -5809,6 +5840,7 @@ export default function OutlinePro() {
         onRun={handleRunApplication}
         runningId={runningApplicationId}
         onLaunchEngine={handleLaunchWizardEngine}
+          onRunReport={handleRunPmReport}
       />
 
       {currentOutline && (

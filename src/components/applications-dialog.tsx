@@ -19,8 +19,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Loader2, ChevronLeft, Sparkles } from 'lucide-react';
+import { Loader2, ChevronLeft, Sparkles, FolderKanban } from 'lucide-react';
 import { APPLICATIONS, type ApplicationRecipe } from '@/lib/applications/registry';
+import { PM_REPORTS, type PmReportId } from '@/lib/pm-reports';
+import { useProjectManagementEnabled } from '@/lib/use-capabilities';
 import type { AIDepth, AITone, AILevel } from '@/types';
 
 /** Answers the guided dialogue collects, mapped onto the real pipeline params. */
@@ -42,6 +44,11 @@ interface ApplicationsDialogProps {
    * on the current outline. Called for engine-launcher wizard cards.
    */
   onLaunchEngine: (engine: 'website' | 'podcast' | 'video') => void;
+  /**
+   * Runs a PURE-LOGIC project-management report on the current outline (no AI,
+   * no cost). Only wired up when the Project Management capability is on.
+   */
+  onRunReport: (id: PmReportId) => void;
 }
 
 // Friendly, audience-facing labels that map DIRECTLY onto the pipeline params.
@@ -70,7 +77,9 @@ export default function ApplicationsDialog({
   onRun,
   runningId,
   onLaunchEngine,
+  onRunReport,
 }: ApplicationsDialogProps) {
+  const pmEnabled = useProjectManagementEnabled();
   const [selected, setSelected] = useState<ApplicationRecipe | null>(null);
   // Which coming-soon card the user just tapped — shows a small inline note.
   // Never opens a config flow and never triggers any AI or cost.
@@ -182,6 +191,41 @@ export default function ApplicationsDialog({
                 );
               })}
             </div>
+
+            {/* ── PROJECT MANAGEMENT REPORTS (pure logic, no AI) ──────────
+                Only shown when the Project Management capability is on. Each
+                card reads the current outline's task statuses + dependencies
+                and drops a read-only summary note into the outline. No AI, no
+                cost, and it never changes a task. */}
+            {pmEnabled && (
+              <div className="pt-1">
+                <div className="flex items-center gap-2 mb-2 mt-1">
+                  <FolderKanban className="h-4 w-4 text-blue-500" />
+                  <span className="text-sm font-semibold">Project Management</span>
+                  <Badge variant="secondary" className="text-[10px]">No AI</Badge>
+                </div>
+                <p className="text-xs text-muted-foreground mb-3">
+                  Instant read-only reports from your task statuses and dependencies. Nothing is changed.
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {PM_REPORTS.map((report) => (
+                    <button
+                      key={report.id}
+                      type="button"
+                      data-testid={`pm-report-${report.id}`}
+                      onClick={() => onRunReport(report.id)}
+                      className={`relative min-h-[88px] rounded-xl p-4 text-left transition-all bg-gradient-to-br ${report.accent} bg-opacity-10 border border-border hover:border-primary/40 hover:shadow-md active:scale-[0.99] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary`}
+                    >
+                      <div className="text-2xl mb-1.5">{report.emoji}</div>
+                      <div className="font-semibold leading-tight">{report.title}</div>
+                      <div className="text-xs text-muted-foreground mt-0.5">
+                        {report.subtitle}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </>
         ) : (
           // ── GUIDED DIALOGUE / CONFIG VIEW ────────────────────────────
