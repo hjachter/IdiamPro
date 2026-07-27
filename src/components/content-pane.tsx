@@ -386,6 +386,12 @@ interface ContentPaneProps {
    * render as a clickable link that jumps to that task.
    */
   onNavigateToNode?: (nodeId: string) => void;
+  /**
+   * Project Management capability gate. When false (default), the entire
+   * "Depends on" / "Blocked by" prerequisite surface is hidden. Data is never
+   * touched — it reappears when the capability is turned back on.
+   */
+  pmEnabled?: boolean;
 }
 
 const YouTubeEmbed = ({ url }: { url: string }) => {
@@ -440,6 +446,7 @@ export default function ContentPane({
   onSetPrerequisite,
   onTogglePrerequisite,
   onNavigateToNode,
+  pmEnabled = false,
 }: ContentPaneProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [conflictDialogOpen, setConflictDialogOpen] = useState(false);
@@ -2624,6 +2631,9 @@ export default function ContentPane({
                   banner below. Add/remove inline (unless read-only). */}
               {(() => {
                 if (!node || !nodes) return null;
+                // Project Management capability gate — hide the whole
+                // prerequisite surface when off. Data is preserved.
+                if (!pmEnabled) return null;
                 const prereqIds = node.metadata?.prerequisites ?? [];
                 const blockers = getBlockingPrerequisites(nodes, node.id);
                 const canEdit = !isGuide && !!onTogglePrerequisite;

@@ -24,7 +24,7 @@ import {
   ContextMenuSubContent,
   ContextMenuSubTrigger,
 } from '@/components/ui/context-menu';
-import { STATUS_TAGS } from '@/lib/status-tags';
+import { STATUS_TAGS, isStatusTag } from '@/lib/status-tags';
 import { getBlockingPrerequisites } from '@/lib/prerequisites';
 
 // Module-level variable to track the currently dragged node ID
@@ -91,6 +91,12 @@ interface NodeItemProps {
   // Open the prerequisite picker for this node — choose the task(s) it depends
   // on. Lives under the context menu's "Project" submenu alongside Set Status.
   onSetPrerequisite?: (nodeId: string) => void;
+  // Project Management capability gate. When false (the default), every PM
+  // surface is HIDDEN — the "Project" context submenu, status badges, and the
+  // "Blocked by" indicator — even though the handlers are still wired. The
+  // underlying status/prerequisite DATA is never touched; it reappears when the
+  // capability is turned back on. See src/lib/use-capabilities.tsx.
+  pmEnabled?: boolean;
   // Read-only mode (e.g. User Guide outline) — suppresses rename + always-shown
   // mutator items in the context menu, and blocks F2/double-click rename. The
   // optional mutator callbacks should already be undefined when isReadOnly is
@@ -206,6 +212,7 @@ export default function NodeItem({
   onRefreshFromWeb,
   onSetStatus,
   onSetPrerequisite,
+  pmEnabled = false,
   isReadOnly = false,
 }: NodeItemProps) {
   const node = nodes[nodeId];
@@ -392,6 +399,14 @@ export default function NodeItem({
   // node. This is display-only — it never overrides the user's manual status.
   const blockingPrereqs = getBlockingPrerequisites(nodes, node.id);
   const blockedByNames = blockingPrereqs.map((p) => p.name || 'Untitled');
+
+  // Which tags to render as badges. Free-form tags always show; the reserved
+  // STATUS tags (Not started / In progress / Done / Blocked) only show when the
+  // Project Management capability is on. The status data stays in metadata.tags
+  // either way — we just hide the badge when PM is off.
+  const visibleTags = (node.metadata?.tags ?? []).filter(
+    (t) => pmEnabled || !isStatusTag(t)
+  );
 
   const handleDragStart = (e: React.DragEvent) => {
     if (isRoot) {
@@ -724,9 +739,9 @@ export default function NodeItem({
                           ? highlightText(node.name, searchTerm)
                           : node.name}
                     </span>
-                    {node.metadata?.tags && node.metadata.tags.length > 0 && (
+                    {visibleTags.length > 0 && (
                         <div className="flex gap-1 flex-wrap">
-                            {node.metadata.tags.slice(0, 3).map((tag, index) => (
+                            {visibleTags.slice(0, 3).map((tag, index) => (
                                 <TagBadge
                                     key={tag}
                                     tag={tag}
@@ -741,14 +756,14 @@ export default function NodeItem({
                                     }}
                                 />
                             ))}
-                            {node.metadata.tags.length > 3 && (
+                            {visibleTags.length > 3 && (
                                 <span className="text-xs text-muted-foreground py-0.5">
-                                    +{node.metadata.tags.length - 3} more
+                                    +{visibleTags.length - 3} more
                                 </span>
                             )}
                         </div>
                     )}
-                    {blockingPrereqs.length > 0 && (
+                    {pmEnabled && blockingPrereqs.length > 0 && (
                         <span
                             className="inline-flex items-center gap-1 text-[10px] font-medium rounded px-1.5 py-0.5 border border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-700/50 dark:bg-amber-900/30 dark:text-amber-300 shrink-0 max-w-[220px]"
                             title={`Blocked by: ${blockedByNames.join(', ')}`}
@@ -909,7 +924,7 @@ export default function NodeItem({
               </ContextMenuItem>
             )}
 
-            {(onSetStatus || onSetPrerequisite) && !isReadOnly && !isRoot && (
+            {pmEnabled && (onSetStatus || onSetPrerequisite) && !isReadOnly && !isRoot && (
               <>
                 <ContextMenuSeparator />
                 <ContextMenuSub>
@@ -1069,6 +1084,7 @@ export default function NodeItem({
                         onRefreshFromWeb={onRefreshFromWeb}
                         onSetStatus={onSetStatus}
                         onSetPrerequisite={onSetPrerequisite}
+                        pmEnabled={pmEnabled}
                         isReadOnly={isReadOnly}
                     />
                 ))}

@@ -7,7 +7,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { Folder, Info, Smartphone, Cpu, Cloud, Loader2, CheckCircle, XCircle, Crown, Shield, Moon, Sun, Download, Trash2, AlertTriangle, Play, Sparkles, ShieldCheck, KeyRound, UserX, Settings as SettingsIcon, Mail, FlaskConical, Briefcase, Share2 } from 'lucide-react';
+import { Folder, Info, Smartphone, Cpu, Cloud, Loader2, CheckCircle, XCircle, Crown, Shield, Moon, Sun, Download, Trash2, AlertTriangle, Play, Sparkles, ShieldCheck, KeyRound, UserX, Settings as SettingsIcon, Mail, FlaskConical, Briefcase, Share2, FolderKanban } from 'lucide-react';
 import EmailToolsConsentDialog from './email-tools-consent-dialog';
 import SocialExportConsentDialog from './social-export-consent-dialog';
 import {
@@ -85,6 +85,14 @@ import {
   clearVoiceProfile as persistClearVoiceProfile,
 } from '@/lib/use-voice-profile';
 import { loadStorageData } from '@/lib/storage-manager';
+import {
+  CAPABILITIES,
+  PROJECT_MANAGEMENT_ID,
+  getCapabilityEnabled,
+  setCapabilityEnabled,
+  getCapabilityConsentGranted,
+  grantCapabilityConsent,
+} from '@/lib/use-capabilities';
 import { getUserApiKey } from '@/lib/byok-keys';
 import { useAIUsageGate } from '@/lib/use-ai-usage-gate';
 import type { OutlineNode } from '@/types';
@@ -200,6 +208,14 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
   const [shareToBlueskyEnabled, setShareToBlueskyEnabledState] = useState<boolean>(true);
   const [shareToYouTubeEnabled, setShareToYouTubeEnabledState] = useState<boolean>(true);
   const [socialConsentMode, setSocialConsentMode] = useState<null | 'enable' | 'review'>(null);
+
+  // Capabilities — opt-in feature toggles (2026-07-27). Project Management is
+  // the first. OFF by default; turning it on the first time shows a light,
+  // dismissible honest-enablement note. Turning it off HIDES the PM UI but
+  // never deletes any node's status or prerequisites.
+  const [pmEnabled, setPmEnabled] = useState<boolean>(false);
+  // Non-blocking enablement note: 'enable' = gating a fresh turn-on; 'review' = info-only.
+  const [pmNoteMode, setPmNoteMode] = useState<null | 'enable' | 'review'>(null);
 
   // Outline-backup auto-snapshot toggles (2026-06-10). Both default ON.
   // Persisted to localStorage via snapshot-storage.ts.
@@ -323,6 +339,9 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
     setShareToBlueskyEnabledState(getShareToBlueskyEnabled());
     setShareToYouTubeEnabledState(getShareToYouTubeEnabled());
 
+    // Load Capabilities (Project Management off by default).
+    setPmEnabled(getCapabilityEnabled(PROJECT_MANAGEMENT_ID));
+
     // Load API keys
     const savedKeys: Record<string, string> = {};
     for (const provider of ['gemini', 'openai', 'anthropic', 'mistral', 'groq', 'assemblyai']) {
@@ -371,6 +390,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
       setShareToThreadsEnabledState(getShareToThreadsEnabled());
       setShareToBlueskyEnabledState(getShareToBlueskyEnabled());
     setShareToYouTubeEnabledState(getShareToYouTubeEnabled());
+      setPmEnabled(getCapabilityEnabled(PROJECT_MANAGEMENT_ID));
     }
   }, [open]);
 
@@ -955,6 +975,42 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
     persistShareToYouTubeEnabled(checked);
   };
 
+  // --- Capabilities handlers -------------------------------------------------
+
+  // Master toggle for a capability. Turning ON the first time (no prior
+  // acknowledgement) shows a light honest-enablement note and does NOT enable
+  // until "Enable". After that it toggles directly. Turning OFF is immediate
+  // and NEVER touches the user's data — only the PM UI is hidden.
+  const handleProjectManagementToggle = (checked: boolean) => {
+    if (checked) {
+      if (getCapabilityConsentGranted(PROJECT_MANAGEMENT_ID)) {
+        setPmEnabled(true);
+        setCapabilityEnabled(PROJECT_MANAGEMENT_ID, true);
+      } else {
+        setPmNoteMode('enable');
+      }
+    } else {
+      setPmEnabled(false);
+      setCapabilityEnabled(PROJECT_MANAGEMENT_ID, false);
+    }
+  };
+
+  const handleProjectManagementEnable = () => {
+    grantCapabilityConsent(PROJECT_MANAGEMENT_ID);
+    setPmEnabled(true);
+    setCapabilityEnabled(PROJECT_MANAGEMENT_ID, true);
+    setPmNoteMode(null);
+    toast({
+      title: 'Project Management on',
+      description: 'Status tracking and task dependencies are now available. Turn it off anytime — nothing is deleted.',
+    });
+  };
+
+  const handleProjectManagementNoteClose = () => {
+    // Enabling did NOT proceed — the toggle stays off.
+    setPmNoteMode(null);
+  };
+
   // --- "Your Voice" handlers -------------------------------------------------
 
   const handleVoiceToggle = (checked: boolean) => {
@@ -1308,6 +1364,46 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
           </>)}
 
           {activeCategory === 'professional' && (<>
+          {/* CAPABILITIES — opt-in feature toggles. The default app is just
+              notes + an outline; each capability adds a specialized surface the
+              user deliberately switches on. Extensible: a future capability is
+              another entry in the CAPABILITIES registry + a gated surface. */}
+          <div id="capabilities-section" className="space-y-3">
+            <h3 className="text-sm font-medium flex items-center gap-2">
+              <FolderKanban className="h-4 w-4" />
+              Capabilities
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              Optional extras you can switch on. Off by default — turning one off only hides its buttons; your data is always kept.
+            </p>
+
+            <div className="flex items-center justify-between pt-1">
+              <div className="flex items-center gap-1.5">
+                <Label htmlFor="capability-project-management" className="text-sm">
+                  {CAPABILITIES[PROJECT_MANAGEMENT_ID].name}
+                </Label>
+                <button
+                  type="button"
+                  data-testid="capability-pm-info"
+                  aria-label="What Project Management adds"
+                  onClick={() => setPmNoteMode('review')}
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  <Info className="h-3.5 w-3.5" />
+                </button>
+              </div>
+              <Switch
+                id="capability-project-management"
+                data-testid="capability-project-management"
+                checked={pmEnabled}
+                onCheckedChange={handleProjectManagementToggle}
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {CAPABILITIES[PROJECT_MANAGEMENT_ID].description}
+            </p>
+          </div>
+
           <div id="email-tools-section" className="space-y-3">
             <h3 className="text-sm font-medium flex items-center gap-2">
               <Briefcase className="h-4 w-4" />
@@ -2670,6 +2766,45 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
                 'Delete my account'
               )}
             </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Project Management honest-enablement note — light + dismissible.
+          Shown on first enable ('enable') and via the info button ('review').
+          Never a blocking wall: the user decides WITH us what it adds. */}
+      <AlertDialog open={pmNoteMode !== null} onOpenChange={(o) => { if (!o) handleProjectManagementNoteClose(); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <FolderKanban className="h-5 w-5" />
+              {pmNoteMode === 'review' ? 'About Project Management' : 'Turn on Project Management?'}
+            </AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-3">
+                <p>Turning this on adds a light project-tracking layer on top of your outline:</p>
+                <ul className="list-disc pl-5 space-y-1.5 text-left">
+                  {CAPABILITIES[PROJECT_MANAGEMENT_ID].adds.map((line, i) => (
+                    <li key={i}>{line}</li>
+                  ))}
+                </ul>
+                <p className="text-xs">
+                  Your notes and outline keep working exactly the same. Turn it off anytime — that only hides these extras; nothing you set is ever deleted.
+                </p>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            {pmNoteMode === 'review' ? (
+              <AlertDialogAction onClick={handleProjectManagementNoteClose}>Got it</AlertDialogAction>
+            ) : (
+              <>
+                <AlertDialogCancel onClick={handleProjectManagementNoteClose}>Not now</AlertDialogCancel>
+                <AlertDialogAction data-testid="capability-pm-enable" onClick={handleProjectManagementEnable}>
+                  Turn on
+                </AlertDialogAction>
+              </>
+            )}
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

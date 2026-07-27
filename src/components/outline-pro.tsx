@@ -12,6 +12,7 @@ import { getWelcomeOutline, hasSeenWelcome, markWelcomeSeen } from '@/lib/welcom
 import { addNode, addNodeAfter, removeNode, updateNode, moveNode, parseMarkdownToNodes, recalculatePrefixesForBranch, buildOutlineTreeString, generateMindmapFromSubtree, generateFlowchartFromSubtree } from '@/lib/outline-utils';
 import OutlinePane from './outline-pane';
 import { applyStatusToTags } from '@/lib/status-tags';
+import { useProjectManagementEnabled } from '@/lib/use-capabilities';
 import BackupRestoreDialog from './backup-restore-dialog';
 import { snapshotBeforeTransform } from '@/lib/snapshot-storage';
 import type { SnapshotMeta } from '@/lib/snapshot-storage';
@@ -650,6 +651,9 @@ export default function OutlinePro() {
   }, [currentOutline]);
 
   const { plan } = useAI();
+  // Project Management capability gate (opt-in, OFF by default). Threaded into
+  // the outline tree and content pane so every PM surface hides when off.
+  const pmEnabled = useProjectManagementEnabled();
   const { promptUpgrade } = useUpgradePrompt();
   const { gate: aiUsageGate } = useAIUsageGate();
 
@@ -5623,6 +5627,7 @@ export default function OutlinePro() {
                 onBulkAddTag={handleBulkAddTag}
                 onSetStatus={handleSetStatus}
                 onSetPrerequisite={handleSetPrerequisite}
+                pmEnabled={pmEnabled}
                 onSearchTermChange={handleSearchTermChange}
                 onExportSubtree={handleExportSubtree}
                 onSaveToSecondBrain={handleSaveToSecondBrain}
@@ -5692,6 +5697,7 @@ export default function OutlinePro() {
             onInsertOutlineLink={currentOutline?.isGuide ? undefined : () => setIsOutlineLinkPickerOpen(true)}
             onSetPrerequisite={currentOutline?.isGuide ? undefined : handleSetPrerequisite}
             onTogglePrerequisite={handleTogglePrerequisite}
+            pmEnabled={pmEnabled}
             onNavigateToNode={(id) => handleSelectNode(id, true)}
             onExportContent={handleExportSubtree}
             onExpandContent={handleExpandContent}
@@ -6149,6 +6155,7 @@ export default function OutlinePro() {
             onInsertOutlineLink={currentOutline?.isGuide ? undefined : () => setIsOutlineLinkPickerOpen(true)}
             onSetPrerequisite={currentOutline?.isGuide ? undefined : handleSetPrerequisite}
             onTogglePrerequisite={handleTogglePrerequisite}
+            pmEnabled={pmEnabled}
             onNavigateToNode={(id) => handleSelectNode(id, true)}
             onExportContent={handleExportSubtree}
             onExpandContent={handleExpandContent}
@@ -6244,6 +6251,7 @@ export default function OutlinePro() {
                 onBulkAddTag={handleBulkAddTag}
                 onSetStatus={handleSetStatus}
                 onSetPrerequisite={handleSetPrerequisite}
+                pmEnabled={pmEnabled}
                 onSearchTermChange={handleSearchTermChange}
                 onExportSubtree={handleExportSubtree}
                 onSaveToSecondBrain={handleSaveToSecondBrain}
@@ -6282,6 +6290,7 @@ export default function OutlinePro() {
                 onInsertOutlineLink={currentOutline?.isGuide ? undefined : () => setIsOutlineLinkPickerOpen(true)}
                 onSetPrerequisite={currentOutline?.isGuide ? undefined : handleSetPrerequisite}
                 onTogglePrerequisite={handleTogglePrerequisite}
+                pmEnabled={pmEnabled}
                 onNavigateToNode={(id) => handleSelectNode(id, true)}
                 onExportContent={handleExportSubtree}
                 onExpandContent={handleExpandContent}

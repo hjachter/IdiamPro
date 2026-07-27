@@ -178,6 +178,9 @@ interface OutlinePaneProps {
   onSetStatus?: (nodeId: string, status: string | null) => void;
   // Open the prerequisite picker for a node (Project submenu → Set Prerequisite).
   onSetPrerequisite?: (nodeId: string) => void;
+  // Project Management capability gate — threaded down to each NodeItem so PM
+  // surfaces (Project submenu, status badges, Blocked-by) hide when off.
+  pmEnabled?: boolean;
   // Search term for content highlighting
   onSearchTermChange?: (searchTerm: string, matchType?: 'name' | 'content' | 'both', matchIndex?: number) => void;
   // Export subtree
@@ -276,6 +279,7 @@ export default function OutlinePane({
   onBulkAddTag,
   onSetStatus,
   onSetPrerequisite,
+  pmEnabled = false,
   onSearchTermChange,
   onExportSubtree,
   onSaveToSecondBrain,
@@ -1985,6 +1989,7 @@ export default function OutlinePane({
               onRefreshFromWeb={currentOutline.isGuide ? undefined : (id) => { onSelectNode(id); onOpenLiveBooks?.(); }}
               onSetStatus={currentOutline.isGuide ? undefined : onSetStatus}
               onSetPrerequisite={currentOutline.isGuide ? undefined : onSetPrerequisite}
+              pmEnabled={pmEnabled}
               isReadOnly={!!currentOutline.isGuide}
             />
           </ul>
