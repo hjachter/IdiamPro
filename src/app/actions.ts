@@ -58,6 +58,12 @@ import {
 } from '@/lib/billing/company-text-fallback';
 import { resolveCompanyTextAccess } from '@/lib/billing/ai-usage-meter';
 import {
+  runAIWithFailover,
+  buildNoFallbackMessage,
+  AIFailoverError,
+  type AIProviderChoice,
+} from '@/lib/ai-failover';
+import {
   isOllamaAvailable,
   getOllamaModels,
   generateWithOllama,
@@ -606,6 +612,8 @@ export async function distillVoiceProfileAction(
 export async function generateContentForNodeAction(
   context: NodeGenerationContext,
   useLocal: boolean = false,
+  userApiKey?: string | null,
+  aiProvider: AIProviderChoice = 'auto',
 ): Promise<string> {
   try {
     // Build context information
@@ -651,22 +659,83 @@ MERMAID SYNTAX RULES (critical - diagrams will fail if violated):
       enhancedTitle = `${ancestorContext}${draftContext}${diagramInstructions}\n\nGenerate detailed content for: ${context.nodeName}`;
     }
 
+    const ollamaSystem =
+      'You are an expert author writing a clear, engaging section of a book. Write 1-3 well-formed paragraphs. Do not repeat the section title as a heading.';
+
     // Cost-free local path: on-device Ollama (Gemma). Never bills a hosted key.
     if (useLocal) {
       const content = await generateWithOllama({
-        system:
-          'You are an expert author writing a clear, engaging section of a book. Write 1-3 well-formed paragraphs. Do not repeat the section title as a heading.',
+        system: ollamaSystem,
         prompt: enhancedTitle,
         maxTokens: 800,
       });
       return content;
     }
 
-    const result = await expandNodeContent({ title: enhancedTitle });
-    return result.content;
+    // BYOK FIRST: if the user brought their OWN Gemini key, run the cloud call
+    // on THEIR key (their cost, unlimited) — this never touches the company key.
+    // Mirrors how expandContentAction / generateEmail forward the BYOK key.
+    const byokKey = userApiKey && userApiKey.trim().length > 0 ? userApiKey.trim() : null;
+    if (byokKey) {
+      try {
+        const result = await expandNodeContent({ title: enhancedTitle, userApiKey: byokKey });
+        if (result.content && result.content.trim().length > 0) {
+          return result.content;
+        }
+      } catch (byokErr) {
+        // The user's own key failed (billing/quota/invalid). Fall through to the
+        // shared failover pipeline so on-device AI can still answer, or the user
+        // gets the friendly, actionable guidance message below.
+        console.warn('BYOK Gemini generation failed; routing through failover:', byokErr);
+      }
+    }
+
+    // SHARED AI FAILOVER PIPELINE — the SAME path Help chat / podcast script use.
+    // It enforces the SERVER-SIDE usage meter (the sole authority): the company
+    // key is reachable ONLY for the internal allowlist or a verified paid user
+    // within allowance; everyone else falls back to on-device Ollama, or gets a
+    // friendly "add your key / switch to on-device / upgrade" message — never a
+    // raw crash and never an unmetered company-key charge.
+    try {
+      const result = await runAIWithFailover({
+        provider: aiProvider,
+        // The cloud attempt below uses the metered company Genkit key, never the
+        // user's BYOK key (that was already tried above), so this is not BYOK.
+        cloudKeyIsByok: false,
+        cloudProviderName: 'Gemini',
+        openRouterPrompt: enhancedTitle,
+        cloudAttempt: async () => {
+          const { text } = await ai.generate({
+            model: getDefaultGeminiModel('genkit'),
+            prompt: enhancedTitle,
+          });
+          return text;
+        },
+        localAttempt: async (model) =>
+          generateWithOllama({
+            model,
+            system: ollamaSystem,
+            prompt: enhancedTitle,
+            maxTokens: 800,
+          }),
+      });
+      return result.text;
+    } catch (failoverErr) {
+      if (failoverErr instanceof AIFailoverError) {
+        // Friendly, ACTIONABLE guidance (add your key / on-device / upgrade)
+        // instead of a raw 500. Surfaced to the user by the content pane.
+        throw new Error(buildNoFallbackMessage(failoverErr));
+      }
+      throw failoverErr;
+    }
   } catch (error) {
+    // Preserve a friendly/actionable message when we have one; otherwise a
+    // calm generic fallback (never the raw server-render crash).
+    const message = error instanceof Error && error.message
+      ? error.message
+      : 'AI is temporarily unavailable — please try again shortly.';
     console.error('Error generating content for node:', error);
-    throw new Error('Failed to generate content for node.');
+    throw new Error(message);
   }
 }
 

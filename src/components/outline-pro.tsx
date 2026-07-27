@@ -3114,7 +3114,7 @@ export default function OutlinePro() {
             existingContent: '',
             customPrompt: opts.customize?.trim() || undefined,
             includeDiagram: false,
-          }, useLocal);
+          }, useLocal, getUserApiKey('gemini'), useLocal ? 'local' : 'auto');
           working[id] = { ...working[id], content };
           // Push the freshly-written section into the live outline.
           setOutlines(curr => curr.map(o =>
@@ -3227,7 +3227,22 @@ export default function OutlinePro() {
   // Enhanced content generation with context - returns generated content
   const handleGenerateContentForNode = useCallback(async (context: NodeGenerationContext): Promise<string> => {
     try {
-      const content = await generateContentForNodeAction(context);
+      // Honor the user's AI Provider setting and forward their own Gemini key
+      // (BYOK) so the call runs on their key when they have one — exactly how
+      // the other AI features do it. When neither is available the server's
+      // shared failover pipeline returns friendly, actionable guidance.
+      let aiProvider: 'cloud' | 'local' | 'auto' = 'auto';
+      let useLocal = false;
+      try {
+        aiProvider = (localStorage.getItem('aiProvider') as 'cloud' | 'local' | 'auto') || 'auto';
+        useLocal = aiProvider === 'local';
+      } catch { /* default cloud/auto */ }
+      const content = await generateContentForNodeAction(
+        context,
+        useLocal,
+        getUserApiKey('gemini'),
+        aiProvider,
+      );
       return content;
     } catch (e) {
       toast({
@@ -3342,7 +3357,16 @@ export default function OutlinePro() {
           existingContent: descendantNode.content || '',
         };
 
-        const generatedContent = await generateContentForNodeAction(context);
+        const descendantsProvider = ((): 'cloud' | 'local' | 'auto' => {
+          try { return (localStorage.getItem('aiProvider') as 'cloud' | 'local' | 'auto') || 'auto'; }
+          catch { return 'auto'; }
+        })();
+        const generatedContent = await generateContentForNodeAction(
+          context,
+          descendantsProvider === 'local',
+          getUserApiKey('gemini'),
+          descendantsProvider,
+        );
 
         // Update the node - APPEND new content after existing content
         setOutlines(currentOutlines => {
