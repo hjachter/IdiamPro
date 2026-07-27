@@ -2879,10 +2879,7 @@ export default function OutlinePro() {
       setTimeout(() => {
         setCurrentOutlineId(newOutlineId);
         setSelectedNodeId(newRootNodeId);
-        toast({
-          title: 'Outline Copied',
-          description: `Created "${copyName}" from the original outline.`,
-        });
+        // Success is silent — the new copy is now open and visible.
       }, 0);
 
       return [...currentOutlines, newOutline];
@@ -3995,7 +3992,7 @@ export default function OutlinePro() {
       setOutlines(currentOutlines => [...currentOutlines, imported]);
       setCurrentOutlineId(imported.id);
       setSelectedNodeId(imported.rootNodeId);
-      toast({ title: 'Email imported', description: `Created "${imported.name}".` });
+      // Success is silent — the imported email outline is now open and visible.
       return;
     }
 
@@ -4047,12 +4044,12 @@ export default function OutlinePro() {
       setOutlines(currentOutlines => [...currentOutlines, imported]);
       setCurrentOutlineId(imported.id);
       setSelectedNodeId(imported.rootNodeId);
-      toast({ title: 'Email imported', description: `Created "${imported.name}".` });
+      // Success is silent — the imported email outline is now open and visible.
       return;
     }
     const updated = graftInto(currentOutline);
     setOutlines(currentOutlines => currentOutlines.map(o => o.id === currentOutline.id ? updated : o));
-    toast({ title: 'Email imported', description: `Added to "${currentOutline.name}".` });
+    // Success is silent — the email content is grafted into the visible current outline.
   }, [currentOutline, outlines, toast]);
 
   // Add an already-parsed outline to the app (used by FileImportDialog and handleImportOutline)
@@ -4075,12 +4072,8 @@ export default function OutlinePro() {
       setTimeout(() => {
         setCurrentOutlineId(capturedOutlineId);
         setSelectedNodeId(capturedRootNodeId);
-        if (showToast) {
-          toast({
-            title: "Import Successful",
-            description: `Outline "${capturedName}" has been imported.`,
-          });
-        }
+        // Success is silent — the imported outline is now open and visible.
+        void showToast;
       }, 0);
 
       return [...currentOutlines, newOutline];
@@ -4238,12 +4231,8 @@ export default function OutlinePro() {
       sourceOutlineId: currentOutlineId,
       isCut: false,
     });
-
-    toast({
-      title: "Suboutline Copied",
-      description: `"${outline.nodes[nodeId].name}" and its children copied to clipboard.`,
-    });
-  }, [currentOutlineId, outlines, collectSubtree, toast]);
+    // Success is silent — copy is a non-destructive, self-evident action.
+  }, [currentOutlineId, outlines, collectSubtree]);
 
   // Cut subtree to clipboard (will be removed on paste)
   const handleCutSubtree = useCallback((nodeId: string) => {
@@ -4257,12 +4246,8 @@ export default function OutlinePro() {
       sourceOutlineId: currentOutlineId,
       isCut: true,
     });
-
-    toast({
-      title: "Suboutline Cut",
-      description: `"${outline.nodes[nodeId].name}" ready to move. Select a target item and paste.`,
-    });
-  }, [currentOutlineId, outlines, collectSubtree, toast]);
+    // Success is silent — cut is a non-destructive, self-evident action.
+  }, [currentOutlineId, outlines, collectSubtree]);
 
   // Paste subtree as sibling after target node
   const handlePasteSubtree = useCallback((targetNodeId: string) => {
@@ -4401,10 +4386,7 @@ export default function OutlinePro() {
       // Schedule toast and clear clipboard
       setTimeout(() => {
         setSelectedNodeId(newRootId);
-        toast({
-          title: subtreeClipboard.isCut ? "Suboutline Moved" : "Suboutline Pasted",
-          description: `"${clipboardRoot.name}" has been ${subtreeClipboard.isCut ? 'moved' : 'pasted'}.`,
-        });
+        // Success is silent — the pasted/moved subtree is now visible and selected.
         if (subtreeClipboard.isCut) {
           setSubtreeClipboard(null);
         }
@@ -4585,11 +4567,7 @@ export default function OutlinePro() {
         return o;
       });
     });
-
-    toast({
-      title: "Tag Added",
-      description: `Added "${tag}" to ${selectedNodeIds.size} item${selectedNodeIds.size > 1 ? 's' : ''}.`,
-    });
+    // Success is silent — the new tag chips are immediately visible on the nodes.
   }, [selectedNodeIds, currentOutlineId, currentOutline, toast]);
 
   // Set/clear a reserved STATUS on the current selection. If a multiselection is
@@ -4624,13 +4602,7 @@ export default function OutlinePro() {
         return o;
       });
     });
-
-    toast({
-      title: status ? "Status Set" : "Status Cleared",
-      description: status
-        ? `Set "${status}" on ${targets.length} item${targets.length > 1 ? 's' : ''}.`
-        : `Cleared status on ${targets.length} item${targets.length > 1 ? 's' : ''}.`,
-    });
+    // Success is silent — the status change is immediately visible on the nodes.
   }, [selectedNodeIds, currentOutlineId, currentOutline, toast]);
 
   // Export handlers
