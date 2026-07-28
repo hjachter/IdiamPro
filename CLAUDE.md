@@ -82,6 +82,19 @@ This means: **do not reflexively refuse to write to a `.idm` file just because E
 
 The conversation-log regeneration script is a worked example of "safe to write while app is running" — see the Conversation Log section below.
 
+### How the app discovers outlines from the `IDM Outlines` folder (READ THIS — comes up constantly)
+
+**On launch**, the app reads **every** `.idm` file in `~/Documents/IDM Outlines/` into the sidebar (boot path: `outline-pro.tsx` → `loadStorageData()` → Electron `readOutlinesFromDirectory`). Invalid files and any stale `isGuide` copy are filtered out; the User Guide is always sourced fresh from the bundled app.
+
+**While the app is already running, it does NOT auto-detect files that were added or externally edited on disk** (e.g. an `.idm` I create or rewrite with a script). The running app only knows about outlines already in its in-memory/persisted registry.
+
+**So whenever I create or edit an `.idm` on disk and Howard needs to SEE it in the running app, it will not appear on its own.** Two ways to surface it — tell Howard (or do it myself):
+
+1. **"Restore All Outlines"** — the least disruptive: Import menu (down-arrow *book* icon in the toolbar) → **Restore All Outlines**. This re-scans the folder and adds any outlines that aren't already in the sidebar (matched by id + name; duplicates and the guide are skipped). One click, instant, no rebuild, no screen motion. **Prefer this.**
+2. **Restart the app** — on boot it re-reads the whole folder, so a relaunch also surfaces the file. More disruptive (screen blinks, brief recompile). Use when a restart is warranted anyway.
+
+Practical rule: **after I write a new/updated `.idm` to the folder, proactively tell Howard to hit "Restore All Outlines"** (or offer to restart) — don't leave him hunting for a file the running app can't see. Editing an outline that's *already loaded and being actively edited in-app* is the separate dirty-flag case above.
+
 ---
 
 ## UI & Naming Conventions

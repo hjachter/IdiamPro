@@ -2766,34 +2766,22 @@ export default function ContentPane({
           <DropdownMenu>
             <Tooltip>
               <TooltipTrigger asChild>
-                <div className="flex shrink-0">
+                <DropdownMenuTrigger asChild>
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => handleGenerateContent()}
                     disabled={isGenerating || isLoadingAI || !aiContentEnabled}
-                    aria-label="AI"
-                    className="bg-gradient-to-b from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 shadow-blue-700/40 ring-1 ring-inset ring-blue-500/40 dark:from-blue-600 dark:to-blue-700 dark:hover:from-blue-500 dark:hover:to-blue-600 dark:shadow-blue-500/50 dark:ring-blue-300/70 text-white border-transparent shadow-sm font-semibold disabled:opacity-40 rounded-r-none px-2"
+                    aria-label="AI menu"
+                    className="shrink-0 bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white border-transparent shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 active:scale-95 min-h-[44px] touch-manipulation md:min-h-0 px-2"
                   >
                     {(isGenerating || isLoadingAI) ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <Loader2 className="h-4 w-4 text-white animate-spin" />
                     ) : (
-                      <Sparkles className="h-4 w-4" strokeWidth={2.5} />
+                      <Sparkles className="h-4 w-4 text-white" strokeWidth={2.5} />
                     )}
                     <span className={`ml-1.5 text-xs ${showEditorAiLabels ? 'inline' : 'hidden'}`}>AI</span>
                   </Button>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={isGenerating || isLoadingAI || !aiContentEnabled}
-                      aria-label="AI options"
-                      className="bg-gradient-to-b from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 shadow-blue-700/40 ring-1 ring-inset ring-blue-500/40 dark:from-blue-600 dark:to-blue-700 dark:hover:from-blue-500 dark:hover:to-blue-600 dark:shadow-blue-500/50 dark:ring-blue-300/70 text-white border-transparent border-l border-l-blue-300/50 shadow-sm disabled:opacity-40 rounded-l-none px-1"
-                    >
-                      <ChevronDown className="h-3 w-3" strokeWidth={2.5} />
-                    </Button>
-                  </DropdownMenuTrigger>
-                </div>
+                </DropdownMenuTrigger>
               </TooltipTrigger>
               <TooltipContent>
                 {generateSource === 'context'
@@ -2802,6 +2790,15 @@ export default function ContentPane({
               </TooltipContent>
             </Tooltip>
             <DropdownMenuContent align="start" className="w-56 max-h-[70vh] overflow-y-auto">
+              <DropdownMenuItem
+                onClick={() => handleGenerateContent()}
+                disabled={isGenerating || isLoadingAI || !aiContentEnabled}
+                className="font-medium"
+              >
+                <Sparkles className="mr-2 h-4 w-4" />
+                Generate content
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
               <DropdownMenuLabel className="text-xs text-muted-foreground">Source</DropdownMenuLabel>
               <DropdownMenuRadioGroup value={generateSource} onValueChange={(v) => setGenerateSource(v as GenerateSource)}>
                 <DropdownMenuRadioItem value="context">From context</DropdownMenuRadioItem>
