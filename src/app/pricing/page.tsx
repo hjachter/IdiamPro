@@ -243,7 +243,7 @@ export default function PricingPage() {
                   Unlimited AI, free forever.
                 </h3>
                 <p className="text-[#2b3a5c] text-lg font-medium leading-relaxed">
-                  Plug in your own Gemini or OpenAI key and use AI without limits — at zero cost to you.{' '}
+                  Plug in your own Google Gemini key — or use free on-device AI — and generate without limits, at zero cost to you.{' '}
                   <span className="text-[#0b1533] font-semibold">Your provider, your account — we never see your data.</span>
                 </p>
               </div>
@@ -320,7 +320,7 @@ export default function PricingPage() {
                 features={[
                   'Unlimited outlines',
                   'All core outliner features',
-                  'Bring your own AI key (Gemini, OpenAI, Anthropic, Mistral, Groq, or local Ollama)',
+                  'Bring your own AI key — Google Gemini for text, or free on-device AI via Ollama (OpenAI powers premium voices; Claude, Mistral, Groq & ElevenLabs coming soon)',
                   'Unlimited AI generations (your key, your cost)',
                   'All export formats',
                   'Multi-platform (Mac, iPhone, web)'

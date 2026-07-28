@@ -762,6 +762,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
     id: string; name: string; placeholder: string;
     free: boolean; recommended: boolean; keyUrl: string;
     cost: string; note?: string; steps: string[];
+    comingSoon?: boolean;
   }[] = [
     {
       id: 'gemini', name: 'Google Gemini', placeholder: 'AIza...',
@@ -780,7 +781,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
       id: 'openai', name: 'OpenAI', placeholder: 'sk-...',
       free: false, recommended: false,
       keyUrl: 'https://platform.openai.com/api-keys',
-      cost: 'Pay-as-you-go. ~$0.01-0.03 per 1K tokens. Required for podcast generation.',
+      cost: 'Powers premium podcast & video voices (not text generation). Pay-as-you-go on your own key.',
       steps: [
         'Click "Get Key" to open OpenAI\'s API keys page',
         'Sign in or create an account',
@@ -791,7 +792,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
     },
     {
       id: 'anthropic', name: 'Anthropic Claude', placeholder: 'sk-ant-...',
-      free: false, recommended: false,
+      free: false, recommended: false, comingSoon: true,
       keyUrl: 'https://console.anthropic.com/settings/keys',
       cost: 'Pay-as-you-go. ~$0.003-0.015 per 1K tokens. Best for long reasoning tasks.',
       steps: [
@@ -803,7 +804,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
     },
     {
       id: 'mistral', name: 'Mistral AI', placeholder: 'M...',
-      free: false, recommended: false,
+      free: false, recommended: false, comingSoon: true,
       keyUrl: 'https://console.mistral.ai/api-keys',
       cost: 'Pay-as-you-go. Competitive pricing. Strong multilingual support.',
       steps: [
@@ -815,7 +816,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
     },
     {
       id: 'groq', name: 'Groq', placeholder: 'gsk_...',
-      free: true, recommended: false,
+      free: true, recommended: false, comingSoon: true,
       keyUrl: 'https://console.groq.com/keys',
       cost: 'Free tier available. Extremely fast inference. No credit card required.',
       steps: [
@@ -2393,11 +2394,16 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
                           Recommended
                         </span>
                       )}
-                      {apiKeys[provider.id] && providerStatus[provider.id] === 'ok' && (
+                      {provider.comingSoon && (
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground font-medium">
+                          Coming soon
+                        </span>
+                      )}
+                      {!provider.comingSoon && apiKeys[provider.id] && providerStatus[provider.id] === 'ok' && (
                         <CheckCircle className="h-3 w-3 text-green-500" />
                       )}
                     </div>
-                    {!apiKeys[provider.id] && (
+                    {!provider.comingSoon && !apiKeys[provider.id] && (
                       <Button
                         variant="ghost"
                         size="sm"
@@ -2441,37 +2447,43 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
                     </div>
                   )}
 
-                  <div className="flex gap-1.5">
-                    <Input
-                      id={`apikey-input-${provider.id}`}
-                      type="password"
-                      value={apiKeys[provider.id] || ''}
-                      onChange={(e) => handleApiKeyChange(provider.id, e.target.value)}
-                      placeholder={provider.placeholder}
-                      className={`text-xs h-8 font-mono ${
-                        expandedGuide === provider.id && !apiKeys[provider.id]
-                          ? 'ring-2 ring-emerald-500/60 border-emerald-500/60'
-                          : ''
-                      }`}
-                    />
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="h-8 px-2 flex-shrink-0"
-                      disabled={!apiKeys[provider.id]?.trim() || testingProvider === provider.id}
-                      onClick={() => handleTestApiKey(provider.id)}
-                    >
-                      {testingProvider === provider.id ? (
-                        <Loader2 className="h-3 w-3 animate-spin" />
-                      ) : providerStatus[provider.id] === 'ok' ? (
-                        <CheckCircle className="h-3 w-3 text-green-500" />
-                      ) : providerStatus[provider.id] === 'error' ? (
-                        <XCircle className="h-3 w-3 text-red-500" />
-                      ) : (
-                        <span className="text-xs">Test</span>
-                      )}
-                    </Button>
-                  </div>
+                  {provider.comingSoon ? (
+                    <p className="text-[10px] text-muted-foreground italic">
+                      Support for {provider.name} is on the roadmap — you&apos;ll be able to add a key here soon.
+                    </p>
+                  ) : (
+                    <div className="flex gap-1.5">
+                      <Input
+                        id={`apikey-input-${provider.id}`}
+                        type="password"
+                        value={apiKeys[provider.id] || ''}
+                        onChange={(e) => handleApiKeyChange(provider.id, e.target.value)}
+                        placeholder={provider.placeholder}
+                        className={`text-xs h-8 font-mono ${
+                          expandedGuide === provider.id && !apiKeys[provider.id]
+                            ? 'ring-2 ring-emerald-500/60 border-emerald-500/60'
+                            : ''
+                        }`}
+                      />
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-8 px-2 flex-shrink-0"
+                        disabled={!apiKeys[provider.id]?.trim() || testingProvider === provider.id}
+                        onClick={() => handleTestApiKey(provider.id)}
+                      >
+                        {testingProvider === provider.id ? (
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                        ) : providerStatus[provider.id] === 'ok' ? (
+                          <CheckCircle className="h-3 w-3 text-green-500" />
+                        ) : providerStatus[provider.id] === 'error' ? (
+                          <XCircle className="h-3 w-3 text-red-500" />
+                        ) : (
+                          <span className="text-xs">Test</span>
+                        )}
+                      </Button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

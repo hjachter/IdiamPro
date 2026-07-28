@@ -123,7 +123,7 @@ export default function FaqPage() {
     },
     {
       question: 'What AI models do you use?',
-      answer: 'We integrate with Google Gemini, OpenAI GPT-4, and Anthropic Claude. You can choose your preferred model, or let the system auto-select based on the task. Premium tiers unlock access to the most powerful models like Claude Opus.'
+      answer: 'Today, AI text generation runs on Google Gemini in the cloud, or fully on-device via Ollama (Mac). Premium podcast and video voices use OpenAI, and every device also has free built-in voices. Support for more engines — Anthropic Claude, Mistral, Groq, and ElevenLabs voices — is coming soon.'
     },
     {
       question: 'Does it work offline?',

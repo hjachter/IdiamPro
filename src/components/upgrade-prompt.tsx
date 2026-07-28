@@ -87,7 +87,7 @@ const UpgradePromptContext = createContext<UpgradePromptContextValue | null>(
 const TIER_BENEFITS: Record<SubscriptionTierId, string[]> = {
   free: [
     'Unlimited outlines and editing',
-    'Bring your own AI key (Gemini, OpenAI, Anthropic, Mistral, Groq)',
+    'Bring your own AI key — Google Gemini (text) or OpenAI (premium voices); Claude, Mistral, Groq & ElevenLabs coming soon',
     'Local Ollama AI — on-device, free',
     'All core outliner features and export formats',
   ],
@@ -186,7 +186,7 @@ export function UpgradePromptProvider({
                   <Button
                     variant="outline"
                     className="border-emerald-500/40 text-emerald-700 hover:bg-emerald-500/10 dark:text-emerald-300"
-                    aria-label="Get unlimited AI free — plug in your own Gemini or OpenAI key. You pay your provider directly; IdeaM takes nothing."
+                    aria-label="Get unlimited AI text free — plug in your own Google Gemini key. You pay your provider directly; IdeaM takes nothing."
                     onClick={() => {
                       if (typeof window !== 'undefined') {
                         window.dispatchEvent(
@@ -201,7 +201,7 @@ export function UpgradePromptProvider({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent className="max-w-xs">
-                  Get unlimited AI free — plug in your own Gemini or OpenAI key.
+                  Get unlimited AI text free — plug in your own Google Gemini key.
                   You pay your provider directly; IdeaM takes nothing.
                 </TooltipContent>
               </Tooltip>
