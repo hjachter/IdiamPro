@@ -33,7 +33,8 @@
         "bdf5df8c-17a6-441b-ab3a-39ba989c1da0",
         "514a5f3e-fea3-4809-a9b3-6f25a40f5ff3",
         "11fa79a0-c4b1-4aaa-b752-db7be5ba0846",
-        "beta-feedback-form-feature-2026-06-10"
+        "beta-feedback-form-feature-2026-06-10",
+        "feature-outline-multiselect"
       ],
       "isCollapsed": false,
       "prefix": "",
@@ -1703,14 +1704,16 @@
       "name": "AI Data Consent",
       "content": "<p>Apple-compliant consent dialog shown before first AI feature use. Explains which third-party services process data (Google Gemini, OpenAI, AssemblyAI). Two-step decline flow warns about feature loss. Manageable in Settings → Data &amp; Privacy.</p>",
       "childrenIds": [],
-      "isExpanded": false
+      "isExpanded": false,
+      "prefix": ""
     },
     "feat-privacy-policy": {
       "id": "feat-privacy-policy",
       "name": "Privacy Policy Page",
       "content": "<p>Accessible at /privacy. Covers data storage (local only), third-party AI services, microphone access, children's privacy, and consent controls.</p>",
       "childrenIds": [],
-      "isExpanded": false
+      "isExpanded": false,
+      "prefix": ""
     },
     "e4352326-a5de-4e39-86c4-e4d95c4ba0ab": {
       "id": "e4352326-a5de-4e39-86c4-e4d95c4ba0ab",
@@ -1807,9 +1810,7 @@
       "id": "recent-additions-2026-06-04",
       "name": "Recently Added (2026-06-04)",
       "parentId": "0855ebbc-563f-40a1-a524-55b6b5c69833",
-      "childrenIds": [
-        "feat-multimedia-ai-2026-06-11"
-      ],
+      "childrenIds": [],
       "type": "chapter",
       "prefix": "1",
       "isCollapsed": false,
@@ -1821,7 +1822,8 @@
       "parentId": "0855ebbc-563f-40a1-a524-55b6b5c69833",
       "childrenIds": [],
       "type": "default",
-      "content": "Every new IdeaM user is gated through a manual-approval beta program: they apply at /signup, Howard reviews each application personally, and they get a friendly \"you're in\" email when approved.\n\nComponents:\n- /signup application form (name + email + optional reason)\n- Email notification to howard@2ndbrainware.com on every new application\n- /admin/applicants dashboard with Pending / Approved / Rejected sections, per-user notes, mailto, and CSV export\n- Auto-welcome email from howard@2ndbrainware.com when an applicant is approved (Reply-To: howard@2ndbrainware.com)\n- AppGate component wraps /app: signed-out -> /signup, signed-in-but-not-approved -> /waiting, approved -> app loads normally\n- Defense in depth: Clerk webhook also blocks unauthorized signups\n- Storage: extends src/lib/access/allowlist.ts to union the static INVITE_ALLOWLIST env var with a file-based applicant store (.idiampro/applicants.json)\n- Stub-safe: with no allowlist sources populated, dev mode lets everyone through\n\nFiles:\n- src/lib/access/applicant-store.ts, admin-guard.ts\n- src/emails/applicant-notification.ts, applicant-approved.ts\n- src/app/api/applicants/{apply,list,approve,reject,notes,me}/route.ts\n- src/app/admin/applicants/page.tsx\n- src/app/app/layout.tsx, src/components/app-gate.tsx\n- src/app/waiting/page.tsx"
+      "content": "Every new IdeaM user is gated through a manual-approval beta program: they apply at /signup, Howard reviews each application personally, and they get a friendly \"you're in\" email when approved.\n\nComponents:\n- /signup application form (name + email + optional reason)\n- Email notification to howard@2ndbrainware.com on every new application\n- /admin/applicants dashboard with Pending / Approved / Rejected sections, per-user notes, mailto, and CSV export\n- Auto-welcome email from howard@2ndbrainware.com when an applicant is approved (Reply-To: howard@2ndbrainware.com)\n- AppGate component wraps /app: signed-out -> /signup, signed-in-but-not-approved -> /waiting, approved -> app loads normally\n- Defense in depth: Clerk webhook also blocks unauthorized signups\n- Storage: extends src/lib/access/allowlist.ts to union the static INVITE_ALLOWLIST env var with a file-based applicant store (.idiampro/applicants.json)\n- Stub-safe: with no allowlist sources populated, dev mode lets everyone through\n\nFiles:\n- src/lib/access/applicant-store.ts, admin-guard.ts\n- src/emails/applicant-notification.ts, applicant-approved.ts\n- src/app/api/applicants/{apply,list,approve,reject,notes,me}/route.ts\n- src/app/admin/applicants/page.tsx\n- src/app/app/layout.tsx, src/components/app-gate.tsx\n- src/app/waiting/page.tsx",
+      "prefix": ""
     },
     "beta-feedback-form-feature-2026-06-10": {
       "id": "beta-feedback-form-feature-2026-06-10",
@@ -1829,7 +1831,8 @@
       "content": "<p>Beta users can fill out a structured feedback form at <code>/feedback</code> and earn a year of Pro features at no charge (BYOK for AI). The form covers NPS + overall stars, a row per killer feature, open-ended best/wish prompts, workflow context, optional testimonial consent with attribution + photo + 30-second video upload, a friction question, and a follow-up-OK checkbox. Submission unlocks the grant immediately, emails Howard a structured summary, and (for video testimonials) flips a Founding User badge inside the app. A daily Vercel cron sends a one-shot reminder ~14 days after beta approval. Admin dashboard at <code>/admin/feedback</code>.</p>",
       "type": "document",
       "parentId": "0855ebbc-563f-40a1-a524-55b6b5c69833",
-      "childrenIds": []
+      "childrenIds": [],
+      "prefix": ""
     },
     "bddb3ca6-d072-4d0e-9159-a2e934e674f8": {
       "id": "bddb3ca6-d072-4d0e-9159-a2e934e674f8",
@@ -1840,7 +1843,8 @@
       "childrenIds": [],
       "isCollapsed": true,
       "createdAt": 1781154318804,
-      "updatedAt": 1781154318804
+      "updatedAt": 1781154318804,
+      "prefix": ""
     },
     "6b4e0120-b159-42cc-bd73-a47712ac25b9": {
       "id": "6b4e0120-b159-42cc-bd73-a47712ac25b9",
@@ -1851,7 +1855,8 @@
       "childrenIds": [],
       "isCollapsed": true,
       "createdAt": 1781154318806,
-      "updatedAt": 1781154318806
+      "updatedAt": 1781154318806,
+      "prefix": ""
     },
     "265e5984-3cf0-4a3f-93ca-402da0b6c26c": {
       "id": "265e5984-3cf0-4a3f-93ca-402da0b6c26c",
@@ -1862,7 +1867,8 @@
       "childrenIds": [],
       "isCollapsed": true,
       "createdAt": 1781154318808,
-      "updatedAt": 1781154318808
+      "updatedAt": 1781154318808,
+      "prefix": ""
     },
     "feature-backup-restore-2026-06-10": {
       "id": "feature-backup-restore-2026-06-10",
@@ -1870,7 +1876,8 @@
       "content": "<p><strong>Backup &amp; Restore (shipped 2026-06-10)</strong></p><p>Explicit, on-demand outline snapshots written to disk, plus auto-snapshots taken before AI transforms and before Restore. The second protective layer in the outline-data-protection model (the first is unified Cmd+Z).</p><p><strong>How users invoke it:</strong></p><ul><li>Shield icon in the outline toolbar opens a Backup / Restore dialog.</li><li>Backup tab takes an optional 30-character label, then &quot;Back up now&quot; writes a complete snapshot to disk.</li><li>Restore tab lists every snapshot for the current outline newest-first. Preview, Restore, and Delete are one click each.</li><li>Settings &gt; Outline backups has two toggles (auto-before-transform, auto-before-restore, both default ON) plus a Show backups folder button.</li></ul><p><strong>Automatic protection (always on, opt-out in Settings):</strong></p><ul><li>Before every AI transform (Reformat, Translate, Transform Outline, Refresh from Web), an auto-snapshot labeled &quot;auto: before [transform name]&quot; is written at apply-time. Cancelled transforms don&apos;t snapshot.</li><li>Before every Restore, the current state is auto-saved as &quot;auto: before restore&quot; so the user can roll back.</li></ul><p><strong>Storage:</strong> [outlines folder] / .backups / [safe-outline-name] / [YYYY-MM-DD-HHmmss]-[label].idm. Each snapshot is a complete .idm JSON dump.</p><p><strong>Retention:</strong> 20 newest snapshots per outline. The 21st snapshot deletes the oldest automatically. Older snapshots cannot grow unbounded.</p><p><strong>Recovery scope:</strong> Snapshots survive app crashes, undo-stack overflow, and any in-memory state loss. They are independent of the user correctly dismissing confirmation dialogs.</p><p><strong>Platform support:</strong> Desktop (Electron) only. Web shows the toolbar button and dialog but writes are deferred until the desktop build is launched.</p>",
       "type": "document",
       "parentId": "30580a22-8cfe-4f58-856e-e373854e517a",
-      "childrenIds": []
+      "childrenIds": [],
+      "prefix": ""
     },
     "feature-derivative-outlines-2026-06-10": {
       "id": "feature-derivative-outlines-2026-06-10",
@@ -1878,22 +1885,23 @@
       "content": "<p><strong>Derivative outlines (shipped 2026-06-10)</strong></p><p>The third protective layer in the outline-data-protection model. When an AI transform rewrites an outline, the SAFER default is to save the result as a NEW outline rather than overwrite the original. The user can opt in to in-place modification.</p><p><strong>Where users see it:</strong></p><ul><li>Every transform dialog (Transform Outline with AI, Reformat with AI, Refresh from Web, Translate) now shows a &quot;What should we do with the result?&quot; radio group at the bottom.</li><li>Two options: <strong>Save as new outline (recommended)</strong> and <strong>Replace this outline</strong>. Both are always visible — the dialog never auto-decides.</li><li>An editable label field appears below the radio when &quot;Save as new outline&quot; is selected. It auto-populates from the user&apos;s prompt (e.g. &quot;rewrite for middle schoolers&quot; → &quot;Middle Schoolers Version&quot;).</li><li>The new outline is named &quot;[Original Name] — [Label]&quot; (e.g. &quot;Professional Cold Fusion — Middle School Version&quot;).</li></ul><p><strong>Default per transform:</strong></p><ul><li>Transform Outline → derivative</li><li>Reformat (whole node) → derivative; selection-scope reformat is always in-place (partial-selection derivative would be incoherent)</li><li>Refresh from Web → derivative</li><li>Translate → in-place (the user already chose a target language and expects replacement); derivative is offered as opt-in</li></ul><p><strong>Sidebar nesting:</strong> Derivatives appear nested under their parent outline, similar to cross-outline-link nesting. The icon is a small purple fork badge instead of the regular outline icon. The chevron on the parent expands/collapses its derivatives. Multi-level derivation is supported (derivative-of-derivative renders as grandchild).</p><p><strong>If parent is deleted:</strong> Derivatives orphan gracefully — they remain in the library at top-level with a muted &quot;(orphan derivative)&quot; hint. The user does not lose them.</p><p><strong>&quot;Derived from&quot; banner:</strong> When the loaded outline is a derivative, a small chip near the top reads &quot;Derived from [Parent name]&quot; with an &quot;Open original&quot; button that switches back. Subtle styling — doesn&apos;t dominate the layout.</p><p><strong>Data model:</strong> Two new optional fields on the Outline interface: <code>derivedFromOutlineId</code> (parent ID) and <code>derivationLabel</code> (short hint). Both backward-compatible — outlines saved before this feature load unchanged.</p><p><strong>Original is never touched:</strong> In derivative mode, the original outline is COMPLETELY untouched — never written to disk during the flow. In in-place mode, the auto-snapshot from Backup &amp; Restore still fires before the change AND Cmd+Z still undoes it.</p>",
       "type": "document",
       "parentId": "30580a22-8cfe-4f58-856e-e373854e517a",
-      "childrenIds": []
-    },
-    "feat-multimedia-ai-2026-06-11": {
-      "id": "feat-multimedia-ai-2026-06-11",
-      "name": "Multimedia AI: Capture from image + YouTube package (2026-06-11)",
-      "content": "<p><strong>Capture from image.</strong> Smart Tools menu > 'Capture from image'. Pick or capture an image (whiteboard photo, mind map, sticky-note board, slide screenshot). Gemini extracts a hierarchical outline structure. Three-panel preview lets the user edit names inline, then 'Add N nodes' appends them as children of the selected node. Auto-snapshot + Cmd+Z + 'Save as new outline' option for full data protection. iOS/Android: an additional 'Take photo' button opens the device camera.</p><p><strong>Share as YouTube package.</strong> Toolbar Export menu > 'Share as YouTube package'. Pick duration (60s / 90s / 2min / 5min), style (Tutorial / Explainer / Promo / Story), and audience hint. Generates 8 outputs at once in editable tabs: voiceover script, chapter list, description, 5 title variants, SEO tags, thumbnail concept, B-roll prompts, and a screen-recording shot list. Export as markdown or save as a new derivative outline.</p><p><strong>One generation each</strong> — both count as ONE generation against the monthly cap, regardless of how many nodes or output sections are produced. BYOK bypasses the cap.</p>",
-      "type": "document",
-      "parentId": "recent-additions-2026-06-04",
       "childrenIds": [],
-      "isCollapsed": false,
       "prefix": ""
+    },
+    "feature-outline-multiselect": {
+      "id": "feature-outline-multiselect",
+      "parentId": "0855ebbc-563f-40a1-a524-55b6b5c69833",
+      "childrenIds": [],
+      "type": "document",
+      "isCollapsed": false,
+      "prefix": "",
+      "name": "Sidebar multi-select + recoverable delete",
+      "content": "<p><strong>Sidebar multi-select + recoverable delete (2026-07-25).</strong> Select several outlines and act on them at once.</p><ul><li><strong>Mac:</strong> Shift-click a contiguous range (inclusive of the anchor), ⌘-click to add/remove individual outlines, Delete key or right-click → Delete, Escape to clear.</li><li><strong>iPad / iPhone:</strong> long-press to enter Select mode, tap to add/remove, then Delete — the same power via touch.</li><li><strong>Always confirms</strong> a bulk delete (“Delete N outlines?”), and deletion is <strong>recoverable</strong> — outlines move to the system Trash, not hard-deleted.</li></ul>"
     }
   },
-  "lastModified": 1718049600000,
+  "lastModified": 1783730180343,
   "isGuide": false,
-  "_fileSize": 67531,
+  "_fileSize": 92406,
   "_fileName": "IdeaM -- Current Features.idm",
   "_isLazyLoaded": false
 }
