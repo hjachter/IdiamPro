@@ -228,7 +228,7 @@ export default function PricingPage() {
                 </p>
               </div>
 
-              {/* Bring your own key — unlimited, free */}
+              {/* Bring your own key — app free forever, AI on your own key */}
               <div className="relative group flex flex-col p-8 rounded-3xl bg-gradient-to-br from-blue-600/20 via-blue-600/10 to-blue-600/20 border border-blue-600/40 shadow-xl shadow-blue-600/10 hover:border-blue-600/60 transition-all duration-300">
                 <div className="flex items-center justify-between mb-5">
                   <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-lg shadow-blue-600/30">
@@ -246,16 +246,16 @@ export default function PricingPage() {
                   <span className="text-[#64748b] text-sm">forever</span>
                 </div>
                 <p className="text-[#475569] text-sm italic leading-relaxed mb-2">
-                  This is for the independent thinker who wants a serious tool to capture and grow ideas — and wants it genuinely free: bring your own AI key or run it free on your Mac, use it without limits, and keep everything private and yours.
+                  This is for the independent thinker who wants a serious tool to capture and grow ideas — and wants the app itself genuinely free: bring your own AI key or run free on-device AI on your Mac, pay your provider directly for anything heavier (never us), and keep everything private and yours.
                 </p>
                 <p className="text-sm font-bold text-blue-600 mb-4 leading-snug">
                   Think freely, own everything. <span className="text-[#0b1533]">IdeaM helps you do that.</span>
                 </p>
                 <h3 className="text-2xl font-bold text-[#0b1533] mb-3 leading-tight">
-                  Unlimited AI, free forever.
+                  Free forever — AI on your own key.
                 </h3>
                 <p className="text-[#2b3a5c] text-lg font-medium leading-relaxed">
-                  Plug in your own Google Gemini key — or use free on-device AI — and generate without limits, at zero cost to you.{' '}
+                  Plug in your own Google Gemini key — everyday use is typically free — or run free on-device AI on your Mac. You pay your provider directly, pay-as-you-go, so you&apos;re always in control of anything heavier — never a surprise from us.{' '}
                   <span className="text-[#0b1533] font-semibold">Your provider, your account — we never see your data.</span>
                 </p>
               </div>
@@ -306,6 +306,83 @@ export default function PricingPage() {
           </div>
         </section>
 
+        {/* When should you move up? — helps a prospect see when the next tier
+            earns its keep. Reuses the page's mono eyebrow, #0b1533 heading,
+            #f7faff cards, #dde5f2 borders, gradient icon tiles, and the
+            lg:grid-cols pattern used elsewhere on the page. */}
+        <section className="px-6 pt-4 pb-16 lg:px-12">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-14">
+              <div className="text-sm font-mono font-semibold text-[#1e40af] uppercase tracking-wider mb-2">
+                Grow into it
+              </div>
+              <h2 className="text-3xl lg:text-5xl font-bold mb-4">
+                <span className="bg-gradient-to-r from-[#0b1533] to-[#0b1533] bg-clip-text text-transparent">
+                  When should you{' '}
+                </span>
+                <span className="bg-gradient-to-r from-blue-600 to-blue-600 bg-clip-text text-transparent">
+                  move up?
+                </span>
+              </h2>
+              <p className="text-[#2b3a5c] text-lg md:text-xl font-medium max-w-2xl mx-auto mt-4">
+                Every plan is genuinely useful on its own. Here&apos;s when the next one earns its keep.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Choose BYOK */}
+              <div className="relative flex flex-col p-8 rounded-3xl bg-[#f7faff] border border-[#dde5f2] hover:border-blue-600/40 transition-all duration-300">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-lg shadow-blue-600/30 mb-5">
+                  <Zap className="w-7 h-7 text-white" />
+                </div>
+                <p className="text-[#2b3a5c] text-lg font-medium leading-relaxed">
+                  <span className="text-[#0b1533] font-semibold">Choose BYOK when you want the most power and privacy for free</span> — everyday use is typically free, you stay in full control of anything heavier (you pay your provider directly, pay-as-you-go), and you can plug in a top-tier model like Claude or GPT for publication-grade writing. Best writing, on your terms.
+                </p>
+              </div>
+
+              {/* Student → Pro */}
+              <div className="relative flex flex-col p-8 rounded-3xl bg-[#f7faff] border border-[#dde5f2] hover:border-blue-600/40 transition-all duration-300">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-lg shadow-blue-600/30 mb-5">
+                  <GraduationCap className="w-7 h-7 text-white" />
+                </div>
+                <p className="text-[#2b3a5c] text-lg font-medium leading-relaxed">
+                  <span className="text-[#0b1533] font-semibold">Go Student → Pro when your work turns professional</span> — Pro drops the .edu requirement, adds studio-quality podcasts and videos, more room to produce at scale, and output you can put your name behind. Broadcast the knowledge you built in school.
+                </p>
+              </div>
+
+              {/* Add Pro on BYOK */}
+              <div className="relative flex flex-col p-8 rounded-3xl bg-[#f7faff] border border-[#dde5f2] hover:border-blue-600/40 transition-all duration-300">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-lg shadow-blue-600/30 mb-5">
+                  <Video className="w-7 h-7 text-white" />
+                </div>
+                <p className="text-[#2b3a5c] text-lg font-medium leading-relaxed">
+                  <span className="text-[#0b1533] font-semibold">Add Pro (even on BYOK) when you want the media</span> — BYOK gives you AI text on your own key; Pro is how you get studio-quality podcasts and videos, plus AI with zero setup. Come for the text, upgrade for the media.
+                </p>
+              </div>
+
+              {/* Own it */}
+              <div className="relative flex flex-col p-8 rounded-3xl bg-[#f7faff] border border-[#dde5f2] hover:border-blue-600/40 transition-all duration-300">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-lg shadow-blue-600/30 mb-5">
+                  <Lock className="w-7 h-7 text-white" />
+                </div>
+                <p className="text-[#2b3a5c] text-lg font-medium leading-relaxed">
+                  <span className="text-[#0b1533] font-semibold">Own it when you&apos;d rather buy than rent</span> — one payment, full power on your own device, forever, no monthly bill.
+                </p>
+              </div>
+            </div>
+
+            {/* Closing line — visually emphasized */}
+            <div className="mt-6 flex justify-center">
+              <div className="inline-flex items-center gap-3 rounded-2xl border border-blue-600/30 bg-gradient-to-r from-blue-600/10 to-blue-600/10 px-6 py-4 text-center">
+                <Check className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                <p className="text-[#0b1533] text-base sm:text-lg font-semibold">
+                  BYOK for the best writing. Pro for the best media. Together, everything IdeaM does — at its best.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Pricing */}
         <section id="pricing" className="px-6 py-24 lg:px-12">
           <div className="max-w-7xl mx-auto">
@@ -322,8 +399,8 @@ export default function PricingPage() {
               <div className="mt-6 flex justify-center">
                 <div className="inline-flex items-center gap-2 rounded-full border border-blue-600/30 bg-gradient-to-r from-blue-600/10 to-blue-600/10 px-5 py-2.5 text-sm font-medium text-[#0b1533]">
                   <Check className="w-4 h-4 text-blue-600 flex-shrink-0" />
-                  Bring your own AI key and get unlimited AI, free forever — you
-                  pay your provider directly, we take nothing.
+                  Bring your own AI key — the app is free forever, and you pay
+                  your provider directly, pay-as-you-go. We take nothing.
                 </div>
               </div>
             </div>
@@ -334,12 +411,12 @@ export default function PricingPage() {
                 price="$0"
                 highlighted={true}
                 badge="Free forever"
-                description="Unlimited AI, free forever — bring your own key. You pay your provider directly; we take nothing."
+                description="Free forever — AI on your own key. You pay your provider directly, pay-as-you-go; we take nothing."
                 features={[
                   'Unlimited outlines',
                   'All core outliner features',
                   'Bring your own AI key — Google Gemini for text, or free on-device AI via Ollama (OpenAI powers premium voices; Claude, Mistral, Groq & ElevenLabs coming soon)',
-                  'Unlimited AI generations (your key, your cost)',
+                  'AI on your own key — everyday use typically free, pay your provider directly for anything heavier',
                   'All export formats',
                   'Multi-platform (Mac, iPhone, web)'
                 ]}
@@ -470,7 +547,7 @@ export default function PricingPage() {
                     What does bringing your own key cost?
                   </h3>
                   <p className="text-[#2b3a5c] text-lg font-medium leading-relaxed">
-                    <span className="text-[#0b1533] font-semibold">Basically nothing.</span> The key we recommend — Google Gemini — has a free tier that covers everyday use for most people at no cost, no credit card. Even heavy users typically spend just a few dollars a month. And on a Mac, on-device AI is free forever, no key at all. You pay your provider directly — <span className="text-[#0b1533] font-semibold">never us</span> — and for most people, that&apos;s zero.
+                    <span className="text-[#0b1533] font-semibold">Everyday use is typically free</span> — Google Gemini&apos;s free tier covers normal use at no cost, no credit card. And because it&apos;s your key, you&apos;re always in control: you pay your provider directly, pay-as-you-go, so a light user pays nothing and you only ever pay for what you choose to run. A big job on a premium model costs more — but it&apos;s <span className="text-[#0b1533] font-semibold">your call, fully visible to you, and never a surprise from us</span>. On a Mac, on-device AI is free forever, no key at all.
                   </p>
                 </div>
               </div>
