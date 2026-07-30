@@ -279,9 +279,18 @@ async function buildPdfContent(
   else if (depth === 3) style = 'h4';
   else style = 'h5';
 
-  // Add heading
+  // Add heading. `tocItem: true` registers this heading in the clickable
+  // Table of Contents; `tocMargin` indents deeper headings in the TOC so the
+  // outline hierarchy is visible. `tocStyle` keeps TOC entries readable.
   const headingText = node.prefix ? `${node.prefix} ${node.name}` : node.name;
-  content.push({ text: headingText, style, margin: [0, depth === 0 ? 0 : 12, 0, 6] });
+  content.push({
+    text: headingText,
+    style,
+    tocItem: true,
+    tocMargin: [Math.min(depth, 5) * 12, 0, 0, 0],
+    tocStyle: { fontSize: 11, bold: depth <= 1 },
+    margin: [0, depth === 0 ? 0 : 12, 0, 6],
+  });
 
   // Add content
   if (node.content && node.content.trim()) {
@@ -504,6 +513,48 @@ ${bodyContent}
 }
 
 /**
+ * Assemble the pdfMake document definition: a cover title, a clickable
+ * Table of Contents built from the heading nodes (each heading is marked
+ * `tocItem: true` in buildPdfContent), then the full body content.
+ *
+ * NOTE (follow-up): index + rich book-grade layout (alphabetical index,
+ * tables/diagram pagination, running headers) = follow-up iteration. This
+ * pass is TOC + auto-open only.
+ */
+function buildDocDefinition(nodes: NodeMap, rootId: string, content: any[]): any {
+  const rootNode = nodes[rootId];
+  const title = rootNode?.name?.trim() || 'Outline';
+
+  return {
+    content: [
+      { text: title, style: 'docTitle', margin: [0, 0, 0, 24] },
+      {
+        toc: {
+          title: { text: 'Table of Contents', style: 'tocTitle', margin: [0, 0, 0, 12] },
+        },
+      },
+      { text: '', pageBreak: 'after' },
+      ...content,
+    ],
+    styles: {
+      docTitle: { fontSize: 28, bold: true },
+      tocTitle: { fontSize: 18, bold: true },
+      h1: { fontSize: 22, bold: true, margin: [0, 0, 0, 10] },
+      h2: { fontSize: 18, bold: true, margin: [0, 16, 0, 8] },
+      h3: { fontSize: 14, bold: true, margin: [0, 12, 0, 6] },
+      h4: { fontSize: 12, bold: true, margin: [0, 10, 0, 4] },
+      h5: { fontSize: 11, bold: true, margin: [0, 8, 0, 4] },
+    },
+    defaultStyle: {
+      fontSize: 11,
+      lineHeight: 1.4,
+    },
+    pageSize: 'A4',
+    pageMargins: [40, 40, 40, 40],
+  };
+}
+
+/**
  * Generate and download a PDF from a subtree
  */
 export async function exportSubtreeToPdf(
@@ -526,22 +577,7 @@ export async function exportSubtreeToPdf(
     throw new Error('No content generated for PDF export');
   }
 
-  const docDefinition: any = {
-    content,
-    styles: {
-      h1: { fontSize: 22, bold: true, margin: [0, 0, 0, 10] },
-      h2: { fontSize: 18, bold: true, margin: [0, 16, 0, 8] },
-      h3: { fontSize: 14, bold: true, margin: [0, 12, 0, 6] },
-      h4: { fontSize: 12, bold: true, margin: [0, 10, 0, 4] },
-      h5: { fontSize: 11, bold: true, margin: [0, 8, 0, 4] },
-    },
-    defaultStyle: {
-      fontSize: 11,
-      lineHeight: 1.4,
-    },
-    pageSize: 'A4',
-    pageMargins: [40, 40, 40, 40],
-  };
+  const docDefinition: any = buildDocDefinition(nodes, rootId, content);
 
   const pdfName = filename.endsWith('.pdf') ? filename : `${filename}.pdf`;
 
@@ -585,7 +621,10 @@ export async function exportSubtreeToPdf(
       pdfMake.createPdf(docDefinition).download(pdfName);
     }
   } else {
-    // Electron: use native print-to-PDF (handles large documents well)
+    // Electron: generate the PDF with pdfMake (so it includes the clickable
+    // Table of Contents), save it to disk, then open it in the OS default
+    // viewer (Preview on macOS) so the user SEES the finished book instead of
+    // having to hunt for it. Reuses the existing write-file + open-file IPCs.
     if (isElectron) {
       const electronAPI = (window as any).electronAPI;
       const filePath = await electronAPI.saveFileDialog({
@@ -600,22 +639,25 @@ export async function exportSubtreeToPdf(
       }
 
       try {
-        console.log('Generating HTML for native print-to-PDF...');
+        // Render the pdfMake document to a blob, then to base64 for IPC.
+        const blob = await new Promise<Blob>((resolve) => {
+          pdfMake.createPdf(docDefinition).getBlob((b: Blob) => resolve(b));
+        });
+        const arrayBuffer = await blob.arrayBuffer();
+        const base64 = btoa(
+          new Uint8Array(arrayBuffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
+        );
 
-        // Build HTML content
-        const htmlContent = await generatePrintHtml(nodes, rootId);
-        console.log('HTML generated, length:', htmlContent.length);
-
-        // Use Electron's native print-to-PDF
-        console.log('Calling printToPdf...');
-        const result = await electronAPI.printToPdf(htmlContent, filePath);
-
-        if (!result.success) {
-          console.error('printToPdf failed:', result.error);
-          alert('Failed to generate PDF: ' + result.error);
+        // Write the PDF to disk via the existing write-file IPC.
+        const writeResult = await electronAPI.writeFile(filePath, base64, 'base64');
+        if (writeResult && writeResult.success === false) {
+          console.error('Failed to write PDF:', writeResult.error);
+          alert('Failed to save PDF: ' + writeResult.error);
           return;
         }
 
+        // Open the finished PDF in the OS default viewer (Preview on macOS).
+        await electronAPI.openFile(filePath);
         console.log('PDF saved and opened successfully');
       } catch (err: any) {
         console.error('PDF generation failed:', err);
@@ -639,22 +681,7 @@ export async function shareSubtreePdf(
 ): Promise<void> {
   const content = await buildPdfContent(nodes, rootId);
 
-  const docDefinition: any = {
-    content,
-    styles: {
-      h1: { fontSize: 22, bold: true, margin: [0, 0, 0, 10] },
-      h2: { fontSize: 18, bold: true, margin: [0, 16, 0, 8] },
-      h3: { fontSize: 14, bold: true, margin: [0, 12, 0, 6] },
-      h4: { fontSize: 12, bold: true, margin: [0, 10, 0, 4] },
-      h5: { fontSize: 11, bold: true, margin: [0, 8, 0, 4] },
-    },
-    defaultStyle: {
-      fontSize: 11,
-      lineHeight: 1.4,
-    },
-    pageSize: 'A4',
-    pageMargins: [40, 40, 40, 40],
-  };
+  const docDefinition: any = buildDocDefinition(nodes, rootId, content);
 
   const pdfName = filename.endsWith('.pdf') ? filename : `${filename}.pdf`;
 

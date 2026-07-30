@@ -1927,47 +1927,37 @@ Generate the product architecture outline:`;
 
   } else {
     // SYNTHESIZE (default): Deep merge into unified outline
-    organizationPrompt = `You are organizing facts from MULTIPLE SOURCES into ONE UNIFIED OUTLINE.
-
-IMPORTANT: These facts come from different sources about the SAME TOPIC. Your job is to MERGE them into a single coherent outline - NOT to create separate sections for each source!
+    // Tight, directive "weave like a researcher" prompt. A long, rule-heavy
+    // prompt made the local model stall and stop early on longer merges,
+    // silently dropping later facts. This concise version + a generous output
+    // budget (below) lets long merges run to completion. The four directives
+    // are mirrored by tests/merge-content-test.js so the test guards live behavior.
+    organizationPrompt = `You are a researcher weaving facts from MULTIPLE SOURCES into ONE unified, coherent outline — the way a good researcher integrates several references into a single paper.
 
 FACTS TO ORGANIZE (${bulletCount} total):
 ${bulletList}
 
-CHAPTER COUNT GUIDANCE:
 ${chapterGuidance}
-Create as many chapters as needed to cover DISTINCT topics - but NEVER create duplicate or overlapping chapters.
 
-CRITICAL RULES - NO DUPLICATES:
-1. Each theme appears ONCE - merge all facts about that theme into ONE chapter
-2. Facts from different sources about the same topic go in the SAME chapter
-3. NEVER create "Introduction from Source 1" and "Introduction from Source 2" - just ONE "Introduction"
-4. If two chapter titles could be merged (e.g., "Features" and "Capabilities"), MERGE THEM
-
-THINK OF IT THIS WAY:
-- You're writing a Wikipedia article, not a collection of summaries
-- A reader should NOT be able to tell how many sources were used
-- Redundant information from different sources should be MERGED, not repeated
+DO THIS:
+- Synthesize ALL of these facts into ONE integrated outline about the topic — not a collection of per-source summaries.
+- INTEGRATE overlapping ideas into a single entry. If two facts say the same thing, state it ONCE — never duplicate it as two entries.
+- Do NOT organize the outline by source. Never label any section by which document it came from ("Source A", "Document 2", "From the first source"). A reader must not be able to tell how many sources were used.
+- PRESERVE EVERY FACT from every source. Merging removes duplication, never information — if only one source states something, KEEP it. Drop nothing.
 ${formatEmphasis}
 OUTPUT FORMAT:
-- Chapter Title: Synthesized overview combining facts from ALL sources.
-  - Subtopic: Merged content from multiple sources as coherent prose.
+- Chapter Title: Synthesized content woven from all sources.
+  - Subtopic: Merged content as coherent prose.
   - Another Subtopic: More synthesized content.
 
-ABSOLUTE RULES:
-- Each chapter covers a DISTINCT theme (no overlap!)
-- Each chapter has 2+ subtopics
-- NO source attribution or references
-- Write flowing prose, not bullet lists
-
-BEFORE OUTPUTTING: Review your chapter titles. If ANY two could be merged, MERGE THEM.
-
-Generate the unified outline:`;
+Write the single unified outline now:`;
   }
 
   // Ollama generation for organization
-  // Use higher token limit for book-length content
-  const ollamaMaxTokens = bulletCount > 100 ? 8000 : 4000;
+  // Generous output budget so the deep-merge synthesis runs to completion and
+  // never stops early / truncates and drops later facts on longer merges.
+  // (Early truncation was the real cause of lost content in long merges.)
+  const ollamaMaxTokens = bulletCount > 100 ? 12000 : 8000;
   const generateOrgWithOllama = async () => {
     const ollamaResult = await generateWithOllama({
       prompt: organizationPrompt,
