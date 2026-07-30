@@ -361,6 +361,84 @@ export default function PricingPage() {
               All plans include a 14-day free trial. Cancel anytime.
             </p>
 
+            {/* The IdeaM promise — trust/reassurance section reinforcing the free-vs-paid decision.
+                Mirrors the page's existing tokens: mono eyebrow, #0b1533 heading, #f7faff cards,
+                #dde5f2 borders, gradient icon tiles, and the lg:grid-cols-3 layout used above. */}
+            <div className="mt-20">
+              <div className="text-center mb-14">
+                <div className="text-sm font-mono font-semibold text-[#1e40af] uppercase tracking-wider mb-2">
+                  The IdeaM promise
+                </div>
+                <h2 className="text-3xl lg:text-5xl font-bold mb-4">
+                  <span className="bg-gradient-to-r from-[#0b1533] to-[#0b1533] bg-clip-text text-transparent">
+                    Free forever —{' '}
+                  </span>
+                  <span className="bg-gradient-to-r from-blue-600 to-blue-600 bg-clip-text text-transparent">
+                    and we can actually mean it.
+                  </span>
+                </h2>
+                <p className="text-[#2b3a5c] text-lg md:text-xl font-medium max-w-2xl mx-auto mt-4">
+                  Most &ldquo;free&rdquo; AI apps quietly run up costs behind the scenes, then squeeze you.
+                  IdeaM is built the opposite way — on purpose.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* The free plan stays free */}
+                <div className="relative flex flex-col p-8 rounded-3xl bg-[#f7faff] border border-[#dde5f2] hover:border-blue-600/40 transition-all duration-300">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-lg shadow-blue-600/30 mb-5">
+                    <Shield className="w-7 h-7 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-[#0b1533] mb-3 leading-tight">
+                    The free plan stays free
+                  </h3>
+                  <p className="text-[#2b3a5c] text-lg font-medium leading-relaxed">
+                    Unlimited outlines, every export format, and private on-device AI: the everyday power,
+                    free, with <span className="text-[#0b1533] font-semibold">no expiry and no asterisk</span>.
+                  </p>
+                </div>
+
+                {/* It runs on your terms */}
+                <div className="relative flex flex-col p-8 rounded-3xl bg-[#f7faff] border border-[#dde5f2] hover:border-blue-600/40 transition-all duration-300">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-lg shadow-blue-600/30 mb-5">
+                    <Lock className="w-7 h-7 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-[#0b1533] mb-3 leading-tight">
+                    It runs on your terms
+                  </h3>
+                  <p className="text-[#2b3a5c] text-lg font-medium leading-relaxed">
+                    Your outlines live on your device. Want AI? Bring your own key or run it entirely on
+                    your own machine — so keeping you free costs us next to nothing, and{' '}
+                    <span className="text-[#0b1533] font-semibold">we never have to take it away</span>.
+                  </p>
+                </div>
+
+                {/* You only pay for the extras */}
+                <div className="relative flex flex-col p-8 rounded-3xl bg-[#f7faff] border border-[#dde5f2] hover:border-blue-600/40 transition-all duration-300">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-lg shadow-blue-600/30 mb-5">
+                    <Sparkles className="w-7 h-7 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-[#0b1533] mb-3 leading-tight">
+                    You only pay for the extras
+                  </h3>
+                  <p className="text-[#2b3a5c] text-lg font-medium leading-relaxed">
+                    Studio-quality podcast &amp; video voices, and AI with zero setup. Opt in if they&apos;re
+                    worth it; <span className="text-[#0b1533] font-semibold">skip them and keep everything else, for good</span>.
+                  </p>
+                </div>
+              </div>
+
+              {/* Closing line — visually emphasized */}
+              <div className="mt-6 flex justify-center">
+                <div className="inline-flex items-center gap-3 rounded-2xl border border-blue-600/30 bg-gradient-to-r from-blue-600/10 to-blue-600/10 px-6 py-4 text-center">
+                  <Check className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                  <p className="text-[#0b1533] text-base sm:text-lg font-semibold">
+                    No bait-and-switch. No surprise bills. Your work stays on your device — and yours.
+                  </p>
+                </div>
+              </div>
+            </div>
+
             {/* Comparison grid — 4-option split */}
             <div className="mt-20">
               <h3 className="text-center text-2xl lg:text-3xl font-bold mb-2">
