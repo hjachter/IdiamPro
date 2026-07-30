@@ -57,6 +57,13 @@ const MANIFEST = [
   { file: 'tests/voice-test.js', tier: 'nondeterministic', repeats: REPEATS_AI, note: 'Your Voice generation.' },
   { file: 'tests/share-to-x-test.js', tier: 'nondeterministic', repeats: REPEATS_AI, note: 'X/Twitter post generation (≤280).' },
   { file: 'tests/email-import-test.js', tier: 'nondeterministic', repeats: REPEATS_AI, note: 'Inbound extraction / junk quarantined-not-deleted.' },
+  {
+    file: 'tests/merge-content-test.js',
+    tier: 'nondeterministic',
+    repeats: 1, // self-repeats 5× internally via lib/ai-invariants.repeat
+    selfRepeats: true,
+    note: 'Research & Import MERGE preserves the collective knowledge of BOTH source outlines — neither unique fact dropped; asserted 5× internally.',
+  },
   { file: 'tests/reformat-with-ai-test.js', tier: 'nondeterministic', repeats: REPEATS_AI, note: 'AI reformat.' },
 
   // ── DETERMINISTIC — routing / rendering / structure, run ONCE ─────────────

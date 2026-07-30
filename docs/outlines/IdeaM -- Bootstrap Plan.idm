@@ -30,7 +30,9 @@
         "tech-stack-bootstrap-note-2026-06-06",
         "14d2a7be-30b4-4bdb-bbdd-95e79b91ac44",
         "bootstrap-postlaunch-todo",
-        "bootstrap-ebook-publishing-plan"
+        "bootstrap-ebook-publishing-plan",
+        "unit-economics-note",
+        "referral-programs-research"
       ],
       "isCollapsed": false,
       "prefix": ""
@@ -1380,10 +1382,30 @@
       "content": "<h2>Ebook — &ldquo;Idea Engineering&rdquo; Publishing Plan</h2><p><strong>Goal:</strong> publish the field-defining manifesto that establishes and <em>owns</em> the idea-engineering category, cements Howard&rsquo;s ownership as its <strong>creator</strong> (1980s) and <strong>implementer</strong> (IdeaM), and funnels readers into IdeaM.</p><p><strong>Provenance backbone (the credibility spine):</strong> discipline created in the 1980s → <strong>presented to the WWU Computer Science faculty in 2005</strong> (witnessed, datable; some faculty will remember) → realized with AI in IdeaM, 2026. Every claim backed by the record + research (the field is otherwise unclaimed — no established theory, taxonomy, or leader).</p><p><strong>Production (dogfood):</strong> write and refine the book <em>in IdeaM</em>, then export it as EPUB + PDF <em>from IdeaM</em> — the ultimate proof: the manifesto for idea engineering, produced by the idea-engineering tool. Keep it a tight, high-signal short book / long essay (concise definition → research → practice), not a doorstop.</p><p><strong>Distribution:</strong></p><ul><li><strong>Free PDF on the IdeaM site</strong> — email-gated lead magnet + cornerstone; funnels to the app.</li><li><strong>Amazon Kindle (KDP)</strong> — reach + the credibility of a published book.</li><li><strong>Direct / Gumroad</strong> — optional paid edition.</li><li><strong>Serialize</strong> key chapters on LinkedIn / Medium / Substack to seed the term and drive traffic.</li></ul><p><strong>Positioning assets:</strong> a &ldquo;What is Idea Engineering?&rdquo; cornerstone page on the site (owns the term in search); the line <em>&ldquo;IdeaM — the idea-engineering platform.&rdquo;</em></p><p><strong>Promotion:</strong> LinkedIn thought-leadership; the 1980s-creator + WWU-2005 story as the PR hook; outreach via the Creator/Evangelist list (Marketing outline); consider reconnecting with WWU faculty who recall the 2005 talk (corroboration + a great origin story).</p><p><strong>Sequence:</strong> first draft (done) → refine with Claude → produce via IdeaM → cornerstone page + free PDF at/near app launch → Kindle → serialization → ongoing category-building. <strong>Timing:</strong> ship the ebook as a thought-leadership asset around the app launch — it establishes the category the app leads.</p><p><strong>Win condition:</strong> &ldquo;idea engineering&rdquo; starts to mean what we say it means, and IdeaM becomes synonymous with it.</p>",
       "isCollapsed": false,
       "prefix": ""
+    },
+    "unit-economics-note": {
+      "id": "unit-economics-note",
+      "name": "Unit Economics — Why Costs Follow Revenue",
+      "parentId": "root-bootstrap",
+      "childrenIds": [],
+      "type": "text",
+      "content": "<p><strong>The short version:</strong> IdeaM is built so operating cost scales with PAYING customers, not total users — expense tracks revenue by design.</p><p><strong>1. The trap we designed out.</strong> Most AI apps bleed money on free users (the company pays their cloud-AI bills). IdeaM&rsquo;s free tier runs on the user&rsquo;s own key (BYOK) or on-device — so free users cost us almost nothing; a surge in free users doesn&rsquo;t surge our costs.</p><p><strong>2. Paid resources are gated, capped, priced above cost.</strong> AI on our account requires a paid subscription (or a small ~10-use free &lsquo;taste,&rsquo; capped per account). A hard, server-side, fail-closed per-account meter makes exceeding budget structurally impossible (a release-blocker guardrail). Subscriptions are priced above the AI they include (Student $4.99/200 gens, Pro $9.99/1,000) — every paying customer is margin-positive.</p><p><strong>3. Upgrades are high-margin.</strong> People pay for multimedia — podcast, video, studio voices — where we price well above cost; paid growth is margin growth.</p><p><strong>4. The P&amp;L.</strong> Fixed costs are low (local-first + BYOK — no heavy backend or cloud-AI bill underneath us). The dangerous variable AI cost is engineered out; it scales only with paying users. So there&rsquo;s no runaway-cost problem — just the ordinary task of growing revenue past a modest fixed base.</p><p><em>Prepared for Joe (2026-07-29). Shareable copy: Documents/IdeaM Mockups, and a Claude artifact.</em></p>",
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "referral-programs-research": {
+      "id": "referral-programs-research",
+      "name": "Referral / Commission Programs — Provider Landscape",
+      "parentId": "root-bootstrap",
+      "childrenIds": [],
+      "type": "text",
+      "content": "<p><strong>Can we earn a commission when IdeaM sends users to buy AI services?</strong> Live landscape (2026), sorted by what's usable today:</p><ul><li><strong>ElevenLabs (voices) — ACT NOW.</strong> Open public affiliate (PartnerStack): <strong>22% recurring for 12 months</strong> (11% on Business), $5 min payout. And it's our planned premium-voice provider — the voice upgrade and the referral revenue point at the same partner.</li><li><strong>Google Cloud (Gemini) — joinable.</strong> Public affiliate via CJ Affiliate (US/Canada); tiered performance commission, rate not shown until you apply. Worth applying just to learn the rate.</li><li><strong>Anthropic (Claude) — enterprise only.</strong> Sales-led referral partner program: apply, pre-register each referral, introduce their sales team; fee on the initial contract only, % not public. Doesn't fit a consumer BYOK funnel.</li><li><strong>AssemblyAI (transcription) — unconfirmed.</strong> A referral program exists but terms are behind a gated page.</li><li><strong>Groq — enterprise only.</strong> Partner program; the old affiliate page now 404s (likely discontinued).</li><li><strong>OpenAI — nothing.</strong> No affiliate/referral/reseller (only unrelated data partnerships).</li><li><strong>Mistral — nothing found.</strong></li></ul><p><strong>Bottom line:</strong> ElevenLabs is the clean act-now win; Google Cloud is worth an application; the rest are enterprise-only, unconfirmed, or absent. All post-launch bizdev — no action until we drive volume. Rates drift; re-check before signing. (Full mockup: Documents/IdeaM Mockups + Claude artifact.)</p>",
+      "isCollapsed": false,
+      "prefix": ""
     }
   },
   "isGuide": false,
-  "lastModified": 1785184194700,
+  "lastModified": 1785372188538,
   "_fileName": "IdeaM -- Bootstrap Plan.idm",
   "_isLazyLoaded": false,
   "_fileSize": 161402,

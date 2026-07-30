@@ -2,7 +2,7 @@
   "id": "marketing-outline-v2",
   "name": "IdeaM -- Marketing",
   "rootNodeId": "root",
-  "lastModified": 1784189095607,
+  "lastModified": 1785373149250,
   "nodes": {
     "root": {
       "id": "root",
@@ -12,6 +12,7 @@
       "parentId": null,
       "childrenIds": [
         "overview",
+        "mockups-catalog",
         "demo-examples-sec",
         "feat-multimedia-shipped-2026-06-11",
         "platforms",
@@ -1823,6 +1824,16 @@
       ],
       "type": "text",
       "content": "<h2>Live Spreadsheet — a property calculator</h2><p><strong>What this is:</strong> A rental-property investment calculator — inputs, income, expenses, and color-coded results — living as a real, editable spreadsheet inside IdeaM.</p><p><strong>Purpose:</strong> Keep your numbers where your thinking is: run the analysis, see the cash flow and returns, and edit any cell live — no separate app to switch to.</p><p><strong>Built in IdeaM</strong> from a real-estate calculator. The grid below is fully live — open it to edit any cell.</p>",
+      "isCollapsed": false,
+      "prefix": ""
+    },
+    "mockups-catalog": {
+      "id": "mockups-catalog",
+      "name": "Mockups & One-Pagers — Catalog",
+      "parentId": "root",
+      "childrenIds": [],
+      "type": "text",
+      "content": "<p>Every current, useful mockup and one-pager, in one place. Each also lives as a self-contained file in <strong>Documents/IdeaM Mockups</strong> (double-click to open in a browser) and as a live Claude link. Older dev-review mockups are intentionally left out.</p><p><strong>&mdash; Business &amp; strategy &mdash;</strong></p><ul><li><strong>Free vs Paid &mdash; tier comparison.</strong> The enforced Free/Student/Pro split plus a business read on the upgrade incentive. <a href=\"https://claude.ai/code/artifact/9b1e8310-9ec6-4cdf-ae87-3c27f69ce10c\">live link</a> · <em>Documents/IdeaM Mockups/IdeaM — Free vs Pro comparison.html</em></li><li><strong>Unit economics note (for Joe).</strong> Why our costs scale with paying customers, not total users. <a href=\"https://claude.ai/code/artifact/b3d7999e-82a0-4835-ac5b-6a27083b9f10\">live link</a> · <em>Documents/IdeaM Mockups/IdeaM — Unit economics note (for Joe).html</em> · also in the Bootstrap outline</li><li><strong>Referral / commission programs.</strong> Which AI providers pay us a referral cut (ElevenLabs is the standout). <a href=\"https://claude.ai/code/artifact/0a7192c3-3f66-410f-a9fd-ed1bf8d90cb5\">live link</a> · <em>Documents/IdeaM Mockups/IdeaM — Referral programs research.html</em> · also in the Bootstrap outline</li><li><strong>Project Management &mdash; build plan.</strong> The opt-in project-management capability plan. <a href=\"https://claude.ai/code/artifact/19096b20-aca0-431c-889a-4748335a89fc\">live link</a> · <em>Documents/IdeaM Mockups/IdeaM — Project Management plan.html</em></li></ul><p><strong>&mdash; Product &amp; marketing &mdash;</strong></p><ul><li><strong>&ldquo;Free, honestly&rdquo; website section.</strong> The free-tier trust story &mdash; now LIVE on the pricing page. <a href=\"https://claude.ai/code/artifact/5dc6735a-ef1a-4d89-98c8-c40b4385115b\">live link</a> · <em>Documents/IdeaM Mockups/IdeaM — Website 'free, honestly' section (draft).html</em></li><li><strong>Export formats &mdash; human-quality map.</strong> What a person actually wants from each of our 28 export formats. <a href=\"https://claude.ai/code/artifact/4ec87d9c-75de-433c-bf02-2df283b808bd\">live link</a> · <em>Documents/IdeaM Mockups/IdeaM — Export formats quality map.html</em></li><li><strong>Generated diagram examples (App Store).</strong> Colorful diagrams generated from prompts, for App Store screenshots. <a href=\"https://claude.ai/code/artifact/7c270094-09c6-453b-9323-c99dba1c0059\">live link</a> · <em>Documents/IdeaM Mockups/IdeaM — Generated diagram examples (App Store).html</em></li></ul><p><strong>&mdash; Content &mdash;</strong></p><ul><li><strong>Idea Engineering &mdash; the book.</strong> Full formatted reading copy of the ebook. <a href=\"https://claude.ai/code/artifact/c5f181a5-57ab-4bf0-8811-e4e4001ebe71\">live link</a> · <em>Documents/IdeaM Mockups/Idea Engineering — book (reading copy).html</em></li><li><strong>When Labor Is No Longer Needed &mdash; brief.</strong> The AI-and-humanity working brief. <a href=\"https://claude.ai/code/artifact/4bf1dc25-9a21-408e-b6af-08ce1ca531f1\">live link</a> · <em>Documents/IdeaM Mockups/When Labor Is No Longer Needed — brief.html</em></li></ul><p><em>Note: Claude links are private to your account unless you share them from the artifact page. To send one to someone else, share it from its page or email the self-contained file from the folder.</em></p>",
       "isCollapsed": false,
       "prefix": ""
     }

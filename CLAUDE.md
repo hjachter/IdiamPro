@@ -105,6 +105,20 @@ Practical rule: **after I write a new/updated `.idm` to the folder, proactively 
 
 **Help vs. AI command bar are distinct surfaces — do not merge them.** The Help chat *explains* the app ("how do I make a child node?"). The AI command bar *does things* to the user's data ("create an outline called Joe"). Conflating them risks the user getting an explanation when they wanted an action, or vice versa.
 
+## Output UX — show the finished product immediately (codified 2026-07-28)
+
+When a user runs an output/transformation from the export menu (PDF, podcast, YouTube video, slide deck, website, etc.), they must **SEE the finished result immediately, in an appropriate viewer** — never be left to hunt in a Downloads folder for an intermediate file and pick a viewer themselves.
+
+- **Mac (Electron):** open the generated PDF in **Preview** (or the OS default viewer); play the podcast/video in-app or in the default player; open a website export in the browser. Reveal-and-open, don't just save-and-forget.
+- **iPhone/iPad:** present the result in the native viewer / share sheet — never make a touch user dig through Files.
+- **No viewer/default available for a format?** ASK the user to choose one (for PDFs, podcasts, videos, etc.), then remember it.
+
+Principle (Howard, 2026-07-28, after the Joe demo): *"When we click an output format, we should see the finished job in front of us, not an intermediate job."*
+
+**This is also a TESTING rule:** output tests must verify the **final, viewable product actually appears** (opens in a viewer, plays, renders) — not merely that an intermediate file was written to disk. If unsure what the correct output of an operation should be, STOP and ask Howard.
+
+**The quality bar for every export format — ask "what would a human want to see?" (codified 2026-07-28).** For each output format, design (and test) to the standard of *what a person actually wants to receive from that format*, not just "a valid file." That question defines both the baseline quality AND the optional enhancements worth adding — e.g. a **PDF** wants a title page, a **table of contents**, and an **index**; a **podcast** wants natural voices at the right length that play immediately; an **ePub** wants navigable chapters; a **Word doc** wants real headings/styles; a **slide deck** wants readable slides; an interchange format (Markdown, OPML, Obsidian, Notion, JSON…) wants a file that **imports cleanly into its target app**. Every export format must be walked through this lens and given its own output test that checks the human-quality result. When the right output for a format isn't obvious, ask Howard.
+
 ## Voice Input — Standard Pattern
 
 Voice input is enabled in **both** the AI command bar (Cmd+K) and the Help chat. Use the same pattern in both places:
