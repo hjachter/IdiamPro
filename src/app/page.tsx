@@ -320,14 +320,15 @@ function IdeaDevelopmentBand() {
             clearly (the film shows real interface, not stock footage). */}
         <div className="mb-14">
           <div className="overflow-hidden -mx-6 sm:mx-0 rounded-none sm:rounded-2xl border-y sm:border border-[#dde5f2] bg-[#f7faff] shadow-2xl shadow-blue-600/15 ring-1 ring-blue-600/10">
-            <video
+            {/* STOPGAP (prepared, not pushed): the old /home-hero.mp4 baked in the
+                retired "IdiamPro" name, a British voice, and a dark background. Until
+                the new IdeaM/onyx/light film is produced, show a clean, on-brand,
+                light-themed still that conveys the thesis (one idea -> many outputs).
+                To restore the video later, swap this <img> back for the <video>. */}
+            <img
               className="block h-auto w-full"
-              src="/home-hero.mp4"
-              poster="/home-hero-poster.jpg"
-              controls
-              playsInline
-              preload="metadata"
-              aria-label="Watch IdeaM turn one idea into finished work — produced by IdeaM"
+              src="/showcase/process-diagram.jpg"
+              alt="In IdeaM, one idea becomes a blog post, a slide deck, a podcast, a spreadsheet, and an email"
             />
           </div>
           <p className="mt-3 flex items-center justify-center gap-1.5 text-sm font-semibold text-[#1e40af]">
