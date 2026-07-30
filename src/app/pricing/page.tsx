@@ -213,6 +213,12 @@ export default function PricingPage() {
                     $19.99 founder launch
                   </span>
                 </div>
+                <p className="text-[#475569] text-sm italic leading-relaxed mb-2">
+                  This is for the person who&apos;d rather own than rent — one payment gets you the full power on your own device, forever: no monthly bill, no cloud lock-in, yours to keep for good.
+                </p>
+                <p className="text-sm font-bold text-blue-600 mb-4 leading-snug">
+                  Buy once, own it for life. <span className="text-[#0b1533]">IdeaM helps you do that.</span>
+                </p>
                 <h3 className="text-2xl font-bold text-[#0b1533] mb-3 leading-tight">
                   Buy once. Own it forever.
                 </h3>
@@ -239,6 +245,12 @@ export default function PricingPage() {
                   <span className="text-2xl font-bold text-[#0b1533]">Free</span>
                   <span className="text-[#64748b] text-sm">forever</span>
                 </div>
+                <p className="text-[#475569] text-sm italic leading-relaxed mb-2">
+                  This is for the independent thinker who wants a serious tool to capture and grow ideas — and wants it genuinely free: bring your own AI key or run it free on your Mac, use it without limits, and keep everything private and yours.
+                </p>
+                <p className="text-sm font-bold text-blue-600 mb-4 leading-snug">
+                  Think freely, own everything. <span className="text-[#0b1533]">IdeaM helps you do that.</span>
+                </p>
                 <h3 className="text-2xl font-bold text-[#0b1533] mb-3 leading-tight">
                   Unlimited AI, free forever.
                 </h3>
@@ -262,6 +274,12 @@ export default function PricingPage() {
                   <span className="text-2xl font-bold text-[#0b1533]">$9.99</span>
                   <span className="text-[#64748b] text-sm">/ month</span>
                 </div>
+                <p className="text-[#475569] text-sm italic leading-relaxed mb-2">
+                  This is for the researcher, creator, or professional turning ideas into finished work every day — upgrade for what you can&apos;t get free: studio-quality podcasts and videos, AI with zero setup, and the headroom to produce at scale without ever hitting a limit.
+                </p>
+                <p className="text-sm font-bold text-blue-600 mb-4 leading-snug">
+                  Do your best work, faster. <span className="text-[#0b1533]">IdeaM helps you do that.</span>
+                </p>
                 <h3 className="text-2xl font-bold text-[#0b1533] mb-3 leading-tight">
                   Cloud superpowers.
                 </h3>
@@ -581,6 +599,12 @@ export default function PricingPage() {
                   <div>
                     <h3 className="text-xl font-bold text-[#0b1533]">Academic & Student Pricing</h3>
                     <p className="text-[#2b3a5c] text-lg font-medium">50% off for students and educators with valid .edu email</p>
+                    <p className="text-[#475569] text-sm italic leading-relaxed mt-3 max-w-xl">
+                      This is for students who need to organize everything from all their courses, carry that knowledge through their whole career, and deepen their mastery — with AI included (no key to set up) and the tools to consolidate and truly retain what they learn, at half price.
+                    </p>
+                    <p className="text-sm font-bold text-blue-600 mt-2 leading-snug">
+                      Get the most out of your education. <span className="text-[#0b1533]">IdeaM helps you do that.</span>
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
