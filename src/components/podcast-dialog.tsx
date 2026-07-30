@@ -67,6 +67,17 @@ const VOICE_LABELS = OPENAI_VOICE_LABELS;
 
 type Phase = 'config' | 'edit-prompt' | 'generating-script' | 'edit-script' | 'generating-audio' | 'preview';
 
+// Defensive: the script-generation API can occasionally return a malformed
+// segment with a missing/blank `text` (bad AI output). Coerce text to a string
+// and drop empty segments so they never crash the editor's word count or reach
+// TTS. This is the single choke point every generated script passes through.
+function sanitizeSegments(segs: unknown): PodcastScriptSegment[] {
+  if (!Array.isArray(segs)) return [];
+  return segs
+    .filter((s) => !!s && String((s as { text?: unknown }).text ?? '').trim().length > 0)
+    .map((s) => ({ ...(s as PodcastScriptSegment), text: String((s as PodcastScriptSegment).text) }));
+}
+
 // localStorage keys for persisting podcast preferences
 const PREF_STYLE = 'idiampro-podcast-style';
 const PREF_LENGTH = 'idiampro-podcast-length';
@@ -260,7 +271,7 @@ export default function PodcastDialog({
       }
 
       const data = await response.json();
-      const segments: PodcastScriptSegment[] = data.segments;
+      const segments: PodcastScriptSegment[] = sanitizeSegments(data.segments);
 
       setEditableSegments(segments);
       setPhase('edit-script');
@@ -305,7 +316,7 @@ export default function PodcastDialog({
       }
 
       const data = await response.json();
-      const segments: PodcastScriptSegment[] = data.segments;
+      const segments: PodcastScriptSegment[] = sanitizeSegments(data.segments);
 
       setEditableSegments(segments);
       setPhase('edit-script');
@@ -629,7 +640,7 @@ export default function PodcastDialog({
   }, [phase, handleCancel, onOpenChange]);
 
   // Count words in editable segments
-  const totalWords = editableSegments.reduce((sum, seg) => sum + seg.text.split(/\s+/).filter(Boolean).length, 0);
+  const totalWords = editableSegments.reduce((sum, seg) => sum + String(seg?.text ?? '').split(/\s+/).filter(Boolean).length, 0);
 
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o) handleClose(); }}>

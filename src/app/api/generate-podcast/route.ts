@@ -17,6 +17,15 @@ const SSE_HEADERS = {
 
 const encoder = new TextEncoder();
 
+// Gentle pacing between TTS calls so a long podcast (30+ segments) does not
+// fire a burst that trips OpenAI's per-minute rate limit. Sequential calls
+// already take ~1-3s each; this adds a little extra breathing room.
+const PACE_BETWEEN_SEGMENTS_MS = 400;
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 function sseEvent(data: Record<string, unknown>): string {
   return `data: ${JSON.stringify(data)}\n\n`;
 }
@@ -54,7 +63,10 @@ async function synthesizeSpeech(
   if (!response.ok) {
     const errBody = await response.text();
     if (response.status === 429) {
-      throw new Error(`RATE_LIMIT: ${errBody}`);
+      // Preserve any Retry-After the API sends so we can honor its pace.
+      const retryAfter = parseInt(response.headers.get('retry-after') ?? '', 10);
+      const secs = Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter : '';
+      throw new Error(`RATE_LIMIT:${secs}:${errBody}`);
     }
     throw new Error(`OpenAI TTS error (${response.status}): ${errBody}`);
   }
@@ -64,37 +76,46 @@ async function synthesizeSpeech(
 }
 
 /**
- * Retry a TTS call with exponential backoff.
+ * Synthesize one segment, retrying hard on failure. Prefers pacing/backoff
+ * over giving up: rate-limit (429) responses get exponential backoff with
+ * jitter (honoring Retry-After when present); other transient errors get a
+ * shorter backoff. Returns null ONLY after every retry is exhausted, so the
+ * caller can skip that single segment rather than lose the whole podcast.
  */
 async function synthesizeWithRetry(
   text: string,
   voice: OpenAIVoice,
   model: 'tts-1' | 'tts-1-hd',
   apiKey: string,
-  maxRetries: number = 2,
+  maxRetries: number = 6,
 ): Promise<Buffer | null> {
+  let lastMsg = '';
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
       return await synthesizeSpeech(text, voice, model, apiKey);
     } catch (err) {
       const msg = errorMessage(err);
-      if (msg.startsWith('RATE_LIMIT:') && attempt < maxRetries) {
-        // Exponential backoff: 2s, 4s
-        const delay = Math.pow(2, attempt + 1) * 1000;
-        console.log(`[Podcast] TTS rate limited, retrying in ${delay}ms (attempt ${attempt + 1}/${maxRetries})`);
-        await new Promise(resolve => setTimeout(resolve, delay));
-        continue;
+      lastMsg = msg;
+      if (attempt >= maxRetries) break;
+
+      let delay: number;
+      if (msg.startsWith('RATE_LIMIT:')) {
+        // Message shape: "RATE_LIMIT:<suggestedSecs>:<body>"
+        const suggested = parseInt(msg.split(':')[1] ?? '', 10);
+        const base = Number.isFinite(suggested) && suggested > 0
+          ? suggested * 1000
+          : Math.min(Math.pow(2, attempt) * 1000, 32000); // 1s,2s,4s… capped 32s
+        delay = base + Math.floor(Math.random() * 1000); // jitter to de-sync
+        console.log(`[Podcast] TTS rate limited, backing off ${delay}ms (attempt ${attempt + 1}/${maxRetries})`);
+      } else {
+        delay = Math.min(Math.pow(2, attempt) * 500, 8000) + Math.floor(Math.random() * 500);
+        console.warn(`[Podcast] TTS attempt ${attempt + 1} failed: ${msg}, retrying in ${delay}ms...`);
       }
-      if (attempt < maxRetries) {
-        console.warn(`[Podcast] TTS attempt ${attempt + 1} failed: ${msg}, retrying...`);
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        continue;
-      }
-      console.error(`[Podcast] TTS failed after ${maxRetries + 1} attempts: ${msg}`);
-      return null; // Skip this segment
+      await sleep(delay);
     }
   }
-  return null;
+  console.error(`[Podcast] TTS failed after ${maxRetries + 1} attempts: ${lastMsg}`);
+  return null; // Skip this segment
 }
 
 export async function POST(request: NextRequest) {
@@ -218,7 +239,6 @@ export async function POST(request: NextRequest) {
 
           const audioBuffers: Buffer[] = [];
           let failedCount = 0;
-          const maxFailures = Math.ceil(segments.length * 0.2); // Abort if >20% fail
 
           for (let i = 0; i < segments.length; i++) {
             const segment = segments[i];
@@ -242,11 +262,22 @@ export async function POST(request: NextRequest) {
             if (audioBuffer) {
               audioBuffers.push(audioBuffer);
             } else {
+              // A single segment gave up after all retries. Do NOT throw the
+              // whole podcast away — skip it (leaves a brief gap) and continue.
               failedCount++;
-              if (failedCount > maxFailures) {
-                throw new Error(`Too many TTS failures (${failedCount}/${segments.length}). Aborting.`);
-              }
+              console.warn(`[Podcast] Skipping segment ${i + 1}/${segments.length} after exhausting retries.`);
             }
+
+            // Pace the next call so we don't burst past the rate limit.
+            if (i < segments.length - 1) {
+              await sleep(PACE_BETWEEN_SEGMENTS_MS);
+            }
+          }
+
+          // Only hard-fail if essentially everything failed — otherwise ship
+          // what we finished.
+          if (audioBuffers.length === 0) {
+            throw new Error('The AI voice service was unavailable (likely rate limits) so no audio could be generated. Please wait a minute and try again.');
           }
 
           // Phase 3: Combine audio
@@ -260,12 +291,14 @@ export async function POST(request: NextRequest) {
           const combinedBuffer = Buffer.concat(audioBuffers, totalLength);
           const audioBase64 = combinedBuffer.toString('base64');
 
-          console.log(`[Podcast] Audio combined: ${totalLength} bytes, ${audioBuffers.length} chunks`);
+          console.log(`[Podcast] Audio combined: ${totalLength} bytes, ${audioBuffers.length} chunks, ${failedCount} skipped`);
 
           // Phase 4: Done - send audio and script
           controller.enqueue(encoder.encode(sseEvent({
             phase: 'done',
-            message: 'Podcast generated successfully!',
+            message: failedCount > 0
+              ? `Podcast ready — ${failedCount} short segment${failedCount === 1 ? ' was' : 's were'} skipped due to voice-service limits.`
+              : 'Podcast generated successfully!',
             percent: 100,
             audioBase64,
             scriptSegments: segments,

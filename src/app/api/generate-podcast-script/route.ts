@@ -79,18 +79,25 @@ export async function POST(request: NextRequest) {
           model: getDefaultGeminiModel('genkit'),
           prompt,
           config: {
-            maxOutputTokens: 8192,
+            maxOutputTokens: 16384,
             temperature: 0.9,
           },
         });
         return text;
       },
       localAttempt: async (model) =>
-        generateWithOllama({ model, prompt, maxTokens: 8192, temperature: 0.9 }),
+        generateWithOllama({ model, prompt, maxTokens: 16384, temperature: 0.9 }),
     });
     const scriptText = result.text;
 
     const segments = parseScriptResponse(scriptText, config.voices);
+    if (segments.length < 4) {
+      console.warn(
+        `[Podcast] Suspiciously few segments (${segments.length}). ` +
+          `Raw script length: ${scriptText.length} chars. First 300 chars: ` +
+          JSON.stringify(scriptText.slice(0, 300))
+      );
+    }
     console.log(`[Podcast] Script generated: ${segments.length} segments`);
 
     return NextResponse.json({ segments });
