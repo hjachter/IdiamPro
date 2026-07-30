@@ -439,6 +439,25 @@ export default function PricingPage() {
               </div>
             </div>
 
+            {/* BYOK cost reassurance — answers the one worry a bring-your-own-key
+                model creates ("what does the key itself cost me?"). Reuses the
+                page's #f7faff card, #dde5f2 border, gradient icon tile tokens. */}
+            <div className="mt-12 flex justify-center">
+              <div className="flex items-start gap-5 p-8 rounded-3xl bg-[#f7faff] border border-[#dde5f2] max-w-3xl">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-lg shadow-blue-600/30 flex-shrink-0">
+                  <Sparkles className="w-7 h-7 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-[#0b1533] mb-3 leading-tight">
+                    What does bringing your own key cost?
+                  </h3>
+                  <p className="text-[#2b3a5c] text-lg font-medium leading-relaxed">
+                    <span className="text-[#0b1533] font-semibold">Basically nothing.</span> The key we recommend — Google Gemini — has a free tier that covers everyday use for most people at no cost, no credit card. Even heavy users typically spend just a few dollars a month. And on a Mac, on-device AI is free forever, no key at all. You pay your provider directly — <span className="text-[#0b1533] font-semibold">never us</span> — and for most people, that&apos;s zero.
+                  </p>
+                </div>
+              </div>
+            </div>
+
             {/* Comparison grid — 4-option split */}
             <div className="mt-20">
               <h3 className="text-center text-2xl lg:text-3xl font-bold mb-2">
