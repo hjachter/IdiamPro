@@ -62,13 +62,13 @@ const GROUPS: Group[] = [
     title: 'Bring it in',
     items: [
       {
-        name: 'Bring In Anything',
+        name: 'Import Anything',
         what: 'Pull in YouTube videos, PDFs, web pages, audio, images, and documents; IdeaM reads them for you.',
         anchor: 'bring-in-anything',
         icon: Import,
       },
       {
-        name: 'Bring In Email',
+        name: 'Import Email',
         what: 'Drop in an email or a whole thread → a clean outline of the key points, decisions, and to-dos.',
         anchor: 'bring-in-email',
         icon: Mail,
@@ -81,7 +81,7 @@ const GROUPS: Group[] = [
     items: [
       {
         name: 'Research',
-        what: 'Bring in many sources at once and IdeaM does the research and the synthesis: one coherent, structured outline of what matters.',
+        what: 'Import many sources at once and IdeaM does the research and the synthesis: one coherent, structured outline of what matters.',
         anchor: 'research',
         icon: Microscope,
       },
@@ -153,7 +153,7 @@ const GROUPS: Group[] = [
     title: 'Publish it',
     items: [
       {
-        name: 'Turn Into an Email',
+        name: 'Export as Email',
         what: 'Turn any branch into a ready-to-send email (Gmail, your mail app, copy, or download).',
         anchor: 'turn-into-an-email',
         icon: Send,

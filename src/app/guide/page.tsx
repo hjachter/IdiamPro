@@ -48,7 +48,7 @@ const GROUPS: Group[] = [
         title: 'Getting started',
         body: [
           'IdeaM helps you organize your thoughts into structured outlines. The interface has two main areas: the outline pane on the left shows your hierarchical structure, and the content pane on the right lets you edit the selected item. Everything saves automatically — just start working and your changes are preserved.',
-          'One simple rule runs everywhere, so you only learn it once: actions that work on the item you selected live in the right-click menu (tap-again on iPhone/iPad); actions that work on the whole outline live in the toolbar. New Outline, Search, Smart Tools, Bring In, Turn Into, and Second Brain all sit in the toolbar.',
+          'One simple rule runs everywhere, so you only learn it once: actions that work on the item you selected live in the right-click menu (tap-again on iPhone/iPad); actions that work on the whole outline live in the toolbar. New Outline, Search, Smart Tools, Import, Export, and Second Brain all sit in the toolbar.',
         ],
       },
     ],
@@ -59,10 +59,10 @@ const GROUPS: Group[] = [
     sections: [
       {
         anchor: 'bring-in-anything',
-        title: 'Bring In Anything',
-        note: 'Toolbar → Bring In menu → Research & Import',
+        title: 'Import Anything',
+        note: 'Toolbar → Import menu → Research & Import',
         body: [
-          'Bring In Anything is the heart of IdeaM. Pull in content from many sources at once — YouTube videos, PDFs, web pages, audio, images, and documents — and IdeaM reads them and synthesizes everything into one unified, structured outline. You can merge new sources into your current outline, or create a fresh one.',
+          'Import Anything is the heart of IdeaM. Pull in content from many sources at once — YouTube videos, PDFs, web pages, audio, images, and documents — and IdeaM reads them and synthesizes everything into one unified, structured outline. You can merge new sources into your current outline, or create a fresh one.',
         ],
         bullets: [
           'YouTube videos — paste any URL; the transcript is extracted automatically and the video title becomes the default name.',
@@ -73,14 +73,14 @@ const GROUPS: Group[] = [
       },
       {
         anchor: 'bring-in-email',
-        title: 'Bring In Email',
-        note: 'Toolbar → Bring In menu → Import Email (turn on Email tools in Settings first)',
+        title: 'Import Email',
+        note: 'Toolbar → Import menu → Import Email (turn on Email tools in Settings first)',
         body: [
           'Bring an email — a single message or a whole thread — into IdeaM as a clean, structured outline. Instead of a wall of quoted text, the AI distills it into Summary, Key Points, Decisions, and Action Items.',
-          'Email tools are off by default. Turn them on in Settings → Professional Customization, then choose Import Email from the Bring In menu.',
+          'Email tools are off by default. Turn them on in Settings → Professional Customization, then choose Import Email from the Import menu.',
         ],
         steps: [
-          'Open the Bring In menu and choose Import Email.',
+          'Open the Import menu and choose Import Email.',
           'Paste the email or the entire thread into the box — and/or drop a .eml file.',
           'Choose where it goes: create a new outline (the default), add to the current outline, or save into your Second Brain.',
           'Click Import. Suspected junk (promos, spam, newsletters) is filed into a clearly-labeled “Filtered — likely junk” branch — never deleted — so you can rescue anything it got wrong.',
@@ -95,7 +95,7 @@ const GROUPS: Group[] = [
       {
         anchor: 'research',
         title: 'Research',
-        note: 'Toolbar → Bring In menu → Research & Import',
+        note: 'Toolbar → Import menu → Research & Import',
         body: [
           'Import multiple sources simultaneously and IdeaM does the research and the synthesis — finding connections across everything and producing one coherent, structured outline of what matters.',
           'When you create a new outline (rather than merging), the root gets an AI-generated introduction that summarizes everything below it, and chapter nodes get short introductions that preview their children — no empty headers. Node names stay concise (2–6 words) while the detail lives in each node’s content.',
@@ -191,7 +191,7 @@ const GROUPS: Group[] = [
       {
         anchor: 'make-a-video',
         title: 'Make a Video',
-        note: 'Desktop app → Turn Into (Export) menu → Generate Video',
+        note: 'Desktop app → Export menu → Generate Video',
         body: [
           'Turn a chapter into a finished, branded narrated slideshow video — great for posting to YouTube, sharing in a class, or dropping into a presentation. The video is built right on your Mac, so nothing is uploaded to a server.',
         ],
@@ -205,7 +205,7 @@ const GROUPS: Group[] = [
       {
         anchor: 'slide-deck',
         title: 'Make a Slide Deck',
-        note: 'Desktop app → Turn Into (Export) menu → Slide Deck',
+        note: 'Desktop app → Export menu → Slide Deck',
         body: [
           'Turn an outline into a branded slide deck — a real .pptx file that opens in both PowerPoint and Keynote (and Google Slides). Each chapter becomes a slide with a clear title and tidy bullets, styled with your brand look, so you can present straight away or fine-tune it in the app you already use.',
           'When a section contains numbers — a small table or a list of figures — IdeaM automatically turns them into a clean chart on the slide, so your data shows up as a visual instead of a wall of digits.',
@@ -239,7 +239,7 @@ const GROUPS: Group[] = [
     sections: [
       {
         anchor: 'turn-into-an-email',
-        title: 'Turn Into an Email',
+        title: 'Export as Email',
         note: 'Right-click a branch → Export Email (turn on Email tools in Settings first)',
         body: [
           'Turn any branch of your outline into a ready-to-send email. Sketch your thoughts as an outline, then let the AI shape them into a real message with a subject line and a readable body — greeting, flowing sentences, tidy bullets where they help, and a sign-off. IdeaM never sends email for you and never touches your inbox — you always review and hit send yourself.',

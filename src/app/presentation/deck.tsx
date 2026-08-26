@@ -264,7 +264,7 @@ function SlideCategory() {
 function SlideArc() {
   const on = useMountedFlag();
   const arc = [
-    { icon: Layers, label: 'Bring in', note: 'video · PDF · web · audio · email' },
+    { icon: Layers, label: 'Import', note: 'video · PDF · web · audio · email' },
     { icon: Search, label: 'Research', note: 'synthesize across sources' },
     { icon: PenTool, label: 'Develop', note: 'engineer the idea' },
     { icon: Wand2, label: 'Produce', note: 'write · podcast · video' },
