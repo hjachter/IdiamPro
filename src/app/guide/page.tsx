@@ -55,7 +55,7 @@ const GROUPS: Group[] = [
   },
   {
     id: 'bring-it-in',
-    label: 'Bring it in',
+    label: 'Bring it in (Import)',
     sections: [
       {
         anchor: 'bring-in-anything',
@@ -235,7 +235,7 @@ const GROUPS: Group[] = [
   },
   {
     id: 'publish',
-    label: 'Publish it',
+    label: 'Publish it (Export)',
     sections: [
       {
         anchor: 'turn-into-an-email',

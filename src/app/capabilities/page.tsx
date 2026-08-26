@@ -59,7 +59,7 @@ type Group = {
 const GROUPS: Group[] = [
   {
     id: 'bring-it-in',
-    title: 'Bring it in',
+    title: 'Bring it in (Import)',
     items: [
       {
         name: 'Import Anything',
@@ -150,7 +150,7 @@ const GROUPS: Group[] = [
   },
   {
     id: 'publish',
-    title: 'Publish it',
+    title: 'Publish it (Export)',
     items: [
       {
         name: 'Export as Email',
