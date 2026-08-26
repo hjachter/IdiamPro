@@ -12,7 +12,7 @@ import FileImportDialog from './file-import-dialog';
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuCheckboxItem } from "@/components/ui/dropdown-menu";
-import { Plus, Trash2, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, ChevronsDownUp, Settings, Search, Command, PanelLeft, PanelLeftClose, Brain, StopCircle, Inbox, LayoutDashboard, Focus, Sparkles, Mic, MessageSquare, BookDown, BookUp, Share2, ExternalLink, RefreshCw, MoreHorizontal, HelpCircle, Send, ShieldCheck, GitFork, Video, Mail, Presentation, ChevronDown, Sun, Moon, Info, User, Tag, ListTodo } from 'lucide-react';
+import { Plus, Trash2, FileDown, FileUp, Library, RotateCcw, ChevronsUp, ChevronsDown, ChevronsDownUp, Settings, Search, Command, PanelLeft, PanelLeftClose, Brain, StopCircle, Inbox, LayoutDashboard, Focus, Sparkles, Mic, MessageSquare, BookDown, BookUp, ArrowDown, ArrowUp, Share2, ExternalLink, RefreshCw, MoreHorizontal, HelpCircle, Send, ShieldCheck, GitFork, Video, Mail, Presentation, ChevronDown, Sun, Moon, Info, User, Tag, ListTodo } from 'lucide-react';
 import { AmplifyMark } from '@/components/brand/amplify-mark';
 import { useTheme } from 'next-themes';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter } from "@/components/ui/alert-dialog";
@@ -1067,7 +1067,7 @@ export default function OutlinePane({
   // submenus, so the two can never drift apart. (2026-07-21)
   const bringInMenuItems = (
     <>
-      <DropdownMenuLabel className="py-1 text-xs uppercase tracking-wide text-muted-foreground">Bring In</DropdownMenuLabel>
+      <DropdownMenuLabel className="py-1 text-xs uppercase tracking-wide text-muted-foreground">Import</DropdownMenuLabel>
       {onOpenBulkResearch && (
         <DropdownMenuItem onSelect={onOpenBulkResearch} className="cursor-pointer py-1">
           <Library className="mr-2 h-4 w-4" /> Research & Import
@@ -1122,7 +1122,7 @@ export default function OutlinePane({
 
   const turnIntoMenuItems = (
     <>
-      <DropdownMenuLabel className="py-1 text-xs uppercase tracking-wide text-muted-foreground">Turn Into</DropdownMenuLabel>
+      <DropdownMenuLabel className="py-1 text-xs uppercase tracking-wide text-muted-foreground">Export</DropdownMenuLabel>
       <DropdownMenuItem
         onSelect={() => { if (selectedNodeId) onExportSubtree?.(selectedNodeId); }}
         disabled={!selectedNodeId}
@@ -1694,12 +1694,12 @@ export default function OutlinePane({
               <Tooltip>
                 <TooltipTrigger asChild>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="icon" className="bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 border-transparent text-white shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 shrink-0 active:scale-95 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0" aria-label="Bring In">
-                      <BookDown className="h-4 w-4 text-white" strokeWidth={2.5} />
+                    <Button variant="outline" size="icon" className="bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 border-transparent text-white shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 shrink-0 active:scale-95 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0" aria-label="Import">
+                      <ArrowDown className="h-4 w-4 text-white" strokeWidth={3} />
                     </Button>
                   </DropdownMenuTrigger>
                 </TooltipTrigger>
-                <TooltipContent>Bring In — merge in YouTube, PDFs, web pages, notes, audio, or another outline</TooltipContent>
+                <TooltipContent>Import — bring in YouTube, PDFs, web pages, notes, audio, or another outline</TooltipContent>
               </Tooltip>
               <DropdownMenuContent align="end" className="w-60 p-0.5">
                 {bringInMenuItems}
@@ -1714,12 +1714,12 @@ export default function OutlinePane({
               <Tooltip>
                 <TooltipTrigger asChild>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="icon" className="bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 border-transparent text-white shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 shrink-0 active:scale-95 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0" aria-label="Turn Into">
-                      <BookUp className="h-4 w-4 text-white" strokeWidth={2.5} />
+                    <Button variant="outline" size="icon" className="bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 border-transparent text-white shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 shrink-0 active:scale-95 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0" aria-label="Export">
+                      <ArrowUp className="h-4 w-4 text-white" strokeWidth={3} />
                     </Button>
                   </DropdownMenuTrigger>
                 </TooltipTrigger>
-                <TooltipContent>Turn Into — video, podcast, website, or 20+ formats</TooltipContent>
+                <TooltipContent>Export — video, podcast, website, or 20+ formats</TooltipContent>
               </Tooltip>
               <DropdownMenuContent align="end" className="w-56 p-0.5">
                 {turnIntoMenuItems}
@@ -1812,7 +1812,7 @@ export default function OutlinePane({
                 {!showBringIn && (
                   <DropdownMenuSub>
                     <DropdownMenuSubTrigger className="cursor-pointer">
-                      <BookDown className="mr-2 h-4 w-4" /> Bring In
+                      <ArrowDown className="mr-2 h-4 w-4" strokeWidth={3} /> Import
                     </DropdownMenuSubTrigger>
                     <DropdownMenuSubContent className="w-60">{bringInMenuItems}</DropdownMenuSubContent>
                   </DropdownMenuSub>
@@ -1820,7 +1820,7 @@ export default function OutlinePane({
                 {!showTurnInto && (
                   <DropdownMenuSub>
                     <DropdownMenuSubTrigger className="cursor-pointer">
-                      <BookUp className="mr-2 h-4 w-4" /> Turn Into
+                      <ArrowUp className="mr-2 h-4 w-4" strokeWidth={3} /> Export
                     </DropdownMenuSubTrigger>
                     <DropdownMenuSubContent className="w-56">{turnIntoMenuItems}</DropdownMenuSubContent>
                   </DropdownMenuSub>

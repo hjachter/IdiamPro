@@ -89,14 +89,14 @@ export const DISCOVERY_HINTS: readonly DiscoveryHint[] = [
     id: 'research-import-sources',
     title: 'Turn YouTube, PDFs & the web into outlines',
     body:
-      'Use the Import menu (book-down icon) → "Research & Import" to pull in videos, PDFs, web pages, and recordings — AI synthesizes them into one structured outline.',
+      'Use the Import menu (down-arrow icon) → "Research & Import" to pull in videos, PDFs, web pages, and recordings — AI synthesizes them into one structured outline.',
     trigger: 'sidebar-first-load',
   },
   {
     id: 'outline-to-media',
     title: 'Turn any outline into a video, podcast, or website',
     body:
-      'Open the Export menu (book-up icon) to turn a section into a narrated video, a website, or a podcast. Your outline becomes the script.',
+      'Open the Export menu (up-arrow icon) to turn a section into a narrated video, a website, or a podcast. Your outline becomes the script.',
     trigger: 'first-outline-created',
     minDelayMs: 16000,
   },
@@ -128,7 +128,7 @@ export const DISCOVERY_HINTS: readonly DiscoveryHint[] = [
     id: 'import-export-toolbar',
     title: 'Import and Export live in the toolbar',
     body:
-      'The book-down (Import) and book-up (Export) icons hold Research & Import, Backup All, Share Branch, and other bulk actions.',
+      'The down-arrow (Import) and up-arrow (Export) icons hold Research & Import, Backup All, Share Branch, and other bulk actions.',
     trigger: 'first-outline-created',
     minDelayMs: 10000,
   },
@@ -136,7 +136,7 @@ export const DISCOVERY_HINTS: readonly DiscoveryHint[] = [
     id: 'make-something-from-this',
     title: 'Ready to turn this into something?',
     body:
-      'Your outline has enough to work with. Open the Export menu (book-up icon) to turn it into a narrated video, a website, a podcast, or 20+ formats.',
+      'Your outline has enough to work with. Open the Export menu (up-arrow icon) to turn it into a narrated video, a website, a podcast, or 20+ formats.',
     // Fires once, guarded by a localStorage flag at the call site, the first
     // time an outline reaches a few nodes of real content. One-time by design.
     trigger: 'outline-has-content',
