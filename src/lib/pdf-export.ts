@@ -286,6 +286,9 @@ async function buildPdfContent(
   content.push({
     text: headingText,
     style,
+    // `id` makes this heading a page-reference target so the Index at the end
+    // can print the page number where each section lands.
+    id: `sec-${nodeId}`,
     tocItem: true,
     tocMargin: [Math.min(depth, 5) * 12, 0, 0, 0],
     tocStyle: { fontSize: 11, bold: depth <= 1 },
@@ -513,32 +516,92 @@ ${bodyContent}
 }
 
 /**
- * Assemble the pdfMake document definition: a cover title, a clickable
- * Table of Contents built from the heading nodes (each heading is marked
- * `tocItem: true` in buildPdfContent), then the full body content.
- *
- * NOTE (follow-up): index + rich book-grade layout (alphabetical index,
- * tables/diagram pagination, running headers) = follow-up iteration. This
- * pass is TOC + auto-open only.
+ * Collect every section heading (title + its page-reference id) for the
+ * alphabetical Index at the end of the document.
+ */
+function collectIndexEntries(
+  nodes: NodeMap,
+  nodeId: string,
+  out: { name: string; display: string; id: string }[]
+): void {
+  const node = nodes[nodeId];
+  if (!node) return;
+  const display = node.prefix ? `${node.prefix} ${node.name}` : node.name;
+  out.push({ name: (node.name || '').trim(), display, id: `sec-${nodeId}` });
+  if (node.childrenIds && node.childrenIds.length > 0) {
+    for (const childId of node.childrenIds) {
+      collectIndexEntries(nodes, childId, out);
+    }
+  }
+}
+
+/**
+ * Assemble the pdfMake document definition — a proper book:
+ *   1. A TITLE PAGE (document title + date) on its own page.
+ *   2. A TABLE OF CONTENTS with page numbers, built natively from the
+ *      `tocItem: true` headings (clickable/linked).
+ *   3. The full body content.
+ *   4. An alphabetical INDEX of every section, each with its page number
+ *      (via pdfMake `pageReference` against the heading `id`s).
  */
 function buildDocDefinition(nodes: NodeMap, rootId: string, content: any[]): any {
   const rootNode = nodes[rootId];
   const title = rootNode?.name?.trim() || 'Outline';
+  const dateStr = new Date().toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+
+  // Alphabetical index entries (case-insensitive by section name).
+  const indexRaw: { name: string; display: string; id: string }[] = [];
+  collectIndexEntries(nodes, rootId, indexRaw);
+  const indexEntries = indexRaw
+    .filter((e) => e.display && e.display.trim())
+    .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()))
+    .map((e) => ({
+      columns: [
+        { text: e.display, width: '*', fontSize: 10 },
+        { text: '', pageReference: e.id, width: 28, alignment: 'right', fontSize: 10 },
+      ],
+      columnGap: 8,
+      margin: [0, 1.5, 0, 1.5],
+    }));
 
   return {
     content: [
-      { text: title, style: 'docTitle', margin: [0, 0, 0, 24] },
+      // 1. TITLE PAGE — its own page.
+      {
+        stack: [
+          { text: title, style: 'docTitle', alignment: 'center' },
+          {
+            canvas: [
+              { type: 'line', x1: 180, y1: 12, x2: 335, y2: 12, lineWidth: 2, lineColor: '#1a1a1a' },
+            ],
+          },
+          { text: dateStr, style: 'docSubtitle', alignment: 'center', margin: [0, 18, 0, 0] },
+        ],
+        margin: [0, 220, 0, 0],
+        pageBreak: 'after',
+      },
+      // 2. TABLE OF CONTENTS (with page numbers) — its own page.
       {
         toc: {
           title: { text: 'Table of Contents', style: 'tocTitle', margin: [0, 0, 0, 12] },
         },
       },
       { text: '', pageBreak: 'after' },
+      // 3. BODY.
       ...content,
+      // 4. INDEX — alphabetical, with page numbers.
+      { text: 'Index', style: 'indexTitle', pageBreak: 'before', margin: [0, 0, 0, 12] },
+      ...indexEntries,
     ],
     styles: {
-      docTitle: { fontSize: 28, bold: true },
-      tocTitle: { fontSize: 18, bold: true },
+      docTitle: { fontSize: 30, bold: true },
+      docSubtitle: { fontSize: 13, color: '#555555' },
+      tocTitle: { fontSize: 20, bold: true },
+      indexTitle: { fontSize: 22, bold: true },
       h1: { fontSize: 22, bold: true, margin: [0, 0, 0, 10] },
       h2: { fontSize: 18, bold: true, margin: [0, 16, 0, 8] },
       h3: { fontSize: 14, bold: true, margin: [0, 12, 0, 6] },
@@ -555,124 +618,238 @@ function buildDocDefinition(nodes: NodeMap, rootId: string, content: any[]): any
 }
 
 /**
- * Generate and download a PDF from a subtree
+ * Render a pdfMake document definition to a Blob using a Web Worker so the
+ * heavy, synchronous layout/render pass never blocks the UI thread. This is
+ * what keeps the app responsive (no freeze) and the export cancelable — on
+ * Safari/WebKit, other browsers, iOS (WKWebView) and Electron alike.
+ *
+ * If a worker can't be created or fails to run (very old engine), it falls
+ * back to a main-thread render so a PDF is still produced.
+ */
+function renderDocToBlob(docDefinition: any, signal?: AbortSignal): Promise<Blob> {
+  return new Promise<Blob>((resolve, reject) => {
+    if (signal?.aborted) {
+      reject(new DOMException('Export canceled', 'AbortError'));
+      return;
+    }
+
+    let worker: Worker | null = null;
+    let settled = false;
+
+    const cleanup = () => {
+      if (signal) signal.removeEventListener('abort', onAbort);
+      if (worker) {
+        try { worker.terminate(); } catch { /* ignore */ }
+        worker = null;
+      }
+    };
+
+    const onAbort = () => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      reject(new DOMException('Export canceled', 'AbortError'));
+    };
+
+    const fallbackMainThread = () => {
+      // Last resort: render on the main thread. Can briefly block, but
+      // guarantees a PDF is still produced if the worker is unavailable.
+      // pdfMake 0.3.x is Promise-based.
+      console.log('[pdf] rendering on MAIN thread (worker unavailable)');
+      (pdfMake as any).createPdf(docDefinition).getBlob()
+        .then((blob: Blob) => {
+          if (settled) return;
+          settled = true;
+          cleanup();
+          resolve(blob);
+        })
+        .catch((err: any) => {
+          if (settled) return;
+          settled = true;
+          cleanup();
+          reject(err);
+        });
+    };
+
+    try {
+      worker = new Worker(new URL('./pdf-render.worker.ts', import.meta.url));
+      console.log('[pdf] worker created');
+    } catch (err) {
+      console.warn('[pdf] worker unavailable, rendering on main thread:', err);
+      fallbackMainThread();
+      return;
+    }
+
+    if (signal) signal.addEventListener('abort', onAbort, { once: true });
+
+    worker.onmessage = (e: MessageEvent) => {
+      if (settled) return;
+      const msg = e.data || {};
+      if (msg.type !== 'done') return;
+      console.log('[pdf] worker done, ok:', msg.ok);
+      settled = true;
+      const buf = msg.buffer;
+      cleanup();
+      if (msg.ok && buf) {
+        resolve(new Blob([buf], { type: 'application/pdf' }));
+      } else {
+        reject(new Error(msg.error || 'PDF worker failed'));
+      }
+    };
+
+    worker.onerror = (err) => {
+      if (settled) return;
+      console.warn('[pdf] worker error, falling back to main thread:', err.message);
+      try { worker?.terminate(); } catch { /* ignore */ }
+      worker = null;
+      fallbackMainThread();
+    };
+
+    console.log('[pdf] posting docDefinition to worker');
+    worker.postMessage({ type: 'render', docDefinition });
+  });
+}
+
+/** Convert an ArrayBuffer to base64 in chunks (safe for multi-MB PDFs). */
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  let binary = '';
+  const chunk = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunk) {
+    binary += String.fromCharCode.apply(
+      null,
+      Array.from(bytes.subarray(i, i + chunk)) as unknown as number[]
+    );
+  }
+  return btoa(binary);
+}
+
+/** Trigger a browser download of a Blob (universal fallback incl. Safari). */
+function downloadBlob(blob: Blob, filename: string): void {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+/** Save a rendered PDF on iOS via the native cache + share sheet. */
+async function saveBlobIos(blob: Blob, pdfName: string): Promise<void> {
+  const base64 = arrayBufferToBase64(await blob.arrayBuffer());
+  const Capacitor = (window as any).Capacitor;
+  if (Capacitor?.Plugins?.Filesystem && Capacitor?.Plugins?.Share) {
+    const Filesystem = Capacitor.Plugins.Filesystem;
+    const Share = Capacitor.Plugins.Share;
+    const result = await Filesystem.writeFile({ path: pdfName, data: base64, directory: 'CACHE' });
+    await Share.share({ title: pdfName, url: result.uri });
+  } else {
+    downloadBlob(blob, pdfName);
+  }
+}
+
+/**
+ * Generate and save a PDF from a subtree.
+ *
+ * The layout/render pass runs in a Web Worker (see renderDocToBlob), so the
+ * UI never freezes, the export is cancelable via `signal`, and progress is
+ * reported via `onProgress`. Saving then routes by platform (iOS share sheet,
+ * Electron save-dialog + open in Preview, File System Access picker, or a
+ * plain download on Safari/other browsers). The pdfMake document keeps its
+ * cover title + clickable Table of Contents (see buildDocDefinition).
  */
 export async function exportSubtreeToPdf(
   nodes: NodeMap,
   rootId: string,
-  filename: string
+  filename: string,
+  onProgress?: (stage: string) => void,
+  signal?: AbortSignal
 ): Promise<void> {
-  console.log('PDF Export starting for node:', rootId);
-  console.log('Nodes available:', Object.keys(nodes).length);
+  const report = (stage: string) => {
+    try { onProgress?.(stage); } catch { /* ignore progress callback errors */ }
+  };
 
+  const pdfName = filename.endsWith('.pdf') ? filename : `${filename}.pdf`;
+  const isElectron = typeof window !== 'undefined' && (window as any).electronAPI?.isElectron === true;
+
+  // Build the pdfMake document definition on the main thread (this step needs
+  // the DOM to parse TipTap HTML), then hand it to the worker to render.
+  report('Preparing content…');
   const content = await buildPdfContent(nodes, rootId);
-
-  console.log('PDF content items:', content.length);
-  console.log('First 3 content items:', JSON.stringify(content.slice(0, 3), null, 2));
+  if (signal?.aborted) return;
 
   if (content.length === 0) {
-    alert('PDF Export Error: No content generated!');
     console.warn('No content generated for PDF!');
-    console.log('Root node:', nodes[rootId]);
     throw new Error('No content generated for PDF export');
   }
 
   const docDefinition: any = buildDocDefinition(nodes, rootId, content);
 
-  const pdfName = filename.endsWith('.pdf') ? filename : `${filename}.pdf`;
+  // Heavy layout + render — OFF the UI thread.
+  report('Generating PDF…');
+  const blob = await renderDocToBlob(docDefinition, signal);
+  if (signal?.aborted) return;
+  console.log('PDF blob size:', blob.size, 'bytes');
 
-  // Check if running in Electron (which may not fully support File System Access API)
-  const isElectron = typeof window !== 'undefined' && (window as any).electronAPI?.isElectron === true;
+  report('Saving…');
 
+  // ── iOS: cache + native share sheet ──
   if (isCapacitorNative()) {
-    // For iOS: Generate blob and share
-    await shareSubtreePdf(nodes, rootId, filename);
-  } else if (!isElectron && 'showSaveFilePicker' in window) {
-    // Try File System Access API (only in browser, not Electron)
+    await saveBlobIos(blob, pdfName);
+    report('Done');
+    return;
+  }
+
+  // ── Electron: save dialog, write to disk, open in Preview ──
+  if (isElectron && (window as any).electronAPI?.saveFileDialog) {
+    const electronAPI = (window as any).electronAPI;
+    const filePath = await electronAPI.saveFileDialog({
+      title: 'Save PDF',
+      defaultPath: pdfName,
+      filters: [{ name: 'PDF Documents', extensions: ['pdf'] }],
+    });
+    if (!filePath) return; // user cancelled the save dialog
+
+    const base64 = arrayBufferToBase64(await blob.arrayBuffer());
+    const writeResult = await electronAPI.writeFile(filePath, base64, 'base64');
+    if (writeResult && writeResult.success === false) {
+      throw new Error(writeResult.error || 'Failed to save PDF');
+    }
+    // Open the finished PDF in the OS default viewer (Preview on macOS).
+    await electronAPI.openFile(filePath);
+    report('Done');
+    return;
+  }
+
+  // ── Browser with File System Access API (Chrome/Edge) ──
+  if ('showSaveFilePicker' in window) {
     try {
       const handle = await (window as any).showSaveFilePicker({
         suggestedName: pdfName,
-        types: [{
-          description: 'PDF Document',
-          accept: { 'application/pdf': ['.pdf'] },
-        }],
+        types: [{ description: 'PDF Document', accept: { 'application/pdf': ['.pdf'] } }],
       });
-
-      // Get blob from pdfMake
-      const pdfDocGenerator = pdfMake.createPdf(docDefinition);
-      const blob = await new Promise<Blob>((resolve) => {
-        pdfDocGenerator.getBlob((blob: Blob) => resolve(blob));
-      });
-
-      console.log('PDF blob size:', blob.size, 'bytes');
-
-      // Write to the chosen file
       const writable = await handle.createWritable();
       await writable.write(blob);
       await writable.close();
-      console.log('PDF written successfully');
+      report('Done');
+      return;
     } catch (err: any) {
-      // User cancelled the save dialog - that's OK, just don't do anything
-      if (err.name === 'AbortError') {
-        return;
-      }
-      // For other errors, fall back to download
+      if (err.name === 'AbortError') return; // user cancelled the picker
       console.warn('File System Access failed, falling back to download:', err);
-      pdfMake.createPdf(docDefinition).download(pdfName);
-    }
-  } else {
-    // Electron: generate the PDF with pdfMake (so it includes the clickable
-    // Table of Contents), save it to disk, then open it in the OS default
-    // viewer (Preview on macOS) so the user SEES the finished book instead of
-    // having to hunt for it. Reuses the existing write-file + open-file IPCs.
-    if (isElectron) {
-      const electronAPI = (window as any).electronAPI;
-      const filePath = await electronAPI.saveFileDialog({
-        title: 'Save PDF',
-        defaultPath: pdfName,
-        filters: [{ name: 'PDF Documents', extensions: ['pdf'] }],
-      });
-
-      if (!filePath) {
-        // User cancelled
-        return;
-      }
-
-      try {
-        // Render the pdfMake document to a blob, then to base64 for IPC.
-        const blob = await new Promise<Blob>((resolve) => {
-          pdfMake.createPdf(docDefinition).getBlob((b: Blob) => resolve(b));
-        });
-        const arrayBuffer = await blob.arrayBuffer();
-        const base64 = btoa(
-          new Uint8Array(arrayBuffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
-        );
-
-        // Write the PDF to disk via the existing write-file IPC.
-        const writeResult = await electronAPI.writeFile(filePath, base64, 'base64');
-        if (writeResult && writeResult.success === false) {
-          console.error('Failed to write PDF:', writeResult.error);
-          alert('Failed to save PDF: ' + writeResult.error);
-          return;
-        }
-
-        // Open the finished PDF in the OS default viewer (Preview on macOS).
-        await electronAPI.openFile(filePath);
-        console.log('PDF saved and opened successfully');
-      } catch (err: any) {
-        console.error('PDF generation failed:', err);
-        alert('PDF generation failed: ' + (err.message || err));
-      }
-    } else {
-      // Browser without File System Access API: use regular download
-      console.log('Using pdfMake download for:', pdfName);
-      pdfMake.createPdf(docDefinition).download(pdfName);
+      // fall through to the universal download
     }
   }
+
+  // ── Universal fallback (Safari/WebKit + everything else): download ──
+  downloadBlob(blob, pdfName);
+  report('Done');
 }
 
 /**
- * Share a PDF on iOS using the native share sheet
+ * Share a PDF on iOS using the native share sheet.
+ * Renders off the UI thread via the worker so the app never freezes.
  */
 export async function shareSubtreePdf(
   nodes: NodeMap,
@@ -680,41 +857,11 @@ export async function shareSubtreePdf(
   filename: string
 ): Promise<void> {
   const content = await buildPdfContent(nodes, rootId);
-
   const docDefinition: any = buildDocDefinition(nodes, rootId, content);
-
   const pdfName = filename.endsWith('.pdf') ? filename : `${filename}.pdf`;
 
-  // Generate PDF as base64
-  pdfMake.createPdf(docDefinition).getBase64(async (base64Data: string) => {
-    const Capacitor = (window as any).Capacitor;
-    if (Capacitor?.Plugins?.Filesystem && Capacitor?.Plugins?.Share) {
-      try {
-        const Filesystem = Capacitor.Plugins.Filesystem;
-        const Share = Capacitor.Plugins.Share;
-
-        // Write to cache directory
-        const result = await Filesystem.writeFile({
-          path: pdfName,
-          data: base64Data,
-          directory: 'CACHE',
-        });
-
-        // Share the file
-        await Share.share({
-          title: pdfName,
-          url: result.uri,
-        });
-      } catch (error) {
-        console.error('Failed to share PDF:', error);
-        // Fallback to download
-        pdfMake.createPdf(docDefinition).download(pdfName);
-      }
-    } else {
-      // Fallback: download directly
-      pdfMake.createPdf(docDefinition).download(pdfName);
-    }
-  });
+  const blob = await renderDocToBlob(docDefinition);
+  await saveBlobIos(blob, pdfName);
 }
 
 /**

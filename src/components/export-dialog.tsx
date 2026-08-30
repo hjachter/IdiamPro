@@ -52,6 +52,14 @@ export default function ExportDialog({
   const [includeContent, setIncludeContent] = useState(true);
   const [includeMetadata, setIncludeMetadata] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  const [exportStage, setExportStage] = useState<string | null>(null);
+  // When the user cancels, we abandon the in-flight result instead of showing
+  // success/error, and reset the button immediately.
+  const cancelledRef = React.useRef(false);
+  // Lets us actually stop the PDF worker on cancel/timeout (not just hide it).
+  const abortRef = React.useRef<AbortController | null>(null);
+  // Hard safety cap: no export may spin longer than this before failing cleanly.
+  const EXPORT_TIMEOUT_MS = 120000;
   const [searchQuery, setSearchQuery] = useState('');
   const [showWebsiteDialog, setShowWebsiteDialog] = useState(false);
   const [showPodcastDialog, setShowPodcastDialog] = useState(false);
@@ -67,6 +75,10 @@ export default function ExportDialog({
       setIncludeContent(true);
       setIncludeMetadata(false);
       setSearchQuery('');
+      setExportStage(null);
+      cancelledRef.current = false;
+      try { abortRef.current?.abort(); } catch { /* ignore */ }
+      abortRef.current = null;
     }
   }, [open]);
 
@@ -109,6 +121,19 @@ export default function ExportDialog({
     return filtered;
   }, [searchQuery]);
 
+  // Cancel an in-flight export: stop the worker, abandon the result, and reset
+  // the button now.
+  const handleCancelExport = () => {
+    cancelledRef.current = true;
+    try { abortRef.current?.abort(); } catch { /* ignore */ }
+    setIsExporting(false);
+    setExportStage(null);
+    toast({
+      title: 'Export Canceled',
+      description: 'The export was stopped.',
+    });
+  };
+
   const handleExport = async () => {
     if (!selectedFormat || !filename.trim()) return;
 
@@ -118,37 +143,69 @@ export default function ExportDialog({
       return;
     }
 
+    // Formats with no exporter yet: tell the user, don't spin.
+    if (selectedFormat !== 'pdf' && !hasExporter(selectedFormat)) {
+      toast({
+        title: 'Format Not Available',
+        description: `Export to ${FORMAT_REGISTRY[selectedFormat]?.name || selectedFormat} is coming soon.`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    cancelledRef.current = false;
+    const abortController = new AbortController();
+    abortRef.current = abortController;
     setIsExporting(true);
-    try {
+    setExportStage('Starting…');
+
+    // Hard safety timeout: whatever happens, the export cannot spin forever.
+    // On timeout we also abort the worker so it stops doing work.
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      timeoutId = setTimeout(() => {
+        try { abortController.abort(); } catch { /* ignore */ }
+        reject(
+          new Error(
+            'Export timed out. The document may be very large — try again or export a smaller section.'
+          )
+        );
+      }, EXPORT_TIMEOUT_MS);
+    });
+
+    const runExport = async () => {
       // PDF uses the existing exporter — lazy-loaded to keep bundle small
       if (selectedFormat === 'pdf') {
         const { exportSubtreeToPdf } = await import('@/lib/pdf-export');
         await exportSubtreeToPdf(
           outline.nodes,
           rootNodeId || outline.rootNodeId,
-          filename
+          filename,
+          (stage) => {
+            if (!cancelledRef.current) setExportStage(stage);
+          },
+          abortController.signal
         );
-      } else if (hasExporter(selectedFormat)) {
+      } else {
+        setExportStage('Generating…');
         await exportOutline(selectedFormat, outline, rootNodeId, {
           includeContent,
           includeMetadata,
         });
-      } else {
-        toast({
-          title: 'Format Not Available',
-          description: `Export to ${FORMAT_REGISTRY[selectedFormat]?.name || selectedFormat} is coming soon.`,
-          variant: 'destructive',
-        });
-        setIsExporting(false);
-        return;
       }
+    };
 
+    try {
+      await Promise.race([runExport(), timeoutPromise]);
+      // If the user cancelled while we were working, stay quiet.
+      if (cancelledRef.current) return;
       toast({
         title: 'Export Complete',
         description: `Exported to ${FORMAT_REGISTRY[selectedFormat]?.name || selectedFormat}`,
       });
       onOpenChange(false);
     } catch (error: any) {
+      if (cancelledRef.current) return;
       console.error('Export failed:', error);
       toast({
         title: 'Export Failed',
@@ -156,7 +213,12 @@ export default function ExportDialog({
         variant: 'destructive',
       });
     } finally {
+      if (timeoutId) clearTimeout(timeoutId);
+      abortRef.current = null;
+      // The button NEVER stays stuck: this runs on success, error, timeout,
+      // and cancel alike.
       setIsExporting(false);
+      setExportStage(null);
     }
   };
 
@@ -304,19 +366,39 @@ export default function ExportDialog({
           )}
         </div>
 
+        {/* Honest progress indicator while an export is running */}
+        {isExporting && (
+          <div className="mt-3 flex-shrink-0 px-1">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <span>{exportStage || 'Working…'}</span>
+            </div>
+            <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+              <div className="h-full w-1/3 animate-pulse rounded-full bg-primary" />
+            </div>
+          </div>
+        )}
+
         <DialogFooter className="mt-4 flex-shrink-0 sm:justify-between">
           <Button
             variant="outline"
             onClick={() => setShowShareDialog(true)}
+            disabled={isExporting}
             title="Publish this to a view-only link on our site that anyone can open"
           >
             <Link2 className="mr-2 h-4 w-4" />
             Share Link
           </Button>
           <div className="flex gap-2">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
+          {isExporting ? (
+            <Button variant="outline" onClick={handleCancelExport}>
+              Stop
+            </Button>
+          ) : (
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
+          )}
           <Button
             onClick={handleExport}
             disabled={!selectedFormat || !filename.trim() || isExporting}
@@ -324,7 +406,7 @@ export default function ExportDialog({
             {isExporting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Exporting...
+                {exportStage ? 'Working…' : 'Exporting...'}
               </>
             ) : (
               'Export'
