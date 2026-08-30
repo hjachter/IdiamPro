@@ -415,7 +415,7 @@ export default function PricingPage() {
                 features={[
                   'Unlimited outlines',
                   'All core outliner features',
-                  'Bring your own AI key — Google Gemini for text, or free on-device AI via Ollama (OpenAI powers premium voices; Claude, Mistral, Groq & ElevenLabs coming soon)',
+                  'Bring your own AI key — Google Gemini powers text out of the box, or plug in your own key for Anthropic Claude, OpenAI GPT, Groq, or Mistral, pay-as-you-go on your key. Free on-device AI via Ollama; OpenAI powers premium voices (ElevenLabs voices coming soon)',
                   'AI on your own key — everyday use typically free, pay your provider directly for anything heavier',
                   'All export formats',
                   'Multi-platform (Mac, iPhone, web)'

@@ -123,7 +123,7 @@ export default function FaqPage() {
     },
     {
       question: 'What AI models do you use?',
-      answer: 'Today, AI text generation runs on Google Gemini in the cloud, or fully on-device via Ollama (Mac). Premium podcast and video voices use OpenAI, and every device also has free built-in voices. Support for more engines — Anthropic Claude, Mistral, Groq, and ElevenLabs voices — is coming soon.'
+      answer: 'AI text generation runs on Google Gemini out of the box, or fully on-device via Ollama (Mac). Want a different engine? Bring your own key and you can run text on Anthropic Claude, OpenAI GPT, Groq, or Mistral — pay-as-you-go, billed directly by your provider, so you stay in control. Premium podcast and video voices use OpenAI, every device also has free built-in voices, and ElevenLabs voices are coming soon.'
     },
     {
       question: 'Does it work offline?',
