@@ -42,7 +42,7 @@ import { Label } from '@/components/ui/label';
 import { WandSparkles, Loader2, AlertTriangle, Cpu, ArrowLeft } from 'lucide-react';
 import { reformatContentAction } from '@/app/actions';
 import { isLocalAIReachable, notifyLocalAIDown } from '@/lib/local-ai';
-import { getUserApiKey } from '@/lib/byok-keys';
+import { getUserApiKey, getSelectedTextProvider } from '@/lib/byok-keys';
 import { useAIUsageGate } from '@/lib/use-ai-usage-gate';
 import DerivationChoice, { type DerivationMode } from './derivation-choice';
 import { suggestDerivationLabel } from '@/lib/derivation/label-from-prompt';
@@ -168,6 +168,7 @@ export default function ReformatDialog({
         instruction: cleanInstruction,
         useLocal,
         userApiKey,
+        providerSelection: getSelectedTextProvider(),
       });
 
       if (result.error) {

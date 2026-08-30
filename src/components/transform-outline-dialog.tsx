@@ -43,7 +43,7 @@ import { transformOutlineAction } from '@/app/actions';
 import { isLocalAIReachable, notifyLocalAIDown } from '@/lib/local-ai';
 import { serializeSubtree } from '@/lib/transform-outline-helpers';
 import type { SerializedNode, TransformOutlineResult } from '@/ai/flows/transform-outline';
-import { getUserApiKey } from '@/lib/byok-keys';
+import { getUserApiKey, getSelectedTextProvider } from '@/lib/byok-keys';
 import { useAIUsageGate } from '@/lib/use-ai-usage-gate';
 import type { NodeMap } from '@/types';
 import DerivationChoice, { type DerivationMode } from './derivation-choice';
@@ -187,6 +187,7 @@ export default function TransformOutlineDialog({
         currentOutlineName: outlineName,
         useLocal,
         userApiKey,
+        providerSelection: getSelectedTextProvider(),
       });
 
       if (r.error) {

@@ -8,14 +8,15 @@
  * - ExpandNodeContentOutput - The return type for the expandNodeContent function.
  */
 
-import { GoogleGenerativeAI } from '@google/generative-ai';
-import { getDefaultGeminiModel } from '@/config/gemini-models';
-import { requireApiKey } from '@/lib/byok-keys';
+import { generateText } from '@/lib/ai/generate-text';
+import type { TextProviderSelection } from '@/lib/ai/text-providers';
 
 export interface ExpandNodeContentInput {
   title: string;
   /** Optional user-supplied Gemini key (BYOK). Falls back to GEMINI_API_KEY env var. */
   userApiKey?: string | null;
+  /** The user's selected text provider + key + model (defaults to Gemini). */
+  providerSelection?: TextProviderSelection | null;
 }
 
 export interface ExpandNodeContentOutput {
@@ -23,17 +24,6 @@ export interface ExpandNodeContentOutput {
 }
 
 export async function expandNodeContent(input: ExpandNodeContentInput): Promise<ExpandNodeContentOutput> {
-  const apiKey = requireApiKey('gemini', input.userApiKey);
-
-  const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({
-    model: getDefaultGeminiModel('sdk'),
-    generationConfig: {
-      temperature: 0.7,
-      maxOutputTokens: 1024,
-    },
-  });
-
   const prompt = `You are an expert content writer.
 
 You will be provided with a title for a node in an outline. Your task is to generate a detailed paragraph of content for that node based on the title.
@@ -42,9 +32,13 @@ Title: ${input.title}
 
 Content:`;
 
-  const result = await model.generateContent(prompt);
-  const response = result.response;
-  const content = response.text();
+  const { text } = await generateText({
+    prompt,
+    temperature: 0.7,
+    maxOutputTokens: 1024,
+    geminiApiKey: input.userApiKey,
+    selection: input.providerSelection,
+  });
 
-  return { content };
+  return { content: text };
 }

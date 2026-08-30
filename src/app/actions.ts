@@ -57,6 +57,7 @@ import {
   NoCompanyKeyError,
 } from '@/lib/billing/company-text-fallback';
 import { resolveCompanyTextAccess } from '@/lib/billing/ai-usage-meter';
+import type { TextProviderSelection } from '@/lib/ai/text-providers';
 import {
   runAIWithFailover,
   buildNoFallbackMessage,
@@ -297,6 +298,7 @@ export async function generateOutlineAction(
   level: AILevel = 'college',
   userApiKey?: string | null,
   useLocal: boolean = false,
+  providerSelection?: TextProviderSelection | null,
 ): Promise<string> {
   try {
     // Cost-free local path: route straight to on-device Ollama (Gemma). Used
@@ -310,7 +312,7 @@ export async function generateOutlineAction(
       });
       return md;
     }
-    const result = await generateOutlineFromTopic({ topic, depth, tone, level, userApiKey });
+    const result = await generateOutlineFromTopic({ topic, depth, tone, level, userApiKey, providerSelection });
     return result.outline;
   } catch (error) {
     console.error('Error generating outline:', error);
@@ -321,10 +323,11 @@ export async function generateOutlineAction(
 export async function expandContentAction(
   title: string,
   userApiKey?: string | null,
+  providerSelection?: TextProviderSelection | null,
 ): Promise<string> {
   try {
     // const config = getPlanConfig(plan);
-    const result = await expandNodeContent({ title, userApiKey });
+    const result = await expandNodeContent({ title, userApiKey, providerSelection });
     return result.content;
   } catch (error) {
     console.error('Error expanding content:', error);
@@ -614,6 +617,7 @@ export async function generateContentForNodeAction(
   useLocal: boolean = false,
   userApiKey?: string | null,
   aiProvider: AIProviderChoice = 'auto',
+  providerSelection?: TextProviderSelection | null,
 ): Promise<string> {
   try {
     // Build context information
@@ -676,9 +680,16 @@ MERMAID SYNTAX RULES (critical - diagrams will fail if violated):
     // on THEIR key (their cost, unlimited) — this never touches the company key.
     // Mirrors how expandContentAction / generateEmail forward the BYOK key.
     const byokKey = userApiKey && userApiKey.trim().length > 0 ? userApiKey.trim() : null;
-    if (byokKey) {
+    // A premium provider (Claude/OpenAI/Groq/Mistral) selected WITH the user's
+    // own key also runs on their key via the text seam — never the company key.
+    const selectionIsPremiumByok =
+      !!providerSelection?.apiKey &&
+      providerSelection.apiKey.trim().length > 0 &&
+      !!providerSelection.provider &&
+      providerSelection.provider !== 'gemini';
+    if (byokKey || selectionIsPremiumByok) {
       try {
-        const result = await expandNodeContent({ title: enhancedTitle, userApiKey: byokKey });
+        const result = await expandNodeContent({ title: enhancedTitle, userApiKey: byokKey, providerSelection });
         if (result.content && result.content.trim().length > 0) {
           return result.content;
         }

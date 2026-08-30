@@ -1,6 +1,6 @@
 'use client';
 
-import { getUserApiKey } from './byok-keys';
+import { getUserApiKey, getSelectedTextProvider } from './byok-keys';
 
 import type {
   SubscriptionPlan,
@@ -97,7 +97,7 @@ export class AIService {
     if (!this.features.enableAIContentGeneration) {
       throw new Error('AI content generation is not enabled for your plan.');
     }
-    return generateOutlineAction(topic, undefined, undefined, undefined, getUserApiKey('gemini'));
+    return generateOutlineAction(topic, undefined, undefined, undefined, getUserApiKey('gemini'), false, getSelectedTextProvider());
   }
 
   /**
@@ -107,7 +107,7 @@ export class AIService {
     if (!this.features.enableAIContentGeneration) {
       throw new Error('AI content generation is not enabled for your plan.');
     }
-    return generateContentForNodeAction(context);
+    return generateContentForNodeAction(context, false, getUserApiKey('gemini'), 'auto', getSelectedTextProvider());
   }
 
   /**
@@ -117,7 +117,7 @@ export class AIService {
     if (!this.features.enableAIContentGeneration) {
       throw new Error('AI content generation is not enabled for your plan.');
     }
-    return expandContentAction(title, getUserApiKey('gemini'));
+    return expandContentAction(title, getUserApiKey('gemini'), getSelectedTextProvider());
   }
 
   /**

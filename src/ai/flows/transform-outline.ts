@@ -23,11 +23,11 @@
  * Counts as 1 AI generation (regardless of subtree size).
  */
 
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import { v4 as uuidv4 } from 'uuid';
-import { getDefaultGeminiModel, getGeminiModelById, DEFAULT_GEMINI_MODEL_ID } from '@/config/gemini-models';
+import { getGeminiModelById, DEFAULT_GEMINI_MODEL_ID } from '@/config/gemini-models';
 import { generateWithOllama, isOllamaAvailable, getBestAvailableModel } from '@/lib/ollama-service';
-import { requireApiKey } from '@/lib/byok-keys';
+import { generateText } from '@/lib/ai/generate-text';
+import { TEXT_PROVIDER_NAMES, type TextProviderSelection } from '@/lib/ai/text-providers';
 import type { NodeMap, OutlineNode, NodeType } from '@/types';
 
 /** Subset of OutlineNode the AI is allowed to read/produce. */
@@ -58,6 +58,8 @@ export interface TransformOutlineInput {
   useLocal?: boolean;
   /** Optional BYOK Gemini key. */
   userApiKey?: string | null;
+  /** The user's selected text provider + key + model (defaults to Gemini). */
+  providerSelection?: TextProviderSelection | null;
 }
 
 export interface TransformOutlineResult {
@@ -306,18 +308,21 @@ function computeStats(
 }
 
 async function transformWithGemini(input: TransformOutlineInput): Promise<TransformOutlineResult> {
-  const apiKey = requireApiKey('gemini', input.userApiKey);
-  const modelEntry = getGeminiModelById(DEFAULT_GEMINI_MODEL_ID);
-  const modelName = modelEntry?.name || 'Gemini';
-
-  const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({
-    model: getDefaultGeminiModel('sdk'),
-    generationConfig: { temperature: 0.3, maxOutputTokens: 8192, responseMimeType: 'application/json' },
+  const { text: raw, provider, model: usedModel } = await generateText({
+    prompt: buildPrompt(input),
+    temperature: 0.3,
+    maxOutputTokens: 8192,
+    jsonMode: true,
+    geminiApiKey: input.userApiKey,
+    selection: input.providerSelection,
   });
 
-  const result = await model.generateContent(buildPrompt(input));
-  const text = (result.response.text() || '').trim();
+  const modelName =
+    provider === 'gemini'
+      ? getGeminiModelById(DEFAULT_GEMINI_MODEL_ID)?.name || 'Gemini'
+      : `${TEXT_PROVIDER_NAMES[provider]}${usedModel ? ` (${usedModel})` : ''}`;
+
+  const text = (raw || '').trim();
   return finalizeAIResponse(input, text, modelName, 'cloud');
 }
 

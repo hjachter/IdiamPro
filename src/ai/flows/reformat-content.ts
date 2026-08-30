@@ -14,10 +14,10 @@
  * sanitises before applying.
  */
 
-import { GoogleGenerativeAI } from '@google/generative-ai';
-import { getDefaultGeminiModel, getGeminiModelById, DEFAULT_GEMINI_MODEL_ID } from '@/config/gemini-models';
+import { getGeminiModelById, DEFAULT_GEMINI_MODEL_ID } from '@/config/gemini-models';
 import { generateWithOllama, isOllamaAvailable, getBestAvailableModel } from '@/lib/ollama-service';
-import { requireApiKey } from '@/lib/byok-keys';
+import { generateText } from '@/lib/ai/generate-text';
+import { TEXT_PROVIDER_NAMES, type TextProviderSelection } from '@/lib/ai/text-providers';
 
 export interface ReformatContentInput {
   /** HTML fragment to reformat (Tiptap content). */
@@ -28,6 +28,8 @@ export interface ReformatContentInput {
   useLocal?: boolean;
   /** Optional BYOK Gemini key from the client. */
   userApiKey?: string | null;
+  /** The user's selected text provider + key + model (defaults to Gemini). */
+  providerSelection?: TextProviderSelection | null;
 }
 
 export interface ReformatContentResult {
@@ -67,19 +69,20 @@ OUTPUT RULES:
 }
 
 async function reformatWithGemini(input: ReformatContentInput): Promise<ReformatContentResult> {
-  const apiKey = requireApiKey('gemini', input.userApiKey);
-
-  const modelEntry = getGeminiModelById(DEFAULT_GEMINI_MODEL_ID);
-  const modelName = modelEntry?.name || 'Gemini';
-
-  const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({
-    model: getDefaultGeminiModel('sdk'),
-    generationConfig: { temperature: 0.4, maxOutputTokens: 2048 },
+  const { text: raw, provider, model: usedModel } = await generateText({
+    prompt: buildPrompt(input),
+    temperature: 0.4,
+    maxOutputTokens: 2048,
+    geminiApiKey: input.userApiKey,
+    selection: input.providerSelection,
   });
 
-  const result = await model.generateContent(buildPrompt(input));
-  const text = (result.response.text() || '').trim();
+  const modelName =
+    provider === 'gemini'
+      ? getGeminiModelById(DEFAULT_GEMINI_MODEL_ID)?.name || 'Gemini'
+      : `${TEXT_PROVIDER_NAMES[provider]}${usedModel ? ` (${usedModel})` : ''}`;
+
+  const text = (raw || '').trim();
 
   if (text === NO_CHANGE_SENTINEL || text === '') {
     return {

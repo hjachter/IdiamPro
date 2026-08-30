@@ -22,7 +22,7 @@ import { useToast } from "@/hooks/use-toast";
 import { generateOutlineAction, expandContentAction, generateContentForNodeAction, ingestExternalSourceAction, bulkResearchIngestAction, bulletBasedResearchAction, interpretCommandAction } from '@/app/actions';
 import type { InterpretedCommand } from '@/ai/flows/interpret-command';
 import AICommandConfirmDialog from '@/components/ai-command-confirm-dialog';
-import { getUserApiKey } from '@/lib/byok-keys';
+import { getUserApiKey, getSelectedTextProvider } from '@/lib/byok-keys';
 import { useAI } from '@/contexts/ai-context';
 import {
   checkAIQuota,
@@ -2952,7 +2952,7 @@ export default function OutlinePro() {
     setIsLoadingAI(true);
     aiLoadingStartTime.current = Date.now();
     try {
-      const markdown = await generateOutlineAction(topic, depth, tone, level, getUserApiKey('gemini'));
+      const markdown = await generateOutlineAction(topic, depth, tone, level, getUserApiKey('gemini'), false, getSelectedTextProvider());
       // Count this successful hosted call (no-op for local/BYOK & when off)
       recordAIUsage('outlineGeneration');
       const { rootNodeId: generatedRootId, nodes: generatedNodes } = parseMarkdownToNodes(markdown, topic);
@@ -3060,7 +3060,7 @@ export default function OutlinePro() {
       const depth: AIDepth = opts.depth || 'standard';
       const tone: AITone = opts.tone || 'professional';
       const level: AILevel = opts.level || 'college';
-      const markdown = await generateOutlineAction(topic, depth, tone, level, getUserApiKey('gemini'), useLocal);
+      const markdown = await generateOutlineAction(topic, depth, tone, level, getUserApiKey('gemini'), useLocal, getSelectedTextProvider());
       const { rootNodeId, nodes } = parseMarkdownToNodes(markdown, topic);
 
       const newOutlineId = uuidv4();
@@ -3123,7 +3123,7 @@ export default function OutlinePro() {
             existingContent: '',
             customPrompt: opts.customize?.trim() || undefined,
             includeDiagram: false,
-          }, useLocal, getUserApiKey('gemini'), useLocal ? 'local' : 'auto');
+          }, useLocal, getUserApiKey('gemini'), useLocal ? 'local' : 'auto', getSelectedTextProvider());
           working[id] = { ...working[id], content };
           // Push the freshly-written section into the live outline.
           setOutlines(curr => curr.map(o =>
@@ -3228,7 +3228,7 @@ export default function OutlinePro() {
     setIsLoadingAI(true);
     aiLoadingStartTime.current = Date.now();
     try {
-      const content = await expandContentAction(selectedNode.name);
+      const content = await expandContentAction(selectedNode.name, getUserApiKey('gemini'), getSelectedTextProvider());
       // Count this successful hosted call (no-op for local/BYOK & when off)
       recordAIUsage('contentExpansion');
 
@@ -3280,6 +3280,7 @@ export default function OutlinePro() {
         useLocal,
         getUserApiKey('gemini'),
         aiProvider,
+        getSelectedTextProvider(),
       );
       return content;
     } catch (e) {
@@ -3404,6 +3405,7 @@ export default function OutlinePro() {
           descendantsProvider === 'local',
           getUserApiKey('gemini'),
           descendantsProvider,
+          getSelectedTextProvider(),
         );
 
         // Update the node - APPEND new content after existing content

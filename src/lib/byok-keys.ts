@@ -22,6 +22,11 @@
  */
 
 import { isCompanyTextFallbackEnabled, NoCompanyKeyError } from '@/lib/billing/company-text-fallback';
+import {
+  SUPPORTED_TEXT_PROVIDERS,
+  type TextProviderId,
+  type TextProviderSelection,
+} from '@/lib/ai/text-providers';
 
 export type BYOKProvider = 'gemini' | 'openai' | 'anthropic' | 'mistral' | 'groq' | 'openrouter' | 'assemblyai';
 
@@ -58,6 +63,37 @@ export function getUserApiKey(provider: BYOKProvider): string | null {
     return v && v.trim().length > 0 ? v.trim() : null;
   } catch {
     return null;
+  }
+}
+
+/**
+ * localStorage key that records which provider the user chose to drive TEXT
+ * generation. Absent → Gemini (our default).
+ */
+export const TEXT_PROVIDER_STORAGE_KEY = 'textProvider';
+
+/**
+ * CLIENT-SIDE: read the user's chosen TEXT-generation provider + the matching
+ * key + optional model. This is the "user makes the decision" input that the
+ * server-side text seam (generate-text.ts) routes on. Returns a Gemini default
+ * (our default) whenever nothing is selected, the selection is unknown, or the
+ * selected provider has no key stored — so a keyless choice never strands the
+ * user or reaches a premium model.
+ */
+export function getSelectedTextProvider(): TextProviderSelection {
+  if (typeof window === 'undefined') return { provider: 'gemini' };
+  try {
+    const raw = window.localStorage.getItem(TEXT_PROVIDER_STORAGE_KEY);
+    const provider: TextProviderId =
+      raw && (SUPPORTED_TEXT_PROVIDERS as string[]).includes(raw)
+        ? (raw as TextProviderId)
+        : 'gemini';
+    // Every TextProviderId is also a BYOKProvider, so the key lookup is safe.
+    const apiKey = getUserApiKey(provider as BYOKProvider);
+    const model = window.localStorage.getItem(`model_${provider}`);
+    return { provider, apiKey, model };
+  } catch {
+    return { provider: 'gemini' };
   }
 }
 

@@ -63,7 +63,7 @@ import { transformOutlineAction } from '@/app/actions';
 import { isLocalAIReachable, notifyLocalAIDown } from '@/lib/local-ai';
 import { serializeSubtree } from '@/lib/transform-outline-helpers';
 import type { SerializedNode, TransformOutlineResult } from '@/ai/flows/transform-outline';
-import { getUserApiKey } from '@/lib/byok-keys';
+import { getUserApiKey, getSelectedTextProvider } from '@/lib/byok-keys';
 import { useAIUsageGate } from '@/lib/use-ai-usage-gate';
 import { useVoiceProfile } from '@/lib/use-voice-profile';
 import { useSourceVerifier } from '@/lib/ai/use-source-verifier';
@@ -211,6 +211,7 @@ export default function SummarizeOutlineDialog({
         voiceProfile: useVoice ? voiceProfile.trim() : undefined,
         useLocal,
         userApiKey,
+        providerSelection: getSelectedTextProvider(),
       });
 
       if (r.error) {

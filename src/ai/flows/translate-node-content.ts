@@ -9,10 +9,10 @@
  * a pure language-to-language transform of the existing content.
  */
 
-import { GoogleGenerativeAI } from '@google/generative-ai';
-import { getDefaultGeminiModel, getGeminiModelById, DEFAULT_GEMINI_MODEL_ID } from '@/config/gemini-models';
+import { getGeminiModelById, DEFAULT_GEMINI_MODEL_ID } from '@/config/gemini-models';
 import { generateWithOllama, isOllamaAvailable, getBestAvailableModel } from '@/lib/ollama-service';
-import { requireApiKey } from '@/lib/byok-keys';
+import { generateText } from '@/lib/ai/generate-text';
+import { TEXT_PROVIDER_NAMES, type TextProviderSelection } from '@/lib/ai/text-providers';
 
 export interface TranslateNodeInput {
   nodeName: string;
@@ -24,6 +24,8 @@ export interface TranslateNodeInput {
   useLocal?: boolean;
   /** Optional BYOK key. */
   userApiKey?: string | null;
+  /** The user's selected text provider + key + model (defaults to Gemini). */
+  providerSelection?: TextProviderSelection | null;
 }
 
 export interface TranslateNodeResult {
@@ -63,19 +65,20 @@ RULES:
 }
 
 async function translateWithGemini(input: TranslateNodeInput): Promise<TranslateNodeResult> {
-  const apiKey = requireApiKey('gemini', input.userApiKey);
-
-  const modelEntry = getGeminiModelById(DEFAULT_GEMINI_MODEL_ID);
-  const modelName = modelEntry?.name || 'Gemini';
-
-  const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({
-    model: getDefaultGeminiModel('sdk'),
-    generationConfig: { temperature: 0.3, maxOutputTokens: 2048 },
+  const { text: raw, provider, model: usedModel } = await generateText({
+    prompt: buildPrompt(input),
+    temperature: 0.3,
+    maxOutputTokens: 2048,
+    geminiApiKey: input.userApiKey,
+    selection: input.providerSelection,
   });
 
-  const result = await model.generateContent(buildPrompt(input));
-  const text = (result.response.text() || '').trim();
+  const modelName =
+    provider === 'gemini'
+      ? getGeminiModelById(DEFAULT_GEMINI_MODEL_ID)?.name || 'Gemini'
+      : `${TEXT_PROVIDER_NAMES[provider]}${usedModel ? ` (${usedModel})` : ''}`;
+
+  const text = (raw || '').trim();
 
   if (text === NO_CHANGE_SENTINEL || text === '') {
     return {

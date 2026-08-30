@@ -10,9 +10,8 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import { GoogleGenerativeAI } from '@google/generative-ai';
-import { getDefaultGeminiModel } from '@/config/gemini-models';
-import { resolveApiKey } from '@/lib/byok-keys';
+import { generateText } from '@/lib/ai/generate-text';
+import type { TextProviderSelection } from '@/lib/ai/text-providers';
 import { isCompanyTextFallbackEnabled, NoCompanyKeyError } from '@/lib/billing/company-text-fallback';
 import type { AIDepth, AITone, AILevel } from '@/types';
 
@@ -43,6 +42,8 @@ export interface GenerateOutlineFromTopicInput {
   level?: AILevel;
   /** Optional user-supplied Gemini key (BYOK). Falls back to GEMINI_API_KEY env var. */
   userApiKey?: string | null;
+  /** The user's selected text provider + key + model (defaults to Gemini). */
+  providerSelection?: TextProviderSelection | null;
 }
 
 const GenerateOutlineFromTopicOutputSchema = z.object({
@@ -147,19 +148,25 @@ EXAMPLE OF WRONG FORMAT (do NOT do this):
 ## 1.2. Historical Context: The Emergence and Development of Early Research
 The field has a long history.`;
 
-  // BYOK path — Genkit's `ai` object captures the env-var key at construction
-  // time, so it can't be reused for a per-request user-supplied key. Use the
-  // direct SDK with the user's key instead.
-  if (input.userApiKey) {
-    const apiKey = resolveApiKey('gemini', input.userApiKey);
-    if (!apiKey) throw new Error('No Gemini API key available');
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({
-      model: getDefaultGeminiModel('sdk'),
-      generationConfig: { temperature: 0.7, maxOutputTokens: 8192 },
+  // BYOK path — route through the multi-provider text seam so the user's
+  // SELECTED provider (Claude / OpenAI / Groq / Mistral / Gemini, on their own
+  // key) governs. Genkit's `ai` object captures the env-var key at construction
+  // time and can't carry a per-request user key, so this never uses `ai`.
+  const selection = input.providerSelection;
+  const selectionIsPremiumByok =
+    !!selection?.apiKey &&
+    selection.apiKey.trim().length > 0 &&
+    !!selection.provider &&
+    selection.provider !== 'gemini';
+  if (input.userApiKey || selectionIsPremiumByok) {
+    const { text } = await generateText({
+      prompt: fullPrompt,
+      temperature: 0.7,
+      maxOutputTokens: 8192,
+      geminiApiKey: input.userApiKey,
+      selection,
     });
-    const result = await model.generateContent(fullPrompt);
-    return { outline: result.response.text() || '' };
+    return { outline: text || '' };
   }
 
   // No user key: the Genkit path would use the company/founder env key. SAFETY

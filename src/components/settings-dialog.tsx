@@ -257,6 +257,10 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
   const [providerStatus, setProviderStatus] = useState<Record<string, 'untested' | 'ok' | 'error'>>({});
 
   const [aiProvider, setAiProvider] = useState<AIProvider>('cloud');
+  // Which provider drives TEXT generation. Defaults to Gemini (our default).
+  // BYOK premium providers (Claude/OpenAI/Groq/Mistral) run on the user's own
+  // key; the routing lives in src/lib/ai/generate-text.ts.
+  const [textProvider, setTextProvider] = useState<string>('gemini');
   const [ollamaStatus, setOllamaStatus] = useState<{
     checking: boolean;
     available: boolean;
@@ -354,6 +358,10 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
     const savedAiProvider = localStorage.getItem('aiProvider') as AIProvider | null;
     if (savedAiProvider) {
       setAiProvider(savedAiProvider);
+    }
+    const savedTextProvider = localStorage.getItem('textProvider');
+    if (savedTextProvider) {
+      setTextProvider(savedTextProvider);
     }
     const savedModel = localStorage.getItem('ollamaModel');
     if (savedModel) {
@@ -512,6 +520,11 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
   const handleAiProviderChange = (value: AIProvider) => {
     setAiProvider(value);
     localStorage.setItem('aiProvider', value);
+  };
+
+  const handleTextProviderChange = (value: string) => {
+    setTextProvider(value);
+    localStorage.setItem('textProvider', value);
   };
 
   const handleModelChange = (value: string) => {
@@ -792,7 +805,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
     },
     {
       id: 'anthropic', name: 'Anthropic Claude', placeholder: 'sk-ant-...',
-      free: false, recommended: false, comingSoon: true,
+      free: false, recommended: false,
       keyUrl: 'https://console.anthropic.com/settings/keys',
       cost: 'Pay-as-you-go. ~$0.003-0.015 per 1K tokens. Best for long reasoning tasks.',
       steps: [
@@ -804,7 +817,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
     },
     {
       id: 'mistral', name: 'Mistral AI', placeholder: 'M...',
-      free: false, recommended: false, comingSoon: true,
+      free: false, recommended: false,
       keyUrl: 'https://console.mistral.ai/api-keys',
       cost: 'Pay-as-you-go. Competitive pricing. Strong multilingual support.',
       steps: [
@@ -816,7 +829,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
     },
     {
       id: 'groq', name: 'Groq', placeholder: 'gsk_...',
-      free: true, recommended: false, comingSoon: true,
+      free: true, recommended: false,
       keyUrl: 'https://console.groq.com/keys',
       cost: 'Free tier available. Extremely fast inference. No credit card required.',
       steps: [
@@ -1496,7 +1509,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
                     />
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Adds an &ldquo;Import Email&rdquo; option to the Bring In menu — paste an email or whole thread (or drop a .eml file) and turn it into a clean outline of key points, decisions, and action items.
+                    Adds an &ldquo;Import Email&rdquo; option to the Import menu — paste an email or whole thread (or drop a .eml file) and turn it into a clean outline of key points, decisions, and action items.
                   </p>
 
                   {/* File suspected junk aside — only meaningful when import is on. */}
@@ -2377,6 +2390,33 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
             <p className="text-xs text-muted-foreground">
               Keys are stored locally on your device and never sent to our servers.
             </p>
+
+            {/* Which provider drives TEXT generation. Gemini is the default;
+                premium providers appear here once you've added their key and run
+                on your own key (your cost, your provider). */}
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium">Text generation model</Label>
+              <Select value={textProvider} onValueChange={handleTextProviderChange}>
+                <SelectTrigger className="h-9 text-sm">
+                  <SelectValue placeholder="Google Gemini (default)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="gemini">Google Gemini (default)</SelectItem>
+                  {aiProviders
+                    .filter(p => ['anthropic', 'openai', 'groq', 'mistral'].includes(p.id) && apiKeys[p.id])
+                    .map(p => (
+                      <SelectItem key={p.id} value={p.id}>
+                        {p.name} — your key
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                Your choice governs text generation. Premium models run on your own
+                key, pay-as-you-go — add a key below to unlock them. Everyday use on
+                Gemini is typically free.
+              </p>
+            </div>
 
             <div className="space-y-3">
               {aiProviders.map(provider => (

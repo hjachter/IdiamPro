@@ -128,7 +128,7 @@ import Image from 'next/image';
 import { ArrowLeft, Sparkles, Loader2, Eraser, Scissors, Copy, Clipboard, Type, Undo, Redo, List, ListOrdered, ListX, Minus, FileText, Sheet, Presentation, Video, Map, AppWindow, Plus, Bold, Italic, Underline, Strikethrough, Code, Heading1, Heading2, Heading3, ChevronRight, Home, Pencil, ALargeSmall, Check, Calendar, Brush, Network, GitBranch, MessageSquare, ImagePlus, Table, Layers, Image as ImageIcon, Film, CheckSquare, Paperclip, LayoutGrid, WandSparkles } from 'lucide-react';
 import { generateImageAction, generateImageDescriptionAction, generateContentForNodeAction } from '@/app/actions';
 import { useAIUsageGate } from '@/lib/use-ai-usage-gate';
-import { getUserApiKey } from '@/lib/byok-keys';
+import { getUserApiKey, getSelectedTextProvider } from '@/lib/byok-keys';
 import dynamic from 'next/dynamic';
 
 // Dynamically import DrawingCanvas to avoid SSR issues with Excalidraw
@@ -2054,7 +2054,7 @@ export default function ContentPane({
           existingContent: '',
           customPrompt: `Format the following extracted PDF document text into well-structured rich content. Preserve the document's original structure as faithfully as possible:\n- Use headings (H1, H2, H3) for section titles\n- Use bold for emphasis and key terms\n- Use bullet or numbered lists where appropriate\n- Use blockquotes for quoted passages\n- Preserve tables if any exist\n- Keep all the original content — do not summarize or omit anything\n- Do NOT add commentary or analysis — just faithfully reproduce the document with proper formatting\n\nDocument text:\n${rawText.substring(0, 30000)}`,
           includeDiagram: false,
-        });
+        }, false, getUserApiKey('gemini'), 'auto', getSelectedTextProvider());
         editor.chain().focus().insertContent(formatted || '<p>(Formatting produced no output)</p>').run();
       } catch (err) {
         console.error('AI formatting step failed, inserting raw text:', err);
@@ -2868,14 +2868,14 @@ export default function ContentPane({
                     variant="outline"
                     size="icon"
                     disabled
-                    aria-label="Turn Into"
+                    aria-label="Export"
                     className="bg-blue-700 text-white border-transparent shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 disabled:opacity-40 pointer-events-none"
                   >
                     <BookUp className="h-4 w-4 text-white" strokeWidth={2.5} />
                   </Button>
                 </span>
               </TooltipTrigger>
-              <TooltipContent>Turn Into — export coming soon</TooltipContent>
+              <TooltipContent>Export — coming soon</TooltipContent>
             </Tooltip>
           )}
 
@@ -2924,7 +2924,7 @@ export default function ContentPane({
               <DropdownMenuContent align="end" className="w-52 p-0.5">
                 {!showTurnIntoInline && (
                   <DropdownMenuItem disabled className="py-1">
-                    <BookUp className="mr-2 h-4 w-4" /> Turn Into — coming soon
+                    <BookUp className="mr-2 h-4 w-4" /> Export — coming soon
                   </DropdownMenuItem>
                 )}
                 {!showFindInline && (
