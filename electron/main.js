@@ -1,8 +1,23 @@
-const { app, BrowserWindow, Menu, dialog, ipcMain, shell, session, systemPreferences } = require('electron');
+const { app, BrowserWindow, Menu, dialog, ipcMain, shell, session, systemPreferences, screen } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const { spawn } = require('child_process');
 const net = require('net');
+
+// ========== Load .env.local so the MAIN process sees keys (OpenAI TTS, etc.) ==========
+// The renderer reads BYOK keys from localStorage, but the Electron MAIN process
+// (podcast & video TTS generators) relies on process.env.OPENAI_API_KEY as its
+// fallback. In dev, that key lives in the project's .env.local — Next.js loads it
+// for the renderer, but the Electron main process does NOT load it on its own, so
+// on desktop the env fallback was always empty and TTS fell back to robotic Mac
+// voices. Load it here, as early as possible (before Sentry / any env read), so
+// the env fallback actually works. Robust: never throws if dotenv or the file is
+// missing.
+try {
+  require('dotenv').config({ path: path.join(__dirname, '..', '.env.local') });
+} catch (err) {
+  console.warn('[env] .env.local not loaded:', err && err.message);
+}
 
 // ========== electron-updater ==========
 // Auto-updater for the packaged macOS desktop build. The dependency
@@ -446,11 +461,30 @@ async function createWindow() {
     }
   }
 
+  // ========== Open at ~90% of the primary display's usable work area, centered ==========
+  // Hardcoded 1400x900 came up too small on a 15" MacBook Air, collapsing many
+  // outline-toolbar buttons into the "More tools" overflow. Size to 90% of the
+  // available work area (excludes menu bar / dock) so all toolbar buttons show
+  // inline by default. Defensive fallback to 1400x900 if the work area is
+  // unavailable for any reason.
+  let winWidth = 1400;
+  let winHeight = 900;
+  try {
+    const workArea = screen.getPrimaryDisplay().workAreaSize;
+    if (workArea && workArea.width > 0 && workArea.height > 0) {
+      winWidth = Math.round(workArea.width * 0.9);
+      winHeight = Math.round(workArea.height * 0.9);
+    }
+  } catch (err) {
+    console.warn('[window] Could not read primary display work area, using 1400x900 fallback:', err && err.message);
+  }
+
   mainWindow = new BrowserWindow({
-    width: 1400,
-    height: 900,
+    width: winWidth,
+    height: winHeight,
     minWidth: 800,
     minHeight: 600,
+    center: true,
     titleBarStyle: 'hiddenInset',
     backgroundColor: '#242424', // macOS dark mode gray
     webPreferences: {
@@ -1866,6 +1900,20 @@ ipcMain.handle('generate-podcast-audio', async (event, args) => {
   }
 });
 
+// Report whether an OpenAI key is available to the MAIN process from the
+// environment (e.g. loaded from .env.local at boot). Returns ONLY a boolean —
+// NEVER the key value — so the renderer can accurately show that AI voices are
+// usable even when the key comes from env rather than the user's BYOK localStorage.
+ipcMain.handle('has-openai-env-key', () => {
+  // The env key is usable for TTS ONLY as a dev convenience on an unpackaged
+  // build — a shipped/packaged app never bills the founder's env key. Report
+  // it as available only when it could actually be used, so a packaged keyless
+  // user honestly sees the free Mac-voices messaging rather than "AI voices".
+  if (app.isPackaged) return false;
+  const k = process.env.OPENAI_API_KEY;
+  return typeof k === 'string' && k.trim().length > 0;
+});
+
 // Exposed on global so automated tests can drive synthesis directly in the main
 // process via electronApp.evaluate() without needing full UI wiring.
 global.__generatePodcastAudio = async (args) => {
@@ -1879,6 +1927,92 @@ global.__pickPodcastSayVoices = (voices) => {
   const { __test } = getPodcastGenerator();
   return __test.pickSayVoices(Array.isArray(voices) ? voices : []);
 };
+
+// ========== Voice Quality Detection (for the "enable enhanced voices" nudge) ==========
+
+// Report the installed macOS `say` voices with their quality rank so the renderer
+// can gently nudge a free (keyless) user to install a free Enhanced/Premium
+// English voice when their Mac only has the basic (robotic) tier. This is a
+// pure DETECTION helper — it does NOT change how voices are actually picked.
+// Only meaningful on macOS; returns an empty list elsewhere.
+ipcMain.handle('list-say-voices', async () => {
+  try {
+    if (process.platform !== 'darwin') {
+      return { platform: process.platform, voices: [] };
+    }
+    const gen = getPodcastGenerator();
+    const { listSayVoices } = gen;
+    const rank = gen.voiceQualityRank;
+    const leadWord = gen.voiceLeadWord;
+    const novelty = gen.NOVELTY_VOICES;
+    const voices = listSayVoices().map((v) => {
+      const r = rank(v.name); // 3=Premium, 2=Enhanced, 1=basic
+      const english = /^en/i.test(v.locale);
+      const isNovelty = novelty.has(leadWord(v.name));
+      // "good" = a voice worth offering in the in-app picker: English,
+      // Enhanced or Premium tier, and not a novelty/joke voice.
+      return { name: v.name, locale: v.locale, rank: r, good: english && r >= 2 && !isNovelty };
+    });
+    return { platform: 'darwin', voices };
+  } catch (error) {
+    console.error('[Voices] list-say-voices failed:', error);
+    return { platform: process.platform, voices: [], error: (error && error.message) || String(error) };
+  }
+});
+
+// Open macOS System Settings to the Spoken Content pane so the user can download
+// free Enhanced/Premium voices. Falls back to the Accessibility pane if the
+// deep-link anchor doesn't resolve on this macOS version.
+ipcMain.handle('open-voice-settings', async () => {
+  if (process.platform !== 'darwin') {
+    return { success: false, error: 'Voice settings are only available on macOS.' };
+  }
+  const spokenContent = 'x-apple.systempreferences:com.apple.preference.universalaccess?SpokenContent';
+  const accessibility = 'x-apple.systempreferences:com.apple.preference.universalaccess';
+  try {
+    await shell.openExternal(spokenContent);
+    return { success: true };
+  } catch (err) {
+    try {
+      await shell.openExternal(accessibility);
+      return { success: true, fellBack: true };
+    } catch (err2) {
+      console.error('[Voices] open-voice-settings failed:', err2);
+      return { success: false, error: (err2 && err2.message) || String(err2) };
+    }
+  }
+});
+
+// Speak a short sample of a specific macOS `say` voice through the speakers so
+// the user can HEAR a voice before choosing it in the in-app picker. The voice
+// name is passed as a discrete argv entry (never through a shell), so nothing
+// in it can be misread as an option or injected as a command. Resolves when the
+// sample finishes playing. macOS only.
+ipcMain.handle('sample-say-voice', async (event, voiceName) => {
+  if (process.platform !== 'darwin') {
+    return { success: false, error: 'Voice samples are only available on macOS.' };
+  }
+  const name = typeof voiceName === 'string' ? voiceName.trim() : '';
+  // Guard: a plausible voice name only (letters, digits, spaces, parens, a few
+  // punctuation marks). Reject anything else rather than pass it to `say`.
+  if (!name || name.length > 80 || !/^[\w .()'’\-]+$/u.test(name)) {
+    return { success: false, error: 'Invalid voice name.' };
+  }
+  const sample = 'Hi there. This is how I will sound narrating your podcast.';
+  return new Promise((resolve) => {
+    try {
+      const child = spawn('say', ['-v', name, sample]);
+      let settled = false;
+      const finish = (result) => { if (!settled) { settled = true; resolve(result); } };
+      child.on('error', (err) => finish({ success: false, error: (err && err.message) || String(err) }));
+      child.on('close', (code) => finish(code === 0 ? { success: true } : { success: false, error: `say exited with code ${code}` }));
+      // Safety timeout so a stuck sample can never hang the handler forever.
+      setTimeout(() => { try { child.kill(); } catch { /* ignore */ } finish({ success: true }); }, 15000);
+    } catch (err) {
+      resolve({ success: false, error: (err && err.message) || String(err) });
+    }
+  });
+});
 
 // ========== App Lifecycle ==========
 

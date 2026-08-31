@@ -221,6 +221,22 @@ export default function GenerateVideoDialog({
   const [isPro, setIsPro] = useState(false);
   const [freeUsed, setFreeUsed] = useState(0);
 
+  // On desktop the OpenAI key may come from the environment (.env.local, loaded by
+  // the Electron main process) rather than the user's BYOK localStorage. Ask the
+  // main process (boolean only, never the key) so the "no key" banner is accurate.
+  const [envOpenaiKey, setEnvOpenaiKey] = useState(false);
+  useEffect(() => {
+    let active = true;
+    const api = typeof window !== 'undefined'
+      ? (window as unknown as { electronAPI?: { hasOpenaiEnvKey?: () => Promise<boolean> } }).electronAPI
+      : undefined;
+    if (api?.hasOpenaiEnvKey) {
+      api.hasOpenaiEnvKey().then((v) => { if (active) setEnvOpenaiKey(!!v); }).catch(() => {});
+    }
+    return () => { active = false; };
+  }, []);
+  const hasOpenaiKey = !!getUserApiKey('openai') || envOpenaiKey;
+
   useEffect(() => {
     if (!open) return;
     setIsPro(getCurrentTier() === 'pro');
@@ -686,7 +702,7 @@ export default function GenerateVideoDialog({
                       ))}
                     </div>
                   </RadioGroup>
-                  {!getUserApiKey('openai') && (
+                  {!hasOpenaiKey && (
                     <p className="text-xs text-muted-foreground">
                       No AI voice key found — your video still narrates, using your Mac&rsquo;s built-in voice (free). Add an OpenAI key in Settings for a more natural AI voiceover.
                     </p>

@@ -6,7 +6,9 @@
 //
 //   Per segment, the audio fallback chain (so a podcast is NEVER silent):
 //     1. OpenAI TTS  — ONLY if an OpenAI key is available. The key is the user's
-//        own BYOK key (passed from the renderer) or the env fallback. This is the
+//        own BYOK key (passed from the renderer). The founder's env key is used
+//        ONLY as a dev convenience on an UNPACKAGED build — never in a shipped
+//        app, so a real user is never billed to the founder's key. This is the
 //        premium, natural-sounding path and runs on the caller's key.
 //     2. FREE macOS `say` — the built-in offline text-to-speech. Each speaker is
 //        given a DISTINCT system voice, so a keyless (free) user still gets an
@@ -27,6 +29,26 @@ const path = require('path');
 const fs = require('fs');
 const os = require('os');
 const { execFile, execFileSync } = require('child_process');
+
+// Whether this process is a SHIPPED/packaged app or an unpackaged dev checkout.
+// This is the load-bearing money-safety gate for OpenAI TTS: the founder's
+// personal env key (OPENAI_API_KEY, loaded from .env.local in dev) may be used
+// as a DEVELOPER CONVENIENCE only, and ONLY when we are demonstrably running
+// unpackaged on a dev machine. In a packaged build shipped to real users it is
+// STRUCTURALLY IMPOSSIBLE to reach the env key — a keyless user gets the free
+// macOS `say` voices instead, never a charge on the founder's key.
+//
+// FAIL CLOSED: if we cannot positively confirm we are unpackaged (electron not
+// resolvable, app object missing), we assume PACKAGED and refuse the env key.
+function isUnpackagedDevBuild() {
+  try {
+    // eslint-disable-next-line global-require
+    const { app } = require('electron');
+    return app && app.isPackaged === false;
+  } catch {
+    return false; // can't prove we're a dev build → treat as packaged
+  }
+}
 
 const ffmpegPath = require('ffmpeg-static');
 const ffprobePath = require('ffprobe-static').path;
@@ -377,8 +399,11 @@ async function probeDuration(filePath) {
  * Generate a single podcast MP3 from dialogue segments.
  *
  * @param {Object} opts
- * @param {Array<{speaker?:string, voice?:string, text:string}>} opts.segments
- * @param {string} [opts.openaiApiKey]  User's BYOK OpenAI key (env is fallback).
+ * @param {Array<{speaker?:string, voice?:string, text:string, sayVoiceOverride?:string}>} opts.segments
+ *   `sayVoiceOverride` (optional, free native path only) forces a specific macOS
+ *   `say` voice for that segment's speaker instead of the auto-picked one.
+ * @param {string} [opts.openaiApiKey]  User's BYOK OpenAI key. The founder's env
+ *   key is used only as a dev convenience on an unpackaged build, never packaged.
  * @param {'tts-1'|'tts-1-hd'} [opts.ttsModel]
  * @param {(p:{phase:string,message:string,percent:number,segmentIndex?:number,totalSegments?:number})=>void} [opts.onProgress]
  * @returns {Promise<{success:boolean, audioBase64?:string, usedTts:boolean,
@@ -390,7 +415,19 @@ async function generatePodcastAudio(opts) {
     return { success: false, error: 'No segments provided.', usedTts: false, usedLocalVoice: false };
   }
 
-  const apiKey = (opts.openaiApiKey && String(opts.openaiApiKey).trim()) || process.env.OPENAI_API_KEY || '';
+  // ---- OpenAI TTS key resolution (money-safety, matches BYOK text-provider) ----
+  //   a. The USER'S own BYOK OpenAI key passed from the renderer → premium
+  //      voices billed to the user's own key.
+  //   b. Else the founder's env key (OPENAI_API_KEY) ONLY as a dev convenience,
+  //      and ONLY on an unpackaged dev build — never in a shipped app.
+  //   c. Else no key at all → the free macOS `say` engine below carries the load.
+  // So a PACKAGED build can NEVER bill the founder's env key for TTS.
+  const userKey = (opts.openaiApiKey && String(opts.openaiApiKey).trim()) || '';
+  let apiKey = userKey;
+  if (!apiKey && isUnpackagedDevBuild()) {
+    const envKey = process.env.OPENAI_API_KEY;
+    if (typeof envKey === 'string' && envKey.trim().length > 0) apiKey = envKey.trim();
+  }
   const ttsModel = opts.ttsModel === 'tts-1-hd' ? 'tts-1-hd' : 'tts-1';
   const onProgress = typeof opts.onProgress === 'function' ? opts.onProgress : null;
   const report = (p) => { if (!onProgress) return; try { onProgress(p); } catch { /* never break the render */ } };
@@ -438,9 +475,13 @@ async function generatePodcastAudio(opts) {
         }
       }
 
-      // 2. FREE macOS `say` with a per-speaker distinct voice.
+      // 2. FREE macOS `say` with a per-speaker distinct voice. An explicit
+      //    per-speaker override (from the in-app voice picker) wins; otherwise
+      //    we fall back to the auto-picked best voice for this speaker. Only the
+      //    free native path honors the override — the OpenAI path is untouched.
       if (!got) {
-        const sayVoice = sayVoiceMap[(seg.voice) || 'alloy'] || null;
+        const override = seg && typeof seg.sayVoiceOverride === 'string' ? seg.sayVoiceOverride.trim() : '';
+        const sayVoice = override || sayVoiceMap[(seg.voice) || 'alloy'] || null;
         const aiff = await synthesizeLocalTts(text, sayVoice, workDir, i);
         if (aiff) {
           await normalizeToMp3(aiff, partPath);
@@ -497,6 +538,11 @@ module.exports = {
   listSayVoices,
   pickSayVoices,
   pickBestSayVoice,
+  // Exposed so the main process can flag which installed voices are the "good"
+  // ones (Enhanced/Premium, English, non-novelty) for the in-app voice picker.
+  voiceQualityRank,
+  voiceLeadWord,
+  NOVELTY_VOICES,
   // Internal helpers exposed for automated testing (run in the main process).
   __test: {
     listSayVoices,

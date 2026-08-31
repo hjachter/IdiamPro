@@ -115,11 +115,27 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // free macOS `say` two-voice → skip fallback chain in the main process so a
   // keyless user still gets an audible podcast. Returns { success, audioBase64, ... }.
   generatePodcastAudio: (args) => ipcRenderer.invoke('generate-podcast-audio', args),
+  // Whether the MAIN process has an OpenAI key from the environment (.env.local).
+  // Returns a boolean only (never the key), so the renderer can accurately show
+  // AI voices as usable even when the key isn't in the user's BYOK localStorage.
+  hasOpenaiEnvKey: () => ipcRenderer.invoke('has-openai-env-key'),
   // Live synthesis progress → returns an unsubscribe function.
   onGeneratePodcastProgress: (callback) => {
     const wrapped = (_event, payload) => callback(payload);
     ipcRenderer.on('generate-podcast-progress', wrapped);
     return () => ipcRenderer.removeListener('generate-podcast-progress', wrapped);
   },
+
+  // Voice quality detection (for the "enable enhanced voices" nudge). Reports the
+  // installed macOS `say` voices with their quality rank (3=Premium, 2=Enhanced,
+  // 1=basic) so the renderer can gently suggest a free upgrade when only basic
+  // voices are installed. Pure detection — never changes voice selection.
+  listSayVoices: () => ipcRenderer.invoke('list-say-voices'),
+  // Open macOS System Settings to the Spoken Content pane so the user can
+  // download free Enhanced/Premium voices.
+  openVoiceSettings: () => ipcRenderer.invoke('open-voice-settings'),
+  // Speak a short sample of a specific macOS `say` voice through the speakers so
+  // the user can hear it before choosing it in the in-app voice picker.
+  sampleSayVoice: (voiceName) => ipcRenderer.invoke('sample-say-voice', voiceName),
 
 });

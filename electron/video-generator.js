@@ -15,7 +15,7 @@
 // hard cuts between slides, no fades. Design/polish/UI/Pro-gating come later.
 // ============================================================================
 
-const { BrowserWindow } = require('electron');
+const { BrowserWindow, app } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
@@ -1246,7 +1246,25 @@ async function generateSlideshowVideo(opts) {
     return { success: false, error: 'No slides provided.', usedTts: false, slideCount: 0 };
   }
 
-  const apiKey = (opts.openaiApiKey && String(opts.openaiApiKey).trim()) || process.env.OPENAI_API_KEY || '';
+  // ---- OpenAI TTS key resolution (money-safety, mirrors the podcast fix) ----
+  //   a. The USER'S own BYOK OpenAI key passed from the renderer → premium
+  //      narration billed to the user's own key.
+  //   b. Else the founder's env key (OPENAI_API_KEY) ONLY as a dev convenience,
+  //      and ONLY on an UNPACKAGED dev build — never in a shipped app.
+  //   c. Else no key ('') → the existing fallback chain below (free macOS `say`
+  //      on darwin, otherwise SILENT audio) carries the render. Never a bill.
+  // So a PACKAGED build can NEVER bill the founder's env key for video TTS.
+  // FAIL CLOSED: if we can't positively confirm we're unpackaged (electron/app
+  // unavailable), we treat it as packaged and refuse the env key.
+  const userVideoKey = (opts.openaiApiKey && String(opts.openaiApiKey).trim()) || '';
+  const isUnpackagedDevBuild = (() => {
+    try { return !!(app && app.isPackaged === false); } catch { return false; }
+  })();
+  let apiKey = userVideoKey;
+  if (!apiKey && isUnpackagedDevBuild) {
+    const envKey = process.env.OPENAI_API_KEY;
+    if (typeof envKey === 'string' && envKey.trim().length > 0) apiKey = envKey.trim();
+  }
   const voice = opts.voice || 'nova';
   const style = opts.style || {};
 

@@ -586,6 +586,17 @@ div[class*="code"] textarea,
   animation: skeleton-pulse 1.5s ease-in-out infinite;
 }
 
+/* Indeterminate progress bar — a stripe that slides across, used when a task
+   is running but has no measurable percent (e.g. multi-pass script generation). */
+@keyframes podcast-indeterminate {
+  0% { transform: translateX(-120%); }
+  100% { transform: translateX(420%); }
+}
+
+.animate-podcast-indeterminate {
+  animation: podcast-indeterminate 1.4s ease-in-out infinite;
+}
+
 /* Mermaid diagram styling - make loop labels and text visible */
 .mermaid-diagram .loopText,
 .mermaid-diagram .loopText tspan,

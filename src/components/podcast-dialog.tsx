@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type { NodeMap, PodcastStyle, PodcastLength, PodcastConfig, PodcastProgress, PodcastScriptSegment, OpenAIVoice } from '@/types';
-import { getDefaultSpeakers, getDefaultVoices, extractSubtreeContent, buildScriptPrompt, OPENAI_VOICE_LABELS } from '@/lib/podcast-generator';
+import { getDefaultSpeakers, getDefaultVoices, extractSubtreeContent, buildScriptPrompt, OPENAI_VOICE_LABELS, LENGTH_TARGETS } from '@/lib/podcast-generator';
 import {
   Dialog,
   DialogContent,
@@ -25,7 +25,7 @@ import {
 } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown, ChevronRight, Download, X, Pencil, Plus, Trash2, Sparkles } from 'lucide-react';
+import { ChevronDown, ChevronRight, Download, X, Pencil, Plus, Trash2, Sparkles, Volume2, Settings2, Play } from 'lucide-react';
 import { canUseFeature } from '@/lib/entitlements';
 import { useAIUsageGate } from '@/lib/use-ai-usage-gate';
 import { useUpgradePrompt } from '@/components/upgrade-prompt';
@@ -83,6 +83,15 @@ const PREF_STYLE = 'idiampro-podcast-style';
 const PREF_LENGTH = 'idiampro-podcast-length';
 const PREF_TTS_MODEL = 'idiampro-podcast-tts-model';
 const PREF_VOICES = 'idiampro-podcast-voices';
+// "Don't show again" flag for the gentle enhanced-voices nudge (free desktop
+// path with only basic system voices installed).
+const PREF_VOICE_NUDGE_DISMISSED = 'idiampro-podcast-voice-nudge-dismissed';
+// Per-style, per-speaker macOS `say` voice chosen in the in-app picker (desktop
+// free path). Absent / "" for a speaker = auto-pick the best installed voice.
+const PREF_SAY_VOICES = 'idiampro-podcast-say-voices';
+// Sentinel Select value for "let the app auto-pick the best voice" (Radix Select
+// disallows an empty-string item value, so we use a marker and map it to "").
+const SAY_AUTO = '__auto__';
 
 function loadPref<T>(key: string, fallback: T): T {
   if (typeof window === 'undefined') return fallback;
@@ -128,6 +137,29 @@ function saveVoicesForStyle(style: PodcastStyle, voices: Record<string, OpenAIVo
   } catch { /* ignore */ }
 }
 
+// The user's chosen free macOS `say` voice per speaker for a given style. An
+// empty map means "auto-pick" for every speaker (the default, so doing nothing
+// still produces a good podcast).
+function loadSayVoicesForStyle(style: PodcastStyle): Record<string, string> {
+  if (typeof window === 'undefined') return {};
+  try {
+    const stored = localStorage.getItem(PREF_SAY_VOICES);
+    if (!stored) return {};
+    const all = JSON.parse(stored);
+    return (all && all[style]) || {};
+  } catch { return {}; }
+}
+
+function saveSayVoicesForStyle(style: PodcastStyle, sayVoices: Record<string, string>) {
+  if (typeof window === 'undefined') return;
+  try {
+    const stored = localStorage.getItem(PREF_SAY_VOICES);
+    const all = stored ? JSON.parse(stored) : {};
+    all[style] = sayVoices;
+    localStorage.setItem(PREF_SAY_VOICES, JSON.stringify(all));
+  } catch { /* ignore */ }
+}
+
 export default function PodcastDialog({
   open,
   onOpenChange,
@@ -165,9 +197,140 @@ export default function PodcastDialog({
   const [scriptOpen, setScriptOpen] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
 
+  // Live elapsed-time counter for the script-generation wait. Script generation
+  // is a non-streaming, multi-pass AI call with no incremental server progress,
+  // so a static bar looks hung. A ticking mm:ss timer proves it's alive.
+  const [scriptElapsedSec, setScriptElapsedSec] = useState(0);
+  // Running segment count reported by the streaming script route after each
+  // iterative pass. Drives the DETERMINATE progress bar (segments / target).
+  const [scriptSegDone, setScriptSegDone] = useState(0);
+  useEffect(() => {
+    if (phase !== 'generating-script' || progress.phase === 'error') {
+      setScriptElapsedSec(0);
+      return;
+    }
+    const start = Date.now();
+    setScriptElapsedSec(0);
+    const id = setInterval(() => {
+      setScriptElapsedSec(Math.floor((Date.now() - start) / 1000));
+    }, 1000);
+    return () => clearInterval(id);
+  }, [phase, progress.phase]);
+
+  // ---- Enhanced-voices nudge (free desktop path, basic voices only) ----
+  // Detection only — never changes voice selection or blocks generation. We
+  // surface a gentle, dismissible callout when: the user is on the FREE keyless
+  // path AND on desktop macOS AND their Mac has NO Enhanced/Premium English
+  // system voice installed (so the podcast would use the robotic basic voices).
+  const [onlyBasicVoices, setOnlyBasicVoices] = useState(false);
+  const [voiceNudgeDismissed, setVoiceNudgeDismissed] = useState(false);
+  // The GOOD installed macOS voices (English, Enhanced/Premium, non-novelty)
+  // offered in the in-app picker. Populated only on the desktop free path.
+  const [goodSayVoices, setGoodSayVoices] = useState<Array<{ name: string; rank: number }>>([]);
+  // Which good voice is currently playing a sample (disables the buttons while
+  // it speaks). null = nothing playing.
+  const [samplingVoice, setSamplingVoice] = useState<string | null>(null);
+  // Per-speaker chosen `say` voice (name) for the current style; "" / absent =
+  // auto-pick. Persisted per style in localStorage.
+  const [saySpeakerVoices, setSaySpeakerVoices] = useState<Record<string, string>>(() =>
+    loadSayVoicesForStyle(loadPref<PodcastStyle>(PREF_STYLE, 'two-host')));
+
+  // On desktop the OpenAI key can come from the environment (.env.local, loaded by
+  // the Electron main process) even when the user hasn't entered a BYOK key in
+  // Settings. Ask the main process (boolean only, never the key) so the "no key"
+  // banner is accurate and AI voices are treated as usable when a key exists.
+  const [envOpenaiKey, setEnvOpenaiKey] = useState(false);
+  useEffect(() => {
+    let active = true;
+    const api = typeof window !== 'undefined'
+      ? (window as unknown as { electronAPI?: { hasOpenaiEnvKey?: () => Promise<boolean> } }).electronAPI
+      : undefined;
+    if (api?.hasOpenaiEnvKey) {
+      api.hasOpenaiEnvKey().then((v) => { if (active) setEnvOpenaiKey(!!v); }).catch(() => {});
+    }
+    return () => { active = false; };
+  }, [open]);
+  // A usable OpenAI key exists if the user entered one (BYOK) OR the environment
+  // provides one on desktop.
+  const hasOpenaiKey = !!getUserApiKey('openai') || envOpenaiKey;
+
+  useEffect(() => {
+    if (!open) return;
+    // The "don't show again" flag only silences the no-good-voices NUDGE; the
+    // picker below is still populated whenever good voices exist.
+    const dismissed = typeof window !== 'undefined' && localStorage.getItem(PREF_VOICE_NUDGE_DISMISSED) === '1';
+    setVoiceNudgeDismissed(dismissed);
+    // Free path = no OpenAI key (BYOK or env). Only meaningful on desktop macOS.
+    const freePath = !hasOpenaiKey;
+    const desktopVoiceApi = typeof window !== 'undefined'
+      ? (window as unknown as { electronAPI?: {
+          listSayVoices?: () => Promise<{ platform: string; voices: Array<{ name: string; locale: string; rank: number; good?: boolean }> }>;
+        } }).electronAPI
+      : undefined;
+    if (!freePath || !isElectron() || !desktopVoiceApi?.listSayVoices) {
+      setOnlyBasicVoices(false);
+      setGoodSayVoices([]);
+      return;
+    }
+    let cancelled = false;
+    desktopVoiceApi.listSayVoices()
+      .then((res) => {
+        if (cancelled) return;
+        if (!res || res.platform !== 'darwin') { setOnlyBasicVoices(false); setGoodSayVoices([]); return; }
+        // "good" is flagged in the main process: English, Enhanced/Premium tier,
+        // and not a novelty/joke voice. Best tier first, then alphabetical.
+        const good = (res.voices || [])
+          .filter((v) => v.good)
+          .map((v) => ({ name: v.name, rank: v.rank || 2 }))
+          .sort((a, b) => b.rank - a.rank || a.name.localeCompare(b.name));
+        setGoodSayVoices(good);
+        // No good voice installed → the picker can't help; show the nudge instead.
+        setOnlyBasicVoices(good.length === 0);
+      })
+      .catch(() => { if (!cancelled) { setOnlyBasicVoices(false); setGoodSayVoices([]); } });
+    return () => { cancelled = true; };
+  }, [open, hasOpenaiKey]);
+
+  const showVoiceNudge = onlyBasicVoices && !voiceNudgeDismissed;
+  const showVoicePicker = goodSayVoices.length > 0;
+
+  const handleOpenVoiceSettings = useCallback(() => {
+    const api = typeof window !== 'undefined'
+      ? (window as unknown as { electronAPI?: { openVoiceSettings?: () => Promise<unknown> } }).electronAPI
+      : undefined;
+    api?.openVoiceSettings?.();
+  }, []);
+
+  const handleDismissVoiceNudge = useCallback((forever: boolean) => {
+    setVoiceNudgeDismissed(true);
+    if (forever && typeof window !== 'undefined') {
+      localStorage.setItem(PREF_VOICE_NUDGE_DISMISSED, '1');
+    }
+  }, []);
+
+  // Play a short spoken sample of a specific macOS voice through the speakers so
+  // the user can hear it before choosing. Runs in the main process; disables the
+  // sample buttons while it speaks.
+  const handleSampleVoice = useCallback((voiceName: string) => {
+    if (!voiceName) return;
+    const api = typeof window !== 'undefined'
+      ? (window as unknown as { electronAPI?: { sampleSayVoice?: (n: string) => Promise<{ success: boolean }> } }).electronAPI
+      : undefined;
+    if (!api?.sampleSayVoice) return;
+    setSamplingVoice(voiceName);
+    api.sampleSayVoice(voiceName)
+      .catch(() => { /* ignore — non-fatal */ })
+      .finally(() => setSamplingVoice((cur) => (cur === voiceName ? null : cur)));
+  }, []);
+
+  const handleSaySpeakerVoiceChange = useCallback((speaker: string, voiceName: string) => {
+    setSaySpeakerVoices((prev) => ({ ...prev, [speaker]: voiceName }));
+  }, []);
+
   // Update voices when style changes
   useEffect(() => {
     setVoices(loadVoicesForStyle(style));
+    setSaySpeakerVoices(loadSayVoicesForStyle(style));
   }, [style]);
 
   // Persist preferences when they change
@@ -175,6 +338,7 @@ export default function PodcastDialog({
   useEffect(() => { localStorage.setItem(PREF_LENGTH, length); }, [length]);
   useEffect(() => { localStorage.setItem(PREF_TTS_MODEL, ttsModel); }, [ttsModel]);
   useEffect(() => { saveVoicesForStyle(style, voices); }, [style, voices]);
+  useEffect(() => { saveSayVoicesForStyle(style, saySpeakerVoices); }, [style, saySpeakerVoices]);
 
   // Clean up blob URL on unmount or dialog close
   useEffect(() => {
@@ -246,11 +410,83 @@ export default function PodcastDialog({
     setPhase('edit-prompt');
   }, [nodes, nodeId, voices, style, length]);
 
+  // Consume the streamed script-generation response (newline-delimited JSON).
+  // After each iterative pass the route emits { type:'progress', segments } — we
+  // update the determinate bar. The final { type:'done', segments } carries the
+  // full script. BACKWARD-SAFE: if the response isn't a stream (older cached
+  // build returning a single JSON { segments }), we fall back to parsing it whole
+  // so nothing breaks. Returns the sanitized segments to advance the UI.
+  const consumeScriptStream = useCallback(async (
+    response: Response,
+  ): Promise<PodcastScriptSegment[]> => {
+    const targetMin = LENGTH_TARGETS[length].minSegments;
+    const reader = response.body?.getReader();
+
+    // Fallback: no readable stream at all — parse as the legacy single JSON.
+    if (!reader) {
+      const data = await response.json().catch(() => ({}));
+      return sanitizeSegments((data as { segments?: unknown }).segments);
+    }
+
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let fullText = '';
+    let finalSegments: unknown = null;
+    let sawEvent = false;
+
+    const handleLine = (line: string) => {
+      const trimmed = line.trim();
+      if (!trimmed) return;
+      let evt: { type?: string; segments?: unknown; error?: string };
+      try {
+        evt = JSON.parse(trimmed);
+      } catch {
+        return; // not a complete/typed event line — ignore
+      }
+      if (!evt || typeof evt.type !== 'string') return;
+      sawEvent = true;
+      if (evt.type === 'progress') {
+        const count = typeof evt.segments === 'number' ? evt.segments : 0;
+        setScriptSegDone(count);
+      } else if (evt.type === 'done') {
+        finalSegments = evt.segments;
+      } else if (evt.type === 'error') {
+        throw new Error(evt.error || 'Script generation failed');
+      }
+    };
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      const chunk = decoder.decode(value, { stream: true });
+      buffer += chunk;
+      fullText += chunk;
+      const lines = buffer.split('\n');
+      buffer = lines.pop() || '';
+      for (const line of lines) handleLine(line);
+    }
+    if (buffer.trim()) handleLine(buffer);
+
+    // Backward-safe fallback: never saw a typed event → treat the whole body as
+    // the legacy single JSON { segments } payload.
+    if (finalSegments === null && !sawEvent) {
+      try {
+        const parsed = JSON.parse(fullText);
+        if (parsed && Array.isArray(parsed.segments)) finalSegments = parsed.segments;
+      } catch {
+        /* fall through to empty */
+      }
+    }
+
+    return sanitizeSegments(finalSegments);
+  }, [length]);
+
   // Generate script only (from edited prompt)
   const handleGenerateScript = useCallback(async () => {
     if (!ensurePodcastAllowed()) return;
     setPhase('generating-script');
-    setProgress({ phase: 'script', message: 'Generating podcast script...', percent: 10 });
+    setScriptSegDone(0);
+    setProgress({ phase: 'script', message: 'Generating podcast script...', percent: 0 });
 
     const controller = new AbortController();
     abortControllerRef.current = controller;
@@ -270,8 +506,7 @@ export default function PodcastDialog({
         throw new Error(errData.error || `Server error: ${response.status}`);
       }
 
-      const data = await response.json();
-      const segments: PodcastScriptSegment[] = sanitizeSegments(data.segments);
+      const segments = await consumeScriptStream(response);
 
       setEditableSegments(segments);
       setPhase('edit-script');
@@ -289,13 +524,14 @@ export default function PodcastDialog({
     } finally {
       abortControllerRef.current = null;
     }
-  }, [style, length, voices, ttsModel, editablePrompt, ensurePodcastAllowed]);
+  }, [style, length, voices, ttsModel, editablePrompt, ensurePodcastAllowed, consumeScriptStream]);
 
   // Generate script without showing prompt editor first (quick path)
   const handleQuickGenerate = useCallback(async () => {
     if (!ensurePodcastAllowed()) return;
     setPhase('generating-script');
-    setProgress({ phase: 'script', message: 'Generating podcast script...', percent: 10 });
+    setScriptSegDone(0);
+    setProgress({ phase: 'script', message: 'Generating podcast script...', percent: 0 });
 
     const controller = new AbortController();
     abortControllerRef.current = controller;
@@ -315,8 +551,7 @@ export default function PodcastDialog({
         throw new Error(errData.error || `Server error: ${response.status}`);
       }
 
-      const data = await response.json();
-      const segments: PodcastScriptSegment[] = sanitizeSegments(data.segments);
+      const segments = await consumeScriptStream(response);
 
       setEditableSegments(segments);
       setPhase('edit-script');
@@ -334,7 +569,7 @@ export default function PodcastDialog({
     } finally {
       abortControllerRef.current = null;
     }
-  }, [style, length, voices, ttsModel, nodes, nodeId, ensurePodcastAllowed]);
+  }, [style, length, voices, ttsModel, nodes, nodeId, ensurePodcastAllowed, consumeScriptStream]);
 
   // Synthesize audio from (edited) script segments
   const handleSynthesizeAudio = useCallback(async () => {
@@ -374,8 +609,17 @@ export default function PodcastDialog({
           });
         }) ?? null;
 
+        // Attach the user's chosen free macOS voice per speaker (if any) so the
+        // native `say` path uses it; a blank/absent choice falls back to the
+        // engine's auto-pick. Only affects the free path — the OpenAI path
+        // ignores sayVoiceOverride entirely.
+        const segmentsWithOverride = editableSegments.map((s) => {
+          const ov = saySpeakerVoices[s.speaker];
+          return ov ? { ...s, sayVoiceOverride: ov } : s;
+        });
+
         const result = await desktopApi.generatePodcastAudio({
-          segments: editableSegments,
+          segments: segmentsWithOverride,
           ttsModel,
           openaiApiKey: userOpenaiKey,
         });
@@ -514,7 +758,7 @@ export default function PodcastDialog({
     } finally {
       abortControllerRef.current = null;
     }
-  }, [editableSegments, ttsModel]);
+  }, [editableSegments, ttsModel, saySpeakerVoices]);
 
   const handleCancel = useCallback(() => {
     if (abortControllerRef.current) {
@@ -642,6 +886,61 @@ export default function PodcastDialog({
   // Count words in editable segments
   const totalWords = editableSegments.reduce((sum, seg) => sum + String(seg?.text ?? '').split(/\s+/).filter(Boolean).length, 0);
 
+  // Gentle, dismissible callout nudging a free desktop user to install a free
+  // Enhanced/Premium English voice (or add an OpenAI key) for better sound.
+  // Detection only — generation is never blocked.
+  const voiceNudgeBanner = showVoiceNudge ? (
+    <div className="rounded-md border border-amber-300/40 bg-amber-50 dark:bg-amber-950/30 p-3 text-sm">
+      <div className="flex items-start gap-2">
+        <Volume2 className="h-4 w-4 mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" />
+        <div className="flex-1 space-y-2">
+          <p className="text-amber-900 dark:text-amber-100">
+            Your podcast will use your Mac&rsquo;s <strong>basic</strong> built-in voices, which can sound
+            robotic. For free, near-human narration, install an Enhanced or Premium English voice.
+            For studio-quality AI voices, add your own OpenAI key in Settings (premium voices run on your key).
+          </p>
+          <p className="text-xs text-amber-800/80 dark:text-amber-200/70 leading-relaxed">
+            Open Voice Settings below, then under <strong>English</strong> download voices marked
+            <strong> (Enhanced)</strong> or <strong> (Premium)</strong> — good picks are
+            <strong> Ava</strong>, <strong>Zoe</strong>, and <strong>Tom</strong>. Grab two different ones so
+            your two speakers sound distinct. <strong>Avoid the Eloquence category and the novelty voices</strong>
+            {' '}(Bells, Bubbles, Zarvox, Grandpa, and the like) — they sound robotic or gimmicky.
+          </p>
+          <div className="flex flex-wrap items-center gap-2 pt-1">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-8"
+              onClick={handleOpenVoiceSettings}
+            >
+              <Settings2 className="mr-2 h-3.5 w-3.5" />
+              Open Voice Settings
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-8 text-xs text-muted-foreground"
+              onClick={() => handleDismissVoiceNudge(false)}
+            >
+              Dismiss
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-8 text-xs text-muted-foreground"
+              onClick={() => handleDismissVoiceNudge(true)}
+            >
+              Don&rsquo;t show again
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  ) : null;
+
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o) handleClose(); }}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
@@ -661,6 +960,7 @@ export default function PodcastDialog({
         {/* Configuration Phase */}
         {phase === 'config' && (
           <>
+            {voiceNudgeBanner}
             <div className="grid gap-4 py-4">
               {/* Style */}
               <div className="grid gap-2">
@@ -705,6 +1005,70 @@ export default function PodcastDialog({
                 ))}
               </div>
 
+              {/* Free macOS voice picker (desktop free path only). Lets the user
+                  choose AND hear the good Enhanced/Premium system voices without
+                  opening System Settings. Absent for BYOK/OpenAI users. */}
+              {showVoicePicker && (
+                <div className="grid gap-2">
+                  <Label>Narration Voice</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Free, natural-sounding voices already on your Mac. Tap ▶ to hear one, then choose per speaker.
+                    Leave a speaker on <span className="italic">Auto</span> and we&rsquo;ll pick the best for you.
+                  </p>
+                  {speakers.map((speaker) => (
+                    <div key={speaker} className="flex items-center gap-2">
+                      <span className="text-sm w-24 shrink-0">{speaker}:</span>
+                      <Select
+                        value={saySpeakerVoices[speaker] || SAY_AUTO}
+                        onValueChange={(v) => handleSaySpeakerVoiceChange(speaker, v === SAY_AUTO ? '' : v)}
+                      >
+                        <SelectTrigger className="flex-1">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value={SAY_AUTO}>Auto (best voice)</SelectItem>
+                          {goodSayVoices.map((v) => (
+                            <SelectItem key={v.name} value={v.name}>{v.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        className="h-9 w-9 shrink-0"
+                        disabled={samplingVoice !== null}
+                        title={`Hear ${saySpeakerVoices[speaker] || goodSayVoices[0]?.name || 'this voice'}`}
+                        onClick={() => handleSampleVoice(saySpeakerVoices[speaker] || goodSayVoices[0]?.name || '')}
+                      >
+                        {samplingVoice && samplingVoice === (saySpeakerVoices[speaker] || goodSayVoices[0]?.name)
+                          ? <Volume2 className="h-4 w-4" />
+                          : <Play className="h-4 w-4" />}
+                      </Button>
+                    </div>
+                  ))}
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    {goodSayVoices.map((v) => (
+                      <Button
+                        key={v.name}
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="h-7 text-xs"
+                        disabled={samplingVoice !== null}
+                        title={`Hear a sample of ${v.name}`}
+                        onClick={() => handleSampleVoice(v.name)}
+                      >
+                        {samplingVoice === v.name
+                          ? <Volume2 className="mr-1 h-3 w-3" />
+                          : <Play className="mr-1 h-3 w-3" />}
+                        {v.name}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Length */}
               <div className="grid gap-2">
                 <Label>Length</Label>
@@ -732,9 +1096,9 @@ export default function PodcastDialog({
                     <SelectItem value="tts-1-hd">HD (higher quality)</SelectItem>
                   </SelectContent>
                 </Select>
-                {isElectron() && !getUserApiKey('openai') && (
+                {isElectron() && !hasOpenaiKey && (
                   <p className="text-xs text-muted-foreground">
-                    No AI voice key found — your podcast still records, using your Mac&rsquo;s built-in voices (free, one per speaker). Add an OpenAI key in Settings for more natural AI voices.
+                    No AI voice key found — your podcast still records, using your Mac&rsquo;s built-in voices (free, one per speaker). For more natural AI voices, add your own OpenAI key in Settings — premium voices then run on your key.
                   </p>
                 )}
               </div>
@@ -784,31 +1148,43 @@ export default function PodcastDialog({
           </div>
         )}
 
-        {/* Generating Script Phase */}
-        {phase === 'generating-script' && (
-          <div className="py-6 space-y-4">
-            {progress.phase === 'error' ? (
-              <div className="space-y-3">
-                <p className="text-sm text-destructive">{progress.message}</p>
-                <Button variant="outline" onClick={() => setPhase('config')}>
-                  Back to Settings
-                </Button>
-              </div>
-            ) : (
-              <>
-                <div className="space-y-2">
-                  <p className="text-sm text-muted-foreground">{progress.message || 'Generating script...'}</p>
-                  <Progress value={progress.percent} className="h-2" />
-                  <p className="text-xs text-muted-foreground text-right">{progress.percent}%</p>
+        {/* Generating Script Phase — mirrors the Generating Audio frame below
+            (same container, message line, Progress bar, right-aligned percent,
+            Cancel) so the two phases feel like one consistent flow, but fed with
+            SCRIPT data: real percent from the streamed segment count, the
+            "X of ~N segments" tally, and the live mm:ss elapsed timer. */}
+        {phase === 'generating-script' && (() => {
+          const targetMin = LENGTH_TARGETS[length].minSegments;
+          const scriptPercent = Math.min(100, Math.round((scriptSegDone / targetMin) * 100));
+          const mmss = `${Math.floor(scriptElapsedSec / 60)}:${String(scriptElapsedSec % 60).padStart(2, '0')}`;
+          const scriptMessage = scriptSegDone > 0
+            ? `Building the script — ${scriptSegDone} of ~${targetMin} segments · ${mmss}`
+            : `Writing your podcast script… · ${mmss}`;
+          return (
+            <div className="py-6 space-y-4">
+              {progress.phase === 'error' ? (
+                <div className="space-y-3">
+                  <p className="text-sm text-destructive">{progress.message}</p>
+                  <Button variant="outline" onClick={() => setPhase('config')}>
+                    Back to Settings
+                  </Button>
                 </div>
-                <Button variant="outline" size="sm" onClick={handleCancel}>
-                  <X className="mr-2 h-4 w-4" />
-                  Cancel
-                </Button>
-              </>
-            )}
-          </div>
-        )}
+              ) : (
+                <>
+                  <div className="space-y-2">
+                    <p className="text-sm text-muted-foreground">{scriptMessage}</p>
+                    <Progress value={scriptPercent} className="h-2" />
+                    <p className="text-xs text-muted-foreground text-right">{scriptPercent}%</p>
+                  </div>
+                  <Button variant="outline" size="sm" onClick={handleCancel}>
+                    <X className="mr-2 h-4 w-4" />
+                    Cancel
+                  </Button>
+                </>
+              )}
+            </div>
+          );
+        })()}
 
         {/* Edit Script Phase */}
         {phase === 'edit-script' && (
@@ -928,6 +1304,7 @@ export default function PodcastDialog({
         {/* Preview Phase */}
         {phase === 'preview' && audioUrl && (
           <div className="py-4 space-y-4">
+            {voiceNudgeBanner}
             {/* Audio Player */}
             <div className="space-y-2">
               <Label>Preview</Label>

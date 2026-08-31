@@ -121,11 +121,36 @@ export function getDefaultVoices(style: PodcastStyle): Record<string, OpenAIVoic
 /**
  * Length target word counts for the script.
  */
-const LENGTH_TARGETS: Record<PodcastLength, { min: number; max: number; minSegments: number; label: string }> = {
+export const LENGTH_TARGETS: Record<PodcastLength, { min: number; max: number; minSegments: number; label: string }> = {
   brief: { min: 300, max: 450, minSegments: 12, label: '2-3 minutes' },
   standard: { min: 750, max: 1200, minSegments: 30, label: '5-8 minutes' },
   detailed: { min: 1500, max: 2250, minSegments: 60, label: '10-15 minutes' },
 };
+
+export type LengthTarget = { min: number; max: number; minSegments: number; label: string };
+
+/** Total spoken-word count across all segments. */
+export function countScriptWords(segments: PodcastScriptSegment[]): number {
+  return segments.reduce(
+    (sum, s) => sum + s.text.trim().split(/\s+/).filter(Boolean).length,
+    0,
+  );
+}
+
+/**
+ * Is the script MATERIALLY short of the target — i.e. worth spending another
+ * (paid) continue pass on? True when it has fewer than ~80% of the target's
+ * minimum segments OR fewer than the target minimum words.
+ */
+export function isScriptShort(
+  segments: PodcastScriptSegment[],
+  target: LengthTarget,
+): boolean {
+  return (
+    segments.length < Math.ceil(target.minSegments * 0.8) ||
+    countScriptWords(segments) < target.min
+  );
+}
 
 /**
  * Build the AI prompt for generating a podcast script.
@@ -355,4 +380,123 @@ export function parseScriptResponse(
   }
 
   return segments;
+}
+
+/** Cap on how much of the running transcript we echo back into a continue prompt. */
+const MAX_TRANSCRIPT_CHARS = 12000;
+
+/**
+ * Build a CONTINUE prompt: hand the model the source material plus the script it
+ * has already produced, and instruct it to keep the SAME conversation going —
+ * same speakers, no repetition, cover what's left — until the target length is
+ * reached. Output is the same JSON-array format, holding ONLY the new segments
+ * to append.
+ */
+export function buildContinuePrompt(
+  content: string,
+  style: PodcastStyle,
+  length: PodcastLength,
+  speakerNames: string[],
+  segmentsSoFar: PodcastScriptSegment[],
+): string {
+  const target = LENGTH_TARGETS[length];
+  const wordsSoFar = countScriptWords(segmentsSoFar);
+  // Aim PAST the minimum, toward the top of the range, so a SINGLE continue pass
+  // reliably carries the script over target instead of nudging it to the bare
+  // minimum — fewer (paid, slow) round-trips reach the same length.
+  const remainingWords = Math.max(target.max - wordsSoFar, 400);
+  const remainingSegments = Math.max(Math.ceil(target.minSegments * 1.15) - segmentsSoFar.length, 12);
+
+  const transcript = segmentsSoFar.map((s) => `${s.speaker}: ${s.text}`).join('\n');
+  const cappedTranscript =
+    transcript.length > MAX_TRANSCRIPT_CHARS
+      ? `[... earlier dialogue omitted ...]\n${transcript.slice(-MAX_TRANSCRIPT_CHARS)}`
+      : transcript;
+
+  return `You are CONTINUING the SAME podcast conversation you already started. Do NOT restart the show, do NOT re-introduce anyone, and DO NOT repeat anything that was already said.
+
+STYLE: ${style}
+SPEAKERS: ${speakerNames.join(', ')}
+
+THE CONVERSATION SO FAR (already recorded — never repeat any of this):
+${cappedTranscript}
+
+SOURCE CONTENT (the full material this podcast covers):
+${content}
+
+YOUR TASK — CONTINUE THE CONVERSATION:
+- So far it is only ${wordsSoFar} words / ${segmentsSoFar.length} segments, but the finished podcast MUST reach ${target.min}-${target.max} words (~${target.label}).
+- Write approximately ${remainingSegments} MORE dialogue segments (~${remainingWords} more words) that pick up naturally where the conversation left off.
+- Use the SAME speakers and the same energetic, natural, conversational style.
+- Cover the parts of the source content NOT yet discussed, or go deeper on under-covered ones. Do NOT repeat points already made.
+- Each segment: 1-4 sentences (15-60 words).
+- Only write a closing sign-off if this batch actually carries the script to the full target length.
+
+OUTPUT FORMAT:
+- Output ONLY a valid JSON array of the NEW segments to append: [{"speaker": "Name", "text": "..."}]
+- No markdown, no code fences, no explanation — ONLY the JSON array.`;
+}
+
+/**
+ * Hard cap on total generation passes (first pass + continues) to bound
+ * cost/latency. Reduced from 4 → 3: each pass now asks for MORE (continues aim
+ * at the TOP of the length range, not the bare minimum), so fewer sequential
+ * round-trips reach the same target — meaningfully faster wall-clock time while
+ * still producing one flowing conversation (each continue extends the SAME
+ * transcript rather than generating an independent, disjoint chunk).
+ */
+export const MAX_SCRIPT_PASSES = 3;
+
+/**
+ * Generate a podcast script ITERATIVELY until it actually reaches the target
+ * length, working around the LLM's habit of stopping early on long scripts.
+ *
+ * Pass 1 generates + parses normally. While the running script is materially
+ * short (see {@link isScriptShort}) we run CONTINUE passes that append new
+ * segments, up to a hard cap of {@link MAX_SCRIPT_PASSES} total passes. We stop
+ * early if a continue pass adds ~zero new segments (unreadable/empty), so we
+ * never loop forever.
+ *
+ * `runPass` is the single injection point: it receives the segments produced so
+ * far (null on the very first pass) and returns the RAW model text for that
+ * pass. The route wires it to runAIWithFailover; tests wire it to a fake.
+ */
+export async function generateScriptIteratively(opts: {
+  target: LengthTarget;
+  voiceMap: Record<string, OpenAIVoice>;
+  runPass: (segmentsSoFar: PodcastScriptSegment[] | null) => Promise<string>;
+  maxPasses?: number;
+  /**
+   * Called after EACH completed pass with the running segment count so a
+   * streaming route can report determinate progress to the client. Optional —
+   * omitting it preserves the original non-reporting behavior exactly.
+   */
+  onProgress?: (info: { pass: number; maxPasses: number; segments: number }) => void;
+}): Promise<{ segments: PodcastScriptSegment[]; passes: number }> {
+  const maxPasses = opts.maxPasses ?? MAX_SCRIPT_PASSES;
+
+  // Pass 1 — generate + parse as normal. A failure here propagates (same as before).
+  const firstRaw = await opts.runPass(null);
+  let segments = parseScriptResponse(firstRaw, opts.voiceMap);
+  let passes = 1;
+  opts.onProgress?.({ pass: passes, maxPasses, segments: segments.length });
+
+  // Continue passes until we hit the target or the hard cap.
+  while (passes < maxPasses && isScriptShort(segments, opts.target)) {
+    let newSegments: PodcastScriptSegment[];
+    try {
+      const raw = await opts.runPass(segments);
+      newSegments = parseScriptResponse(raw, opts.voiceMap);
+    } catch {
+      // Unreadable/empty continuation (parseScriptResponse throws on zero
+      // segments) — stop early and keep what we already have. Avoids infinite loop.
+      break;
+    }
+    passes++;
+    if (newSegments.length === 0) break; // no progress — stop early
+    segments = segments.concat(newSegments);
+    opts.onProgress?.({ pass: passes, maxPasses, segments: segments.length });
+  }
+
+  return { segments, passes };
 }
