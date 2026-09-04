@@ -181,6 +181,10 @@ interface OutlinePaneProps {
   // Project Management capability gate — threaded down to each NodeItem so PM
   // surfaces (Project submenu, status badges, Blocked-by) hide when off.
   pmEnabled?: boolean;
+  // Proposed-deletion review: ids marked pending-deletion (AI Tell-AI delete
+  // gate). Threaded down to each NodeItem so the target + descendants show as
+  // struck-through with a "Will delete" badge until the user approves.
+  pendingDeletionIds?: Set<string>;
   // Search term for content highlighting
   onSearchTermChange?: (searchTerm: string, matchType?: 'name' | 'content' | 'both', matchIndex?: number) => void;
   // Export subtree
@@ -280,6 +284,7 @@ export default function OutlinePane({
   onSetStatus,
   onSetPrerequisite,
   pmEnabled = false,
+  pendingDeletionIds,
   onSearchTermChange,
   onExportSubtree,
   onSaveToSecondBrain,
@@ -2008,6 +2013,7 @@ export default function OutlinePane({
               onSetStatus={currentOutline.isGuide ? undefined : onSetStatus}
               onSetPrerequisite={currentOutline.isGuide ? undefined : onSetPrerequisite}
               pmEnabled={pmEnabled}
+              pendingDeletionIds={pendingDeletionIds}
               isReadOnly={!!currentOutline.isGuide}
             />
           </ul>

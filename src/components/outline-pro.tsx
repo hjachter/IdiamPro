@@ -22,6 +22,7 @@ import { useToast } from "@/hooks/use-toast";
 import { generateOutlineAction, expandContentAction, generateContentForNodeAction, ingestExternalSourceAction, bulkResearchIngestAction, bulletBasedResearchAction, interpretCommandAction } from '@/app/actions';
 import type { InterpretedCommand } from '@/ai/flows/interpret-command';
 import AICommandConfirmDialog from '@/components/ai-command-confirm-dialog';
+import ProposedDeleteReview from '@/components/proposed-delete-review';
 import { getUserApiKey, getSelectedTextProvider } from '@/lib/byok-keys';
 import { useAI } from '@/contexts/ai-context';
 import {
@@ -408,6 +409,14 @@ export default function OutlinePro() {
   }, [toast, currentOutlineId]);
 
   const [pendingAICommand, setPendingAICommand] = useState<InterpretedCommand | null>(null);
+  // Proposed-deletion review (AI "Tell AI" delete gate). When set, the target
+  // node + all descendants are marked pending in the tree and the review card is
+  // shown; nothing is deleted until the user approves. See ProposedDeleteReview.
+  const [pendingDeletion, setPendingDeletion] = useState<{ nodeId: string; ids: string[]; names: string[]; name: string; count: number } | null>(null);
+  const pendingDeletionIds = useMemo(
+    () => (pendingDeletion ? new Set(pendingDeletion.ids) : undefined),
+    [pendingDeletion]
+  );
 
   // Keep outlinesRef in sync with React state so undo/redo can read it
   // synchronously without going through a state updater.
@@ -2405,6 +2414,28 @@ export default function OutlinePro() {
       const reqRaw = typeof window !== 'undefined' ? localStorage.getItem('requireDestructiveConfirmation') : null;
       const requireConfirm = reqRaw === null ? true : reqRaw === 'true';
       if (cmd.destructive && requireConfirm) {
+        // Deletes get the stronger approve-before-apply REVIEW: we resolve the
+        // target now, mark it + all descendants pending in the tree, and wait
+        // for an explicit Delete/Keep. This shows the user exactly what will
+        // vanish, in place, instead of a worded yes/no. (destructive is only
+        // ever delete_node today; any future destructive kind falls through to
+        // the generic worded confirm below.)
+        if (cmd.action.kind === 'delete_node' && currentOutline) {
+          const id = resolveNodeHint(cmd.action.node_hint);
+          const target = id ? currentOutline.nodes[id] : null;
+          if (!id || !target || !target.parentId) {
+            toast({
+              title: "I'm not sure",
+              description: `I couldn't find an item matching "${cmd.action.node_hint}". Want to try the exact name, or point at it in the outline?`,
+              duration: 1000 * 60 * 60 * 24,
+            });
+            return;
+          }
+          const ids = collectDescendantIds(currentOutline.nodes, id);
+          const names = ids.map((nid) => currentOutline.nodes[nid]?.name || 'Untitled');
+          setPendingDeletion({ nodeId: id, ids, names, name: target.name || 'item', count: ids.length });
+          return;
+        }
         setPendingAICommand(cmd);
         return;
       }
@@ -2419,7 +2450,74 @@ export default function OutlinePro() {
         duration: 1000 * 60 * 60 * 24, // persist until dismissed
       });
     }
-  }, [currentOutline, selectedNodeId, executeAICommand, toast, aiUsageGate]);
+  }, [currentOutline, selectedNodeId, executeAICommand, toast, aiUsageGate, resolveNodeHint, collectDescendantIds]);
+
+  // Approve the proposed deletion: perform the real delete (snapshot + undo
+  // preserved by handleDeleteNode) and clear the pending marks.
+  const confirmPendingDeletion = useCallback(() => {
+    setPendingDeletion(current => {
+      if (!current) return null;
+      handleDeleteNode(current.nodeId);
+      const descendants = Math.max(0, current.count - 1);
+      toast({
+        title: 'Deleted',
+        description: descendants > 0
+          ? `Deleted "${current.name}" and ${descendants} item${descendants === 1 ? '' : 's'} inside it. Press ⌘Z to undo.`
+          : `Deleted "${current.name}". Press ⌘Z to undo.`,
+        duration: 1000 * 60 * 60 * 24,
+      });
+      return null;
+    });
+  }, [handleDeleteNode, toast]);
+
+  // Reject: clear the pending marks, delete nothing.
+  const cancelPendingDeletion = useCallback(() => {
+    setPendingDeletion(null);
+  }, []);
+
+  // DEV/TEST-ONLY seam: expose the natural-language ("Tell AI") command handler
+  // on window so automated tests can drive the exact production code path
+  // (parse → destructive-delete review gate). Never attached in production
+  // builds; invisible to users; changes no user-facing control.
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'production') return;
+    if (typeof window === 'undefined') return;
+    const w = window as unknown as {
+      __ideamTellAI?: (t: string) => void;
+      __ideamSeedTree?: () => string;
+    };
+    w.__ideamTellAI = handleAICommand;
+    // Seed a deterministic Fruits > Citrus > Orange tree and select "Citrus",
+    // so a test can gate-delete a parent that has a descendant. Returns the
+    // Citrus node id. Dev/test only.
+    w.__ideamSeedTree = () => {
+      const oid = `seed-${Date.now()}`;
+      const rootId = `${oid}-root`;
+      const citrusId = `${oid}-citrus`;
+      const orangeId = `${oid}-orange`;
+      const mk = (id: string, name: string, parentId: string | null, childrenIds: string[], type: NodeType): OutlineNode => ({
+        id, name, content: '', type, parentId, childrenIds, prefix: '', isCollapsed: false,
+      });
+      const outline: Outline = {
+        id: oid,
+        name: 'Fruits',
+        rootNodeId: rootId,
+        lastModified: Date.now(),
+        nodes: {
+          [rootId]: mk(rootId, 'Fruits', null, [citrusId], 'root'),
+          [citrusId]: mk(citrusId, 'Citrus', rootId, [orangeId], 'document'),
+          [orangeId]: mk(orangeId, 'Orange', citrusId, [], 'document'),
+        },
+      };
+      setOutlines(prev => [...prev.filter(o => o.id !== oid), outline]);
+      setCurrentOutlineId(oid);
+      setSelectedNodeId(citrusId);
+      return citrusId;
+    };
+    return () => {
+      try { delete w.__ideamTellAI; delete w.__ideamSeedTree; } catch {}
+    };
+  }, [handleAICommand]);
 
 
   // Open the User Guide
@@ -5220,6 +5318,15 @@ export default function OutlinePro() {
           onConfirm={() => { if (pendingAICommand) executeAICommand(pendingAICommand); }}
         />
 
+        <ProposedDeleteReview
+          open={pendingDeletion !== null}
+          nodeName={pendingDeletion?.name || ''}
+          count={pendingDeletion?.count || 0}
+          affectedNames={pendingDeletion?.names || []}
+          onConfirm={confirmPendingDeletion}
+          onCancel={cancelPendingDeletion}
+        />
+
         {/* Keyboard Shortcuts Dialog */}
         <KeyboardShortcutsDialog
           open={isShortcutsOpen}
@@ -5661,6 +5768,7 @@ export default function OutlinePro() {
                 onSetStatus={handleSetStatus}
                 onSetPrerequisite={handleSetPrerequisite}
                 pmEnabled={pmEnabled}
+                pendingDeletionIds={pendingDeletionIds}
                 onSearchTermChange={handleSearchTermChange}
                 onExportSubtree={handleExportSubtree}
                 onSaveToSecondBrain={handleSaveToSecondBrain}
@@ -5821,6 +5929,24 @@ export default function OutlinePro() {
         onOpenTemplates={() => setIsTemplatesDialogOpen(true)}
         isGuide={currentOutline?.isGuide ?? false}
         isFocusMode={isFocusMode}
+      />
+
+      {/* AI "Tell AI" destructive-command worded confirm (desktop) */}
+      <AICommandConfirmDialog
+        open={pendingAICommand !== null}
+        onOpenChange={(o) => { if (!o) setPendingAICommand(null); }}
+        description={pendingAICommand?.human_description || ''}
+        onConfirm={() => { if (pendingAICommand) executeAICommand(pendingAICommand); }}
+      />
+
+      {/* Proposed-deletion review — approve-before-apply gate for AI deletes */}
+      <ProposedDeleteReview
+        open={pendingDeletion !== null}
+        nodeName={pendingDeletion?.name || ''}
+        count={pendingDeletion?.count || 0}
+        affectedNames={pendingDeletion?.names || []}
+        onConfirm={confirmPendingDeletion}
+        onCancel={cancelPendingDeletion}
       />
 
       {/* Keyboard Shortcuts Dialog */}
@@ -6286,6 +6412,7 @@ export default function OutlinePro() {
                 onSetStatus={handleSetStatus}
                 onSetPrerequisite={handleSetPrerequisite}
                 pmEnabled={pmEnabled}
+                pendingDeletionIds={pendingDeletionIds}
                 onSearchTermChange={handleSearchTermChange}
                 onExportSubtree={handleExportSubtree}
                 onSaveToSecondBrain={handleSaveToSecondBrain}

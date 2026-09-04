@@ -97,6 +97,11 @@ interface NodeItemProps {
   // underlying status/prerequisite DATA is never touched; it reappears when the
   // capability is turned back on. See src/lib/use-capabilities.tsx.
   pmEnabled?: boolean;
+  // Proposed-deletion review (AI "Tell AI" delete gate). When this node's id is
+  // in the set, the row is marked pending-deletion (struck through + amber "Will
+  // delete" badge) so the user SEES what an approved delete will remove, in
+  // place, before it happens. Display-only — no data is touched until approval.
+  pendingDeletionIds?: Set<string>;
   // Read-only mode (e.g. User Guide outline) — suppresses rename + always-shown
   // mutator items in the context menu, and blocks F2/double-click rename. The
   // optional mutator callbacks should already be undefined when isReadOnly is
@@ -213,9 +218,11 @@ export default function NodeItem({
   onSetStatus,
   onSetPrerequisite,
   pmEnabled = false,
+  pendingDeletionIds,
   isReadOnly = false,
 }: NodeItemProps) {
   const node = nodes[nodeId];
+  const isPendingDeletion = pendingDeletionIds?.has(nodeId) ?? false;
   const [isEditing, setIsEditing] = React.useState(false);
   const [name, setName] = React.useState(node?.name ?? '');
   const [dropPosition, setDropPosition] = React.useState<DropPosition>(null);
@@ -636,7 +643,10 @@ export default function NodeItem({
                 // Multi-select indicator (blue ring + background)
                 isMultiSelected && !isSelected && "bg-blue-50 dark:bg-blue-900/20 ring-2 ring-blue-500/50",
                 // Left border: custom color only (user-assigned)
-                node.metadata?.color && "border-l-4"
+                node.metadata?.color && "border-l-4",
+                // Proposed-deletion review: amber-tinted row so the pending set
+                // reads as a group at a glance.
+                isPendingDeletion && "bg-amber-100/70 dark:bg-amber-900/30 ring-1 ring-amber-400/70"
             )}
             style={{
               paddingLeft: `${level * 1.5 + 0.5}rem`,
@@ -725,6 +735,7 @@ export default function NodeItem({
                             isSelected && "text-primary",
                             highlightedNodeIds?.has(nodeId) && "bg-yellow-100 dark:bg-yellow-900/30 rounded",
                             node.type === 'task' && node.metadata?.isCompleted && "line-through opacity-60",
+                            isPendingDeletion && "line-through decoration-2 decoration-amber-600/80 text-amber-800 dark:text-amber-300",
                             node.type === 'link' && "text-blue-600 dark:text-blue-400 underline hover:no-underline"
                         )}
                         onClick={(e) => {
@@ -739,6 +750,16 @@ export default function NodeItem({
                           ? highlightText(node.name, searchTerm)
                           : node.name}
                     </span>
+                    {isPendingDeletion && (
+                        <span
+                            className="inline-flex items-center gap-1 text-[10px] font-semibold rounded px-1.5 py-0.5 border border-amber-400 bg-amber-100 text-amber-800 dark:border-amber-600/60 dark:bg-amber-900/40 dark:text-amber-300 shrink-0"
+                            title="This item will be removed when you approve the deletion"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <AlertTriangle className="h-2.5 w-2.5 shrink-0" />
+                            Will delete
+                        </span>
+                    )}
                     {visibleTags.length > 0 && (
                         <div className="flex gap-1 flex-wrap">
                             {visibleTags.slice(0, 3).map((tag, index) => (
@@ -1085,6 +1106,7 @@ export default function NodeItem({
                         onSetStatus={onSetStatus}
                         onSetPrerequisite={onSetPrerequisite}
                         pmEnabled={pmEnabled}
+                        pendingDeletionIds={pendingDeletionIds}
                         isReadOnly={isReadOnly}
                     />
                 ))}
