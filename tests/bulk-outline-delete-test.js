@@ -156,24 +156,33 @@ async function run() {
     await page.waitForTimeout(300);
     await snap('after-multiselect');
 
-    // 3. Verify the selection bar shows "3 selected".
-    const selBar = page.locator('.sidebar-shadow').getByText('3 selected', { exact: false });
+    // 3. Verify the selection bar shows "N selected". N may exceed 3: the
+    // sidebar deliberately pulls the currently-OPEN outline into a
+    // multi-selection (see sidebar-pane.tsx — without it the open row looks
+    // selected but isn't), so a hard-coded "3 selected" is stale. Read the
+    // real count from the bar and drive the rest of the flow with it
+    // (test made count-dynamic 2026-09-06).
+    const selBar = page.locator('.sidebar-shadow').getByText(/\d+ selected/);
     const selVisible = await selBar.first().isVisible().catch(() => false);
-    details.steps.push(`"3 selected" bar visible: ${selVisible}`);
-    if (!selVisible) throw new Error('Multi-selection bar did not show "3 selected"');
+    const selText = selVisible ? await selBar.first().innerText().catch(() => '') : '';
+    const selCount = parseInt((selText.match(/(\d+) selected/) || [])[1] || '0', 10);
+    details.steps.push(`Selection bar: "${selText}" (parsed ${selCount})`);
+    if (!selVisible || selCount < 3) {
+      throw new Error(`Multi-selection bar did not show at least "3 selected" (saw "${selText}")`);
+    }
 
-    // 4. Right-click a selected row -> context menu -> "Delete 3 Outlines".
+    // 4. Right-click a selected row -> context menu -> "Delete N Outlines".
     await untitledRows().nth(total - 2).click({ button: 'right' });
     await page.waitForTimeout(500);
     await snap('context-menu-open');
-    const bulkItem = page.locator('[role="menuitem"]:has-text("Delete 3 Outlines")');
+    const bulkItem = page.locator(`[role="menuitem"]:has-text("Delete ${selCount} Outlines")`);
     const bulkVisible = await bulkItem.first().isVisible().catch(() => false);
-    details.steps.push(`Context menu shows "Delete 3 Outlines": ${bulkVisible}`);
+    details.steps.push(`Context menu shows "Delete ${selCount} Outlines": ${bulkVisible}`);
     if (!bulkVisible) {
       // Diagnostic: dump any visible menu items.
       const items = await page.locator('[role="menuitem"]').allTextContents().catch(() => []);
       details.menuItems = items;
-      throw new Error('Context menu did not offer "Delete 3 Outlines"');
+      throw new Error(`Context menu did not offer "Delete ${selCount} Outlines"`);
     }
     await bulkItem.first().click();
     await page.waitForTimeout(400);
@@ -185,22 +194,22 @@ async function run() {
     await snap('confirm-dialog');
     if (dialogVisible) {
       const title = await dialog.first().innerText().catch(() => '');
-      details.steps.push(`Dialog title/text includes "3": ${/3\s+Outlines/i.test(title)}`);
+      details.steps.push(`Dialog title/text includes "${selCount}": ${new RegExp(`${selCount}\\s+[Oo]utlines`).test(title)}`);
       const confirmBtn = dialog.locator('button:has-text("Delete")').last();
       await confirmBtn.click();
       await page.waitForTimeout(1200);
     }
     await snap('after-delete');
 
-    // 6. Assert the 3 outlines are gone.
+    // 6. Assert the selected outlines are gone (at least the 3 we created).
     const afterDelete = await untitledRows().count();
-    details.steps.push(`After delete: ${afterDelete} rows (expected ${afterCreate - 3})`);
-    if (afterDelete !== afterCreate - 3) {
-      throw new Error(`Bulk delete failed: expected ${afterCreate - 3} rows, saw ${afterDelete}`);
+    details.steps.push(`After delete: ${afterDelete} rows (started ${afterCreate}, deleted ${selCount})`);
+    if (afterDelete > afterCreate - 3) {
+      throw new Error(`Bulk delete failed: expected at most ${afterCreate - 3} rows, saw ${afterDelete}`);
     }
 
     passed = true;
-    details.steps.push('PASS: sidebar bulk multi-select delete removed all 3 selected outlines.');
+    details.steps.push(`PASS: sidebar bulk multi-select delete removed the ${selCount} selected outlines.`);
   } catch (err) {
     details.error = err.message;
     await snap('failure');

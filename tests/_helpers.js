@@ -161,14 +161,56 @@ async function setElectronWindowSize(electronApp, w = 1500, h = 950) {
   }
 }
 
-// Convenience: run both, in the right order, after the window is found.
+// The first-run "Keep your work safe" data-protection notice
+// (src/components/data-protection-notice.tsx) opens over the app on a fresh
+// profile and its overlay blocks clicks (bit the proposed-* suites 2026-09-06).
+// Dismiss it if it's up and mark it seen so it cannot re-open mid-test.
+// NOTE: tests/data-protection-notice-test.js exercises the notice itself and
+// deliberately does NOT use these helpers.
+const DATA_PROTECTION_SEEN_KEY = 'onboarding:dataProtectionSeen';
+
+async function dismissDataProtectionNotice(page, { timeoutMs = 4000 } = {}) {
+  try {
+    const dialog = page.locator('[role="dialog"]:has-text("Keep your work safe")');
+    await dialog.first().waitFor({ state: 'visible', timeout: timeoutMs }).catch(() => {});
+    if (await dialog.first().isVisible().catch(() => false)) {
+      const gotIt = dialog.locator('button:has-text("Got it")');
+      if ((await gotIt.count().catch(() => 0)) > 0) {
+        await gotIt.first().click().catch(() => {});
+      } else {
+        await page.keyboard.press('Escape').catch(() => {});
+      }
+      await dialog.first().waitFor({ state: 'hidden', timeout: 4000 }).catch(() => {});
+    }
+  } catch {
+    /* non-fatal */
+  }
+  await page
+    .evaluate((key) => {
+      try {
+        window.localStorage.setItem(key, 'true');
+      } catch {}
+    }, DATA_PROTECTION_SEEN_KEY)
+    .catch(() => {});
+}
+
+// Convenience: run all, in the right order, after the window is found.
+// First-run onboarding is SEQUENCED (data-protection notice, then the welcome
+// showcase can open once the notice closes), and each component decides
+// whether to show from state captured at mount — so a "seen" flag written
+// after mount does not stop an already-queued dialog. Hence the second
+// showcase sweep after the notice is dismissed (added 2026-09-06 after the
+// proposed-* suites were click-blocked by the queued showcase).
 async function prepareApp(page, opts = {}) {
   await waitForAppReady(page, opts);
   await dismissWelcomeShowcase(page, opts);
+  await dismissDataProtectionNotice(page, opts);
+  await dismissWelcomeShowcase(page, { ...opts, timeoutMs: 3000 });
 }
 
 module.exports = {
   dismissWelcomeShowcase,
+  dismissDataProtectionNotice,
   waitForAppReady,
   prepareApp,
   openSettings,
