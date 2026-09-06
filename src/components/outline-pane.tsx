@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import type { Outline, OutlineNode, NodeMap, ExternalSourceInput, IngestPreview, AIDepth, AITone, AILevel } from '@/types';
 import NodeItem from './node-item';
+import type { PendingChangeMarks } from '@/components/proposed-changes-review';
 import AIMenu from './ai-menu';
 import OutlineSearch, { type SearchMatch } from './outline-search';
 import OutlineTagFilter from './outline-tag-filter';
@@ -181,14 +182,11 @@ interface OutlinePaneProps {
   // Project Management capability gate — threaded down to each NodeItem so PM
   // surfaces (Project submenu, status badges, Blocked-by) hide when off.
   pmEnabled?: boolean;
-  // Proposed-deletion review: ids marked pending-deletion (AI Tell-AI delete
-  // gate). Threaded down to each NodeItem so the target + descendants show as
-  // struck-through with a "Will delete" badge until the user approves.
-  pendingDeletionIds?: Set<string>;
-  // Proposed-insertion review: ids marked pending-insertion (AI sub-outline
-  // generate gate). Threaded down to each NodeItem so the provisional additions
-  // show as green with a "Pending" badge until the user approves.
-  pendingInsertionIds?: Set<string>;
+  // Unified Proposed Changes marks (node id → 'deletion' | 'insertion' |
+  // 'rewrite'). Threaded down to each NodeItem, which renders the shared
+  // vocabulary: amber struck-through "Will delete", green "Pending", green
+  // "New content". Nothing is committed until the user approves in the review.
+  pendingChangeMarks?: PendingChangeMarks;
   // Search term for content highlighting
   onSearchTermChange?: (searchTerm: string, matchType?: 'name' | 'content' | 'both', matchIndex?: number) => void;
   // Export subtree
@@ -288,8 +286,7 @@ export default function OutlinePane({
   onSetStatus,
   onSetPrerequisite,
   pmEnabled = false,
-  pendingDeletionIds,
-  pendingInsertionIds,
+  pendingChangeMarks,
   onSearchTermChange,
   onExportSubtree,
   onSaveToSecondBrain,
@@ -2018,8 +2015,7 @@ export default function OutlinePane({
               onSetStatus={currentOutline.isGuide ? undefined : onSetStatus}
               onSetPrerequisite={currentOutline.isGuide ? undefined : onSetPrerequisite}
               pmEnabled={pmEnabled}
-              pendingDeletionIds={pendingDeletionIds}
-              pendingInsertionIds={pendingInsertionIds}
+              pendingChangeMarks={pendingChangeMarks}
               isReadOnly={!!currentOutline.isGuide}
             />
           </ul>

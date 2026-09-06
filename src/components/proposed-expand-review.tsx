@@ -17,10 +17,14 @@
  * reformat-dialog.tsx: a modal with a two-column Before/After comparison. The
  * generated + current HTML are pre-processed by the caller (content-pane) so
  * this component is presentational only.
+ *
+ * As of P1 slice 4 the Before/After grid itself is the SHARED 'rewrite'
+ * vocabulary from the unified Proposed Changes engine
+ * (proposed-changes-review.tsx → ProposedBeforeAfter).
  */
 
 import React from 'react';
-import DOMPurify from 'dompurify';
+import { ProposedBeforeAfter } from '@/components/proposed-changes-review';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -48,17 +52,6 @@ interface ProposedExpandReviewProps {
   placement: ExpandPlacement;
   onApprove: () => void;
   onDiscard: () => void;
-}
-
-// Same Tiptap-safe subset the reformat preview constrains to.
-const SANITIZE_CONFIG: DOMPurify.Config = {
-  ALLOWED_TAGS: ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'strong', 'em', 'code', 'pre', 'br', 'blockquote', 'hr', 'a', 'div', 'span', 'img'],
-  ALLOWED_ATTR: ['href', 'target', 'rel', 'class', 'src', 'alt', 'data-mermaid-block', 'data-mermaid-code'],
-};
-
-function sanitize(html: string): string {
-  if (typeof window === 'undefined') return html;
-  return DOMPurify.sanitize(html, SANITIZE_CONFIG as unknown as Parameters<typeof DOMPurify.sanitize>[1]);
 }
 
 const PLACEMENT_LABEL: Record<ExpandPlacement, string> = {
@@ -109,22 +102,7 @@ export default function ProposedExpandReview({
               <span>Approve to keep it, or Discard to leave things unchanged.</span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="rounded-lg border border-border/60 p-3 bg-background/50">
-                <div className="text-[10px] uppercase tracking-wide text-muted-foreground mb-2">Before</div>
-                <div
-                  className="prose prose-sm dark:prose-invert max-w-none"
-                  dangerouslySetInnerHTML={{ __html: sanitize(cur) || '<em>(empty)</em>' }}
-                />
-              </div>
-              <div className="rounded-lg border border-primary/40 p-3 bg-primary/5">
-                <div className="text-[10px] uppercase tracking-wide text-primary mb-2">After</div>
-                <div
-                  className="prose prose-sm dark:prose-invert max-w-none"
-                  dangerouslySetInnerHTML={{ __html: sanitize(resultHtml) || '<em>(empty)</em>' }}
-                />
-              </div>
-            </div>
+            <ProposedBeforeAfter beforeHtml={cur} afterHtml={resultHtml} />
           </div>
         </ScrollArea>
 

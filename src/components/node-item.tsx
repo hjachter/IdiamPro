@@ -25,6 +25,7 @@ import {
   ContextMenuSubTrigger,
 } from '@/components/ui/context-menu';
 import { STATUS_TAGS, isStatusTag } from '@/lib/status-tags';
+import type { PendingChangeMarks } from '@/components/proposed-changes-review';
 import { getBlockingPrerequisites } from '@/lib/prerequisites';
 
 // Module-level variable to track the currently dragged node ID
@@ -97,17 +98,14 @@ interface NodeItemProps {
   // underlying status/prerequisite DATA is never touched; it reappears when the
   // capability is turned back on. See src/lib/use-capabilities.tsx.
   pmEnabled?: boolean;
-  // Proposed-deletion review (AI "Tell AI" delete gate). When this node's id is
-  // in the set, the row is marked pending-deletion (struck through + amber "Will
-  // delete" badge) so the user SEES what an approved delete will remove, in
-  // place, before it happens. Display-only — no data is touched until approval.
-  pendingDeletionIds?: Set<string>;
-  // Proposed-insertion review (AI sub-outline generate gate). When this node's
-  // id is in the set, the row is marked pending-insertion (green tint + "Pending"
-  // badge) so the user SEES what an approved Add will insert, in place, before it
-  // becomes permanent. Display-only — the provisional nodes are discarded on
-  // reject.
-  pendingInsertionIds?: Set<string>;
+  // Unified Proposed Changes marks (P1 slice 4): node id → kind of proposed
+  // change awaiting approval. Display-only — no data is committed until the
+  // user approves in the review surface. The shared vocabulary:
+  //   'deletion'  → struck through + amber "Will delete" badge
+  //   'insertion' → green tint + "Pending" badge (a provisional new node)
+  //   'rewrite'   → green tint + "New content" badge (provisional new content
+  //                 inside an existing node, e.g. bulk Generate for descendants)
+  pendingChangeMarks?: PendingChangeMarks;
   // Read-only mode (e.g. User Guide outline) — suppresses rename + always-shown
   // mutator items in the context menu, and blocks F2/double-click rename. The
   // optional mutator callbacks should already be undefined when isReadOnly is
@@ -224,13 +222,14 @@ export default function NodeItem({
   onSetStatus,
   onSetPrerequisite,
   pmEnabled = false,
-  pendingDeletionIds,
-  pendingInsertionIds,
+  pendingChangeMarks,
   isReadOnly = false,
 }: NodeItemProps) {
   const node = nodes[nodeId];
-  const isPendingDeletion = pendingDeletionIds?.has(nodeId) ?? false;
-  const isPendingInsertion = pendingInsertionIds?.has(nodeId) ?? false;
+  const pendingChangeKind = pendingChangeMarks?.get(nodeId);
+  const isPendingDeletion = pendingChangeKind === 'deletion';
+  const isPendingInsertion = pendingChangeKind === 'insertion';
+  const isPendingRewrite = pendingChangeKind === 'rewrite';
   const [isEditing, setIsEditing] = React.useState(false);
   const [name, setName] = React.useState(node?.name ?? '');
   const [dropPosition, setDropPosition] = React.useState<DropPosition>(null);
@@ -655,9 +654,10 @@ export default function NodeItem({
                 // Proposed-deletion review: amber-tinted row so the pending set
                 // reads as a group at a glance.
                 isPendingDeletion && "bg-amber-100/70 dark:bg-amber-900/30 ring-1 ring-amber-400/70",
-                // Proposed-insertion review: green-tinted row so the provisional
-                // (not-yet-committed) additions read as a group at a glance.
-                isPendingInsertion && "bg-emerald-100/70 dark:bg-emerald-900/30 ring-1 ring-emerald-400/70"
+                // Proposed-insertion / proposed-rewrite review: green-tinted row
+                // so the provisional (not-yet-committed) additions read as a
+                // group at a glance.
+                (isPendingInsertion || isPendingRewrite) && "bg-emerald-100/70 dark:bg-emerald-900/30 ring-1 ring-emerald-400/70"
             )}
             style={{
               paddingLeft: `${level * 1.5 + 0.5}rem`,
@@ -747,7 +747,7 @@ export default function NodeItem({
                             highlightedNodeIds?.has(nodeId) && "bg-yellow-100 dark:bg-yellow-900/30 rounded",
                             node.type === 'task' && node.metadata?.isCompleted && "line-through opacity-60",
                             isPendingDeletion && "line-through decoration-2 decoration-amber-600/80 text-amber-800 dark:text-amber-300",
-                            isPendingInsertion && "text-emerald-800 dark:text-emerald-300",
+                            (isPendingInsertion || isPendingRewrite) && "text-emerald-800 dark:text-emerald-300",
                             node.type === 'link' && "text-blue-600 dark:text-blue-400 underline hover:no-underline"
                         )}
                         onClick={(e) => {
@@ -780,6 +780,16 @@ export default function NodeItem({
                         >
                             <Sparkles className="h-2.5 w-2.5 shrink-0" />
                             Pending
+                        </span>
+                    )}
+                    {isPendingRewrite && (
+                        <span
+                            className="inline-flex items-center gap-1 text-[10px] font-semibold rounded px-1.5 py-0.5 border border-emerald-400 bg-emerald-100 text-emerald-800 dark:border-emerald-600/60 dark:bg-emerald-900/40 dark:text-emerald-300 shrink-0"
+                            title="This item received new AI-written content — kept only if you approve"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <Sparkles className="h-2.5 w-2.5 shrink-0" />
+                            New content
                         </span>
                     )}
                     {visibleTags.length > 0 && (
@@ -1128,8 +1138,7 @@ export default function NodeItem({
                         onSetStatus={onSetStatus}
                         onSetPrerequisite={onSetPrerequisite}
                         pmEnabled={pmEnabled}
-                        pendingDeletionIds={pendingDeletionIds}
-                        pendingInsertionIds={pendingInsertionIds}
+                        pendingChangeMarks={pendingChangeMarks}
                         isReadOnly={isReadOnly}
                     />
                 ))}

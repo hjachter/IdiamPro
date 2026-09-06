@@ -24,6 +24,7 @@ import type { InterpretedCommand } from '@/ai/flows/interpret-command';
 import AICommandConfirmDialog from '@/components/ai-command-confirm-dialog';
 import ProposedDeleteReview from '@/components/proposed-delete-review';
 import ProposedInsertReview from '@/components/proposed-insert-review';
+import ProposedChangesReview, { type PendingChangeKind } from '@/components/proposed-changes-review';
 import { getUserApiKey, getSelectedTextProvider } from '@/lib/byok-keys';
 import { useAI } from '@/contexts/ai-context';
 import {
@@ -414,10 +415,6 @@ export default function OutlinePro() {
   // node + all descendants are marked pending in the tree and the review card is
   // shown; nothing is deleted until the user approves. See ProposedDeleteReview.
   const [pendingDeletion, setPendingDeletion] = useState<{ nodeId: string; ids: string[]; names: string[]; name: string; count: number } | null>(null);
-  const pendingDeletionIds = useMemo(
-    () => (pendingDeletion ? new Set(pendingDeletion.ids) : undefined),
-    [pendingDeletion]
-  );
   // Proposed-insertion review (AI sub-outline generate gate, P1 slice 2). When
   // set, AI-generated children have been inserted PROVISIONALLY (via the raw
   // setter, so no undo entry and no autosave yet); they are marked pending in the
@@ -433,10 +430,42 @@ export default function OutlinePro() {
     count: number;
     preSnapshot: Outline[];
   } | null>(null);
-  const pendingInsertionIds = useMemo(
-    () => (pendingInsertion ? new Set(pendingInsertion.ids) : undefined),
-    [pendingInsertion]
-  );
+
+  // Proposed bulk-content review (bulk "Generate content for descendants" gate,
+  // P1 slice 4). Generated content is applied PROVISIONALLY (raw setter — no
+  // undo entry, no dirty flag, no autosave) to each descendant as it arrives and
+  // the nodes are marked pending-rewrite (green "New content" badge). When the
+  // batch finishes, ONE review surface offers per-node keep/discard checkboxes +
+  // approve-all (the LIVE BOOKS pattern). Approve commits the checked items
+  // (one undo snapshot); Discard restores every item exactly as it was.
+  const [pendingBulkContent, setPendingBulkContent] = useState<{
+    outlineId: string;
+    parentId: string;
+    parentName: string;
+    items: { nodeId: string; name: string; originalContent: string; newContent: string }[];
+    preSnapshot: Outline[];
+    reviewOpen: boolean;
+  } | null>(null);
+  // Mirror of the session for the sequential generation loop (imperative reads
+  // between awaits without state races).
+  const bulkSessionRef = useRef<{
+    outlineId: string;
+    parentId: string;
+    parentName: string;
+    items: { nodeId: string; name: string; originalContent: string; newContent: string }[];
+    preSnapshot: Outline[];
+  } | null>(null);
+
+  // THE single pending-marks mechanism (unified Proposed Changes engine): node
+  // id → kind. Threaded outline-pane → node-item, which renders the shared
+  // vocabulary (amber "Will delete" / green "Pending" / green "New content").
+  const pendingChangeMarks = useMemo(() => {
+    const marks = new Map<string, PendingChangeKind>();
+    if (pendingDeletion) for (const id of pendingDeletion.ids) marks.set(id, 'deletion');
+    if (pendingInsertion) for (const id of pendingInsertion.ids) marks.set(id, 'insertion');
+    if (pendingBulkContent) for (const item of pendingBulkContent.items) marks.set(item.nodeId, 'rewrite');
+    return marks.size > 0 ? marks : undefined;
+  }, [pendingDeletion, pendingInsertion, pendingBulkContent]);
 
   // Keep outlinesRef in sync with React state so undo/redo can read it
   // synchronously without going through a state updater.
@@ -2586,6 +2615,112 @@ export default function OutlinePro() {
     });
   }, []);
 
+  // ── Proposed bulk-content gate (bulk Generate for descendants, P1 slice 4) ──
+  // Open a provisional session. preSnapshot is the exact pre-generation state:
+  // originals are read from it, Approve records it as ONE undo step.
+  const beginBulkContentSession = useCallback((outlineId: string, parentId: string, parentName: string) => {
+    bulkSessionRef.current = {
+      outlineId,
+      parentId,
+      parentName,
+      items: [],
+      preSnapshot: outlinesRef.current,
+    };
+    setPendingBulkContent({ ...bulkSessionRef.current, reviewOpen: false });
+  }, []);
+
+  // Apply one node's generated content PROVISIONALLY (raw setter — no undo
+  // entry, no dirty flag) and record the item so the tree marks it pending.
+  const addProvisionalBulkContent = useCallback((nodeId: string, buildNewContent: (original: string) => string) => {
+    const session = bulkSessionRef.current;
+    if (!session) return;
+    const preOutline = session.preSnapshot.find(o => o.id === session.outlineId);
+    const preNode = preOutline?.nodes[nodeId];
+    if (!preNode) return;
+    const originalContent = preNode.content || '';
+    const newContent = buildNewContent(originalContent);
+    session.items = [...session.items, {
+      nodeId,
+      name: preNode.name || 'Untitled',
+      originalContent,
+      newContent,
+    }];
+    rawSetOutlines(prev => prev.map(o => {
+      if (o.id !== session.outlineId) return o;
+      const node = o.nodes[nodeId];
+      if (!node) return o;
+      return { ...o, nodes: { ...o.nodes, [nodeId]: { ...node, content: newContent } } };
+    }));
+    setPendingBulkContent({ ...session, reviewOpen: false });
+  }, []);
+
+  // Show the single review surface over the whole batch. If nothing was
+  // generated, quietly close the session instead.
+  const openBulkContentReview = useCallback(() => {
+    const session = bulkSessionRef.current;
+    if (!session) return;
+    if (session.items.length === 0) {
+      bulkSessionRef.current = null;
+      setPendingBulkContent(null);
+      return;
+    }
+    setPendingBulkContent({ ...session, reviewOpen: true });
+  }, []);
+
+  // Discard: restore every affected node's content to exactly what it was.
+  // No undo entry, no dirty flag — as if the generation never happened.
+  const discardBulkContent = useCallback(() => {
+    const session = bulkSessionRef.current;
+    if (!session) return;
+    rawSetOutlines(prev => prev.map(o => {
+      if (o.id !== session.outlineId) return o;
+      const nodes: NodeMap = { ...o.nodes };
+      for (const item of session.items) {
+        if (nodes[item.nodeId]) nodes[item.nodeId] = { ...nodes[item.nodeId], content: item.originalContent };
+      }
+      return { ...o, nodes };
+    }));
+    bulkSessionRef.current = null;
+    setPendingBulkContent(null);
+  }, []);
+
+  // Approve the CHECKED items: unchecked items are restored to their original
+  // content, then the batch commits with ONE undo snapshot (⌘Z reverses the
+  // whole generation) and the outline is marked dirty so autosave persists it.
+  const approveBulkContent = useCallback((keepIds: string[]) => {
+    const session = bulkSessionRef.current;
+    if (!session) return;
+    const keep = new Set(keepIds);
+    const keptCount = session.items.filter(i => keep.has(i.nodeId)).length;
+    if (keptCount === 0) {
+      discardBulkContent();
+      return;
+    }
+    const dropped = session.items.filter(i => !keep.has(i.nodeId));
+    rawSetOutlines(prev => prev.map(o => {
+      if (o.id !== session.outlineId) return o;
+      const nodes: NodeMap = { ...o.nodes };
+      for (const item of dropped) {
+        if (nodes[item.nodeId]) nodes[item.nodeId] = { ...nodes[item.nodeId], content: item.originalContent };
+      }
+      return { ...o, nodes, lastModified: Date.now() };
+    }));
+    undoStackRef.current.push({
+      outlines: session.preSnapshot,
+      label: `Generate content for ${keptCount} item${keptCount === 1 ? '' : 's'}`,
+      big: true,
+    });
+    redoStackRef.current = [];
+    dirtyOutlineIdsRef.current.add(session.outlineId);
+    bulkSessionRef.current = null;
+    setPendingBulkContent(null);
+    toast({
+      title: 'Content added',
+      description: `Added new content to ${keptCount} item${keptCount === 1 ? '' : 's'}. Press ⌘Z to undo.`,
+      duration: 1000 * 60 * 60 * 24,
+    });
+  }, [discardBulkContent, toast]);
+
   // DEV/TEST-ONLY seam: expose the natural-language ("Tell AI") command handler
   // on window so automated tests can drive the exact production code path
   // (parse → destructive-delete review gate). Never attached in production
@@ -2597,6 +2732,8 @@ export default function OutlinePro() {
       __ideamTellAI?: (t: string) => void;
       __ideamSeedTree?: () => string;
       __ideamProvisionalInsert?: (titles?: string[]) => void;
+      __ideamProvisionalBulkContent?: () => void;
+      __ideamNodeContentByName?: (name: string) => string | null;
     };
     w.__ideamTellAI = handleAICommand;
     // Exercise the AI sub-outline INSERTION gate deterministically without an
@@ -2620,6 +2757,34 @@ export default function OutlinePro() {
         topLevelChildIds.push(id);
       });
       beginPendingInsertion({ outlineId: oid, parentId, parentName, newNodes, topLevelChildIds });
+    };
+    // Exercise the bulk "Generate content for descendants" gate deterministically
+    // WITHOUT an AI call: run every descendant of the current outline's root
+    // through the exact production provisional path (beginBulkContentSession →
+    // addProvisionalBulkContent → openBulkContentReview). Dev/test only.
+    w.__ideamProvisionalBulkContent = () => {
+      const outline = currentOutline;
+      if (!outline) return;
+      const rootId = outline.rootNodeId;
+      const descendantIds = collectDescendantIds(outline.nodes, rootId).filter(id => id !== rootId);
+      if (descendantIds.length === 0) return;
+      beginBulkContentSession(outline.id, rootId, outline.nodes[rootId]?.name || 'this item');
+      for (const id of descendantIds) {
+        const name = outline.nodes[id]?.name || 'Untitled';
+        addProvisionalBulkContent(id, (original) =>
+          original.trim()
+            ? original + '<hr class="my-4"/>' + `<p>Generated details for ${name}.</p>`
+            : `<p>Generated details for ${name}.</p>`
+        );
+      }
+      openBulkContentReview();
+    };
+    // Read a node's stored content by exact name (assertion helper). Dev/test only.
+    w.__ideamNodeContentByName = (name: string) => {
+      const outline = outlinesRef.current.find(o => o.id === currentOutlineId);
+      if (!outline) return null;
+      const node = Object.values(outline.nodes).find(n => n.name === name);
+      return node ? (node.content || '') : null;
     };
     // Seed a deterministic Fruits > Citrus > Orange tree and select "Citrus",
     // so a test can gate-delete a parent that has a descendant. Returns the
@@ -2649,9 +2814,9 @@ export default function OutlinePro() {
       return citrusId;
     };
     return () => {
-      try { delete w.__ideamTellAI; delete w.__ideamSeedTree; delete w.__ideamProvisionalInsert; } catch {}
+      try { delete w.__ideamTellAI; delete w.__ideamSeedTree; delete w.__ideamProvisionalInsert; delete w.__ideamProvisionalBulkContent; delete w.__ideamNodeContentByName; } catch {}
     };
-  }, [handleAICommand, beginPendingInsertion, currentOutlineId, selectedNodeId, currentOutline]);
+  }, [handleAICommand, beginPendingInsertion, currentOutlineId, selectedNodeId, currentOutline, collectDescendantIds, beginBulkContentSession, addProvisionalBulkContent, openBulkContentReview]);
 
 
   // Open the User Guide
@@ -3585,6 +3750,11 @@ export default function OutlinePro() {
     setIsLoadingAI(true);
     aiLoadingStartTime.current = Date.now();
 
+    // Proposed Changes gate (P1 slice 4): everything generated below is applied
+    // PROVISIONALLY and reviewed in one per-node keep/discard surface at the
+    // end. Nothing commits (no undo entry, no autosave) until the user approves.
+    beginBulkContentSession(currentOutlineId!, parentNodeId, parentNode.name || 'this item');
+
     // Premium users get faster generation (higher rate limits)
     const isPremium = plan === 'PREMIUM';
     const delayMs = isPremium ? 1000 : 6500; // Premium: 1s, Free: 6.5s
@@ -3636,30 +3806,14 @@ export default function OutlinePro() {
           getSelectedTextProvider(),
         );
 
-        // Update the node - APPEND new content after existing content
-        setOutlines(currentOutlines => {
-          return currentOutlines.map(o => {
-            if (o.id === currentOutlineId) {
-              const existingContent = o.nodes[descendantId]?.content || '';
-              // Only append if there's existing content, otherwise just use generated
-              const newContent = existingContent.trim()
-                ? existingContent + '<hr class="my-4"/>' + generatedContent
-                : generatedContent;
-              return {
-                ...o,
-                lastModified: Date.now(),
-                nodes: {
-                  ...o.nodes,
-                  [descendantId]: {
-                    ...o.nodes[descendantId],
-                    content: newContent,
-                  },
-                },
-              };
-            }
-            return o;
-          });
-        });
+        // Apply PROVISIONALLY — APPEND new content after existing content. The
+        // node is marked pending-rewrite in the tree; nothing commits until the
+        // user approves in the review.
+        addProvisionalBulkContent(descendantId, (existingContent) =>
+          existingContent.trim()
+            ? existingContent + '<hr class="my-4"/>' + generatedContent
+            : generatedContent
+        );
 
         successCount++;
 
@@ -3689,38 +3843,25 @@ export default function OutlinePro() {
 
       const diagramHtml = `<div data-mermaid-block data-mermaid-code="${escapedCode}"></div>`;
 
-      // Add the diagram to the parent node's content
-      setOutlines(currentOutlines => {
-        return currentOutlines.map(o => {
-          if (o.id === currentOutlineId) {
-            const currentParentContent = o.nodes[parentNodeId]?.content || '';
-            return {
-              ...o,
-              lastModified: Date.now(),
-              nodes: {
-                ...o.nodes,
-                [parentNodeId]: {
-                  ...o.nodes[parentNodeId],
-                  content: diagramHtml + '<p></p>' + currentParentContent,
-                },
-              },
-            };
-          }
-          return o;
-        });
-      });
+      // Add the diagram to the parent node's content — provisionally, so the
+      // review's per-node checkboxes cover the diagram too.
+      addProvisionalBulkContent(parentNodeId, (currentParentContent) =>
+        diagramHtml + '<p></p>' + currentParentContent
+      );
     } catch (e) {
       console.error('Failed to generate subtree diagram:', e);
     }
 
-    // If cancelled, the cancel handler already cleaned up — just show summary
+    // If cancelled mid-run, everything generated so far is still provisional —
+    // open the review over the partial batch so the user decides what to keep.
     if (aiCancelledRef.current) {
       if (successCount > 0) {
         toast({
           title: "Cancelled",
-          description: `Stopped after generating ${successCount} of ${totalDescendants} descendants. Completed work was kept.`,
+          description: `Stopped after generating ${successCount} of ${totalDescendants} descendants. Review the results below to keep or discard them.`,
         });
       }
+      openBulkContentReview();
       return;
     }
 
@@ -3730,14 +3871,14 @@ export default function OutlinePro() {
     if (errorCount === 0) {
       if (isPremium) {
         toast({
-          title: "Content Generated",
-          description: `Successfully created content for ${successCount} descendant${successCount > 1 ? 's' : ''}, with suboutline diagram.`,
+          title: "Content Ready",
+          description: `Created content for ${successCount} descendant${successCount > 1 ? 's' : ''}, with suboutline diagram. Review below to add it.`,
         });
       } else {
         // Show premium upsell for free users
         toast({
-          title: "Content Generated",
-          description: `Created content for ${successCount} descendant${successCount > 1 ? 's' : ''}. Upgrade to Premium for 6x faster generation!`,
+          title: "Content Ready",
+          description: `Created content for ${successCount} descendant${successCount > 1 ? 's' : ''} — review below to add it. Upgrade to Premium for 6x faster generation!`,
           duration: 8000,
         });
       }
@@ -3745,10 +3886,14 @@ export default function OutlinePro() {
       toast({
         variant: "destructive",
         title: "Partial Success",
-        description: `Generated ${successCount} of ${totalDescendants} descendants. ${errorCount} failed.`,
+        description: `Generated ${successCount} of ${totalDescendants} descendants. ${errorCount} failed. Review the results below to keep or discard them.`,
       });
     }
-  }, [currentOutline, currentOutlineId, getAncestorPath, plan, toast, aiUsageGate]);
+
+    // ONE review surface over the whole batch: per-node keep/discard
+    // checkboxes + approve-all. Nothing commits until the user approves.
+    openBulkContentReview();
+  }, [currentOutline, currentOutlineId, getAncestorPath, plan, toast, aiUsageGate, beginBulkContentSession, addProvisionalBulkContent, openBulkContentReview]);
 
   // Apply ingest preview - creates nodes from preview
   const handleApplyIngestPreview = useCallback(async (preview: IngestPreview): Promise<void> => {
@@ -5467,6 +5612,20 @@ export default function OutlinePro() {
           onCancel={cancelPendingInsertion}
         />
 
+        {/* Proposed bulk-content review — per-node keep/discard for bulk Generate */}
+        <ProposedChangesReview
+          open={!!pendingBulkContent?.reviewOpen}
+          kind="rewrite"
+          ariaLabel="Review generated content"
+          headline={`Add new content to ${pendingBulkContent?.items.length || 0} item${(pendingBulkContent?.items.length || 0) === 1 ? '' : 's'}?`}
+          body="Each item below received AI-written content, highlighted in green in your outline. Untick anything you don't want, then choose Add. Nothing is saved until you approve — Discard restores every item exactly as it was."
+          items={pendingBulkContent?.items.map(i => ({ id: i.nodeId, name: i.name }))}
+          confirmLabel="Add"
+          cancelLabel="Discard"
+          onConfirm={(ids) => approveBulkContent(ids || [])}
+          onCancel={discardBulkContent}
+        />
+
         {/* Keyboard Shortcuts Dialog */}
         <KeyboardShortcutsDialog
           open={isShortcutsOpen}
@@ -5908,8 +6067,7 @@ export default function OutlinePro() {
                 onSetStatus={handleSetStatus}
                 onSetPrerequisite={handleSetPrerequisite}
                 pmEnabled={pmEnabled}
-                pendingDeletionIds={pendingDeletionIds}
-                pendingInsertionIds={pendingInsertionIds}
+                pendingChangeMarks={pendingChangeMarks}
                 onSearchTermChange={handleSearchTermChange}
                 onExportSubtree={handleExportSubtree}
                 onSaveToSecondBrain={handleSaveToSecondBrain}
@@ -6098,6 +6256,20 @@ export default function OutlinePro() {
         itemNames={pendingInsertion?.names || []}
         onConfirm={confirmPendingInsertion}
         onCancel={cancelPendingInsertion}
+      />
+
+      {/* Proposed bulk-content review — per-node keep/discard for bulk Generate */}
+      <ProposedChangesReview
+        open={!!pendingBulkContent?.reviewOpen}
+        kind="rewrite"
+        ariaLabel="Review generated content"
+        headline={`Add new content to ${pendingBulkContent?.items.length || 0} item${(pendingBulkContent?.items.length || 0) === 1 ? '' : 's'}?`}
+        body="Each item below received AI-written content, highlighted in green in your outline. Untick anything you don't want, then choose Add. Nothing is saved until you approve — Discard restores every item exactly as it was."
+        items={pendingBulkContent?.items.map(i => ({ id: i.nodeId, name: i.name }))}
+        confirmLabel="Add"
+        cancelLabel="Discard"
+        onConfirm={(ids) => approveBulkContent(ids || [])}
+        onCancel={discardBulkContent}
       />
 
       {/* Keyboard Shortcuts Dialog */}
@@ -6563,8 +6735,7 @@ export default function OutlinePro() {
                 onSetStatus={handleSetStatus}
                 onSetPrerequisite={handleSetPrerequisite}
                 pmEnabled={pmEnabled}
-                pendingDeletionIds={pendingDeletionIds}
-                pendingInsertionIds={pendingInsertionIds}
+                pendingChangeMarks={pendingChangeMarks}
                 onSearchTermChange={handleSearchTermChange}
                 onExportSubtree={handleExportSubtree}
                 onSaveToSecondBrain={handleSaveToSecondBrain}
