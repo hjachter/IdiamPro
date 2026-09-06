@@ -185,6 +185,10 @@ interface OutlinePaneProps {
   // gate). Threaded down to each NodeItem so the target + descendants show as
   // struck-through with a "Will delete" badge until the user approves.
   pendingDeletionIds?: Set<string>;
+  // Proposed-insertion review: ids marked pending-insertion (AI sub-outline
+  // generate gate). Threaded down to each NodeItem so the provisional additions
+  // show as green with a "Pending" badge until the user approves.
+  pendingInsertionIds?: Set<string>;
   // Search term for content highlighting
   onSearchTermChange?: (searchTerm: string, matchType?: 'name' | 'content' | 'both', matchIndex?: number) => void;
   // Export subtree
@@ -285,6 +289,7 @@ export default function OutlinePane({
   onSetPrerequisite,
   pmEnabled = false,
   pendingDeletionIds,
+  pendingInsertionIds,
   onSearchTermChange,
   onExportSubtree,
   onSaveToSecondBrain,
@@ -2014,6 +2019,7 @@ export default function OutlinePane({
               onSetPrerequisite={currentOutline.isGuide ? undefined : onSetPrerequisite}
               pmEnabled={pmEnabled}
               pendingDeletionIds={pendingDeletionIds}
+              pendingInsertionIds={pendingInsertionIds}
               isReadOnly={!!currentOutline.isGuide}
             />
           </ul>

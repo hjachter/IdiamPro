@@ -102,6 +102,12 @@ interface NodeItemProps {
   // delete" badge) so the user SEES what an approved delete will remove, in
   // place, before it happens. Display-only — no data is touched until approval.
   pendingDeletionIds?: Set<string>;
+  // Proposed-insertion review (AI sub-outline generate gate). When this node's
+  // id is in the set, the row is marked pending-insertion (green tint + "Pending"
+  // badge) so the user SEES what an approved Add will insert, in place, before it
+  // becomes permanent. Display-only — the provisional nodes are discarded on
+  // reject.
+  pendingInsertionIds?: Set<string>;
   // Read-only mode (e.g. User Guide outline) — suppresses rename + always-shown
   // mutator items in the context menu, and blocks F2/double-click rename. The
   // optional mutator callbacks should already be undefined when isReadOnly is
@@ -219,10 +225,12 @@ export default function NodeItem({
   onSetPrerequisite,
   pmEnabled = false,
   pendingDeletionIds,
+  pendingInsertionIds,
   isReadOnly = false,
 }: NodeItemProps) {
   const node = nodes[nodeId];
   const isPendingDeletion = pendingDeletionIds?.has(nodeId) ?? false;
+  const isPendingInsertion = pendingInsertionIds?.has(nodeId) ?? false;
   const [isEditing, setIsEditing] = React.useState(false);
   const [name, setName] = React.useState(node?.name ?? '');
   const [dropPosition, setDropPosition] = React.useState<DropPosition>(null);
@@ -646,7 +654,10 @@ export default function NodeItem({
                 node.metadata?.color && "border-l-4",
                 // Proposed-deletion review: amber-tinted row so the pending set
                 // reads as a group at a glance.
-                isPendingDeletion && "bg-amber-100/70 dark:bg-amber-900/30 ring-1 ring-amber-400/70"
+                isPendingDeletion && "bg-amber-100/70 dark:bg-amber-900/30 ring-1 ring-amber-400/70",
+                // Proposed-insertion review: green-tinted row so the provisional
+                // (not-yet-committed) additions read as a group at a glance.
+                isPendingInsertion && "bg-emerald-100/70 dark:bg-emerald-900/30 ring-1 ring-emerald-400/70"
             )}
             style={{
               paddingLeft: `${level * 1.5 + 0.5}rem`,
@@ -736,6 +747,7 @@ export default function NodeItem({
                             highlightedNodeIds?.has(nodeId) && "bg-yellow-100 dark:bg-yellow-900/30 rounded",
                             node.type === 'task' && node.metadata?.isCompleted && "line-through opacity-60",
                             isPendingDeletion && "line-through decoration-2 decoration-amber-600/80 text-amber-800 dark:text-amber-300",
+                            isPendingInsertion && "text-emerald-800 dark:text-emerald-300",
                             node.type === 'link' && "text-blue-600 dark:text-blue-400 underline hover:no-underline"
                         )}
                         onClick={(e) => {
@@ -758,6 +770,16 @@ export default function NodeItem({
                         >
                             <AlertTriangle className="h-2.5 w-2.5 shrink-0" />
                             Will delete
+                        </span>
+                    )}
+                    {isPendingInsertion && (
+                        <span
+                            className="inline-flex items-center gap-1 text-[10px] font-semibold rounded px-1.5 py-0.5 border border-emerald-400 bg-emerald-100 text-emerald-800 dark:border-emerald-600/60 dark:bg-emerald-900/40 dark:text-emerald-300 shrink-0"
+                            title="This item will be added when you approve the sub-outline"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <Sparkles className="h-2.5 w-2.5 shrink-0" />
+                            Pending
                         </span>
                     )}
                     {visibleTags.length > 0 && (
@@ -1107,6 +1129,7 @@ export default function NodeItem({
                         onSetPrerequisite={onSetPrerequisite}
                         pmEnabled={pmEnabled}
                         pendingDeletionIds={pendingDeletionIds}
+                        pendingInsertionIds={pendingInsertionIds}
                         isReadOnly={isReadOnly}
                     />
                 ))}

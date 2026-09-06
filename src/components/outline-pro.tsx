@@ -23,6 +23,7 @@ import { generateOutlineAction, expandContentAction, generateContentForNodeActio
 import type { InterpretedCommand } from '@/ai/flows/interpret-command';
 import AICommandConfirmDialog from '@/components/ai-command-confirm-dialog';
 import ProposedDeleteReview from '@/components/proposed-delete-review';
+import ProposedInsertReview from '@/components/proposed-insert-review';
 import { getUserApiKey, getSelectedTextProvider } from '@/lib/byok-keys';
 import { useAI } from '@/contexts/ai-context';
 import {
@@ -416,6 +417,25 @@ export default function OutlinePro() {
   const pendingDeletionIds = useMemo(
     () => (pendingDeletion ? new Set(pendingDeletion.ids) : undefined),
     [pendingDeletion]
+  );
+  // Proposed-insertion review (AI sub-outline generate gate, P1 slice 2). When
+  // set, AI-generated children have been inserted PROVISIONALLY (via the raw
+  // setter, so no undo entry and no autosave yet); they are marked pending in the
+  // tree (green + "Pending" badge) and the review card is shown. Approve commits
+  // them (records one undo snapshot from `preSnapshot`); Discard removes them and
+  // leaves the outline exactly as before. See ProposedInsertReview.
+  const [pendingInsertion, setPendingInsertion] = useState<{
+    outlineId: string;
+    parentId: string;
+    parentName: string;
+    ids: string[];
+    names: string[];
+    count: number;
+    preSnapshot: Outline[];
+  } | null>(null);
+  const pendingInsertionIds = useMemo(
+    () => (pendingInsertion ? new Set(pendingInsertion.ids) : undefined),
+    [pendingInsertion]
   );
 
   // Keep outlinesRef in sync with React state so undo/redo can read it
@@ -2475,6 +2495,97 @@ export default function OutlinePro() {
     setPendingDeletion(null);
   }, []);
 
+  // ── Proposed-insertion gate (AI sub-outline generate, P1 slice 2) ──────────
+  // Insert the AI-generated children PROVISIONALLY: they go into the live tree
+  // via the RAW setter (so no undo entry is recorded and autosave leaves them
+  // alone) and are marked pending (green + "Pending" badge). The review card
+  // then gates the commit. `preSnapshot` captures the exact pre-insertion state
+  // so Approve can record one clean undo step and Reject can back it out.
+  const beginPendingInsertion = useCallback((params: {
+    outlineId: string;
+    parentId: string;
+    parentName: string;
+    newNodes: NodeMap;            // provisional nodes keyed by their new id
+    topLevelChildIds: string[];   // ids appended directly under the parent
+  }) => {
+    const { outlineId, parentId, parentName, newNodes, topLevelChildIds } = params;
+    const allNewIds = Object.keys(newNodes);
+    if (allNewIds.length === 0) return;
+    const names = allNewIds.map(id => newNodes[id]?.name || 'Untitled');
+    const preSnapshot = outlinesRef.current;
+    rawSetOutlines(prev => prev.map(o => {
+      if (o.id !== outlineId) return o;
+      const merged: NodeMap = { ...o.nodes, ...newNodes };
+      const parent = merged[parentId];
+      if (!parent) return o;
+      merged[parentId] = {
+        ...parent,
+        childrenIds: [...parent.childrenIds, ...topLevelChildIds],
+        isCollapsed: false,
+      };
+      return { ...o, nodes: merged };
+    }));
+    setPendingInsertion({
+      outlineId,
+      parentId,
+      parentName,
+      ids: allNewIds,
+      names,
+      count: allNewIds.length,
+      preSnapshot,
+    });
+  }, []);
+
+  // Approve: the provisional nodes are already in the live tree. Commit them by
+  // recording ONE undo snapshot (the pre-insertion array) so Cmd+Z reverses the
+  // whole insertion, mark the outline dirty, and re-reference it (via the raw
+  // setter, so NO extra undo entry) so autosave persists the addition.
+  const confirmPendingInsertion = useCallback(() => {
+    setPendingInsertion(current => {
+      if (!current) return null;
+      undoStackRef.current.push({
+        outlines: current.preSnapshot,
+        label: `Add ${current.count} item${current.count === 1 ? '' : 's'} under ${current.parentName}`,
+        big: true,
+      });
+      redoStackRef.current = [];
+      dirtyOutlineIdsRef.current.add(current.outlineId);
+      rawSetOutlines(prev => prev.map(o =>
+        o.id === current.outlineId ? { ...o, lastModified: Date.now() } : o
+      ));
+      toast({
+        title: 'Added',
+        description: `Added ${current.count} item${current.count === 1 ? '' : 's'} under "${current.parentName}". Press ⌘Z to undo.`,
+        duration: 1000 * 60 * 60 * 24,
+      });
+      return null;
+    });
+  }, [toast]);
+
+  // Reject: remove the provisional nodes (surgically detach + delete their ids
+  // via the raw setter) so the outline returns to exactly what it was before the
+  // generation. No undo entry is left behind.
+  const cancelPendingInsertion = useCallback(() => {
+    setPendingInsertion(current => {
+      if (!current) return null;
+      const idSet = new Set(current.ids);
+      rawSetOutlines(prev => prev.map(o => {
+        if (o.id !== current.outlineId) return o;
+        const nodes: NodeMap = { ...o.nodes };
+        const parent = nodes[current.parentId];
+        if (parent) {
+          nodes[current.parentId] = {
+            ...parent,
+            childrenIds: parent.childrenIds.filter(cid => !idSet.has(cid)),
+          };
+        }
+        for (const id of current.ids) delete nodes[id];
+        return { ...o, nodes };
+      }));
+      return null;
+    });
+  }, []);
+
   // DEV/TEST-ONLY seam: expose the natural-language ("Tell AI") command handler
   // on window so automated tests can drive the exact production code path
   // (parse → destructive-delete review gate). Never attached in production
@@ -2485,8 +2596,31 @@ export default function OutlinePro() {
     const w = window as unknown as {
       __ideamTellAI?: (t: string) => void;
       __ideamSeedTree?: () => string;
+      __ideamProvisionalInsert?: (titles?: string[]) => void;
     };
     w.__ideamTellAI = handleAICommand;
+    // Exercise the AI sub-outline INSERTION gate deterministically without an
+    // AI call: build a small flat batch of children under the selected node and
+    // run them through the exact production provisional-insert path
+    // (beginPendingInsertion → pending marks → Add/Discard review). Dev/test only.
+    w.__ideamProvisionalInsert = (titles?: string[]) => {
+      const list = titles && titles.length ? titles : ['Alpha', 'Beta', 'Gamma'];
+      const oid = currentOutlineId;
+      const parentId = selectedNodeId;
+      if (!oid || !parentId) return;
+      const parentName = currentOutline?.nodes[parentId]?.name || 'the selected item';
+      const newNodes: NodeMap = {};
+      const topLevelChildIds: string[] = [];
+      list.forEach((t, i) => {
+        const id = `prov-${Date.now()}-${i}-${Math.random().toString(36).slice(2, 7)}`;
+        newNodes[id] = {
+          id, name: t, content: '', type: 'document',
+          parentId, childrenIds: [], prefix: '', isCollapsed: false,
+        };
+        topLevelChildIds.push(id);
+      });
+      beginPendingInsertion({ outlineId: oid, parentId, parentName, newNodes, topLevelChildIds });
+    };
     // Seed a deterministic Fruits > Citrus > Orange tree and select "Citrus",
     // so a test can gate-delete a parent that has a descendant. Returns the
     // Citrus node id. Dev/test only.
@@ -2515,9 +2649,9 @@ export default function OutlinePro() {
       return citrusId;
     };
     return () => {
-      try { delete w.__ideamTellAI; delete w.__ideamSeedTree; } catch {}
+      try { delete w.__ideamTellAI; delete w.__ideamSeedTree; delete w.__ideamProvisionalInsert; } catch {}
     };
-  }, [handleAICommand]);
+  }, [handleAICommand, beginPendingInsertion, currentOutlineId, selectedNodeId, currentOutline]);
 
 
   // Open the User Guide
@@ -3061,45 +3195,41 @@ export default function OutlinePro() {
         idMapping[oldId] = uuidv4();
       });
 
-      setOutlines(currentOutlines => {
-        return currentOutlines.map(o => {
-          if (o.id !== currentOutlineId) return o;
+      // The generated root's children become direct children of the selected node.
+      const generatedRoot = generatedNodes[generatedRootId];
+      const topLevelChildOldIds = generatedRoot.childrenIds;
+      const topLevelChildIds = topLevelChildOldIds.map(id => idMapping[id]);
 
-          const newNodes = { ...o.nodes };
+      // Clone all generated nodes (except the generated root itself) with new IDs.
+      const newNodes: NodeMap = {};
+      Object.entries(generatedNodes).forEach(([oldId, node]) => {
+        if (oldId === generatedRootId) return; // skip the generated root
+        const newId = idMapping[oldId];
+        const isTopLevel = topLevelChildOldIds.includes(oldId);
+        newNodes[newId] = {
+          ...node,
+          id: newId,
+          parentId: isTopLevel ? parentId : (node.parentId ? idMapping[node.parentId] : undefined) || parentId,
+          childrenIds: node.childrenIds.map(cid => idMapping[cid] || cid),
+        };
+      });
 
-          // The generated root's children become direct children of the selected node
-          const generatedRoot = generatedNodes[generatedRootId];
-          const topLevelChildIds = generatedRoot.childrenIds;
-
-          // Clone all generated nodes (except the generated root itself) with new IDs
-          Object.entries(generatedNodes).forEach(([oldId, node]) => {
-            if (oldId === generatedRootId) return; // skip the generated root
-            const newId = idMapping[oldId];
-            const isTopLevel = topLevelChildIds.includes(oldId);
-            newNodes[newId] = {
-              ...node,
-              id: newId,
-              parentId: isTopLevel ? parentId : (node.parentId ? idMapping[node.parentId] : undefined) || parentId,
-              childrenIds: node.childrenIds.map(cid => idMapping[cid] || cid),
-            };
-          });
-
-          // Add the top-level generated children to the selected node
-          const parentNode = newNodes[parentId];
-          const newChildIds = topLevelChildIds.map(id => idMapping[id]);
-          newNodes[parentId] = {
-            ...parentNode,
-            childrenIds: [...parentNode.childrenIds, ...newChildIds],
-            isCollapsed: false, // expand to show new children
-          };
-
-          return { ...o, nodes: newNodes };
-        });
+      // Approve-before-apply (P1 slice 2): insert the generated children
+      // PROVISIONALLY and marked pending, then show the review card. Nothing is
+      // permanent until the user clicks Add; Discard removes them entirely.
+      const parentName = currentOutline?.nodes[parentId]?.name || 'the selected item';
+      beginPendingInsertion({
+        outlineId: currentOutlineId,
+        parentId,
+        parentName,
+        newNodes,
+        topLevelChildIds,
       });
 
       toast({
-        title: "Suboutline Generated",
-        description: `AI-generated suboutline for "${topic}" added under the selected item.`,
+        title: "Review the sub-outline",
+        description: `AI generated ${topLevelChildIds.length} item${topLevelChildIds.length === 1 ? '' : 's'} for "${topic}", shown in green under "${parentName}". Choose Add to keep them or Discard to remove them.`,
+        duration: 1000 * 60 * 60 * 24,
       });
     } catch (e) {
       toast({
@@ -3111,7 +3241,7 @@ export default function OutlinePro() {
       setIsLoadingAI(false);
       aiLoadingStartTime.current = null;
     }
-  }, [toast, selectedNodeId, currentOutlineId, ensureAIQuota, aiUsageGate]);
+  }, [toast, selectedNodeId, currentOutlineId, currentOutline, ensureAIQuota, aiUsageGate, beginPendingInsertion]);
 
   // Wizards — one-click automated workflows. Currently the "Automatic Book"
   // recipe is fully live: topic (+ guided depth/tone/audience answers) -> AI
@@ -5327,6 +5457,16 @@ export default function OutlinePro() {
           onCancel={cancelPendingDeletion}
         />
 
+        {/* Proposed-insertion review — approve-before-apply gate for AI sub-outlines */}
+        <ProposedInsertReview
+          open={pendingInsertion !== null}
+          parentName={pendingInsertion?.parentName || ''}
+          count={pendingInsertion?.count || 0}
+          itemNames={pendingInsertion?.names || []}
+          onConfirm={confirmPendingInsertion}
+          onCancel={cancelPendingInsertion}
+        />
+
         {/* Keyboard Shortcuts Dialog */}
         <KeyboardShortcutsDialog
           open={isShortcutsOpen}
@@ -5769,6 +5909,7 @@ export default function OutlinePro() {
                 onSetPrerequisite={handleSetPrerequisite}
                 pmEnabled={pmEnabled}
                 pendingDeletionIds={pendingDeletionIds}
+                pendingInsertionIds={pendingInsertionIds}
                 onSearchTermChange={handleSearchTermChange}
                 onExportSubtree={handleExportSubtree}
                 onSaveToSecondBrain={handleSaveToSecondBrain}
@@ -5947,6 +6088,16 @@ export default function OutlinePro() {
         affectedNames={pendingDeletion?.names || []}
         onConfirm={confirmPendingDeletion}
         onCancel={cancelPendingDeletion}
+      />
+
+      {/* Proposed-insertion review — approve-before-apply gate for AI sub-outlines */}
+      <ProposedInsertReview
+        open={pendingInsertion !== null}
+        parentName={pendingInsertion?.parentName || ''}
+        count={pendingInsertion?.count || 0}
+        itemNames={pendingInsertion?.names || []}
+        onConfirm={confirmPendingInsertion}
+        onCancel={cancelPendingInsertion}
       />
 
       {/* Keyboard Shortcuts Dialog */}
@@ -6413,6 +6564,7 @@ export default function OutlinePro() {
                 onSetPrerequisite={handleSetPrerequisite}
                 pmEnabled={pmEnabled}
                 pendingDeletionIds={pendingDeletionIds}
+                pendingInsertionIds={pendingInsertionIds}
                 onSearchTermChange={handleSearchTermChange}
                 onExportSubtree={handleExportSubtree}
                 onSaveToSecondBrain={handleSaveToSecondBrain}
