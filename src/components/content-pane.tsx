@@ -127,6 +127,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import Image from 'next/image';
 import { ArrowLeft, Sparkles, Loader2, Eraser, Scissors, Copy, Clipboard, Type, Undo, Redo, List, ListOrdered, ListX, Minus, FileText, Sheet, Presentation, Video, Map, AppWindow, Plus, Bold, Italic, Underline, Strikethrough, Code, Heading1, Heading2, Heading3, ChevronRight, Home, Pencil, ALargeSmall, Check, Calendar, Brush, Network, GitBranch, MessageSquare, ImagePlus, Table, Layers, Image as ImageIcon, Film, CheckSquare, Paperclip, LayoutGrid, WandSparkles } from 'lucide-react';
 import { generateImageAction, generateImageDescriptionAction, generateContentForNodeAction } from '@/app/actions';
+import ProposedExpandReview from '@/components/proposed-expand-review';
 import { useAIUsageGate } from '@/lib/use-ai-usage-gate';
 import { getUserApiKey, getSelectedTextProvider } from '@/lib/byok-keys';
 import dynamic from 'next/dynamic';
@@ -555,6 +556,16 @@ export default function ContentPane({
   const isLoadingContentRef = useRef(false);
   const [customPrompt, setCustomPrompt] = useState('');
   const [aiResponse, setAiResponse] = useState<string | null>(null);
+
+  // Proposed-expand review (P1 slice 3): AI-generated content is NOT written
+  // into the editor immediately. We stash the generated HTML + the chosen
+  // placement here and show a before/after preview; nothing is applied until
+  // the user clicks Approve. Discard clears this and leaves the node untouched.
+  const [pendingExpand, setPendingExpand] = useState<{
+    proposedHtml: string;
+    currentHtml: string;
+    placement: GeneratePlacement;
+  } | null>(null);
 
   // Image/diagram generation state
   const [imagePromptDialogOpen, setImagePromptDialogOpen] = useState(false);
@@ -1356,13 +1367,12 @@ export default function ContentPane({
     return sanitizeHtml(processed, SANITIZE_CONFIG);
   }, [convertToHtml, sanitizeMermaidCode]);
 
-  // Apply generated content based on placement preference
-  const applyGeneratedContent = useCallback((generatedContent: string, placement: GeneratePlacement) => {
+  // Apply ALREADY-PROCESSED HTML into the editor honoring placement. Splitting
+  // this out (from applyGeneratedContent) lets the proposed-expand review apply
+  // exactly the HTML it previewed, so the "After" preview and the real result
+  // are guaranteed identical. Tiptap's history captures the edit, so undo works.
+  const applyProcessedContent = useCallback((processedContent: string, placement: GeneratePlacement) => {
     if (!editor) return;
-
-    // Process content: convert to HTML and parse mermaid blocks
-    const processedContent = processGeneratedContent(generatedContent);
-
     if (placement === 'replace') {
       editor.commands.setContent(processedContent);
     } else if (placement === 'prepend') {
@@ -1373,7 +1383,46 @@ export default function ContentPane({
       editor.commands.focus('end');
       editor.commands.insertContent('<p></p>' + processedContent);
     }
-  }, [editor, processGeneratedContent]);
+  }, [editor]);
+
+  // Apply generated content based on placement preference
+  const applyGeneratedContent = useCallback((generatedContent: string, placement: GeneratePlacement) => {
+    if (!editor) return;
+    // Process content: convert to HTML and parse mermaid blocks
+    applyProcessedContent(processGeneratedContent(generatedContent), placement);
+  }, [editor, processGeneratedContent, applyProcessedContent]);
+
+  // Proposed-expand review handlers (P1 slice 3).
+  const handleApproveExpand = useCallback(() => {
+    if (!pendingExpand) return;
+    applyProcessedContent(pendingExpand.proposedHtml, pendingExpand.placement);
+    setPendingExpand(null);
+    toast({ title: 'Content added', description: 'The new content was applied to your item.' });
+  }, [pendingExpand, applyProcessedContent, toast]);
+
+  const handleDiscardExpand = useCallback(() => {
+    // Leave the node exactly as it was — nothing is written.
+    setPendingExpand(null);
+  }, []);
+
+  // Dev/test-only seam: drive the exact proposed-expand gate (review →
+  // approve/discard → applyProcessedContent → undo) WITHOUT an AI call, so the
+  // gate mechanics can be verified deterministically and without spending AI
+  // generations. Never attached in production; invisible to users.
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'production') return;
+    if (typeof window === 'undefined' || !editor) return;
+    const w = window as unknown as { __ideamProvisionalExpand?: (text?: string, placement?: GeneratePlacement) => void };
+    w.__ideamProvisionalExpand = (text?: string, placement?: GeneratePlacement) => {
+      const body = text && text.trim() ? text : 'This is AI-generated content for review.';
+      setPendingExpand({
+        proposedHtml: processGeneratedContent(body),
+        currentHtml: editor.getHTML(),
+        placement: placement || generatePlacement,
+      });
+    };
+    return () => { try { delete w.__ideamProvisionalExpand; } catch {} };
+  }, [editor, processGeneratedContent, generatePlacement]);
 
   const handleGenerateContent = async (sourceOverride?: GenerateSource) => {
     if (!node || isGenerating || isLoadingAI || !editor) return;
@@ -1401,15 +1450,14 @@ export default function ContentPane({
 
         const generatedContent = await onGenerateContent(context);
 
-        // Apply based on placement preference
-        const currentText = editor.getText().trim();
-        if (!currentText || generatePlacement === 'replace') {
-          // No existing content or replace mode - apply directly
-          applyGeneratedContent(generatedContent, generatePlacement);
-        } else {
-          // Has content and not replace - apply with placement
-          applyGeneratedContent(generatedContent, generatePlacement);
-        }
+        // Proposed-expand gate (P1 slice 3): do NOT write the AI text into the
+        // node yet. Stash it and open a before/after review; it is applied only
+        // when the user approves (see handleApproveExpand / handleDiscardExpand).
+        setPendingExpand({
+          proposedHtml: processGeneratedContent(generatedContent),
+          currentHtml: editor.getHTML(),
+          placement: generatePlacement,
+        });
       } finally {
         setIsGenerating(false);
       }
@@ -2568,6 +2616,17 @@ export default function ContentPane({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Proposed-expand review (P1 slice 3): before/after gate for AI content. */}
+      <ProposedExpandReview
+        open={pendingExpand !== null}
+        nodeName={node?.name || ''}
+        currentHtml={pendingExpand?.currentHtml || ''}
+        proposedHtml={pendingExpand?.proposedHtml || ''}
+        placement={pendingExpand?.placement || 'append'}
+        onApprove={handleApproveExpand}
+        onDiscard={handleDiscardExpand}
+      />
 
       {/* Read-only banner for User Guide */}
       {isGuide && (
