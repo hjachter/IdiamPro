@@ -418,3 +418,22 @@ This pairs with the verify-and-refocus loop in the Automated Testing section: af
 ## Active Until Reversed
 
 These guidelines are active for ALL conversations until the user explicitly reverses them.
+
+## Import / Export toolbar buttons — a deliberate exception to value-based naming (2026-08-25)
+
+The two outline-toolbar "intake" and "output" buttons use **bold arrow icons** — Import = bold DOWN arrow, Export = bold UP arrow ("no frills") — and are **labeled "Import" and "Export"** in all user-facing text (tooltips, menu labels, aria-labels, help/guide copy). This was Howard's explicit call (2026-08-25): the older icons (a book-with-arrow glyph, internally "BookDown"/"BookUp") were hard to read, and the value-based labels "Bring In" / "Turn Into" were replaced with the plainer, instantly-understood "Import" / "Export." This is a **deliberate, owner-approved exception** to the general value-based-naming principle for these two specific controls — do not "correct" them back to Bring In / Turn Into. Internal code identifiers (showBringIn, bringInMenuItems, turnIntoMenuItems) are unchanged (out of scope for user-facing naming).
+
+## Weekly Competitive Brief — Catch-Up Protocol (2026-09-05)
+
+A **cloud routine** ("IdeaM Weekly Competitive Brief", managed at claude.ai/code/routines) runs **every Monday** and researches the week's developments in AI-powered outliners, second-brain/PKM software, and Apple-platform productivity tools. It **saves each brief as a Google Doc** ("IdeaM Weekly Brief — [dates]") into the Google Drive folder **"IdeaM Weekly Briefs"**, and posts a short digest. It runs whether or not Howard is present, so **unread briefs accumulate in that Drive folder** while he is away.
+
+**On the start of every session, I run the catch-up automatically** (a `SessionStart` hook injects the reminder). The steps:
+
+1. **Pull** — use the Google Drive tools to list the "IdeaM Weekly Briefs" folder.
+2. **Find unread** — a brief is "unread" if its date range is **not yet filed** as a `Brief NNN` node under the **Weekly Briefs** section of `docs/outlines/IdeaM -- Competitive Intelligence.idm`. (The outline is the dedup ledger — never re-report an already-filed brief.)
+3. **File each** unread brief into that outline as the next `Brief NNN`, matching the existing brief format (chapter node + per-item children: title, [LABEL], what changed / why it matters / IdeaM implication, mapped to a priority P1–P12). Sync the dual-location copy (`~/Documents/IDM Outlines/` + `docs/outlines/`) and commit the docs copy.
+4. **Synthesize across ALL unread briefs** (not just per-brief) — cumulative ranking shifts, recurring themes, new deadlines, new priorities. Update the **Rolling Priorities** (section 2 of the outline) and the **task list** (new tasks / re-rankings / deadlines).
+5. **Report** — LEAD the first response with the assessment: proposed product changes, anything time-sensitive, what was filed.
+6. **If nothing is unread, stay silent** and just proceed with whatever Howard asks. The protocol is self-gating — it only surfaces when there is genuinely something new.
+
+The analysis (Drive read, filing, synthesis) is model work; the hook only reminds. Howard does nothing but show up — he can also retire the manual ChatGPT briefs, though he may still drop one in for a second lens.

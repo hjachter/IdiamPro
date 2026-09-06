@@ -1,5 +1,16 @@
 {
   "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"SessionStart\",\"additionalContext\":\"WEEKLY-BRIEF CATCH-UP (automatic): At session start, before other work, use the Google Drive tools to list the folder named IdeaM Weekly Briefs and find any weekly competitive brief whose date range is NOT yet filed as a Brief NNN node under the Weekly Briefs section of the IdeaM -- Competitive Intelligence outline in docs/outlines/. If one or more unread briefs exist: file each into that outline deduped and matching the existing Brief format, synthesize across ALL of them, update the Rolling Priorities and the task list, and LEAD your first response with the assessment plus proposed product changes plus anything time-sensitive. If there are NO unread briefs, stay silent and proceed with whatever the user asks. Never re-report an already-filed brief.\"}}'",
+            "statusMessage": "Checking for unread weekly competitive briefs"
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "Task",
