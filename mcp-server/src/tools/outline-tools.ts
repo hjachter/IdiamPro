@@ -1,20 +1,97 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { randomUUID } from "crypto";
-import type { OutlineStorage } from "../storage/outline-storage.js";
+import type { OutlineStorage, Outline } from "../storage/outline-storage.js";
+import type { ProposalStore, ProposalKind } from "../storage/proposal-store.js";
 
 /**
- * IdiamPro MCP Server — Free-tier outline tools
+ * IdiamPro MCP Server — outline tools (proposal-based trust model)
  *
- * Registers all MCP tools that let AI assistants read, write,
- * and tag nodes inside .idm outlines.
+ * READ tools return live outline data directly.
+ *
+ * WRITE tools NEVER mutate a real .idm outline. Each mutating call is
+ * validated against the live outline, then recorded as a pending
+ * PROPOSAL in a sidecar file (`<file>.proposals.json`) — or, for new
+ * outlines, as a draft in `_proposed-outlines/`. The outline owner
+ * reviews and approves proposals inside the IdeaM app; there is
+ * deliberately NO approve tool over MCP.
+ *
+ * Tool names are unchanged from v0.1 for client back-compat — the
+ * semantics changed from "do it" to "propose it", and every response
+ * says so explicitly.
  */
+
+const PROPOSAL_NOTICE =
+  "Recorded as a pending proposal — the outline owner reviews and approves changes in IdeaM; nothing has been changed yet.";
+
 export function registerOutlineTools(
   server: McpServer,
-  storage: OutlineStorage
+  storage: OutlineStorage,
+  proposals: ProposalStore,
+  agentLabel: string
 ): void {
   // -------------------------------------------------------
-  //  READ OPERATIONS
+  //  Shared helpers
+  // -------------------------------------------------------
+
+  function nodePath(outline: Outline, nodeId: string): string {
+    const parts: string[] = [];
+    let current = outline.nodes[nodeId];
+    let hops = 0;
+    while (current && hops < 200) {
+      parts.unshift(current.name);
+      current = current.parentId ? outline.nodes[current.parentId] : undefined as any;
+      hops++;
+    }
+    return parts.join(" > ");
+  }
+
+  function errorResult(payload: Record<string, unknown>) {
+    return {
+      content: [{ type: "text" as const, text: JSON.stringify(payload) }],
+      isError: true as const,
+    };
+  }
+
+  async function propose(
+    kind: ProposalKind,
+    outlineFileName: string,
+    targetNodeId: string | null,
+    targetNodePath: string | null,
+    payload: Record<string, unknown>,
+    extra: Record<string, unknown> = {}
+  ) {
+    const proposal = await proposals.addProposal({
+      agent: agentLabel,
+      kind,
+      outlineFileName,
+      targetNodeId,
+      targetNodePath,
+      payload,
+    });
+    return {
+      content: [
+        {
+          type: "text" as const,
+          text: JSON.stringify(
+            {
+              status: "proposed",
+              proposalId: proposal.id,
+              kind,
+              outlineFileName,
+              ...extra,
+              message: PROPOSAL_NOTICE,
+            },
+            null,
+            2
+          ),
+        },
+      ],
+    };
+  }
+
+  // -------------------------------------------------------
+  //  READ OPERATIONS (direct, unchanged)
   // -------------------------------------------------------
 
   server.tool(
@@ -34,12 +111,9 @@ export function registerOutlineTools(
     "Return the full outline structure for a given file",
     { fileName: z.string().describe("The .idm file name") },
     async ({ fileName }) => {
-      const outline = await storage.getOutline(fileName);
+      const outline = await storage.getOutline(fileName).catch(() => null);
       if (!outline) {
-        return {
-          content: [{ type: "text", text: JSON.stringify({ error: "Outline not found", fileName }) }],
-          isError: true,
-        };
+        return errorResult({ error: "Outline not found", fileName });
       }
       return {
         content: [{ type: "text", text: JSON.stringify(outline, null, 2) }],
@@ -55,12 +129,9 @@ export function registerOutlineTools(
       nodeId: z.string().describe("The node ID to retrieve"),
     },
     async ({ fileName, nodeId }) => {
-      const node = await storage.getNode(fileName, nodeId);
+      const node = await storage.getNode(fileName, nodeId).catch(() => null);
       if (!node) {
-        return {
-          content: [{ type: "text", text: JSON.stringify({ error: "Node not found", fileName, nodeId }) }],
-          isError: true,
-        };
+        return errorResult({ error: "Node not found", fileName, nodeId });
       }
       return {
         content: [{ type: "text", text: JSON.stringify(node, null, 2) }],
@@ -90,12 +161,14 @@ export function registerOutlineTools(
   );
 
   // -------------------------------------------------------
-  //  WRITE OPERATIONS
+  //  WRITE OPERATIONS → PROPOSALS
+  //  (validated against the live outline, then recorded as
+  //   pending proposals; the .idm file is never touched)
   // -------------------------------------------------------
 
   server.tool(
     "create_node",
-    "Create a new node under the specified parent",
+    "PROPOSE a new node under the specified parent. Nothing is changed until the outline owner approves the proposal in IdeaM.",
     {
       fileName: z.string().describe("The .idm file name"),
       parentId: z.string().describe("Parent node ID"),
@@ -104,53 +177,33 @@ export function registerOutlineTools(
       position: z.number().optional().describe("Insert position among siblings (0-based). Appends at end if omitted"),
     },
     async ({ fileName, parentId, name, content, position }) => {
-      const outline = await storage.getOutline(fileName);
+      const outline = await storage.getOutline(fileName).catch(() => null);
       if (!outline) {
-        return {
-          content: [{ type: "text", text: JSON.stringify({ error: "Outline not found", fileName }) }],
-          isError: true,
-        };
+        return errorResult({ error: "Outline not found", fileName });
       }
-
       const parent = outline.nodes[parentId];
       if (!parent) {
-        return {
-          content: [{ type: "text", text: JSON.stringify({ error: "Parent node not found", parentId }) }],
-          isError: true,
-        };
+        return errorResult({ error: "Parent node not found", parentId });
       }
 
-      const newId = randomUUID();
-      const newNode = {
-        id: newId,
-        name,
-        content: content ?? "",
-        type: "document" as const,
+      return propose(
+        "add_node",
+        fileName,
         parentId,
-        childrenIds: [] as string[],
-        prefix: "",
-      };
-
-      outline.nodes[newId] = newNode;
-
-      if (position !== undefined && position >= 0 && position < parent.childrenIds.length) {
-        parent.childrenIds.splice(position, 0, newId);
-      } else {
-        parent.childrenIds.push(newId);
-      }
-
-      outline.lastModified = Date.now();
-      await storage.saveOutline(fileName, outline);
-
-      return {
-        content: [{ type: "text", text: JSON.stringify({ success: true, nodeId: newId, name }) }],
-      };
+        nodePath(outline, parentId),
+        {
+          parentId,
+          name,
+          content: content ?? "",
+          position: position ?? null,
+        }
+      );
     }
   );
 
   server.tool(
     "update_node",
-    "Update a node's name and/or content",
+    "PROPOSE a rewrite of a node's name and/or content. Nothing is changed until the outline owner approves the proposal in IdeaM.",
     {
       fileName: z.string().describe("The .idm file name"),
       nodeId: z.string().describe("Node ID to update"),
@@ -158,107 +211,78 @@ export function registerOutlineTools(
       content: z.string().optional().describe("New HTML body content"),
     },
     async ({ fileName, nodeId, name, content }) => {
-      const outline = await storage.getOutline(fileName);
+      const outline = await storage.getOutline(fileName).catch(() => null);
       if (!outline) {
-        return {
-          content: [{ type: "text", text: JSON.stringify({ error: "Outline not found", fileName }) }],
-          isError: true,
-        };
+        return errorResult({ error: "Outline not found", fileName });
       }
-
       const node = outline.nodes[nodeId];
       if (!node) {
-        return {
-          content: [{ type: "text", text: JSON.stringify({ error: "Node not found", nodeId }) }],
-          isError: true,
-        };
+        return errorResult({ error: "Node not found", nodeId });
+      }
+      if (name === undefined && content === undefined) {
+        return errorResult({ error: "Nothing to propose: provide name and/or content" });
       }
 
-      if (name !== undefined) node.name = name;
-      if (content !== undefined) node.content = content;
-
-      outline.lastModified = Date.now();
-      await storage.saveOutline(fileName, outline);
-
-      return {
-        content: [{ type: "text", text: JSON.stringify({ success: true, nodeId, name: node.name }) }],
-      };
+      return propose(
+        "rewrite_node",
+        fileName,
+        nodeId,
+        nodePath(outline, nodeId),
+        {
+          ...(name !== undefined ? { name } : {}),
+          ...(content !== undefined ? { content } : {}),
+          previous: { name: node.name, content: node.content },
+        }
+      );
     }
   );
 
   server.tool(
     "delete_node",
-    "Remove a node and all its descendants",
+    "PROPOSE removing a node and all its descendants. Nothing is changed until the outline owner approves the proposal in IdeaM.",
     {
       fileName: z.string().describe("The .idm file name"),
       nodeId: z.string().describe("Node ID to delete"),
     },
     async ({ fileName, nodeId }) => {
-      const outline = await storage.getOutline(fileName);
+      const outline = await storage.getOutline(fileName).catch(() => null);
       if (!outline) {
-        return {
-          content: [{ type: "text", text: JSON.stringify({ error: "Outline not found", fileName }) }],
-          isError: true,
-        };
+        return errorResult({ error: "Outline not found", fileName });
       }
-
       const node = outline.nodes[nodeId];
       if (!node) {
-        return {
-          content: [{ type: "text", text: JSON.stringify({ error: "Node not found", nodeId }) }],
-          isError: true,
-        };
+        return errorResult({ error: "Node not found", nodeId });
       }
-
-      // Prevent deleting the root node
       if (nodeId === outline.rootNodeId) {
-        return {
-          content: [{ type: "text", text: JSON.stringify({ error: "Cannot delete the root node" }) }],
-          isError: true,
-        };
+        return errorResult({ error: "Cannot propose deleting the root node" });
       }
 
-      // Collect all descendant IDs recursively
-      const idsToDelete: string[] = [];
-      function collectDescendants(id: string) {
-        idsToDelete.push(id);
+      // Count descendants so the reviewer sees the blast radius.
+      let descendantCount = 0;
+      const stack = [...(node.childrenIds ?? [])];
+      while (stack.length > 0) {
+        const id = stack.pop()!;
+        descendantCount++;
         const n = outline.nodes[id];
-        if (n?.childrenIds) {
-          for (const childId of n.childrenIds) {
-            collectDescendants(childId);
-          }
+        if (n?.childrenIds) stack.push(...n.childrenIds);
+      }
+
+      return propose(
+        "delete_node",
+        fileName,
+        nodeId,
+        nodePath(outline, nodeId),
+        {
+          nodeName: node.name,
+          descendantCount,
         }
-      }
-      collectDescendants(nodeId);
-
-      // Remove from parent's childrenIds
-      if (node.parentId && outline.nodes[node.parentId]) {
-        const parent = outline.nodes[node.parentId];
-        parent.childrenIds = parent.childrenIds.filter((id) => id !== nodeId);
-      }
-
-      // Delete all collected nodes
-      for (const id of idsToDelete) {
-        delete outline.nodes[id];
-      }
-
-      outline.lastModified = Date.now();
-      await storage.saveOutline(fileName, outline);
-
-      return {
-        content: [
-          {
-            type: "text",
-            text: JSON.stringify({ success: true, deletedCount: idsToDelete.length }),
-          },
-        ],
-      };
+      );
     }
   );
 
   server.tool(
     "move_node",
-    "Move a node to a new parent (optionally at a specific position)",
+    "PROPOSE moving a node to a new parent (optionally at a specific position). Nothing is changed until the outline owner approves the proposal in IdeaM.",
     {
       fileName: z.string().describe("The .idm file name"),
       nodeId: z.string().describe("Node ID to move"),
@@ -266,173 +290,120 @@ export function registerOutlineTools(
       position: z.number().optional().describe("Insert position among new siblings (0-based). Appends at end if omitted"),
     },
     async ({ fileName, nodeId, newParentId, position }) => {
-      const outline = await storage.getOutline(fileName);
+      const outline = await storage.getOutline(fileName).catch(() => null);
       if (!outline) {
-        return {
-          content: [{ type: "text", text: JSON.stringify({ error: "Outline not found", fileName }) }],
-          isError: true,
-        };
+        return errorResult({ error: "Outline not found", fileName });
       }
-
       const node = outline.nodes[nodeId];
       if (!node) {
-        return {
-          content: [{ type: "text", text: JSON.stringify({ error: "Node not found", nodeId }) }],
-          isError: true,
-        };
+        return errorResult({ error: "Node not found", nodeId });
       }
-
       const newParent = outline.nodes[newParentId];
       if (!newParent) {
-        return {
-          content: [{ type: "text", text: JSON.stringify({ error: "New parent not found", newParentId }) }],
-          isError: true,
-        };
+        return errorResult({ error: "New parent not found", newParentId });
       }
-
       if (nodeId === outline.rootNodeId) {
-        return {
-          content: [{ type: "text", text: JSON.stringify({ error: "Cannot move the root node" }) }],
-          isError: true,
-        };
+        return errorResult({ error: "Cannot propose moving the root node" });
       }
 
-      // Prevent moving a node into its own subtree
       function isDescendant(ancestorId: string, candidateId: string): boolean {
-        const n = outline.nodes[candidateId];
+        const n = outline!.nodes[candidateId];
         if (!n) return false;
         if (n.parentId === ancestorId) return true;
         if (n.parentId) return isDescendant(ancestorId, n.parentId);
         return false;
       }
       if (newParentId === nodeId || isDescendant(nodeId, newParentId)) {
-        return {
-          content: [{ type: "text", text: JSON.stringify({ error: "Cannot move a node into its own subtree" }) }],
-          isError: true,
-        };
+        return errorResult({ error: "Cannot propose moving a node into its own subtree" });
       }
 
-      // Remove from old parent
-      if (node.parentId && outline.nodes[node.parentId]) {
-        const oldParent = outline.nodes[node.parentId];
-        oldParent.childrenIds = oldParent.childrenIds.filter((id) => id !== nodeId);
-      }
-
-      // Add to new parent
-      if (position !== undefined && position >= 0 && position < newParent.childrenIds.length) {
-        newParent.childrenIds.splice(position, 0, nodeId);
-      } else {
-        newParent.childrenIds.push(nodeId);
-      }
-
-      node.parentId = newParentId;
-
-      outline.lastModified = Date.now();
-      await storage.saveOutline(fileName, outline);
-
-      return {
-        content: [
-          {
-            type: "text",
-            text: JSON.stringify({ success: true, nodeId, newParentId }),
-          },
-        ],
-      };
+      return propose(
+        "move_node",
+        fileName,
+        nodeId,
+        nodePath(outline, nodeId),
+        {
+          newParentId,
+          newParentPath: nodePath(outline, newParentId),
+          position: position ?? null,
+          previousParentId: node.parentId,
+        }
+      );
     }
   );
 
   // -------------------------------------------------------
   //  TAG OPERATIONS
+  //  (tag changes are metadata rewrites → rewrite_node proposals)
   // -------------------------------------------------------
 
   server.tool(
     "add_tag",
-    "Add a tag to a node",
+    "PROPOSE adding a tag to a node. Nothing is changed until the outline owner approves the proposal in IdeaM.",
     {
       fileName: z.string().describe("The .idm file name"),
       nodeId: z.string().describe("Node ID to tag"),
       tag: z.string().describe("Tag string to add"),
     },
     async ({ fileName, nodeId, tag }) => {
-      const outline = await storage.getOutline(fileName);
+      const outline = await storage.getOutline(fileName).catch(() => null);
       if (!outline) {
-        return {
-          content: [{ type: "text", text: JSON.stringify({ error: "Outline not found", fileName }) }],
-          isError: true,
-        };
+        return errorResult({ error: "Outline not found", fileName });
       }
-
       const node = outline.nodes[nodeId];
       if (!node) {
-        return {
-          content: [{ type: "text", text: JSON.stringify({ error: "Node not found", nodeId }) }],
-          isError: true,
-        };
+        return errorResult({ error: "Node not found", nodeId });
+      }
+      if (node.metadata?.tags?.includes(tag)) {
+        return errorResult({ error: "Tag already exists on node", nodeId, tag });
       }
 
-      if (!node.metadata) node.metadata = {};
-      if (!node.metadata.tags) node.metadata.tags = [];
-
-      if (node.metadata.tags.includes(tag)) {
-        return {
-          content: [{ type: "text", text: JSON.stringify({ success: true, message: "Tag already exists", nodeId, tag }) }],
-        };
-      }
-
-      node.metadata.tags.push(tag);
-
-      outline.lastModified = Date.now();
-      await storage.saveOutline(fileName, outline);
-
-      return {
-        content: [{ type: "text", text: JSON.stringify({ success: true, nodeId, tag }) }],
-      };
+      return propose(
+        "rewrite_node",
+        fileName,
+        nodeId,
+        nodePath(outline, nodeId),
+        {
+          addTags: [tag],
+          previous: { tags: node.metadata?.tags ?? [] },
+        },
+        { tag }
+      );
     }
   );
 
   server.tool(
     "remove_tag",
-    "Remove a tag from a node",
+    "PROPOSE removing a tag from a node. Nothing is changed until the outline owner approves the proposal in IdeaM.",
     {
       fileName: z.string().describe("The .idm file name"),
       nodeId: z.string().describe("Node ID"),
       tag: z.string().describe("Tag string to remove"),
     },
     async ({ fileName, nodeId, tag }) => {
-      const outline = await storage.getOutline(fileName);
+      const outline = await storage.getOutline(fileName).catch(() => null);
       if (!outline) {
-        return {
-          content: [{ type: "text", text: JSON.stringify({ error: "Outline not found", fileName }) }],
-          isError: true,
-        };
+        return errorResult({ error: "Outline not found", fileName });
       }
-
       const node = outline.nodes[nodeId];
       if (!node) {
-        return {
-          content: [{ type: "text", text: JSON.stringify({ error: "Node not found", nodeId }) }],
-          isError: true,
-        };
+        return errorResult({ error: "Node not found", nodeId });
+      }
+      if (!node.metadata?.tags?.includes(tag)) {
+        return errorResult({ error: "Tag not found on node", nodeId, tag });
       }
 
-      const tags = node.metadata?.tags;
-      if (!tags || !tags.includes(tag)) {
-        return {
-          content: [{ type: "text", text: JSON.stringify({ success: true, message: "Tag not found on node", nodeId, tag }) }],
-        };
-      }
-
-      node.metadata!.tags = tags.filter((t) => t !== tag);
-      if (node.metadata!.tags!.length === 0) {
-        delete node.metadata!.tags;
-      }
-
-      outline.lastModified = Date.now();
-      await storage.saveOutline(fileName, outline);
-
-      return {
-        content: [{ type: "text", text: JSON.stringify({ success: true, nodeId, tag }) }],
-      };
+      return propose(
+        "rewrite_node",
+        fileName,
+        nodeId,
+        nodePath(outline, nodeId),
+        {
+          removeTags: [tag],
+          previous: { tags: node.metadata?.tags ?? [] },
+        },
+        { tag }
+      );
     }
   );
 
@@ -446,12 +417,9 @@ export function registerOutlineTools(
       const tagSet = new Set<string>();
 
       if (fileName) {
-        const outline = await storage.getOutline(fileName);
+        const outline = await storage.getOutline(fileName).catch(() => null);
         if (!outline) {
-          return {
-            content: [{ type: "text", text: JSON.stringify({ error: "Outline not found", fileName }) }],
-            isError: true,
-          };
+          return errorResult({ error: "Outline not found", fileName });
         }
         for (const node of Object.values(outline.nodes)) {
           if ((node as any).metadata?.tags) {
@@ -463,7 +431,7 @@ export function registerOutlineTools(
       } else {
         const outlineList = await storage.listOutlines();
         for (const info of outlineList) {
-          const outline = await storage.getOutline(info.fileName);
+          const outline = await storage.getOutline(info.fileName).catch(() => null);
           if (!outline) continue;
           for (const node of Object.values(outline.nodes)) {
             if ((node as any).metadata?.tags) {
@@ -500,7 +468,7 @@ export function registerOutlineTools(
       const results: MatchedNode[] = [];
 
       async function scanOutline(fn: string) {
-        const outline = await storage.getOutline(fn);
+        const outline = await storage.getOutline(fn).catch(() => null);
         if (!outline) return;
         for (const [id, node] of Object.entries(outline.nodes)) {
           const nodeTags = (node as any).metadata?.tags as string[] | undefined;
@@ -543,7 +511,7 @@ export function registerOutlineTools(
 
   server.tool(
     "create_outline",
-    "Create a brand-new outline file with a root node",
+    "PROPOSE a brand-new outline. A full draft is saved in the _proposed-outlines folder; nothing appears among the owner's outlines until approved in IdeaM.",
     {
       name: z.string().describe("Name for the new outline"),
       fileName: z.string().optional().describe("File name (auto-generated from name if omitted). Must end in .idm"),
@@ -554,19 +522,14 @@ export function registerOutlineTools(
           ? requestedFileName
           : `${name.replace(/[^a-zA-Z0-9 _-]/g, "").trim()}.idm`;
 
-      // Check if file already exists
+      // Refuse to shadow an existing live outline.
       const existing = await storage.getOutline(fileName).catch(() => null);
       if (existing) {
-        return {
-          content: [
-            { type: "text", text: JSON.stringify({ error: "Outline already exists", fileName }) },
-          ],
-          isError: true,
-        };
+        return errorResult({ error: "Outline already exists", fileName });
       }
 
       const rootId = randomUUID();
-      const outline = {
+      const draft = {
         id: randomUUID(),
         name,
         rootNodeId: rootId,
@@ -585,21 +548,21 @@ export function registerOutlineTools(
         lastModified: Date.now(),
       };
 
-      await storage.saveOutline(fileName, outline);
+      const draftFileName = await proposals.saveOutlineDraft(fileName, draft);
 
-      return {
-        content: [
-          {
-            type: "text",
-            text: JSON.stringify({
-              success: true,
-              fileName,
-              outlineId: outline.id,
-              rootNodeId: rootId,
-            }),
-          },
-        ],
-      };
+      return propose(
+        "new_outline",
+        fileName,
+        null,
+        null,
+        {
+          name,
+          draftFileName,
+          draftFolder: "_proposed-outlines",
+          rootNodeId: rootId,
+        },
+        { draftFileName }
+      );
     }
   );
 
@@ -612,12 +575,9 @@ export function registerOutlineTools(
       nodeId: z.string().optional().describe("Export only this subtree (default: entire outline)"),
     },
     async ({ fileName, format, nodeId }) => {
-      const outline = await storage.getOutline(fileName);
+      const outline = await storage.getOutline(fileName).catch(() => null);
       if (!outline) {
-        return {
-          content: [{ type: "text", text: JSON.stringify({ error: "Outline not found", fileName }) }],
-          isError: true,
-        };
+        return errorResult({ error: "Outline not found", fileName });
       }
 
       const fmt = format ?? "markdown";
@@ -625,10 +585,7 @@ export function registerOutlineTools(
       const startNode = outline.nodes[startId];
 
       if (!startNode) {
-        return {
-          content: [{ type: "text", text: JSON.stringify({ error: "Node not found", nodeId: startId }) }],
-          isError: true,
-        };
+        return errorResult({ error: "Node not found", nodeId: startId });
       }
 
       function stripHtml(html: string): string {
@@ -649,7 +606,7 @@ export function registerOutlineTools(
       const lines: string[] = [];
 
       function renderNode(id: string, depth: number) {
-        const node = outline.nodes[id];
+        const node = outline!.nodes[id];
         if (!node) return;
 
         const indent = "  ".repeat(depth);
@@ -688,6 +645,76 @@ export function registerOutlineTools(
 
       return {
         content: [{ type: "text", text: lines.join("\n") }],
+      };
+    }
+  );
+
+  // -------------------------------------------------------
+  //  PROPOSAL MANAGEMENT
+  //  (list / inspect / withdraw — there is intentionally NO
+  //   approve tool: approval belongs to the human in IdeaM)
+  // -------------------------------------------------------
+
+  server.tool(
+    "list_proposals",
+    "List pending/withdrawn change proposals — for one outline, or all outlines (including proposed new outlines)",
+    {
+      fileName: z.string().optional().describe("Limit to proposals targeting this .idm file"),
+      status: z.enum(["pending", "withdrawn"]).optional().describe("Filter by status"),
+    },
+    async ({ fileName, status }) => {
+      let list = await proposals.listProposals(fileName);
+      if (status) list = list.filter((p) => p.status === status);
+      return {
+        content: [
+          {
+            type: "text",
+            text: JSON.stringify({ proposals: list, count: list.length }, null, 2),
+          },
+        ],
+      };
+    }
+  );
+
+  server.tool(
+    "get_proposal",
+    "Return the full details of a single change proposal by ID",
+    {
+      proposalId: z.string().describe("The proposal ID"),
+    },
+    async ({ proposalId }) => {
+      const proposal = await proposals.getProposal(proposalId);
+      if (!proposal) {
+        return errorResult({ error: "Proposal not found", proposalId });
+      }
+      return {
+        content: [{ type: "text", text: JSON.stringify(proposal, null, 2) }],
+      };
+    }
+  );
+
+  server.tool(
+    "withdraw_proposal",
+    "Withdraw (retract) a pending proposal made by this agent. The record is kept with status 'withdrawn'. Approval of proposals is done by the outline owner in IdeaM — there is no approve tool.",
+    {
+      proposalId: z.string().describe("The proposal ID to withdraw"),
+    },
+    async ({ proposalId }) => {
+      const result = await proposals.withdrawProposal(proposalId);
+      if (!result.ok) {
+        return errorResult({ error: result.error, proposalId });
+      }
+      return {
+        content: [
+          {
+            type: "text",
+            text: JSON.stringify(
+              { status: "withdrawn", proposalId, message: "Proposal withdrawn. Nothing was ever changed in the outline." },
+              null,
+              2
+            ),
+          },
+        ],
       };
     }
   );

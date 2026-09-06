@@ -1,4 +1,7 @@
-import { readdir, readFile, writeFile, stat } from 'fs/promises';
+// READ-ONLY by design: this module deliberately imports no file-writing
+// APIs. External agents can never modify a real .idm outline through this
+// server — all mutations are recorded as proposals (see proposal-store.ts).
+import { readdir, readFile, stat } from 'fs/promises';
 import { join } from 'path';
 import { homedir } from 'os';
 
@@ -179,15 +182,6 @@ export class OutlineStorage {
   async getNode(fileName: string, nodeId: string): Promise<OutlineNode | null> {
     const outline = await this.getOutline(fileName);
     return outline.nodes[nodeId] ?? null;
-  }
-
-  /**
-   * Write an outline back to disk.
-   */
-  async saveOutline(fileName: string, outline: Outline): Promise<void> {
-    const filePath = join(this.outlineDir, fileName);
-    const json = JSON.stringify(outline, null, 2);
-    await writeFile(filePath, json, 'utf-8');
   }
 
   /**
