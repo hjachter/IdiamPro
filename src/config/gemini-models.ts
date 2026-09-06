@@ -37,7 +37,29 @@ export interface GeminiModelEntry {
 }
 
 export const GEMINI_MODELS: Record<string, GeminiModelEntry> = {
-  // === Default — current generation, launched at Google I/O on 2026-05-19 ===
+  // === Default — GA 2026-09-02, free-tier available on AI Studio keys ===
+  'gemini-3.8-flash': {
+    id: 'gemini-3.8-flash',
+    name: 'Gemini 3.8 Flash',
+    genkit: 'googleai/gemini-3.8-flash',
+    sdk: 'gemini-3.8-flash',
+    tier: 'free',
+    contextTokens: 1_000_000,
+    blurb: 'Google\'s newest Flash model. Fast, capable, and free.',
+  },
+
+  // === Stable prior workhorse (GA mid-2026) — first rollback ===
+  'gemini-3.7-flash': {
+    id: 'gemini-3.7-flash',
+    name: 'Gemini 3.7 Flash',
+    genkit: 'googleai/gemini-3.7-flash',
+    sdk: 'gemini-3.7-flash',
+    tier: 'free',
+    contextTokens: 1_000_000,
+    blurb: 'Strong coding-and-agents workhorse from mid-2026. Fast and free.',
+  },
+
+  // === I/O 2026 generation — second rollback ===
   'gemini-3.5-flash': {
     id: 'gemini-3.5-flash',
     name: 'Gemini 3.5 Flash',
@@ -45,7 +67,7 @@ export const GEMINI_MODELS: Record<string, GeminiModelEntry> = {
     sdk: 'gemini-3.5-flash',
     tier: 'free',
     contextTokens: 1_000_000,
-    blurb: 'Google\'s newest Flash model, from I/O 2026. Fast, capable, and free.',
+    blurb: 'The I/O 2026 Flash model. Fast, capable, and free.',
   },
 
   // === Previous-generation Flash — kept as a stable one-line rollback ===
@@ -129,12 +151,13 @@ export const GEMINI_MODELS: Record<string, GeminiModelEntry> = {
 /**
  * Default model id — change this single line to swap the app-wide default.
  *
- * Current: gemini-3.5-flash (bumped from 2.5-flash on 2026-05-21, post Google I/O).
+ * Current: gemini-3.8-flash (bumped from 3.5-flash on 2026-09-06; GA 2026-09-02,
+ * free-tier available). Prior bump: 3.5-flash on 2026-05-21 post Google I/O.
  * Override at runtime via env: `process.env.GEMINI_DEFAULT_MODEL_ID`.
  */
 export const DEFAULT_GEMINI_MODEL_ID =
   (typeof process !== 'undefined' && process.env?.GEMINI_DEFAULT_MODEL_ID) ||
-  'gemini-3.5-flash';
+  'gemini-3.8-flash';
 
 /**
  * Get the default model identifier in the requested format.
