@@ -27,6 +27,8 @@
  * `generate` and no Ollama.
  */
 
+import { htmlToPlainText, renderSubtreeForPrompt } from '@/lib/compile-core';
+
 /** Minimal node shape shared by SerializedNode and OutlineNode. */
 interface VerifyNode {
   name?: string;
@@ -74,48 +76,22 @@ export interface VerifyDeps {
   modelName?: () => Promise<string | null>;
 }
 
-/** Strip HTML to readable plain text (best-effort). */
+/** Strip HTML to readable plain text (best-effort).
+ *  Shared implementation: compile-core (Phase 0 consolidation). */
 export function stripHtmlToText(html: string): string {
-  return (html || '')
-    .replace(/<br\s*\/?>/gi, '\n')
-    .replace(/<\/(p|div|li|h[1-6])>/gi, '\n')
-    .replace(/<li[^>]*>/gi, '- ')
-    .replace(/<[^>]+>/g, '')
-    .replace(/&nbsp;/gi, ' ')
-    .replace(/&amp;/gi, '&')
-    .replace(/&lt;/gi, '<')
-    .replace(/&gt;/gi, '>')
-    .replace(/\n{3,}/g, '\n\n')
-    .trim();
+  return htmlToPlainText(html, 'prompt');
 }
 
 /**
  * Flatten a node map (SerializedNode or OutlineNode) into indented plain text —
  * the source rendering the verifier compares the draft against.
+ * Shared implementation: compile-core (Phase 0 consolidation).
  */
 export function nodesToPlainText(
   nodes: Record<string, VerifyNode>,
   rootId: string,
 ): string {
-  const lines: string[] = [];
-  const seen = new Set<string>();
-  const walk = (id: string, depth: number) => {
-    if (seen.has(id)) return; // guard against cycles
-    seen.add(id);
-    const n = nodes[id];
-    if (!n) return;
-    const indent = '  '.repeat(depth);
-    if (n.name) lines.push(`${indent}- ${n.name}`);
-    const body = stripHtmlToText(n.content || '');
-    if (body) {
-      for (const ln of body.split('\n')) {
-        if (ln.trim()) lines.push(`${indent}  ${ln.trim()}`);
-      }
-    }
-    for (const childId of n.childrenIds || []) walk(childId, depth + 1);
-  };
-  walk(rootId, 0);
-  return lines.join('\n');
+  return renderSubtreeForPrompt(nodes, rootId);
 }
 
 /** Cap on how much text we feed the on-device model, to keep the pass fast. */

@@ -25,6 +25,7 @@ import { generateWithOllama, isOllamaAvailable, getBestAvailableModel } from '@/
 import { requireApiKey } from '@/lib/byok-keys';
 import type { SerializedNode } from '@/ai/flows/transform-outline';
 import { enforceCharLimit, type SocialPostMode } from '@/lib/social-templates';
+import { renderSubtreeForPrompt } from '@/lib/compile-core';
 
 export interface GenerateSocialPostInput {
   /** Serialized branch (selected node + descendants) handed to the AI. */
@@ -64,39 +65,10 @@ export interface GenerateSocialPostResult {
   error?: string;
 }
 
-function stripHtmlToText(html: string): string {
-  return (html || '')
-    .replace(/<br\s*\/?>/gi, '\n')
-    .replace(/<\/(p|div|li|h[1-6])>/gi, '\n')
-    .replace(/<li[^>]*>/gi, '- ')
-    .replace(/<[^>]+>/g, '')
-    .replace(/&nbsp;/gi, ' ')
-    .replace(/&amp;/gi, '&')
-    .replace(/&lt;/gi, '<')
-    .replace(/&gt;/gi, '>')
-    .replace(/\n{3,}/g, '\n\n')
-    .trim();
-}
-
-/** Compact readable outline text for the prompt (name + stripped content, indented). */
+/** Compact readable outline text for the prompt (name + stripped content, indented).
+ *  Shared implementation: compile-core (Phase 0 consolidation). */
 function renderBranchForPrompt(input: GenerateSocialPostInput): string {
-  const { subtreeNodes, rootNodeId } = input;
-  const lines: string[] = [];
-  const walk = (id: string, depth: number) => {
-    const n = subtreeNodes[id];
-    if (!n) return;
-    const indent = '  '.repeat(depth);
-    if (n.name) lines.push(`${indent}- ${n.name}`);
-    const body = stripHtmlToText(n.content);
-    if (body) {
-      for (const ln of body.split('\n')) {
-        if (ln.trim()) lines.push(`${indent}  ${ln.trim()}`);
-      }
-    }
-    for (const childId of n.childrenIds || []) walk(childId, depth + 1);
-  };
-  walk(rootNodeId, 0);
-  return lines.join('\n');
+  return renderSubtreeForPrompt(input.subtreeNodes, input.rootNodeId);
 }
 
 function buildPrompt(input: GenerateSocialPostInput): string {

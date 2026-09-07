@@ -24,6 +24,7 @@
 // ============================================================================
 
 import type { NodeMap } from '@/types';
+import { htmlToPlainText, decodeEntities, liveChildIds, mapStructure } from '@/lib/compile-core';
 
 export interface DeckDataPoint {
   label: string;
@@ -68,60 +69,21 @@ const MAX_TOTAL_SLIDES = 60;
 const MIN_CHART_POINTS = 2;
 const MAX_CHART_POINTS = 6;
 
-/** Decode the HTML entities our outlines actually contain — named + numeric —
- *  so real characters (not "&ldquo;") reach the slide. A few (·, —, –) become
- *  clean separators so "80% x · 29% y" splits nicely for the chart extractor. */
-function decodeEntities(s: string): string {
-  return String(s || '')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&middot;/g, ' · ')
-    .replace(/&bull;/g, ' · ')
-    .replace(/&mdash;/g, ' — ')
-    .replace(/&ndash;/g, '–')
-    .replace(/&times;/g, '×')
-    .replace(/&hellip;/g, '…')
-    .replace(/&ldquo;|&rdquo;|&quot;/g, '"')
-    .replace(/&lsquo;|&rsquo;|&apos;/g, "'")
-    // Numeric entities (decimal & hex) — decode anything we didn't name above.
-    .replace(/&#(\d+);/g, (_, n) => safeCodePoint(parseInt(n, 10)))
-    .replace(/&#x([0-9a-fA-F]+);/g, (_, n) => safeCodePoint(parseInt(n, 16)));
-}
-
-function safeCodePoint(cp: number): string {
-  if (!Number.isFinite(cp) || cp < 0 || cp > 0x10ffff) return ' ';
-  try {
-    return String.fromCodePoint(cp);
-  } catch {
-    return ' ';
-  }
-}
+// Entity decoding, block-text stripping, and one-line cleaning now come from
+// the shared compile-core engine (Phase 0 consolidation) — `decodeEntities` is
+// imported above; the two strip flavors below delegate to the canonical
+// 'rich-block' / 'rich-inline' presets, byte-identical to the old private code.
 
 /** Strip tags → plain text. Block-closers become newlines; EVERY tag boundary
  *  becomes at least a space, so inline tags never fuse two words together.
  *  Entities are decoded AFTER stripping so an entity can never hide a tag. */
 function stripHtml(html: string): string {
-  const withBreaks = String(html || '')
-    .replace(/<\/(p|div|li|h[1-6]|tr|ul|ol)>/gi, '\n')
-    .replace(/<br\s*\/?>/gi, '\n');
-  return decodeEntities(withBreaks.replace(/<[^>]+>/g, ' '))
-    .replace(/[^\S\n]+/g, ' ')
-    .replace(/ *\n */g, '\n')
-    .replace(/\n{2,}/g, '\n')
-    .replace(/\s+([,.;:!?%)])/g, '$1') // drop the space a stripped tag left before punctuation
-    .replace(/([(])\s+/g, '$1')
-    .trim();
+  return htmlToPlainText(html, 'rich-block');
 }
 
 /** One-line clean text (names / titles): strip tags with spaces, decode, collapse. */
 function cleanText(s: string): string {
-  return decodeEntities(String(s || '').replace(/<[^>]+>/g, ' '))
-    .replace(/\s+/g, ' ')
-    .replace(/\s+([,.;:!?%)])/g, '$1')
-    .replace(/([(])\s+/g, '$1')
-    .trim();
+  return htmlToPlainText(s, 'rich-inline');
 }
 
 function tidy(s: string, cap = MAX_BULLET_CHARS): string {
@@ -133,11 +95,8 @@ function tidy(s: string, cap = MAX_BULLET_CHARS): string {
   return cut.replace(/[\s.,;:!?—-]+$/, '') + '…';
 }
 
-function liveChildIds(nodes: NodeMap, id: string): string[] {
-  const node = nodes[id];
-  if (!node) return [];
-  return (node.childrenIds || []).filter((cid) => nodes[cid]);
-}
+// Live child ids (existing nodes only) now come from the shared compile-core
+// (`liveChildIds`), imported above — Phase 0 consolidation.
 
 /** Collect the full plain-text of a node's subtree (for data detection). */
 function subtreeText(nodes: NodeMap, id: string, depth = 0): string {
@@ -278,37 +237,29 @@ export function deriveDeck(
   if (includeArc) slides.push({ kind: 'arc' });
 
   // --- Section slides (top-level child) + their children as follow-on slides ---
-  const sectionIds = liveChildIds(nodes, rootId).slice(0, maxSections);
+  // Which nodes get slides, in what order, under what caps, is now decided by
+  // the shared Structure Mapper (compile-core, Phase 0 consolidation):
+  // pre-order to depth 2, taking at most `maxSections` children of the root
+  // and at most MAX_CHILD_SLIDES children of each section. Unit 0 is the root
+  // itself (already rendered as the title slide), so content units are 1+.
   let anyChart = false;
   const contentSlides: Extract<DeckSlide, { kind: 'section' }>[] = [];
 
-  for (const sid of sectionIds) {
-    const section = nodes[sid];
-    if (!section) continue;
-
-    // The section headline slide carries the section's OWN substance.
-    const sectionChart = extractDataPoints(subtreeText(nodes, sid));
-    if (sectionChart.length) anyChart = true;
+  const units = mapStructure(nodes, rootId, {
+    maxDepth: 2,
+    childCaps: [maxSections, MAX_CHILD_SLIDES],
+  });
+  for (const unit of units.slice(1)) {
+    const node = nodes[unit.nodeId];
+    if (!node) continue;
+    const chart = extractDataPoints(subtreeText(nodes, unit.nodeId));
+    if (chart.length) anyChart = true;
     contentSlides.push({
       kind: 'section',
-      title: cleanText(section.name) || 'Untitled',
-      bullets: bulletsForNode(nodes, sid),
-      chart: sectionChart.length ? sectionChart : undefined,
+      title: cleanText(node.name) || 'Untitled',
+      bullets: bulletsForNode(nodes, unit.nodeId),
+      chart: chart.length ? chart : undefined,
     });
-
-    // Each child becomes its own content slide (the depth that makes a real talk).
-    for (const cid of liveChildIds(nodes, sid).slice(0, MAX_CHILD_SLIDES)) {
-      const child = nodes[cid];
-      if (!child) continue;
-      const childChart = extractDataPoints(subtreeText(nodes, cid));
-      if (childChart.length) anyChart = true;
-      contentSlides.push({
-        kind: 'section',
-        title: cleanText(child.name) || 'Untitled',
-        bullets: bulletsForNode(nodes, cid),
-        chart: childChart.length ? childChart : undefined,
-      });
-    }
   }
 
   slides.push(...contentSlides);

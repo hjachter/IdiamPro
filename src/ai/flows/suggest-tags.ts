@@ -3,6 +3,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { getDefaultGeminiModel } from '@/config/gemini-models';
 import { requireApiKey } from '@/lib/byok-keys';
+import { htmlToPlainText } from '@/lib/compile-core';
 
 export interface SuggestTagsInput {
   title: string;
@@ -28,8 +29,7 @@ export async function suggestTags(input: SuggestTagsInput): Promise<SuggestTagsO
     },
   });
 
-  const stripHtml = (s: string) => s.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
-  const cleanContent = stripHtml(input.content || '').slice(0, 2000);
+  const cleanContent = htmlToPlainText(input.content || '', 'bare-inline').slice(0, 2000);
 
   const prompt = `You categorize knowledge entries with short topical tags for a personal knowledge management app.
 

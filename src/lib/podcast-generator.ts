@@ -1,48 +1,24 @@
 import type { NodeMap, PodcastStyle, PodcastLength, PodcastScriptSegment, OpenAIVoice } from '@/types';
+import { htmlToPlainText, walkSubtree } from '@/lib/compile-core';
 
 // Maximum content length to send to the AI (roughly 50K chars)
 const MAX_CONTENT_CHARS = 50000;
 
 /**
- * Strip HTML tags from content, returning plain text.
- */
-function stripHtml(html: string): string {
-  return html
-    .replace(/<br\s*\/?>/gi, '\n')
-    .replace(/<\/p>/gi, '\n')
-    .replace(/<\/div>/gi, '\n')
-    .replace(/<\/li>/gi, '\n')
-    .replace(/<[^>]+>/g, '')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&nbsp;/g, ' ')
-    .replace(/\n{3,}/g, '\n\n')
-    .trim();
-}
-
-/**
  * Walk the subtree depth-first, extracting plain text with hierarchy indicators.
+ * Strip + traversal via the shared compile-core (Phase 0 consolidation);
+ * output is byte-identical to the pre-consolidation implementation.
  */
 export function extractSubtreeContent(nodes: NodeMap, rootId: string): string {
   const parts: string[] = [];
   let totalChars = 0;
-  let truncated = false;
 
-  function walk(nodeId: string, depth: number) {
-    if (truncated) return;
-
-    const node = nodes[nodeId];
-    if (!node) return;
-
-    const indent = '  '.repeat(depth);
+  walkSubtree(nodes, rootId, (node, depth) => {
     const heading = depth === 0 ? `# ${node.name}` : `${'#'.repeat(Math.min(depth + 1, 6))} ${node.name}`;
 
     let section = `${heading}\n`;
 
-    const content = stripHtml(node.content);
+    const content = htmlToPlainText(node.content, 'podcast');
     if (content) {
       section += `${content}\n`;
     }
@@ -50,19 +26,12 @@ export function extractSubtreeContent(nodes: NodeMap, rootId: string): string {
 
     totalChars += section.length;
     if (totalChars > MAX_CONTENT_CHARS) {
-      truncated = true;
       parts.push('[... content truncated due to length ...]\n');
-      return;
+      return 'stop';
     }
 
     parts.push(section);
-
-    for (const childId of node.childrenIds) {
-      walk(childId, depth + 1);
-    }
-  }
-
-  walk(rootId, 0);
+  });
 
   return parts.join('');
 }

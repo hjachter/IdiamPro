@@ -28,6 +28,7 @@ import { getDefaultGeminiModel, getGeminiModelById, DEFAULT_GEMINI_MODEL_ID } fr
 import { generateWithOllama, isOllamaAvailable, getBestAvailableModel } from '@/lib/ollama-service';
 import { requireApiKey } from '@/lib/byok-keys';
 import type { SerializedNode } from '@/ai/flows/transform-outline';
+import { htmlToPlainText, renderSubtreeForPrompt } from '@/lib/compile-core';
 
 /** Friendly-professional is the default; the client may offer a couple more. */
 export type EmailTone = 'friendly-professional' | 'formal' | 'casual';
@@ -101,39 +102,10 @@ RULES:
 - Keep it concise and skimmable. Don't pad. Don't add information that isn't in the outline.
 - Do NOT wrap the JSON in code fences. OUTPUT JSON ONLY.`;
 
-function stripHtmlToText(html: string): string {
-  return (html || '')
-    .replace(/<br\s*\/?>/gi, '\n')
-    .replace(/<\/(p|div|li|h[1-6])>/gi, '\n')
-    .replace(/<li[^>]*>/gi, '- ')
-    .replace(/<[^>]+>/g, '')
-    .replace(/&nbsp;/gi, ' ')
-    .replace(/&amp;/gi, '&')
-    .replace(/&lt;/gi, '<')
-    .replace(/&gt;/gi, '>')
-    .replace(/\n{3,}/g, '\n\n')
-    .trim();
-}
-
-/** Compact readable outline text for the prompt (name + stripped content, indented). */
+/** Compact readable outline text for the prompt (name + stripped content, indented).
+ *  Shared implementation: compile-core (Phase 0 consolidation). */
 function renderBranchForPrompt(input: GenerateEmailInput): string {
-  const { subtreeNodes, rootNodeId } = input;
-  const lines: string[] = [];
-  const walk = (id: string, depth: number) => {
-    const n = subtreeNodes[id];
-    if (!n) return;
-    const indent = '  '.repeat(depth);
-    if (n.name) lines.push(`${indent}- ${n.name}`);
-    const body = stripHtmlToText(n.content);
-    if (body) {
-      for (const ln of body.split('\n')) {
-        if (ln.trim()) lines.push(`${indent}  ${ln.trim()}`);
-      }
-    }
-    for (const childId of n.childrenIds || []) walk(childId, depth + 1);
-  };
-  walk(rootNodeId, 0);
-  return lines.join('\n');
+  return renderSubtreeForPrompt(input.subtreeNodes, input.rootNodeId);
 }
 
 /** Derive a friendly display name from an email local-part (e.g.
@@ -204,7 +176,7 @@ function parseAIResponse(
       return { parseError: 'The AI reply did not contain an email.' };
     }
     // Backfill either rendering if the model only produced one.
-    if (!bodyText && bodyHtml) bodyText = stripHtmlToText(bodyHtml);
+    if (!bodyText && bodyHtml) bodyText = htmlToPlainText(bodyHtml, 'prompt');
     if (!bodyHtml && bodyText) {
       bodyHtml = bodyText
         .split(/\n{2,}/)

@@ -3,6 +3,7 @@
 import type { Outline, NodeMap, OutlineNode } from '@/types';
 import type { ExportOptions, ExportResult } from './types';
 import { DEFAULT_EXPORT_OPTIONS } from './types';
+import { htmlToPlainText, walkSubtree, pathToNode } from '@/lib/compile-core';
 
 // Platform detection utilities
 export function isCapacitorNative(): boolean {
@@ -168,29 +169,16 @@ export abstract class BaseExporter {
   // Utility methods for subclasses
 
   /**
-   * Strip HTML tags from content, converting to plain text
+   * Strip HTML tags from content, converting to plain text.
+   * Shared implementation: compile-core (Phase 0 consolidation).
    */
   protected stripHtml(html: string): string {
-    if (!html) return '';
-    return html
-      .replace(/<br\s*\/?>/gi, '\n')
-      .replace(/<\/p>/gi, '\n\n')
-      .replace(/<\/div>/gi, '\n')
-      .replace(/<li[^>]*>/gi, '• ')
-      .replace(/<\/li>/gi, '\n')
-      .replace(/<[^>]+>/g, '')
-      .replace(/&amp;/g, '&')
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&quot;/g, '"')
-      .replace(/&#39;/g, "'")
-      .replace(/&nbsp;/g, ' ')
-      .replace(/\n{3,}/g, '\n\n')
-      .trim();
+    return htmlToPlainText(html, 'exporter');
   }
 
   /**
-   * Traverse nodes depth-first, calling callback for each
+   * Traverse nodes depth-first, calling callback for each.
+   * Shared implementation: compile-core (Phase 0 consolidation).
    */
   protected traverseDepthFirst(
     nodes: NodeMap,
@@ -198,52 +186,15 @@ export abstract class BaseExporter {
     callback: (node: OutlineNode, depth: number, path: string[]) => void,
     maxDepth?: number
   ): void {
-    const walk = (nodeId: string, depth: number, path: string[]) => {
-      if (maxDepth !== undefined && depth > maxDepth) return;
-
-      const node = nodes[nodeId];
-      if (!node) return;
-
-      callback(node, depth, path);
-
-      if (node.childrenIds?.length > 0) {
-        for (const childId of node.childrenIds) {
-          walk(childId, depth + 1, [...path, node.name]);
-        }
-      }
-    };
-
-    walk(rootId, 0, []);
+    walkSubtree<OutlineNode>(nodes, rootId, callback, { maxDepth });
   }
 
   /**
-   * Get path from root to a specific node
+   * Get path from root to a specific node.
+   * Shared implementation: compile-core (Phase 0 consolidation).
    */
   protected getNodePath(nodes: NodeMap, nodeId: string, rootId: string): string[] {
-    const path: string[] = [];
-
-    const findPath = (currentId: string, target: string, currentPath: string[]): boolean => {
-      const node = nodes[currentId];
-      if (!node) return false;
-
-      if (currentId === target) {
-        path.push(...currentPath, node.name);
-        return true;
-      }
-
-      if (node.childrenIds) {
-        for (const childId of node.childrenIds) {
-          if (findPath(childId, target, [...currentPath, node.name])) {
-            return true;
-          }
-        }
-      }
-
-      return false;
-    };
-
-    findPath(rootId, nodeId, []);
-    return path;
+    return pathToNode(nodes, nodeId, rootId);
   }
 
   /**

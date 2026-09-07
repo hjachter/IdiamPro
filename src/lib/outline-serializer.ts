@@ -1,26 +1,5 @@
 import type { Outline, OutlineNode, NodeMap } from '@/types';
-
-/**
- * Strip HTML tags from content, returning plain text.
- */
-function stripHtml(html: string): string {
-  if (!html) return '';
-  return html
-    .replace(/<br\s*\/?>/gi, '\n')
-    .replace(/<\/p>/gi, '\n')
-    .replace(/<\/div>/gi, '\n')
-    .replace(/<\/li>/gi, '\n')
-    .replace(/<li[^>]*>/gi, '- ')
-    .replace(/<[^>]+>/g, '')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&nbsp;/g, ' ')
-    .replace(/\n{3,}/g, '\n\n')
-    .trim();
-}
+import { htmlToPlainText, walkSubtree } from '@/lib/compile-core';
 
 /**
  * Convert a depth level to a markdown heading prefix.
@@ -48,12 +27,11 @@ export function serializeOutline(outline: Outline): { text: string; nodeCount: n
   }
   parts.push('');
 
-  function walkNode(nodeId: string, depth: number) {
-    const node: OutlineNode | undefined = outline.nodes[nodeId];
-    if (!node) return;
-
+  // Traversal + strip via the shared compile-core (Phase 0 consolidation);
+  // output is byte-identical to the pre-consolidation implementation.
+  walkSubtree<OutlineNode>(outline.nodes, outline.rootNodeId, (node, depth) => {
     // Skip canvas and spreadsheet nodes — binary data, not useful text
-    if (node.type === 'canvas' || node.type === 'spreadsheet') return;
+    if (node.type === 'canvas' || node.type === 'spreadsheet') return 'skip-children';
 
     nodeCount++;
 
@@ -65,22 +43,13 @@ export function serializeOutline(outline: Outline): { text: string; nodeCount: n
       parts.push(`${heading} ${prefix}${node.name}`);
     }
 
-    const text = stripHtml(node.content);
+    const text = htmlToPlainText(node.content, 'serializer');
     if (text) {
       parts.push(text);
     }
 
     parts.push('');
-
-    // Recurse into children
-    if (node.childrenIds && node.childrenIds.length > 0) {
-      for (const childId of node.childrenIds) {
-        walkNode(childId, depth + 1);
-      }
-    }
-  }
-
-  walkNode(outline.rootNodeId, 0);
+  });
 
   return { text: parts.join('\n'), nodeCount };
 }

@@ -27,6 +27,7 @@
 
 import type { NodeMap } from '@/types';
 import { generateCappedMindmapMermaid } from '@/lib/outline-utils';
+import { htmlToPlainText, liveChildIds, mapStructure } from '@/lib/compile-core';
 
 export interface VideoSlide {
   title: string;
@@ -64,16 +65,10 @@ export interface DeriveSlidesOptions {
   maxSlides?: number;
 }
 
-/** Strip HTML tags and collapse whitespace to plain prose. */
+/** Strip HTML tags and collapse whitespace to plain prose.
+ *  Shared implementation: compile-core (Phase 0 consolidation). */
 function stripHtml(html: string): string {
-  return String(html || '')
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/\s+/g, ' ')
-    .trim();
+  return htmlToPlainText(html, 'video-inline');
 }
 
 /**
@@ -126,12 +121,8 @@ function contentToBullets(html: string, max: number): string[] {
   return out;
 }
 
-/** Live child ids (existing nodes only). */
-function liveChildIds(nodes: NodeMap, id: string): string[] {
-  const node = nodes[id];
-  if (!node) return [];
-  return (node.childrenIds || []).filter((cid) => nodes[cid]);
-}
+// Live child ids (existing nodes only) now come from the shared compile-core
+// (`liveChildIds`), imported above — Phase 0 consolidation.
 
 /**
  * Build the slide array for a chapter subtree.
@@ -210,22 +201,15 @@ export function deriveSlidesFromChapter(
     };
   };
 
-  // Depth-first walk: the children of `node` sit at `level`. We start at
-  // walk(chapter, 1) so the chapter's direct children are level 1.
-  const walk = (parentId: string, level: number): void => {
-    for (const childId of liveChildIds(nodes, parentId)) {
-      if (slides.length >= maxSlides) return; // safety cap reached
-      slides.push(buildContentSlide(childId));
-      // Recurse into this child's subtree if we haven't reached maxDepth and
-      // it actually has children.
-      if (level < maxDepth && liveChildIds(nodes, childId).length > 0) {
-        walk(childId, level + 1);
-        if (slides.length >= maxSlides) return;
-      }
-    }
-  };
-
-  walk(chapterId, 1);
+  // Which nodes get slides, in what order, under what caps, is now decided by
+  // the shared Structure Mapper (compile-core, Phase 0 consolidation): a
+  // pre-order enumeration of the subtree to maxDepth, capped at maxSlides
+  // total units (the cover included). Unit 0 is the chapter itself — already
+  // rendered as the cover above — so content slides are units 1+.
+  const units = mapStructure(nodes, chapterId, { maxDepth, maxUnits: maxSlides });
+  for (const unit of units.slice(1)) {
+    slides.push(buildContentSlide(unit.nodeId));
+  }
 
   // Enforce the cap defensively (walk already stops, but keep it exact).
   return slides.length > maxSlides ? slides.slice(0, maxSlides) : slides;

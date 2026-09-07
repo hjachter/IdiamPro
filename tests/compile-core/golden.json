@@ -1,0 +1,1177 @@
+{
+  "verifier_stripHtmlToText": [
+    "",
+    "plain text no markup",
+    "one para",
+    "Bold italic tail",
+    "- a\n- b ital",
+    "- wrapped",
+    "x\ny\nz\nw",
+    "d1\nd2",
+    "H1\nH2\nH6\nafter",
+    "&<>&quot;&#39;",
+    "&ldquo;q&rdquo; &mdash; &ndash; &times; &hellip; &bull; &middot; &#8594; &#x2713;",
+    "link text after link",
+    "lots   of\t space  \n\ngap",
+    "inlinejoinedwords",
+    "c1tail",
+    "80% use AI &middot; 29% trust it &middot; 45% lose time",
+    "unterminated bold",
+    "UPPERCASE TAGS\n- item",
+    "punct , spacing ( inside ) test %",
+    "quotecode block"
+  ],
+  "verifier_nodesToPlainText": "- Golden Fixture Outline\n  Root intro with bold & emphasis.\n  - Nested formatting\n    Bold italic nested and underline and strike.\n    Second paragraph after the first.\n    A div block\n    line one\n    line two\n    line three\n    - Child of formatting\n      A heading\n      Text under heading with inline code.\n  - Entities galore\n    & <tag> &quot;dq&quot; &#39;sq&#39; a nbsp &ldquo;curly&rdquo; &lsquo;single&rsquo; &mdash; dash &ndash; en 3&times;4 wait&hellip; &bull; bullet &middot; middot &#8212;numeric &#x2192; arrow &#65; letterA\n  - Lists\n    - Item one\n    - Item two bolded\n    - Wrapped in p\n    - Numbered first\n    - Numbered second\n  - Links\n    See the linked site for more, and mail us.\n  - Totally empty node\n  - Deep nesting start\n    Level zero prose.\n    - Depth 1\n      At depth one.\n      - Depth 2\n        At depth two.\n        - Depth 3\n          - Depth 4\n            At depth four.\n            - Depth 5\n              - Depth 6\n                Deepest prose & entity.\n                - Depth 7\n                  - Depth 8 leaf\n                    The very bottom.\n  - A very long node name that keeps going and going well past any sensible length a slide or heading would want, testing truncation and word-boundary behavior in every consumer that caps text, including bullets and titles and mermaid labels and prompt renderings — all of it, end to end\n    Survey says: 80% use AI daily &middot; 29% trust the output &middot; 45% lose time debugging. Range 10&ndash;25% remains unsure.\n    A second, quite long paragraph that runs on and on to exercise bullet truncation at word boundaries with an ellipsis so slides never render a run-on wall of text under any circumstances whatsoever, truly.\n    - Stat child A\n      60% of leaves matter.\n    - Stat child B\n  - Whitespace torture\n    spaced    out\ttabbed\n    after  blank\n    lines\n    end.\n  - Canvas node (skipped by serializer)\n    binary-ish payload\n  - Table & misc blocks\n    cell onecell tworow2After table\n    Quoted words",
+  "podcast_extractSubtreeContent": "# Golden Fixture Outline\nRoot intro with bold & emphasis.\n\n## Nested formatting\nBold italic nested and underline and strike.\nSecond paragraph after the first.\nA div block\nline one\nline two\nline three\n\n### Child of formatting\nA headingText under heading with inline code.\n\n## Entities galore\n& <tag> \"dq\" 'sq' a nbsp &ldquo;curly&rdquo; &lsquo;single&rsquo; &mdash; dash &ndash; en 3&times;4 wait&hellip; &bull; bullet &middot; middot &#8212;numeric &#x2192; arrow &#65; letterA\n\n## Lists\nItem one\nItem two bolded\nWrapped in p\n\nNumbered first\nNumbered second\n\n## Links\nSee the linked site for more, and mail us.\n\n## Totally empty node\n\n## Deep nesting start\nLevel zero prose.\n\n### Depth 1\nAt depth one.\n\n#### Depth 2\nAt depth two.\n\n##### Depth 3\n\n###### Depth 4\nAt depth four.\n\n###### Depth 5\n\n###### Depth 6\nDeepest prose & entity.\n\n###### Depth 7\n\n###### Depth 8 leaf\nThe very bottom.\n\n## A very long node name that keeps going and going well past any sensible length a slide or heading would want, testing truncation and word-boundary behavior in every consumer that caps text, including bullets and titles and mermaid labels and prompt renderings — all of it, end to end\nSurvey says: 80% use AI daily &middot; 29% trust the output &middot; 45% lose time debugging. Range 10&ndash;25% remains unsure.\nA second, quite long paragraph that runs on and on to exercise bullet truncation at word boundaries with an ellipsis so slides never render a run-on wall of text under any circumstances whatsoever, truly.\n\n### Stat child A\n60% of leaves matter.\n\n### Stat child B\n\n## Whitespace torture\nspaced    out\ttabbed  \n\nafter  blank\n\nlines\n   \n\nend.\n\n## Canvas node (skipped by serializer)\nbinary-ish payload\n\n## Table & misc blocks\ncell onecell tworow2After tableQuoted words\n\n",
+  "serializer_serializeOutline": {
+    "text": "# Golden Fixture Outline\n\nRoot intro with bold & emphasis.\n\n### 1 Nested formatting\nBold italic nested and underline and strike.\nSecond paragraph after the first.\nA div block\nline one\nline two\nline three\n\n#### 1.1 Child of formatting\nA headingText under heading with inline code.\n\n### 2 Entities galore\n& <tag> \"dq\" 'sq' a nbsp &ldquo;curly&rdquo; &lsquo;single&rsquo; &mdash; dash &ndash; en 3&times;4 wait&hellip; &bull; bullet &middot; middot &#8212;numeric &#x2192; arrow &#65; letterA\n\n### 3 Lists\n- Item one\n- Item two bolded\n- Wrapped in p\n\n- Numbered first\n- Numbered second\n\n### 4 Links\nSee the linked site for more, and mail us.\n\n### 5 Totally empty node\n\n### 6 Deep nesting start\nLevel zero prose.\n\n#### Depth 1\nAt depth one.\n\n##### Depth 2\nAt depth two.\n\n###### Depth 3\n\n###### Depth 4\nAt depth four.\n\n###### Depth 5\n\n###### Depth 6\nDeepest prose & entity.\n\n###### Depth 7\n\n###### Depth 8 leaf\nThe very bottom.\n\n### 7 A very long node name that keeps going and going well past any sensible length a slide or heading would want, testing truncation and word-boundary behavior in every consumer that caps text, including bullets and titles and mermaid labels and prompt renderings — all of it, end to end\nSurvey says: 80% use AI daily &middot; 29% trust the output &middot; 45% lose time debugging. Range 10&ndash;25% remains unsure.\nA second, quite long paragraph that runs on and on to exercise bullet truncation at word boundaries with an ellipsis so slides never render a run-on wall of text under any circumstances whatsoever, truly.\n\n#### Stat child A\n60% of leaves matter.\n\n#### Stat child B\n\n### 8 Whitespace torture\nspaced    out\ttabbed  \n\nafter  blank\n\nlines\n   \n\nend.\n\n### 10 Table & misc blocks\ncell onecell tworow2After tableQuoted words\n",
+    "nodeCount": 21
+  },
+  "serializer_serializeOutlines": {
+    "text": "# Golden Fixture Outline\n\nRoot intro with bold & emphasis.\n\n### 1 Nested formatting\nBold italic nested and underline and strike.\nSecond paragraph after the first.\nA div block\nline one\nline two\nline three\n\n#### 1.1 Child of formatting\nA headingText under heading with inline code.\n\n### 2 Entities galore\n& <tag> \"dq\" 'sq' a nbsp &ldquo;curly&rdquo; &lsquo;single&rsquo; &mdash; dash &ndash; en 3&times;4 wait&hellip; &bull; bullet &middot; middot &#8212;numeric &#x2192; arrow &#65; letterA\n\n### 3 Lists\n- Item one\n- Item two bolded\n- Wrapped in p\n\n- Numbered first\n- Numbered second\n\n### 4 Links\nSee the linked site for more, and mail us.\n\n### 5 Totally empty node\n\n### 6 Deep nesting start\nLevel zero prose.\n\n#### Depth 1\nAt depth one.\n\n##### Depth 2\nAt depth two.\n\n###### Depth 3\n\n###### Depth 4\nAt depth four.\n\n###### Depth 5\n\n###### Depth 6\nDeepest prose & entity.\n\n###### Depth 7\n\n###### Depth 8 leaf\nThe very bottom.\n\n### 7 A very long node name that keeps going and going well past any sensible length a slide or heading would want, testing truncation and word-boundary behavior in every consumer that caps text, including bullets and titles and mermaid labels and prompt renderings — all of it, end to end\nSurvey says: 80% use AI daily &middot; 29% trust the output &middot; 45% lose time debugging. Range 10&ndash;25% remains unsure.\nA second, quite long paragraph that runs on and on to exercise bullet truncation at word boundaries with an ellipsis so slides never render a run-on wall of text under any circumstances whatsoever, truly.\n\n#### Stat child A\n60% of leaves matter.\n\n#### Stat child B\n\n### 8 Whitespace torture\nspaced    out\ttabbed  \n\nafter  blank\n\nlines\n   \n\nend.\n\n### 10 Table & misc blocks\ncell onecell tworow2After tableQuoted words\n",
+    "outlineCount": 1,
+    "nodeCount": 21,
+    "estimatedTokens": 440
+  },
+  "exporter_stripHtml": [
+    "",
+    "plain text no markup",
+    "one para",
+    "Bold italic tail",
+    "• a\n• b ital",
+    "• wrapped",
+    "x\ny\nz\nw",
+    "d1\nd2",
+    "H1H2H6after",
+    "&<>\"'",
+    "&ldquo;q&rdquo; &mdash; &ndash; &times; &hellip; &bull; &middot; &#8594; &#x2713;",
+    "link text after link",
+    "lots   of\t space  \n\ngap",
+    "inlinejoinedwords",
+    "c1tail",
+    "80% use AI &middot; 29% trust it &middot; 45% lose time",
+    "unterminated bold",
+    "UPPERCASE TAGS\n\n• item",
+    "punct , spacing ( inside ) test %",
+    "quotecode block"
+  ],
+  "exporter_traverseDepthFirst": [
+    {
+      "id": "root",
+      "depth": 0,
+      "path": []
+    },
+    {
+      "id": "c1",
+      "depth": 1,
+      "path": [
+        "Golden Fixture Outline"
+      ]
+    },
+    {
+      "id": "c1a",
+      "depth": 2,
+      "path": [
+        "Golden Fixture Outline",
+        "Nested formatting"
+      ]
+    },
+    {
+      "id": "c2",
+      "depth": 1,
+      "path": [
+        "Golden Fixture Outline"
+      ]
+    },
+    {
+      "id": "c3",
+      "depth": 1,
+      "path": [
+        "Golden Fixture Outline"
+      ]
+    },
+    {
+      "id": "c4",
+      "depth": 1,
+      "path": [
+        "Golden Fixture Outline"
+      ]
+    },
+    {
+      "id": "c5",
+      "depth": 1,
+      "path": [
+        "Golden Fixture Outline"
+      ]
+    },
+    {
+      "id": "c6",
+      "depth": 1,
+      "path": [
+        "Golden Fixture Outline"
+      ]
+    },
+    {
+      "id": "d1",
+      "depth": 2,
+      "path": [
+        "Golden Fixture Outline",
+        "Deep nesting start"
+      ]
+    },
+    {
+      "id": "d2",
+      "depth": 3,
+      "path": [
+        "Golden Fixture Outline",
+        "Deep nesting start",
+        "Depth 1"
+      ]
+    },
+    {
+      "id": "d3",
+      "depth": 4,
+      "path": [
+        "Golden Fixture Outline",
+        "Deep nesting start",
+        "Depth 1",
+        "Depth 2"
+      ]
+    },
+    {
+      "id": "d4",
+      "depth": 5,
+      "path": [
+        "Golden Fixture Outline",
+        "Deep nesting start",
+        "Depth 1",
+        "Depth 2",
+        "Depth 3"
+      ]
+    },
+    {
+      "id": "d5",
+      "depth": 6,
+      "path": [
+        "Golden Fixture Outline",
+        "Deep nesting start",
+        "Depth 1",
+        "Depth 2",
+        "Depth 3",
+        "Depth 4"
+      ]
+    },
+    {
+      "id": "d6",
+      "depth": 7,
+      "path": [
+        "Golden Fixture Outline",
+        "Deep nesting start",
+        "Depth 1",
+        "Depth 2",
+        "Depth 3",
+        "Depth 4",
+        "Depth 5"
+      ]
+    },
+    {
+      "id": "d7",
+      "depth": 8,
+      "path": [
+        "Golden Fixture Outline",
+        "Deep nesting start",
+        "Depth 1",
+        "Depth 2",
+        "Depth 3",
+        "Depth 4",
+        "Depth 5",
+        "Depth 6"
+      ]
+    },
+    {
+      "id": "d8",
+      "depth": 9,
+      "path": [
+        "Golden Fixture Outline",
+        "Deep nesting start",
+        "Depth 1",
+        "Depth 2",
+        "Depth 3",
+        "Depth 4",
+        "Depth 5",
+        "Depth 6",
+        "Depth 7"
+      ]
+    },
+    {
+      "id": "c7",
+      "depth": 1,
+      "path": [
+        "Golden Fixture Outline"
+      ]
+    },
+    {
+      "id": "c7a",
+      "depth": 2,
+      "path": [
+        "Golden Fixture Outline",
+        "A very long node name that keeps going and going well past any sensible length a slide or heading would want, testing truncation and word-boundary behavior in every consumer that caps text, including bullets and titles and mermaid labels and prompt renderings — all of it, end to end"
+      ]
+    },
+    {
+      "id": "c7b",
+      "depth": 2,
+      "path": [
+        "Golden Fixture Outline",
+        "A very long node name that keeps going and going well past any sensible length a slide or heading would want, testing truncation and word-boundary behavior in every consumer that caps text, including bullets and titles and mermaid labels and prompt renderings — all of it, end to end"
+      ]
+    },
+    {
+      "id": "c8",
+      "depth": 1,
+      "path": [
+        "Golden Fixture Outline"
+      ]
+    },
+    {
+      "id": "c9",
+      "depth": 1,
+      "path": [
+        "Golden Fixture Outline"
+      ]
+    },
+    {
+      "id": "c10",
+      "depth": 1,
+      "path": [
+        "Golden Fixture Outline"
+      ]
+    }
+  ],
+  "exporter_traverseCappedDepth2": [
+    "root",
+    "c1",
+    "c1a",
+    "c2",
+    "c3",
+    "c4",
+    "c5",
+    "c6",
+    "d1",
+    "c7",
+    "c7a",
+    "c7b",
+    "c8",
+    "c9",
+    "c10"
+  ],
+  "exporter_getNodePath_d8": [
+    "Golden Fixture Outline",
+    "Deep nesting start",
+    "Depth 1",
+    "Depth 2",
+    "Depth 3",
+    "Depth 4",
+    "Depth 5",
+    "Depth 6",
+    "Depth 7",
+    "Depth 8 leaf"
+  ],
+  "slides_default": [
+    {
+      "title": "Golden Fixture Outline",
+      "bullets": [
+        "Nested formatting",
+        "Entities galore",
+        "Lists",
+        "Links",
+        "Totally empty node"
+      ],
+      "narration": "Golden Fixture Outline. Root intro with bold & emphasis .",
+      "kind": "cover"
+    },
+    {
+      "title": "Nested formatting",
+      "bullets": [
+        "Child of formatting"
+      ],
+      "narration": "Nested formatting. Bold italic nested and underline and strike . Second paragraph after the first. A div block line one line two line three",
+      "kind": "content",
+      "mindmapMermaid": "flowchart TD\n  N0((\"Nested formatting\"))\n  N1[\"Child of formatting\"]\n  N0 --> N1"
+    },
+    {
+      "title": "Child of formatting",
+      "bullets": [
+        "A heading",
+        "Text under heading with inline code ."
+      ],
+      "narration": "Child of formatting. A heading Text under heading with inline code .",
+      "kind": "content"
+    },
+    {
+      "title": "Entities galore",
+      "bullets": [
+        "& <tag> &quot;dq&quot; &#39;sq&#39; a nbsp &ldquo;curly&rdquo; &lsquo;single&rsquo; &mdash; dash &ndash; en 3&times;4…"
+      ],
+      "narration": "Entities galore. & <tag> &quot;dq&quot; &#39;sq&#39; a nbsp &ldquo;curly&rdquo; &lsquo;single&rsquo; &mdash; dash &ndash; en 3&times;4 wait&hellip; &bull; bullet &middot; middot &#8212;numeric &#x2192; arrow &#65; letterA",
+      "kind": "content"
+    },
+    {
+      "title": "Lists",
+      "bullets": [
+        "Item one",
+        "Item two bolded",
+        "Wrapped in p",
+        "Numbered first",
+        "Numbered second"
+      ],
+      "narration": "Lists. Item one Item two bolded Wrapped in p Numbered first Numbered second",
+      "kind": "content"
+    },
+    {
+      "title": "Links",
+      "bullets": [
+        "See the linked site for more, and mail us ."
+      ],
+      "narration": "Links. See the linked site for more, and mail us .",
+      "kind": "content"
+    },
+    {
+      "title": "Totally empty node",
+      "bullets": [],
+      "narration": "Totally empty node",
+      "kind": "content"
+    },
+    {
+      "title": "Deep nesting start",
+      "bullets": [
+        "Depth 1"
+      ],
+      "narration": "Deep nesting start. Level zero prose.",
+      "kind": "content",
+      "mindmapMermaid": "flowchart TD\n  N0((\"Deep nesting start\"))\n  N1[\"Depth 1\"]\n  N2[\"Depth 2\"]\n  N1 --> N2\n  N0 --> N1"
+    },
+    {
+      "title": "Depth 1",
+      "bullets": [
+        "Depth 2"
+      ],
+      "narration": "Depth 1. At depth one.",
+      "kind": "content",
+      "mindmapMermaid": "flowchart TD\n  N0((\"Depth 1\"))\n  N1[\"Depth 2\"]\n  N2[\"Depth 3\"]\n  N1 --> N2\n  N0 --> N1"
+    },
+    {
+      "title": "A very long node name that keeps going and going well past any sensible length a slide or heading would want, testing truncation and word-boundary behavior in every consumer that caps text, including bullets and titles and mermaid labels and prompt renderings — all of it, end to end",
+      "bullets": [
+        "Stat child A",
+        "Stat child B"
+      ],
+      "narration": "A very long node name that keeps going and going well past any sensible length a slide or heading would want, testing truncation and word-boundary behavior in every consumer that caps text, including bullets and titles and mermaid labels and prompt renderings — all of it, end to end. Survey says: 80% use AI daily &middot; 29% trust the output &middot; 45% lose time debugging. Range 10&ndash;25% remains unsure. A second, quite long paragraph that runs on and on to exercise bullet truncation at word boundaries with an ellipsis so slides never render a run-on wall of text under any circumstances whatsoever, truly.",
+      "kind": "content",
+      "mindmapMermaid": "flowchart TD\n  N0((\"A very long node name that keeps going a…\"))\n  N1[\"Stat child A\"]\n  N2[\"Stat child B\"]\n  N0 --> N1\n  N0 --> N2"
+    },
+    {
+      "title": "Stat child A",
+      "bullets": [
+        "60% of leaves matter."
+      ],
+      "narration": "Stat child A. 60% of leaves matter.",
+      "kind": "content"
+    },
+    {
+      "title": "Stat child B",
+      "bullets": [],
+      "narration": "Stat child B",
+      "kind": "content"
+    },
+    {
+      "title": "Whitespace torture",
+      "bullets": [
+        "spaced out tabbed",
+        "after blank",
+        "lines",
+        "end."
+      ],
+      "narration": "Whitespace torture. spaced out tabbed after blank lines end.",
+      "kind": "content"
+    },
+    {
+      "title": "Canvas node (skipped by serializer)",
+      "bullets": [
+        "binary-ish payload"
+      ],
+      "narration": "Canvas node (skipped by serializer). binary-ish payload",
+      "kind": "content"
+    },
+    {
+      "title": "Table & misc blocks",
+      "bullets": [
+        "cell one cell two",
+        "row2",
+        "After table",
+        "Quoted words"
+      ],
+      "narration": "Table & misc blocks. cell one cell two row2 After table Quoted words",
+      "kind": "content"
+    }
+  ],
+  "slides_depth3": [
+    {
+      "title": "Golden Fixture Outline",
+      "bullets": [
+        "Nested formatting",
+        "Entities galore",
+        "Lists",
+        "Links",
+        "Totally empty node"
+      ],
+      "narration": "Golden Fixture Outline. Root intro with bold & emphasis .",
+      "kind": "cover"
+    },
+    {
+      "title": "Nested formatting",
+      "bullets": [
+        "Child of formatting"
+      ],
+      "narration": "Nested formatting. Bold italic nested and underline and strike . Second paragraph after the first. A div block line one line two line three",
+      "kind": "content",
+      "mindmapMermaid": "flowchart TD\n  N0((\"Nested formatting\"))\n  N1[\"Child of formatting\"]\n  N0 --> N1"
+    },
+    {
+      "title": "Child of formatting",
+      "bullets": [
+        "A heading",
+        "Text under heading with inline code ."
+      ],
+      "narration": "Child of formatting. A heading Text under heading with inline code .",
+      "kind": "content"
+    },
+    {
+      "title": "Entities galore",
+      "bullets": [
+        "& <tag> &quot;dq&quot; &#39;sq&#39; a nbsp &ldquo;curly&rdquo; &lsquo;single&rsquo; &mdash; dash &ndash; en 3&times;4…"
+      ],
+      "narration": "Entities galore. & <tag> &quot;dq&quot; &#39;sq&#39; a nbsp &ldquo;curly&rdquo; &lsquo;single&rsquo; &mdash; dash &ndash; en 3&times;4 wait&hellip; &bull; bullet &middot; middot &#8212;numeric &#x2192; arrow &#65; letterA",
+      "kind": "content"
+    },
+    {
+      "title": "Lists",
+      "bullets": [
+        "Item one",
+        "Item two bolded",
+        "Wrapped in p",
+        "Numbered first",
+        "Numbered second"
+      ],
+      "narration": "Lists. Item one Item two bolded Wrapped in p Numbered first Numbered second",
+      "kind": "content"
+    },
+    {
+      "title": "Links",
+      "bullets": [
+        "See the linked site for more, and mail us ."
+      ],
+      "narration": "Links. See the linked site for more, and mail us .",
+      "kind": "content"
+    },
+    {
+      "title": "Totally empty node",
+      "bullets": [],
+      "narration": "Totally empty node",
+      "kind": "content"
+    },
+    {
+      "title": "Deep nesting start",
+      "bullets": [
+        "Depth 1"
+      ],
+      "narration": "Deep nesting start. Level zero prose.",
+      "kind": "content",
+      "mindmapMermaid": "flowchart TD\n  N0((\"Deep nesting start\"))\n  N1[\"Depth 1\"]\n  N2[\"Depth 2\"]\n  N1 --> N2\n  N0 --> N1"
+    },
+    {
+      "title": "Depth 1",
+      "bullets": [
+        "Depth 2"
+      ],
+      "narration": "Depth 1. At depth one.",
+      "kind": "content",
+      "mindmapMermaid": "flowchart TD\n  N0((\"Depth 1\"))\n  N1[\"Depth 2\"]\n  N2[\"Depth 3\"]\n  N1 --> N2\n  N0 --> N1"
+    },
+    {
+      "title": "Depth 2",
+      "bullets": [
+        "Depth 3"
+      ],
+      "narration": "Depth 2. At depth two.",
+      "kind": "content",
+      "mindmapMermaid": "flowchart TD\n  N0((\"Depth 2\"))\n  N1[\"Depth 3\"]\n  N2[\"Depth 4\"]\n  N1 --> N2\n  N0 --> N1"
+    },
+    {
+      "title": "A very long node name that keeps going and going well past any sensible length a slide or heading would want, testing truncation and word-boundary behavior in every consumer that caps text, including bullets and titles and mermaid labels and prompt renderings — all of it, end to end",
+      "bullets": [
+        "Stat child A",
+        "Stat child B"
+      ],
+      "narration": "A very long node name that keeps going and going well past any sensible length a slide or heading would want, testing truncation and word-boundary behavior in every consumer that caps text, including bullets and titles and mermaid labels and prompt renderings — all of it, end to end. Survey says: 80% use AI daily &middot; 29% trust the output &middot; 45% lose time debugging. Range 10&ndash;25% remains unsure. A second, quite long paragraph that runs on and on to exercise bullet truncation at word boundaries with an ellipsis so slides never render a run-on wall of text under any circumstances whatsoever, truly.",
+      "kind": "content",
+      "mindmapMermaid": "flowchart TD\n  N0((\"A very long node name that keeps going a…\"))\n  N1[\"Stat child A\"]\n  N2[\"Stat child B\"]\n  N0 --> N1\n  N0 --> N2"
+    },
+    {
+      "title": "Stat child A",
+      "bullets": [
+        "60% of leaves matter."
+      ],
+      "narration": "Stat child A. 60% of leaves matter.",
+      "kind": "content"
+    },
+    {
+      "title": "Stat child B",
+      "bullets": [],
+      "narration": "Stat child B",
+      "kind": "content"
+    },
+    {
+      "title": "Whitespace torture",
+      "bullets": [
+        "spaced out tabbed",
+        "after blank",
+        "lines",
+        "end."
+      ],
+      "narration": "Whitespace torture. spaced out tabbed after blank lines end.",
+      "kind": "content"
+    },
+    {
+      "title": "Canvas node (skipped by serializer)",
+      "bullets": [
+        "binary-ish payload"
+      ],
+      "narration": "Canvas node (skipped by serializer). binary-ish payload",
+      "kind": "content"
+    },
+    {
+      "title": "Table & misc blocks",
+      "bullets": [
+        "cell one cell two",
+        "row2",
+        "After table",
+        "Quoted words"
+      ],
+      "narration": "Table & misc blocks. cell one cell two row2 After table Quoted words",
+      "kind": "content"
+    }
+  ],
+  "slides_deep99": [
+    {
+      "title": "Golden Fixture Outline",
+      "bullets": [
+        "Nested formatting",
+        "Entities galore",
+        "Lists",
+        "Links",
+        "Totally empty node"
+      ],
+      "narration": "Golden Fixture Outline. Root intro with bold & emphasis .",
+      "kind": "cover"
+    },
+    {
+      "title": "Nested formatting",
+      "bullets": [
+        "Child of formatting"
+      ],
+      "narration": "Nested formatting. Bold italic nested and underline and strike . Second paragraph after the first. A div block line one line two line three",
+      "kind": "content",
+      "mindmapMermaid": "flowchart TD\n  N0((\"Nested formatting\"))\n  N1[\"Child of formatting\"]\n  N0 --> N1"
+    },
+    {
+      "title": "Child of formatting",
+      "bullets": [
+        "A heading",
+        "Text under heading with inline code ."
+      ],
+      "narration": "Child of formatting. A heading Text under heading with inline code .",
+      "kind": "content"
+    },
+    {
+      "title": "Entities galore",
+      "bullets": [
+        "& <tag> &quot;dq&quot; &#39;sq&#39; a nbsp &ldquo;curly&rdquo; &lsquo;single&rsquo; &mdash; dash &ndash; en 3&times;4…"
+      ],
+      "narration": "Entities galore. & <tag> &quot;dq&quot; &#39;sq&#39; a nbsp &ldquo;curly&rdquo; &lsquo;single&rsquo; &mdash; dash &ndash; en 3&times;4 wait&hellip; &bull; bullet &middot; middot &#8212;numeric &#x2192; arrow &#65; letterA",
+      "kind": "content"
+    },
+    {
+      "title": "Lists",
+      "bullets": [
+        "Item one",
+        "Item two bolded",
+        "Wrapped in p",
+        "Numbered first",
+        "Numbered second"
+      ],
+      "narration": "Lists. Item one Item two bolded Wrapped in p Numbered first Numbered second",
+      "kind": "content"
+    },
+    {
+      "title": "Links",
+      "bullets": [
+        "See the linked site for more, and mail us ."
+      ],
+      "narration": "Links. See the linked site for more, and mail us .",
+      "kind": "content"
+    },
+    {
+      "title": "Totally empty node",
+      "bullets": [],
+      "narration": "Totally empty node",
+      "kind": "content"
+    },
+    {
+      "title": "Deep nesting start",
+      "bullets": [
+        "Depth 1"
+      ],
+      "narration": "Deep nesting start. Level zero prose.",
+      "kind": "content",
+      "mindmapMermaid": "flowchart TD\n  N0((\"Deep nesting start\"))\n  N1[\"Depth 1\"]\n  N2[\"Depth 2\"]\n  N1 --> N2\n  N0 --> N1"
+    },
+    {
+      "title": "Depth 1",
+      "bullets": [
+        "Depth 2"
+      ],
+      "narration": "Depth 1. At depth one.",
+      "kind": "content",
+      "mindmapMermaid": "flowchart TD\n  N0((\"Depth 1\"))\n  N1[\"Depth 2\"]\n  N2[\"Depth 3\"]\n  N1 --> N2\n  N0 --> N1"
+    },
+    {
+      "title": "Depth 2",
+      "bullets": [
+        "Depth 3"
+      ],
+      "narration": "Depth 2. At depth two.",
+      "kind": "content",
+      "mindmapMermaid": "flowchart TD\n  N0((\"Depth 2\"))\n  N1[\"Depth 3\"]\n  N2[\"Depth 4\"]\n  N1 --> N2\n  N0 --> N1"
+    },
+    {
+      "title": "Depth 3",
+      "bullets": [
+        "Depth 4"
+      ],
+      "narration": "Depth 3",
+      "kind": "content",
+      "mindmapMermaid": "flowchart TD\n  N0((\"Depth 3\"))\n  N1[\"Depth 4\"]\n  N2[\"Depth 5\"]\n  N1 --> N2\n  N0 --> N1"
+    },
+    {
+      "title": "Depth 4",
+      "bullets": [
+        "Depth 5"
+      ],
+      "narration": "Depth 4. At depth four.",
+      "kind": "content",
+      "mindmapMermaid": "flowchart TD\n  N0((\"Depth 4\"))\n  N1[\"Depth 5\"]\n  N2[\"Depth 6\"]\n  N1 --> N2\n  N0 --> N1"
+    },
+    {
+      "title": "Depth 5",
+      "bullets": [
+        "Depth 6"
+      ],
+      "narration": "Depth 5",
+      "kind": "content",
+      "mindmapMermaid": "flowchart TD\n  N0((\"Depth 5\"))\n  N1[\"Depth 6\"]\n  N2[\"Depth 7\"]\n  N1 --> N2\n  N0 --> N1"
+    },
+    {
+      "title": "Depth 6",
+      "bullets": [
+        "Depth 7"
+      ],
+      "narration": "Depth 6. Deepest prose & entity.",
+      "kind": "content",
+      "mindmapMermaid": "flowchart TD\n  N0((\"Depth 6\"))\n  N1[\"Depth 7\"]\n  N2[\"Depth 8 leaf\"]\n  N1 --> N2\n  N0 --> N1"
+    },
+    {
+      "title": "Depth 7",
+      "bullets": [
+        "Depth 8 leaf"
+      ],
+      "narration": "Depth 7",
+      "kind": "content",
+      "mindmapMermaid": "flowchart TD\n  N0((\"Depth 7\"))\n  N1[\"Depth 8 leaf\"]\n  N0 --> N1"
+    },
+    {
+      "title": "Depth 8 leaf",
+      "bullets": [
+        "The very bottom."
+      ],
+      "narration": "Depth 8 leaf. The very bottom.",
+      "kind": "content"
+    },
+    {
+      "title": "A very long node name that keeps going and going well past any sensible length a slide or heading would want, testing truncation and word-boundary behavior in every consumer that caps text, including bullets and titles and mermaid labels and prompt renderings — all of it, end to end",
+      "bullets": [
+        "Stat child A",
+        "Stat child B"
+      ],
+      "narration": "A very long node name that keeps going and going well past any sensible length a slide or heading would want, testing truncation and word-boundary behavior in every consumer that caps text, including bullets and titles and mermaid labels and prompt renderings — all of it, end to end. Survey says: 80% use AI daily &middot; 29% trust the output &middot; 45% lose time debugging. Range 10&ndash;25% remains unsure. A second, quite long paragraph that runs on and on to exercise bullet truncation at word boundaries with an ellipsis so slides never render a run-on wall of text under any circumstances whatsoever, truly.",
+      "kind": "content",
+      "mindmapMermaid": "flowchart TD\n  N0((\"A very long node name that keeps going a…\"))\n  N1[\"Stat child A\"]\n  N2[\"Stat child B\"]\n  N0 --> N1\n  N0 --> N2"
+    },
+    {
+      "title": "Stat child A",
+      "bullets": [
+        "60% of leaves matter."
+      ],
+      "narration": "Stat child A. 60% of leaves matter.",
+      "kind": "content"
+    },
+    {
+      "title": "Stat child B",
+      "bullets": [],
+      "narration": "Stat child B",
+      "kind": "content"
+    },
+    {
+      "title": "Whitespace torture",
+      "bullets": [
+        "spaced out tabbed",
+        "after blank",
+        "lines",
+        "end."
+      ],
+      "narration": "Whitespace torture. spaced out tabbed after blank lines end.",
+      "kind": "content"
+    },
+    {
+      "title": "Canvas node (skipped by serializer)",
+      "bullets": [
+        "binary-ish payload"
+      ],
+      "narration": "Canvas node (skipped by serializer). binary-ish payload",
+      "kind": "content"
+    },
+    {
+      "title": "Table & misc blocks",
+      "bullets": [
+        "cell one cell two",
+        "row2",
+        "After table",
+        "Quoted words"
+      ],
+      "narration": "Table & misc blocks. cell one cell two row2 After table Quoted words",
+      "kind": "content"
+    }
+  ],
+  "slides_capped5": [
+    {
+      "title": "Golden Fixture Outline",
+      "bullets": [
+        "Nested formatting",
+        "Entities galore",
+        "Lists",
+        "Links",
+        "Totally empty node"
+      ],
+      "narration": "Golden Fixture Outline. Root intro with bold & emphasis .",
+      "kind": "cover"
+    },
+    {
+      "title": "Nested formatting",
+      "bullets": [
+        "Child of formatting"
+      ],
+      "narration": "Nested formatting. Bold italic nested and underline and strike . Second paragraph after the first. A div block line one line two line three",
+      "kind": "content",
+      "mindmapMermaid": "flowchart TD\n  N0((\"Nested formatting\"))\n  N1[\"Child of formatting\"]\n  N0 --> N1"
+    },
+    {
+      "title": "Child of formatting",
+      "bullets": [
+        "A heading",
+        "Text under heading with inline code ."
+      ],
+      "narration": "Child of formatting. A heading Text under heading with inline code .",
+      "kind": "content"
+    },
+    {
+      "title": "Entities galore",
+      "bullets": [
+        "& <tag> &quot;dq&quot; &#39;sq&#39; a nbsp &ldquo;curly&rdquo; &lsquo;single&rsquo; &mdash; dash &ndash; en 3&times;4…"
+      ],
+      "narration": "Entities galore. & <tag> &quot;dq&quot; &#39;sq&#39; a nbsp &ldquo;curly&rdquo; &lsquo;single&rsquo; &mdash; dash &ndash; en 3&times;4 wait&hellip; &bull; bullet &middot; middot &#8212;numeric &#x2192; arrow &#65; letterA",
+      "kind": "content"
+    },
+    {
+      "title": "Lists",
+      "bullets": [
+        "Item one",
+        "Item two bolded",
+        "Wrapped in p",
+        "Numbered first",
+        "Numbered second"
+      ],
+      "narration": "Lists. Item one Item two bolded Wrapped in p Numbered first Numbered second",
+      "kind": "content"
+    }
+  ],
+  "slides_count_depth3": 16,
+  "slides_subbranch_c7": [
+    {
+      "title": "A very long node name that keeps going and going well past any sensible length a slide or heading would want, testing truncation and word-boundary behavior in every consumer that caps text, including bullets and titles and mermaid labels and prompt renderings — all of it, end to end",
+      "bullets": [
+        "Stat child A",
+        "Stat child B"
+      ],
+      "narration": "A very long node name that keeps going and going well past any sensible length a slide or heading would want, testing truncation and word-boundary behavior in every consumer that caps text, including bullets and titles and mermaid labels and prompt renderings — all of it, end to end. Survey says: 80% use AI daily &middot; 29% trust the output &middot; 45% lose time debugging. Range 10&ndash;25% remains unsure. A second, quite long paragraph that runs on and on to exercise bullet truncation at word boundaries with an ellipsis so slides never render a run-on wall of text under any circumstances whatsoever, truly.",
+      "kind": "cover"
+    },
+    {
+      "title": "Stat child A",
+      "bullets": [
+        "60% of leaves matter."
+      ],
+      "narration": "Stat child A. 60% of leaves matter.",
+      "kind": "content"
+    },
+    {
+      "title": "Stat child B",
+      "bullets": [],
+      "narration": "Stat child B",
+      "kind": "content"
+    }
+  ],
+  "deck_default": {
+    "name": "Golden Fixture Outline",
+    "slides": [
+      {
+        "kind": "title",
+        "title": "Golden Fixture Outline",
+        "subtitle": "Root intro with bold & emphasis."
+      },
+      {
+        "kind": "arc"
+      },
+      {
+        "kind": "section",
+        "title": "Nested formatting",
+        "bullets": [
+          "Bold italic nested and underline and strike.",
+          "Second paragraph after the first.",
+          "A div block",
+          "line one",
+          "line two",
+          "line three"
+        ]
+      },
+      {
+        "kind": "section",
+        "title": "Child of formatting",
+        "bullets": [
+          "A heading",
+          "Text under heading with inline code."
+        ]
+      },
+      {
+        "kind": "section",
+        "title": "Entities galore",
+        "bullets": [
+          "& <tag> \"dq\" 'sq' a nbsp \"curly\" 'single' — dash – en 3×4 wait…",
+          "bullet",
+          "middot —numeric",
+          "arrow A letterA"
+        ]
+      },
+      {
+        "kind": "section",
+        "title": "Lists",
+        "bullets": [
+          "Item one",
+          "Item two bolded",
+          "Wrapped in p",
+          "Numbered first",
+          "Numbered second"
+        ]
+      },
+      {
+        "kind": "section",
+        "title": "Links",
+        "bullets": [
+          "See the linked site for more, and mail us."
+        ]
+      },
+      {
+        "kind": "section",
+        "title": "Totally empty node",
+        "bullets": []
+      },
+      {
+        "kind": "section",
+        "title": "Deep nesting start",
+        "bullets": [
+          "Level zero prose."
+        ]
+      },
+      {
+        "kind": "section",
+        "title": "Depth 1",
+        "bullets": [
+          "At depth one."
+        ]
+      },
+      {
+        "kind": "section",
+        "title": "A very long node name that keeps going and going well past any sensible length a slide or heading would want, testing truncation and word-boundary behavior in every consumer that caps text, including bullets and titles and mermaid labels and prompt renderings — all of it, end to end",
+        "bullets": [
+          "Survey says: 80% use AI daily",
+          "29% trust the output",
+          "45% lose time debugging.",
+          "Range 10–25% remains unsure.",
+          "A second, quite long paragraph that runs on and on to exercise bullet truncation at word boundaries with an ellipsis so slides never render a run-on…"
+        ],
+        "chart": [
+          {
+            "label": "AI daily",
+            "value": 80,
+            "isPercent": true
+          },
+          {
+            "label": "trust the output",
+            "value": 29,
+            "isPercent": true
+          },
+          {
+            "label": "lose time debugging",
+            "value": 45,
+            "isPercent": true
+          },
+          {
+            "label": "remains unsure",
+            "value": 10,
+            "isPercent": true
+          },
+          {
+            "label": "leaves matter",
+            "value": 60,
+            "isPercent": true
+          }
+        ]
+      },
+      {
+        "kind": "section",
+        "title": "Stat child A",
+        "bullets": [
+          "60% of leaves matter."
+        ]
+      },
+      {
+        "kind": "section",
+        "title": "Stat child B",
+        "bullets": []
+      },
+      {
+        "kind": "section",
+        "title": "Whitespace torture",
+        "bullets": [
+          "spaced out tabbed",
+          "after blank",
+          "lines",
+          "end."
+        ]
+      },
+      {
+        "kind": "section",
+        "title": "Canvas node (skipped by serializer)",
+        "bullets": [
+          "binary-ish payload"
+        ]
+      },
+      {
+        "kind": "section",
+        "title": "Table & misc blocks",
+        "bullets": [
+          "cell one cell two",
+          "row2",
+          "After table",
+          "Quoted words"
+        ]
+      },
+      {
+        "kind": "closing",
+        "title": "Thank you",
+        "subtitle": "Golden Fixture Outline"
+      }
+    ]
+  },
+  "deck_noArc_max2": {
+    "name": "Golden Fixture Outline",
+    "slides": [
+      {
+        "kind": "title",
+        "title": "Golden Fixture Outline",
+        "subtitle": "Root intro with bold & emphasis."
+      },
+      {
+        "kind": "section",
+        "title": "By the Numbers",
+        "bullets": [],
+        "chart": [
+          {
+            "label": "AI daily",
+            "value": 80,
+            "isPercent": true
+          },
+          {
+            "label": "trust the output",
+            "value": 29,
+            "isPercent": true
+          },
+          {
+            "label": "lose time debugging",
+            "value": 45,
+            "isPercent": true
+          },
+          {
+            "label": "remains unsure",
+            "value": 10,
+            "isPercent": true
+          },
+          {
+            "label": "leaves matter",
+            "value": 60,
+            "isPercent": true
+          }
+        ]
+      },
+      {
+        "kind": "section",
+        "title": "Nested formatting",
+        "bullets": [
+          "Bold italic nested and underline and strike.",
+          "Second paragraph after the first.",
+          "A div block",
+          "line one",
+          "line two",
+          "line three"
+        ]
+      },
+      {
+        "kind": "section",
+        "title": "Child of formatting",
+        "bullets": [
+          "A heading",
+          "Text under heading with inline code."
+        ]
+      },
+      {
+        "kind": "section",
+        "title": "Entities galore",
+        "bullets": [
+          "& <tag> \"dq\" 'sq' a nbsp \"curly\" 'single' — dash – en 3×4 wait…",
+          "bullet",
+          "middot —numeric",
+          "arrow A letterA"
+        ]
+      },
+      {
+        "kind": "closing",
+        "title": "Thank you",
+        "subtitle": "Golden Fixture Outline"
+      }
+    ]
+  },
+  "deck_subbranch_c7": {
+    "name": "A very long node name that keeps going and going well past any sensible length a slide or heading would want, testing truncation and word-boundary behavior in every consumer that caps text, including bullets and titles and mermaid labels and prompt renderings — all of it, end to end",
+    "slides": [
+      {
+        "kind": "title",
+        "title": "A very long node name that keeps going and going well past any sensible length a slide or heading would want, testing truncation and word-boundary behavior in every consumer that caps text, including bullets and titles and mermaid labels and prompt renderings — all of it, end to end",
+        "subtitle": "Survey says: 80% use AI daily · 29% trust the output · 45% lose time debugging."
+      },
+      {
+        "kind": "arc"
+      },
+      {
+        "kind": "section",
+        "title": "By the Numbers",
+        "bullets": [],
+        "chart": [
+          {
+            "label": "AI daily",
+            "value": 80,
+            "isPercent": true
+          },
+          {
+            "label": "trust the output",
+            "value": 29,
+            "isPercent": true
+          },
+          {
+            "label": "lose time debugging",
+            "value": 45,
+            "isPercent": true
+          },
+          {
+            "label": "remains unsure",
+            "value": 10,
+            "isPercent": true
+          },
+          {
+            "label": "leaves matter",
+            "value": 60,
+            "isPercent": true
+          }
+        ]
+      },
+      {
+        "kind": "section",
+        "title": "Stat child A",
+        "bullets": [
+          "60% of leaves matter."
+        ]
+      },
+      {
+        "kind": "section",
+        "title": "Stat child B",
+        "bullets": []
+      },
+      {
+        "kind": "closing",
+        "title": "Thank you",
+        "subtitle": "A very long node name that keeps going and going well past any sensible length a slide or heading would want, testing truncation and word-boundary behavior in every consumer that caps text, including bullets and titles and mermaid labels and prompt renderings — all of it, end to end"
+      }
+    ]
+  },
+  "deck_extractDataPoints": [
+    [
+      {
+        "label": "AI",
+        "value": 80,
+        "isPercent": true
+      },
+      {
+        "label": "trust it",
+        "value": 29,
+        "isPercent": true
+      },
+      {
+        "label": "lose time debugging",
+        "value": 45,
+        "isPercent": true
+      }
+    ],
+    [
+      {
+        "label": "adoption",
+        "value": 80,
+        "isPercent": true
+      },
+      {
+        "label": "unsure",
+        "value": 10,
+        "isPercent": true
+      }
+    ],
+    [],
+    []
+  ]
+}

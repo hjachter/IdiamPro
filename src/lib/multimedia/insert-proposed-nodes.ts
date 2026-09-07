@@ -17,6 +17,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import type { NodeMap, OutlineNode } from '@/types';
 import { recalculatePrefixesForBranch, stripMarkdownFromTitle } from '@/lib/outline-utils';
+import { htmlToPlainText } from '@/lib/compile-core';
 import type { ImageToOutlineProposedNode } from '@/app/actions';
 
 export interface InsertProposedOptions {
@@ -116,8 +117,8 @@ export function nodeSubtreeToText(nodes: NodeMap, rootId: string, maxChars = 800
       lines.push(`${indent}${n.name}`);
       if (n.content && n.content.trim()) {
         // Strip HTML tags for the AI context — the model doesn't need
-        // markup, just the prose.
-        const plain = n.content.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+        // markup, just the prose. (Shared compile-core engine, Phase 0.)
+        const plain = htmlToPlainText(n.content, 'bare-inline');
         if (plain) lines.push(`${indent}  ${plain}`);
       }
     }
