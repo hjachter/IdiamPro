@@ -444,8 +444,9 @@ export default function UpgradePage() {
         {isIOSCapacitor && (
           <div className="mt-8 rounded-xl border border-blue-500/30 bg-blue-500/5 p-4 text-sm">
             <strong>On iPhone or iPad?</strong> IdeaM is free on iOS — bring
-            your own AI key for unlimited AI at no cost. Paid plans (Student and
-            Pro) are available on the web and Mac apps for now.
+            your own AI key and everyday AI is typically free, pay-as-you-go on
+            your key. Paid plans (Student and Pro) are available on the web and
+            Mac apps for now.
           </div>
         )}
       </div>
