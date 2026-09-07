@@ -54,6 +54,7 @@ import {
 import { createRefreshTransformer } from '@/lib/transforms/refresh-transform';
 import { useToast } from '@/hooks/use-toast';
 import { useAIUsageGate } from '@/lib/use-ai-usage-gate';
+import { useHeavyOpApproval } from '@/components/heavy-op-confirm-dialog';
 import DerivationChoice, { type DerivationMode } from './derivation-choice';
 import { suggestRefreshLabel } from '@/lib/derivation/label-from-prompt';
 
@@ -97,6 +98,9 @@ export default function LiveBooksDialog({
 }: LiveBooksDialogProps) {
   const { toast } = useToast();
   const { gate } = useAIUsageGate();
+  // P2 cost model: a LIVE BOOKS research refresh is a HEAVY op — one
+  // pre-run approval. Respects "Don't ask again" + Professional mode.
+  const { approveHeavyOp, heavyOpDialog } = useHeavyOpApproval();
 
   const [phase, setPhase] = useState<Phase>('configure');
   const [updateMode, setUpdateMode] = useState<TransformUpdateMode>('merge');
@@ -132,6 +136,9 @@ export default function LiveBooksDialog({
 
   const runRefresh = async () => {
     if (!outline || !selectedNodeId) return;
+
+    // Heavy-op approval FIRST — cancelling researches (and bills) nothing.
+    if (!(await approveHeavyOp('liveBooks'))) return;
 
     // Tier-enforcement gate (#33): a LIVE BOOKS refresh of any number of
     // descendants = ONE generation (1 user-initiated AI action).
@@ -543,6 +550,8 @@ export default function LiveBooksDialog({
           )}
         </DialogFooter>
       </DialogContent>
+      {/* Heavy-op pre-run approval (renders in a portal when pending). */}
+      {heavyOpDialog}
     </Dialog>
   );
 }

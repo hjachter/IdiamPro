@@ -45,6 +45,35 @@ import {
   getUsage,
   incrementUsage,
 } from '@/lib/ai-usage-counter';
+import { recordAiUsage } from '@/lib/ai-usage-ledger';
+import { getSelectedTextProvider } from '@/lib/byok-keys';
+
+/**
+ * P2 cost instrumentation (2026-09-06): the gate is the one choke point
+ * every user-initiated AI action already passes through, so a successful
+ * gate() appends one entry to the local usage ledger (ai-usage-ledger.ts)
+ * — the user's own on-device transparency record. No server calls. Never
+ * throws; never blocks the AI call.
+ */
+function ledgerProviderLabel(): string {
+  try {
+    if (typeof window !== 'undefined' && window.localStorage.getItem('aiProvider') === 'local') {
+      return 'local';
+    }
+    const sel = getSelectedTextProvider();
+    return sel.apiKey ? (sel.provider ?? 'unknown') : 'free-tier';
+  } catch {
+    return 'unknown';
+  }
+}
+
+function recordToLedger(feature: AIFeatureKey): void {
+  try {
+    recordAiUsage({ opId: feature, provider: ledgerProviderLabel() });
+  } catch {
+    /* best-effort */
+  }
+}
 
 /** Feature key supplied by call sites — used for analytics + the Pro check. */
 export type AIFeatureKey =
@@ -177,10 +206,17 @@ export function useAIUsageGate(): AIUsageGateHook {
         }
 
         // Exempt path: BYOK or local Ollama — never count, never block.
-        if (isExempt()) return true;
+        // Still recorded in the user's local ledger (their transparency).
+        if (isExempt()) {
+          recordToLedger(opts.feature);
+          return true;
+        }
 
         const cap = getTierCap(tier);
-        if (!Number.isFinite(cap)) return true; // unlimited tier
+        if (!Number.isFinite(cap)) {
+          recordToLedger(opts.feature);
+          return true; // unlimited tier
+        }
 
         const before = getUsage().count;
 
@@ -205,6 +241,7 @@ export function useAIUsageGate(): AIUsageGateHook {
           const { title, description } = softWarnCopy(after, cap, tier);
           toast({ title, description, duration: 8000 });
         }
+        recordToLedger(opts.feature);
         return true;
       } catch {
         // Fail-open: if the gate itself throws, allow the call. Better to
@@ -239,6 +276,7 @@ export function gateHeadless(opts: AIGateOptions): HeadlessGateDecision {
     return { allowed: false, reason: 'pro-only', tier, used: getUsage().count, cap };
   }
   if (isExempt() || !Number.isFinite(cap)) {
+    recordToLedger(opts.feature);
     return { allowed: true, reason: 'exempt', tier, used: getUsage().count, cap };
   }
   const before = getUsage().count;
@@ -246,6 +284,7 @@ export function gateHeadless(opts: AIGateOptions): HeadlessGateDecision {
     return { allowed: false, reason: 'hard-block', tier, used: before, cap };
   }
   const after = incrementUsage().count;
+  recordToLedger(opts.feature);
   const threshold = Math.floor(cap * 0.8);
   return {
     allowed: true,

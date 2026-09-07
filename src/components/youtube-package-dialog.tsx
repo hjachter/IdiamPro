@@ -43,6 +43,7 @@ import {
   type YoutubePackageInput,
 } from '@/app/actions';
 import { useAIUsageGate } from '@/lib/use-ai-usage-gate';
+import { useHeavyOpApproval } from '@/components/heavy-op-confirm-dialog';
 import { getUserApiKey } from '@/lib/byok-keys';
 import { nodeSubtreeToText } from '@/lib/multimedia/insert-proposed-nodes';
 
@@ -115,6 +116,10 @@ export default function YoutubePackageDialog({
   onSaveAsOutline,
 }: YoutubePackageDialogProps) {
   const { gate } = useAIUsageGate();
+  // P2 cost model: the YouTube package is a HEAVY op (multi-part
+  // generation) — one pre-run approval. Respects "Don't ask again" +
+  // Professional mode.
+  const { approveHeavyOp, heavyOpDialog } = useHeavyOpApproval();
   const [phase, setPhase] = useState<Phase>('configure');
   const [duration, setDuration] = useState<60 | 90 | 120 | 300>(90);
   const [style, setStyle] = useState<YoutubePackageInput['style']>('explainer');
@@ -139,6 +144,8 @@ export default function YoutubePackageDialog({
 
   const handleRun = async () => {
     if (!chapterNode) return;
+    // Heavy-op approval FIRST — cancelling generates (and bills) nothing.
+    if (!(await approveHeavyOp('youtubePackage'))) return;
     if (!gate({ feature: 'youtubePackage' })) return;
     setPhase('running');
     setErrorMsg(null);
@@ -399,6 +406,8 @@ export default function YoutubePackageDialog({
           )}
         </DialogFooter>
       </DialogContent>
+      {/* Heavy-op pre-run approval (renders in a portal when pending). */}
+      {heavyOpDialog}
     </Dialog>
   );
 }

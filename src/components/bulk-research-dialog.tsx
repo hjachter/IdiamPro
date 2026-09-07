@@ -14,6 +14,7 @@ import { transcribeRecordingAction, getYoutubeTitleAction, checkOllamaStatusActi
 import { getUserApiKey } from '@/lib/byok-keys';
 import { openExternalUrl, isElectron, checkOllamaInstallation, startOllama } from '@/lib/electron-storage';
 import { useAIUsageGate } from '@/lib/use-ai-usage-gate';
+import { useHeavyOpApproval } from '@/components/heavy-op-confirm-dialog';
 
 // Type for stored recording data
 interface RecordingData {
@@ -108,6 +109,9 @@ export default function BulkResearchDialog({
   onUnmerge,
 }: BulkResearchDialogProps) {
   const { gate } = useAIUsageGate();
+  // P2 cost model: a multi-source Research & Import run is a HEAVY op —
+  // one pre-run approval. Respects "Don't ask again" + Professional mode.
+  const { approveHeavyOp, heavyOpDialog } = useHeavyOpApproval();
   const [sources, setSources] = useState<SourceEntry[]>([]);
   const [includeExisting, setIncludeExisting] = useState(true);
   const [outlineName, setOutlineName] = useState('');
@@ -569,6 +573,9 @@ export default function BulkResearchDialog({
 
     // Clear any previous error so we don't show a stale message.
     setSubmitError(null);
+
+    // Heavy-op approval FIRST — cancelling digests (and bills) nothing.
+    if (!(await approveHeavyOp('bulkResearch'))) return;
 
     // Tier-enforcement gate (#33): one Research & Import submission =
     // one generation, regardless of how many sources are merged.
@@ -1466,6 +1473,8 @@ export default function BulkResearchDialog({
           </Button>
         </DialogFooter>
       </DialogContent>
+      {/* Heavy-op pre-run approval (renders in a portal when pending). */}
+      {heavyOpDialog}
     </Dialog>
   );
 }

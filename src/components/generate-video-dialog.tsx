@@ -45,6 +45,7 @@ import type { Outline } from '@/types';
 import { isElectron } from '@/lib/electron-storage';
 import { getUserApiKey } from '@/lib/byok-keys';
 import { getCurrentTier } from '@/lib/tier-detection';
+import { useHeavyOpApproval } from '@/components/heavy-op-confirm-dialog';
 import {
   FREE_VIDEO_LIMIT,
   getFreeVideosUsed,
@@ -214,6 +215,10 @@ export default function GenerateVideoDialog({
   const chapterNode = outline && selectedNodeId ? outline.nodes[selectedNodeId] : null;
 
   const { promptUpgrade } = useUpgradePrompt();
+  // P2 cost model: video generation is a HEAVY op — one pre-run approval
+  // (render is free on this Mac; AI narration runs on the user's OpenAI
+  // key). Respects "Don't ask again" + Professional mode.
+  const { approveHeavyOp, heavyOpDialog } = useHeavyOpApproval();
 
   // Pro vs. free "taste" state. Pro = unlimited + no watermark. Non-Pro =
   // FREE_VIDEO_LIMIT lifetime watermarked renders, then the upgrade prompt.
@@ -361,6 +366,8 @@ export default function GenerateVideoDialog({
 
   const handleGenerate = async () => {
     if (!desktop || !chapterNode || slideCount === 0) return;
+    // Heavy-op approval FIRST — cancelling renders (and bills) nothing.
+    if (!(await approveHeavyOp('videoGeneration'))) return;
     // Free-taste gate — Pro renders clean; free renders carry a watermark
     // until the 10-video lifetime allowance is spent, then the upgrade prompt.
     const decision = evaluateGate();
@@ -821,6 +828,8 @@ export default function GenerateVideoDialog({
           )}
         </DialogFooter>
       </DialogContent>
+      {/* Heavy-op pre-run approval (renders in a portal when pending). */}
+      {heavyOpDialog}
     </Dialog>
   );
 }

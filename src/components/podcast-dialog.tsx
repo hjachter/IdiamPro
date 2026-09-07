@@ -32,6 +32,7 @@ import { useUpgradePrompt } from '@/components/upgrade-prompt';
 import { isElectron } from '@/lib/electron-storage';
 import { getUserApiKey } from '@/lib/byok-keys';
 import { nativeTtsAvailable, synthesizePodcastNative } from '@/lib/native-tts';
+import { useHeavyOpApproval } from '@/components/heavy-op-confirm-dialog';
 
 interface PodcastDialogProps {
   open: boolean;
@@ -370,6 +371,10 @@ export default function PodcastDialog({
 
   const { promptUpgrade } = useUpgradePrompt();
   const { gate: aiUsageGate } = useAIUsageGate();
+  // P2 cost model: podcast generation is a HEAVY op — one small pre-run
+  // approval (whose key pays, honest typical-cost frame) before anything
+  // generates. Respects "Don't ask again" + Professional mode.
+  const { approveHeavyOp, heavyOpDialog } = useHeavyOpApproval();
 
   /**
    * Phase 3 gate: podcast / universal-output generation is a Power feature.
@@ -483,6 +488,8 @@ export default function PodcastDialog({
 
   // Generate script only (from edited prompt)
   const handleGenerateScript = useCallback(async () => {
+    // Heavy-op approval FIRST — cancelling runs (and bills) nothing.
+    if (!(await approveHeavyOp('podcastGeneration'))) return;
     if (!ensurePodcastAllowed()) return;
     setPhase('generating-script');
     setScriptSegDone(0);
@@ -524,10 +531,12 @@ export default function PodcastDialog({
     } finally {
       abortControllerRef.current = null;
     }
-  }, [style, length, voices, ttsModel, editablePrompt, ensurePodcastAllowed, consumeScriptStream]);
+  }, [style, length, voices, ttsModel, editablePrompt, ensurePodcastAllowed, consumeScriptStream, approveHeavyOp]);
 
   // Generate script without showing prompt editor first (quick path)
   const handleQuickGenerate = useCallback(async () => {
+    // Heavy-op approval FIRST — cancelling runs (and bills) nothing.
+    if (!(await approveHeavyOp('podcastGeneration'))) return;
     if (!ensurePodcastAllowed()) return;
     setPhase('generating-script');
     setScriptSegDone(0);
@@ -569,7 +578,7 @@ export default function PodcastDialog({
     } finally {
       abortControllerRef.current = null;
     }
-  }, [style, length, voices, ttsModel, nodes, nodeId, ensurePodcastAllowed, consumeScriptStream]);
+  }, [style, length, voices, ttsModel, nodes, nodeId, ensurePodcastAllowed, consumeScriptStream, approveHeavyOp]);
 
   // Synthesize audio from (edited) script segments
   const handleSynthesizeAudio = useCallback(async () => {
@@ -1343,6 +1352,8 @@ export default function PodcastDialog({
           </div>
         )}
       </DialogContent>
+      {/* Heavy-op pre-run approval (renders in a portal when pending). */}
+      {heavyOpDialog}
     </Dialog>
   );
 }
