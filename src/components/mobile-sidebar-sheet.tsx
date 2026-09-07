@@ -481,8 +481,11 @@ export default function MobileSidebarSheet({
           </div>
         )}
 
-        {/* Scrollable outline list */}
-        <ScrollArea className="flex-1">
+        {/* Scrollable outline list. The [&_...] variants stop Radix ScrollArea's
+            `display:table` content wrapper sizing itself to the LONGEST outline
+            name (~900px) — which made rows poke far past the sheet edge (2026-09
+            layout audit). Block + full-width keeps names truncating properly. */}
+        <ScrollArea className="flex-1 [&_[data-radix-scroll-area-viewport]>div]:!block [&_[data-radix-scroll-area-viewport]>div]:w-full">
           <div className="p-2 space-y-0.5">
             {/* User Guide */}
             {guide && showGuide && renderOutlineItem(guide, { isGuideItem: true })}

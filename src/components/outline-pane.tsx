@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useRef, useEffect, useLayoutEffect, useCallback, useMemo } from 'react';
 import type { Outline, OutlineNode, NodeMap, ExternalSourceInput, IngestPreview, AIDepth, AITone, AILevel } from '@/types';
 import NodeItem from './node-item';
 import type { PendingChangeMarks } from '@/components/proposed-changes-review';
@@ -372,23 +372,69 @@ export default function OutlinePane({
   //     before Help. Deterministic: the same buttons always collapse first.
   // Nothing to the left of the collapsible zone ever moves, so New/Search/AI
   // keep their exact positions at every width. Never wraps, never scrolls.
-  const ACTION_MIDDLE_COUNT = 4; // [Bring In, Turn Into, Second Brain, Expand]
-  const _aBtn = isMobile ? 50 : 44;                 // one icon button + gap
-  const _aReserved =
-    (_aBtn + 30) /* New split (chevron half) */ +
-    _aBtn /* Search */ + _aBtn /* Tag filter */ + _aBtn /* AI */ + _aBtn /* Help */ +
-    14 * 3 /* separators */ + 16 /* container padding margin */;
-  let _aAvail = (Number.isFinite(actionToolbarWidth) ? actionToolbarWidth : 100000) - _aReserved;
-  let actionMiddleVisible = Math.max(0, Math.min(ACTION_MIDDLE_COUNT, Math.floor(_aAvail / _aBtn)));
-  if (actionMiddleVisible < ACTION_MIDDLE_COUNT) {
-    _aAvail -= _aBtn; // reserve room for the "More" button
-    actionMiddleVisible = Math.max(0, Math.min(ACTION_MIDDLE_COUNT, Math.floor(_aAvail / _aBtn)));
-  }
-  const showActionMore = actionMiddleVisible < ACTION_MIDDLE_COUNT;
-  const showBringIn = actionMiddleVisible >= 1;      // collapses last
-  const showTurnInto = actionMiddleVisible >= 2;
-  const showSecondBrain = actionMiddleVisible >= 3;
-  const showExpand = actionMiddleVisible >= 4;        // collapses first (tail)
+  // MEASURED auto-fit (2026-09 layout-audit fix). The previous code ESTIMATED
+  // per-button widths (44/50px + guessed separators) and the estimate was
+  // wrong in both directions: the red Help button clipped off-screen at narrow
+  // window widths AND in narrow desktop columns, and an overflowed row could
+  // be nudged sideways (focus scroll) leaving "+ New" unreachable. We now
+  // compare the toolbar's REAL rendered content width (scrollWidth) against
+  // its REAL available width (clientWidth) after every render and fold the
+  // collapsible tools one deterministic step at a time until everything fits.
+  //
+  // Collapse ladder (tail-first, same fixed order as before):
+  //   0: everything inline
+  //   1: Expand/Compress folds into "⋯ More"
+  //   2: + Second Brain
+  //   3: + Export (Turn Into)
+  //   4: + Import (Bring In)
+  //   5: + Filter-by-tag (last resort, phone-size windows only)
+  //   6: "squeeze" — separators hide and gaps tighten (cosmetic only; no
+  //      control is ever dropped)
+  // PINNED and NEVER folded: New Outline (green), Search, AI, Help (red) and
+  // the "⋯ More" menu itself — every folded tool stays reachable inside More.
+  const ACTION_MAX_LEVEL = 6;
+  const [actionCollapseLevel, setActionCollapseLevel] = useState(0);
+  // Remembers the content width each level needed, so we only expand back a
+  // step when that step is KNOWN to fit (hysteresis — no flip-flopping).
+  const actionFitWidthsRef = useRef<Record<number, number>>({});
+  useLayoutEffect(() => {
+    const el = actionToolbarRef.current;
+    if (!el) return;
+    // The row must never sit scrolled: focus/menu-open can nudge an
+    // overflow-hidden container sideways, which is exactly how "+ New"
+    // vanished off the left edge at 1024x768 in the audit.
+    if (el.scrollLeft !== 0) el.scrollLeft = 0;
+    const needed = el.scrollWidth;
+    const avail = el.clientWidth;
+    if (needed > avail + 1) {
+      actionFitWidthsRef.current[actionCollapseLevel] = Math.max(
+        actionFitWidthsRef.current[actionCollapseLevel] ?? 0,
+        needed
+      );
+      if (actionCollapseLevel < ACTION_MAX_LEVEL) {
+        setActionCollapseLevel(actionCollapseLevel + 1);
+      }
+    } else if (actionCollapseLevel > 0) {
+      const prevNeeded = actionFitWidthsRef.current[actionCollapseLevel - 1];
+      const oneButtonAllowance = (isMobile ? 50 : 46) + 20;
+      const canExpand = prevNeeded
+        ? avail >= prevNeeded + 8
+        : avail >= needed + oneButtonAllowance;
+      if (canExpand) setActionCollapseLevel(actionCollapseLevel - 1);
+    }
+    // No dependency array on purpose: re-verify the fit after EVERY render
+    // (window resizes arrive via the ResizeObserver above; content changes
+    // like the Stop-AI button appearing arrive as ordinary re-renders). The
+    // guarded setState converges in at most ACTION_MAX_LEVEL steps.
+  });
+  void actionToolbarWidth; // state exists to re-render on container resize
+  const showActionMore = actionCollapseLevel > 0;
+  const showTagFilterInline = actionCollapseLevel < 5;
+  const showBringIn = actionCollapseLevel < 4;       // collapses last (of the four)
+  const showTurnInto = actionCollapseLevel < 3;
+  const showSecondBrain = actionCollapseLevel < 2;
+  const showExpand = actionCollapseLevel < 1;        // collapses first (tail)
+  const actionSqueeze = actionCollapseLevel >= 6;
 
   // Header/title-row responsive overflow (2026-07-14 fix).
   // The prior overflow fix (above) only covered the lower ACTION toolbar. The
@@ -1535,7 +1581,7 @@ export default function OutlinePane({
       })()}
 
       <TooltipProvider delayDuration={300}>
-        <div ref={actionToolbarRef} data-testid="outline-action-toolbar" className="flex-shrink-0 flex flex-nowrap items-center justify-start gap-1.5 px-2 py-1.5 bg-[hsl(var(--toolbar-bg))] rounded-xl border border-border/30 min-w-0 overflow-hidden">
+        <div ref={actionToolbarRef} data-testid="outline-action-toolbar" className={cn("flex-shrink-0 flex flex-nowrap items-center justify-start px-2 py-1.5 bg-[hsl(var(--toolbar-bg))] rounded-xl border border-border/30 min-w-0 overflow-hidden", actionSqueeze ? "gap-1" : "gap-1.5")}>
 
           {/* Keyboard Delete confirmation dialog — the Delete key handler opens
               this via setShowDeleteDialog(true). The per-node Delete button lives
@@ -1632,7 +1678,7 @@ export default function OutlinePane({
             </DropdownMenu>
           </span>
 
-          <Separator orientation="vertical" className="h-6 mx-0.5 shrink-0" />
+          <Separator orientation="vertical" className={cn("h-6 mx-0.5 shrink-0", actionSqueeze && "hidden")} />
 
           {/* 2. Find / Search */}
           <Tooltip>
@@ -1646,7 +1692,10 @@ export default function OutlinePane({
             <TooltipContent>{!currentOutline ? 'Search outline — open an outline first' : `Search outline${!isMobile ? ' (⌘F)' : ''}`}</TooltipContent>
           </Tooltip>
 
-          {/* 2b. Filter by tag */}
+          {/* 2b. Filter by tag — folds into "⋯ More" only as the LAST resort
+                 (level 5, phone-size windows), so the red Help button can stay
+                 on-screen at every window width. */}
+          {showTagFilterInline && (
           <Tooltip>
             <TooltipTrigger asChild>
               <span tabIndex={-1} className="inline-flex shrink-0">
@@ -1675,6 +1724,7 @@ export default function OutlinePane({
                   : 'Filter by tag'}
             </TooltipContent>
           </Tooltip>
+          )}
 
           {/* 3. AI */}
           <AIMenu
@@ -1735,7 +1785,7 @@ export default function OutlinePane({
           )}
 
           {(showBringIn || showTurnInto) && (showSecondBrain || showExpand) && (
-            <Separator orientation="vertical" className="h-6 mx-0.5 shrink-0" />
+            <Separator orientation="vertical" className={cn("h-6 mx-0.5 shrink-0", actionSqueeze && "hidden")} />
           )}
 
           {/* 6. Second Brain menu. Collapsible middle (2nd from tail). */}
@@ -1816,6 +1866,17 @@ export default function OutlinePane({
                 <TooltipContent>More tools</TooltipContent>
               </Tooltip>
               <DropdownMenuContent align="end" className="w-60 p-0.5 max-h-[70vh] overflow-y-auto">
+                {!showTagFilterInline && (
+                  <DropdownMenuItem
+                    onSelect={() => setIsTagFilterOpen(prev => !prev)}
+                    disabled={!currentOutline}
+                    className="cursor-pointer"
+                    data-testid="more-menu-tag-filter"
+                  >
+                    <Tag className="mr-2 h-4 w-4" strokeWidth={2.5} /> Filter by Tag
+                    {activeTags.length > 0 ? ` (${activeTags.length} active)` : ''}
+                  </DropdownMenuItem>
+                )}
                 {!showBringIn && (
                   <DropdownMenuSub>
                     <DropdownMenuSubTrigger className="cursor-pointer">
@@ -1882,7 +1943,7 @@ export default function OutlinePane({
             />
           </SettingsDialog>
 
-          <Separator orientation="vertical" className="h-6 mx-0.5 shrink-0" />
+          <Separator orientation="vertical" className={cn("h-6 mx-0.5 shrink-0", actionSqueeze && "hidden")} />
 
           {/* 8. HELP — its own RED button, far right, ALWAYS visible and PINNED
                  (never collapses, never moves), with a pull-down for Help,

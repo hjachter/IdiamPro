@@ -647,6 +647,36 @@ export default function OutlinePro() {
   const [currentMatchType, setCurrentMatchType] = useState<'name' | 'content' | 'both' | null>(null);
   const [currentMatchIndex, setCurrentMatchIndex] = useState<number>(0);
 
+  // Window width tracking (2026-09 layout audit / iPadOS 27 readiness) — used
+  // for the overlay-sidebar breakpoint and the outline column's minimum width.
+  const [viewportW, setViewportW] = useState<number>(() =>
+    typeof window !== 'undefined' ? window.innerWidth : 1440
+  );
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const update = () => setViewportW(window.innerWidth);
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
+  // The outline column's minimum, expressed as the percentage that equals
+  // ~300 CSS px at the current window width. A pure 20% minimum let the column
+  // shrink to ~200px in small windows, where even the fully-folded pinned
+  // toolbar (New / Search / AI / ⋯More / Help) cannot fit and the red Help
+  // button was cut off. 300px always fits the pinned set with margin.
+  const outlineMinPct = Math.min(50, Math.max(20, (300 / Math.max(viewportW, 320)) * 100));
+
+  // When the window shrinks, a previously-saved outline-column size can fall
+  // below the new pixel-derived minimum (outlineMinPct). The library only
+  // enforces minSize during drags, so nudge the panel up programmatically.
+  const outlinePanelRef = useRef<React.ElementRef<typeof ResizablePanel>>(null);
+  useEffect(() => {
+    const p = outlinePanelRef.current;
+    if (p && typeof p.getSize === 'function' && p.getSize() < outlineMinPct - 0.5) {
+      p.resize(outlineMinPct);
+    }
+  }, [outlineMinPct]);
+
   // Panel size preference (sticky)
   const [outlinePanelSize, setOutlinePanelSize] = useState<number>(() => {
     if (typeof window !== 'undefined') {
@@ -664,6 +694,15 @@ export default function OutlinePro() {
   }, []);
 
   const isMobile = useIsMobile();
+  // Overlay-sidebar breakpoint (2026-09 layout audit / iPadOS 27 readiness).
+  // Between the phone layout (<768) and a comfortable desktop (>=1150) an
+  // INLINE sidebar crushes the middle outline column to ~150-230px: every node
+  // name truncates to "…" and the pinned toolbar buttons (incl. the red Help)
+  // clip. In that band the sidebar instead OVERLAYS the content — same toggle
+  // button, same Cmd+B, same width, dismissible by clicking outside — so the
+  // outline keeps its full usable width (iPad portrait, split view, small
+  // desktop windows). At >=1150px nothing changes.
+  const sidebarOverlays = !isMobile && viewportW < 1150;
   const isInitialLoadDone = useRef(false);
   const pendingSaveRef = useRef<Promise<void> | null>(null);
   const hasUnsavedChangesRef = useRef(false);
@@ -6170,26 +6209,58 @@ export default function OutlinePro() {
     <div className="flex h-screen w-full">
       <DataProtectionNotice />
       <WelcomeShowcase />
-      {/* Collapsible Sidebar */}
+      {/* Collapsible Sidebar. In the narrow-window band (see sidebarOverlays)
+          it floats OVER the content with a dismissible backdrop instead of
+          squeezing the outline column; otherwise it sits inline as always. */}
       {isSidebarOpen && (
-        <div className="relative flex-shrink-0" style={{ width: sidebarWidth }}>
-          <SidebarPane
-            outlines={outlines}
-            currentOutlineId={currentOutlineId}
-            onSelectOutline={handleSelectOutline}
-            onCreateOutline={handleCreateOutline}
-            onCreateFromTemplate={handleCreateFromTemplate}
-            onDeleteOutline={handleDeleteOutline}
-            onRenameOutline={handleRenameOutline}
-            onOpenGuide={handleOpenGuide}
-            onShowWelcome={handleShowWelcome}
-          />
-          {/* Resize handle */}
+        <>
+          {sidebarOverlays && (
+            <div
+              className="fixed inset-0 z-30 bg-black/40"
+              aria-hidden="true"
+              onClick={() => setIsSidebarOpen(false)}
+              data-testid="sidebar-overlay-backdrop"
+            />
+          )}
           <div
-            className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-primary/30 active:bg-primary/50 transition-colors"
-            onMouseDown={handleSidebarMouseDown}
-          />
-        </div>
+            className={
+              sidebarOverlays
+                ? 'fixed left-0 top-0 bottom-0 z-40 overflow-hidden bg-background border-r shadow-2xl'
+                : 'relative flex-shrink-0 overflow-hidden'
+            }
+            style={{
+              width: sidebarOverlays
+                ? Math.min(
+                    sidebarWidth,
+                    typeof window !== 'undefined' ? window.innerWidth - 64 : sidebarWidth
+                  )
+                : sidebarWidth,
+            }}
+            data-sidebar-mode={sidebarOverlays ? 'overlay' : 'inline'}
+          >
+            <SidebarPane
+              outlines={outlines}
+              currentOutlineId={currentOutlineId}
+              onSelectOutline={(outlineId: string) => {
+                handleSelectOutline(outlineId);
+                // Overlay covers the content, so picking an outline dismisses
+                // it (standard sheet behavior); inline mode stays put.
+                if (sidebarOverlays) setIsSidebarOpen(false);
+              }}
+              onCreateOutline={handleCreateOutline}
+              onCreateFromTemplate={handleCreateFromTemplate}
+              onDeleteOutline={handleDeleteOutline}
+              onRenameOutline={handleRenameOutline}
+              onOpenGuide={handleOpenGuide}
+              onShowWelcome={handleShowWelcome}
+            />
+            {/* Resize handle */}
+            <div
+              className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-primary/30 active:bg-primary/50 transition-colors"
+              onMouseDown={handleSidebarMouseDown}
+            />
+          </div>
+        </>
       )}
 
       {/* Main content area */}
@@ -6664,7 +6735,7 @@ export default function OutlinePro() {
         </div>
       ) : (
         <>
-          <ResizablePanel defaultSize={outlinePanelSize} minSize={20}>
+          <ResizablePanel ref={outlinePanelRef} defaultSize={outlinePanelSize} minSize={outlineMinPct}>
             <div className="h-full overflow-hidden">
               <OutlinePane
                 outlines={outlines}

@@ -1202,19 +1202,22 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[760px] max-h-[85vh] overflow-y-auto">
-        <DialogHeader>
+      {/* Responsive shell (2026-09 layout audit): the dialog is a flex COLUMN —
+          header and footer stay pinned and visible at every window size, and
+          only the middle panel scrolls. This guarantees the Close button is
+          always reachable even in very short windows (e.g. 900x500), and the
+          whole dialog stays usable down to a 320px-wide phone/slide-over. */}
+      <DialogContent className="sm:max-w-[760px] max-h-[85vh] flex flex-col overflow-hidden p-4 sm:p-6">
+        <DialogHeader className="shrink-0 pr-10">
           <DialogTitle>Settings</DialogTitle>
           <DialogDescription>
             Configure IdeaM application settings
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col sm:flex-row gap-4 py-4">
-          {/* Category navigation. On desktop this is a vertical left column;
-              on narrow screens it becomes a horizontal scrollable strip. */}
-          <nav className="flex sm:flex-col gap-1 overflow-x-auto sm:w-44 sm:shrink-0 -mx-1 px-1 sm:mx-0 sm:px-0">
-            {([
+        <div className="flex flex-col sm:flex-row gap-4 py-4 flex-1 min-h-0 min-w-0">
+          {(() => {
+            const categories = ([
               { id: 'general', label: 'General', icon: SettingsIcon },
               { id: 'professional', label: 'Professional Customization', icon: Briefcase },
               { id: 'ai', label: 'AI', icon: Sparkles },
@@ -1225,34 +1228,75 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
               ...(showDeveloper
                 ? [{ id: 'developer' as SettingsCategory, label: 'Developer', icon: FlaskConical }]
                 : []),
-            ] as { id: SettingsCategory; label: string; icon: typeof Shield }[]).map((cat) => {
-              const Icon = cat.icon;
-              const active = activeCategory === cat.id;
-              const isDev = cat.id === 'developer';
-              return (
-                <button
-                  key={cat.id}
-                  type="button"
-                  data-testid={`settings-nav-${cat.id}`}
-                  onClick={() => setActiveCategory(cat.id)}
-                  className={
-                    `flex items-center gap-2 whitespace-nowrap rounded-md px-3 min-h-[44px] text-sm font-medium text-left transition-colors ` +
-                    (active
-                      ? (isDev ? 'bg-amber-500 text-amber-950' : 'bg-primary text-primary-foreground')
-                      : (isDev
-                          ? 'text-amber-700 dark:text-amber-400 hover:bg-amber-500/10'
-                          : 'text-muted-foreground hover:bg-muted'))
-                  }
-                >
-                  <Icon className="h-4 w-4 shrink-0" />
-                  <span>{cat.label}</span>
-                </button>
-              );
-            })}
-          </nav>
+            ] as { id: SettingsCategory; label: string; icon: typeof Shield }[]);
+            return (
+              <>
+                {/* NARROW windows (< 640px): the section list becomes a compact
+                    dropdown selector — the previous horizontal strip ran off the
+                    right edge and made Account/Backups/About unreachable. Every
+                    section stays available; nothing is dropped. */}
+                <div className="sm:hidden shrink-0">
+                  <Select
+                    value={activeCategory}
+                    onValueChange={(v) => setActiveCategory(v as SettingsCategory)}
+                  >
+                    <SelectTrigger
+                      className="w-full min-h-[44px]"
+                      aria-label="Settings section"
+                      data-testid="settings-nav-select"
+                    >
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map((cat) => {
+                        const Icon = cat.icon;
+                        return (
+                          <SelectItem key={cat.id} value={cat.id} data-testid={`settings-nav-item-${cat.id}`}>
+                            <span className="flex items-center gap-2">
+                              <Icon className="h-4 w-4 shrink-0" />
+                              {cat.label}
+                            </span>
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-          {/* Panel content — only the active category's sections render. */}
-          <div className="flex-1 min-w-0 max-h-[70vh] overflow-y-auto pr-1 space-y-6">
+                {/* Desktop / wide windows: unchanged vertical left rail. */}
+                <nav className="hidden sm:flex sm:flex-col gap-1 sm:w-44 sm:shrink-0 sm:overflow-y-auto">
+                  {categories.map((cat) => {
+                    const Icon = cat.icon;
+                    const active = activeCategory === cat.id;
+                    const isDev = cat.id === 'developer';
+                    return (
+                      <button
+                        key={cat.id}
+                        type="button"
+                        data-testid={`settings-nav-${cat.id}`}
+                        onClick={() => setActiveCategory(cat.id)}
+                        className={
+                          `flex items-center gap-2 whitespace-nowrap rounded-md px-3 min-h-[44px] text-sm font-medium text-left transition-colors shrink-0 ` +
+                          (active
+                            ? (isDev ? 'bg-amber-500 text-amber-950' : 'bg-primary text-primary-foreground')
+                            : (isDev
+                                ? 'text-amber-700 dark:text-amber-400 hover:bg-amber-500/10'
+                                : 'text-muted-foreground hover:bg-muted'))
+                        }
+                      >
+                        <Icon className="h-4 w-4 shrink-0" />
+                        <span>{cat.label}</span>
+                      </button>
+                    );
+                  })}
+                </nav>
+              </>
+            );
+          })()}
+
+          {/* Panel content — only the active category's sections render. This is
+              the ONLY scrolling region, so header/nav/footer never scroll away. */}
+          <div className="flex-1 min-w-0 min-h-0 overflow-y-auto pr-1 space-y-6">
 
           {activeCategory === 'general' && (<>
           {/* Appearance Section */}
@@ -2669,7 +2713,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
           </div>
         </div>
 
-        <div className="flex justify-end gap-2">
+        <div className="flex justify-end gap-2 shrink-0">
           <Button variant="outline" onClick={() => setOpen(false)}>
             Close
           </Button>

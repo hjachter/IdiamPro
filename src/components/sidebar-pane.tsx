@@ -575,8 +575,14 @@ export default function SidebarPane({
         </div>
       )}
 
-      {/* Scrollable outline list at bottom */}
-      <ScrollArea className="flex-1">
+      {/* Scrollable outline list at bottom.
+          The two [&_...] variants fix a horizontal-blowout bug (2026-09 layout
+          audit): Radix ScrollArea wraps content in a `display:table` div that
+          sizes to the LONGEST outline name (~900px), so rows poked far past the
+          sidebar edge and left stray clipped text over the outline pane. Forcing
+          that wrapper to `display:block; width:100%` keeps rows exactly as wide
+          as the sidebar so names truncate properly. Vertical scroll unaffected. */}
+      <ScrollArea className="flex-1 [&_[data-radix-scroll-area-viewport]>div]:!block [&_[data-radix-scroll-area-viewport]>div]:w-full">
         <div className="p-1">
           {/* User Guide — built-in row. Tooltip explains why right-click /
               rename / delete are silently ignored. */}

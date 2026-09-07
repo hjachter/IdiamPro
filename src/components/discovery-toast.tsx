@@ -42,7 +42,7 @@ function DiscoveryToastCard({
   const checkboxId = `discovery-never-${hintId}`;
   return (
     <div
-      className="pointer-events-auto group relative w-[calc(100vw-2rem)] sm:w-96 rounded-lg border border-violet-500/30 bg-popover shadow-lg ring-1 ring-violet-500/10 p-4 animate-in slide-in-from-bottom-2 fade-in duration-300"
+      className="pointer-events-auto group relative w-[calc(100vw-2rem)] max-w-[calc(100vw-2rem)] sm:w-96 rounded-lg border border-violet-500/30 bg-popover shadow-lg ring-1 ring-violet-500/10 p-4 animate-in slide-in-from-bottom-2 fade-in duration-300"
       data-testid={`discovery-toast-${hintId}`}
       role="status"
     >
@@ -118,7 +118,7 @@ export function DiscoveryToastStack() {
       // Fixed bottom-right on desktop; centered & narrower on mobile.
       // High z-index so the discovery cards layer above modal backdrops
       // are intentionally avoided — these only show on the main canvas.
-      className="pointer-events-none fixed bottom-4 right-4 z-[60] flex max-w-sm flex-col-reverse gap-3 sm:max-w-md"
+      className="pointer-events-none fixed bottom-4 right-4 z-[60] flex max-w-[calc(100vw-2rem)] flex-col-reverse items-end gap-3 sm:max-w-md"
       aria-label="Discovery tips"
       data-testid="discovery-toast-stack"
     >

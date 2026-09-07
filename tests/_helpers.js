@@ -118,6 +118,12 @@ async function openSettings(page) {
       const item = page.locator('[role="menuitem"]:has-text("Settings")');
       if ((await item.count().catch(() => 0)) > 0) {
         await item.first().click().catch(() => {});
+      } else {
+        // No Settings entry in this menu — close it again. Leaving a Radix
+        // dropdown open blocks every later click in the suite (its modal
+        // focus guard swallows pointer events page-wide).
+        await page.keyboard.press('Escape').catch(() => {});
+        await page.waitForTimeout(250);
       }
     }
   } catch {}
