@@ -48,7 +48,7 @@ const PLANS: PlanCard[] = [
   {
     id: 'free',
     name: 'Free (BYOK)',
-    tagline: 'Unlimited AI, free forever — bring your own key.',
+    tagline: 'Bring your own key — everyday AI is typically free, and you stay in control.',
     monthlyPrice: '$0',
     monthlyPriceNote: 'forever',
     features: [
@@ -174,9 +174,9 @@ export default function UpgradePage() {
             Pick the plan that fits.
           </h1>
           <p className="mx-auto mt-3 max-w-2xl text-base text-muted-foreground lg:text-lg">
-            Get unlimited AI, free forever — bring your own key and you pay your
-            provider directly, we take nothing. Prefer AI included? Student and
-            Pro add it in — cancel anytime.
+            Bring your own key and everyday AI is typically free — you pay your
+            provider directly, pay-as-you-go, and we take nothing. Prefer AI
+            included? Student and Pro add it in — cancel anytime.
           </p>
         </div>
 
@@ -347,7 +347,7 @@ export default function UpgradePage() {
                   </th>
                   <th className="p-3 font-medium border-l">
                     <div className="font-semibold">BYOK</div>
-                    <div className="text-xs font-normal text-muted-foreground mt-0.5">Your key, unlimited</div>
+                    <div className="text-xs font-normal text-muted-foreground mt-0.5">Your key, pay-as-you-go</div>
                     <div className="text-xs font-normal mt-1">Free</div>
                   </th>
                 </tr>
