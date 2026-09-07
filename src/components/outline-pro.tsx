@@ -38,6 +38,7 @@ import { useUpgradePrompt } from '@/components/upgrade-prompt';
 import { fireDiscovery } from '@/hooks/use-discovery';
 import { useConfirmDialog } from '@/hooks/use-confirm-dialog';
 import { useAIUsageGate } from '@/lib/use-ai-usage-gate';
+import { useHeavyOpApproval } from '@/components/heavy-op-confirm-dialog';
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction } from './ui/alert-dialog';
 import { Button } from './ui/button';
 import { loadStorageData, saveAllOutlines, migrateToFileSystem, deleteOutline, loadSingleOutlineOnDemand, saveUnmergeBackup, loadUnmergeBackup, deleteUnmergeBackup, type MigrationConflict, type ConflictResolution, type LazyOutline } from '@/lib/storage-manager';
@@ -754,6 +755,11 @@ export default function OutlinePro() {
   const pmEnabled = useProjectManagementEnabled();
   const { promptUpgrade } = useUpgradePrompt();
   const { gate: aiUsageGate } = useAIUsageGate();
+  // P2 heavy-op pre-run approval (confirm-before-spend). Used by the bulk
+  // "Create Content for Descendants" action; the slice-4 provisional review
+  // (review-before-commit) still runs afterwards — they answer different
+  // questions and BOTH stay.
+  const { approveHeavyOp, heavyOpDialog } = useHeavyOpApproval();
 
   /**
    * Phase 3 gate: enforce the monthly hosted cloud-AI quota + cloud-AI-by-tier
@@ -3746,10 +3752,6 @@ export default function OutlinePro() {
     if (!currentOutline) return;
     if (!checkAiConsent(() => handleGenerateContentForChildren(parentNodeId))) return;
 
-    // Tier-enforcement gate (#33): one "Create Content for Descendants"
-    // action = one generation, regardless of how many descendants get filled.
-    if (!aiUsageGate({ feature: 'createContentForDescendants' })) return;
-
     const nodes = currentOutline.nodes;
     const parentNode = nodes[parentNodeId];
     if (!parentNode || !parentNode.childrenIds || parentNode.childrenIds.length === 0) {
@@ -3784,6 +3786,22 @@ export default function OutlinePro() {
       });
       return;
     }
+
+    // P2 heavy-op approval (confirm-before-spend): one honest pre-run confirm
+    // with the exact section count, BEFORE anything runs or is recorded.
+    // Cancel = nothing runs, nothing billed, no ledger entry. This sits in
+    // front of the slice-4 provisional review below (review-before-commit) —
+    // both stay; they answer different questions. Per-op "Don't ask again"
+    // and Professional mode bypass are handled inside approveHeavyOp.
+    const approved = await approveHeavyOp('createContentForDescendants', {
+      scopeNote: `Writes content for ${totalDescendants} section${totalDescendants === 1 ? '' : 's'} under "${parentNode.name || 'this item'}" — one generation per section.`,
+    });
+    if (!approved) return;
+
+    // Tier-enforcement gate (#33): one "Create Content for Descendants"
+    // action = one generation, regardless of how many descendants get filled.
+    // Runs AFTER the approval so a cancelled run records nothing.
+    if (!aiUsageGate({ feature: 'createContentForDescendants' })) return;
 
     aiCancelledRef.current = false;
     setIsLoadingAI(true);
@@ -3932,7 +3950,7 @@ export default function OutlinePro() {
     // ONE review surface over the whole batch: per-node keep/discard
     // checkboxes + approve-all. Nothing commits until the user approves.
     openBulkContentReview();
-  }, [currentOutline, currentOutlineId, getAncestorPath, plan, toast, aiUsageGate, beginBulkContentSession, addProvisionalBulkContent, openBulkContentReview]);
+  }, [currentOutline, currentOutlineId, getAncestorPath, plan, toast, aiUsageGate, approveHeavyOp, beginBulkContentSession, addProvisionalBulkContent, openBulkContentReview]);
 
   // Apply ingest preview - creates nodes from preview
   const handleApplyIngestPreview = useCallback(async (preview: IngestPreview): Promise<void> => {
@@ -5665,6 +5683,9 @@ export default function OutlinePro() {
           onCancel={discardBulkContent}
         />
 
+        {/* P2 heavy-op approval dialog (Create Content for Descendants). */}
+        {heavyOpDialog}
+
         {/* Keyboard Shortcuts Dialog */}
         <KeyboardShortcutsDialog
           open={isShortcutsOpen}
@@ -6523,6 +6544,9 @@ export default function OutlinePro() {
         onConsent={handleAiConsentGranted}
         onDecline={handleAiConsentDeclined}
       />
+
+      {/* P2 heavy-op approval dialog (Create Content for Descendants). */}
+      {heavyOpDialog}
 
       <HelpChatDialog
         open={isHelpChatOpen}
