@@ -36,6 +36,19 @@ export interface VideoSlide {
   /** 'cover' = the opening title slide; 'content' = a regular body slide. */
   kind?: 'cover' | 'content';
   /**
+   * Which outline node this slide came from (the cover carries the chapter
+   * node id). The derivation always knew this — recording it is the
+   * traceability foundation of the content-compiler video adapter (Phase 3A):
+   * the compile manifest maps every scene back to its node.
+   */
+  sourceNodeId?: string;
+  /**
+   * EVERY node id whose content shows on this slide: the node itself plus the
+   * children whose names appear as its bullets/agenda. Used by the manifest
+   * for scene → node traceability (and later staleness UX).
+   */
+  sourceNodeIds?: string[];
+  /**
    * Optional Mermaid definition of a mind map for this slide's subtree. Only
    * SECTION slides (a node that HAS children) carry one; leaf slides and the
    * cover slide leave it undefined. The Electron pipeline renders it to a
@@ -147,16 +160,20 @@ export function deriveSlidesFromChapter(
 
   // --- Cover slide: the chapter node itself. ---
   const chapterProse = stripHtml(chapter.content);
-  const agenda = liveChildIds(nodes, chapterId)
-    .map((id) => nodes[id]?.name?.trim())
-    .filter((n): n is string => !!n)
-    .slice(0, MAX_BULLETS)
-    .map(tidyBullet);
+  // Keep the (id, name) pairing so the agenda's source node ids are exactly
+  // the children whose names actually appear on the cover.
+  const agendaPairs = liveChildIds(nodes, chapterId)
+    .map((id) => ({ id, name: nodes[id]?.name?.trim() }))
+    .filter((p): p is { id: string; name: string } => !!p.name)
+    .slice(0, MAX_BULLETS);
+  const agenda = agendaPairs.map((p) => tidyBullet(p.name));
   slides.push({
     title: chapter.name || 'Untitled',
     bullets: agenda,
     narration: [chapter.name, chapterProse].filter(Boolean).join('. '),
     kind: 'cover',
+    sourceNodeId: chapterId,
+    sourceNodeIds: [chapterId, ...agendaPairs.map((p) => p.id)],
   });
 
   // Build a content slide for a single node.
@@ -164,11 +181,13 @@ export function deriveSlidesFromChapter(
     const child = nodes[childId];
     const prose = stripHtml(child.content);
     const childIds = liveChildIds(nodes, childId);
-    const grandchildNames = childIds
-      .map((id) => nodes[id]?.name?.trim())
-      .filter((n): n is string => !!n)
-      .slice(0, MAX_BULLETS)
-      .map(tidyBullet);
+    // Keep the (id, name) pairing so sourceNodeIds lists exactly the
+    // grandchildren whose names appear as this slide's bullets.
+    const grandchildPairs = childIds
+      .map((id) => ({ id, name: nodes[id]?.name?.trim() }))
+      .filter((p): p is { id: string; name: string } => !!p.name)
+      .slice(0, MAX_BULLETS);
+    const grandchildNames = grandchildPairs.map((p) => tidyBullet(p.name));
 
     // Section slides (a node that HAS children) carry a mind map of their
     // subtree; leaf slides stay text-only. Capped so it stays legible.
@@ -198,6 +217,10 @@ export function deriveSlidesFromChapter(
       narration,
       kind: 'content',
       mindmapMermaid,
+      sourceNodeId: childId,
+      sourceNodeIds: grandchildNames.length > 0
+        ? [childId, ...grandchildPairs.map((p) => p.id)]
+        : [childId],
     };
   };
 

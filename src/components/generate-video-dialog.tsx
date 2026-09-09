@@ -62,6 +62,14 @@ import {
   saveVideoStyle,
   type VideoStyle,
 } from '@/lib/video/video-style';
+import {
+  buildVideoManifest,
+  diffVideoScenes,
+  loadVideoManifest,
+  planVideoScenes,
+  saveVideoManifest,
+  videoOptionsFingerprint,
+} from '@/lib/video/video-compiler';
 
 // Detail (depth) control — how many levels of the outline become their own
 // slides. Value-based labels; the number is the maxDepth passed to the slide
@@ -275,13 +283,17 @@ export default function GenerateVideoDialog({
     return { allowed: false, watermark: false };
   }, [isPro, showAllUsedUpgrade]);
 
-  // Load the saved look on mount so the dialog defaults to the user's last
-  // customization. Persist on every change so it sticks for next time.
+  // Load the saved look each time the dialog OPENS so it always defaults to
+  // the user's latest customization. (Mount-time-only reads went stale: the
+  // dialog is mounted in both the desktop and mobile layouts, so a choice
+  // saved through one instance never reached the other until a full reload.)
+  // Persist on every change so it sticks for next time.
   useEffect(() => {
+    if (!open) return;
     setStyle(loadVideoStyle());
     setDepthKey(loadDepthKey());
     setVisualsSel(loadVisualsSel());
-  }, []);
+  }, [open]);
 
   // While a render is running, tick once a second so the time-remaining line
   // stays live even between the pipeline's per-slide progress events.
@@ -344,6 +356,33 @@ export default function GenerateVideoDialog({
     return deriveSlidesFromChapter(outline.nodes, selectedNodeId, { maxDepth });
   }, [outline, selectedNodeId, maxDepth]);
 
+  // ---- Content-compiler Phase 3A ----
+  // The options fingerprint covers everything that shapes the finished video:
+  // style/branding, visuals, depth, watermark, and whether narration would run
+  // on a premium AI voice vs. the free local voice. A previous version is only
+  // offered for selective reuse when ALL of it matches (never a wrong reuse).
+  const currentOptionsFingerprint = useCallback(() => videoOptionsFingerprint({
+    style,
+    visuals: visualsSel,
+    maxDepth,
+    watermark: !isPro,
+    premiumNarration: hasOpenaiKey,
+  }), [style, visualsSel, maxDepth, isPro, hasOpenaiKey]);
+
+  // A previous version of THIS video with the SAME settings → offer
+  // "Update Changed" next to "Start Fresh". Value-based copy only; the
+  // manifest/fingerprint vocabulary never reaches the UI.
+  const previousVersion = useMemo(() => {
+    if (!open || !desktop || !outline || !selectedNodeId) return null;
+    const manifest = loadVideoManifest(selectedNodeId);
+    if (!manifest) return null;
+    if (manifest.optionsFingerprint !== currentOptionsFingerprint()) return null;
+    const plan = planVideoScenes(outline.nodes, selectedNodeId, { maxDepth });
+    if (!plan) return null;
+    const diff = diffVideoScenes(plan, manifest);
+    return { manifest, changed: diff.changed.length, total: diff.total };
+  }, [open, desktop, outline, selectedNodeId, maxDepth, currentOptionsFingerprint]);
+
   const slideCount = slides.length;
   const isLarge = slideCount > MANY_SLIDES;
   const hitCap = slideCount >= SLIDE_CAP;
@@ -364,10 +403,27 @@ export default function GenerateVideoDialog({
     onOpenChange(false);
   };
 
-  const handleGenerate = async () => {
-    if (!desktop || !chapterNode || slideCount === 0) return;
-    // Heavy-op approval FIRST — cancelling renders (and bills) nothing.
-    if (!(await approveHeavyOp('videoGeneration'))) return;
+  /**
+   * Run a render (content-compiler Phase 3A modes):
+   *  'fresh'  — first Generate / Start Fresh: every scene is honestly
+   *             re-rendered from scratch.
+   *  'update' — Update Changed: scenes whose outline content is untouched
+   *             reuse their existing clip; only changed scenes re-render,
+   *             then the video is re-stitched. Faster (and with premium
+   *             narration, cheaper on the user's key).
+   */
+  const handleGenerate = async (mode: 'fresh' | 'update' = 'fresh') => {
+    if (!desktop || !chapterNode || slideCount === 0 || !outline || !selectedNodeId) return;
+    // Sanity: an update needs a matching previous version; otherwise fresh.
+    const effectiveMode: 'fresh' | 'update' = mode === 'update' && previousVersion ? 'update' : 'fresh';
+    // Heavy-op approval FIRST — cancelling renders (and bills) nothing. On the
+    // update path the confirm carries an honest SCOPED note ("N of M scenes").
+    const scopeNote = effectiveMode === 'update' && previousVersion
+      ? (previousVersion.changed === 0
+          ? 'Nothing has changed since your last video — every scene is reused and the video is quickly reassembled.'
+          : `Updating ${previousVersion.changed} of ${previousVersion.total} scene${previousVersion.total === 1 ? '' : 's'} — unchanged scenes are reused, which is faster and cheaper.`)
+      : undefined;
+    if (!(await approveHeavyOp('videoGeneration', scopeNote ? { scopeNote } : undefined))) return;
     // Free-taste gate — Pro renders clean; free renders carry a watermark
     // until the 10-video lifetime allowance is spent, then the upgrade prompt.
     const decision = evaluateGate();
@@ -375,6 +431,8 @@ export default function GenerateVideoDialog({
     const watermark = decision.watermark;
     const api = (window as unknown as { electronAPI?: { generateSlideshowVideo?: (a: unknown) => Promise<{
       success: boolean; outputPath?: string; durationSeconds?: number; usedTts?: boolean; error?: string;
+      sceneResults?: Array<{ index: number; engine?: string; clipKey?: string; fromCache?: boolean; durationSeconds?: number } | null>;
+      cache?: { reused: number; generated: number };
     }> } }).electronAPI;
     if (!api?.generateSlideshowVideo) {
       setErrorMsg('The video generator is not available in this build.');
@@ -399,8 +457,13 @@ export default function GenerateVideoDialog({
     const stopProgress = () => { progressUnsubRef.current?.(); progressUnsubRef.current = null; };
 
     try {
+      // The scene plan pins scene ↔ node identity for the record we keep
+      // after the render; its slides are byte-identical to the preview memo's
+      // (same deriver, same options), so the render consumes the plan's copy.
+      const plan = planVideoScenes(outline.nodes, selectedNodeId, { maxDepth });
+      const renderSlides = plan ? plan.scenes.map((s) => s.slide) : slides;
       const result = await api.generateSlideshowVideo({
-        slides,
+        slides: renderSlides,
         voice: style.voice,
         openaiApiKey: getUserApiKey('openai') || undefined,
         visuals: visualsSel,
@@ -411,6 +474,11 @@ export default function GenerateVideoDialog({
           logoDataUrl: style.logoDataUrl,
           watermark,
         },
+        // Phase 3A: "Start Fresh" honestly re-renders every scene; "Update
+        // Changed" reuses the finished clip of any scene whose content is
+        // untouched. Both record clips for next time.
+        useSceneCache: true,
+        forceRegenerate: effectiveMode !== 'update',
       });
       stopProgress();
       if (!result?.success || !result.outputPath) {
@@ -418,6 +486,25 @@ export default function GenerateVideoDialog({
         setPhase('error');
         return;
       }
+      // Record the finished video (which nodes fed which scenes, each scene's
+      // clip reference) so the next generation can offer "Update Changed" and
+      // reuse everything that didn't change. Recording is an optimization —
+      // it must never break a successful render.
+      if (plan) {
+        try {
+          saveVideoManifest(buildVideoManifest({
+            plan,
+            optionsFingerprint: currentOptionsFingerprint(),
+            sceneResults: result.sceneResults,
+            outputPath: result.outputPath,
+          }));
+        } catch { /* ignore */ }
+      }
+      // Expose reuse accounting for automated verification (dev/testing only).
+      try {
+        (window as unknown as { __videoCacheStats?: unknown }).__videoCacheStats = result.cache ?? null;
+        (window as unknown as { __videoSceneResults?: unknown }).__videoSceneResults = result.sceneResults ?? null;
+      } catch { /* ignore */ }
       // Charge one free-video credit ONLY on a successful render (never on
       // failure/cancel). Pro renders are unlimited and don't touch the counter.
       if (watermark) {
@@ -498,6 +585,25 @@ export default function GenerateVideoDialog({
                 </p>
               )}
             </div>
+
+            {/* A previous version of this video exists (same settings) —
+                offer the cheaper selective update alongside a full rebuild. */}
+            {previousVersion && (
+              <div
+                data-testid="video-previous-version"
+                className="rounded-md border bg-muted/40 p-3 text-sm space-y-1"
+              >
+                <p className="font-medium">
+                  {previousVersion.changed > 0
+                    ? `You've made this video before — ${previousVersion.changed} of ${previousVersion.total} scene${previousVersion.total === 1 ? '' : 's'} ${previousVersion.changed === 1 ? 'has' : 'have'} changed since.`
+                    : 'You’ve made this video before, and nothing has changed since.'}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Only scenes you&rsquo;ve edited are re-rendered with <strong>Update Changed</strong> — faster,
+                  and with AI narration, cheaper on your key. <strong>Start Fresh</strong> rebuilds the whole video.
+                </p>
+              </div>
+            )}
 
             {/* Free "taste" allowance — shown only to non-Pro users. Pro users
                 are unlimited and unmarked, so they see no counter. */}
@@ -804,8 +910,29 @@ export default function GenerateVideoDialog({
                 <Sparkles className="h-4 w-4 mr-1" />
                 Upgrade to Pro
               </Button>
+            ) : previousVersion && phase === 'configure' ? (
+              <>
+                <Button
+                  variant="outline"
+                  data-testid="video-start-fresh"
+                  title="Rebuild the whole video from scratch"
+                  onClick={() => handleGenerate('fresh')}
+                  disabled={!canGenerate}
+                >
+                  Start Fresh
+                </Button>
+                <Button
+                  data-testid="video-update-changed"
+                  title="Re-render only the scenes whose outline content changed — unchanged scenes are reused"
+                  onClick={() => handleGenerate('update')}
+                  disabled={!canGenerate}
+                >
+                  <Video className="h-4 w-4 mr-1" />
+                  Update Changed
+                </Button>
+              </>
             ) : (
-              <Button onClick={handleGenerate} disabled={!canGenerate}>
+              <Button onClick={() => handleGenerate('fresh')} disabled={!canGenerate}>
                 <Video className="h-4 w-4 mr-1" />
                 {phase === 'error' ? 'Try again' : 'Generate'}
               </Button>
