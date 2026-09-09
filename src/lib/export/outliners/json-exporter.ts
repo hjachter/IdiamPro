@@ -53,9 +53,17 @@ export class JsonExporter extends BaseExporter {
 
     collect(rootNodeId);
 
+    // The subtree root becomes the root of the new outline — detach it from
+    // its old parent so the exported file doesn't carry a dangling parentId
+    // pointing at a node that isn't in the file.
+    if (nodes[rootNodeId]) {
+      nodes[rootNodeId] = { ...nodes[rootNodeId], parentId: null };
+    }
+
     const rootNode = outline.nodes[rootNodeId];
+    const { isGuide, isSecondBrain, derivedFromOutlineId, derivationLabel, ...rest } = outline;
     return {
-      ...outline,
+      ...rest,
       name: rootNode?.name || outline.name,
       rootNodeId,
       nodes: nodes as any,

@@ -24,15 +24,24 @@ export class NotionExporter extends BaseExporter {
     const includeContent = options?.includeContent ?? true;
     const maxDepth = options?.maxDepth;
 
-    this.traverseDepthFirst(nodes, root, (node, depth) => {
+    // Recursive build so every <details> toggle closes right after its OWN
+    // subtree. (The previous flat traversal appended all missing </details>
+    // tags at the end of the file, which nested later siblings inside earlier
+    // toggles — silently corrupting the structure Notion sees.)
+    const emit = (nodeId: string, depth: number): void => {
+      if (maxDepth !== undefined && depth > maxDepth) return;
+      const node = nodes[nodeId];
+      if (!node) return;
+
       const headingLevel = Math.min(depth + 1, 3); // Notion supports h1-h3
       const hasChildren = node.childrenIds && node.childrenIds.length > 0;
+      const isToggle = depth > 2 && hasChildren;
 
       if (depth <= 2) {
         // Use headings for top levels
         const heading = '#'.repeat(headingLevel);
         parts.push(`${heading} ${node.name}`);
-      } else if (hasChildren) {
+      } else if (isToggle) {
         // Use toggle (details) for deeper levels with children
         parts.push(`<details><summary><strong>${this.escapeHtml(node.name)}</strong></summary>`);
         parts.push('');
@@ -50,19 +59,23 @@ export class NotionExporter extends BaseExporter {
       }
 
       parts.push('');
-    }, maxDepth);
 
-    // Close any open toggle blocks
-    let result = parts.join('\n');
-    // Simple approach: count open/close details tags
-    const openCount = (result.match(/<details>/g) || []).length;
-    const closeCount = (result.match(/<\/details>/g) || []).length;
-    for (let i = 0; i < openCount - closeCount; i++) {
-      result += '</details>\n\n';
-    }
+      if (hasChildren) {
+        for (const childId of node.childrenIds!) {
+          emit(childId, depth + 1);
+        }
+      }
+
+      if (isToggle) {
+        parts.push('</details>');
+        parts.push('');
+      }
+    };
+
+    emit(root, 0);
 
     return {
-      data: result.trim() + '\n',
+      data: parts.join('\n').trim() + '\n',
       filename: this.getSuggestedFilename(outline, rootNodeId),
       mimeType: this.mimeType,
     };

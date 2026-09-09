@@ -35,7 +35,10 @@ export class MarkdownImporter extends BaseImporter {
     let lastHeadingNode: ParsedNode | null = null;
 
     for (const line of lines) {
-      const headingMatch = line.match(/^(#{1,6})\s+(.+)$/);
+      // `(.*)` (not `.+`) so a heading with an empty title — which our own
+      // Markdown exporter writes for empty-named nodes — is still a node
+      // instead of being silently dropped.
+      const headingMatch = line.match(/^(#{1,6})\s(.*)$/);
 
       if (headingMatch) {
         // Save accumulated content to previous heading
@@ -85,7 +88,17 @@ export class MarkdownImporter extends BaseImporter {
       root.content = text;
     }
 
-    const { outline, stats } = this.buildOutlineFromTree(root, root.name);
+    // If the document has exactly ONE top-level heading and no preamble text
+    // (the shape our own Markdown exporter writes — the outline's root node as
+    // a single "# Title"), use it directly as the root instead of nesting it
+    // under a synthetic wrapper. Without this, an IdeaM → Markdown → IdeaM
+    // round-trip silently pushed every node one level deeper.
+    const effectiveRoot =
+      root.children && root.children.length === 1 && !root.content
+        ? root.children[0]
+        : root;
+
+    const { outline, stats } = this.buildOutlineFromTree(effectiveRoot, effectiveRoot.name || root.name);
 
     return {
       outline,

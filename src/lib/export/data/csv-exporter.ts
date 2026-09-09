@@ -30,7 +30,7 @@ export class CsvExporter extends BaseExporter {
       headers.push('Content');
     }
     if (options?.includeMetadata) {
-      headers.push('Type', 'ID');
+      headers.push('Type', 'ID', 'Parent ID', 'Tags', 'Color', 'Completed');
     }
     rows.push(headers);
 
@@ -51,6 +51,10 @@ export class CsvExporter extends BaseExporter {
       if (options?.includeMetadata) {
         row.push(node.type || 'default');
         row.push(node.id);
+        row.push(node.parentId || '');
+        row.push(node.metadata?.tags?.join(',') || '');
+        row.push(node.metadata?.color && node.metadata.color !== 'default' ? node.metadata.color : '');
+        row.push(node.metadata?.isCompleted === undefined ? '' : String(node.metadata.isCompleted));
       }
 
       rows.push(row);

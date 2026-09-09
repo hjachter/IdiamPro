@@ -9,6 +9,9 @@ interface JsonTreeNode {
   prefix?: string;
   content?: string;
   type?: string;
+  tags?: string[];
+  color?: string;
+  completed?: boolean;
   children?: JsonTreeNode[];
 }
 
@@ -76,6 +79,13 @@ export class JsonTreeExporter extends BaseExporter {
 
     if (includeMetadata && node.type && node.type !== 'document') {
       treeNode.type = node.type;
+    }
+
+    // Metadata the export dialog promises ("tags, colors") — plus completion.
+    if (includeMetadata && node.metadata) {
+      if (node.metadata.tags?.length) treeNode.tags = [...node.metadata.tags];
+      if (node.metadata.color && node.metadata.color !== 'default') treeNode.color = node.metadata.color;
+      if (node.metadata.isCompleted !== undefined) treeNode.completed = node.metadata.isCompleted;
     }
 
     if (node.childrenIds && node.childrenIds.length > 0) {

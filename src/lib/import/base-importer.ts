@@ -93,6 +93,16 @@ export abstract class BaseImporter {
         childrenIds: [],
       };
 
+      // Carry recovered metadata (tags, color, completion) through so a
+      // round-trip doesn't silently drop what the source file preserved.
+      if (parsed.metadata) {
+        const meta: NonNullable<OutlineNode['metadata']> = {};
+        if (parsed.metadata.tags?.length) meta.tags = [...parsed.metadata.tags];
+        if (parsed.metadata.color) meta.color = parsed.metadata.color as NonNullable<OutlineNode['metadata']>['color'];
+        if (parsed.metadata.isCompleted !== undefined) meta.isCompleted = parsed.metadata.isCompleted;
+        if (Object.keys(meta).length > 0) node.metadata = meta;
+      }
+
       nodes[id] = node;
 
       if (parsed.children && parsed.children.length > 0) {

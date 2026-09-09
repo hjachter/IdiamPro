@@ -28,6 +28,14 @@ export interface ParsedNode {
   content?: string;
   type?: NodeType;
   children?: ParsedNode[];
+  /** Metadata recovered from the source file (tags, color, completion, …).
+   *  Carried through buildOutlineFromTree so round-trips don't silently drop
+   *  what an exporter faithfully wrote out. */
+  metadata?: {
+    tags?: string[];
+    color?: string;
+    isCompleted?: boolean;
+  };
 }
 
 export const DEFAULT_IMPORT_OPTIONS: ImportOptions = {

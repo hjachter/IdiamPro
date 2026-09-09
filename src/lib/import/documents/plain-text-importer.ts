@@ -118,6 +118,7 @@ export class PlainTextImporter extends BaseImporter {
     // Remove common list prefixes
     return text
       .replace(/^[-*•]\s+/, '')           // Bullet points
+      .replace(/^\d+(\.\d+)+\.?\s+/, '')   // Hierarchical prefixes ("1.2.3 ") — what our own plain-text export writes
       .replace(/^\d+[.)]\s+/, '')          // Numbered lists
       .replace(/^\[[xX\s]\]\s+/, '')       // Checkboxes
       .trim();

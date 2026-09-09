@@ -23,9 +23,10 @@ export class OpmlExporter extends BaseExporter {
     const rootNode = nodes[root];
     const title = options?.title || rootNode?.name || outline.name;
     const includeContent = options?.includeContent ?? true;
+    const includeMetadata = options?.includeMetadata ?? false;
     const maxDepth = options?.maxDepth;
 
-    const body = this.buildOpmlOutline(nodes, root, includeContent, maxDepth);
+    const body = this.buildOpmlOutline(nodes, root, includeContent, includeMetadata, maxDepth);
     const dateCreated = new Date().toISOString();
 
     const opml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -52,6 +53,7 @@ ${body}
     nodes: Record<string, OutlineNode>,
     nodeId: string,
     includeContent: boolean,
+    includeMetadata: boolean,
     maxDepth?: number,
     depth: number = 0
   ): string {
@@ -79,13 +81,29 @@ ${body}
       attrs += ` _type="${this.escapeXml(node.type)}"`;
     }
 
+    // Metadata (tags, color, completion) as OPML custom attributes — custom
+    // "_"-prefixed attributes are legal OPML; other apps simply ignore them,
+    // while our own importer reads them back so a round-trip is not lossy.
+    if (includeMetadata && node.metadata) {
+      const meta = node.metadata;
+      if (meta.tags && meta.tags.length > 0) {
+        attrs += ` _tags="${this.escapeXml(meta.tags.join(','))}"`;
+      }
+      if (meta.color && meta.color !== 'default') {
+        attrs += ` _color="${this.escapeXml(meta.color)}"`;
+      }
+      if (meta.isCompleted !== undefined) {
+        attrs += ` _completed="${meta.isCompleted ? 'true' : 'false'}"`;
+      }
+    }
+
     // Build children
     const hasChildren = node.childrenIds && node.childrenIds.length > 0;
 
     if (hasChildren) {
       let xml = `${indent}<outline ${attrs}>\n`;
       for (const childId of node.childrenIds!) {
-        xml += this.buildOpmlOutline(nodes, childId, includeContent, maxDepth, depth + 1);
+        xml += this.buildOpmlOutline(nodes, childId, includeContent, includeMetadata, maxDepth, depth + 1);
       }
       xml += `${indent}</outline>\n`;
       return xml;
