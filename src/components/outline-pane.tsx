@@ -7,6 +7,8 @@ import type { PendingChangeMarks } from '@/components/proposed-changes-review';
 import AIMenu from './ai-menu';
 import OutlineSearch, { type SearchMatch } from './outline-search';
 import OutlineTagFilter from './outline-tag-filter';
+import OutlineViewPanel from './outline-view-panel';
+import { evaluateViewCriteria, type ViewCriterion, type ViewMatchMode } from '@/lib/view-criteria';
 import { getAllTags, filterNodesByTags, getTagFilterVisibleIds } from '@/lib/tag-utils';
 import { MultiSelectToolbar } from './multi-select-toolbar';
 import FileImportDialog from './file-import-dialog';
@@ -537,6 +539,53 @@ export default function OutlinePane({
       onExpandAncestors(Array.from(tagFilterVisibleIds));
     }
   }, [tagFilterVisibleIds, onExpandAncestors]);
+
+  // "Show Me" view state (P3, 2026-09-09) — natural-language filtering with
+  // visible, editable criteria, savable as named live views. Extends the 1988
+  // search-as-view-shaper: criteria produce matched node IDs; the SAME
+  // compress-don't-hide reshape (onApplySearchView) presents them.
+  const [isViewPanelOpen, setIsViewPanelOpen] = useState(false);
+  const [viewCriteria, setViewCriteria] = useState<ViewCriterion[]>([]);
+  const [viewMatchMode, setViewMatchMode] = useState<ViewMatchMode>('all');
+
+  // LIVE evaluation — recomputes whenever the outline's nodes change, so a
+  // newly added matching item is highlighted and counted immediately. This is
+  // a lens over current data, never a snapshot.
+  const viewMatchedIds = useMemo(() => {
+    if (!currentOutline || viewCriteria.length === 0) return [] as string[];
+    return evaluateViewCriteria(
+      currentOutline.nodes,
+      currentOutline.rootNodeId,
+      viewCriteria,
+      viewMatchMode,
+    );
+  }, [currentOutline, viewCriteria, viewMatchMode]);
+
+  // Reshape ONCE per explicit criteria change (edit a row, interpret a
+  // request, open a saved view) — matches + ancestors unfold, everything else
+  // compresses but stays a visible, chevron-openable row. Deliberately NOT
+  // re-fired on outline mutations: per the 1988 spec (Howard 2026-06-08) the
+  // shape applies once per explicit user input, then the user explores freely
+  // without snap-back. Live-ness comes from the highlight/count memo above.
+  const viewCriteriaSignature = useMemo(
+    () => JSON.stringify({ c: viewCriteria.map(({ field, operator, value }) => ({ field, operator, value })), m: viewMatchMode }),
+    [viewCriteria, viewMatchMode]
+  );
+  const lastAppliedViewSigRef = useRef('');
+  const viewMatchedIdsRef = useRef(viewMatchedIds);
+  viewMatchedIdsRef.current = viewMatchedIds;
+  useEffect(() => {
+    if (viewCriteriaSignature === lastAppliedViewSigRef.current) return;
+    lastAppliedViewSigRef.current = viewCriteriaSignature;
+    if (onApplySearchView && viewMatchedIdsRef.current.length > 0) {
+      onApplySearchView(viewMatchedIdsRef.current);
+    }
+  }, [viewCriteriaSignature, onApplySearchView]);
+
+  const handleViewCriteriaChange = useCallback((criteria: ViewCriterion[], matchMode: ViewMatchMode) => {
+    setViewCriteria(criteria);
+    setViewMatchMode(matchMode);
+  }, []);
   // const [highlightedNodeIds, setHighlightedNodeIds] = useState<Set<string>>(new Set());
 
   // Progressive rendering for large outlines
@@ -623,21 +672,31 @@ export default function OutlinePane({
       // Reset the tag filter too — tags are outline-specific.
       setIsTagFilterOpen(false);
       setActiveTags([]);
+      // And the Show Me view — criteria are outline-specific (its saved views
+      // remain stored and reappear when this outline is reopened).
+      setIsViewPanelOpen(false);
+      setViewCriteria([]);
+      setViewMatchMode('all');
+      lastAppliedViewSigRef.current = '';
       if (onSearchTermChange) {
         onSearchTermChange('');
       }
     }
   }, [currentOutline?.id, setIsSearchOpen, onSearchTermChange]);
 
-  // Compute highlighted node IDs for the current outline
+  // Compute highlighted node IDs for the current outline — search matches
+  // plus (LIVE) the active Show Me view's matches, so a newly added matching
+  // node lights up the moment it exists.
   const currentOutlineHighlights = useMemo(() => {
-    if (!currentOutline || !searchTerm) return new Set<string>();
-    return new Set(
+    const ids = new Set<string>();
+    if (currentOutline && searchTerm) {
       searchMatches
         .filter(m => m.outlineId === currentOutline.id)
-        .map(m => m.nodeId)
-    );
-  }, [searchMatches, currentOutline, searchTerm]);
+        .forEach(m => ids.add(m.nodeId));
+    }
+    viewMatchedIds.forEach(id => ids.add(id));
+    return ids;
+  }, [searchMatches, currentOutline, searchTerm, viewMatchedIds]);
 
   // Get visible nodes in display order (respects collapsed state)
   const getVisibleNodeIds = useCallback((): string[] => {
@@ -1739,6 +1798,7 @@ export default function OutlinePane({
             onOpenSummarizeOutline={currentOutline?.isGuide ? undefined : onOpenSummarizeOutline}
             onOpenImageToOutline={currentOutline?.isGuide ? undefined : onOpenImageToOutline}
             onOpenApplications={onOpenApplications}
+            onOpenShowMe={currentOutline ? () => setIsViewPanelOpen(true) : undefined}
             hasSelectedNode={!!selectedNodeId && !currentOutline?.isGuide}
             selectedNodeName={selectedNodeId && currentOutline?.nodes[selectedNodeId]?.name || ''}
           />
@@ -2012,6 +2072,19 @@ export default function OutlinePane({
         onToggleTag={handleToggleTagFilter}
         onClear={handleClearTagFilter}
         matchCount={tagFilterMatchCount}
+      />
+
+      {/* "Show Me" panel — natural-language filtering with visible, editable
+          criteria + saved live views (opened from the AI menu). */}
+      <OutlineViewPanel
+        isOpen={isViewPanelOpen}
+        onClose={() => setIsViewPanelOpen(false)}
+        outlineId={currentOutline?.id}
+        availableTags={availableTags}
+        criteria={viewCriteria}
+        matchMode={viewMatchMode}
+        onCriteriaChange={handleViewCriteriaChange}
+        matchCount={viewMatchedIds.length}
       />
 
       <div

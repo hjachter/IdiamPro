@@ -14,6 +14,7 @@ import { generateYoutubePackage, type GenerateYoutubePackageInput, type Generate
 import { interpretCommand, type InterpretCommandInput, type InterpretedCommand } from '@/ai/flows/interpret-command';
 import { transcribeAudio as transcribeAudioWithGemini, type TranscribeAudioInput, type TranscribeAudioResult } from '@/ai/flows/transcribe-audio';
 import { refreshNodeContent, type RefreshNodeInput } from '@/ai/flows/refresh-node-content';
+import { parseViewCriteria, type ParseViewCriteriaOutput } from '@/ai/flows/parse-view-criteria';
 import {
   extractPdfFromUrl,
   extractPdfFromFile,
@@ -350,6 +351,28 @@ export async function suggestTagsAction(
   } catch (error) {
     console.error('Error suggesting tags:', error);
     return [];
+  }
+}
+
+/**
+ * "Show Me" views — translate a natural-language request into structured,
+ * user-editable filter criteria. ONE light AI call; the actual filtering is
+ * pure local logic (view-criteria.ts) and never touches AI. Throws a
+ * friendly error when the request can't be interpreted — the caller falls
+ * back to manual criterion rows, which need no AI at all.
+ */
+export async function parseViewCriteriaAction(
+  request: string,
+  availableTags: string[],
+  userApiKey?: string | null,
+): Promise<ParseViewCriteriaOutput> {
+  try {
+    return await parseViewCriteria({ request, availableTags, userApiKey });
+  } catch (error) {
+    console.error('Error parsing view criteria:', error);
+    throw new Error(
+      "I couldn't turn that into filter conditions — try rephrasing, or build the conditions manually below."
+    );
   }
 }
 

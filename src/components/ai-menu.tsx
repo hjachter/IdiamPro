@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, FileText, Crown, Loader2, Brain, Languages, WandSparkles, Wand2, Image as ImageIcon, LayoutGrid, ListTree } from 'lucide-react';
+import { Sparkles, FileText, Crown, Loader2, Brain, Languages, WandSparkles, Wand2, Image as ImageIcon, LayoutGrid, ListTree, Eye } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useAI, useAIFeature } from '@/contexts/ai-context';
 import AiGenerateDialog from './ai-generate-dialog';
@@ -32,6 +32,9 @@ interface AIMenuProps {
   onOpenSummarizeOutline?: () => void;
   onOpenImageToOutline?: () => void;
   onOpenApplications?: () => void;
+  /** Opens the "Show Me" panel — describe what to see, get editable filter
+      conditions, save as a named live view. Works without AI too. */
+  onOpenShowMe?: () => void;
   hasSelectedNode?: boolean;
   selectedNodeName?: string;
 }
@@ -48,6 +51,7 @@ export default function AIMenu({
   onOpenSummarizeOutline,
   onOpenImageToOutline,
   onOpenApplications,
+  onOpenShowMe,
   hasSelectedNode,
   selectedNodeName,
 }: AIMenuProps) {
@@ -131,6 +135,18 @@ export default function AIMenu({
             </DropdownMenuItem>
             <DropdownMenuSeparator />
           </>
+        )}
+
+        {onOpenShowMe && (
+          <DropdownMenuItem
+            onSelect={onOpenShowMe}
+            className="cursor-pointer"
+            title="Describe what you want to see — the outline folds down to just the matching items (editable conditions, savable as a named view; works without AI too)."
+            data-testid="ai-menu-show-me"
+          >
+            <Eye className="mr-2 h-4 w-4 text-blue-500 dark:text-blue-400" />
+            Show Me…
+          </DropdownMenuItem>
         )}
 
         {onOpenReformat && hasSelectedNode && (
