@@ -221,6 +221,12 @@ interface OutlinePaneProps {
   // dropdown "Restore from backup…" opens it on the Restore tab.
   onOpenBackup?: () => void;
   onOpenRestore?: () => void;
+  // External agent suggestions (MCP sidecar proposals, P8 slice B). When
+  // pending suggestions exist, the Import menu gains a "Suggestions (N)"
+  // entry and the Import button shows a quiet dot. Only provided on desktop
+  // (Electron) — absent everywhere else, so nothing renders.
+  agentSuggestionCount?: number;
+  onOpenSuggestions?: () => void;
 }
 
 export default function OutlinePane({
@@ -308,6 +314,8 @@ export default function OutlinePane({
   onOpenLinkToOutline,
   onOpenBackup,
   onOpenRestore,
+  agentSuggestionCount,
+  onOpenSuggestions,
 }: OutlinePaneProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   // Don't-ask-again state for the delete-item confirm (2026-06-10). When the
@@ -1177,9 +1185,21 @@ export default function OutlinePane({
   // Shared menu-item fragments for the four collapsible middle buttons. Used
   // BOTH by their inline toolbar dropdowns AND by the "⋯ More" overflow
   // submenus, so the two can never drift apart. (2026-07-21)
+  const agentSuggestionsPending = !!onOpenSuggestions && (agentSuggestionCount ?? 0) > 0;
+
   const bringInMenuItems = (
     <>
       <DropdownMenuLabel className="py-1 text-xs uppercase tracking-wide text-muted-foreground">Import</DropdownMenuLabel>
+      {agentSuggestionsPending && (
+        <DropdownMenuItem
+          onSelect={() => onOpenSuggestions?.()}
+          className="cursor-pointer py-1"
+          data-testid="menu-agent-suggestions"
+          title="Suggestions from your AI assistants — nothing changes unless you approve it here"
+        >
+          <Inbox className="mr-2 h-4 w-4" /> Suggestions ({agentSuggestionCount})
+        </DropdownMenuItem>
+      )}
       {onOpenBulkResearch && (
         <DropdownMenuItem onSelect={onOpenBulkResearch} className="cursor-pointer py-1">
           <Library className="mr-2 h-4 w-4" /> Research & Import
@@ -1811,12 +1831,25 @@ export default function OutlinePane({
               <Tooltip>
                 <TooltipTrigger asChild>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="icon" className="bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 border-transparent text-white shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 shrink-0 active:scale-95 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0" aria-label="Import">
+                    <Button variant="outline" size="icon" className="relative bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500 border-transparent text-white shadow-sm shadow-blue-700/30 ring-1 ring-inset ring-blue-500/40 dark:ring-blue-300/70 shrink-0 active:scale-95 min-h-[44px] min-w-[44px] touch-manipulation md:min-h-0 md:min-w-0" aria-label="Import">
                       <ArrowDown className="h-4 w-4 text-white" strokeWidth={3} />
+                      {/* Quiet indicator: pending AI-assistant suggestions are
+                          waiting inside this menu. Communicates, never badgers. */}
+                      {agentSuggestionsPending && (
+                        <span
+                          className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-400 ring-2 ring-background"
+                          aria-hidden="true"
+                          data-testid="agent-suggestions-dot"
+                        />
+                      )}
                     </Button>
                   </DropdownMenuTrigger>
                 </TooltipTrigger>
-                <TooltipContent>Import — bring in YouTube, PDFs, web pages, notes, audio, or another outline</TooltipContent>
+                <TooltipContent>
+                  {agentSuggestionsPending
+                    ? `Import — ${agentSuggestionCount} AI suggestion${(agentSuggestionCount ?? 0) === 1 ? '' : 's'} waiting for your review, plus YouTube, PDFs, web pages, notes, audio, or another outline`
+                    : 'Import — bring in YouTube, PDFs, web pages, notes, audio, or another outline'}
+                </TooltipContent>
               </Tooltip>
               <DropdownMenuContent align="end" className="w-60 p-0.5">
                 {bringInMenuItems}

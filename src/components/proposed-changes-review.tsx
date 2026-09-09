@@ -30,11 +30,11 @@ import React from 'react';
 import DOMPurify from 'dompurify';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { AlertTriangle, Sparkles, Trash2, Plus, X, type LucideIcon } from 'lucide-react';
+import { AlertTriangle, Sparkles, Trash2, Plus, X, MoveRight, type LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 /** The kinds of proposed change the unified engine understands. */
-export type PendingChangeKind = 'deletion' | 'insertion' | 'rewrite';
+export type PendingChangeKind = 'deletion' | 'insertion' | 'rewrite' | 'move';
 
 /**
  * The single pending-marks mechanism: node id → kind of proposed change.
@@ -98,6 +98,20 @@ const THEMES: Record<PendingChangeKind, KindTheme> = {
       'bg-emerald-600 text-white hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-500',
     checkboxClass:
       'data-[state=checked]:bg-emerald-600 data-[state=checked]:border-emerald-600',
+  },
+  // 'move' — a structural relocation (nothing added or removed): sky blue,
+  // "Will move" tree badge (see node-item.tsx). Added for external agent
+  // proposals (P8 slice B); usable by any future internal move gate too.
+  move: {
+    cardBorder: 'border-sky-300 dark:border-sky-700/60',
+    iconWrap: 'bg-sky-100 dark:bg-sky-900/40',
+    iconClass: 'text-sky-600 dark:text-sky-400',
+    Icon: MoveRight,
+    chipClass:
+      'border-sky-200 dark:border-sky-800/60 bg-sky-50 dark:bg-sky-950/40 text-sky-800 dark:text-sky-300',
+    ConfirmIcon: MoveRight,
+    confirmClass:
+      'bg-sky-600 text-white hover:bg-sky-700 dark:bg-sky-600 dark:hover:bg-sky-500',
   },
 };
 

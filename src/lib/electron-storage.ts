@@ -91,6 +91,20 @@ interface ElectronAPI {
     totalSteps: number;
     label: string;
   }) => void) => () => void;
+  // External agent proposals (MCP sidecars — P8 slice B). List pending
+  // proposal sidecars, read a proposed-new-outline draft, and write the
+  // owner's resolution back so the MCP server's list reflects reality.
+  // These only ever touch *.proposals.json files + the _proposed-outlines
+  // folder — never .idm outline files.
+  proposalsList?: (dirPath: string) => Promise<{ success: boolean; proposals?: unknown[]; error?: string }>;
+  proposalsResolve?: (args: {
+    dirPath: string;
+    sidecarFileName: string;
+    proposalId: string;
+    status: 'approved' | 'rejected' | 'dismissed';
+  }) => Promise<{ success: boolean; pruned?: boolean; error?: string }>;
+  proposalsReadDraft?: (dirPath: string, draftFileName: string) => Promise<{ success: boolean; outline?: unknown; error?: string }>;
+  onProposalsChanged?: (callback: () => void) => () => void;
 }
 
 /**

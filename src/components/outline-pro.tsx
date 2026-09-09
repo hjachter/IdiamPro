@@ -86,7 +86,17 @@ import dynamic from 'next/dynamic';
 const ExportDialog = dynamic(() => import('./export-dialog'), { ssr: false, loading: () => null });
 const PodcastDialog = dynamic(() => import('./podcast-dialog'), { ssr: false, loading: () => null });
 const WebsiteExportDialog = dynamic(() => import('./website-export-dialog'), { ssr: false, loading: () => null });
-import { isElectron, electronCheckPendingImports, electronDeletePendingImport, electronClearAllPendingImports, electronSaveOutlineToFile, electronGetOutlineMtime, onElectronWindowFocus, type PendingImportResult } from '@/lib/electron-storage';
+import { isElectron, electronCheckPendingImports, electronDeletePendingImport, electronClearAllPendingImports, electronSaveOutlineToFile, electronGetOutlineMtime, onElectronWindowFocus, getElectronOutlineFileName, type PendingImportResult } from '@/lib/electron-storage';
+import {
+  type AgentProposal,
+  agentProposalsAvailable,
+  listAgentProposals,
+  resolveAgentProposal,
+  readProposedOutlineDraft,
+  onAgentProposalsChanged,
+  validateAgentProposal,
+} from '@/lib/agent-proposals';
+import { AgentSuggestionsDialog, AgentRewriteReviewDialog, AgentDraftPreviewDialog } from '@/components/agent-suggestions-dialog';
 import { autoStartLocalAIOnBoot, guardLocalAIReady, notifyLocalAIDown } from '@/lib/local-ai';
 import type { BulkResearchSources } from '@/types';
 
@@ -457,16 +467,78 @@ export default function OutlinePro() {
     preSnapshot: Outline[];
   } | null>(null);
 
+  // ── External agent proposals (MCP sidecars — P8 slice B) ──────────────────
+  // Pending suggestions written by outside AI agents (Claude Desktop, Claude
+  // Code, …) via the IdeaM MCP server, discovered from sidecar files next to
+  // the outlines. Surfaced as "Suggestions (N)" in the Import menu; each one
+  // reviews through the SAME unified Proposed Changes engine as internal AI
+  // ops. Nothing ever changes except through the approve path, and every
+  // decision is written back to the sidecar so the MCP server sees it.
+  const [agentProposals, setAgentProposals] = useState<AgentProposal[]>([]);
+  const [isSuggestionsOpen, setIsSuggestionsOpen] = useState(false);
+  // Single-node rewrite review (before/after) for an agent rewrite proposal.
+  const [agentRewriteReview, setAgentRewriteReview] = useState<{
+    proposal: AgentProposal;
+    nodeId: string;
+    nodeName: string;
+    newName?: string;
+    beforeHtml: string;
+    afterHtml: string;
+  } | null>(null);
+  // Move review (sky "Will move" mark + floating card) for an agent move proposal.
+  const [agentMoveReview, setAgentMoveReview] = useState<{
+    proposal: AgentProposal;
+    nodeId: string;
+    nodeName: string;
+    fromName: string;
+    toName: string;
+    newParentId: string;
+    position: number | null;
+  } | null>(null);
+  // Preview of a proposed brand-new outline draft (_proposed-outlines/).
+  const [agentDraftPreview, setAgentDraftPreview] = useState<{
+    proposal: AgentProposal;
+    draft: Outline;
+  } | null>(null);
+  // While an agent proposal is inside one of the SHARED review gates
+  // (pendingDeletion / pendingInsertion), this remembers which sidecar record
+  // to resolve when the shared gate's confirm/cancel fires. Null for internal
+  // AI reviews, so those behave exactly as before.
+  const agentProposalContextRef = useRef<{ sidecarFileName: string; proposalId: string } | null>(null);
+
   // THE single pending-marks mechanism (unified Proposed Changes engine): node
   // id → kind. Threaded outline-pane → node-item, which renders the shared
-  // vocabulary (amber "Will delete" / green "Pending" / green "New content").
+  // vocabulary (amber "Will delete" / green "Pending" / green "New content" /
+  // sky "Will move").
   const pendingChangeMarks = useMemo(() => {
     const marks = new Map<string, PendingChangeKind>();
     if (pendingDeletion) for (const id of pendingDeletion.ids) marks.set(id, 'deletion');
     if (pendingInsertion) for (const id of pendingInsertion.ids) marks.set(id, 'insertion');
     if (pendingBulkContent) for (const item of pendingBulkContent.items) marks.set(item.nodeId, 'rewrite');
+    if (agentRewriteReview) marks.set(agentRewriteReview.nodeId, 'rewrite');
+    if (agentMoveReview) marks.set(agentMoveReview.nodeId, 'move');
     return marks.size > 0 ? marks : undefined;
-  }, [pendingDeletion, pendingInsertion, pendingBulkContent]);
+  }, [pendingDeletion, pendingInsertion, pendingBulkContent, agentRewriteReview, agentMoveReview]);
+
+  // Refresh the pending-suggestions list from the sidecars. Cheap: one IPC
+  // round-trip reading small JSON files; no-ops entirely outside Electron.
+  const refreshAgentProposals = useCallback(async () => {
+    if (!agentProposalsAvailable()) return;
+    const list = await listAgentProposals();
+    setAgentProposals(list);
+  }, []);
+
+  // If the review that just finished was for an external agent proposal,
+  // write the owner's decision back to the sidecar (fire-and-forget) and
+  // refresh the list. Internal AI reviews leave the ref null → no-op.
+  const resolveActiveAgentProposal = useCallback((status: 'approved' | 'rejected' | 'dismissed') => {
+    const ctx = agentProposalContextRef.current;
+    if (!ctx) return;
+    agentProposalContextRef.current = null;
+    void resolveAgentProposal(ctx.sidecarFileName, ctx.proposalId, status).then(() => {
+      void refreshAgentProposals();
+    });
+  }, [refreshAgentProposals]);
 
   // Keep outlinesRef in sync with React state so undo/redo can read it
   // synchronously without going through a state updater.
@@ -2548,9 +2620,15 @@ export default function OutlinePro() {
 
   // Approve the proposed deletion: perform the real delete (snapshot + undo
   // preserved by handleDeleteNode) and clear the pending marks.
+  // NOTE (2026-09-09): side effects (delete, toast) must live OUTSIDE the
+  // setState updater — React invokes updater functions during render (and
+  // StrictMode runs them twice in dev), so a toast() inside one fires the
+  // "Cannot update Toaster while rendering OutlinePro" error and duplicates
+  // the side effects. Read the state via closure instead.
   const confirmPendingDeletion = useCallback(() => {
-    setPendingDeletion(current => {
-      if (!current) return null;
+    const current = pendingDeletion;
+    setPendingDeletion(null);
+    if (current) {
       handleDeleteNode(current.nodeId);
       const descendants = Math.max(0, current.count - 1);
       toast({
@@ -2560,14 +2638,17 @@ export default function OutlinePro() {
           : `Deleted "${current.name}". Press ⌘Z to undo.`,
         duration: 1000 * 60 * 60 * 24,
       });
-      return null;
-    });
-  }, [handleDeleteNode, toast]);
+    }
+    // If this delete review was an external agent suggestion, record the
+    // approval in its sidecar (no-op for internal AI deletes).
+    resolveActiveAgentProposal('approved');
+  }, [pendingDeletion, handleDeleteNode, toast, resolveActiveAgentProposal]);
 
   // Reject: clear the pending marks, delete nothing.
   const cancelPendingDeletion = useCallback(() => {
     setPendingDeletion(null);
-  }, []);
+    resolveActiveAgentProposal('rejected');
+  }, [resolveActiveAgentProposal]);
 
   // ── Proposed-insertion gate (AI sub-outline generate, P1 slice 2) ──────────
   // Insert the AI-generated children PROVISIONALLY: they go into the live tree
@@ -2581,8 +2662,11 @@ export default function OutlinePro() {
     parentName: string;
     newNodes: NodeMap;            // provisional nodes keyed by their new id
     topLevelChildIds: string[];   // ids appended directly under the parent
+    // Optional 0-based insertion index among the parent's children (external
+    // agent add proposals carry one); null/undefined = append at the end.
+    position?: number | null;
   }) => {
-    const { outlineId, parentId, parentName, newNodes, topLevelChildIds } = params;
+    const { outlineId, parentId, parentName, newNodes, topLevelChildIds, position } = params;
     const allNewIds = Object.keys(newNodes);
     if (allNewIds.length === 0) return;
     const names = allNewIds.map(id => newNodes[id]?.name || 'Untitled');
@@ -2592,9 +2676,14 @@ export default function OutlinePro() {
       const merged: NodeMap = { ...o.nodes, ...newNodes };
       const parent = merged[parentId];
       if (!parent) return o;
+      const childrenIds = [...parent.childrenIds];
+      const at = (typeof position === 'number' && position >= 0 && position <= childrenIds.length)
+        ? position
+        : childrenIds.length;
+      childrenIds.splice(at, 0, ...topLevelChildIds);
       merged[parentId] = {
         ...parent,
-        childrenIds: [...parent.childrenIds, ...topLevelChildIds],
+        childrenIds,
         isCollapsed: false,
       };
       return { ...o, nodes: merged };
@@ -2614,9 +2703,14 @@ export default function OutlinePro() {
   // recording ONE undo snapshot (the pre-insertion array) so Cmd+Z reverses the
   // whole insertion, mark the outline dirty, and re-reference it (via the raw
   // setter, so NO extra undo entry) so autosave persists the addition.
+  // NOTE (2026-09-09): side effects (undo push, dirty flag, toast) must live
+  // OUTSIDE the setState updater — StrictMode double-invokes updaters in dev,
+  // which pushed the undo snapshot twice and fired the setState-during-render
+  // console error. Read the state via closure instead.
   const confirmPendingInsertion = useCallback(() => {
-    setPendingInsertion(current => {
-      if (!current) return null;
+    const current = pendingInsertion;
+    setPendingInsertion(null);
+    if (current) {
       undoStackRef.current.push({
         outlines: current.preSnapshot,
         label: `Add ${current.count} item${current.count === 1 ? '' : 's'} under ${current.parentName}`,
@@ -2632,16 +2726,18 @@ export default function OutlinePro() {
         description: `Added ${current.count} item${current.count === 1 ? '' : 's'} under "${current.parentName}". Press ⌘Z to undo.`,
         duration: 1000 * 60 * 60 * 24,
       });
-      return null;
-    });
-  }, [toast]);
+    }
+    // External agent add suggestion? Record the approval in its sidecar.
+    resolveActiveAgentProposal('approved');
+  }, [pendingInsertion, toast, resolveActiveAgentProposal]);
 
   // Reject: remove the provisional nodes (surgically detach + delete their ids
   // via the raw setter) so the outline returns to exactly what it was before the
   // generation. No undo entry is left behind.
   const cancelPendingInsertion = useCallback(() => {
-    setPendingInsertion(current => {
-      if (!current) return null;
+    const current = pendingInsertion;
+    setPendingInsertion(null);
+    if (current) {
       const idSet = new Set(current.ids);
       rawSetOutlines(prev => prev.map(o => {
         if (o.id !== current.outlineId) return o;
@@ -2656,9 +2752,9 @@ export default function OutlinePro() {
         for (const id of current.ids) delete nodes[id];
         return { ...o, nodes };
       }));
-      return null;
-    });
-  }, []);
+    }
+    resolveActiveAgentProposal('rejected');
+  }, [pendingInsertion, resolveActiveAgentProposal]);
 
   // ── Proposed bulk-content gate (bulk Generate for descendants, P1 slice 4) ──
   // Open a provisional session. preSnapshot is the exact pre-generation state:
@@ -2831,6 +2927,15 @@ export default function OutlinePro() {
       const node = Object.values(outline.nodes).find(n => n.name === name);
       return node ? (node.content || '') : null;
     };
+    // Read a node's PARENT name by exact node name (assertion helper for move
+    // reviews — external agent move proposals). Dev/test only.
+    (w as unknown as { __ideamNodeParentNameByName?: (name: string) => string | null }).__ideamNodeParentNameByName = (name: string) => {
+      const outline = outlinesRef.current.find(o => o.id === currentOutlineId);
+      if (!outline) return null;
+      const node = Object.values(outline.nodes).find(n => n.name === name);
+      if (!node || !node.parentId) return null;
+      return outline.nodes[node.parentId]?.name ?? null;
+    };
     // Seed a deterministic Fruits > Citrus > Orange tree and select "Citrus",
     // so a test can gate-delete a parent that has a descendant. Returns the
     // Citrus node id. Dev/test only.
@@ -2859,7 +2964,7 @@ export default function OutlinePro() {
       return citrusId;
     };
     return () => {
-      try { delete w.__ideamTellAI; delete w.__ideamSeedTree; delete w.__ideamProvisionalInsert; delete w.__ideamProvisionalBulkContent; delete w.__ideamNodeContentByName; } catch {}
+      try { delete w.__ideamTellAI; delete w.__ideamSeedTree; delete w.__ideamProvisionalInsert; delete w.__ideamProvisionalBulkContent; delete w.__ideamNodeContentByName; delete (w as unknown as { __ideamNodeParentNameByName?: unknown }).__ideamNodeParentNameByName; } catch {}
     };
   }, [handleAICommand, beginPendingInsertion, currentOutlineId, selectedNodeId, currentOutline, collectDescendantIds, beginBulkContentSession, addProvisionalBulkContent, openBulkContentReview]);
 
@@ -4580,6 +4685,258 @@ export default function OutlinePro() {
     reader.readAsText(file);
   }, [toast, handleAddImportedOutline]);
 
+  // ── External agent proposals: discovery + review dispatch (P8 slice B) ─────
+  // DISCOVERY: refresh the suggestion list on app load, on outline switch, on
+  // live sidecar-change pushes from the Electron main process (a cheap
+  // fs.watch on the outlines folder), on window focus, and on a slow 60s
+  // backstop poll. Each refresh is one IPC round-trip over small JSON files.
+  // Outside Electron none of this runs and no UI entry point renders.
+  useEffect(() => {
+    if (!isClient || !agentProposalsAvailable()) return;
+    void refreshAgentProposals();
+    const unsubscribeChange = onAgentProposalsChanged(() => { void refreshAgentProposals(); });
+    const unsubscribeFocus = onElectronWindowFocus(() => { void refreshAgentProposals(); });
+    const interval = setInterval(() => { void refreshAgentProposals(); }, 60000);
+    return () => {
+      unsubscribeChange?.();
+      unsubscribeFocus?.();
+      clearInterval(interval);
+    };
+  }, [isClient, currentOutlineId, refreshAgentProposals]);
+
+  // Which sidecar file the CURRENT outline maps to (sidecars are named after
+  // the .idm file: "<name>.idm.proposals.json").
+  const currentOutlineFileName = useMemo(
+    () => (currentOutline && !currentOutline.isGuide ? getElectronOutlineFileName(currentOutline) : null),
+    [currentOutline]
+  );
+
+  // Suggestions shown to the owner: proposals targeting the CURRENT outline,
+  // plus proposed brand-new outlines (those aren't tied to any open outline).
+  // Each is re-validated against live state so stale ones are labeled and
+  // only dismissible.
+  const agentSuggestionItems = useMemo(() => {
+    if (agentProposals.length === 0) return [];
+    return agentProposals
+      .filter(p => p.kind === 'new_outline' || (currentOutlineFileName !== null && p.outlineFileName === currentOutlineFileName))
+      .map(p => ({ proposal: p, validity: validateAgentProposal(p, currentOutline) }));
+  }, [agentProposals, currentOutlineFileName, currentOutline]);
+
+  const handleOpenSuggestions = useCallback(() => {
+    void refreshAgentProposals();
+    setIsSuggestionsOpen(true);
+  }, [refreshAgentProposals]);
+
+  // Dismiss = "make it go away, change nothing". Used for stale proposals and
+  // for suggestions the owner simply doesn't want to review.
+  const handleDismissAgentProposal = useCallback((p: AgentProposal) => {
+    void resolveAgentProposal(p.sidecarFileName, p.id, 'dismissed').then(() => {
+      void refreshAgentProposals();
+    });
+    toast({ title: 'Suggestion dismissed', description: 'Nothing in your outline was changed.' });
+  }, [refreshAgentProposals, toast]);
+
+  // Route a suggestion into the STANDARD unified review for its kind. Always
+  // re-validates against the live outline first — the outline may have changed
+  // since the list rendered, and a stale proposal must never reach a review.
+  const handleReviewAgentProposal = useCallback(async (p: AgentProposal) => {
+    if (p.kind !== 'new_outline') {
+      const validity = validateAgentProposal(p, currentOutline);
+      if (!validity.ok || !currentOutline) {
+        toast({
+          title: 'Suggestion out of date',
+          description: validity.staleReason || 'The outline changed since this was suggested.',
+        });
+        void refreshAgentProposals();
+        return;
+      }
+    }
+
+    setIsSuggestionsOpen(false);
+
+    switch (p.kind) {
+      case 'add_node': {
+        // Provisional green "Pending" node via the SAME gate as internal AI
+        // sub-outline inserts. Approve commits (undo-backed); Discard removes.
+        const parentId = p.targetNodeId!;
+        const id = uuidv4();
+        const node: OutlineNode = {
+          id,
+          name: (p.payload.name || 'New item').slice(0, 300),
+          content: p.payload.content || '',
+          type: 'document',
+          parentId,
+          childrenIds: [],
+          isCollapsed: false,
+          prefix: '',
+        };
+        agentProposalContextRef.current = { sidecarFileName: p.sidecarFileName, proposalId: p.id };
+        beginPendingInsertion({
+          outlineId: currentOutline!.id,
+          parentId,
+          parentName: currentOutline!.nodes[parentId]?.name || 'the selected item',
+          newNodes: { [id]: node },
+          topLevelChildIds: [id],
+          position: typeof p.payload.position === 'number' ? p.payload.position : null,
+        });
+        break;
+      }
+      case 'delete_node': {
+        // Amber struck-through marks + blast radius via the SAME gate as
+        // Tell-AI deletes. The count is recomputed LIVE, not trusted from the
+        // proposal record.
+        const nodeId = p.targetNodeId!;
+        const target = currentOutline!.nodes[nodeId];
+        const ids = collectDescendantIds(currentOutline!.nodes, nodeId);
+        const names = ids.map(nid => currentOutline!.nodes[nid]?.name || 'Untitled');
+        agentProposalContextRef.current = { sidecarFileName: p.sidecarFileName, proposalId: p.id };
+        setPendingDeletion({ nodeId, ids, names, name: target?.name || 'item', count: ids.length });
+        break;
+      }
+      case 'rewrite_node': {
+        // Before/after comparison (the engine's shared 'rewrite' vocabulary);
+        // the node is marked green "New content" in the tree meanwhile.
+        const nodeId = p.targetNodeId!;
+        const node = currentOutline!.nodes[nodeId];
+        agentProposalContextRef.current = { sidecarFileName: p.sidecarFileName, proposalId: p.id };
+        setAgentRewriteReview({
+          proposal: p,
+          nodeId,
+          nodeName: node?.name || 'Untitled',
+          newName: p.payload.name,
+          beforeHtml: node?.content || '',
+          afterHtml: p.payload.content !== undefined ? p.payload.content : (node?.content || ''),
+        });
+        break;
+      }
+      case 'move_node': {
+        // Sky "Will move" mark + old→new parent card (the engine's new 'move'
+        // kind, added for external proposals).
+        const nodeId = p.targetNodeId!;
+        const node = currentOutline!.nodes[nodeId];
+        const newParentId = p.payload.newParentId!;
+        agentProposalContextRef.current = { sidecarFileName: p.sidecarFileName, proposalId: p.id };
+        setAgentMoveReview({
+          proposal: p,
+          nodeId,
+          nodeName: node?.name || 'Untitled',
+          fromName: (node?.parentId && currentOutline!.nodes[node.parentId]?.name) || 'its current place',
+          toName: currentOutline!.nodes[newParentId]?.name || 'the new place',
+          newParentId,
+          position: typeof p.payload.position === 'number' ? p.payload.position : null,
+        });
+        break;
+      }
+      case 'new_outline': {
+        // Preview the draft (name + top structure). "Add to my outlines"
+        // imports it as a NEW outline via the normal import machinery — it
+        // can never overwrite anything.
+        const draftFileName = p.payload.draftFileName;
+        const draft = draftFileName ? await readProposedOutlineDraft(draftFileName) : null;
+        if (!draft || !isValidOutline(draft)) {
+          toast({
+            title: 'Draft unavailable',
+            description: 'The proposed outline draft could not be read. You can dismiss this suggestion.',
+            variant: 'destructive',
+          });
+          void refreshAgentProposals();
+          return;
+        }
+        agentProposalContextRef.current = { sidecarFileName: p.sidecarFileName, proposalId: p.id };
+        setAgentDraftPreview({ proposal: p, draft });
+        break;
+      }
+    }
+  }, [currentOutline, toast, refreshAgentProposals, beginPendingInsertion, collectDescendantIds]);
+
+  // Approve a rewrite: apply title/content/tag changes through the normal
+  // undo-backed update path (autosave persists like any hand-made edit), then
+  // record the approval in the sidecar.
+  const approveAgentRewrite = useCallback(() => {
+    const current = agentRewriteReview;
+    if (!current) return;
+    const p = current.proposal;
+    const node = currentOutline?.nodes[current.nodeId];
+    const updates: Partial<OutlineNode> = {};
+    if (p.payload.name !== undefined) updates.name = p.payload.name;
+    if (p.payload.content !== undefined) updates.content = p.payload.content;
+    if ((p.payload.addTags?.length || 0) + (p.payload.removeTags?.length || 0) > 0) {
+      const existing = node?.metadata?.tags || [];
+      const removed = new Set(p.payload.removeTags || []);
+      const nextTags = existing.filter(t => !removed.has(t));
+      for (const t of p.payload.addTags || []) if (!nextTags.includes(t)) nextTags.push(t);
+      updates.metadata = { ...node?.metadata, tags: nextTags };
+    }
+    markNextAction(`Apply suggestion to ${current.nodeName}`);
+    handleUpdateNode(current.nodeId, updates);
+    toast({
+      title: 'Suggestion applied',
+      description: `Updated "${current.nodeName}". Press ⌘Z to undo.`,
+      duration: 1000 * 60 * 60 * 24,
+    });
+    setAgentRewriteReview(null);
+    resolveActiveAgentProposal('approved');
+  }, [agentRewriteReview, currentOutline, handleUpdateNode, markNextAction, toast, resolveActiveAgentProposal]);
+
+  const rejectAgentRewrite = useCallback(() => {
+    setAgentRewriteReview(null);
+    resolveActiveAgentProposal('rejected');
+  }, [resolveActiveAgentProposal]);
+
+  // Approve a move: re-parent through the normal undo-backed move path.
+  const approveAgentMove = useCallback(() => {
+    const current = agentMoveReview;
+    if (!current || !currentOutline) return;
+    const parent = currentOutline.nodes[current.newParentId];
+    let targetId = current.newParentId;
+    let position: 'before' | 'inside' = 'inside';
+    if (parent && current.position !== null) {
+      const siblings = parent.childrenIds.filter(id => id !== current.nodeId);
+      if (current.position >= 0 && current.position < siblings.length) {
+        targetId = siblings[current.position];
+        position = 'before';
+      }
+    }
+    markNextAction(`Move ${current.nodeName}`);
+    handleMoveNode(current.nodeId, targetId, position);
+    toast({
+      title: 'Moved',
+      description: `Moved "${current.nodeName}" under "${current.toName}". Press ⌘Z to undo.`,
+      duration: 1000 * 60 * 60 * 24,
+    });
+    setAgentMoveReview(null);
+    resolveActiveAgentProposal('approved');
+  }, [agentMoveReview, currentOutline, handleMoveNode, markNextAction, toast, resolveActiveAgentProposal]);
+
+  const rejectAgentMove = useCallback(() => {
+    setAgentMoveReview(null);
+    resolveActiveAgentProposal('rejected');
+  }, [resolveActiveAgentProposal]);
+
+  // Approve a proposed new outline: import the draft as a NEW outline (never
+  // overwriting anything); the resolved draft file is trashed by the main
+  // process when the approval is written back.
+  const approveAgentDraft = useCallback(() => {
+    const current = agentDraftPreview;
+    if (!current) return;
+    handleAddImportedOutline(current.draft);
+    toast({
+      title: 'Outline added',
+      description: `"${current.draft.name || 'New outline'}" is now in your outlines.`,
+    });
+    setAgentDraftPreview(null);
+    resolveActiveAgentProposal('approved');
+  }, [agentDraftPreview, handleAddImportedOutline, toast, resolveActiveAgentProposal]);
+
+  const discardAgentDraft = useCallback(() => {
+    setAgentDraftPreview(null);
+    resolveActiveAgentProposal('rejected');
+  }, [resolveActiveAgentProposal]);
+
+  // Feature presence: Electron desktop only. Everywhere else the entry point
+  // is undefined and nothing about suggestions renders.
+  const suggestionsFeatureAvailable = isClient && agentProposalsAvailable();
+
   // Helper function to collect all nodes in a subtree
   const collectSubtree = useCallback((nodes: NodeMap, rootId: string): NodeMap => {
     const result: NodeMap = {};
@@ -5683,6 +6040,49 @@ export default function OutlinePro() {
           onCancel={discardBulkContent}
         />
 
+        {/* External agent suggestions (MCP sidecars) — the "Suggestions (N)"
+            list plus the per-kind reviews that don't reuse an existing gate:
+            rewrite (before/after), move (sky card), new-outline preview.
+            add/delete suggestions run through the shared insert/delete gates
+            above. */}
+        <AgentSuggestionsDialog
+          open={isSuggestionsOpen}
+          onOpenChange={setIsSuggestionsOpen}
+          items={agentSuggestionItems}
+          currentOutline={currentOutline}
+          onReview={(p) => { void handleReviewAgentProposal(p); }}
+          onDismiss={handleDismissAgentProposal}
+        />
+        <AgentRewriteReviewDialog
+          open={agentRewriteReview !== null}
+          nodeName={agentRewriteReview?.nodeName || ''}
+          agent={agentRewriteReview?.proposal.agent || ''}
+          beforeHtml={agentRewriteReview?.beforeHtml || ''}
+          afterHtml={agentRewriteReview?.afterHtml || ''}
+          newName={agentRewriteReview?.newName}
+          onApprove={approveAgentRewrite}
+          onReject={rejectAgentRewrite}
+        />
+        <ProposedChangesReview
+          open={agentMoveReview !== null}
+          kind="move"
+          ariaLabel="Confirm move"
+          headline={`Move "${agentMoveReview?.nodeName || ''}" under "${agentMoveReview?.toName || ''}"?`}
+          body={`${agentMoveReview?.proposal.agent || 'An AI assistant'} suggests moving this item out of "${agentMoveReview?.fromName || ''}". It's highlighted in your outline so you can see exactly what will move. Nothing moves until you choose Move — and you can always undo afterward.`}
+          chipNames={agentMoveReview ? [agentMoveReview.nodeName] : []}
+          confirmLabel="Move"
+          cancelLabel="Keep"
+          onConfirm={() => approveAgentMove()}
+          onCancel={rejectAgentMove}
+        />
+        <AgentDraftPreviewDialog
+          open={agentDraftPreview !== null}
+          agent={agentDraftPreview?.proposal.agent || ''}
+          draft={agentDraftPreview?.draft || null}
+          onAdd={approveAgentDraft}
+          onDiscard={discardAgentDraft}
+        />
+
         {/* P2 heavy-op approval dialog (Create Content for Descendants). */}
         {heavyOpDialog}
 
@@ -6081,6 +6481,8 @@ export default function OutlinePro() {
                 onUpdateNode={handleUpdateNode}
                 onImportOutline={handleImportOutline}
                 onAddImportedOutline={handleAddImportedOutline}
+                agentSuggestionCount={agentSuggestionItems.length}
+                onOpenSuggestions={suggestionsFeatureAvailable ? handleOpenSuggestions : undefined}
                 onExportOutline={handleExportOutline}
                 onCopySubtree={handleCopySubtree}
                 onCutSubtree={handleCutSubtree}
@@ -6362,6 +6764,49 @@ export default function OutlinePro() {
         cancelLabel="Discard"
         onConfirm={(ids) => approveBulkContent(ids || [])}
         onCancel={discardBulkContent}
+      />
+
+      {/* External agent suggestions (MCP sidecars) — the "Suggestions (N)"
+          list plus the per-kind reviews that don't reuse an existing gate:
+          rewrite (before/after), move (sky card), new-outline preview.
+          add/delete suggestions run through the shared insert/delete gates
+          above. */}
+      <AgentSuggestionsDialog
+        open={isSuggestionsOpen}
+        onOpenChange={setIsSuggestionsOpen}
+        items={agentSuggestionItems}
+        currentOutline={currentOutline}
+        onReview={(p) => { void handleReviewAgentProposal(p); }}
+        onDismiss={handleDismissAgentProposal}
+      />
+      <AgentRewriteReviewDialog
+        open={agentRewriteReview !== null}
+        nodeName={agentRewriteReview?.nodeName || ''}
+        agent={agentRewriteReview?.proposal.agent || ''}
+        beforeHtml={agentRewriteReview?.beforeHtml || ''}
+        afterHtml={agentRewriteReview?.afterHtml || ''}
+        newName={agentRewriteReview?.newName}
+        onApprove={approveAgentRewrite}
+        onReject={rejectAgentRewrite}
+      />
+      <ProposedChangesReview
+        open={agentMoveReview !== null}
+        kind="move"
+        ariaLabel="Confirm move"
+        headline={`Move "${agentMoveReview?.nodeName || ''}" under "${agentMoveReview?.toName || ''}"?`}
+        body={`${agentMoveReview?.proposal.agent || 'An AI assistant'} suggests moving this item out of "${agentMoveReview?.fromName || ''}". It's highlighted in your outline so you can see exactly what will move. Nothing moves until you choose Move — and you can always undo afterward.`}
+        chipNames={agentMoveReview ? [agentMoveReview.nodeName] : []}
+        confirmLabel="Move"
+        cancelLabel="Keep"
+        onConfirm={() => approveAgentMove()}
+        onCancel={rejectAgentMove}
+      />
+      <AgentDraftPreviewDialog
+        open={agentDraftPreview !== null}
+        agent={agentDraftPreview?.proposal.agent || ''}
+        draft={agentDraftPreview?.draft || null}
+        onAdd={approveAgentDraft}
+        onDiscard={discardAgentDraft}
       />
 
       {/* Keyboard Shortcuts Dialog */}
@@ -6784,6 +7229,8 @@ export default function OutlinePro() {
                 onUpdateNode={handleUpdateNode}
                 onImportOutline={handleImportOutline}
                 onAddImportedOutline={handleAddImportedOutline}
+                agentSuggestionCount={agentSuggestionItems.length}
+                onOpenSuggestions={suggestionsFeatureAvailable ? handleOpenSuggestions : undefined}
                 onExportOutline={handleExportOutline}
                 onCopySubtree={handleCopySubtree}
                 onCutSubtree={handleCutSubtree}

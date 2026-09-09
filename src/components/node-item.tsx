@@ -5,7 +5,7 @@ import type { OutlineNode, NodeMap } from '@/types';
 import NodeIcon from './node-icon';
 import { TagBadge } from './tag-badge';
 import NodePropertiesDialog from './node-properties-dialog';
-import { ChevronRight, Plus, Trash2, Edit3, ChevronDown, ChevronUp, ChevronsDown, ChevronsUp, Copy, Scissors, ClipboardPaste, CopyPlus, Sparkles, CheckSquare2, Square, Sliders, Share, Globe, ExternalLink, Focus, RefreshCw, CircleDot, Check, Eraser, Link2, FolderKanban, AlertTriangle } from 'lucide-react';
+import { ChevronRight, Plus, Trash2, Edit3, ChevronDown, ChevronUp, ChevronsDown, ChevronsUp, Copy, Scissors, ClipboardPaste, CopyPlus, Sparkles, CheckSquare2, Square, Sliders, Share, Globe, ExternalLink, Focus, RefreshCw, CircleDot, Check, Eraser, Link2, FolderKanban, AlertTriangle, MoveRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import {
@@ -105,6 +105,8 @@ interface NodeItemProps {
   //   'insertion' → green tint + "Pending" badge (a provisional new node)
   //   'rewrite'   → green tint + "New content" badge (provisional new content
   //                 inside an existing node, e.g. bulk Generate for descendants)
+  //   'move'      → sky tint + "Will move" badge (a proposed relocation —
+  //                 external agent suggestions, P8 slice B)
   pendingChangeMarks?: PendingChangeMarks;
   // Read-only mode (e.g. User Guide outline) — suppresses rename + always-shown
   // mutator items in the context menu, and blocks F2/double-click rename. The
@@ -230,6 +232,7 @@ export default function NodeItem({
   const isPendingDeletion = pendingChangeKind === 'deletion';
   const isPendingInsertion = pendingChangeKind === 'insertion';
   const isPendingRewrite = pendingChangeKind === 'rewrite';
+  const isPendingMove = pendingChangeKind === 'move';
   const [isEditing, setIsEditing] = React.useState(false);
   const [name, setName] = React.useState(node?.name ?? '');
   const [dropPosition, setDropPosition] = React.useState<DropPosition>(null);
@@ -657,7 +660,10 @@ export default function NodeItem({
                 // Proposed-insertion / proposed-rewrite review: green-tinted row
                 // so the provisional (not-yet-committed) additions read as a
                 // group at a glance.
-                (isPendingInsertion || isPendingRewrite) && "bg-emerald-100/70 dark:bg-emerald-900/30 ring-1 ring-emerald-400/70"
+                (isPendingInsertion || isPendingRewrite) && "bg-emerald-100/70 dark:bg-emerald-900/30 ring-1 ring-emerald-400/70",
+                // Proposed-move review: sky-tinted row — the item is being
+                // relocated, not added or removed.
+                isPendingMove && "bg-sky-100/70 dark:bg-sky-900/30 ring-1 ring-sky-400/70"
             )}
             style={{
               paddingLeft: `${level * 1.5 + 0.5}rem`,
@@ -748,6 +754,7 @@ export default function NodeItem({
                             node.type === 'task' && node.metadata?.isCompleted && "line-through opacity-60",
                             isPendingDeletion && "line-through decoration-2 decoration-amber-600/80 text-amber-800 dark:text-amber-300",
                             (isPendingInsertion || isPendingRewrite) && "text-emerald-800 dark:text-emerald-300",
+                            isPendingMove && "text-sky-800 dark:text-sky-300",
                             node.type === 'link' && "text-blue-600 dark:text-blue-400 underline hover:no-underline"
                         )}
                         onClick={(e) => {
@@ -780,6 +787,16 @@ export default function NodeItem({
                         >
                             <Sparkles className="h-2.5 w-2.5 shrink-0" />
                             Pending
+                        </span>
+                    )}
+                    {isPendingMove && (
+                        <span
+                            className="inline-flex items-center gap-1 text-[10px] font-semibold rounded px-1.5 py-0.5 border border-sky-400 bg-sky-100 text-sky-800 dark:border-sky-600/60 dark:bg-sky-900/40 dark:text-sky-300 shrink-0"
+                            title="This item will be moved when you approve the suggestion"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <MoveRight className="h-2.5 w-2.5 shrink-0" />
+                            Will move
                         </span>
                     )}
                     {isPendingRewrite && (

@@ -126,6 +126,21 @@ contextBridge.exposeInMainWorld('electronAPI', {
     return () => ipcRenderer.removeListener('generate-podcast-progress', wrapped);
   },
 
+  // ========== External agent proposals (MCP sidecars — P8 slice B) ==========
+  // Read proposal sidecars written by the IdeaM MCP server, read proposed-new-
+  // outline drafts, and write back the owner's approve/reject/dismiss decision.
+  // These IPC paths can only touch *.proposals.json + _proposed-outlines —
+  // never .idm outline files (hard-guarded in main.js).
+  proposalsList: (dirPath) => ipcRenderer.invoke('proposals-list', dirPath),
+  proposalsResolve: (args) => ipcRenderer.invoke('proposals-resolve', args),
+  proposalsReadDraft: (dirPath, draftFileName) => ipcRenderer.invoke('proposals-read-draft', dirPath, draftFileName),
+  // Live sidecar-change push (fs.watch in main). Returns an unsubscribe fn.
+  onProposalsChanged: (callback) => {
+    const wrapped = () => callback();
+    ipcRenderer.on('proposals-changed', wrapped);
+    return () => ipcRenderer.removeListener('proposals-changed', wrapped);
+  },
+
   // Voice quality detection (for the "enable enhanced voices" nudge). Reports the
   // installed macOS `say` voices with their quality rank (3=Premium, 2=Enhanced,
   // 1=basic) so the renderer can gently suggest a free upgrade when only basic
