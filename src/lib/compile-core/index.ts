@@ -25,6 +25,7 @@ export {
 } from './structure-mapper';
 export {
   contentFingerprint,
+  hashText,
   buildCompileTree,
   type CompileUnit,
   type CompileTree,

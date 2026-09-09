@@ -5,7 +5,9 @@ import {
   extractSubtreeContent,
   buildScriptPrompt,
   buildContinuePrompt,
+  buildSectionScriptPrompt,
   generateScriptIteratively,
+  parseScriptResponse,
   countScriptWords,
   LENGTH_TARGETS,
 } from '@/lib/podcast-generator';
@@ -35,6 +37,25 @@ export async function POST(request: NextRequest) {
       customPrompt?: string; // If provided, use this instead of building from nodes
       aiProvider?: AIProviderChoice; // Cloud / Local / Auto — honors the user's setting like Help chat
       geminiKeyIsByok?: boolean;
+      /**
+       * Content-compiler Phase 1 (sectioned mode): generate the script one
+       * SECTION (outline branch) at a time so every returned segment is
+       * traceable to its source nodes and unchanged branches can be reused on
+       * regeneration. Jobs arrive in show order and may be a SUBSET of the
+       * show's sections (selective regeneration) — reused neighbors provide
+       * `prevTail` for conversational continuity. Uses the exact same
+       * provider/key failover path as the whole-outline mode.
+       */
+      sectionJobs?: Array<{
+        index: number;
+        title: string;
+        content: string;
+        targetWords: number;
+        minSegments: number;
+        prevTail?: { speaker: string; text: string }[];
+      }>;
+      showTitle?: string;
+      sectionTitles?: string[];
     };
 
     const { config, customPrompt } = body;
@@ -44,6 +65,93 @@ export async function POST(request: NextRequest) {
         { error: 'Missing required field: config' },
         { status: 400 }
       );
+    }
+
+    // ── Sectioned mode (content-compiler Phase 1) ─────────────────────────
+    if (Array.isArray(body.sectionJobs) && body.sectionJobs.length > 0) {
+      const jobs = body.sectionJobs;
+      const sectionTitles = Array.isArray(body.sectionTitles) && body.sectionTitles.length > 0
+        ? body.sectionTitles
+        : jobs.map((j) => j.title);
+      const showTitle = body.showTitle || sectionTitles[0] || 'Podcast';
+      const speakers = Object.keys(config.voices);
+
+      const runOnePassSectioned = async (promptText: string): Promise<string> => {
+        const result = await runAIWithFailover({
+          provider: body.aiProvider ?? 'auto',
+          cloudKeyIsByok: body.geminiKeyIsByok ?? false,
+          cloudProviderName: 'Gemini',
+          openRouterPrompt: promptText,
+          cloudAttempt: async () => {
+            const { text } = await ai.generate({
+              model: getDefaultGeminiModel('genkit'),
+              prompt: promptText,
+              config: { maxOutputTokens: 8192, temperature: 0.9 },
+            });
+            return text;
+          },
+          localAttempt: async (model) =>
+            generateWithOllama({ model, prompt: promptText, maxTokens: 8192, temperature: 0.9 }),
+        });
+        return result.text;
+      };
+
+      const encoder = new TextEncoder();
+      const stream = new ReadableStream({
+        async start(controller) {
+          const emit = (obj: unknown) =>
+            controller.enqueue(encoder.encode(JSON.stringify(obj) + '\n'));
+          try {
+            // Tails of sections generated IN THIS RUN, by section index — when
+            // the next job is the immediately following section, its freshest
+            // possible lead-in is what we just wrote, not the client-supplied
+            // (previous-version) tail.
+            const freshTails = new Map<number, { speaker: string; text: string }[]>();
+            let running = 0;
+            for (let j = 0; j < jobs.length; j++) {
+              const job = jobs[j];
+              emit({ type: 'section-start', index: job.index, of: sectionTitles.length, done: j, jobs: jobs.length });
+              const prevTail = freshTails.get(job.index - 1) ?? job.prevTail;
+              const prompt = buildSectionScriptPrompt({
+                style: config.style,
+                speakerNames: speakers,
+                showTitle,
+                sectionTitles,
+                sectionIndex: job.index,
+                content: job.content,
+                targetWords: job.targetWords,
+                minSegments: job.minSegments,
+                prevTail,
+              });
+              // One retry on an unreadable response — bounded cost, better odds.
+              let segments;
+              try {
+                segments = parseScriptResponse(await runOnePassSectioned(prompt), config.voices);
+              } catch {
+                segments = parseScriptResponse(await runOnePassSectioned(prompt), config.voices);
+              }
+              freshTails.set(job.index, segments.slice(-2).map((s) => ({ speaker: s.speaker, text: s.text })));
+              running += segments.length;
+              emit({ type: 'section', index: job.index, segments });
+              emit({ type: 'progress', segments: running, jobsDone: j + 1, jobs: jobs.length });
+            }
+            console.log(`[Podcast] Sectioned script: ${jobs.length} section(s), ${running} segments total.`);
+            emit({ type: 'done', mode: 'sectioned' });
+          } catch (error: any) {
+            console.error('[Podcast Script] Sectioned error:', error);
+            emit({ type: 'error', error: error.message || 'Failed to generate script' });
+          } finally {
+            controller.close();
+          }
+        },
+      });
+
+      return new Response(stream, {
+        headers: {
+          'Content-Type': 'application/x-ndjson; charset=utf-8',
+          'Cache-Control': 'no-cache, no-transform',
+        },
+      });
     }
 
     let prompt: string;

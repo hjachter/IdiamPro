@@ -132,18 +132,7 @@ export function buildScriptPrompt(
 ): { system: string; user: string } {
   const target = LENGTH_TARGETS[length];
 
-  const system = `You are a world-class podcast scriptwriter known for creating captivating, high-energy audio content. Your scripts sound like two friends who are genuinely excited about the topic — NOT like a dry lecture or news broadcast.
-
-CRITICAL STYLE RULES:
-- Write like people actually TALK, not how they write. Use contractions, sentence fragments, interruptions.
-- Speakers should react genuinely: "Oh wow, I didn't realize that!", "Wait, really?", "That's wild!", "OK so here's the thing..."
-- Include natural verbal fillers and reactions: "Right", "Exactly", "Hmm", "So basically...", "I mean think about it..."
-- Vary energy levels — build excitement, have moments of reflection, express surprise
-- Speakers should riff on each other's points, not just take turns delivering monologues
-- Make the listener feel like they're eavesdropping on a fascinating conversation
-- Each segment: 1-4 sentences. Keep the back-and-forth rapid and dynamic.
-- NEVER sound like a textbook. Transform dry facts into compelling stories and insights.
-- Start with an engaging hook that draws listeners in immediately
+  const system = `${SCRIPTWRITER_PERSONA}
 
 OUTPUT FORMAT:
 - Output ONLY a valid JSON array: [{"speaker": "Name", "text": "..."}]
@@ -160,6 +149,39 @@ CRITICAL LENGTH REQUIREMENT — THIS IS MANDATORY:
 
 SPEAKERS: ${speakerNames.join(', ')}`;
 
+  const styleInstructions = getStyleInstructions(style, speakerNames);
+
+  const user = `${styleInstructions}
+
+SOURCE CONTENT:
+${content}
+
+Generate a captivating podcast script. Make it sound like a REAL conversation between passionate, knowledgeable people — not a script being read aloud. Output ONLY the JSON array.`;
+
+  return { system, user };
+}
+
+/**
+ * The shared scriptwriter persona + style rules. Extracted so the whole-outline
+ * prompt (buildScriptPrompt) and the per-section prompt
+ * (buildSectionScriptPrompt) speak with EXACTLY the same voice — the assembled
+ * whole-outline prompt text is byte-identical to the pre-extraction version.
+ */
+const SCRIPTWRITER_PERSONA = `You are a world-class podcast scriptwriter known for creating captivating, high-energy audio content. Your scripts sound like two friends who are genuinely excited about the topic — NOT like a dry lecture or news broadcast.
+
+CRITICAL STYLE RULES:
+- Write like people actually TALK, not how they write. Use contractions, sentence fragments, interruptions.
+- Speakers should react genuinely: "Oh wow, I didn't realize that!", "Wait, really?", "That's wild!", "OK so here's the thing..."
+- Include natural verbal fillers and reactions: "Right", "Exactly", "Hmm", "So basically...", "I mean think about it..."
+- Vary energy levels — build excitement, have moments of reflection, express surprise
+- Speakers should riff on each other's points, not just take turns delivering monologues
+- Make the listener feel like they're eavesdropping on a fascinating conversation
+- Each segment: 1-4 sentences. Keep the back-and-forth rapid and dynamic.
+- NEVER sound like a textbook. Transform dry facts into compelling stories and insights.
+- Start with an engaging hook that draws listeners in immediately`;
+
+/** Per-style voice/energy instructions, shared by both prompt builders. */
+export function getStyleInstructions(style: PodcastStyle, speakerNames: string[]): string {
   let styleInstructions: string;
   switch (style) {
     case 'two-host':
@@ -204,15 +226,77 @@ SPEAKERS: ${speakerNames.join(', ')}`;
 - End with genuine synthesis — what did they learn from each other?`;
       break;
   }
+  return styleInstructions;
+}
 
-  const user = `${styleInstructions}
+/**
+ * Build the AI prompt for ONE podcast SECTION (content-compiler Phase 1).
+ *
+ * Instead of one whole-outline blob, the compiled path generates the script
+ * section by section — each call covers one outline branch — so every returned
+ * segment is honestly traceable to its source nodes and an unchanged branch's
+ * script can be reused verbatim on regeneration. Continuity comes from the
+ * show context (all section titles, position in the show) plus the tail of the
+ * previous section's dialogue, per the blueprint's rolling-context mitigation.
+ */
+export function buildSectionScriptPrompt(opts: {
+  style: PodcastStyle;
+  speakerNames: string[];
+  showTitle: string;
+  sectionTitles: string[];
+  sectionIndex: number; // 0-based position within sectionTitles
+  content: string;
+  targetWords: number;
+  minSegments: number;
+  /** Last lines of the PREVIOUS section (already recorded), for flow. */
+  prevTail?: { speaker: string; text: string }[];
+}): string {
+  const {
+    style, speakerNames, showTitle, sectionTitles, sectionIndex,
+    content, targetWords, minSegments, prevTail,
+  } = opts;
+  const isFirst = sectionIndex === 0;
+  const isLast = sectionIndex === sectionTitles.length - 1;
 
-SOURCE CONTENT:
+  const positionRules = [
+    isFirst
+      ? '- This is the OPENING section: start with an engaging hook that introduces the show and draws listeners in.'
+      : '- This is a MID-SHOW section: the show is already underway. Do NOT re-introduce the show or the speakers, do NOT greet the audience again. Pick up the conversation naturally.',
+    isLast
+      ? '- This is the FINAL section: end with a genuine closing sign-off that wraps up the whole show.'
+      : '- This is NOT the final section: do NOT sign off, do NOT say goodbye. End on a natural hand-off that leads into the next topic.',
+  ].join('\n');
+
+  const tailBlock = prevTail && prevTail.length > 0
+    ? `\nTHE CONVERSATION SO FAR (the last lines of the previous section — already recorded, never repeat them; continue naturally from here):\n${prevTail
+        .map((s) => `${s.speaker}: ${s.text}`)
+        .join('\n')}\n`
+    : '';
+
+  return `${SCRIPTWRITER_PERSONA}
+
+${getStyleInstructions(style, speakerNames)}
+
+SPEAKERS: ${speakerNames.join(', ')}
+
+THE SHOW: "${showTitle}" — one continuous conversation covering these sections in order:
+${sectionTitles.map((t, i) => `${i + 1}. ${t}${i === sectionIndex ? '   ← YOU ARE WRITING THIS SECTION' : ''}`).join('\n')}
+
+YOUR TASK: write ONLY section ${sectionIndex + 1} ("${sectionTitles[sectionIndex]}").
+${positionRules}
+- Cover ALL the source material for this section — do not skip or summarize away topics.
+- Do NOT drift into the other sections' topics; they are covered elsewhere in the show.
+- Target about ${targetWords} words of dialogue for this section (at least ${minSegments} speaker turns).
+- Each segment: 1-4 sentences (15-60 words).
+${tailBlock}
+SOURCE CONTENT FOR THIS SECTION:
 ${content}
 
-Generate a captivating podcast script. Make it sound like a REAL conversation between passionate, knowledgeable people — not a script being read aloud. Output ONLY the JSON array.`;
+Make it sound like a REAL conversation between passionate, knowledgeable people — not a script being read aloud.
 
-  return { system, user };
+OUTPUT FORMAT:
+- Output ONLY a valid JSON array: [{"speaker": "Name", "text": "..."}]
+- No markdown, no code fences, no explanation — ONLY the JSON array`;
 }
 
 /** Keys the AI might use to hold a segment's spoken line. */

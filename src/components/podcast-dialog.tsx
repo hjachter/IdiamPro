@@ -1,8 +1,19 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import type { NodeMap, PodcastStyle, PodcastLength, PodcastConfig, PodcastProgress, PodcastScriptSegment, OpenAIVoice } from '@/types';
 import { getDefaultSpeakers, getDefaultVoices, extractSubtreeContent, buildScriptPrompt, OPENAI_VOICE_LABELS, LENGTH_TARGETS } from '@/lib/podcast-generator';
+import {
+  planPodcastSections,
+  podcastOptionsFingerprint,
+  loadPodcastManifest,
+  savePodcastManifest,
+  buildPodcastManifest,
+  diffPodcastSections,
+  reusableSegmentsFor,
+  type PodcastSectionPlan,
+  type PodcastManifest,
+} from '@/lib/podcast-compiler';
 import {
   Dialog,
   DialogContent,
@@ -198,6 +209,34 @@ export default function PodcastDialog({
   const [scriptOpen, setScriptOpen] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
 
+  // ---- Content-compiler Phase 1 state ----
+  // Snapshot of the section plan + config the current script was generated
+  // with, captured at script time and used to record the podcast when audio
+  // succeeds. `mode` distinguishes an honest full rebuild ('fresh') from a
+  // selective update ('update' — unchanged sections reuse their sound).
+  const compileRef = useRef<{
+    plan: PodcastSectionPlan;
+    mode: 'fresh' | 'update';
+    style: PodcastStyle;
+    length: PodcastLength;
+    voices: Record<string, OpenAIVoice>;
+  } | null>(null);
+  // While a sectioned script generation streams: "Writing section k of n".
+  const [sectionProgress, setSectionProgress] = useState<{ done: number; total: number } | null>(null);
+  // A previous version of THIS podcast with the SAME settings → offer
+  // "Update Changed" next to "Start Fresh". Value-based copy only; the
+  // manifest/fingerprint vocabulary never reaches the UI.
+  const previousVersion = useMemo(() => {
+    if (!open) return null;
+    const manifest = loadPodcastManifest(nodeId);
+    if (!manifest) return null;
+    if (manifest.optionsFingerprint !== podcastOptionsFingerprint(style, length, voices)) return null;
+    const plan = planPodcastSections(nodes, nodeId, length);
+    if (!plan) return null;
+    const diff = diffPodcastSections(plan, manifest);
+    return { manifest, plan, changed: diff.changed.length, total: diff.total };
+  }, [open, nodes, nodeId, style, length, voices]);
+
   // Live elapsed-time counter for the script-generation wait. Script generation
   // is a non-streaming, multi-pass AI call with no incremental server progress,
   // so a static bar looks hung. A ticking mm:ss timer proves it's alive.
@@ -364,6 +403,8 @@ export default function PodcastDialog({
       setScriptOpen(false);
       setEditablePrompt('');
       setEditableSegments([]);
+      setSectionProgress(null);
+      compileRef.current = null;
     }
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -486,13 +527,17 @@ export default function PodcastDialog({
     return sanitizeSegments(finalSegments);
   }, [length]);
 
-  // Generate script only (from edited prompt)
+  // Generate script only (from edited prompt). The custom prompt is one blob,
+  // so the recorded plan is the whole subtree (all-or-nothing reuse later).
   const handleGenerateScript = useCallback(async () => {
     // Heavy-op approval FIRST — cancelling runs (and bills) nothing.
     if (!(await approveHeavyOp('podcastGeneration'))) return;
     if (!ensurePodcastAllowed()) return;
+    const wholePlan = planPodcastSections(nodes, nodeId, length, { forceWhole: true });
+    compileRef.current = wholePlan ? { plan: wholePlan, mode: 'fresh', style, length, voices } : null;
     setPhase('generating-script');
     setScriptSegDone(0);
+    setSectionProgress(null);
     setProgress({ phase: 'script', message: 'Generating podcast script...', percent: 0 });
 
     const controller = new AbortController();
@@ -513,7 +558,7 @@ export default function PodcastDialog({
         throw new Error(errData.error || `Server error: ${response.status}`);
       }
 
-      const segments = await consumeScriptStream(response);
+      const segments = (await consumeScriptStream(response)).map((s) => ({ ...s, sectionIndex: 0 }));
 
       setEditableSegments(segments);
       setPhase('edit-script');
@@ -531,15 +576,129 @@ export default function PodcastDialog({
     } finally {
       abortControllerRef.current = null;
     }
-  }, [style, length, voices, ttsModel, editablePrompt, ensurePodcastAllowed, consumeScriptStream, approveHeavyOp]);
+  }, [style, length, voices, ttsModel, editablePrompt, nodes, nodeId, ensurePodcastAllowed, consumeScriptStream, approveHeavyOp]);
 
-  // Generate script without showing prompt editor first (quick path)
-  const handleQuickGenerate = useCallback(async () => {
-    // Heavy-op approval FIRST — cancelling runs (and bills) nothing.
-    if (!(await approveHeavyOp('podcastGeneration'))) return;
+  // Consume the SECTIONED script stream (content-compiler Phase 1): NDJSON
+  // events `section-start` / `section` / `progress` / `done` / `error`.
+  // BACKWARD-SAFE: a non-event response (older build / mocked route returning
+  // one JSON { segments }) falls back to the legacy whole-script shape.
+  const consumeSectionedStream = useCallback(async (
+    response: Response,
+  ): Promise<
+    | { kind: 'sectioned'; sections: Map<number, PodcastScriptSegment[]> }
+    | { kind: 'legacy'; segments: PodcastScriptSegment[] }
+  > => {
+    const reader = response.body?.getReader();
+    if (!reader) {
+      const data = await response.json().catch(() => ({}));
+      return { kind: 'legacy', segments: sanitizeSegments((data as { segments?: unknown }).segments) };
+    }
+
+    const sections = new Map<number, PodcastScriptSegment[]>();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let fullText = '';
+    let sawEvent = false;
+    let finished = false;
+
+    const handleLine = (line: string) => {
+      const trimmed = line.trim();
+      if (!trimmed) return;
+      let evt: { type?: string; index?: number; segments?: unknown; done?: number; jobs?: number; jobsDone?: number; error?: string };
+      try { evt = JSON.parse(trimmed); } catch { return; }
+      if (!evt || typeof evt.type !== 'string') return;
+      sawEvent = true;
+      if (evt.type === 'section-start') {
+        setSectionProgress({ done: typeof evt.done === 'number' ? evt.done : 0, total: typeof evt.jobs === 'number' ? evt.jobs : 1 });
+      } else if (evt.type === 'section') {
+        if (typeof evt.index === 'number') sections.set(evt.index, sanitizeSegments(evt.segments));
+      } else if (evt.type === 'progress') {
+        if (typeof evt.segments === 'number') setScriptSegDone(evt.segments);
+        if (typeof evt.jobsDone === 'number' && typeof evt.jobs === 'number') {
+          setSectionProgress({ done: evt.jobsDone, total: evt.jobs });
+        }
+      } else if (evt.type === 'done') {
+        finished = true;
+      } else if (evt.type === 'error') {
+        throw new Error(evt.error || 'Script generation failed');
+      }
+    };
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      const chunk = decoder.decode(value, { stream: true });
+      buffer += chunk;
+      fullText += chunk;
+      const lines = buffer.split('\n');
+      buffer = lines.pop() || '';
+      for (const line of lines) handleLine(line);
+    }
+    if (buffer.trim()) handleLine(buffer);
+
+    if (!sawEvent) {
+      // Legacy single-JSON body.
+      try {
+        const parsed = JSON.parse(fullText);
+        if (parsed && Array.isArray(parsed.segments)) {
+          return { kind: 'legacy', segments: sanitizeSegments(parsed.segments) };
+        }
+      } catch { /* fall through */ }
+      return { kind: 'legacy', segments: [] };
+    }
+    if (!finished && sections.size === 0) {
+      throw new Error('Script generation ended early — please try again.');
+    }
+    return { kind: 'sectioned', sections };
+  }, []);
+
+  /**
+   * The compiled generation path (content-compiler Phase 1).
+   *
+   * 'fresh'  — Start Fresh / first Generate: every section is written anew and
+   *            every clip is re-recorded (an honest full rebuild).
+   * 'update' — Update Changed: sections whose source outline content is
+   *            untouched REUSE their existing script text (and, at the audio
+   *            step, their cached sound); only changed sections get fresh AI
+   *            script + fresh audio. Faster, and cheaper on the user's key.
+   */
+  const startGeneration = useCallback(async (mode: 'fresh' | 'update') => {
+    const plan = planPodcastSections(nodes, nodeId, length);
+    if (!plan) {
+      alert('No content found in the selected suboutline');
+      return;
+    }
+    // Sanity: an update needs a matching previous version; otherwise fresh.
+    const manifest = mode === 'update' ? loadPodcastManifest(nodeId) : null;
+    const effectiveMode: 'fresh' | 'update' = manifest ? mode : 'fresh';
+    const diff = manifest ? diffPodcastSections(plan, manifest) : null;
+    const jobsSections = effectiveMode === 'update' && diff ? diff.changed : plan.sections;
+
+    // P2 heavy-op approval FIRST — with an honest SCOPED cost note on the
+    // update path ("regenerating N of M sections"). Cancelling bills nothing.
+    const scopeNote = effectiveMode === 'update' && diff
+      ? (jobsSections.length === 0
+          ? 'Nothing has changed since your last podcast — your previous script is reused, and sound is rebuilt only where needed.'
+          : `Updating ${jobsSections.length} of ${diff.total} section${diff.total === 1 ? '' : 's'} — unchanged sections are reused, which is faster and cheaper on your key.`)
+      : undefined;
+    if (!(await approveHeavyOp('podcastGeneration', scopeNote ? { scopeNote } : undefined))) return;
+
+    compileRef.current = { plan, mode: effectiveMode, style, length, voices };
+
+    // Everything unchanged → no AI call at all: reuse the entire script and go
+    // straight to the script editor (audio then reuses cached sound).
+    if (effectiveMode === 'update' && manifest && diff && jobsSections.length === 0) {
+      const segments = plan.sections.flatMap((s) => reusableSegmentsFor(manifest, s.key, s.index));
+      setEditableSegments(segments);
+      setPhase('edit-script');
+      return;
+    }
+
+    // A real generation is about to run — usage gate applies.
     if (!ensurePodcastAllowed()) return;
     setPhase('generating-script');
     setScriptSegDone(0);
+    setSectionProgress(plan.sections.length > 1 ? { done: 0, total: jobsSections.length } : null);
     setProgress({ phase: 'script', message: 'Generating podcast script...', percent: 0 });
 
     const controller = new AbortController();
@@ -547,11 +706,46 @@ export default function PodcastDialog({
 
     try {
       const config: PodcastConfig = { style, length, voices, ttsModel };
+      let body: Record<string, unknown>;
+
+      if (plan.sections.length > 1) {
+        // SECTIONED request: only the sections that need generating, in show
+        // order. A job following a REUSED section carries that section's tail
+        // for conversational continuity (the route chains fresh tails itself).
+        const reusedByIndex = new Map<number, PodcastScriptSegment[]>();
+        if (manifest && diff) {
+          for (const s of diff.unchanged) {
+            reusedByIndex.set(s.index, reusableSegmentsFor(manifest, s.key, s.index));
+          }
+        }
+        const jobs = jobsSections.map((s) => {
+          const prevReused = reusedByIndex.get(s.index - 1);
+          return {
+            index: s.index,
+            title: s.title,
+            content: s.content,
+            targetWords: s.targetWords,
+            minSegments: s.minSegments,
+            prevTail: prevReused && prevReused.length > 0
+              ? prevReused.slice(-2).map((x) => ({ speaker: x.speaker, text: x.text }))
+              : undefined,
+          };
+        });
+        body = {
+          config,
+          sectionJobs: jobs,
+          showTitle: plan.rootName,
+          sectionTitles: plan.sections.map((s) => s.title),
+        };
+      } else {
+        // Single-section plan degenerates to the proven whole-outline request.
+        body = { nodes, rootId: nodeId, config };
+      }
 
       const response = await fetch('/api/generate-podcast-script', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nodes, rootId: nodeId, config }),
+        body: JSON.stringify(body),
         signal: controller.signal,
       });
 
@@ -560,8 +754,30 @@ export default function PodcastDialog({
         throw new Error(errData.error || `Server error: ${response.status}`);
       }
 
-      const segments = await consumeScriptStream(response);
+      let segments: PodcastScriptSegment[];
+      if (plan.sections.length > 1) {
+        const result = await consumeSectionedStream(response);
+        if (result.kind === 'sectioned') {
+          // Assemble the show in section order: fresh where generated, the
+          // stored (possibly user-polished) script where reused.
+          segments = plan.sections.flatMap((s) => {
+            const fresh = result.sections.get(s.index);
+            if (fresh) return fresh.map((seg) => ({ ...seg, sectionIndex: s.index }));
+            if (manifest) return reusableSegmentsFor(manifest, s.key, s.index);
+            return [];
+          });
+        } else {
+          // Legacy whole-script response (older server build) — still works;
+          // reuse becomes all-or-nothing next time.
+          segments = result.segments.map((s) => ({ ...s, sectionIndex: 0 }));
+        }
+      } else {
+        segments = (await consumeScriptStream(response)).map((s) => ({ ...s, sectionIndex: 0 }));
+      }
 
+      if (segments.length === 0) {
+        throw new Error('The AI returned an unreadable script — try a shorter length, or regenerate.');
+      }
       setEditableSegments(segments);
       setPhase('edit-script');
     } catch (err) {
@@ -577,8 +793,14 @@ export default function PodcastDialog({
       setPhase('generating-script');
     } finally {
       abortControllerRef.current = null;
+      setSectionProgress(null);
     }
-  }, [style, length, voices, ttsModel, nodes, nodeId, ensurePodcastAllowed, consumeScriptStream, approveHeavyOp]);
+  }, [style, length, voices, ttsModel, nodes, nodeId, ensurePodcastAllowed, consumeScriptStream, consumeSectionedStream, approveHeavyOp]);
+
+  // Generate script without showing prompt editor first (quick path).
+  const handleQuickGenerate = useCallback(() => startGeneration('fresh'), [startGeneration]);
+  // Selective regeneration: reuse unchanged sections, refresh only the edited ones.
+  const handleUpdateChanged = useCallback(() => startGeneration('update'), [startGeneration]);
 
   // Synthesize audio from (edited) script segments
   const handleSynthesizeAudio = useCallback(async () => {
@@ -599,10 +821,37 @@ export default function PodcastDialog({
     // key — never a silent output, never a surprise company-key charge.
     const desktopApi = typeof window !== 'undefined'
       ? (window as unknown as { electronAPI?: {
-          generatePodcastAudio?: (a: unknown) => Promise<{ success: boolean; audioBase64?: string; usedLocalVoice?: boolean; error?: string }>;
+          generatePodcastAudio?: (a: unknown) => Promise<{
+            success: boolean;
+            audioBase64?: string;
+            usedLocalVoice?: boolean;
+            error?: string;
+            segmentResults?: Array<{ index: number; engine?: string; clipKey?: string; fromCache?: boolean; durationSeconds?: number } | null>;
+            cache?: { reused: number; generated: number };
+          }>;
           onGeneratePodcastProgress?: (cb: (p: { phase: string; message: string; percent: number; segmentIndex?: number; totalSegments?: number }) => void) => () => void;
         } }).electronAPI
       : undefined;
+
+    // Record the finished podcast (which nodes fed which sections, the final
+    // script, each segment's sound reference) so the next generation can offer
+    // "Update Changed" and reuse everything that didn't change.
+    const recordCompiledPodcast = (
+      segmentResults?: Array<{ index: number; engine?: string; clipKey?: string; durationSeconds?: number } | null>,
+    ) => {
+      const compiled = compileRef.current;
+      if (!compiled) return;
+      try {
+        savePodcastManifest(buildPodcastManifest({
+          plan: compiled.plan,
+          style: compiled.style,
+          length: compiled.length,
+          voices: compiled.voices,
+          segments: editableSegments,
+          segmentResults,
+        }));
+      } catch { /* recording is an optimization — never break the podcast */ }
+    };
 
     if (isElectron() && desktopApi?.generatePodcastAudio) {
       let unsub: null | (() => void) = null;
@@ -631,12 +880,20 @@ export default function PodcastDialog({
           segments: segmentsWithOverride,
           ttsModel,
           openaiApiKey: userOpenaiKey,
+          // "Start Fresh" honestly re-records every clip; "Update Changed"
+          // reuses the sound of any line whose text+voice is untouched.
+          forceRegenerate: compileRef.current?.mode !== 'update',
         });
         unsub?.();
 
         if (!result?.success || !result.audioBase64) {
           throw new Error(result?.error || 'Audio synthesis failed');
         }
+        recordCompiledPodcast(result.segmentResults);
+        // Expose reuse accounting for automated verification (dev/testing only).
+        try {
+          (window as unknown as { __podcastCacheStats?: unknown }).__podcastCacheStats = result.cache ?? null;
+        } catch { /* ignore */ }
         const binary = atob(result.audioBase64);
         const bytes = new Uint8Array(binary.length);
         for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
@@ -671,6 +928,8 @@ export default function PodcastDialog({
         setAudioBase64(native.audioBase64);
         setAudioUrl(native.audioUrl);
         setScriptSegments(editableSegments);
+        // No desktop clip cache here, but the script itself is still reusable.
+        recordCompiledPodcast();
         setPhase('preview');
       } catch (err) {
         setProgress({
@@ -736,6 +995,9 @@ export default function PodcastDialog({
               setAudioBase64(data.audioBase64);
               setAudioUrl(url);
               setScriptSegments(data.scriptSegments || editableSegments);
+              // Server-side synthesis has no local clip cache, but recording
+              // the script still enables "Update Changed" reuse next time.
+              recordCompiledPodcast();
               setPhase('preview');
             } else {
               setProgress({
@@ -817,6 +1079,9 @@ export default function PodcastDialog({
         speaker: defaultSpeaker,
         voice: voices[defaultSpeaker] || 'alloy',
         text: '',
+        // Inherit the neighboring line's source section so the new line stays
+        // attributed to (and regenerates with) the right outline branch.
+        sectionIndex: prev[afterIndex]?.sectionIndex ?? prev[afterIndex + 1]?.sectionIndex,
       });
       return updated;
     });
@@ -895,6 +1160,20 @@ export default function PodcastDialog({
   // Count words in editable segments
   const totalWords = editableSegments.reduce((sum, seg) => sum + String(seg?.text ?? '').split(/\s+/).filter(Boolean).length, 0);
 
+  // Traceability (content-compiler Phase 1): which outline section a script
+  // line came from. Only meaningful when the show was built section by section.
+  const sectionTitleFor = useCallback((idx?: number): string | null => {
+    const plan = compileRef.current?.plan;
+    if (!plan || plan.sections.length < 2 || typeof idx !== 'number') return null;
+    return plan.sections[idx]?.title ?? null;
+  }, []);
+  const sectionLabelAt = useCallback((segs: PodcastScriptSegment[], index: number): string | null => {
+    const title = sectionTitleFor(segs[index]?.sectionIndex);
+    if (title === null) return null;
+    if (index > 0 && segs[index - 1]?.sectionIndex === segs[index]?.sectionIndex) return null;
+    return title;
+  }, [sectionTitleFor]);
+
   // Gentle, dismissible callout nudging a free desktop user to install a free
   // Enhanced/Premium English voice (or add an OpenAI key) for better sound.
   // Detection only — generation is never blocked.
@@ -970,6 +1249,24 @@ export default function PodcastDialog({
         {phase === 'config' && (
           <>
             {voiceNudgeBanner}
+            {/* A previous version of this podcast exists (same settings) —
+                offer the cheaper selective update alongside a full rebuild. */}
+            {previousVersion && (
+              <div
+                data-testid="podcast-previous-version"
+                className="rounded-md border bg-muted/40 p-3 text-sm space-y-1"
+              >
+                <p className="font-medium">
+                  {previousVersion.changed > 0
+                    ? `You've made this podcast before — ${previousVersion.changed} of ${previousVersion.total} section${previousVersion.total === 1 ? '' : 's'} ${previousVersion.changed === 1 ? 'has' : 'have'} changed since.`
+                    : 'You’ve made this podcast before, and nothing has changed since.'}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Only sections you&rsquo;ve edited are regenerated with <strong>Update Changed</strong> — faster,
+                  and cheaper on your key. <strong>Start Fresh</strong> rebuilds the whole podcast.
+                </p>
+              </div>
+            )}
             <div className="grid gap-4 py-4">
               {/* Style */}
               <div className="grid gap-2">
@@ -1121,9 +1418,29 @@ export default function PodcastDialog({
                 <Pencil className="mr-2 h-4 w-4" />
                 Edit Prompt
               </Button>
-              <Button onClick={handleQuickGenerate}>
-                Generate
-              </Button>
+              {previousVersion ? (
+                <>
+                  <Button
+                    variant="outline"
+                    data-testid="podcast-start-fresh"
+                    title="Rebuild the whole podcast from scratch"
+                    onClick={handleQuickGenerate}
+                  >
+                    Start Fresh
+                  </Button>
+                  <Button
+                    data-testid="podcast-update-changed"
+                    title="Regenerate only the sections whose outline content changed — unchanged sections are reused"
+                    onClick={handleUpdateChanged}
+                  >
+                    Update Changed
+                  </Button>
+                </>
+              ) : (
+                <Button onClick={handleQuickGenerate}>
+                  Generate
+                </Button>
+              )}
             </DialogFooter>
           </>
         )}
@@ -1164,11 +1481,15 @@ export default function PodcastDialog({
             "X of ~N segments" tally, and the live mm:ss elapsed timer. */}
         {phase === 'generating-script' && (() => {
           const targetMin = LENGTH_TARGETS[length].minSegments;
-          const scriptPercent = Math.min(100, Math.round((scriptSegDone / targetMin) * 100));
+          const scriptPercent = sectionProgress
+            ? Math.min(100, Math.round((sectionProgress.done / Math.max(sectionProgress.total, 1)) * 100))
+            : Math.min(100, Math.round((scriptSegDone / targetMin) * 100));
           const mmss = `${Math.floor(scriptElapsedSec / 60)}:${String(scriptElapsedSec % 60).padStart(2, '0')}`;
-          const scriptMessage = scriptSegDone > 0
-            ? `Building the script — ${scriptSegDone} of ~${targetMin} segments · ${mmss}`
-            : `Writing your podcast script… · ${mmss}`;
+          const scriptMessage = sectionProgress
+            ? `Writing section ${Math.min(sectionProgress.done + 1, sectionProgress.total)} of ${sectionProgress.total}… · ${mmss}`
+            : scriptSegDone > 0
+              ? `Building the script — ${scriptSegDone} of ~${targetMin} segments · ${mmss}`
+              : `Writing your podcast script… · ${mmss}`;
           return (
             <div className="py-6 space-y-4">
               {progress.phase === 'error' ? (
@@ -1218,7 +1539,16 @@ export default function PodcastDialog({
 
             <div className="max-h-[400px] overflow-y-auto border rounded-md p-3 space-y-3">
               {editableSegments.map((segment, index) => (
-                <div key={index} className="flex gap-2 group">
+                <React.Fragment key={index}>
+                {sectionLabelAt(editableSegments, index) && (
+                  <div
+                    className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground/80 pt-1"
+                    title="The outline section this part of the script comes from"
+                  >
+                    {sectionLabelAt(editableSegments, index)}
+                  </div>
+                )}
+                <div className="flex gap-2 group">
                   <div className="flex flex-col gap-1 shrink-0">
                     <Select
                       value={segment.speaker}
@@ -1264,6 +1594,7 @@ export default function PodcastDialog({
                     rows={2}
                   />
                 </div>
+                </React.Fragment>
               ))}
             </div>
 
@@ -1331,10 +1662,17 @@ export default function PodcastDialog({
               <CollapsibleContent>
                 <div className="mt-2 max-h-48 overflow-y-auto border rounded-md p-3 space-y-2 text-sm">
                   {scriptSegments.map((seg, i) => (
-                    <div key={i}>
-                      <span className="font-semibold text-primary">{seg.speaker}:</span>{' '}
-                      <span className="text-muted-foreground">{seg.text}</span>
-                    </div>
+                    <React.Fragment key={i}>
+                      {sectionLabelAt(scriptSegments, i) && (
+                        <div className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground/80 pt-1">
+                          {sectionLabelAt(scriptSegments, i)}
+                        </div>
+                      )}
+                      <div>
+                        <span className="font-semibold text-primary">{seg.speaker}:</span>{' '}
+                        <span className="text-muted-foreground">{seg.text}</span>
+                      </div>
+                    </React.Fragment>
                   ))}
                 </div>
               </CollapsibleContent>

@@ -205,6 +205,15 @@ async function main() {
     // Quick generate (mocked script → edit-script phase with Generate Audio).
     const gen = page.locator('[role="dialog"] button', { hasText: /^Generate$/ }).first();
     await gen.click();
+    // P2 heavy-op approval may appear first (cost-transparency dialog added
+    // 2026-09-06) — approve it so generation proceeds. Nothing is billed on
+    // this path (script route is mocked; no OpenAI key exists).
+    const heavyOpRun = page.locator('[data-testid="heavy-op-run"]');
+    if (await heavyOpRun.isVisible({ timeout: 4000 }).catch(() => false)) {
+      step('P2 heavy-op confirm appeared — approving (free path, $0).');
+      await heavyOpRun.click();
+      await page.waitForTimeout(400);
+    }
     let audioReady = false;
     const scriptDeadline = Date.now() + 30000;
     while (Date.now() < scriptDeadline) {

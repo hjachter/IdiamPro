@@ -416,6 +416,12 @@ export interface PodcastScriptSegment {
   speaker: string;
   voice: OpenAIVoice;
   text: string;
+  /**
+   * Content-compiler traceability (Phase 1): which podcast section (and thus
+   * which outline branch) this line belongs to. Optional — scripts from the
+   * legacy whole-outline path or older saved scripts simply omit it.
+   */
+  sectionIndex?: number;
 }
 
 export interface PodcastConfig {

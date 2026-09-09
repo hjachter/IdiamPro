@@ -28,7 +28,100 @@
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
+const crypto = require('crypto');
 const { execFile, execFileSync } = require('child_process');
+
+// ============================================================================
+// Per-segment audio-clip CACHE (content-compiler Phase 1).
+// ----------------------------------------------------------------------------
+// Every synthesized segment clip (already normalized to the uniform MP3) is
+// kept in the app's data directory, keyed by a hash of
+// (engine, voice identity, exact spoken text). On a later run, a segment whose
+// key matches is REUSED — copied straight into the stitch list with zero
+// synthesis (and zero OpenAI spend). The key is ENGINE-AWARE by construction:
+//   * engine 'openai' keys include the OpenAI voice + tts model,
+//   * engine 'say'   keys include the resolved macOS voice name,
+// so a free `say` clip can never masquerade as a premium OpenAI clip (or vice
+// versa), and a different voice/model is always a different cache entry.
+//
+// SIZE CAP: 200 MB, oldest-first (LRU by file mtime — reads touch the file).
+// A miss/evict is never an error: the segment simply re-synthesizes.
+// ============================================================================
+
+const CLIP_CACHE_DIR_NAME = 'podcast-clip-cache';
+const CLIP_CACHE_MAX_BYTES = 200 * 1024 * 1024; // 200 MB
+
+// Resolve the cache directory inside Electron's per-app data dir. Outside a
+// real Electron app (e.g. the module loaded in a bare Node test) there is no
+// data dir — caching quietly disables and everything else works unchanged.
+function getClipCacheDir() {
+  try {
+    // eslint-disable-next-line global-require
+    const { app } = require('electron');
+    if (!app || typeof app.getPath !== 'function') return null;
+    const dir = path.join(app.getPath('userData'), CLIP_CACHE_DIR_NAME);
+    fs.mkdirSync(dir, { recursive: true });
+    return dir;
+  } catch {
+    return null;
+  }
+}
+
+// Engine-aware cache key. voiceIdentity: "<openaiVoice>|<ttsModel>" for the
+// OpenAI engine, the resolved macOS voice name (or "default") for `say`.
+function clipCacheKey(engine, voiceIdentity, text) {
+  return crypto
+    .createHash('sha1')
+    .update(['v1', String(engine), String(voiceIdentity), String(text || '')].join('\u0000'))
+    .digest('hex');
+}
+
+function clipCachePath(dir, key) {
+  return path.join(dir, `${key}.mp3`);
+}
+
+// Copy a cached clip into place. Returns true on a usable hit. Touches the
+// file's mtime so eviction is LRU, not insertion-order.
+function readClipFromCache(dir, key, outPath) {
+  try {
+    const p = clipCachePath(dir, key);
+    const st = fs.statSync(p);
+    if (!st.isFile() || st.size < 1000) return false;
+    fs.copyFileSync(p, outPath);
+    try { const now = new Date(); fs.utimesSync(p, now, now); } catch { /* ignore */ }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function writeClipToCache(dir, key, clipPath) {
+  try {
+    fs.copyFileSync(clipPath, clipCachePath(dir, key));
+  } catch { /* cache write failure is never fatal */ }
+}
+
+// Enforce the size cap: delete least-recently-used clips until under the cap.
+function evictClipCache(dir, maxBytes = CLIP_CACHE_MAX_BYTES) {
+  try {
+    const entries = fs.readdirSync(dir)
+      .filter((f) => f.endsWith('.mp3'))
+      .map((f) => {
+        try {
+          const st = fs.statSync(path.join(dir, f));
+          return { file: f, size: st.size, mtimeMs: st.mtimeMs };
+        } catch { return null; }
+      })
+      .filter(Boolean);
+    let total = entries.reduce((sum, e) => sum + e.size, 0);
+    if (total <= maxBytes) return;
+    entries.sort((a, b) => a.mtimeMs - b.mtimeMs); // oldest first
+    for (const e of entries) {
+      if (total <= maxBytes) break;
+      try { fs.unlinkSync(path.join(dir, e.file)); total -= e.size; } catch { /* ignore */ }
+    }
+  } catch { /* ignore */ }
+}
 
 // Whether this process is a SHIPPED/packaged app or an unpackaged dev checkout.
 // This is the load-bearing money-safety gate for OpenAI TTS: the founder's
@@ -316,8 +409,11 @@ function pickBestSayVoice(gender) {
 // FREE offline synthesis of one segment via the macOS `say` command. Writes an
 // AIFF (ffmpeg reads it natively). Text is passed via a temp FILE (`say -f`) so
 // nothing in it can be misread as a CLI option. If a specific voice isn't
-// installed, retries once with the default voice. Returns the AIFF path or null.
-async function synthesizeLocalTts(text, sayVoice, workDir, index) {
+// installed, retries once with the default voice. Returns the AIFF path or
+// null. `outMeta`, when provided, receives { voiceUsed } — which voice ACTUALLY
+// spoke (the requested one, or '' for the system default after a fallback) —
+// so the clip cache is keyed by the true voice, never a wrong reuse.
+async function synthesizeLocalTts(text, sayVoice, workDir, index, outMeta) {
   const clean = sanitizeForSay(text);
   if (!clean) return null;
   if (process.platform !== 'darwin') return null;
@@ -329,13 +425,19 @@ async function synthesizeLocalTts(text, sayVoice, workDir, index) {
     const args = sayVoice ? ['-v', sayVoice, '-f', txtPath, '-o', aiffPath] : ['-f', txtPath, '-o', aiffPath];
     try {
       await run('say', args);
-      if (ok()) return aiffPath;
+      if (ok()) {
+        if (outMeta) outMeta.voiceUsed = sayVoice || '';
+        return aiffPath;
+      }
     } catch (e) {
       // A named voice may not be installed — retry once with the default voice.
       if (sayVoice) {
         try {
           await run('say', ['-f', txtPath, '-o', aiffPath]);
-          if (ok()) return aiffPath;
+          if (ok()) {
+            if (outMeta) outMeta.voiceUsed = '';
+            return aiffPath;
+          }
         } catch { /* fall through */ }
       }
       console.warn('[PodcastGen] macOS `say` failed:', e && e.message ? e.message : e);
@@ -436,11 +538,21 @@ async function generatePodcastAudio(opts) {
   const distinctVoices = [...new Set(segments.map((s) => (s && s.voice) || 'alloy'))];
   const sayVoiceMap = process.platform === 'darwin' ? pickSayVoices(distinctVoices) : {};
 
+  // ---- Per-segment clip cache (content-compiler Phase 1) ----
+  // useClipCache !== false → reads AND writes; forceRegenerate → skip READS
+  // (an honest "Start Fresh" rebuilds every clip) but still write, so the very
+  // next selective update benefits. No Electron data dir → cache disabled.
+  const cacheDir = opts.useClipCache === false ? null : getClipCacheDir();
+  const forceRegenerate = opts.forceRegenerate === true;
+
   const workDir = fs.mkdtempSync(path.join(os.tmpdir(), 'idiampro-podcast-'));
   const partPaths = [];
+  const segmentResults = []; // one entry per input segment, aligned by index
   let usedTts = false;
   let usedLocalVoice = false;
   let failed = 0;
+  let clipsReused = 0;
+  let clipsGenerated = 0;
 
   try {
     for (let i = 0; i < segments.length; i++) {
@@ -454,19 +566,52 @@ async function generatePodcastAudio(opts) {
         segmentIndex: i,
         totalSegments: segments.length,
       });
-      if (!text) continue;
+      if (!text) { segmentResults.push(null); continue; }
 
       const rawPath = path.join(workDir, `raw-${i}.mp3`);
       const partPath = path.join(workDir, `part-${i}.mp3`);
+      const override = seg && typeof seg.sayVoiceOverride === 'string' ? seg.sayVoiceOverride.trim() : '';
+      const plannedSayVoice = override || sayVoiceMap[(seg.voice) || 'alloy'] || null;
       let got = false;
+      let engineUsed = null;
+      let clipKey = null;
+      let fromCache = false;
+
+      // 0. CACHE: reuse an identical clip from a previous run. The key is
+      //    engine-aware — with a key we only accept a premium OpenAI clip; on
+      //    the free path only a `say` clip in the SAME resolved voice.
+      if (cacheDir && !forceRegenerate) {
+        const expectedEngine = apiKey ? 'openai' : 'say';
+        const expectedVoiceId = apiKey
+          ? `${seg.voice || 'alloy'}|${ttsModel}`
+          : (plannedSayVoice || 'default');
+        const key = clipCacheKey(expectedEngine, expectedVoiceId, text);
+        if (readClipFromCache(cacheDir, key, partPath)) {
+          got = true;
+          fromCache = true;
+          clipKey = key;
+          engineUsed = expectedEngine;
+          clipsReused++;
+          if (expectedEngine === 'openai') usedTts = true; else usedLocalVoice = true;
+          report({
+            phase: 'tts',
+            message: `Reusing audio (${i + 1}/${segments.length})...`,
+            percent,
+            segmentIndex: i,
+            totalSegments: segments.length,
+          });
+        }
+      }
 
       // 1. Premium OpenAI TTS (user's own key, or env fallback).
-      if (apiKey) {
+      if (!got && apiKey) {
         try {
           await synthesizeTts(text, seg.voice || 'alloy', ttsModel, apiKey, rawPath, workDir, i);
           await normalizeToMp3(rawPath, partPath);
           usedTts = true;
           got = true;
+          engineUsed = 'openai';
+          clipKey = clipCacheKey('openai', `${seg.voice || 'alloy'}|${ttsModel}`, text);
           // Pace requests so a long podcast (60+ segments) doesn't burst the
           // OpenAI rate limit; the backoff in ttsRequest handles any that slip.
           if (i < segments.length - 1) await sleep(200);
@@ -480,13 +625,16 @@ async function generatePodcastAudio(opts) {
       //    we fall back to the auto-picked best voice for this speaker. Only the
       //    free native path honors the override — the OpenAI path is untouched.
       if (!got) {
-        const override = seg && typeof seg.sayVoiceOverride === 'string' ? seg.sayVoiceOverride.trim() : '';
-        const sayVoice = override || sayVoiceMap[(seg.voice) || 'alloy'] || null;
-        const aiff = await synthesizeLocalTts(text, sayVoice, workDir, i);
+        const sayMeta = {};
+        const aiff = await synthesizeLocalTts(text, plannedSayVoice, workDir, i, sayMeta);
         if (aiff) {
           await normalizeToMp3(aiff, partPath);
           usedLocalVoice = true;
           got = true;
+          engineUsed = 'say';
+          // Key by the voice that ACTUALLY spoke (a missing named voice falls
+          // back to the system default — that must be its own cache identity).
+          clipKey = clipCacheKey('say', sayMeta.voiceUsed || 'default', text);
         }
       }
 
@@ -495,11 +643,28 @@ async function generatePodcastAudio(opts) {
       // segments across the whole script produced any sound.
       if (!got) {
         failed++;
+        segmentResults.push(null);
         console.warn(`[PodcastGen] Segment ${i + 1}/${segments.length} produced no audio; skipping it and continuing.`);
         continue;
       }
+      if (!fromCache) {
+        clipsGenerated++;
+        if (cacheDir && clipKey) writeClipToCache(cacheDir, clipKey, partPath);
+      }
+      let clipDuration = 0;
+      try { clipDuration = await probeDuration(partPath); } catch { /* non-fatal */ }
+      segmentResults.push({
+        index: i,
+        engine: engineUsed,
+        clipKey,
+        fromCache,
+        durationSeconds: clipDuration,
+      });
       partPaths.push(partPath);
     }
+
+    // Keep the clip cache under its size cap (oldest-first eviction).
+    if (cacheDir) evictClipCache(cacheDir);
 
     if (partPaths.length === 0) {
       throw new Error('Could not generate any audio for this podcast. Please check your internet connection or OpenAI API key and try again.');
@@ -513,7 +678,17 @@ async function generatePodcastAudio(opts) {
     const durationSeconds = await probeDuration(outPath);
     report({ phase: 'done', message: 'Podcast generated successfully!', percent: 100 });
 
-    return { success: true, audioBase64, usedTts, usedLocalVoice, failedSegments: failed, durationSeconds };
+    return {
+      success: true,
+      audioBase64,
+      usedTts,
+      usedLocalVoice,
+      failedSegments: failed,
+      durationSeconds,
+      // Content-compiler Phase 1: per-segment traceability + cache accounting.
+      segmentResults,
+      cache: { reused: clipsReused, generated: clipsGenerated },
+    };
   } catch (err) {
     return {
       success: false,
@@ -555,5 +730,10 @@ module.exports = {
     probeDuration,
     splitForTts,
     parseRetryAfter,
+    // Clip-cache internals (content-compiler Phase 1)
+    getClipCacheDir,
+    clipCacheKey,
+    evictClipCache,
+    CLIP_CACHE_MAX_BYTES,
   },
 };

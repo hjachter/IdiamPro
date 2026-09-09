@@ -1928,6 +1928,35 @@ global.__pickPodcastSayVoices = (voices) => {
   return __test.pickSayVoices(Array.isArray(voices) ? voices : []);
 };
 
+// Test hook (content-compiler Phase 1): inspect the per-segment podcast clip
+// cache so automated tests can PROVE selective regeneration — that unchanged
+// segments' clip files are reused (same birthtime), only changed segments get
+// fresh clips, and cache keys are engine-aware. Read-only; no UI wiring.
+global.__podcastClipCache = {
+  snapshot: () => {
+    const { __test } = getPodcastGenerator();
+    const dir = __test.getClipCacheDir();
+    if (!dir) return { dir: null, files: {} };
+    const files = {};
+    try {
+      for (const f of fs.readdirSync(dir).filter((x) => x.endsWith('.mp3'))) {
+        try {
+          const st = fs.statSync(path.join(dir, f));
+          files[f] = { birthtimeMs: st.birthtimeMs, size: st.size };
+        } catch { /* ignore */ }
+      }
+    } catch { /* ignore */ }
+    return { dir, files };
+  },
+  hasKey: (engine, voiceIdentity, text) => {
+    const { __test } = getPodcastGenerator();
+    const dir = __test.getClipCacheDir();
+    if (!dir) return false;
+    const key = __test.clipCacheKey(engine, voiceIdentity, text);
+    try { return fs.existsSync(path.join(dir, `${key}.mp3`)); } catch { return false; }
+  },
+};
+
 // ========== Voice Quality Detection (for the "enable enhanced voices" nudge) ==========
 
 // Report the installed macOS `say` voices with their quality rank so the renderer

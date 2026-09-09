@@ -82,7 +82,19 @@ function setSuppressed(opId: string, value: boolean): void {
 interface PendingApproval {
   opId: AICostOpId;
   payer: PayerDescription;
+  /** Optional per-run scope line (e.g. "Updating 2 of 5 sections…"). */
+  scopeNote?: string;
   resolve: (approved: boolean) => void;
+}
+
+export interface HeavyOpApprovalOptions {
+  /**
+   * Honest per-run scope framing shown above the generic cost line — used by
+   * selective regeneration to reflect a SMALLER-than-usual run (e.g.
+   * "Updating 2 of 5 sections — unchanged sections are reused at no extra
+   * cost."). Never replaces the payer/cost lines; only adds precision.
+   */
+  scopeNote?: string;
 }
 
 export function useHeavyOpApproval() {
@@ -91,7 +103,7 @@ export function useHeavyOpApproval() {
   const [dontAskAgain, setDontAskAgain] = useState(false);
 
   const approveHeavyOp = useCallback(
-    (opId: AICostOpId): Promise<boolean> => {
+    (opId: AICostOpId, options?: HeavyOpApprovalOptions): Promise<boolean> => {
       const entry = AI_COST_MODEL[opId];
       // Only HEAVY ops ever show this dialog; anything else passes through
       // instantly (no new friction for everyday tools).
@@ -101,7 +113,12 @@ export function useHeavyOpApproval() {
       if (isProfessional || isSuppressed(opId)) return Promise.resolve(true);
       return new Promise<boolean>((resolve) => {
         setDontAskAgain(false);
-        setPending({ opId, payer: describeCurrentPayer(opId), resolve });
+        setPending({
+          opId,
+          payer: describeCurrentPayer(opId),
+          scopeNote: options?.scopeNote,
+          resolve,
+        });
       });
     },
     [isProfessional],
@@ -130,6 +147,11 @@ export function useHeavyOpApproval() {
             <AlertDialogTitle>Run {entry.label}?</AlertDialogTitle>
             <AlertDialogDescription asChild>
               <div className="space-y-2 text-sm">
+                {pending.scopeNote && (
+                  <p data-testid="heavy-op-scope" className="font-medium text-foreground">
+                    {pending.scopeNote}
+                  </p>
+                )}
                 <p data-testid="heavy-op-payer">
                   <span className="font-medium text-foreground">Runs on:</span>{' '}
                   {pending.payer.payerLine}
