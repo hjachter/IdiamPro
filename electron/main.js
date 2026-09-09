@@ -543,10 +543,11 @@ async function createWindow() {
     }
   }
 
-  // Load from localhost in development, deployed web app in production
+  // Load from localhost in development, deployed web app in production.
+  // Canonical production domain (mirrors 2ndbrainware.com <-> vercel deploy).
   const startUrl = process.env.NODE_ENV === 'development'
     ? 'http://localhost:9002/app'
-    : 'https://idiam-pro.vercel.app/app';
+    : 'https://2ndbrainware.com/app';
 
   mainWindow.loadURL(startUrl);
 
@@ -928,8 +929,14 @@ ipcMain.handle('select-directory', async () => {
   return dirPath;
 });
 
-// Get stored directory path
+// Get stored directory path.
+// IDEAM_OUTLINES_DIR_OVERRIDE is a TEST-ONLY escape hatch: automated suites
+// point the app at a temp outlines folder so they can never touch the user's
+// real outlines. Read-only override — it is never persisted to settings.json.
 ipcMain.handle('get-stored-directory-path', () => {
+  if (process.env.IDEAM_OUTLINES_DIR_OVERRIDE) {
+    return process.env.IDEAM_OUTLINES_DIR_OVERRIDE;
+  }
   const settings = loadSettings();
   return settings.outlinesDirectory || null;
 });
@@ -1172,6 +1179,218 @@ ipcMain.handle('load-outline-from-file', async (event, dirPath, fileName) => {
     return { success: false, error: error.message };
   }
 });
+
+// ========== External Agent Proposals (MCP sidecars — P8 slice B) ==========
+// External AI agents (via the IdeaM MCP server) can only WRITE proposal
+// sidecars (`<outline>.idm.proposals.json`) and full drafts of proposed new
+// outlines under `_proposed-outlines/`. These handlers let the app list those
+// proposals, read drafts, and write the owner's decision back. HARD GUARD:
+// this section can only ever write *.proposals.json files — never .idm files
+// — mirroring the MCP server's own write guard. Approving a proposal changes
+// the outline through the renderer's normal state paths, not here.
+
+const PROPOSALS_SUFFIX = '.proposals.json';
+const PROPOSED_OUTLINES_DIR = '_proposed-outlines';
+const PROPOSALS_INDEX_FILE = '_proposals.json';
+const APP_RESOLUTION_STATUSES = ['approved', 'rejected', 'dismissed'];
+
+// Refuse any write that is not a proposals sidecar inside the outlines dir.
+// The only two legal shapes: `<outline>.idm.proposals.json` beside the
+// outlines, or the drafts index `_proposed-outlines/_proposals.json`.
+// Throws on violation — .idm files can never be written through this path.
+function assertProposalSidecarWrite(dirPath, filePath) {
+  const base = path.resolve(dirPath);
+  const resolved = path.resolve(filePath);
+  const inBase = resolved.startsWith(base + path.sep);
+  const isSidecar = resolved.endsWith(PROPOSALS_SUFFIX);
+  const isDraftsIndex = resolved === path.join(base, PROPOSED_OUTLINES_DIR, PROPOSALS_INDEX_FILE);
+  if (!inBase || (!isSidecar && !isDraftsIndex)) {
+    throw new Error(`Refusing non-sidecar proposal write: ${filePath}`);
+  }
+}
+
+function readProposalSidecar(filePath) {
+  try {
+    if (!fs.existsSync(filePath)) return [];
+    const parsed = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (err) {
+    console.warn('[Proposals] Unreadable sidecar (skipped):', filePath, err.message);
+    return [];
+  }
+}
+
+// List every proposal across all sidecars. Each record is tagged with the
+// sidecar file it lives in (relative to the outlines dir) so resolutions can
+// be written back to the right file.
+ipcMain.handle('proposals-list', async (event, dirPath) => {
+  try {
+    if (!dirPath || !fs.existsSync(dirPath)) {
+      return { success: true, proposals: [] };
+    }
+    const proposals = [];
+    for (const file of fs.readdirSync(dirPath)) {
+      if (!file.endsWith(PROPOSALS_SUFFIX)) continue;
+      const records = readProposalSidecar(path.join(dirPath, file));
+      for (const rec of records) {
+        if (rec && typeof rec === 'object') proposals.push({ ...rec, sidecarFileName: file });
+      }
+    }
+    // New-outline proposals live in the drafts folder's index.
+    const draftsIndex = path.join(dirPath, PROPOSED_OUTLINES_DIR, PROPOSALS_INDEX_FILE);
+    if (fs.existsSync(draftsIndex)) {
+      const records = readProposalSidecar(draftsIndex);
+      const rel = path.join(PROPOSED_OUTLINES_DIR, PROPOSALS_INDEX_FILE);
+      for (const rec of records) {
+        if (rec && typeof rec === 'object') proposals.push({ ...rec, sidecarFileName: rel });
+      }
+    }
+    startProposalsWatcher(dirPath);
+    return { success: true, proposals };
+  } catch (error) {
+    console.error('[Proposals] list failed:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+// Write the owner's decision (approved / rejected / dismissed) into the
+// sidecar so the MCP server's list_proposals reflects reality. Pruning: once
+// EVERY record in a sidecar carries an app-owned resolution, the sidecar file
+// is deleted (withdrawn records keep a sidecar alive — they are the server's
+// record). For a resolved new_outline proposal the draft file is moved to the
+// system Trash (recoverable), since it was either imported or declined.
+ipcMain.handle('proposals-resolve', async (event, args) => {
+  try {
+    const { dirPath, sidecarFileName, proposalId, status } = args || {};
+    if (!dirPath || !sidecarFileName || !proposalId) {
+      return { success: false, error: 'Missing arguments' };
+    }
+    if (!APP_RESOLUTION_STATUSES.includes(status)) {
+      return { success: false, error: `Invalid resolution status: ${status}` };
+    }
+    const sidecarPath = validateFilePath(dirPath, sidecarFileName);
+    assertProposalSidecarWrite(dirPath, sidecarPath);
+    const records = readProposalSidecar(sidecarPath);
+    const target = records.find((r) => r && r.id === proposalId);
+    if (!target) {
+      return { success: false, error: 'Proposal not found in sidecar' };
+    }
+    target.status = status;
+    target.resolvedAt = new Date().toISOString();
+
+    // A resolved new_outline proposal's draft file is trashed (recoverable).
+    if (target.kind === 'new_outline' && target.payload && target.payload.draftFileName) {
+      try {
+        const draftPath = validateFilePath(
+          path.join(dirPath, PROPOSED_OUTLINES_DIR),
+          target.payload.draftFileName
+        );
+        if (fs.existsSync(draftPath)) {
+          try {
+            await shell.trashItem(draftPath);
+          } catch {
+            fs.unlinkSync(draftPath);
+          }
+        }
+      } catch (draftErr) {
+        console.warn('[Proposals] Could not remove resolved draft:', draftErr.message);
+      }
+    }
+
+    const allResolved = records.every((r) => APP_RESOLUTION_STATUSES.includes(r && r.status));
+    if (allResolved) {
+      fs.unlinkSync(sidecarPath);
+      console.log(`[Proposals] ${proposalId} → ${status}; sidecar fully resolved, pruned: ${sidecarFileName}`);
+      return { success: true, pruned: true };
+    }
+    fs.writeFileSync(sidecarPath, JSON.stringify(records, null, 2), 'utf-8');
+    console.log(`[Proposals] ${proposalId} → ${status} in ${sidecarFileName}`);
+    return { success: true, pruned: false };
+  } catch (error) {
+    console.error('[Proposals] resolve failed:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+// Read a proposed-new-outline draft (full .idm JSON) from _proposed-outlines.
+// Read-only — the draft only becomes a live outline when the owner approves,
+// and then via the renderer's normal import path (never a file copy here).
+ipcMain.handle('proposals-read-draft', async (event, dirPath, draftFileName) => {
+  try {
+    const draftPath = validateFilePath(path.join(dirPath, PROPOSED_OUTLINES_DIR), draftFileName);
+    if (!fs.existsSync(draftPath)) {
+      return { success: false, error: 'Draft not found' };
+    }
+    const outline = JSON.parse(fs.readFileSync(draftPath, 'utf-8'));
+    return { success: true, outline };
+  } catch (error) {
+    console.error('[Proposals] read draft failed:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+// ── Sidecar discovery: cheap fs.watch on the outlines folder ────────────────
+// DISCOVERY MECHANISM (documented choice): a single non-recursive fs.watch on
+// the outlines dir + one on _proposed-outlines/, debounced 400ms, pushing a
+// 'proposals-changed' event to the renderer. This is the simplest robust
+// option on macOS (FSEvents-backed, near-zero cost). The renderer additionally
+// re-checks on outline switch, on window focus, and on a slow 60s interval as
+// a belt-and-suspenders backstop for platforms where fs.watch is flaky.
+let proposalsWatchers = null;
+let proposalsWatchedDir = null;
+let proposalsNotifyTimer = null;
+
+function notifyProposalsChanged() {
+  clearTimeout(proposalsNotifyTimer);
+  proposalsNotifyTimer = setTimeout(() => {
+    try {
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.send('proposals-changed');
+      }
+    } catch {}
+  }, 400);
+}
+
+function startProposalsWatcher(dirPath) {
+  try {
+    if (proposalsWatchedDir === dirPath && proposalsWatchers) return; // already watching
+    if (proposalsWatchers) {
+      for (const w of proposalsWatchers) { try { w.close(); } catch {} }
+    }
+    proposalsWatchers = [];
+    proposalsWatchedDir = dirPath;
+    if (!fs.existsSync(dirPath)) return;
+
+    const mainWatcher = fs.watch(dirPath, (eventType, fileName) => {
+      if (!fileName) return notifyProposalsChanged();
+      if (fileName.endsWith(PROPOSALS_SUFFIX)) return notifyProposalsChanged();
+      // The drafts folder may be created after we started watching — attach then.
+      if (fileName === PROPOSED_OUTLINES_DIR) {
+        attachDraftsWatcher(dirPath);
+        return notifyProposalsChanged();
+      }
+    });
+    mainWatcher.on('error', (err) => console.warn('[Proposals] watcher error:', err.message));
+    proposalsWatchers.push(mainWatcher);
+    attachDraftsWatcher(dirPath);
+    console.log('[Proposals] Watching for sidecar changes in', dirPath);
+  } catch (err) {
+    console.warn('[Proposals] Could not start watcher (renderer polling covers it):', err.message);
+  }
+}
+
+function attachDraftsWatcher(dirPath) {
+  try {
+    const draftsDir = path.join(dirPath, PROPOSED_OUTLINES_DIR);
+    if (!fs.existsSync(draftsDir)) return;
+    if (proposalsWatchers && proposalsWatchers.length > 1) return; // already attached
+    const w = fs.watch(draftsDir, () => notifyProposalsChanged());
+    w.on('error', (err) => console.warn('[Proposals] drafts watcher error:', err.message));
+    proposalsWatchers.push(w);
+  } catch (err) {
+    console.warn('[Proposals] Could not watch drafts folder:', err.message);
+  }
+}
 
 // Open file with default application
 ipcMain.handle('open-file', async (event, filePath) => {

@@ -189,7 +189,9 @@
     },
     "files": [
       "electron/**/*",
-      "package.json"
+      "package.json",
+      "!**/node_modules/@img/**",
+      "!**/node_modules/sharp/**"
     ],
     "publish": [
       {
@@ -204,13 +206,13 @@
         {
           "target": "dmg",
           "arch": [
-            "universal"
+            "arm64"
           ]
         },
         {
           "target": "zip",
           "arch": [
-            "universal"
+            "arm64"
           ]
         }
       ],
@@ -223,7 +225,8 @@
       "extendInfo": {
         "NSMicrophoneUsageDescription": "IdeaM uses the microphone for voice input in the AI command bar and Help chat.",
         "NSSpeechRecognitionUsageDescription": "IdeaM uses speech recognition to transcribe your voice into text in the AI command bar and Help chat."
-      }
+      },
+      "notarize": true
     },
     "win": {
       "target": [
