@@ -36,7 +36,12 @@
         "architecture-ref-env-vars-vercel-2026-06-12",
         "report-issue-in-app-2026-06-25",
         "generate-video-how-it-works-2026-07-08",
-        "feature-switchboard-2026-07-08"
+        "feature-switchboard-2026-07-08",
+        "proposed-changes-engine-2026-09",
+        "ai-cost-model-ledger-2026-09",
+        "content-compiler-2026-09",
+        "agent-safe-outlines-mcp-2026-09",
+        "show-me-views-2026-09"
       ],
       "isCollapsed": false,
       "prefix": ""
@@ -842,9 +847,59 @@
       "childrenIds": [],
       "isCollapsed": false,
       "prefix": ""
+    },
+    "proposed-changes-engine-2026-09": {
+      "id": "proposed-changes-engine-2026-09",
+      "name": "Proposed Changes engine — every AI edit previewed for approval (2026-09)",
+      "content": "How the Proposed Changes engine is built, in plain language.\n\n**What the user sees:** When any AI feature wants to change an outline — rewrite a section, delete nodes, add new ones, or run a bulk operation — nothing happens immediately. The change first appears as a preview right inside the outline: deletions are shown struck-through in amber, additions appear in a pending green, rewrites show before-and-after, and bulk operations list every affected item with its own checkbox. The user approves or declines — item by item, or all at once. Nothing the AI does lands without a human yes.\n\n**How it's built:** There is ONE unified proposal engine underneath, not a separate preview bolted onto each feature. Every AI flow — rewriting, expanding, reorganizing, bulk edits, and suggestions arriving from outside AI assistants — funnels its intended changes into the same engine. The engine knows how to display any kind of change (add, remove, rewrite) and how to apply or discard it cleanly. Because there is only one engine, every new AI feature gets approval previews automatically, and the experience is identical everywhere in the app.\n\n**Safety:** An approved change goes through the normal undo system, so even after saying yes the user can reverse it with a single Undo. A declined proposal simply evaporates — the outline itself was never touched during the preview.",
+      "type": "document",
+      "childrenIds": [],
+      "prefix": "",
+      "isCollapsed": false,
+      "parentId": "root"
+    },
+    "ai-cost-model-ledger-2026-09": {
+      "id": "ai-cost-model-ledger-2026-09",
+      "name": "AI cost model + usage ledger — heavy jobs confirm first (2026-09)",
+      "content": "How IdeaM keeps AI costs honest, in plain language.\n\n**The idea:** Different AI operations cost wildly different amounts to run. IdeaM now classifies all 26 of its AI operations into three weights: light (a quick rewrite of one node), medium, and heavy (big multi-step jobs).\n\n**What the user sees:** Light and medium operations just run. The six heavy operations — podcast, video, LIVE BOOKS, the YouTube package, bulk research, and writing content for a whole branch of the outline — always pause and confirm before running. The confirmation is honest about two things: WHOSE key will be billed (the user's own key, or the built-in option) and what a job like this TYPICALLY costs. Typical, not guaranteed — no absolute cost promises, and no surprises.\n\n**The ledger:** A usage ledger records what each AI job used, and it lives entirely on the user's own machine — nothing is reported anywhere. The user can open it any time to see where their AI activity (and spend) has gone.\n\n**Which models:** Gemini remains the built-in default, now upgraded to Gemini 3.8 Flash. Users who bring their own key can also run Claude, OpenAI, Groq, or Mistral text models — billed to their own provider account, pay-as-you-go, under their control.",
+      "type": "document",
+      "childrenIds": [],
+      "prefix": "",
+      "isCollapsed": false,
+      "parentId": "root"
+    },
+    "content-compiler-2026-09": {
+      "id": "content-compiler-2026-09",
+      "name": "Content compiler — one outline, many products; only changed sections rebuild (2026-09)",
+      "content": "Why the podcast now regenerates only the sections you changed, in plain language.\n\n**The old problem:** IdeaM had 13 separate export pipelines that each walked the outline in their own way — the same logic written 13 times, slowly drifting apart and multiplying bugs.\n\n**What shipped:** One shared \"compiler core\" now does the walking-and-assembling for all of them. The consolidation was proven safe the strict way: the new shared core was checked to produce byte-for-byte identical output to every old pipeline before the old ones were retired.\n\n**The first payoff — smarter podcasts:** The podcast export now remembers which outline section produced each piece of audio. Make a podcast, edit two sections, and export again — IdeaM notices: \"You've made this podcast before — 2 of 14 sections changed.\" It offers Update Changed (regenerate only those two sections and reuse all the untouched audio — faster and cheaper) or Start Fresh (rebuild everything). Video export is getting the same treatment now.\n\n**The blueprint:** Think of the outline as the single source, and each format — book, podcast, video, slide deck, website — as a build of that source. Every output keeps per-section traceability (which section produced which part), so any future edit regenerates only what it actually touched. That is the content-compiler architecture, and podcast is its first fully-wired output.",
+      "type": "document",
+      "childrenIds": [],
+      "prefix": "",
+      "isCollapsed": false,
+      "parentId": "root"
+    },
+    "agent-safe-outlines-mcp-2026-09": {
+      "id": "agent-safe-outlines-mcp-2026-09",
+      "name": "Agent-safe outlines — outside AI can propose, never change (MCP 0.2.0, 2026-09)",
+      "content": "How outside AI assistants work with IdeaM outlines safely, in plain language.\n\n**What it is:** IdeaM ships a connector (the MCP server, version 0.2.0) that lets outside AI assistants — Claude Desktop and similar tools — work with the user's outlines.\n\n**The safety rule:** Outside assistants can READ and SEARCH outlines freely. But they cannot change anything. When an outside assistant wants to make an edit, all it can do is file a PROPOSAL — a suggestion stored in a side file next to the outline, never written into the outline itself. And there is deliberately no way for anything outside the app to approve a change — not its own proposal, not anyone else's. Approval is a human act that only happens inside IdeaM.\n\n**Closing the loop:** An in-app Suggestions review screen (in flight now) presents pending proposals through the same Proposed Changes engine used for in-app AI — the same amber deletions, green additions, before-and-after rewrites, the same approve/decline controls, the same undo. One consistent approval experience whether the suggestion came from IdeaM's own AI or from an assistant outside it.",
+      "type": "document",
+      "childrenIds": [],
+      "prefix": "",
+      "isCollapsed": false,
+      "parentId": "root"
+    },
+    "show-me-views-2026-09": {
+      "id": "show-me-views-2026-09",
+      "name": "“Show Me…” views — plain words become saved live views (2026-09)",
+      "content": "How \"Show Me…\" views are built, in plain language.\n\n**What the user sees:** Ask in plain words — \"show me everything tagged urgent that mentions the demo\" — and IdeaM translates the request into visible, editable criteria, not a black box. The user can read exactly what the view is filtering on, tweak any criterion directly, and then save the whole thing as a named live view that stays current as the outline changes.\n\n**The viewing behavior — the 1988 lineage, preserved exactly:** This extends the search shaper Howard designed in his 1988 outliner, faithfully. Matching sections unfold so the hits are in full view; everything else stays compressed-but-visible, so the surrounding context never disappears; and the outline's shape moves ONLY on the user's explicit action — never as a side effect of typing or of the view refreshing. A view changes what you see, never what you have.\n\n**Why it matters:** Saved live views turn one big outline into many purpose-built lenses — today's priorities, everything about one client, all open questions — without duplicating a single node.",
+      "type": "document",
+      "childrenIds": [],
+      "prefix": "",
+      "isCollapsed": false,
+      "parentId": "root"
     }
   },
-  "lastModified": "2026-07-08T00:00:00.000Z",
+  "lastModified": "2026-09-09T00:00:00.000Z",
   "_fileSize": 143604,
   "_fileName": "IdeaM -- How it works.idm",
   "_isLazyLoaded": false

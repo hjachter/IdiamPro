@@ -34,7 +34,16 @@
         "514a5f3e-fea3-4809-a9b3-6f25a40f5ff3",
         "11fa79a0-c4b1-4aaa-b752-db7be5ba0846",
         "beta-feedback-form-feature-2026-06-10",
-        "feature-outline-multiselect"
+        "feature-outline-multiselect",
+        "feature-proposed-changes",
+        "feature-ai-cost-clarity",
+        "feature-byok-premium-text-models",
+        "feature-podcast-update-changed",
+        "feature-agent-suggestions",
+        "feature-show-me-views",
+        "feature-export-fidelity",
+        "feature-any-window-size",
+        "feature-mac-desktop-install"
       ],
       "isCollapsed": false,
       "prefix": "",
@@ -1897,9 +1906,99 @@
       "prefix": "",
       "name": "Sidebar multi-select + recoverable delete",
       "content": "<p><strong>Sidebar multi-select + recoverable delete (2026-07-25).</strong> Select several outlines and act on them at once.</p><ul><li><strong>Mac:</strong> Shift-click a contiguous range (inclusive of the anchor), ⌘-click to add/remove individual outlines, Delete key or right-click → Delete, Escape to clear.</li><li><strong>iPad / iPhone:</strong> long-press to enter Select mode, tap to add/remove, then Delete — the same power via touch.</li><li><strong>Always confirms</strong> a bulk delete (“Delete N outlines?”), and deletion is <strong>recoverable</strong> — outlines move to the system Trash, not hard-deleted.</li></ul>"
+    },
+    "feature-proposed-changes": {
+      "id": "feature-proposed-changes",
+      "name": "Approve every AI change before it lands (Proposed Changes)",
+      "content": "<p><strong>Approve every AI change before it lands (2026-09).</strong> Any change the AI wants to make is shown as a preview first — nothing touches the outline until you say yes.</p><ul><li><strong>Deletions</strong> appear struck-through in amber; <strong>additions</strong> appear in a pending green; <strong>rewrites</strong> show before-and-after.</li><li><strong>Bulk operations</strong> list every affected item with its own checkbox — accept some, decline others.</li><li>One consistent experience across every AI feature, and every approved change is still <strong>fully undoable</strong>.</li></ul>",
+      "type": "document",
+      "childrenIds": [],
+      "prefix": "",
+      "isCollapsed": false,
+      "parentId": "0855ebbc-563f-40a1-a524-55b6b5c69833"
+    },
+    "feature-ai-cost-clarity": {
+      "id": "feature-ai-cost-clarity",
+      "name": "Honest cost check before big AI jobs + private usage ledger",
+      "content": "<p><strong>Honest cost check before big AI jobs (2026-09).</strong> Small AI operations just run. The six big ones — podcast, video, LIVE BOOKS, YouTube package, bulk research, and writing content for a whole branch — always ask first, telling you honestly whose key will be billed and what a job like this typically costs.</p><ul><li>All 26 AI operations are classed light / medium / heavy so the app knows which ones deserve a heads-up.</li><li>A <strong>usage ledger</strong> — kept only on your machine, reported nowhere — shows where your AI activity and spend have gone.</li></ul>",
+      "type": "document",
+      "childrenIds": [],
+      "prefix": "",
+      "isCollapsed": false,
+      "parentId": "0855ebbc-563f-40a1-a524-55b6b5c69833"
+    },
+    "feature-byok-premium-text-models": {
+      "id": "feature-byok-premium-text-models",
+      "name": "Premium AI models on your own key — Claude, OpenAI, Groq, Mistral",
+      "content": "<p><strong>Premium AI models on your own key (2026-09).</strong> Bring your own key and run Claude, OpenAI, Groq, or Mistral text models for IdeaM's AI features — billed to your own provider account, pay-as-you-go, under your control. Gemini stays the built-in default (now Gemini 3.8 Flash), so everything works before you add any key at all.</p>",
+      "type": "document",
+      "childrenIds": [],
+      "prefix": "",
+      "isCollapsed": false,
+      "parentId": "0855ebbc-563f-40a1-a524-55b6b5c69833"
+    },
+    "feature-podcast-update-changed": {
+      "id": "feature-podcast-update-changed",
+      "name": "Podcast export — updates only what changed",
+      "content": "<p><strong>Podcast export, finished — and it updates only what changed (2026-09).</strong> Podcast generation now ships complete, with money-safe voice choices. Better: IdeaM remembers which outline section produced each piece of audio. Export a podcast you've made before and it tells you “You've made this podcast before — 3 of 14 sections changed”, then offers:</p><ul><li><strong>Update Changed</strong> — regenerate only the edited sections and reuse the untouched audio (faster, and cheaper on AI cost), or</li><li><strong>Start Fresh</strong> — rebuild the whole thing.</li></ul><p>Video export is getting the same smart-update treatment next — part of a foundation where one outline can become a book, podcast, video, slides, or website, each rebuild touching only what you edited.</p>",
+      "type": "document",
+      "childrenIds": [],
+      "prefix": "",
+      "isCollapsed": false,
+      "parentId": "0855ebbc-563f-40a1-a524-55b6b5c69833"
+    },
+    "feature-agent-suggestions": {
+      "id": "feature-agent-suggestions",
+      "name": "Outside AI assistants — can read and suggest, never change",
+      "content": "<p><strong>Outside AI assistants can read and suggest — never change (2026-09).</strong> Connect assistants like Claude Desktop to your outlines: they can read and search freely, but any edit they want becomes a <strong>suggestion</strong> waiting for your approval — they cannot change your outline, and nothing outside the app can approve anything. You review suggestions inside IdeaM with the same approve/decline preview used for the app's own AI. Your outline, your final word.</p>",
+      "type": "document",
+      "childrenIds": [],
+      "prefix": "",
+      "isCollapsed": false,
+      "parentId": "0855ebbc-563f-40a1-a524-55b6b5c69833"
+    },
+    "feature-show-me-views": {
+      "id": "feature-show-me-views",
+      "name": "“Show Me…” — describe a view in plain words, save it as a live view",
+      "content": "<p><strong>“Show Me…” saved live views (2026-09).</strong> Say what you want to see in plain words — “show me everything tagged urgent that mentions the demo” — and IdeaM turns it into visible, editable criteria you can read and adjust, then save as a named live view that stays current as the outline evolves.</p><ul><li>Matching sections unfold; everything else stays compressed but visible, so context never disappears.</li><li>The outline's shape moves only when you act — a view changes what you <em>see</em>, never what you <em>have</em>.</li><li>A faithful extension of the search shaper from Howard's 1988 outliner.</li></ul>",
+      "type": "document",
+      "childrenIds": [],
+      "prefix": "",
+      "isCollapsed": false,
+      "parentId": "0855ebbc-563f-40a1-a524-55b6b5c69833"
+    },
+    "feature-export-fidelity": {
+      "id": "feature-export-fidelity",
+      "name": "Exports never silently lose your work — all 23 formats audited",
+      "content": "<p><strong>Exports never silently lose your work (2026-09).</strong> Every one of the 23 export formats was audited for silent data loss, and seven quietly-lossy bugs were fixed — including one where the OPML export could drop unnamed nodes together with everything beneath them, and drop tags and colors.</p><ul><li>A per-format <strong>truth table</strong> now documents exactly what each format carries and what it can't (some formats simply can't hold colors or tags — now that's stated, never silent).</li><li>A plain-English data-ownership statement is drafted: your outlines are yours, and they leave the app whole.</li></ul>",
+      "type": "document",
+      "childrenIds": [],
+      "prefix": "",
+      "isCollapsed": false,
+      "parentId": "0855ebbc-563f-40a1-a524-55b6b5c69833"
+    },
+    "feature-any-window-size": {
+      "id": "feature-any-window-size",
+      "name": "Fits any window size — iPad and iPhone ready for iOS 27",
+      "content": "<p><strong>Fits any window size (2026-09).</strong> Every layout now survives arbitrary window shapes and sizes — ready ahead of Apple's iOS/iPadOS 27 flexible windowing (shipped before the September 14 release).</p><ul><li>Settings stays fully usable even at 320 pixels wide.</li><li>Help and the AI panels never clip off-screen.</li><li>On iPad in portrait, the sidebar overlays content instead of squeezing it.</li></ul>",
+      "type": "document",
+      "childrenIds": [],
+      "prefix": "",
+      "isCollapsed": false,
+      "parentId": "0855ebbc-563f-40a1-a524-55b6b5c69833"
+    },
+    "feature-mac-desktop-install": {
+      "id": "feature-mac-desktop-install",
+      "name": "Mac desktop app — signed install (final polish in progress)",
+      "content": "<p><strong>Mac desktop app — signed install (2026-09, final polish in progress).</strong> The Mac desktop app now has an officially signed build (Apple's Developer ID), and the final step — notarization, Apple's malware-check stamp that lets the app install cleanly on any Mac without warnings — is being finalized now. The first outside install is already lined up.</p>",
+      "type": "document",
+      "childrenIds": [],
+      "prefix": "",
+      "isCollapsed": false,
+      "parentId": "0855ebbc-563f-40a1-a524-55b6b5c69833"
     }
   },
-  "lastModified": 1783730180343,
+  "lastModified": 1788995167711,
   "isGuide": false,
   "_fileSize": 92406,
   "_fileName": "IdeaM -- Current Features.idm",
