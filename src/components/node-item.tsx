@@ -5,7 +5,7 @@ import type { OutlineNode, NodeMap } from '@/types';
 import NodeIcon from './node-icon';
 import { TagBadge } from './tag-badge';
 import NodePropertiesDialog from './node-properties-dialog';
-import { ChevronRight, Plus, Trash2, Edit3, ChevronDown, ChevronUp, ChevronsDown, ChevronsUp, Copy, Scissors, ClipboardPaste, CopyPlus, Sparkles, CheckSquare2, Square, Sliders, Share, Globe, ExternalLink, Focus, RefreshCw, CircleDot, Check, Eraser, Link2, FolderKanban, AlertTriangle, MoveRight } from 'lucide-react';
+import { ChevronRight, Plus, Trash2, Edit3, ChevronDown, ChevronUp, ChevronsDown, ChevronsUp, Copy, Scissors, ClipboardPaste, CopyPlus, Sparkles, CheckSquare2, Square, Sliders, Share, Globe, ExternalLink, Focus, RefreshCw, CircleDot, Check, Eraser, Link2, FolderKanban, AlertTriangle, MoveRight, Columns3 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import {
@@ -82,6 +82,12 @@ interface NodeItemProps {
   onInsertOutlineLink?: () => void;
   // Zoom In / Focus this node (selects it, then enters Focus mode)
   onZoomNode?: (nodeId: string) => void;
+  // Board View (P4, 2026-09-11) — open this node's subtree as a kanban board
+  // (children = columns, grandchildren = cards). A projection of the outline,
+  // not a separate data model: dragging a card between columns reparents the
+  // node via the normal undo-backed move. Lives here (context menu) per the
+  // scope-decides-placement rule: it acts on the SELECTED node's subtree.
+  onOpenBoard?: (nodeId: string) => void;
   // Refresh this node's subtree from the latest web info (selects it, opens LIVE BOOKS)
   onRefreshFromWeb?: (nodeId: string) => void;
   // Set/clear the reserved status tag on the current selection (single node or
@@ -220,6 +226,7 @@ export default function NodeItem({
   maxRenderDepth,
   onInsertOutlineLink,
   onZoomNode,
+  onOpenBoard,
   onRefreshFromWeb,
   onSetStatus,
   onSetPrerequisite,
@@ -966,6 +973,13 @@ export default function NodeItem({
               </ContextMenuItem>
             )}
 
+            {onOpenBoard && (
+              <ContextMenuItem onClick={(e) => { e.stopPropagation(); onOpenBoard(node.id); }}>
+                <Columns3 className="mr-2 h-4 w-4" />
+                Board View
+              </ContextMenuItem>
+            )}
+
             {onRefreshFromWeb && !isReadOnly && (
               <ContextMenuItem onClick={(e) => { e.stopPropagation(); onRefreshFromWeb(node.id); }}>
                 <RefreshCw className="mr-2 h-4 w-4" />
@@ -1151,6 +1165,7 @@ export default function NodeItem({
                         maxRenderDepth={maxRenderDepth}
                         onInsertOutlineLink={onInsertOutlineLink}
                         onZoomNode={onZoomNode}
+                        onOpenBoard={onOpenBoard}
                         onRefreshFromWeb={onRefreshFromWeb}
                         onSetStatus={onSetStatus}
                         onSetPrerequisite={onSetPrerequisite}

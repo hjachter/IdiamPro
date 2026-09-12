@@ -54,6 +54,7 @@ import BulkResearchDialog from './bulk-research-dialog';
 import ApplicationsDialog from './applications-dialog';
 import { APPLICATIONS, type ApplicationRecipe } from '@/lib/applications/registry';
 import LiveBooksDialog from './live-books-dialog';
+import BoardView from './board-view';
 import TranslateDialog from './translate-dialog';
 import ReformatDialog from './reformat-dialog';
 import TransformOutlineDialog from './transform-outline-dialog';
@@ -575,6 +576,14 @@ export default function OutlinePro() {
 
   // LIVE BOOKS (manual AI refresh) dialog state
   const [isLiveBooksOpen, setIsLiveBooksOpen] = useState(false);
+
+  // BOARD VIEW (P4 prototype, 2026-09-11) — which node's subtree is open as a
+  // kanban board (children = columns, grandchildren = cards). Null = closed.
+  // The board is a pure PROJECTION of the outline: it renders from
+  // currentOutline.nodes and card moves flow through the same moveNode-backed
+  // handler as tree drag-drop, so the outline stays the single source of
+  // truth and every move is undo-backed.
+  const [boardNodeId, setBoardNodeId] = useState<string | null>(null);
 
   // Translate (language translation) dialog state — same transform engine
   // as LIVE BOOKS, different transformer (#52). Re-wired 2026-06-04.
@@ -2257,6 +2266,15 @@ export default function OutlinePro() {
       });
     });
   }, [currentOutlineId]);
+
+  // BOARD VIEW card move (P4, 2026-09-11): same moveNode-backed mutation as
+  // tree drag-drop, but labeled on the undo stack so Cmd+Z after a board move
+  // reads "Undid: Move card (Board View)". Reparenting a card to another
+  // column IS the hierarchy change — no separate board data model exists.
+  const handleBoardMoveCard = useCallback((draggedId: string, targetId: string, position: 'before' | 'after' | 'inside') => {
+    markNextAction('Move card (Board View)');
+    handleMoveNode(draggedId, targetId, position);
+  }, [markNextAction, handleMoveNode]);
 
   // FIXED: handleToggleCollapse uses functional update pattern
   const handleToggleCollapse = useCallback((nodeId: string) => {
@@ -6127,6 +6145,13 @@ export default function OutlinePro() {
           onApply={handleApplyLiveBooks}
           useLocalAI={liveBooksUseLocal}
         />
+        <BoardView
+          open={boardNodeId !== null}
+          onOpenChange={(open) => { if (!open) setBoardNodeId(null); }}
+          nodes={currentOutline?.nodes ?? {}}
+          boardNodeId={boardNodeId}
+          onMoveCard={currentOutline?.isGuide ? undefined : handleBoardMoveCard}
+        />
         <TranslateDialog
           open={isTranslateOpen}
           onOpenChange={setIsTranslateOpen}
@@ -6500,6 +6525,7 @@ export default function OutlinePro() {
                 onOpenHelp={() => setIsHelpChatOpen(true)}
                 onOpenKnowledgeChat={() => setIsKnowledgeChatOpen(true)}
                 onOpenLiveBooks={() => setIsLiveBooksOpen(true)}
+                onOpenBoard={(id) => setBoardNodeId(id)}
                 onOpenTranslate={() => setIsTranslateOpen(true)}
                 onOpenReformat={() => {
                   setReformatSelectionHtml(null);
@@ -6847,6 +6873,14 @@ export default function OutlinePro() {
         selectedNodeId={selectedNodeId}
         onApply={handleApplyLiveBooks}
         useLocalAI={liveBooksUseLocal}
+      />
+
+      <BoardView
+        open={boardNodeId !== null}
+        onOpenChange={(open) => { if (!open) setBoardNodeId(null); }}
+        nodes={currentOutline?.nodes ?? {}}
+        boardNodeId={boardNodeId}
+        onMoveCard={currentOutline?.isGuide ? undefined : handleBoardMoveCard}
       />
 
       <TranslateDialog
@@ -7248,6 +7282,7 @@ export default function OutlinePro() {
                 onOpenHelp={() => setIsHelpChatOpen(true)}
                 onOpenKnowledgeChat={() => setIsKnowledgeChatOpen(true)}
                 onOpenLiveBooks={() => setIsLiveBooksOpen(true)}
+                onOpenBoard={(id) => setBoardNodeId(id)}
                 onOpenTranslate={() => setIsTranslateOpen(true)}
                 onOpenReformat={() => {
                   setReformatSelectionHtml(null);

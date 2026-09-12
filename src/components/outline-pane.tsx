@@ -214,6 +214,10 @@ interface OutlinePaneProps {
   // Focus Mode
   isFocusMode?: boolean;
   onToggleFocusMode?: () => void;
+  // Board View (P4, 2026-09-11) — open the selected node's subtree as a
+  // kanban board (children = columns, grandchildren = cards). Context-menu
+  // entry, threaded down to each NodeItem.
+  onOpenBoard?: (nodeId: string) => void;
   // Cross-outline link picker (Phase 1, 2026-06-04)
   onOpenLinkToOutline?: () => void;
   // Backup / Restore (2026-06-10) — open the snapshots dialog. When the user
@@ -311,6 +315,7 @@ export default function OutlinePane({
   onUnmerge,
   isFocusMode,
   onToggleFocusMode,
+  onOpenBoard,
   onOpenLinkToOutline,
   onOpenBackup,
   onOpenRestore,
@@ -2178,6 +2183,7 @@ export default function OutlinePane({
               maxRenderDepth={maxRenderDepth}
               onInsertOutlineLink={currentOutline.isGuide ? undefined : onOpenLinkToOutline}
               onZoomNode={(id) => { onSelectNode(id); onToggleFocusMode?.(); }}
+              onOpenBoard={onOpenBoard ? (id) => { onSelectNode(id); onOpenBoard(id); } : undefined}
               onRefreshFromWeb={currentOutline.isGuide ? undefined : (id) => { onSelectNode(id); onOpenLiveBooks?.(); }}
               onSetStatus={currentOutline.isGuide ? undefined : onSetStatus}
               onSetPrerequisite={currentOutline.isGuide ? undefined : onSetPrerequisite}
