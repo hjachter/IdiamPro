@@ -30,6 +30,7 @@ type Section = {
   steps?: string[];
   bullets?: string[];
   soon?: boolean;
+  early?: boolean; // shipped, but in early access — carries an "Early access" badge
 };
 
 type Group = {
@@ -176,6 +177,7 @@ const GROUPS: Group[] = [
         note: 'Right-click a node → Generate Podcast',
         body: [
           'Turn a chapter into a narrated audio episode in real voices.',
+          'Your podcast is a two-host conversation, not a monotone read-through — and it starts playing the moment it’s ready.',
         ],
         steps: [
           'Right-click any node and choose Generate Podcast.',
@@ -264,12 +266,36 @@ const GROUPS: Group[] = [
           'YouTube — a publish package (title options, description with chapter timestamps, tags, and a thumbnail idea) that pairs with Make a Video.',
         ],
       },
+      {
+        anchor: 'export-as-pdf',
+        title: 'Export as PDF',
+        note: 'Mac app → Export menu → PDF',
+        body: [
+          'Export any outline as a polished PDF. On the Mac app it’s a real document, not a text dump: a title page, a table of contents, and an index — built automatically from your structure. Big outlines export fast, you can cancel anytime, and the finished PDF opens for you immediately.',
+        ],
+      },
     ],
   },
   {
     id: 'foundations',
     label: 'Foundations',
     sections: [
+      {
+        anchor: 'proposed-changes',
+        title: 'Proposed Changes — approve every AI edit',
+        body: [
+          'When you ask AI to change your outline — trim it, reorganize it, rewrite a section — IdeaM never just does it. Instead you see the proposal in place: deletions struck through, additions as pending items, rewrites shown before-and-after. Bulk operations list every affected item with its own checkbox. Approve it all, cherry-pick, or discard — and even after approving, Undo brings everything back.',
+        ],
+      },
+      {
+        anchor: 'connect-your-ai-assistant',
+        title: 'Connect your AI assistant',
+        early: true,
+        body: [
+          'Connect an assistant like Claude Desktop and it can read and search your outlines to answer questions and do research with your own material. It cannot edit your files — it can only propose changes, which appear in IdeaM for your approval like any other Proposed Change. Your outlines stay untouched until you say otherwise.',
+          'Assistant connections are in early access — the capability is real and working, and setup is being opened up gradually.',
+        ],
+      },
       {
         anchor: 'privacy-first',
         title: 'Privacy-First',
@@ -332,6 +358,11 @@ function SectionBlock({ section }: { section: Section }) {
         {section.soon && (
           <span className="inline-flex items-center rounded-full border border-amber-400 bg-amber-100 px-2.5 py-0.5 text-[10px] font-mono font-semibold uppercase tracking-wider text-amber-800">
             Coming soon
+          </span>
+        )}
+        {section.early && (
+          <span className="inline-flex items-center rounded-full border border-blue-600/30 bg-blue-600/10 px-2.5 py-0.5 text-[10px] font-mono font-semibold uppercase tracking-wider text-[#1e40af]">
+            Early access
           </span>
         )}
       </div>

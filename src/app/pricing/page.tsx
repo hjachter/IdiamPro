@@ -415,7 +415,7 @@ export default function PricingPage() {
                 features={[
                   'Unlimited outlines',
                   'All core outliner features',
-                  'Bring your own AI key — Google Gemini powers text out of the box, or plug in your own key for Anthropic Claude, OpenAI GPT, Groq, or Mistral, pay-as-you-go on your key. Free on-device AI via Ollama; OpenAI powers premium voices (ElevenLabs voices coming soon)',
+                  'Bring your own AI key — Google Gemini powers text out of the box, or plug in your own key for Anthropic Claude, OpenAI GPT, Groq, or Mistral, pay-as-you-go on your key. Free on-device AI via Ollama; OpenAI powers premium voices',
                   'AI on your own key — everyday use typically free, pay your provider directly for anything heavier',
                   'All export formats',
                   'Multi-platform (Mac, iPhone, web)'
@@ -547,7 +547,7 @@ export default function PricingPage() {
                     What does bringing your own key cost?
                   </h3>
                   <p className="text-[#2b3a5c] text-lg font-medium leading-relaxed">
-                    <span className="text-[#0b1533] font-semibold">Everyday use is typically free</span> — Google Gemini&apos;s free tier covers normal use at no cost, no credit card. And because it&apos;s your key, you&apos;re always in control: you pay your provider directly, pay-as-you-go, so a light user pays nothing and you only ever pay for what you choose to run. A big job on a premium model costs more — but it&apos;s <span className="text-[#0b1533] font-semibold">your call, fully visible to you, and never a surprise from us</span>. On a Mac, on-device AI is free forever, no key at all.
+                    <span className="text-[#0b1533] font-semibold">Everyday use is typically free</span> — Google Gemini&apos;s free tier covers normal use at no cost, no credit card. And because it&apos;s your key, you&apos;re always in control: you pay your provider directly, pay-as-you-go, so a light user pays nothing and you only ever pay for what you choose to run. A big job on a premium model costs more — but it&apos;s <span className="text-[#0b1533] font-semibold">your call, fully visible to you, and never a surprise from us</span>. On a Mac, on-device AI is free forever, no key at all. And the built-in default never goes stale: as Google ships newer Gemini models, IdeaM keeps your default current automatically — no action from you, no change from us.
                   </p>
                 </div>
               </div>

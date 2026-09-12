@@ -827,6 +827,10 @@ export default function FeaturesPage() {
                   </li>
                   <li className="flex items-start gap-3 text-[#0b1533] text-base">
                     <Check className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                    <span><strong className="text-[#0b1533]">AI you can inspect</strong>—every AI edit is shown before it happens; approve, adjust, or discard</span>
+                  </li>
+                  <li className="flex items-start gap-3 text-[#0b1533] text-base">
+                    <Check className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                     <span><strong className="text-[#0b1533]">Your data, your way</strong>—23 export formats, local-first storage, no lock-in</span>
                   </li>
                 </ul>

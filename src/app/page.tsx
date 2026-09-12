@@ -71,7 +71,9 @@ import {
   Languages,
   Megaphone,
   Mail,
-  FolderSearch
+  FolderSearch,
+  Eye,
+  Bot
 } from 'lucide-react';
 
 // ============================================
@@ -888,6 +890,20 @@ function WhatsNew() {
         'Tag anything across your outlines, then filter to just what matters with a single click. Status tags — to-do, in progress, done — are landing next.',
     },
     {
+      icon: Eye,
+      availability: 'new',
+      title: 'AI edits you can see coming',
+      body:
+        'Ask AI to reorganize, trim, or rewrite — and watch every proposed change appear in your outline before it happens: deletions struck through, additions pending, rewrites shown before-and-after. Approve, adjust, or discard. Nothing changes without your say-so, and everything stays undoable.',
+    },
+    {
+      icon: Podcast,
+      availability: 'new',
+      title: 'Turn any outline into a podcast',
+      body:
+        'Pick a branch and get a natural two-host conversation about your ideas — playing the moment it’s done. Free voices built into your Mac sound surprisingly close to human; plug in your own key when you want studio-quality narration, pay-as-you-go.',
+    },
+    {
       icon: FolderSearch,
       availability: 'soon',
       title: 'Understand your drive',
@@ -944,6 +960,100 @@ function WhatsNew() {
               </div>
             );
           })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// "You stay in control" — the homepage trust band (approved copy, 2026-09).
+// Bundles the three trust stories — Proposed Changes, agent-safe assistant
+// connections, and open local files — into one memorable section. Frames
+// "inspectable AI" as a native strength without naming competitors. The
+// assistant-connection card carries an "Early access" badge (same pill style
+// as the What's-new availability badges).
+function StayInControl() {
+  const CARDS: {
+    icon: React.ElementType;
+    title: string;
+    body: string;
+    earlyAccess?: boolean;
+  }[] = [
+    {
+      icon: Eye,
+      title: 'See every change before it happens.',
+      body:
+        'When AI wants to edit your outline, nothing just happens to you. Deletions appear struck through — before anything is deleted. Additions arrive as pending items. Rewrites show up side by side, before and after. Big operations come with per-item checkboxes, so you approve exactly what you want and discard the rest. And everything stays undoable. It’s the review you’d give a trusted editor — built right into the outline.',
+    },
+    {
+      icon: Bot,
+      title: 'Outside assistants can look — only you can touch.',
+      body:
+        'Connect an AI assistant like Claude Desktop, and it can read and search your outlines to help you think. But it can only suggest changes — every edit comes back to you for approval inside IdeaM. Until you say yes, your files stay exactly as you left them.',
+      earlyAccess: true,
+    },
+    {
+      icon: FolderTree,
+      title: 'Your files, on your device, in open formats.',
+      body:
+        'Outlines live as plain files on your own computer, with 23 export formats and no lock-in. Back them up, sync them, walk away with them — they’re yours.',
+    },
+  ];
+
+  return (
+    <section
+      data-testid="stay-in-control"
+      className="px-6 py-24 lg:px-12 border-t border-[#dde5f2] bg-white"
+    >
+      <div className="max-w-[1400px] mx-auto">
+        {/* Heading */}
+        <div className="text-center max-w-3xl mx-auto mb-14">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-600/15 border border-blue-600/40 mb-6">
+            <Shield className="w-4 h-4 text-[#1e40af]" />
+            <span className="text-sm font-semibold text-[#1e40af]">You stay in control</span>
+          </div>
+          <h2 className="text-4xl md:text-5xl font-extrabold text-[#0b1533] mb-4 tracking-tight">
+            AI powerful enough to reshape your thinking. Polite enough to ask first.
+          </h2>
+          <p className="text-lg md:text-xl font-medium text-[#2b3a5c] leading-relaxed max-w-[720px] mx-auto">
+            Your outline is your life&apos;s work. So in IdeaM, AI proposes — you decide. Every time.
+          </p>
+        </div>
+
+        {/* Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+          {CARDS.map((card) => {
+            const Icon = card.icon;
+            return (
+              <div
+                key={card.title}
+                className="flex flex-col rounded-2xl border border-[#dde5f2] bg-white p-6 md:p-7 shadow-[0_1px_3px_rgba(12,34,36,0.06),0_8px_24px_rgba(12,34,36,0.05)] transition-all duration-300 hover:shadow-[0_4px_12px_rgba(12,34,36,0.10),0_16px_40px_rgba(12,60,60,0.12)] hover:-translate-y-1"
+              >
+                <div className="flex items-start justify-between gap-3 mb-5">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-600/10 border border-blue-600/25 text-[#1e40af]">
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  {card.earlyAccess && (
+                    <span className="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-mono font-semibold uppercase tracking-wider bg-blue-600/12 border border-blue-600/30 text-[#1e40af]">
+                      Early access
+                    </span>
+                  )}
+                </div>
+                <h3 className="text-xl md:text-2xl font-extrabold text-[#0b1533] tracking-tight leading-tight mb-2">
+                  {card.title}
+                </h3>
+                <p className="text-base font-medium text-[#5b6b85] leading-relaxed">{card.body}</p>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Closing line */}
+        <div className="mt-10 flex justify-center">
+          <p className="max-w-[820px] text-center text-lg md:text-xl font-semibold text-[#0b1533] leading-relaxed">
+            The market is discovering that AI you can inspect beats AI you have to trust blindly.{' '}
+            <span className="text-[#1e40af]">We built IdeaM that way from the start.</span>
+          </p>
         </div>
       </div>
     </section>
@@ -1210,6 +1320,11 @@ export default function MarketingPage() {
             with a plain availability badge (New / At launch / Coming soon) so
             nothing is overstated. Sits right after the capabilities map. */}
         <WhatsNew />
+
+        {/* You stay in control — the trust band (Proposed Changes, agent-safe
+            assistant connections, open local files). Sits between "What's new"
+            and the "Seeing is believing" proof, per Howard's approved placement. */}
+        <StayInControl />
 
         {/* Sizzle reel — a 30-second "coming attractions" trailer of the three
             workflow stories, placed early as a fast emotional hook right before

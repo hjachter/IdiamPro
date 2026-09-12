@@ -53,7 +53,7 @@ const PLANS: PlanCard[] = [
     monthlyPriceNote: 'forever',
     features: [
       'Unlimited outlines and editing',
-      'Bring your own AI key — Google Gemini for text by default, or plug in your own key for Anthropic Claude, OpenAI GPT, Groq, or Mistral (pay your provider directly). OpenAI powers premium voices; ElevenLabs voices coming soon',
+      'Bring your own AI key — Google Gemini for text by default, or plug in your own key for Anthropic Claude, OpenAI GPT, Groq, or Mistral (pay your provider directly). OpenAI powers premium voices',
       'Local Ollama AI (on-device, free)',
       'All core outliner features',
       'All export formats',

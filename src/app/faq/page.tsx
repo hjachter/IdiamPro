@@ -95,7 +95,7 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
           ${isOpen ? 'rotate-180' : ''}`}
         />
       </button>
-      <div className={`overflow-hidden transition-all duration-300 ${isOpen ? 'max-h-96 pb-5' : 'max-h-0'}`}>
+      <div className={`overflow-hidden transition-all duration-300 ${isOpen ? 'max-h-[48rem] pb-5' : 'max-h-0'}`}>
         <p className="text-[#2b3a5c] text-base font-medium leading-relaxed">{answer}</p>
       </div>
     </div>
@@ -122,8 +122,16 @@ export default function FaqPage() {
       answer: 'Absolutely. IdeaM uses a local-first architecture—your outlines are stored on your device by default. When you use AI features, your content is sent securely to process but is never used to train AI models. We never sell your data.'
     },
     {
+      question: 'Will AI ever change my outline without asking?',
+      answer: 'No. IdeaM shows you every proposed edit before it happens — deletions struck through, additions as pending items, rewrites side by side as before-and-after. Bulk changes come with per-item checkboxes. You approve, adjust, or discard, and even approved changes stay undoable. AI drafts; you decide.'
+    },
+    {
+      question: 'Can other AI assistants work with my outlines?',
+      answer: 'Yes — safely. Connect an assistant like Claude Desktop and it can read and search your outlines to help you research and think. It can only suggest changes, though: every edit comes to you for approval inside IdeaM, and until you approve, your files stay exactly as they were.'
+    },
+    {
       question: 'What AI models do you use?',
-      answer: 'AI text generation runs on Google Gemini out of the box, or fully on-device via Ollama (Mac). Want a different engine? Bring your own key and you can run text on Anthropic Claude, OpenAI GPT, Groq, or Mistral — pay-as-you-go, billed directly by your provider, so you stay in control. Premium podcast and video voices use OpenAI, every device also has free built-in voices, and ElevenLabs voices are coming soon.'
+      answer: 'AI text generation runs on Google Gemini out of the box, or fully on-device via Ollama (Mac). Want a different engine? Bring your own key and you can run text on Anthropic Claude, OpenAI GPT, Groq, or Mistral — pay-as-you-go, billed directly by your provider, so you stay in control. Premium podcast and video voices use OpenAI, and every device also has free built-in voices. The built-in default also stays current: as newer Gemini models ship, IdeaM upgrades the default automatically, with no change in what you pay us.'
     },
     {
       question: 'Does it work offline?',
@@ -131,7 +139,7 @@ export default function FaqPage() {
     },
     {
       question: 'Can I export my work?',
-      answer: 'IdeaM offers 23 export formats: PDF, Markdown, HTML (collapsible website), Word, LaTeX, EPUB, Plain Text, OPML, Obsidian (with wiki-links), Notion, CSV, JSON Tree, and more. Your data is never locked in.'
+      answer: 'IdeaM offers 23 export formats: PDF, Markdown, HTML (collapsible website), Word, LaTeX, EPUB, Plain Text, OPML, Obsidian (with wiki-links), Notion, CSV, JSON Tree, and more. Your data is never locked in. PDF exports are real documents, not text dumps — on the Mac app each one gets a title page, a table of contents, and an index, built from your outline automatically.'
     }
   ];
 

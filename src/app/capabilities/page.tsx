@@ -33,6 +33,9 @@ import {
   Monitor,
   CheckCircle2,
   Inbox,
+  Eye,
+  Bot,
+  FileText,
 } from 'lucide-react';
 
 // ---------------------------------------------------------------------------
@@ -46,6 +49,7 @@ type Capability = {
   anchor?: string; // /guide#<anchor>
   icon: React.ElementType;
   soon?: boolean;
+  early?: boolean; // shipped, but in early access — carries an "Early access" badge
 };
 
 type Group = {
@@ -116,6 +120,12 @@ const GROUPS: Group[] = [
         anchor: 'your-voice',
         icon: PenTool,
       },
+      {
+        name: 'Proposed Changes',
+        what: 'AI shows you every edit before it happens; you approve, adjust, or discard.',
+        anchor: 'proposed-changes',
+        icon: Eye,
+      },
     ],
   },
   {
@@ -124,7 +134,7 @@ const GROUPS: Group[] = [
     items: [
       {
         name: 'Make a Podcast',
-        what: 'Turn a chapter into a narrated audio episode in real voices.',
+        what: 'Turn a chapter into a two-host conversation that plays the moment it’s done.',
         anchor: 'make-a-podcast',
         icon: Podcast,
       },
@@ -164,6 +174,12 @@ const GROUPS: Group[] = [
         anchor: 'share-to-social',
         icon: Share2,
       },
+      {
+        name: 'Export a Real Book-Quality PDF',
+        what: 'Not a text dump: on the Mac app, a title page, a table of contents, and an index, generated from your outline and ready to share.',
+        anchor: 'export-as-pdf',
+        icon: FileText,
+      },
     ],
   },
   {
@@ -187,6 +203,13 @@ const GROUPS: Group[] = [
         what: 'Every AI draft runs an automatic check that flags possible errors before you send.',
         anchor: 'quality-checked',
         icon: CheckCircle2,
+      },
+      {
+        name: 'Agent-Safe Outlines',
+        what: 'Outside AI assistants — like Claude Desktop — can read and search your outlines, but only suggest changes. You approve everything, in IdeaM.',
+        anchor: 'connect-your-ai-assistant',
+        icon: Bot,
+        early: true,
       },
     ],
   },
@@ -233,6 +256,11 @@ function CapabilityRow({ cap }: { cap: Capability }) {
           {cap.soon && (
             <span className="ml-2 inline-flex items-center rounded-full border border-amber-400/60 bg-amber-50 px-2 py-0.5 text-[10px] font-mono font-semibold uppercase tracking-wider text-amber-700 align-middle">
               Not yet available
+            </span>
+          )}
+          {cap.early && (
+            <span className="ml-2 inline-flex items-center rounded-full border border-blue-600/30 bg-blue-600/10 px-2 py-0.5 text-[10px] font-mono font-semibold uppercase tracking-wider text-[#1e40af] align-middle">
+              Early access
             </span>
           )}
         </div>
