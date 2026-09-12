@@ -230,7 +230,7 @@ function FeedbackPageInner() {
                 Thanks — you've earned 1 year of Pro features.
               </CardTitle>
               <CardDescription className="text-base mt-2">
-                Enjoy. (Reminder: bring your own AI key for unlimited AI use; we don't charge for the
+                Enjoy. (Reminder: bring your own AI key and everyday AI is typically free; we don't charge for the
                 features but you cover the API.)
               </CardDescription>
             </CardHeader>
@@ -275,7 +275,7 @@ function FeedbackPageInner() {
           <h1 className="text-3xl font-semibold tracking-tight">Share your beta feedback</h1>
           <p className="text-muted-foreground mt-2 max-w-xl mx-auto">
             Five minutes of your time earns a year of Pro features at no charge. Bring your own AI
-            API key for unlimited AI use. A short video quote also earns a Founding User badge
+            API key — everyday AI is typically free, pay-as-you-go on your key. A short video quote also earns a Founding User badge
             inside the app.
           </p>
         </header>
