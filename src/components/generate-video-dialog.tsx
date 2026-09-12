@@ -75,6 +75,11 @@ import {
   veoFreshScopeNote,
   veoUpdateScopeNote,
 } from '@/lib/video/veo-constants';
+import {
+  LYRIA_MODEL_ID,
+  lyriaMusicScopeNote,
+  lyriaPerVideoPhrase,
+} from '@/lib/video/lyria-constants';
 
 // Detail (depth) control — how many levels of the outline become their own
 // slides. Value-based labels; the number is the maxDepth passed to the slide
@@ -171,6 +176,31 @@ function saveSceneStyle(key: SceneStyleKey): void {
   try { window.localStorage.setItem(SCENE_STYLE_STORAGE_KEY, key); } catch { /* ignore */ }
 }
 
+// Music bed (Phase 3C) — an OPTIONAL AI-generated instrumental under the
+// narration, on the user's OWN Google AI (Gemini) key:
+//   'off'    — no music (default; nothing generated, nothing billed)
+//   'subtle' — one soft looping bed, duck-mixed under the voice. Real (small)
+//              money — so the choice is explicit, key-gated (the section only
+//              appears with a Gemini key), and every music run gets an
+//              un-suppressible P2 confirm with honest cost framing.
+// Capability-preserving: 'off' leaves the existing pipeline untouched.
+type MusicChoiceKey = 'off' | 'subtle';
+const MUSIC_STORAGE_KEY = 'idiampro:video-music';
+
+function loadMusicChoice(): MusicChoiceKey {
+  if (typeof window === 'undefined') return 'off';
+  try {
+    const saved = window.localStorage.getItem(MUSIC_STORAGE_KEY);
+    if (saved === 'subtle' || saved === 'off') return saved;
+  } catch { /* localStorage unavailable — fall back to default */ }
+  return 'off';
+}
+
+function saveMusicChoice(key: MusicChoiceKey): void {
+  if (typeof window === 'undefined') return;
+  try { window.localStorage.setItem(MUSIC_STORAGE_KEY, key); } catch { /* ignore */ }
+}
+
 // Reject logo uploads bigger than this — keeps localStorage small and renders fast.
 const MAX_LOGO_BYTES = 1_500_000;
 const ACCEPTED_LOGO_TYPES = ['image/png', 'image/jpeg', 'image/svg+xml', 'image/webp'];
@@ -251,6 +281,8 @@ export default function GenerateVideoDialog({
     usedTts?: boolean;
     /** 1-based scene numbers that fell back from Veo to the slide look. */
     veoFallbackScenes?: number[];
+    /** Music was requested but couldn't be added (the video still finished). */
+    musicSkipped?: boolean;
   } | null>(null);
   const [acknowledgedLarge, setAcknowledgedLarge] = useState(false);
   const [depthKey, setDepthKey] = useState<DepthKey>(DEFAULT_DEPTH_KEY);
@@ -258,6 +290,8 @@ export default function GenerateVideoDialog({
   // Scene style (Phase 3B): designed slides (default) vs. Veo AI video.
   const [sceneStyle, setSceneStyle] = useState<SceneStyleKey>('slides');
   const [hasGeminiKey, setHasGeminiKey] = useState(false);
+  // Music bed (Phase 3C): off (default) vs. a subtle AI-generated bed.
+  const [musicChoice, setMusicChoice] = useState<MusicChoiceKey>('off');
 
   const desktop = isElectron();
   const chapterNode = outline && selectedNodeId ? outline.nodes[selectedNodeId] : null;
@@ -334,8 +368,10 @@ export default function GenerateVideoDialog({
     setDepthKey(loadDepthKey());
     setVisualsSel(loadVisualsSel());
     setSceneStyle(loadSceneStyle());
-    // Veo runs ONLY on the user's own Gemini key (BYOK) — read fresh on every
-    // open so adding/removing the key in Settings is reflected immediately.
+    setMusicChoice(loadMusicChoice());
+    // Veo and the music bed run ONLY on the user's own Gemini key (BYOK) —
+    // read fresh on every open so adding/removing the key in Settings is
+    // reflected immediately.
     setHasGeminiKey(!!getUserApiKey('gemini'));
   }, [open]);
 
@@ -343,6 +379,10 @@ export default function GenerateVideoDialog({
   // silently means slides (the option is disabled in the UI in that state —
   // we never let a keyless run pretend it will produce AI video).
   const veoSelected = sceneStyle === 'veo' && hasGeminiKey;
+  // The EFFECTIVE music choice: a saved 'subtle' without a Gemini key means
+  // off (the whole Music section is hidden in that state — a keyless run must
+  // never pretend it will add music, and can never bill anyone).
+  const musicSelected = musicChoice === 'subtle' && hasGeminiKey;
 
   // While a render is running, tick once a second so the time-remaining line
   // stays live even between the pipeline's per-slide progress events.
@@ -476,7 +516,7 @@ export default function GenerateVideoDialog({
     // billed-again) and are NEVER suppressible: alwaysConfirm bypasses
     // Professional mode and "Don't ask again" — no Veo dollars ever move
     // without this explicit confirm.
-    const scopeNote = veoSelected
+    const baseScopeNote = veoSelected
       ? (effectiveMode === 'update' && previousVersion
           ? veoUpdateScopeNote(previousVersion.changed, previousVersion.total)
           : veoFreshScopeNote(slideCount))
@@ -485,9 +525,22 @@ export default function GenerateVideoDialog({
               ? 'Nothing has changed since your last video — every scene is reused and the video is quickly reassembled.'
               : `Updating ${previousVersion.changed} of ${previousVersion.total} scene${previousVersion.total === 1 ? '' : 's'} — unchanged scenes are reused, which is faster and cheaper.`)
           : undefined);
+    // 🎵 Phase 3C: when the music bed is on, the confirm ALSO carries its
+    // honest real-money line (small cents range, who bills whom, reuse-not-
+    // billed-again on updates) — and, like Veo, the confirm becomes
+    // UN-SUPPRESSIBLE: no run that moves money on the user's key ever starts
+    // without an explicit confirm, regardless of Professional mode or
+    // "Don't ask again".
+    const musicNote = musicSelected
+      ? lyriaMusicScopeNote(effectiveMode === 'update' ? 'update' : 'fresh')
+      : null;
+    const scopeNote = [baseScopeNote, musicNote].filter(Boolean).join(' ') || undefined;
     const approved = veoSelected
       ? await approveHeavyOp('videoGenerationVeo', { scopeNote, alwaysConfirm: true })
-      : await approveHeavyOp('videoGeneration', scopeNote ? { scopeNote } : undefined);
+      : await approveHeavyOp('videoGeneration',
+          (scopeNote || musicSelected)
+            ? { scopeNote, alwaysConfirm: musicSelected || undefined }
+            : undefined);
     if (!approved) return;
     // Free-taste gate — Pro renders clean; free renders carry a watermark
     // until the 10-video lifetime allowance is spent, then the upgrade prompt.
@@ -499,6 +552,7 @@ export default function GenerateVideoDialog({
       sceneResults?: Array<{ index: number; engine?: string; clipKey?: string; fromCache?: boolean; durationSeconds?: number } | null>;
       cache?: { reused: number; generated: number };
       veo?: { requested: number; apiCalls: number; rawReused: number; fellBack: number[]; refusedNoKey?: boolean };
+      music?: { requested: boolean; apiCalls: number; rawReused: number; applied: boolean; refusedNoKey?: boolean };
     }> } }).electronAPI;
     if (!api?.generateSlideshowVideo) {
       setErrorMsg('The video generator is not available in this build.');
@@ -551,6 +605,12 @@ export default function GenerateVideoDialog({
         veo: veoSelected
           ? { enabled: true, apiKey: getUserApiKey('gemini') || '', model: VEO_MODEL_ID }
           : undefined,
+        // 🎵 Phase 3C: the optional music bed, on the USER'S OWN Gemini key
+        // (BYOK — the renderer refuses env/dev keys for music). Only ever
+        // sent after the un-suppressible P2 confirm above.
+        music: musicSelected
+          ? { enabled: true, apiKey: getUserApiKey('gemini') || '', model: LYRIA_MODEL_ID, mood: 'subtle' }
+          : undefined,
       });
       stopProgress();
       if (!result?.success || !result.outputPath) {
@@ -577,6 +637,7 @@ export default function GenerateVideoDialog({
         (window as unknown as { __videoCacheStats?: unknown }).__videoCacheStats = result.cache ?? null;
         (window as unknown as { __videoSceneResults?: unknown }).__videoSceneResults = result.sceneResults ?? null;
         (window as unknown as { __videoVeoStats?: unknown }).__videoVeoStats = result.veo ?? null;
+        (window as unknown as { __videoMusicStats?: unknown }).__videoMusicStats = result.music ?? null;
       } catch { /* ignore */ }
       // Charge one free-video credit ONLY on a successful render (never on
       // failure/cancel). Pro renders are unlimited and don't touch the counter.
@@ -592,6 +653,8 @@ export default function GenerateVideoDialog({
         veoFallbackScenes: veoSelected && result.veo && result.veo.fellBack.length > 0
           ? result.veo.fellBack.map((i) => i + 1)
           : undefined,
+        // Honest completion note: music was asked for but couldn't be added.
+        musicSkipped: musicSelected && !(result.music && result.music.applied),
       });
       setPhase('done');
     } catch (e) {
@@ -800,6 +863,55 @@ export default function GenerateVideoDialog({
                     </p>
                   )}
                 </div>
+
+                {/* Music bed (Phase 3C) — an optional AI-generated instrumental
+                    under the narration, on the user's own Google key. The whole
+                    section appears ONLY with a Gemini key on file: keyless,
+                    there is nothing to offer and nothing that could ever bill.
+                    Off by default; honest cents framing; strictly additive. */}
+                {hasGeminiKey && (
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Music</Label>
+                    <RadioGroup
+                      value={musicSelected ? 'subtle' : 'off'}
+                      onValueChange={(v) => {
+                        const next: MusicChoiceKey = v === 'subtle' ? 'subtle' : 'off';
+                        setMusicChoice(next);
+                        saveMusicChoice(next);
+                      }}
+                    >
+                      <div className="space-y-1.5">
+                        <label
+                          htmlFor="video-music-off"
+                          className="flex items-start gap-2.5 rounded-md border p-2.5 cursor-pointer hover:bg-accent/50 transition-colors"
+                        >
+                          <RadioGroupItem value="off" id="video-music-off" className="mt-0.5" />
+                          <span className="grid gap-0.5">
+                            <span className="text-sm font-medium leading-none">Off</span>
+                            <span className="text-xs text-muted-foreground">
+                              Narration only — nothing generated, nothing billed.
+                            </span>
+                          </span>
+                        </label>
+                        <label
+                          htmlFor="video-music-subtle"
+                          data-testid="video-music-subtle"
+                          className="flex items-start gap-2.5 rounded-md border p-2.5 cursor-pointer hover:bg-accent/50 transition-colors"
+                        >
+                          <RadioGroupItem value="subtle" id="video-music-subtle" className="mt-0.5" />
+                          <span className="grid gap-0.5">
+                            <span className="text-sm font-medium leading-none">Subtle bed (your Google key)</span>
+                            <span className="text-xs text-muted-foreground">
+                              A soft AI-generated instrumental under the voice, quieter while the
+                              narrator speaks — {lyriaPerVideoPhrase()}, billed by Google to your key.
+                              Re-stitches reuse it, not billed again.
+                            </span>
+                          </span>
+                        </label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+                )}
 
                 {/* Slide visuals — combinable, independent options (mind maps,
                     photos, video clips). Multi-select, not mutually exclusive. */}
@@ -1040,6 +1152,13 @@ export default function GenerateVideoDialog({
                 {resultInfo.veoFallbackScenes.length === 1
                   ? `Scene ${resultInfo.veoFallbackScenes[0]} used the designed-slide look instead — AI video wasn't available for it this time.`
                   : `Scenes ${resultInfo.veoFallbackScenes.join(', ')} used the designed-slide look instead — AI video wasn't available for them this time.`}
+              </p>
+            )}
+            {/* Honest music note (Phase 3C): if the bed couldn't be generated
+                the video still finishes — without music, and we say so. */}
+            {resultInfo?.musicSkipped && (
+              <p data-testid="video-music-skipped-note" className="text-xs text-amber-600 dark:text-amber-400 max-w-sm">
+                The music bed couldn&rsquo;t be added this time — your video was finished without it.
               </p>
             )}
           </div>

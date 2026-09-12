@@ -265,7 +265,7 @@ async function main() {
         'confirm.heavyOp.videoGeneration.suppressed',
         'confirm.heavyOp.videoGenerationVeo.suppressed',
         'idiampro:video-visuals-set', 'idiampro:video-depth', 'idiampro:video-style',
-        'idiampro:video-scene-style', 'idiampro-video-manifests',
+        'idiampro:video-scene-style', 'idiampro:video-music', 'idiampro-video-manifests',
       ];
       const saved = {};
       for (const k of keys) saved[k] = localStorage.getItem(k);
@@ -279,6 +279,10 @@ async function main() {
         localStorage.removeItem('apiKey_openai');
         localStorage.setItem('apiKey_gemini', userKey);
         localStorage.setItem('idiampro:video-scene-style', 'veo');
+        // 🎵 Phase 3C: this suite mocks ONLY the Veo HTTP seam — the music
+        // bed must be OFF here (its own suite covers it), or a leftover
+        // 'subtle' choice would send real Lyria requests past the Veo mock.
+        localStorage.setItem('idiampro:video-music', 'off');
         localStorage.setItem('idiampro:video-visuals-set', JSON.stringify({ mindmap: false, photo: false, videoclip: false }));
         localStorage.setItem('idiampro:video-depth', 'overview');
         localStorage.removeItem('idiampro-video-manifests');
