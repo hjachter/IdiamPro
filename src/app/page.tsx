@@ -978,6 +978,7 @@ function StayInControl() {
     title: string;
     body: string;
     earlyAccess?: boolean;
+    link?: { href: string; label: string };
   }[] = [
     {
       icon: Eye,
@@ -997,6 +998,7 @@ function StayInControl() {
       title: 'Your files, on your device, in open formats.',
       body:
         'Outlines live as plain files on your own computer, with 23 export formats and no lock-in. Back them up, sync them, walk away with them — they’re yours.',
+      link: { href: '/your-data', label: 'Read our data ownership statement' },
     },
   ];
 
@@ -1043,6 +1045,14 @@ function StayInControl() {
                   {card.title}
                 </h3>
                 <p className="text-base font-medium text-[#5b6b85] leading-relaxed">{card.body}</p>
+                {card.link && (
+                  <a
+                    href={card.link.href}
+                    className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-[#1e40af] hover:underline"
+                  >
+                    {card.link.label} <ArrowRight className="h-4 w-4" />
+                  </a>
+                )}
               </div>
             );
           })}
@@ -1948,6 +1958,7 @@ export default function MarketingPage() {
                 <h4 className="text-[#0b1533] font-semibold mb-4">Legal</h4>
                 <ul className="space-y-2">
                   <li><a href="/privacy" className="text-[#475569] hover:text-[#0b1533] text-sm transition-colors">Privacy</a></li>
+                  <li><a href="/your-data" className="text-[#475569] hover:text-[#0b1533] text-sm transition-colors">Your Data</a></li>
                 </ul>
               </div>
             </div>

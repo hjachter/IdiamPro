@@ -1,7 +1,16 @@
 # Your Work Is Yours — IdeaM Data Ownership Statement
 
-**DRAFT for Howard's review — not published. Brand-voice copy; items marked
-VERIFY-BEFORE-PUBLISH need a factual check before this goes on the site.**
+**PUBLISHED 2026-09-11 as the live site page `/your-data`
+(`src/app/your-data/page.tsx`) after all three VERIFY-BEFORE-PUBLISH items were
+checked against the code. The live page is now the canonical copy; verification
+verdicts are recorded in a comment at the top of that file. This draft is kept
+for history. Verified: (1) Mac delete → system Trash; snapshots are Mac-only,
+20 newest per outline; iPhone/iPad/web delete = immediate removal from
+on-device storage, no Trash — page scopes each platform. (2) Share links exist;
+snapshot HTML on our own KV storage; unpublish deletes immediately and the link
+stops resolving right away. (3) Server stores identity, beta/plan status, usage
+counts (numbers only), published snapshots, and submitted feedback/bugs — never
+outline content otherwise.**
 
 ---
 
