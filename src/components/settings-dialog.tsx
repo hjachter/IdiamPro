@@ -7,7 +7,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { Folder, Info, Smartphone, Cpu, Cloud, Loader2, CheckCircle, XCircle, Crown, Shield, Moon, Sun, Download, Trash2, AlertTriangle, Play, Sparkles, ShieldCheck, KeyRound, UserX, Settings as SettingsIcon, Mail, FlaskConical, Briefcase, Share2, FolderKanban } from 'lucide-react';
+import { Folder, Info, Smartphone, Cpu, Cloud, Loader2, CheckCircle, XCircle, Crown, Shield, Moon, Sun, Download, Trash2, AlertTriangle, Play, Sparkles, ShieldCheck, KeyRound, UserX, Settings as SettingsIcon, Mail, FlaskConical, Briefcase, Share2, FolderKanban, Database, Search as SearchIcon, X } from 'lucide-react';
 import EmailToolsConsentDialog from './email-tools-consent-dialog';
 import SocialExportConsentDialog from './social-export-consent-dialog';
 import {
@@ -118,12 +118,72 @@ import {
 const APP_VERSION = '1.0.0';
 
 // Settings categories for the side navigation.
-type SettingsCategory = 'general' | 'professional' | 'ai' | 'privacy' | 'account' | 'backups' | 'about' | 'developer';
+type SettingsCategory = 'general' | 'data' | 'professional' | 'ai' | 'privacy' | 'account' | 'backups' | 'about' | 'developer';
 
 // Check if running in Capacitor native app (but NOT Electron)
 function isCapacitor(): boolean {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return typeof window !== 'undefined' && !!(window as any).Capacitor && !isElectron();
+}
+
+// ---- Settings search (2026-09-12) ----
+// Approach: "matching rows shown flat". A static index of every setting
+// (label + description + owning section) is filtered case-insensitively as
+// the user types, and matches render as one flat, clickable results list —
+// clicking a result jumps to its section. This is simpler and more robust
+// than hiding individual rows inside each panel's large conditional JSX.
+interface SettingsSearchEntry {
+  section: SettingsCategory;
+  sectionLabel: string;
+  label: string;
+  description: string;
+}
+
+const SETTINGS_SEARCH_INDEX: SettingsSearchEntry[] = [
+  // General
+  { section: 'general', sectionLabel: 'General', label: 'Theme', description: 'Appearance — light, dark, or match your device' },
+  { section: 'general', sectionLabel: 'General', label: 'Confirm before deleting items', description: 'Show a confirmation dialog when deleting items or suboutlines' },
+  { section: 'general', sectionLabel: 'General', label: 'Reset confirmation prompts', description: 'Brings back all dialogs you previously dismissed with "Don\'t ask again"' },
+  { section: 'general', sectionLabel: 'General', label: 'Professional mode', description: 'Master quiet switch — silence every unrequested message, tip, welcome panel, and pop-up at once' },
+  { section: 'general', sectionLabel: 'General', label: 'Bring back tips & welcome', description: 'Shows the welcome panel and every tip you dismissed with "Don\'t show again"' },
+  // Data
+  { section: 'data', sectionLabel: 'Data', label: 'Where your outlines are stored', description: 'Your user data folder — the location on disk where outlines are saved as .idm files. Choose a folder, including one in iCloud Drive, to change the storage location or directory path.' },
+  // Professional Customization
+  { section: 'professional', sectionLabel: 'Professional Customization', label: 'Capabilities — Project Management', description: 'Optional extras you can switch on; off by default, your data is always kept' },
+  { section: 'professional', sectionLabel: 'Professional Customization', label: 'Email tools', description: 'Turn outlines into emails and bring emails into outlines — opt-in, off by default' },
+  { section: 'professional', sectionLabel: 'Professional Customization', label: 'Your Voice', description: 'Teach the AI your personal writing style so outputs sound like you' },
+  { section: 'professional', sectionLabel: 'Professional Customization', label: 'Social export', description: 'Share what you make to X, Instagram, LinkedIn, Facebook, Threads, Bluesky, or YouTube — opt-in' },
+  // AI
+  { section: 'ai', sectionLabel: 'AI', label: 'Answer quality', description: 'How thorough and detailed AI answers are (depth)' },
+  { section: 'ai', sectionLabel: 'AI', label: 'AI Usage', description: 'Your monthly AI generation allowance, usage so far, plan tier, and when the meter resets' },
+  { section: 'ai', sectionLabel: 'AI', label: 'AI Service Keys', description: 'Add your own API key (bring your own key / BYOK) — Gemini, Claude, OpenAI, Groq, Mistral — you pay your provider directly' },
+  { section: 'ai', sectionLabel: 'AI', label: 'AI Provider', description: 'Choose cloud AI or private on-device local AI (Ollama / Gemma) and the local model' },
+  // Privacy & Data
+  { section: 'privacy', sectionLabel: 'Privacy & Data', label: 'Allow AI data processing', description: 'Controls whether cloud AI may process your content; on-device AI stays private either way. Privacy policy.' },
+  { section: 'privacy', sectionLabel: 'Privacy & Data', label: 'Export my data', description: 'Saves a single .zip with every outline, your settings, API keys, and AI consent state' },
+  { section: 'privacy', sectionLabel: 'Privacy & Data', label: 'Delete all my data', description: 'Wipes outlines, settings, API keys, and AI consent from this device — cannot be undone' },
+  // Account
+  { section: 'account', sectionLabel: 'Account', label: 'Subscription Plan', description: 'Your current plan — see plans, upgrade, or manage your subscription and billing' },
+  { section: 'account', sectionLabel: 'Account', label: 'Delete account', description: 'Permanently deletes your account and all data we hold for you, then signs you out' },
+  // Backups
+  { section: 'backups', sectionLabel: 'Backups', label: 'Auto-backup before AI transforms', description: 'Saves a disk snapshot just before Translate, Reformat, Transform Outline, or Refresh from Web runs' },
+  { section: 'backups', sectionLabel: 'Backups', label: 'Auto-backup before Restore', description: 'Saves a disk snapshot of the current outline immediately before any Restore action' },
+  { section: 'backups', sectionLabel: 'Backups', label: 'Data safety & backup', description: 'Guidance on keeping your work safe with your own off-device backup' },
+  { section: 'backups', sectionLabel: 'Backups', label: 'Show backups folder', description: 'Opens the snapshots folder inside your IDM Outlines folder' },
+  // About
+  { section: 'about', sectionLabel: 'About', label: 'About IdeaM', description: 'App version, privacy policy, and contact support' },
+  // Developer (only surfaced when the Developer section is visible)
+  { section: 'developer', sectionLabel: 'Developer', label: 'Simulate free (non-Pro) user', description: 'Preview the free experience — video counter, watermark, and Pro upgrade prompts' },
+];
+
+// Middle-truncate a filesystem path so both the start (disk / user) and the
+// end (the deepest folder — usually what the user cares about) stay visible.
+// The untruncated path always goes in the element's title attribute.
+function truncatePathMiddle(text: string, max = 48): string {
+  if (text.length <= max) return text;
+  const head = Math.ceil((max - 1) / 2);
+  const tail = Math.floor((max - 1) / 2);
+  return text.slice(0, head) + '…' + text.slice(text.length - tail);
 }
 
 interface SettingsDialogProps {
@@ -135,6 +195,11 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
   const [open, setOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState<SettingsCategory>('general');
   const [dataFolder, setDataFolder] = useState<string>('Browser Storage (Default)');
+  // Full on-disk path of the outlines folder (Electron only) — shown
+  // prominently in the Data section. Empty on web/Capacitor.
+  const [dataFolderPath, setDataFolderPath] = useState<string>('');
+  // Settings search (see SETTINGS_SEARCH_INDEX above).
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const [confirmDelete, setConfirmDelete] = useState<boolean>(true);
   const [aiDataConsent, setAiDataConsent] = useState<boolean>(false);
   const { toast } = useToast();
@@ -283,6 +348,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
           // Extract folder name from path
           const folderName = dirPath.split('/').pop() || dirPath;
           setDataFolder(folderName);
+          setDataFolderPath(dirPath);
           return;
         }
         setDataFolder('Browser Storage (Default)');
@@ -1135,6 +1201,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
         if (dirPath) {
           const folderName = dirPath.split('/').pop() || dirPath;
           setDataFolder(folderName);
+          setDataFolderPath(dirPath);
 
           toast({
             title: 'Folder Selected',
@@ -1197,6 +1264,19 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
     }
   };
 
+  // Settings search — filter the static index case-insensitively against
+  // labels, descriptions, and section names. Developer entries only surface
+  // when the Developer section itself is visible.
+  const settingsQuery = searchQuery.trim().toLowerCase();
+  const isSearching = settingsQuery.length > 0;
+  const searchResults = isSearching
+    ? SETTINGS_SEARCH_INDEX.filter((e) =>
+        (e.section !== 'developer' || showDeveloper) &&
+        (e.label.toLowerCase().includes(settingsQuery) ||
+          e.description.toLowerCase().includes(settingsQuery) ||
+          e.sectionLabel.toLowerCase().includes(settingsQuery)))
+    : [];
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -1207,7 +1287,16 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
           only the middle panel scrolls. This guarantees the Close button is
           always reachable even in very short windows (e.g. 900x500), and the
           whole dialog stays usable down to a 320px-wide phone/slide-over. */}
-      <DialogContent className="sm:max-w-[760px] max-h-[85vh] flex flex-col overflow-hidden p-4 sm:p-6">
+      <DialogContent
+        className="sm:max-w-[760px] max-h-[85vh] flex flex-col overflow-hidden p-4 sm:p-6"
+        onEscapeKeyDown={(e) => {
+          // Esc clears an active search instead of closing the dialog.
+          if (searchQuery) {
+            e.preventDefault();
+            setSearchQuery('');
+          }
+        }}
+      >
         <DialogHeader className="shrink-0 pr-10">
           <DialogTitle>Settings</DialogTitle>
           <DialogDescription>
@@ -1215,10 +1304,67 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
           </DialogDescription>
         </DialogHeader>
 
+        {/* Settings search — pinned at the top for BOTH layouts (sits above
+            the wide left rail and above the narrow dropdown selector). */}
+        <div className="relative shrink-0 mt-1">
+          <SearchIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+          <Input
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search settings…"
+            aria-label="Search settings"
+            data-testid="settings-search-input"
+            className="pl-8 pr-8 h-9"
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              aria-label="Clear search"
+              data-testid="settings-search-clear"
+              onClick={() => setSearchQuery('')}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+
         <div className="flex flex-col sm:flex-row gap-4 py-4 flex-1 min-h-0 min-w-0">
-          {(() => {
+          {/* Search results — a flat list of every matching setting across all
+              sections; clicking one jumps to its section. Replaces the nav +
+              panel while a query is active; clearing restores them. */}
+          {isSearching && (
+            <div className="flex-1 min-w-0 min-h-0 overflow-y-auto pr-1 space-y-1.5" data-testid="settings-search-results">
+              {searchResults.length === 0 ? (
+                <p className="text-sm text-muted-foreground py-8 text-center" data-testid="settings-search-empty">
+                  No settings match — try a different word.
+                </p>
+              ) : (
+                searchResults.map((r) => (
+                  <button
+                    key={`${r.section}-${r.label}`}
+                    type="button"
+                    data-testid={`settings-search-result-${r.section}`}
+                    onClick={() => {
+                      setActiveCategory(r.section);
+                      setSearchQuery('');
+                    }}
+                    className="w-full text-left rounded-md border border-border/50 px-3 py-2 hover:bg-muted transition-colors"
+                  >
+                    <span className="flex items-center justify-between gap-2">
+                      <span className="text-sm font-medium">{r.label}</span>
+                      <Badge variant="secondary" className="shrink-0 text-[10px]">{r.sectionLabel}</Badge>
+                    </span>
+                    <span className="block text-xs text-muted-foreground mt-0.5">{r.description}</span>
+                  </button>
+                ))
+              )}
+            </div>
+          )}
+          {!isSearching && (() => {
             const categories = ([
               { id: 'general', label: 'General', icon: SettingsIcon },
+              { id: 'data', label: 'Data', icon: Database },
               { id: 'professional', label: 'Professional Customization', icon: Briefcase },
               { id: 'ai', label: 'AI', icon: Sparkles },
               { id: 'privacy', label: 'Privacy & Data', icon: Shield },
@@ -1296,7 +1442,7 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
 
           {/* Panel content — only the active category's sections render. This is
               the ONLY scrolling region, so header/nav/footer never scroll away. */}
-          <div className="flex-1 min-w-0 min-h-0 overflow-y-auto pr-1 space-y-6">
+          <div className={'flex-1 min-w-0 min-h-0 overflow-y-auto pr-1 space-y-6' + (isSearching ? ' hidden' : '')}>
 
           {activeCategory === 'general' && (<>
           {/* Appearance Section */}
@@ -1418,6 +1564,97 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
                 Restore
               </Button>
             </div>
+          </div>
+          </>)}
+
+          {activeCategory === 'data' && (<>
+          {/* Data — where the user's outlines live on disk. Promoted to a
+              top-level section (2026-09-12, founder mandate: "Data is central
+              to IdeaM") from its old home buried under Privacy & Data. The
+              storage block was RELOCATED here intact; nothing was deleted. */}
+          <div className="space-y-3" data-testid="data-storage-section">
+            <h3 className="text-sm font-medium flex items-center gap-2">
+              <Database className="h-4 w-4" />
+              Where your outlines are stored
+            </h3>
+
+            {!isElectron() && isCapacitor() ? (
+              /* Capacitor native app storage info */
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 p-3 bg-muted rounded-lg">
+                  <Smartphone className="h-5 w-5 text-muted-foreground" />
+                  <span className="text-sm">App Storage</span>
+                </div>
+                <p className="text-xs text-muted-foreground flex items-start gap-1">
+                  <Info className="h-3 w-3 mt-0.5 flex-shrink-0" />
+                  <span>
+                    Your outlines are automatically saved within the app. Use <strong>Backup All Outlines</strong> to share/export a backup file (via AirDrop, Files, email, etc.), and <strong>Restore All Outlines</strong> to import from a backup file.
+                  </span>
+                </p>
+              </div>
+            ) : (
+              /* Desktop folder selection (Electron or web with File System Access API) */
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  {/* The CURRENT folder, always visible. Long paths truncate in
+                      the MIDDLE so the deepest folder name stays readable; the
+                      full path is in the tooltip (title). */}
+                  <div
+                    className="flex-1 min-w-0 flex items-center gap-2 rounded-md border bg-muted px-3 py-2"
+                    title={dataFolderPath || dataFolder}
+                    data-testid="data-folder-path"
+                  >
+                    <Folder className="h-4 w-4 shrink-0 text-muted-foreground" />
+                    <span className="text-sm font-medium whitespace-nowrap overflow-hidden">
+                      {dataFolderPath ? truncatePathMiddle(dataFolderPath) : dataFolder}
+                    </span>
+                  </div>
+                  <Button
+                    variant="outline"
+                    onClick={handleSelectFolder}
+                    className="shrink-0"
+                    data-testid="choose-folder-btn"
+                  >
+                    Choose Folder…
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground flex items-start gap-1">
+                  <Info className="h-3 w-3 mt-0.5 flex-shrink-0" />
+                  <span>
+                    All your outlines are saved in this folder{isElectron() ? ' as .idm files.' : '. Currently using browser storage by default.'}
+                    {!isElectron() && !('showDirectoryPicker' in window) && (
+                      <span className="block mt-1 text-amber-600 dark:text-amber-400">
+                        Note: Folder selection is not supported in your browser. Use Chrome, Edge, or the Desktop app for this feature.
+                      </span>
+                    )}
+                  </span>
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Tip: choose a folder in iCloud Drive and your outlines follow you between your Macs. Best used on one Mac at a time — simultaneous edits on two machines can conflict.
+                </p>
+              </div>
+            )}
+
+            {/* Cross-references only — backups and privacy tools stay in their
+                own sections (Backups-under-Data pending founder approval). */}
+            <p className="text-xs text-muted-foreground pt-1 border-t border-border/40">
+              Automatic outline snapshots live in the{' '}
+              <button
+                type="button"
+                className="text-sky-500 dark:text-sky-400 hover:underline"
+                onClick={() => setActiveCategory('backups')}
+              >
+                Backups
+              </button>{' '}
+              section. To export or delete everything, see{' '}
+              <button
+                type="button"
+                className="text-sky-500 dark:text-sky-400 hover:underline"
+                onClick={() => setActiveCategory('privacy')}
+              >
+                Privacy &amp; Data
+              </button>.
+            </p>
           </div>
           </>)}
 
@@ -1888,55 +2125,8 @@ export default function SettingsDialog({ children, onFolderSelected }: SettingsD
           </>)}
 
           {activeCategory === 'privacy' && (<>
-          {/* Data Storage Section */}
-          <div className="space-y-3">
-            <h3 className="text-sm font-medium">Data Storage</h3>
-
-            {!isElectron() && isCapacitor() ? (
-              /* Capacitor native app storage info */
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 p-3 bg-muted rounded-lg">
-                  <Smartphone className="h-5 w-5 text-muted-foreground" />
-                  <span className="text-sm">App Storage</span>
-                </div>
-                <p className="text-xs text-muted-foreground flex items-start gap-1">
-                  <Info className="h-3 w-3 mt-0.5 flex-shrink-0" />
-                  <span>
-                    Your outlines are automatically saved within the app. Use <strong>Backup All Outlines</strong> to share/export a backup file (via AirDrop, Files, email, etc.), and <strong>Restore All Outlines</strong> to import from a backup file.
-                  </span>
-                </p>
-              </div>
-            ) : (
-              /* Desktop folder selection (Electron or web with File System Access API) */
-              <div className="space-y-2">
-                <label className="text-sm text-muted-foreground">
-                  User Data Folder
-                </label>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={handleSelectFolder}
-                    className="flex-grow justify-start"
-                  >
-                    <Folder className="mr-2 h-4 w-4" />
-                    {dataFolder}
-                  </Button>
-                </div>
-                <p className="text-xs text-muted-foreground flex items-start gap-1">
-                  <Info className="h-3 w-3 mt-0.5 flex-shrink-0" />
-                  <span>
-                    Select a folder where all your outlines will be saved. {isElectron() ? 'Your outlines are saved as .idm files.' : 'Currently using browser storage by default.'}
-                    {!isElectron() && !('showDirectoryPicker' in window) && (
-                      <span className="block mt-1 text-amber-600 dark:text-amber-400">
-                        Note: Folder selection is not supported in your browser. Use Chrome, Edge, or the Desktop app for this feature.
-                      </span>
-                    )}
-                  </span>
-                </p>
-              </div>
-            )}
-          </div>
-
+          {/* The Data Storage block moved to the top-level "Data" section
+              (2026-09-12) — everything else here is unchanged. */}
           {/* Data & Privacy Section */}
           <div className="space-y-3">
             <h3 className="text-sm font-medium flex items-center gap-2">

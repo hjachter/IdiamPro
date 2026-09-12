@@ -165,6 +165,35 @@ const GROUPS: Group[] = [
           'In the output wizards (Export Email, Summarize, social posts and more), tick “In my voice” and the result is written in your style.',
         ],
       },
+      {
+        anchor: 'show-me-views',
+        title: '“Show Me…” Views',
+        note: 'Toolbar → AI menu → Show Me…',
+        body: [
+          'Tell your outline what you want to see — “show me unfinished design work” — and it folds down to just the matching items. Everything else is compressed out of the way, never hidden or deleted, so you’re always looking at your real outline, just focused.',
+          'The magic is that the filter is visible: your request becomes editable condition rows you can inspect, adjust, or build entirely by hand — the whole feature works without AI. It recreates a beloved search-shaping feature from the founder’s 1988 outliner.',
+        ],
+        steps: [
+          'Open the AI menu in the toolbar and choose Show Me…',
+          'Type (or dictate) what you want to see, or build the conditions by hand — either way, the filter appears as visible, editable rows.',
+          'The outline folds to the matches as you refine. Tweak a row, and the view updates instantly.',
+          'Save the result as a named view. Saved views are living: reopen one later and it re-applies to your outline as it stands today, new matches included.',
+        ],
+      },
+      {
+        anchor: 'board-view',
+        title: 'Board View',
+        note: 'Right-click any item → Board View',
+        body: [
+          'See any section of your outline as a board: its sub-sections become columns, and their items become cards you can drag between them. The board is a live projection of your outline — not a copy — so dragging a card to another column genuinely moves that item to the new section.',
+        ],
+        steps: [
+          'Right-click the section you want to see as a board and choose Board View.',
+          'Each sub-section appears as a column; the items inside become cards showing their name, color, and tags.',
+          'Drag a card to another column to move it there in the outline; drop it above or below another card to set its position.',
+          'Made a move you regret? Undo (Cmd+Z) brings it right back. Board View is free, local, and uses no AI.',
+        ],
+      },
     ],
   },
   {
@@ -202,6 +231,35 @@ const GROUPS: Group[] = [
           'Choose a narrator voice and how deep the video goes (Overview, Standard, Deep, or the full outline).',
           'It always narrates — with your OpenAI key you get natural AI voices; without one it uses your Mac’s built-in voice.',
           'A live progress bar shows exactly where the render is up to; the finished MP4 lands in your Documents · IdeaM Videos folder.',
+        ],
+      },
+      {
+        anchor: 'cinematic-video',
+        title: 'Cinematic AI Video Scenes',
+        note: 'Generate Video dialog → Scene style → Cinematic AI video (your Google key)',
+        body: [
+          'Take your videos beyond designed slides: IdeaM can render real AI-generated footage for every scene, matched to what that part of your outline is about. It runs on your own Google key, pay-as-you-go — typically about $1 to $2 per scene, billed by Google directly to you, estimates only — and IdeaM shows you the estimated total and asks before anything is generated.',
+        ],
+        bullets: [
+          'Scenes you haven’t changed are cached — regenerate the video later and untouched scenes are reused, never billed again.',
+          'If a scene ever fails to generate, it falls back to the designed-slide look for that scene, so your video always finishes.',
+          'No Google key on file? The option simply isn’t in play — designed slides remain the free default.',
+        ],
+      },
+      {
+        anchor: 'video-music',
+        title: 'AI Music for Your Videos',
+        note: 'Generate Video dialog → Music',
+        body: [
+          'Add a soft, themed instrumental under your video’s narration. The music automatically ducks beneath the voice, so the narration always stays clear. It’s generated on your own Google key — typically about 5 to 10 cents per video, billed by Google directly to you, estimates only — and the cost is included in the ask-first estimate before your video renders. A music bed you’ve already generated is reused on updates, not billed again.',
+        ],
+      },
+      {
+        anchor: 'update-changed',
+        title: 'Update Changed',
+        note: 'Generate Podcast / Generate Video — appears when you’ve made this one before',
+        body: [
+          'Regenerating a podcast or video you’ve made before? IdeaM notices — “You’ve made this before — 2 of 4 changed” — and offers Update Changed next to Start Fresh. Update Changed rebuilds only the sections or scenes whose outline content you actually edited, and reuses the rest: faster, and cheaper on paid voices and AI-generated scenes. Start Fresh honestly rebuilds everything, whenever that’s what you want.',
         ],
       },
       {
@@ -311,6 +369,15 @@ const GROUPS: Group[] = [
         body: [
           'IdeaM runs natively on Mac, iPhone, and iPad, and instantly in any modern web browser — nothing to install. Your work goes with you.',
           'The interface adapts to each device: full keyboard shortcuts and right-click menus on desktop, and touch-friendly tap-again, swipe, and long-press equivalents on iPhone and iPad.',
+        ],
+      },
+      {
+        anchor: 'cost-transparency',
+        title: 'Cost Transparency',
+        note: 'Automatic — plus Toolbar → AI menu → AI Activity',
+        body: [
+          'Nothing expensive ever runs by surprise. Before any AI operation that could cost real money — premium voices, cinematic video scenes, AI music — IdeaM tells you who pays (your key, billed by your provider, or your plan) and what it typically costs, with honest “typically…” estimates, and waits for your yes.',
+          'And every AI operation you run is recorded in a private usage ledger on your own device — what ran, when, and which provider handled it, for your eyes only. Open it anytime from the AI menu → AI Activity. Nothing about it leaves your machine, and no prompt or content text is ever recorded — just the activity itself.',
         ],
       },
       {

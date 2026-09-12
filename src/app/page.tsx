@@ -73,7 +73,11 @@ import {
   Mail,
   FolderSearch,
   Eye,
-  Bot
+  Bot,
+  Filter,
+  Clapperboard,
+  RefreshCw,
+  Receipt
 } from 'lucide-react';
 
 // ============================================
@@ -904,6 +908,34 @@ function WhatsNew() {
         'Pick a branch and get a natural two-host conversation about your ideas — playing the moment it’s done. Free voices built into your Mac sound surprisingly close to human; plug in your own key when you want studio-quality narration, pay-as-you-go.',
     },
     {
+      icon: Filter,
+      availability: 'new',
+      title: 'Just say "show me…" — and see it',
+      body:
+        'Type or dictate what you want to see — "show me unfinished design work" — and your outline folds down to just the matches, with everything else compressed but never hidden. The filter appears as visible rows you can edit by hand (it works fully without AI), and any view can be saved as a named, living view that stays current as your outline grows.',
+    },
+    {
+      icon: Kanban,
+      availability: 'new',
+      title: 'See any section as a board',
+      body:
+        'Right-click a section and it opens as a board: its sub-sections become columns, their items become draggable cards. Drag a card to another column and your outline genuinely restructures underneath — and Undo brings it right back. Free, local, no AI.',
+    },
+    {
+      icon: Clapperboard,
+      availability: 'new',
+      title: 'Cinematic AI video — with a soundtrack',
+      body:
+        'Your videos can now render real AI-generated footage for every scene, plus a themed instrumental that automatically ducks beneath the narration. Both run on your own Google key, pay-as-you-go — typically about $1–2 per scene and a few cents for the music, estimates only — and IdeaM shows you the estimate and asks before anything runs. Unchanged scenes are cached and never billed again, and if a scene ever fails it falls back to a designed slide, so your video always finishes.',
+    },
+    {
+      icon: RefreshCw,
+      availability: 'new',
+      title: 'Remake only what changed',
+      body:
+        '“You’ve made this before — 2 of 4 sections changed.” Regenerate a podcast or video you’ve made before, and IdeaM rebuilds only the sections you actually edited, reusing the rest — faster, and cheaper on paid voices and scenes. Start Fresh is always one click away.',
+    },
+    {
       icon: FolderSearch,
       availability: 'soon',
       title: 'Understand your drive',
@@ -1000,6 +1032,12 @@ function StayInControl() {
         'Outlines live as plain files on your own computer, with 23 export formats and no lock-in. Back them up, sync them, walk away with them — they’re yours.',
       link: { href: '/your-data', label: 'Read our data ownership statement' },
     },
+    {
+      icon: Receipt,
+      title: 'Nothing expensive runs by surprise.',
+      body:
+        'Before any AI operation that could cost real money, IdeaM tells you who pays and what it typically costs — and waits for your yes. A private usage ledger on your own device records your AI activity for your eyes only; nothing leaves your machine, and nothing runs up a bill behind your back.',
+    },
   ];
 
   return (
@@ -1022,8 +1060,8 @@ function StayInControl() {
           </p>
         </div>
 
-        {/* Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+        {/* Cards — four trust points; 2×2 on tablet, one row of four on desktop. */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 lg:gap-8">
           {CARDS.map((card) => {
             const Icon = card.icon;
             return (

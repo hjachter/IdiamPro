@@ -36,6 +36,12 @@ import {
   Eye,
   Bot,
   FileText,
+  Filter,
+  Kanban,
+  Clapperboard,
+  Music,
+  RefreshCw,
+  Receipt,
 } from 'lucide-react';
 
 // ---------------------------------------------------------------------------
@@ -126,6 +132,18 @@ const GROUPS: Group[] = [
         anchor: 'proposed-changes',
         icon: Eye,
       },
+      {
+        name: '“Show Me…” Views',
+        what: 'Type or dictate what you want to see — the outline folds to just the matches, with visible filter rows you can edit by hand and save as named living views. Works fully without AI.',
+        anchor: 'show-me-views',
+        icon: Filter,
+      },
+      {
+        name: 'Board View',
+        what: 'Right-click a section to see it as a board — sub-sections become columns, items become draggable cards, and dragging a card genuinely restructures the outline. Undoable, free, no AI.',
+        anchor: 'board-view',
+        icon: Kanban,
+      },
     ],
   },
   {
@@ -143,6 +161,24 @@ const GROUPS: Group[] = [
         what: 'Turn a chapter into a finished, branded narrated slideshow video.',
         anchor: 'make-a-video',
         icon: Video,
+      },
+      {
+        name: 'Cinematic AI Video Scenes',
+        what: 'Optionally render real AI-generated footage for every scene of your video — on your own Google key, typically about $1–2 per scene (estimates only), with unchanged scenes cached and never re-billed.',
+        anchor: 'cinematic-video',
+        icon: Clapperboard,
+      },
+      {
+        name: 'AI Music for Your Videos',
+        what: 'Add a themed instrumental under your video’s narration — it automatically ducks beneath the voice. On your own Google key, typically about 5–10 cents per video, estimates only.',
+        anchor: 'video-music',
+        icon: Music,
+      },
+      {
+        name: 'Update Changed',
+        what: 'Regenerate a podcast or video you’ve made before, and only the sections you edited get rebuilt — “2 of 4 changed” — faster, and cheaper on paid voices and scenes.',
+        anchor: 'update-changed',
+        icon: RefreshCw,
       },
       {
         name: 'Make a Slide Deck',
@@ -203,6 +239,12 @@ const GROUPS: Group[] = [
         what: 'Every AI draft runs an automatic check that flags possible errors before you send.',
         anchor: 'quality-checked',
         icon: CheckCircle2,
+      },
+      {
+        name: 'Cost Transparency',
+        what: 'Every AI operation that could cost real money tells you who pays and what it typically costs — and asks first. A private on-device ledger records your AI activity for your eyes only.',
+        anchor: 'cost-transparency',
+        icon: Receipt,
       },
       {
         name: 'Agent-Safe Outlines',

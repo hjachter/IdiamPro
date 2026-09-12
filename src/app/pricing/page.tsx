@@ -549,6 +549,9 @@ export default function PricingPage() {
                   <p className="text-[#2b3a5c] text-lg font-medium leading-relaxed">
                     <span className="text-[#0b1533] font-semibold">Everyday use is typically free</span> — Google Gemini&apos;s free tier covers normal use at no cost, no credit card. And because it&apos;s your key, you&apos;re always in control: you pay your provider directly, pay-as-you-go, so a light user pays nothing and you only ever pay for what you choose to run. A big job on a premium model costs more — but it&apos;s <span className="text-[#0b1533] font-semibold">your call, fully visible to you, and never a surprise from us</span>. On a Mac, on-device AI is free forever, no key at all. And the built-in default never goes stale: as Google ships newer Gemini models, IdeaM keeps your default current automatically — no action from you, no change from us.
                   </p>
+                  <p className="text-[#2b3a5c] text-lg font-medium leading-relaxed mt-4">
+                    The same goes for the optional cinematic extras: real AI-generated video scenes (typically about $1–2 per scene) and an AI music bed (typically 5–10¢ per video) run on your own Google key, billed by Google directly — estimates only. <span className="text-[#0b1533] font-semibold">IdeaM always shows you the estimate and asks before anything runs</span>, and scenes you haven&apos;t changed are cached so they&apos;re never billed twice.
+                  </p>
                 </div>
               </div>
             </div>

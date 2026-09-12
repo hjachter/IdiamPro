@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, FileText, Crown, Loader2, Brain, Languages, WandSparkles, Wand2, Image as ImageIcon, LayoutGrid, ListTree, Eye } from 'lucide-react';
+import { Sparkles, FileText, Crown, Loader2, Brain, Languages, WandSparkles, Wand2, Image as ImageIcon, LayoutGrid, ListTree, Eye, Receipt } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useAI, useAIFeature } from '@/contexts/ai-context';
 import AiGenerateDialog from './ai-generate-dialog';

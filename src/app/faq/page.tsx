@@ -134,6 +134,14 @@ export default function FaqPage() {
       answer: 'AI text generation runs on Google Gemini out of the box, or fully on-device via Ollama (Mac). Want a different engine? Bring your own key and you can run text on Anthropic Claude, OpenAI GPT, Groq, or Mistral — pay-as-you-go, billed directly by your provider, so you stay in control. Premium podcast and video voices use OpenAI, and every device also has free built-in voices. The built-in default also stays current: as newer Gemini models ship, IdeaM upgrades the default automatically, with no change in what you pay us.'
     },
     {
+      question: 'What do cinematic AI video and AI music cost?',
+      answer: 'Both are optional, and both run on your own Google key — billed by Google directly to you, pay-as-you-go, never through us. Cinematic AI video scenes typically cost about $1 to $2 per scene, and the AI music bed typically about 5 to 10 cents per video — estimates only, since Google sets the prices. Before anything is generated, IdeaM shows you the estimated total and asks. And scenes you haven’t changed are cached: regenerate a video later and untouched scenes are reused, never billed again. If you skip both options, videos render as designed slides at no such cost at all.'
+    },
+    {
+      question: 'Will IdeaM ever spend money on AI without asking me?',
+      answer: 'No. Every AI operation that could cost real money asks first — telling you who pays and what it typically costs before anything runs. Estimates are honest “typically…” ranges, never fine print. And a private usage ledger on your own device records your AI activity for your eyes only — open it anytime from the AI menu → AI Activity. Nothing about it leaves your machine.'
+    },
+    {
       question: 'Does it work offline?',
       answer: 'Yes! All core outlining features work completely offline. Your outlines are stored locally and sync when you reconnect. AI features require an internet connection, but you can continue editing without it.'
     },
