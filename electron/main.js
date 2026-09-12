@@ -53,6 +53,17 @@ try {
   console.warn('[Sentry] init skipped:', err && err.message);
 }
 
+// ========== First-run sign-in fixes (2026-09-12) ==========
+// Passkeys (WebAuthn) cannot complete against the macOS platform authenticator
+// (Touch ID / iCloud Keychain) inside an Electron window — the ceremony starts,
+// the fingerprint sheet appears, then silently dies (observed on the founder's
+// fresh-machine first run). Rather than offer a dead-end button, remove the
+// WebAuthn API surface entirely so Clerk's feature detection reports "no
+// passkey support" and never offers it in the desktop shell. Email-code,
+// Google, and Apple sign-in remain fully available. Applied process-wide,
+// before app ready, so every window/webview is covered.
+app.commandLine.appendSwitch('disable-blink-features', 'WebAuth');
+
 // Track dev server process
 let devServerProcess = null;
 
@@ -449,6 +460,38 @@ function getOutlineFileName(outline) {
 
 let mainWindow;
 
+// On macOS, ask for system-level (TCC) microphone authorization the first
+// time the renderer requests media access. Without TCC approval,
+// getUserMedia() returns "permission denied" even when Electron's own
+// permission handlers grant it. No-op when already granted or denied, and
+// on non-mac platforms.
+function askForMicAccessIfNeeded() {
+  if (process.platform !== 'darwin') return;
+  if (!systemPreferences || !systemPreferences.askForMediaAccess) return;
+  try {
+    const status = systemPreferences.getMediaAccessStatus
+      ? systemPreferences.getMediaAccessStatus('microphone')
+      : 'not-determined';
+    if (status !== 'granted' && status !== 'denied') {
+      systemPreferences.askForMediaAccess('microphone').catch(() => {});
+    }
+  } catch (err) {
+    console.warn('[Mic] askForMediaAccess failed:', err && err.message);
+  }
+}
+
+// Hosts that belong to us. In-window navigation on these hosts is limited to
+// app-shell surfaces (outliner, auth, waiting/upgrade, shared views) — the
+// marketing site must never render inside the desktop shell.
+const OWN_HOSTS = new Set([
+  '2ndbrainware.com',
+  'www.2ndbrainware.com',
+  'idiam-pro.vercel.app',
+  'localhost',
+  '127.0.0.1',
+]);
+const APP_SHELL_PATHS = /^\/(app|signin|sign-in|signup|sign-up|waiting|upgrade|api|s)(\/|$)/;
+
 async function createWindow() {
   // In development mode, check if dev server is running and start it if not
   if (process.env.NODE_ENV === 'development') {
@@ -506,6 +549,27 @@ async function createWindow() {
   // requests, which silently breaks the Web Speech API used by voice input
   // (Cmd+K AI command bar and Help chat). Grant the renderer access here.
   const sess = mainWindow.webContents.session;
+
+  // ========== Clean user agent for sign-in providers ==========
+  // The default UA advertises "IdeaM/x.y.z Electron/x.y.z". Google refuses
+  // OAuth sign-in from user agents it classifies as embedded webviews
+  // ("this browser or app may not be secure" at the password step), which
+  // broke Google sign-in on the founder's fresh-machine first run and pushed
+  // him out to the website in a real browser. Present the plain Chrome UA
+  // (what this window actually is) so the in-window Google/Apple sign-in
+  // completes. Nothing on our web side identifies Electron by UA — the
+  // renderer uses the preload bridge (window.electronAPI) for that.
+  try {
+    const cleanUA = sess
+      .getUserAgent()
+      .replace(/\sIdeaM\/[\d.]+/i, '')
+      .replace(/\sElectron\/[\d.]+/i, '');
+    sess.setUserAgent(cleanUA);
+    mainWindow.webContents.setUserAgent(cleanUA);
+  } catch (err) {
+    console.warn('[UA] Could not clean user agent:', err && err.message);
+  }
+
   const allowedMediaPermissions = new Set([
     'media',
     'mediaKeySystem',
@@ -516,6 +580,12 @@ async function createWindow() {
   ]);
   sess.setPermissionRequestHandler((webContents, permission, callback, details) => {
     if (allowedMediaPermissions.has(permission)) {
+      // Lazily trigger the macOS system microphone prompt the first time the
+      // renderer actually asks for media access (i.e. the user pressed the
+      // mic button) — NOT at app startup. The startup prompt was one of the
+      // "lot of authentication" dialogs on the founder's fresh-machine first
+      // run, appearing before the user had done anything.
+      askForMicAccessIfNeeded();
       callback(true);
       return;
     }
@@ -527,21 +597,11 @@ async function createWindow() {
     return true;
   });
 
-  // On macOS, request the system-level microphone authorization once on startup.
-  // Without TCC approval, getUserMedia() returns "permission denied" even with
-  // the Electron handlers above. No-op when already granted or denied.
-  if (process.platform === 'darwin' && systemPreferences && systemPreferences.askForMediaAccess) {
-    try {
-      const status = systemPreferences.getMediaAccessStatus
-        ? systemPreferences.getMediaAccessStatus('microphone')
-        : 'not-determined';
-      if (status !== 'granted' && status !== 'denied') {
-        systemPreferences.askForMediaAccess('microphone').catch(() => {});
-      }
-    } catch (err) {
-      console.warn('[Mic] askForMediaAccess failed:', err && err.message);
-    }
-  }
+  // NOTE (2026-09-12): the system-level microphone authorization used to be
+  // requested here at startup, which put a macOS permission dialog in the
+  // user's face on first launch before they'd done anything. It is now
+  // requested lazily by askForMicAccessIfNeeded() the first time the renderer
+  // actually asks for media access (see setPermissionRequestHandler above).
 
   // Load from localhost in development, deployed web app in production.
   // Canonical production domain (mirrors 2ndbrainware.com <-> vercel deploy).
@@ -550,6 +610,54 @@ async function createWindow() {
     : 'https://2ndbrainware.com/app';
 
   mainWindow.loadURL(startUrl);
+
+  // ========== Keep the desktop shell on APP surfaces, never the website ==========
+  // First-run field report (2026-09): the shell window could end up showing
+  // marketing pages ("the website rather than the application") — e.g. the
+  // post-sign-out landing is "/" (the homepage), and links can point at
+  // marketing routes. Policy:
+  //   - Our hosts, app-shell path (/app, /signin, /signup, /waiting,
+  //     /upgrade, /s/...)            → allow in-window.
+  //   - Our hosts, "/" (homepage)    → keep the shell on the sign-in surface.
+  //   - Our hosts, marketing pages   → open in the user's real browser.
+  //   - Other hosts (OAuth chains: accounts.google.com, appleid.apple.com,
+  //     clerk.*)                     → allow in-window so sign-in completes.
+  // target=_blank / window.open of anything outside the app shell goes to the
+  // system browser instead of spawning a bare chrome-less Electron window.
+  mainWindow.webContents.on('will-navigate', (event, url) => {
+    try {
+      const u = new URL(url);
+      if (u.protocol !== 'http:' && u.protocol !== 'https:') return;
+      if (!OWN_HOSTS.has(u.hostname)) return; // external auth flows — allow
+      if (APP_SHELL_PATHS.test(u.pathname)) return; // app surface — allow
+      event.preventDefault();
+      if (u.pathname === '/' || u.pathname === '') {
+        // Post-sign-out (afterSignOutUrl) or logo link: stay in the app
+        // shell on the sign-in surface instead of showing the homepage.
+        mainWindow.loadURL(`${u.origin}/signin?redirect_url=%2Fapp`);
+      } else {
+        shell.openExternal(url).catch(() => {});
+      }
+    } catch {
+      /* unparseable URL — let Chromium handle it */
+    }
+  });
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    try {
+      const u = new URL(url);
+      if (u.protocol === 'http:' || u.protocol === 'https:') {
+        const isAppSurface =
+          OWN_HOSTS.has(u.hostname) && APP_SHELL_PATHS.test(u.pathname);
+        if (!isAppSurface) {
+          shell.openExternal(url).catch(() => {});
+          return { action: 'deny' };
+        }
+      }
+    } catch {
+      /* fall through to allow (blob:, about:, etc.) */
+    }
+    return { action: 'allow' };
+  });
 
   // Let macOS dictation (double-press Fn) work by not consuming function key events.
   // Electron's Chromium layer can swallow key-before-input events, blocking dictation.

@@ -45,7 +45,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   return (
     <ClerkProvider
       publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
-      afterSignOutUrl="/"
+      // Sign-out lands on the sign-in surface, not the marketing homepage.
+      // Critical for the Electron desktop shell (the homepage must never
+      // render inside the app window — first-run field report 2026-09), and
+      // standard SaaS behavior on the web (sign out of the app → sign-in
+      // page), so it applies everywhere.
+      afterSignOutUrl="/signin"
+      // The Clerk instance is still named "IdiamPro" (pre-rename). Override
+      // the card copy so users see the current product name. Remove once the
+      // production Clerk instance is created with the right application name.
+      localization={{
+        signIn: { start: { title: 'Sign in to IdeaM' } },
+        signUp: { start: { title: 'Create your IdeaM account' } },
+      }}
     >
       <ClerkUserBridge>{children}</ClerkUserBridge>
     </ClerkProvider>
