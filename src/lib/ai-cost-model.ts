@@ -46,9 +46,12 @@ export type CostClass = 'light' | 'medium' | 'heavy';
  *                   falling back to the Mac's free built-in voices.
  *   video-mixed   : local free renderer + OpenAI key for narration voices,
  *                   falling back to free Mac narration.
+ *   veo-google    : REAL per-scene video generation billed by Google to the
+ *                   user's OWN Gemini key (BYOK only — never ours, never an
+ *                   env key), plus the video-mixed narration story.
  *   assemblyai    : the user's AssemblyAI transcription key (never ours).
  */
-export type PayerKind = 'text-provider' | 'podcast-mixed' | 'video-mixed' | 'assemblyai';
+export type PayerKind = 'text-provider' | 'podcast-mixed' | 'video-mixed' | 'veo-google' | 'assemblyai';
 
 export type AICostOpId =
   // light
@@ -76,6 +79,7 @@ export type AICostOpId =
   // heavy
   | 'podcastGeneration'
   | 'videoGeneration'
+  | 'videoGenerationVeo'
   | 'liveBooks'
   | 'youtubePackage'
   | 'bulkResearch'
@@ -131,6 +135,11 @@ export const AI_COST_MODEL: Record<AICostOpId, AICostModelEntry> = {
     'A longer run: several script passes, then voice synthesis. On your own keys this is typically a few cents per podcast; the Mac-voices path synthesizes audio at no cost.', 'podcast-mixed'),
   videoGeneration: H('videoGeneration', 'Narrated video',
     'The video itself renders on this Mac at no cost. AI narration on your OpenAI key is typically a few cents per video; Mac narration costs nothing.', 'video-mixed'),
+  // Veo-backed video is its OWN heavy entry (separate approval identity —
+  // suppressing the cheap slide-video confirm must never suppress this one):
+  // real dollars per generated scene, billed by Google to the user's own key.
+  videoGenerationVeo: H('videoGenerationVeo', 'Cinematic AI video',
+    'Each scene is real AI-generated video on your Google AI key — typically about $1 to $2 per scene, billed by Google directly to you. Estimates only; scenes you haven\'t changed are reused and not billed again.', 'veo-google'),
   liveBooks: H('liveBooks', 'Refresh from Web (LIVE BOOKS)',
     'A research run across your selected sections — typically a few cents on your key, more for very large sections.'),
   youtubePackage: H('youtubePackage', 'YouTube package',
@@ -211,6 +220,22 @@ export function describeCurrentPayer(id: AICostOpId): PayerDescription {
       payerLine: `Video renders on this Mac at no cost; ${voiceLine}.`,
       costLine: entry.costNote,
       isNoKeyRun: !hasOpenai,
+    };
+  }
+
+  if (entry.payerKind === 'veo-google') {
+    // 🟠 MONEY-HONESTY: this op moves REAL dollars per scene on the user's
+    // own Google key. Never "free", never exact; always who-bills-whom.
+    const hasGemini = !!getUserApiKey('gemini');
+    const voiceLine = hasOpenai
+      ? 'narration on your OpenAI key'
+      : "free Mac narration (no key)";
+    return {
+      payerLine: hasGemini
+        ? `AI-video scenes on your Google AI key — real charges, billed by Google per generated scene; ${voiceLine}.`
+        : 'your Google AI key — none is on file yet (add it in Settings to enable AI video).',
+      costLine: entry.costNote,
+      isNoKeyRun: false, // a Veo run is never a no-key run
     };
   }
 

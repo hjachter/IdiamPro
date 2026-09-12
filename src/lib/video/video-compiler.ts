@@ -129,10 +129,23 @@ export interface VideoOptionsForFingerprint {
    *  voice — adding/removing a key changes every scene's sound, so it must
    *  honestly void the "only N scenes changed" offer. */
   premiumNarration: boolean;
+  /** Which per-scene renderer draws the frames (Phase 3B): the designed
+   *  slide look (default) or real AI-generated video via Veo on the user's
+   *  own Google key. Switching renderers is a DIFFERENT video — a slide
+   *  version must never be offered as "unchanged" for a Veo run (that offer
+   *  would misstate what gets billed), and vice versa. */
+  sceneRenderer?: 'slides' | 'veo';
+  /** The Veo model id when sceneRenderer is 'veo' (a different model is a
+   *  different video). Ignored for the slide renderer. */
+  veoModel?: string;
 }
 
 export function videoOptionsFingerprint(opts: VideoOptionsForFingerprint): string {
   const { style, visuals, maxDepth, watermark, premiumNarration } = opts;
+  // The 'veo' fields join the hash ONLY when Veo is selected, so every
+  // fingerprint ever computed for slide-rendered videos is unchanged (no
+  // spurious "everything changed" on existing saved videos).
+  const veo = opts.sceneRenderer === 'veo';
   return hashText(JSON.stringify({
     theme: style.theme,
     accent: style.accent,
@@ -143,6 +156,7 @@ export function videoOptionsFingerprint(opts: VideoOptionsForFingerprint): strin
     maxDepth,
     watermark,
     premiumNarration,
+    ...(veo ? { sceneRenderer: 'veo', veoModel: opts.veoModel ?? '' } : {}),
   }));
 }
 

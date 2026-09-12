@@ -84,6 +84,8 @@ interface PendingApproval {
   payer: PayerDescription;
   /** Optional per-run scope line (e.g. "Updating 2 of 5 sections…"). */
   scopeNote?: string;
+  /** True for ops that must ALWAYS confirm (real-dollar runs — see below). */
+  alwaysConfirm?: boolean;
   resolve: (approved: boolean) => void;
 }
 
@@ -95,6 +97,14 @@ export interface HeavyOpApprovalOptions {
    * cost."). Never replaces the payer/cost lines; only adds precision.
    */
   scopeNote?: string;
+  /**
+   * 🟠 MONEY RULE: set true for ops that move REAL dollars per run on the
+   * user's own key (e.g. Veo AI-video scenes billed by Google). The confirm
+   * then ALWAYS appears — Professional mode and "Don't ask again" do NOT
+   * bypass it, and the "Don't ask again" checkbox is not offered. A real
+   * per-scene charge must never happen without an explicit user confirm.
+   */
+  alwaysConfirm?: boolean;
 }
 
 export function useHeavyOpApproval() {
@@ -109,14 +119,18 @@ export function useHeavyOpApproval() {
       // instantly (no new friction for everyday tools).
       if (!entry || entry.costClass !== 'heavy') return Promise.resolve(true);
       // Two-tier bypass, same as the unified confirm: Professional mode
-      // (global) or this dialog's own "Don't ask again" (per-op).
-      if (isProfessional || isSuppressed(opId)) return Promise.resolve(true);
+      // (global) or this dialog's own "Don't ask again" (per-op) — EXCEPT
+      // for alwaysConfirm ops (real-dollar runs), which are never bypassed.
+      if (!options?.alwaysConfirm && (isProfessional || isSuppressed(opId))) {
+        return Promise.resolve(true);
+      }
       return new Promise<boolean>((resolve) => {
         setDontAskAgain(false);
         setPending({
           opId,
           payer: describeCurrentPayer(opId),
           scopeNote: options?.scopeNote,
+          alwaysConfirm: options?.alwaysConfirm,
           resolve,
         });
       });
@@ -160,20 +174,24 @@ export function useHeavyOpApproval() {
               </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <div className="flex items-center gap-2 py-2">
-            <Checkbox
-              id={`heavy-op-dont-ask-${pending.opId}`}
-              data-testid="heavy-op-dont-ask"
-              checked={dontAskAgain}
-              onCheckedChange={(v) => setDontAskAgain(v === true)}
-            />
-            <Label
-              htmlFor={`heavy-op-dont-ask-${pending.opId}`}
-              className="text-sm font-normal cursor-pointer select-none"
-            >
-              Don&apos;t ask again
-            </Label>
-          </div>
+          {/* Real-dollar (alwaysConfirm) runs never offer "Don't ask again" —
+              each charged run gets its own explicit confirm. */}
+          {!pending.alwaysConfirm && (
+            <div className="flex items-center gap-2 py-2">
+              <Checkbox
+                id={`heavy-op-dont-ask-${pending.opId}`}
+                data-testid="heavy-op-dont-ask"
+                checked={dontAskAgain}
+                onCheckedChange={(v) => setDontAskAgain(v === true)}
+              />
+              <Label
+                htmlFor={`heavy-op-dont-ask-${pending.opId}`}
+                className="text-sm font-normal cursor-pointer select-none"
+              >
+                Don&apos;t ask again
+              </Label>
+            </div>
+          )}
           <AlertDialogFooter className="flex-col-reverse sm:flex-row sm:justify-end gap-2">
             <AlertDialogCancel data-testid="heavy-op-cancel" onClick={handleCancel}>
               Cancel

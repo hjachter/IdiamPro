@@ -70,6 +70,11 @@ import {
   saveVideoManifest,
   videoOptionsFingerprint,
 } from '@/lib/video/video-compiler';
+import {
+  VEO_MODEL_ID,
+  veoFreshScopeNote,
+  veoUpdateScopeNote,
+} from '@/lib/video/veo-constants';
 
 // Detail (depth) control — how many levels of the outline become their own
 // slides. Value-based labels; the number is the maxDepth passed to the slide
@@ -141,6 +146,31 @@ function saveVisualsSel(sel: VisualsSel): void {
   try { window.localStorage.setItem(VISUALS_STORAGE_KEY, JSON.stringify(sel)); } catch { /* ignore */ }
 }
 
+// Scene style (Phase 3B) — WHICH renderer draws each scene:
+//   'slides' — the designed slide look (default; renders on this Mac at no cost)
+//   'veo'    — real AI-generated video per scene via Google's Veo, on the
+//              user's OWN Google AI (Gemini) key. REAL per-scene dollars,
+//              billed by Google — so the choice is explicit, key-gated
+//              (disabled without a Gemini key), and every run gets an
+//              un-suppressible P2 confirm with honest dollar framing.
+// Capability-preserving: 'slides' and every existing option stay untouched.
+type SceneStyleKey = 'slides' | 'veo';
+const SCENE_STYLE_STORAGE_KEY = 'idiampro:video-scene-style';
+
+function loadSceneStyle(): SceneStyleKey {
+  if (typeof window === 'undefined') return 'slides';
+  try {
+    const saved = window.localStorage.getItem(SCENE_STYLE_STORAGE_KEY);
+    if (saved === 'veo' || saved === 'slides') return saved;
+  } catch { /* localStorage unavailable — fall back to default */ }
+  return 'slides';
+}
+
+function saveSceneStyle(key: SceneStyleKey): void {
+  if (typeof window === 'undefined') return;
+  try { window.localStorage.setItem(SCENE_STYLE_STORAGE_KEY, key); } catch { /* ignore */ }
+}
+
 // Reject logo uploads bigger than this — keeps localStorage small and renders fast.
 const MAX_LOGO_BYTES = 1_500_000;
 const ACCEPTED_LOGO_TYPES = ['image/png', 'image/jpeg', 'image/svg+xml', 'image/webp'];
@@ -164,9 +194,11 @@ const MANY_SLIDES = 18;
 const VOICE_OPTIONS = OPENAI_VOICE_OPTIONS;
 
 // Rough render-time estimate for the progress copy: ~6s of work per slide
-// (image render + TTS round-trip + encode) plus a final stitch pass.
-function estimateSeconds(slideCount: number): number {
-  return Math.round(slideCount * 6 + 8);
+// (image render + TTS round-trip + encode) plus a final stitch pass. AI-video
+// (Veo) scenes are far slower — Google quotes 11s to a few minutes per clip —
+// so estimate ~75s per scene there (still just a rough guide, not a promise).
+function estimateSeconds(slideCount: number, veo = false): number {
+  return Math.round(slideCount * (veo ? 75 : 6) + 8);
 }
 
 function formatDuration(totalSeconds: number): string {
@@ -214,10 +246,18 @@ export default function GenerateVideoDialog({
   // Bumped once a second while rendering so the time-remaining line recomputes.
   const [, setNowTick] = useState(0);
   const [outputPath, setOutputPath] = useState<string | null>(null);
-  const [resultInfo, setResultInfo] = useState<{ durationSeconds?: number; usedTts?: boolean } | null>(null);
+  const [resultInfo, setResultInfo] = useState<{
+    durationSeconds?: number;
+    usedTts?: boolean;
+    /** 1-based scene numbers that fell back from Veo to the slide look. */
+    veoFallbackScenes?: number[];
+  } | null>(null);
   const [acknowledgedLarge, setAcknowledgedLarge] = useState(false);
   const [depthKey, setDepthKey] = useState<DepthKey>(DEFAULT_DEPTH_KEY);
   const [visualsSel, setVisualsSel] = useState<VisualsSel>(DEFAULT_VISUALS_SEL);
+  // Scene style (Phase 3B): designed slides (default) vs. Veo AI video.
+  const [sceneStyle, setSceneStyle] = useState<SceneStyleKey>('slides');
+  const [hasGeminiKey, setHasGeminiKey] = useState(false);
 
   const desktop = isElectron();
   const chapterNode = outline && selectedNodeId ? outline.nodes[selectedNodeId] : null;
@@ -293,7 +333,16 @@ export default function GenerateVideoDialog({
     setStyle(loadVideoStyle());
     setDepthKey(loadDepthKey());
     setVisualsSel(loadVisualsSel());
+    setSceneStyle(loadSceneStyle());
+    // Veo runs ONLY on the user's own Gemini key (BYOK) — read fresh on every
+    // open so adding/removing the key in Settings is reflected immediately.
+    setHasGeminiKey(!!getUserApiKey('gemini'));
   }, [open]);
+
+  // The EFFECTIVE renderer: a saved 'veo' choice without a Gemini key on file
+  // silently means slides (the option is disabled in the UI in that state —
+  // we never let a keyless run pretend it will produce AI video).
+  const veoSelected = sceneStyle === 'veo' && hasGeminiKey;
 
   // While a render is running, tick once a second so the time-remaining line
   // stays live even between the pipeline's per-slide progress events.
@@ -367,7 +416,11 @@ export default function GenerateVideoDialog({
     maxDepth,
     watermark: !isPro,
     premiumNarration: hasOpenaiKey,
-  }), [style, visualsSel, maxDepth, isPro, hasOpenaiKey]);
+    // Phase 3B: a Veo video and a slide video are DIFFERENT videos — an
+    // "Update Changed" offer must never mix them (it would misstate billing).
+    sceneRenderer: veoSelected ? 'veo' : 'slides',
+    veoModel: veoSelected ? VEO_MODEL_ID : undefined,
+  }), [style, visualsSel, maxDepth, isPro, hasOpenaiKey, veoSelected]);
 
   // A previous version of THIS video with the SAME settings → offer
   // "Update Changed" next to "Start Fresh". Value-based copy only; the
@@ -418,12 +471,24 @@ export default function GenerateVideoDialog({
     const effectiveMode: 'fresh' | 'update' = mode === 'update' && previousVersion ? 'update' : 'fresh';
     // Heavy-op approval FIRST — cancelling renders (and bills) nothing. On the
     // update path the confirm carries an honest SCOPED note ("N of M scenes").
-    const scopeNote = effectiveMode === 'update' && previousVersion
-      ? (previousVersion.changed === 0
-          ? 'Nothing has changed since your last video — every scene is reused and the video is quickly reassembled.'
-          : `Updating ${previousVersion.changed} of ${previousVersion.total} scene${previousVersion.total === 1 ? '' : 's'} — unchanged scenes are reused, which is faster and cheaper.`)
-      : undefined;
-    if (!(await approveHeavyOp('videoGeneration', scopeNote ? { scopeNote } : undefined))) return;
+    // 🟠 Veo runs use their OWN cost-model entry with REAL-dollar framing
+    // (per-scene "typically…" range, who bills whom, unchanged-scenes-not-
+    // billed-again) and are NEVER suppressible: alwaysConfirm bypasses
+    // Professional mode and "Don't ask again" — no Veo dollars ever move
+    // without this explicit confirm.
+    const scopeNote = veoSelected
+      ? (effectiveMode === 'update' && previousVersion
+          ? veoUpdateScopeNote(previousVersion.changed, previousVersion.total)
+          : veoFreshScopeNote(slideCount))
+      : (effectiveMode === 'update' && previousVersion
+          ? (previousVersion.changed === 0
+              ? 'Nothing has changed since your last video — every scene is reused and the video is quickly reassembled.'
+              : `Updating ${previousVersion.changed} of ${previousVersion.total} scene${previousVersion.total === 1 ? '' : 's'} — unchanged scenes are reused, which is faster and cheaper.`)
+          : undefined);
+    const approved = veoSelected
+      ? await approveHeavyOp('videoGenerationVeo', { scopeNote, alwaysConfirm: true })
+      : await approveHeavyOp('videoGeneration', scopeNote ? { scopeNote } : undefined);
+    if (!approved) return;
     // Free-taste gate — Pro renders clean; free renders carry a watermark
     // until the 10-video lifetime allowance is spent, then the upgrade prompt.
     const decision = evaluateGate();
@@ -433,6 +498,7 @@ export default function GenerateVideoDialog({
       success: boolean; outputPath?: string; durationSeconds?: number; usedTts?: boolean; error?: string;
       sceneResults?: Array<{ index: number; engine?: string; clipKey?: string; fromCache?: boolean; durationSeconds?: number } | null>;
       cache?: { reused: number; generated: number };
+      veo?: { requested: number; apiCalls: number; rawReused: number; fellBack: number[]; refusedNoKey?: boolean };
     }> } }).electronAPI;
     if (!api?.generateSlideshowVideo) {
       setErrorMsg('The video generator is not available in this build.');
@@ -479,6 +545,12 @@ export default function GenerateVideoDialog({
         // untouched. Both record clips for next time.
         useSceneCache: true,
         forceRegenerate: effectiveMode !== 'update',
+        // 🎬 Phase 3B: route scene rendering through Veo on the USER'S OWN
+        // Gemini key (BYOK — the generator refuses env/dev keys for Veo).
+        // Only ever sent after the un-suppressible P2 confirm above.
+        veo: veoSelected
+          ? { enabled: true, apiKey: getUserApiKey('gemini') || '', model: VEO_MODEL_ID }
+          : undefined,
       });
       stopProgress();
       if (!result?.success || !result.outputPath) {
@@ -504,6 +576,7 @@ export default function GenerateVideoDialog({
       try {
         (window as unknown as { __videoCacheStats?: unknown }).__videoCacheStats = result.cache ?? null;
         (window as unknown as { __videoSceneResults?: unknown }).__videoSceneResults = result.sceneResults ?? null;
+        (window as unknown as { __videoVeoStats?: unknown }).__videoVeoStats = result.veo ?? null;
       } catch { /* ignore */ }
       // Charge one free-video credit ONLY on a successful render (never on
       // failure/cancel). Pro renders are unlimited and don't touch the counter.
@@ -511,7 +584,15 @@ export default function GenerateVideoDialog({
         setFreeUsed(incrementFreeVideosUsed());
       }
       setOutputPath(result.outputPath);
-      setResultInfo({ durationSeconds: result.durationSeconds, usedTts: result.usedTts });
+      setResultInfo({
+        durationSeconds: result.durationSeconds,
+        usedTts: result.usedTts,
+        // Honest completion note: which scenes used the slide look because
+        // AI video wasn't available for them (1-based for humans).
+        veoFallbackScenes: veoSelected && result.veo && result.veo.fellBack.length > 0
+          ? result.veo.fellBack.map((i) => i + 1)
+          : undefined,
+      });
       setPhase('done');
     } catch (e) {
       stopProgress();
@@ -574,7 +655,7 @@ export default function GenerateVideoDialog({
               {slideCount > 0 ? (
                 <>
                   <span className="font-medium">{slideCount} slides</span>
-                  <span className="text-muted-foreground"> · about {formatDuration(estimateSeconds(slideCount))} to render</span>
+                  <span className="text-muted-foreground"> · about {formatDuration(estimateSeconds(slideCount, veoSelected))} to render</span>
                 </>
               ) : (
                 <span className="text-muted-foreground">This chapter has no content to turn into slides.</span>
@@ -660,12 +741,74 @@ export default function GenerateVideoDialog({
                   </div>
                 </div>
 
+                {/* Scene style (Phase 3B) — WHICH renderer draws each scene.
+                    Capability-preserving: "Designed slides" is the untouched
+                    existing pipeline; "Cinematic AI video" (Veo, user's own
+                    Google key) is a strictly additive alternative, key-gated
+                    and honestly priced. */}
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Scene style</Label>
+                  <RadioGroup
+                    value={veoSelected ? 'veo' : 'slides'}
+                    onValueChange={(v) => {
+                      const next: SceneStyleKey = v === 'veo' && hasGeminiKey ? 'veo' : 'slides';
+                      setSceneStyle(next);
+                      saveSceneStyle(next);
+                    }}
+                  >
+                    <div className="space-y-1.5">
+                      <label
+                        htmlFor="scene-style-slides"
+                        className="flex items-start gap-2.5 rounded-md border p-2.5 cursor-pointer hover:bg-accent/50 transition-colors"
+                      >
+                        <RadioGroupItem value="slides" id="scene-style-slides" className="mt-0.5" />
+                        <span className="grid gap-0.5">
+                          <span className="text-sm font-medium leading-none">Designed slides</span>
+                          <span className="text-xs text-muted-foreground">
+                            Your outline as branded slides — renders on this Mac at no cost.
+                          </span>
+                        </span>
+                      </label>
+                      <label
+                        htmlFor="scene-style-veo"
+                        data-testid="scene-style-veo"
+                        className={`flex items-start gap-2.5 rounded-md border p-2.5 transition-colors ${
+                          hasGeminiKey ? 'cursor-pointer hover:bg-accent/50' : 'cursor-not-allowed opacity-60'
+                        }`}
+                      >
+                        <RadioGroupItem
+                          value="veo"
+                          id="scene-style-veo"
+                          disabled={!hasGeminiKey}
+                          className="mt-0.5"
+                        />
+                        <span className="grid gap-0.5">
+                          <span className="text-sm font-medium leading-none">Cinematic AI video (your Google key)</span>
+                          <span className="text-xs text-muted-foreground">
+                            {hasGeminiKey
+                              ? 'Each scene becomes real AI-generated video — real per-scene charges, billed by Google to your key. Scenes you don’t change are reused, not billed again.'
+                              : 'Add your Google AI key in Settings to enable AI-video scenes.'}
+                          </span>
+                        </span>
+                      </label>
+                    </div>
+                  </RadioGroup>
+                  {veoSelected && (
+                    <p className="text-xs text-muted-foreground">
+                      Your text, branding, and narration stay on every scene. If a scene can&rsquo;t be
+                      generated, it falls back to the designed-slide look — the video always completes.
+                    </p>
+                  )}
+                </div>
+
                 {/* Slide visuals — combinable, independent options (mind maps,
                     photos, video clips). Multi-select, not mutually exclusive. */}
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">Slide visuals</Label>
                   <p className="text-xs text-muted-foreground">
-                    Combine any of these. Mind maps and photos are on by default; leave all unchecked for text-only slides.
+                    {veoSelected
+                      ? 'With AI video, these apply only to scenes that fall back to the slide look.'
+                      : 'Combine any of these. Mind maps and photos are on by default; leave all unchecked for text-only slides.'}
                   </p>
                   <div className="space-y-1.5">
                     {VISUALS_ITEMS.map((opt) => (
@@ -862,7 +1005,7 @@ export default function GenerateVideoDialog({
           // done; before that, fall back to the slide-count estimate.
           const remainingSec = fraction > 0.02
             ? elapsedSec * (1 - fraction) / fraction
-            : Math.max(0, estimateSeconds(slideCount) - elapsedSec);
+            : Math.max(0, estimateSeconds(slideCount, veoSelected) - elapsedSec);
           return (
             <div className="py-8 px-1 space-y-4">
               <div className="flex items-center gap-2.5 text-sm font-medium">
@@ -890,6 +1033,15 @@ export default function GenerateVideoDialog({
               {resultInfo?.durationSeconds ? ` · ${formatDuration(resultInfo.durationSeconds)} long` : ''}
               {resultInfo && resultInfo.usedTts === false ? ' · silent (no voiceover available)' : ''}
             </p>
+            {/* Honest per-scene fallback note (Phase 3B): the video always
+                completes; any scene AI video couldn't cover says so here. */}
+            {resultInfo?.veoFallbackScenes && resultInfo.veoFallbackScenes.length > 0 && (
+              <p data-testid="video-veo-fallback-note" className="text-xs text-amber-600 dark:text-amber-400 max-w-sm">
+                {resultInfo.veoFallbackScenes.length === 1
+                  ? `Scene ${resultInfo.veoFallbackScenes[0]} used the designed-slide look instead — AI video wasn't available for it this time.`
+                  : `Scenes ${resultInfo.veoFallbackScenes.join(', ')} used the designed-slide look instead — AI video wasn't available for them this time.`}
+              </p>
+            )}
           </div>
         )}
 
