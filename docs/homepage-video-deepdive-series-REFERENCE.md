@@ -1,0 +1,483 @@
+# IdiamPro Homepage Video — Shot List / Storyboard
+
+**Purpose:** Pre-production plan for the new homepage video system. Two parts:
+a short **HERO** film (the emotional "why"), and a **DEEP-DIVE SERIES** —
+one short, real, click-accurate clip for every command surface in the app.
+
+**Brand-name convention (critical):**
+- On screen, always written **IdiamPro** (and "Second Brain", "Smart Tools", etc.).
+- In the **spoken narration / TTS script only** (never shown on screen), spell it
+  phonetically **"I.D.M. Pro"** so the voice pronounces it right ("eye-dee-em pro").
+
+**Capture principle for every clip — TRUE FIDELITY:** film the *real* app doing the
+*real* thing. Open the real menu, click the real item, show the real result. Never
+fake a hover, never imply a result we didn't actually produce. Where AI generation
+happens, render it **fast / all-at-once** (batch the result in), never a slow
+one-item-at-a-time crawl — the viewer should feel speed and confidence.
+
+**Reuse (applies throughout):**
+- Every deep-dive clip below doubles as a **standalone how-to** in the in-app
+  tutorial / help library. Film each so it stands alone (self-contained, no reliance
+  on the clip before it).
+- The **Part 1 opening targeting outline** doubles as the **clickable chapter list**
+  for the whole series — each audience/branch in that outline links to the matching
+  clip cluster, so the hero's cold-open outline literally becomes the video's menu.
+
+---
+
+# PART 1 — HERO (target ~75 seconds)
+
+## v2 — CONFIRMED ARC (Howard 2026-07-15) — SUPERSEDES the beats below
+
+**HARD RULE #1 — SYNC:** the cursor and every on-screen action MUST be synchronized
+to the narration — the action happens exactly as the words are spoken. Unsynchronized
+motion is "totally confusing" and unacceptable. Build BEAT-BY-BEAT: render each
+narration line, measure its audio duration, and time the on-screen action to that
+duration so word and motion land together.
+
+**HARD RULE #2 — PROGRESSIVE DISCLOSURE (Howard 2026-07-15):** every outline shown
+starts COMPRESSED to just its top-level headings (the skeleton), then EXPANDS each
+section's detail one at a time, exactly as the narration reaches it. Reveal as spoken,
+never dump all at once — skeleton first, drill in as you talk. Reads professional and
+guided; also shows off the compress/expand feature naturally.
+
+**HARD RULE #3 — READ TIME / DWELL (Howard 2026-07-15):** whenever a node or content is
+revealed, HOLD it long enough to comfortably READ before anything moves. Never flash text
+by. Rule of thumb ~0.3s/word (≈200 wpm) with a ~1.5–2s minimum even for a short heading,
+longer for paragraphs/filled panes. When in doubt, hold LONGER — err slow, never fast.
+
+**Confirmed arc:**
+1. **Cold open** — cursor types the title "Who IdiamPro Is For."
+2. **Market segments, revealed ONE AT A TIME, in sync** — each audience node appears
+   exactly as the narrator names it: writers → researchers → founders → creators →
+   AI power users → everyday thinkers. One beat each, NEVER all at once. UPGRADE (Howard 2026-07-15): each segment gets a
+   NEED-STATEMENT, not just a label — a short, provocative statement of that group's real
+   ache (having the pieces vs. owning the whole), landing on IdiamPro as the answer.
+   NEW ORDER — LEAD WITH AI POWER USERS: it's Howard's own origin story (he added AI to
+   the old Idiam tool precisely to organize the conversations, insights & resources he
+   generates across ChatGPT / Claude / Gemini) AND the most urgent, current pain. Order:
+   AI power users → students/researchers → writers/authors → founders/builders →
+   creators → everyday thinkers. AI-power-users statement is blessed + enriched
+   ("conversations, insights, AND resources … where does it all live?"); the other five
+   drafts await Howard's per-segment comments. Each synced with generous read-time.
+
+   LOCKED SEGMENT NEED-STATEMENTS (updating as Howard comments):
+   - **AI power users** (BLESSED, leads): "You've got brilliant answers scattered across
+     ChatGPT, Claude, and Gemini — conversations, insights, and resources — gone the moment
+     the tab closes. Where does it all actually live? IdiamPro gives it a home that grows
+     instead of scrolling away." (Howard's own origin story for adding AI to Idiam.)
+   - **Content creators** (BLESSED, per Howard's wife — a screenwriter; holds BOTH faces of the
+     pain — blank page AND idea-overload): "Content creators — podcasters, authors, scriptwriters,
+     video makers: some days the page is blank. Other days you're drowning in ideas and just need
+     to shape them into something finished. Either way it's due — and you needed it yesterday. We
+     can't give you yesterday. But we'll turn the chaos into a finished script, episode, or chapter
+     — today, and fast." (Name podcasters first. Keeper line: "We can't give it to you yesterday,
+     but we can give it to you today — and fast." Optional tighter cut: lead with the idea-overload
+     version + keep the "yesterday" button.)
+     DECISION (Claude, per Howard's delegation 2026-07-15): do NOT add the audience-commitment
+     checklist to the HERO — it's rich enough, and a background detail most viewers won't notice
+     isn't worth the clutter. KEEP it instead as a standalone TUTORIAL clip: "Track what you
+     promised your audience" — a to-do/checklist inside a creator's outline logging commitments
+     made live to their audience (deferring some ideas, ticking off delivered ones). Explicit and
+     genuinely useful there; out of the hero.
+     FLAGSHIP (Howard 2026-07-15): servicing content creators (podcasters / authors / scriptwriters /
+     video makers) is a CORE COMPETENCY & competitive differentiator — the creator's whole job is
+     "finished content out, on deadline, repeatedly," the exact end-to-end arc IdiamPro owns (scattered
+     ideas -> consolidate -> finish fast -> publish in every format), where rivals give only a blank page
+     or a generic generator. Build a FLAGSHIP creator tutorial / short mini-series (deadline rescue;
+     idea-overload-to-finished; the commitment tracker). Doubles as outreach material for the
+     creator/evangelist pipeline (podcasters/authors/YouTubers) — one asset, two jobs.
+
+   CREATOR FLAGSHIP FILM — "The Surfer Podcaster" commercial (from Howard's wife, a screenwriter,
+   2026-07-15) — ready-to-shoot, belongs on /workflows next to Dinesh & Sam:
+   > A surf-shop owner has a podcast he's owed his subscribers forever but is too busy for. "I know
+   > — I'll use IdiamPro." He types a topic outline: "Surfing in Hawaii vs Australia — contrast
+   > beaches & waves; contrast dangerous sea animals; contrast nearby amenities & prices." Presses
+   > the button. "Done!" "Thank God for IdiamPro — I got this done in 15 minutes: a half-hour
+   > podcast. I could put up 20 of these a day now." He grabs his surfboard: "Now I've got all the
+   > time in the world to do what I love — surfing."
+   Textbook motivating-need spine (relatable protagonist + real ache -> tool -> a LIFE-back payoff,
+   not a software payoff). Surf shop = deliberately not a tech guy = "for real people with real
+   businesses." PRODUCTION NOTE: keep claims plausible/honest — "15 min / 20 a day" reads as the
+   character's exuberance, NOT a literal guarantee (don't over-promise). Produce when Howard says go.
+
+## /WORKFLOWS = CHARACTER-PROFILE GALLERY (Howard 2026-07-15) — architecture + doctrine
+
+Each workflow IS a character profile tied to a market segment. Click a workflow -> meet the
+illustrative character -> the visitor "sees themselves" in that profile (self-recognition = the
+conversion engine). Roster: Dinesh = career-changer, Sam = student, the Surfer = content creator,
+with student / writer / founder / everyday-thinker profiles to come (one per segment).
+
+THE FORMULA (spine of ALL our marketing — Howard's words): **"We localize the pain and provide
+the remedy."** Every character film is just two beats: LOCALIZE the pain (make the ache specific &
+relatable — a real person, a real bind), then REMEDY it (IdiamPro, almost instantly).
+
+This upgrades the "/workflows re-skin" job into a REBUILD: /workflows becomes a Clarity-teal GALLERY
+of character profiles (segment <-> character <-> workflow film), each card a recognizable person,
+each opening into their pain-and-remedy film, with "see yourself here" framing. Ties to the
+motivating-need marketing doctrine (memory: project-marketing-open-with-motivating-need).
+
+TUTORIALS SERVE BOTH AUDIENCES AT DIFFERENT LEVELS (Howard 2026-07-15): the SAME tutorial clips
+serve prospects AND customers, but with different mindsets — build ONE library with TWO doors:
+- PROSPECT (non-customer, on the marketing site): watches to DECIDE — "can it do what I need?" —
+  framed as DISCOVERY / proof; lowers the barrier to sign up.
+- CUSTOMER (signed-in, in-app help): watches to MASTER — "how do I do this well?" — framed as
+  ONBOARDING / how-to; deepens engagement, cuts support load.
+One asset, two jobs, two entry points. (The homepage is the front door for BOTH — so every CTA/
+surface must behave correctly signed-in AND signed-out; cf. the auth-aware CTA fix.)
+   - **Students / researchers** (BLESSED — Howard's crystallization: "they have notes but no
+     education"): "You have the notes — but do you have an education? Years of courses, a mountain
+     of notes, and no real sense of how any of it connects, or how to find it the day you're a
+     professional who actually needs it. IdiamPro turns scattered notes into understanding you own —
+     because the connecting is where the learning happens." (Last clause = the consolidation bridge:
+     restructuring = consolidation = learning.)
+   - **Writers & authors** (BLESSED — long-form/book lane, distinct from the deadline creators):
+     "You've got a hundred fragments: notes, research, half-chapters scattered everywhere. But do you
+     have a book? IdiamPro is where the pieces become a whole, and the whole becomes finished."
+   - **Founders & builders** (BLESSED): "You have the vision, a dozen docs, and the plan living in
+     your head. But is there one place that actually holds it — and reshapes the moment reality
+     moves? IdiamPro turns the scatter into a strategy that stays alive."
+   - **Everyday thinkers** (BLESSED, final — features the SECOND BRAIN MENU; Howard: "that IS what
+     the company name is all about" = SecondBrainWare): "And honestly, that's all of us: the best
+     ideas arrive at random — in the shower, on a walk, mid-conversation — and vanish just as fast.
+     The Second Brain menu lets you catch each one the instant it strikes and catalog it — organize
+     it on the spot, or come back later to pull the scatter together and consolidate it into a real
+     plan for your life. Not just somewhere to remember — a way to finally act."
+     NOTE: Second Brain = the company's literal NAMESAKE (SecondBrainWare) — this is the company
+     thesis, so feature Second Brain PROMINENTLY site-wide (priority, not a nicety).
+     APPARENT-INTELLIGENCE / WISDOM ANGLE (Howard 2026-07-15, strong copy): organizing your random
+     facts increases your APPARENT INTELLIGENCE — even wisdom. "If someone remembers everything and
+     knows how to use everything, it sounds like wisdom." Reframes the product from a chore
+     (organization) to an identity (wisdom). Keeper lines: **"Remember everything. Know how to use
+     it. That's what wisdom looks like."** / "Organize what you know and you don't just get organized
+     — you get smarter." Use PROMINENTLY in the Second Brain section + the Story/philosophy page. The
+     aspirational top of the ladder: capture -> organize -> consolidate -> WISDOM.
+   ALL SIX SEGMENTS NOW LOCKED. Order: AI power users -> students -> writers -> founders -> creators ->
+   everyday thinkers. READY TO BUILD hero v2: each segment expands to reveal its pain-point sub-bullets,
+   synced to narration. SEPARATE QUEUED TASK: give the SECOND BRAIN facility far more copy/attention
+   site-wide (Howard: it's a real differentiator we've been underselling).
+3. **Messy → organized, shown TWO ways (the core duality):**
+   - **(a) MANUAL / by hand — THE SOUL BEAT:** start from a visibly SCATTERED jumble of
+     seemingly UNRELATED items; the user sculpts them by hand — **indent, outdent, drag
+     up, drag down** — into something that makes TOTAL SENSE. This is the founding
+     creative act of Idiam (the decades-old capability carried into the AI version) and
+     the "real creativity" we demonstrate — chaos → coherence, shaped by a human; the AI
+     amplifies the gift, doesn't replace it. Narration conveys that MEANING (unrelated
+     fragments finally making sense, shaped by you), not just "drag to reorder." Convey
+     depth without bragging — weave the lineage into the feeling, never flaunt "35 years."
+     Cursor synced to narration.
+   - **(b) AUTOMATIC / by AI:** take the SAME random pile and organize it automatically
+     through the AI organizational interface (Transform / organize-with-AI) — same
+     clean result, one command. Also show items being *developed* automatically:
+     researched from the web + organized expertly by AI. Message: "Add and organize it
+     yourself — or let the AI do it for you."
+4. **Output breadth** — open the REAL Export menu → the full "Share Suboutline as…"
+   format picker showing the whole grid (document, PDF, website, video, podcast,
+   slides, markdown/OPML, many languages). Linger so the breadth lands.
+5. **Close** — teal card: "IdiamPro · Your partner in thinking · Start free" +
+   "Produced by IdiamPro."
+
+Everything teal / Clarity. Reuse existing narration audio where wording still fits;
+regenerate only lines that changed. The v1 beats below are kept for reference only.
+
+### CONTENT-PANE RICHNESS (Howard 2026-07-15) — the content pane must look ALIVE
+
+The content pane must NEVER show an empty "Start writing…" when a node is selected —
+that made the app look lifeless. As the hero clicks node to node, reveal a spread of
+rich content so prospects see "anything can live inside a node — it's a workspace":
+- rich formatted text + nicely-formatted **meeting notes** (headings, action-item checklist)
+- a live **spreadsheet** with real data
+- **handwritten / Apple-Pencil notes** (a drawing)
+- an **image** and a **diagram** (mind-map / flowchart)
+- an embedded **Google Doc** (best-effort — needs sign-in; skip cleanly if it won't render headless)
+- **THE WOW:** an embedded **video playing inline** in the content pane
+- **AI filling empty space with text** using the real Generate/Expand placement controls —
+  **Insert Before / Insert After** (prepend/append), and replace — so the AI writes directly
+  into the doc and the user steers exactly where it lands.
+- **Fill nodes BEFORE dragging:** in the manual reorganization beat, the nodes already hold
+  content, so dragging them shows content travels with the node — reorganizing substance,
+  not empty bullets.
+Priority order: sync + human pacing + the 5-beat arc FIRST; then a strong representative
+spread of the rich content (favor the no-auth types that capture cleanly). Never empty.
+
+### MORE PRODUCTION DIRECTIVES (Howard 2026-07-15) — apply to the hero + future renders
+
+- **Flagship automatic demo:** the centerpiece of the automatic beat = a fresh outline where
+  an AI PROMPT builds a full **table of contents**, then **every node's content fills in
+  automatically** in one pass ("Create Content for Descendants"). Prompt → whole TOC →
+  all content. The single most breathtaking moment.
+- **AI fills empty space + placement control:** show the AI writing into the content pane
+  with **Insert Before / Insert After** (prepend/append/replace) — a partner you steer.
+- **PANE-WIDTH RULE:** size the outline/content split per shot so content FILLS the panes.
+  No big empty voids — empty space looks amateurish, filled panes look premium/professional.
+- **VOICE:** male **British-accented** narrator. Current engine = OpenAI TTS (voice "fable").
+  OPTION (Howard's call, needs his ElevenLabs account + $): switch to ElevenLabs for higher
+  naturalness and/or **Howard's own cloned voice** (record a 1–3 min sample). NOTE: the voice
+  is SEPARABLE from the cut — it's a cheap re-lay over the finished synced timeline, so lock
+  the visual cut first, choose the final voice after.
+- **RUNTIME (Howard 2026-07-15, UPDATED — supersedes the earlier "keep tight" rule):**
+  NO length cap. Impact over brevity — the hero may run LONG. Include ALL the incredible
+  showcase moments and give each its full, readable, well-paced moment; never cut or rush
+  a wow beat to save time. Trim only genuine filler/dead air. Keep it human-paced, synced,
+  and with generous dwell — long-but-gripping, not long-but-slow. (Exhaustive per-feature
+  how-tos still also live in the tutorial clips.)
+- **Outline compression (flagship tutorial clip — Howard uses it daily):** take a large,
+  detailed outline and COMPRESS the detail out of it to reveal the clean high-level
+  structure/skeleton (the compress/search-shaper tool; see the 1988-lineage spec —
+  never hide siblings or gate navigation). Deserves its OWN tutorial clip so it lands;
+  optional quick hero glimpse only if it fits without bloating the hero.
+
+**Feel:** warm, human, benefit-first. IdiamPro as your *partner in thinking* — the
+place that takes the scattered pieces of your life and your half-formed ideas and
+helps them grow into finished things. Positioning is pulled straight from our live
+marketing language, not invented: the **Idea Incubator** ("Capture → Structure →
+Enrich → Hatch"), **"for all thinkers,"** and **one input → many finished outputs**
+(books, podcasts, narrated videos, diagrams, graphics, professional docs).
+
+### Cold open — the targeting outline, shown inside the real app (dogfooding)
+On screen: a real IdiamPro outline titled something like **"Who IdiamPro Is For."**
+It expands, node by node, as the narrator speaks — we are watching the product
+present its own audience *using the product*. Real branches (drawn from our current
+marketing outline's audience language):
+
+- **Writers & authors** — books, scripts, long-form
+- **Researchers & academics** — students, educators, analysts
+- **Founders & builders** — plans, strategy, decks
+- **Creators** — podcasters, video makers, brand strategists
+- **AI power users** — capturing insight scattered across ChatGPT, Claude, Gemini
+- **Everyday thinkers** — anyone with more ideas than places to put them
+
+(These branches are the clickable chapter list — see Reuse.)
+
+### Timed beats
+
+| Time | On-screen action | Narration (TTS script — "I.D.M. Pro", never shown) |
+|---|---|---|
+| 0:00–0:06 | Black. A single cursor blinks, then types the outline title "Who IdiamPro Is For." | "You've got more ideas than you know what to do with." |
+| 0:06–0:20 | The outline expands branch by branch (audience list above), each row appearing as it's named. | "Writers. Researchers. Founders. Creators. Students. Anyone whose mind never really stops. If you think for a living — or just think a lot — I.D.M. Pro was built for you." |
+| 0:20–0:34 | Cut to a messy reality montage: a saved YouTube link, a PDF, a voice memo, a wall of chat logs, sticky notes — then they visibly *fly into* one IdiamPro outline and snap into structure. | "Right now those pieces are scattered — half-formed thoughts, saved videos, PDFs, chats across a dozen apps. I.D.M. Pro pulls them into one place that actually works together." |
+| 0:34–0:50 | The outline reshapes: a rough branch gets enriched with AI content, a diagram grows out of it, a checklist forms. Calm, fast, confident. | "It's not a filing cabinet that just stores your ideas. It's an incubator that helps them grow up. Capture, structure, enrich — and hatch." |
+| 0:50–1:04 | The single outline fans out into finished outputs: a narrated video thumbnail, a podcast waveform, a document, a mind-map, a webpage. | "One outline becomes many finished things — a document, a diagram, a narrated video, a podcast. You do the thinking. I.D.M. Pro helps you finish it." |
+| 1:04–1:15 | Pull back to the clean IdiamPro app, logo settles. On-screen wordmark: **IdiamPro**. | "I.D.M. Pro. Your partner in thinking. Start free." |
+
+**Note for editors:** the Part-1 outline is a *real* saved outline we ship in the
+capture set, so the cold open is genuine dogfooding, not a mockup.
+
+---
+
+# PART 2 — DEEP-DIVE SERIES (the reason for this shoot)
+
+Complete inventory of the app's command surface, each item its own short clip.
+Grouped by surface. Each clip spec = **(a) title · (b) exact real click sequence to
+capture · (c) one-sentence narration beat · (d) cost/gate flag.**
+
+Legend for (d): **[Free]** = no AI, no cost · **[AI]** = uses one AI generation ·
+**[Pro]** = Pro-gated / paid spend · **[Free local]** = instant on-device, never costs.
+
+---
+
+## Surface A — Outline pane, TOP title row
+
+1. **Show / hide the outline sidebar** — Click the panel toggle at the far left of the title row; the outlines sidebar slides closed, click again to reopen. *"Tuck the outline list away when you want to focus — one click brings it back."* [Free]
+2. **Quick Command (⌘K)** — Click the speech-bubble button; the command bar opens; type "add three child items about pricing" and press Enter; watch the items appear. *"Just tell IdiamPro what you want done, in plain language."* [AI]
+3. **Import ▸ Research & Import** — Open the Import (book-down) menu, click "Research & Import"; the research dialog opens; paste a topic and pull sources in. *"Pull the web's research straight into your outline."* [AI]
+4. **Import ▸ Import Outline** — Open Import menu, click "Import Outline"; pick a file; it lands as a new outline. *"Bring in outlines and documents from anywhere."* [Free]
+5. **Import ▸ Link to Outline…** — Open Import menu, click "Link to Outline…"; pick another outline to cross-link. *"Connect one outline to another so your ideas stay wired together."* [Free]
+6. **Import ▸ Restore All Outlines** — Open Import menu, click "Restore All Outlines"; missing outlines reappear from storage. *"Reload everything from your backup folder in one move."* [Free]
+7. **Import ▸ Restore from backup…** — Open Import menu, click "Restore from backup…"; the Restore tab opens on a snapshot list; pick one. *"Roll this outline back to an earlier snapshot."* [Free]
+8. **Import ▸ Refresh from Web** — Select an item, open Import menu, click "Refresh from Web"; the item and its children update against live web info, sources attached. *"Freshen any section against the latest information on the web."* [AI]
+9. **Export ▸ Share Suboutline as…** — Select an item, open the Export (book-up) menu, click "Share Suboutline as…"; the format picker opens; choose one and share. *"Turn any branch into 20-plus formats to share."* [Free]
+10. **Export ▸ Share as YouTube package** — Select a chapter, open Export menu, click "Share as YouTube package"; the package builds. *"Package a chapter for YouTube in one step."* [AI]
+11. **Export ▸ Generate Video** — Select a chapter, open Export menu, click "Generate Video"; the video builder opens and renders a narrated slideshow. *"Watch an outline become a finished narrated video."* [Pro]
+12. **Export ▸ Export Current Outline** — Open Export menu, click "Export Current Outline"; the file saves. *"Save the whole outline out as a file."* [Free]
+13. **Export ▸ Backup All Outlines** — Open Export menu, click "Backup All Outlines"; all outlines write to storage with a confirmation. *"Back up everything at once."* [Free]
+14. **Backup (this outline)** — Click the shield button in the title row; the snapshot dialog opens on the Backup tab; save a snapshot. *"Take a one-click safety snapshot of this outline."* [Free]
+15. **Report Issue** — Click the Report Issue button by the avatar; the report dialog opens; type and send. *"Tell us about a problem from right inside the app."* [Free]
+16. **Account menu** — Click the avatar; the account / sign-out menu opens. *"Your account, always one click away."* [Free]
+17. **Title-row More (⋯) menu** — On a narrow window, click the ⋯ button; the overflow menu reveals the collapsed title-row tools. *"Nothing ever gets clipped — extra tools tuck into the More menu."* [Free]
+
+---
+
+## Surface B — Outline pane, ACTION toolbar (lower)
+
+18. **Add sibling item** — Select an item, click the green "+"; a new sibling appears ready to name. *"Add the next idea instantly."* [Free]
+19. **Delete item** — Select an item, click the red trash; confirm in the dialog (show the "Don't ask again" option). *"Remove an item, with a safety confirm you can switch off."* [Free]
+20. **Search outline (⌘F)** — Click the magnifier; the search bar opens; type a term; matches highlight and the tree reshapes to show them. *"Find anything, and the outline reshapes around your matches."* [Free]
+21. **Focus Mode (⌘⇧F)** — Select an item, click the Focus button; the view zooms to just that branch. *"Zoom in on one branch and hide the rest."* [Free]
+22. **Show / hide all ▸ Expand All (⌘E)** — Click the up-down-chevrons button, click "Expand All"; the whole tree opens. *"Open every level at once."* [Free]
+23. **Show / hide all ▸ Collapse All (⌘⇧E)** — Same menu, click "Collapse All"; the tree folds to the top level. *"Collapse it all back to a clean overview."* [Free]
+24. **Share suboutline (toolbar)** — Select an item, click the share/upload icon; the format picker opens. *"Share a branch straight from the toolbar."* [Free]
+25. **Second Brain ▸ Open Second Brain** — Click the Brain button, click "Open Second Brain"; your knowledge base opens. *"Open your Second Brain — everything you've saved, in one place."* [Free]
+26. **Second Brain ▸ Quick Capture (⌘⇧I)** — Brain menu ▸ "Quick Capture"; the capture box opens; drop in a thought; it files itself. *"Catch a thought before it's gone."* [Free]
+27. **Second Brain ▸ Save Selection to Second Brain** — Select an item, Brain menu ▸ "Save Selection to Second Brain"; a confirmation shows it saved. *"Send any branch into your Second Brain."* [Free]
+28. **Second Brain ▸ Search Second Brain** — Brain menu ▸ "Search Second Brain"; type a keyword; instant local matches appear. *"Search everything you've saved — instant, free, right on your device."* [Free local]
+29. **Second Brain ▸ Ask Second Brain** — Brain menu ▸ "Ask Second Brain"; ask a question; an AI answer draws from your saved knowledge. *"Ask a real question and get an answer built from your own notes."* [AI]
+30. **Second Brain ▸ View Dashboard** — Brain menu ▸ "View Dashboard"; the dashboard opens. *"See your whole knowledge base at a glance."* [Free]
+31. **Second Brain ▸ Import to Second Brain** — Brain menu ▸ "Import to Second Brain"; import flow runs. *"Load outside material into your Second Brain."* [Free]
+32. **Smart Tools ▸ Quick Command (⌘K)** — Click the Sparkles (Smart Tools) button, click "Quick Command"; the command bar opens. *"The plain-language command bar, in the Smart Tools menu too."* [AI]
+33. **Smart Tools ▸ Reformat with AI…** — Select an item, Smart Tools ▸ "Reformat with AI…"; give an instruction; the content reformats. *"Tell AI how to reshape this — and watch it happen."* [AI]
+34. **Smart Tools ▸ Transform outline with AI…** — Smart Tools ▸ "Transform outline with AI…"; give an instruction; the whole branch restructures. *"Restructure a whole outline with one instruction."* [AI]
+35. **Smart Tools ▸ Capture from image** — Select an item, Smart Tools ▸ "Capture from image"; pick a photo; it becomes structured outline items. *"Turn a photo or whiteboard into a real outline."* [AI]
+36. **Smart Tools ▸ Generate Suboutline from Topic** — Smart Tools ▸ "Generate Suboutline from Topic"; type a topic; a full sub-outline generates all at once. *"Type a topic, get a whole structured sub-outline."* [AI]
+37. **Smart Tools ▸ Translate this section** — Select an item, Smart Tools ▸ "Translate this section"; pick a language; the branch translates. *"Translate any section into another language."* [AI]
+38. **Smart Tools ▸ Ask Your Outlines** — Smart Tools ▸ "Ask Your Outlines"; ask a question spanning your outlines; an AI answer appears. *"Ask a question across everything you've written."* [AI]
+39. **Stop AI operation** — During a running generation, click the pulsing stop button; the operation cancels cleanly. *"Change your mind mid-run — stop any AI action instantly."* [Free]
+40. **Unmerge** — After a merge, click the orange undo button; the outline returns to its pre-merge state. *"Undo a merge and get your earlier structure back."* [Free]
+41. **Settings** — Click the gear; the Settings dialog opens. *"Tune IdiamPro to work the way you do."* [Free]
+42. **Help & Support** — Click the red "?"; the Help chat opens and explains the app. *"Ask the app how the app works — anytime."* [Free]
+43. **Action-toolbar More (⋯) menu** — On a narrow column, click the ⋯; collapsed tools (Focus, Expand/Collapse, Second Brain, Smart Tools, Settings, Help) appear as submenus. *"Every tool stays reachable, even in a narrow column."* [Free]
+
+---
+
+## Surface C — Node right-click / long-press context menu (an item in the tree)
+
+*(macOS/Web: right-click an item. iOS: long-press.)*
+
+44. **Add Sibling Item (Enter)** — Right-click an item ▸ "Add Sibling Item"; a new sibling appears. *"Right-click to add the next item."* [Free]
+45. **Insert Link to Outline…** — Right-click ▸ "Insert Link to Outline…"; pick a target; a live cross-link is inserted. *"Link straight to another outline from here."* [Free]
+46. **Rename Item** — Right-click ▸ "Rename Item"; the name goes editable; type and press Enter. *"Rename in place."* [Free]
+47. **Expand / Collapse** — Right-click a parent ▸ "Expand" (or "Collapse"); its children show or hide. *"Fold or unfold just this branch."* [Free]
+48. **Expand All (this branch)** — Right-click a parent ▸ "Expand All"; the entire subtree opens. *"Open everything under this item."* [Free]
+49. **Collapse All (this branch)** — Right-click a parent ▸ "Collapse All"; the subtree folds. *"Fold everything under this item."* [Free]
+50. **Create Content for Descendants** — Right-click a parent ▸ "Create Content for Descendants"; AI fills content under every child, all at once. *"Fill in every child with AI in one pass."* [AI]
+51. **Share Suboutline As...** — Right-click ▸ "Share Suboutline As..."; the format picker opens. *"Share this branch as whatever format you need."* [Free]
+52. **Save to Second Brain** — Right-click ▸ "Save to Second Brain"; a confirmation shows it saved. *"Send this branch to your Second Brain."* [Free]
+53. **Copy Suboutline (⌘C)** — Right-click ▸ "Copy Suboutline"; the branch is on the clipboard. *"Copy a whole branch."* [Free]
+54. **Move Suboutline / Cut (⌘X)** — Right-click ▸ "Move Suboutline"; the branch is cut, ready to paste elsewhere. *"Cut a branch to move it."* [Free]
+55. **Paste Suboutline (⌘V)** — Right-click a target ▸ "Paste Suboutline"; the cut/copied branch lands under it. *"Paste it right where you want it."* [Free]
+56. **Duplicate (⌘D)** — Right-click ▸ "Duplicate"; an exact copy of the branch appears. *"Duplicate a branch in one click."* [Free]
+57. **Delete Item (Del)** — Right-click ▸ "Delete Item"; confirm; it's removed. *"Delete from the right-click menu too."* [Free]
+58. **Properties...** — Right-click ▸ "Properties..."; the properties dialog opens (type, color, tags). *"Set an item's type, color, and tags in one place."* [Free]
+
+---
+
+## Surface D — Content pane editor toolbar (top of the writing area)
+
+59. **Undo (⌘Z)** — Type something, click the amber undo arrow; it reverts. *"Step back any change."* [Free]
+60. **Redo (⌘⇧Z)** — Click the redo arrow; the change returns. *"Step forward again."* [Free]
+61. **Bullet list** — Click the bullet-list button; the current lines become bullets. *"Bullet it."* [Free]
+62. **Numbered list** — Click the numbered-list button; lines become numbered. *"Number it."* [Free]
+63. **Checklist** — Click the checklist button; lines become tick-boxes you can check off. *"Make a checklist you can actually check off."* [Free]
+64. **Insert App ▸ Canvas (Freeform)** — Click the grid (Insert App) button ▸ "Canvas (Freeform)"; a freeform drawing canvas appears in the content. *"Drop a freeform canvas right into a note."* [Free]
+65. **Insert App ▸ Spreadsheet** — Insert App ▸ "Spreadsheet"; a live spreadsheet appears. *"Add a real spreadsheet inside your outline."* [Free]
+66. **Insert App ▸ Switch to Text** — On a canvas/spreadsheet item, Insert App ▸ "Switch to Text"; it returns to a text note. *"Switch back to a plain text note."* [Free]
+67. **Insert App ▸ Drawing (Apple Pencil)** — Insert App ▸ "Drawing (Apple Pencil)"; the drawing surface opens; sketch; it embeds. *"Sketch by hand — Apple Pencil ready."* [Free]
+68. **Insert App ▸ YouTube Video** — Insert App ▸ "YouTube Video"; paste a link; the video embeds and plays. *"Embed a YouTube video inline."* [Free]
+69. **Insert App ▸ Google Doc** — Insert App ▸ "Google Doc"; pick a doc; it embeds live. *"Bring a Google Doc into the page."* [Free]
+70. **Insert App ▸ Google Sheet** — Insert App ▸ "Google Sheet"; pick a sheet; it embeds live. *"Embed a live Google Sheet."* [Free]
+71. **Insert App ▸ Google Slides** — Insert App ▸ "Google Slides"; pick a deck; it embeds. *"Embed a Google Slides deck."* [Free]
+72. **Insert App ▸ Google Maps** — Insert App ▸ "Google Maps"; pick a place; the map embeds. *"Drop a Google Map into a note."* [Free]
+73. **Insert File** — Click the paperclip; pick a file (image, PDF, audio, video); it embeds appropriately. *"Attach any file and it renders inline."* [Free]
+74. **Content-pane More (⋯) menu** — On mobile/narrow, click the ⋯; the collapsed list and insert tools appear. *"On a small screen, the editor tools live in the More menu."* [Free]
+75. **Expand (AI prompt)** — Click "Expand"; the prompt box opens; ask AI to expand or rewrite this content; approve the result. *"Ask AI to expand or rewrite what you've got."* [AI]
+76. **Generate content (from context)** — Click the Sparkles "Generate" button; AI writes content for this item from the surrounding outline, appearing all at once. *"Generate content that understands the whole outline around it."* [AI]
+77. **Generate content ▸ options (Source / Placement / Descendants)** — Click the chevron beside Generate; set Source (context or prompt) and Placement (append / prepend / replace), or "Generate for Descendants". *"Control exactly where and how AI writing lands."* [AI]
+78. **Generate Image** — Click "Image"; describe the picture; an AI image generates and embeds. *"Describe an image and get it, right in your note."* [Pro]
+79. **Diagram ▸ Mind Map** — Click "Diagram" ▸ "Mind Map"; a mind-map of this branch draws instantly (local, no cost). *"Turn a branch into a mind map instantly."* [Free]
+80. **Diagram ▸ Flowchart** — Click "Diagram" ▸ "Flowchart"; a flowchart of the branch draws instantly. *"Or a flowchart — drawn on the spot, no AI needed."* [Free]
+
+---
+
+## Surface E — Floating format menu (BubbleMenu — appears when you select text)
+
+*(Select text in a note; the floating bar appears.)*
+
+81. **Reformat with AI ("Most Powerful")** — Select text; in the floating bar click the violet wand (badged "Most Powerful"); give an instruction; the selection reformats. *"Select any text and reshape it with AI — our most powerful move."* [AI]
+82. **Bold (⌘B)** — Select text ▸ click Bold. *"Bold what matters."* [Free]
+83. **Italic (⌘I)** — Select text ▸ click Italic. *"Italics in a click."* [Free]
+84. **Underline (⌘U)** — Select text ▸ click Underline. *"Underline it."* [Free]
+85. **Strikethrough** — Select text ▸ click Strikethrough. *"Strike it through."* [Free]
+86. **Inline code** — Select text ▸ click the code button; it becomes monospaced code. *"Mark something as code."* [Free]
+87. **Heading 1** — Select a line ▸ click H1. *"Make it a top heading."* [Free]
+88. **Heading 2** — Select a line ▸ click H2. *"A second-level heading."* [Free]
+89. **Heading 3** — Select a line ▸ click H3. *"A third-level heading."* [Free]
+
+---
+
+## Surface F — Content pane right-click context menu (inside a note)
+
+90. **Cut** — Right-click selected text ▸ "Cut". *"Cut inside a note."* [Free]
+91. **Copy** — Right-click ▸ "Copy". *"Copy inside a note."* [Free]
+92. **Paste** — Right-click ▸ "Paste"; pasted text keeps its fidelity. *"Paste — exactly as it looked in the source."* [Free]
+93. **Select All** — Right-click ▸ "Select All". *"Select the whole note."* [Free]
+94. **Format submenu** — Right-click ▸ "Format" ▸ pick Bold / Italic / Strikethrough / Code / Heading 1–3. *"All the formatting, one right-click away."* [Free]
+95. **Font Size submenu** — Right-click ▸ "Font Size" ▸ Extra Small / Small / Normal / Large / Extra Large. *"Set a comfortable reading size."* [Free]
+96. **Bullet List** — Right-click ▸ "Bullet List". *"Bullet from the menu."* [Free]
+97. **Numbered List** — Right-click ▸ "Numbered List". *"Number from the menu."* [Free]
+98. **Checkbox List** — Right-click ▸ "Checkbox List". *"Make a checklist from the menu."* [Free]
+99. **Horizontal Line** — Right-click ▸ "Horizontal Line"; a divider drops in. *"Drop in a divider."* [Free]
+100. **Insert Date** — Right-click ▸ "Insert Date"; today's date is inserted. *"Stamp today's date."* [Free]
+101. **Remove List Formatting** — Right-click ▸ "Remove List Formatting"; list markers clear. *"Strip list formatting back to plain text."* [Free]
+102. **Insert File submenu** — Right-click ▸ "Insert File" ▸ Import File / Canvas / Spreadsheet / Google Doc / Sheet / Slides / YouTube / Drawing / Google Maps. *"Insert any app or file from the right-click menu too."* [Free]
+103. **Undo (menu)** — Right-click ▸ "Undo". *"Undo from the menu."* [Free]
+104. **Redo (menu)** — Right-click ▸ "Redo". *"Redo from the menu."* [Free]
+105. **Generate AI Content** — Right-click ▸ "Generate AI Content"; AI writes for this item, all at once. *"Generate content from the right-click menu."* [AI]
+106. **Reformat with AI…** — Right-click ▸ "Reformat with AI…"; give an instruction; it reformats. *"Reformat with AI from the right-click menu."* [AI]
+107. **Clear Content** — Right-click ▸ "Clear Content"; the note empties. *"Wipe a note clean."* [Free]
+
+---
+
+## Surface G — Multi-select toolbar (floating bar when several items are selected)
+
+*(Ctrl/Cmd-click several items — iOS: long-press to enter multi-select, then tap.)*
+
+108. **Tag (bulk)** — Select several items; in the floating bar click "Tag"; type a tag; all get it. *"Tag many items at once."* [Free]
+109. **Color (bulk)** — Click "Color"; pick a color; all selected items recolor. *"Color-code a whole group."* [Free]
+110. **Indent (bulk)** — Click "Indent"; all selected items nest one level in. *"Indent a group together."* [Free]
+111. **Outdent (bulk)** — Click "Outdent"; all move one level out. *"Outdent a group together."* [Free]
+112. **Move (bulk)** — *Coming soon* — the Move button is present but disabled; note in narration only, do not film as working. *(Skip on-screen until enabled.)* [Free]
+113. **Delete (bulk)** — Click "Delete"; the selected items are removed (with confirm). *"Delete a whole group at once."* [Free]
+114. **Clear selection** — Click "Clear"; the multi-select ends. *"Clear the selection and carry on."* [Free]
+
+---
+
+## Surface H — Sidebar / outline list (the list of all your outlines)
+
+115. **New Outline** — Click "New Outline" at the top of the sidebar; a fresh outline is created and opened. *"Start a brand-new outline in one click."* [Free]
+116. **Rename outline** — Right-click an outline in the list ▸ "Rename" (or use its row menu); type a new name. *"Rename any outline."* [Free]
+117. **Delete outline** — Row menu ▸ "Delete"; confirm; the outline is removed. *"Delete an outline, with a safety confirm."* [Free]
+118. **Bulk delete outlines** — Multi-select outlines in the sidebar, click "Delete"; confirm. *"Clean up several outlines at once."* [Free]
+
+---
+
+## Surface I — Direct manipulation (drag & drop + gestures — NO menu)
+
+*(These are gestures, not menu items — powerful precisely because they're so simple.
+Show them prominently; also weave a quick drag-to-reshape beat into the HERO, since
+direct manipulation reinforces the "living plan you reshape by hand" theme.)*
+
+119. **Drag to reorder** — Grab an item and drag it above/below a sibling; it drops into the new spot, everything reflows. *"Grab an idea and just move it — reorder your thinking by hand."* [Free]
+120. **Drag to nest / re-parent** — Drag an item onto another; it becomes a child, nested under the new parent. *"Drag one item onto another to nest it — restructure in a second."* [Free]
+121. **Drag a whole branch** — Grab a parent with children and drag the entire subtree to a new home; the whole branch moves together. *"Move a whole branch, children and all, in one drag."* [Free]
+122. **(mobile) Long-press + drag; swipe to indent/outdent** — On iPhone/iPad, long-press to grab an item and drag to reorder; swipe right/left to indent or outdent. *"On iPhone, long-press to grab and swipe to reshape."* [Free]
+
+---
+
+## Totals & coverage
+
+- **Total deep-dive clips: 122** (numbered 1–122, including drag-and-drop / gesture
+  clips 119–122 on new Surface I; clip 112 "Move (bulk)" is flagged
+  *coming soon* — present in the UI but disabled, so it is documented but not filmed
+  as a working action until it ships).
+- **Surfaces covered (8):** A) title-row toolbar · B) action toolbar · C) node
+  right-click/long-press menu · D) content-pane editor toolbar · E) floating format
+  BubbleMenu · F) content-pane right-click menu · G) multi-select toolbar · H)
+  sidebar / outline-list menu.
+- **Cost accuracy:** every clip is flagged Free / Free-local / AI / Pro so narration
+  never implies something is free when it costs an AI generation or is Pro-gated.
+
+## Production notes
+
+- Film in a clean, real outline (not the User Guide, which is read-only and hides
+  mutating menu items).
+- Batch all AI generation to land **fast / all-at-once**, never a slow per-item crawl.
+- Keep the on-screen wordmark **IdiamPro**; keep the spoken track on **"I.D.M. Pro."**
+- Each clip is self-contained for reuse as an in-app how-to; the Part-1 audience
+  outline is the clickable chapter index into these clusters.
+- **Credit (standing rule):** every video — the hero and every deep-dive clip —
+  ends on a **"Produced by IdiamPro"** end-card. No exceptions.
+- **Suboutline scope (Howard 2026-07-15):** in their tutorial clips, show that Generate /
+  Share / Export and the AI operations work on EITHER an individual node (a single
+  suboutline) OR the entire outline — demonstrate BOTH scopes so viewers grasp the
+  flexibility (one node → just that suboutline; whole outline → everything at once).
+  This is a tutorial-clip detail — keep it OUT of the tight hero.
