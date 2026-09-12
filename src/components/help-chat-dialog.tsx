@@ -96,6 +96,7 @@ KEYBOARD SHORTCUTS:
 - Shift+Tab: Outdent node
 - (Quick Command and its Cmd+K shortcut were retired in the 2026-07-21 UI restructure. Natural-language actions on your outline now live in the AI menu on the toolbar and in the right-click menus.)
 - AI menu (toolbar, sparkle icon): natural-language and AI actions that can act on your outline, not just answer questions — generate a suboutline, reformat, transform, translate, ask your outlines, and more. Plain-English requests; conversational confirmations, never CLI-speak.
+- AI Activity (AI menu → AI Activity): a private, on-device log of your AI operations — what ran, when, and which provider handled it. No prompt or content text is ever recorded, and nothing leaves the machine.
 - Cmd+E: Expand All — recursive open of the selected suboutline (or the whole outline if nothing is selected). Also available from the toolbar's bidirectional double-chevron button (tooltip: "Show or hide all nodes") which opens a dropdown with [Expand all] and [Collapse all] items.
 - Cmd+Shift+E: Collapse All — recursive close of the selected suboutline (or the whole outline if nothing is selected). Same toolbar dropdown as above.
 - Single-chevron click on a node: toggles ONLY that node and preserves each descendant's previous open/closed state. Use this when you want a node to remember how it was last left.

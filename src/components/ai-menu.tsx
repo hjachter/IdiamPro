@@ -15,6 +15,7 @@ import { Sparkles, FileText, Crown, Loader2, Brain, Languages, WandSparkles, Wan
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useAI, useAIFeature } from '@/contexts/ai-context';
 import AiGenerateDialog from './ai-generate-dialog';
+import AiActivityDialog from './ai-activity-dialog';
 import { fireDiscovery } from '@/hooks/use-discovery';
 
 import type { AIDepth, AITone, AILevel } from '@/types';
@@ -58,6 +59,7 @@ export default function AIMenu({
   const { isPremium } = useAI();
   const contentGenEnabled = useAIFeature('enableAIContentGeneration');
   const [menuOpen, setMenuOpen] = useState(false);
+  const [activityOpen, setActivityOpen] = useState(false);
 
   // Check if any AI features are enabled
   const hasAnyFeature = contentGenEnabled;
@@ -72,6 +74,7 @@ export default function AIMenu({
   };
 
   return (
+    <>
     <DropdownMenu
       open={menuOpen}
       onOpenChange={(next) => {
@@ -203,7 +206,25 @@ export default function AIMenu({
             Ask Your Outlines
           </DropdownMenuItem>
         )}
+
+        <DropdownMenuSeparator />
+
+        <DropdownMenuItem
+          onSelect={() => {
+            setMenuOpen(false);
+            setActivityOpen(true);
+          }}
+          className="cursor-pointer"
+          title="Your private on-device record of AI operations — nothing leaves your machine"
+          aria-label="AI Activity — your private on-device record of AI operations; nothing leaves your machine"
+          data-testid="ai-menu-ai-activity"
+        >
+          <Receipt className="mr-2 h-4 w-4 text-blue-600 dark:text-blue-400" />
+          AI Activity
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
+    <AiActivityDialog open={activityOpen} onOpenChange={setActivityOpen} />
+    </>
   );
 }
