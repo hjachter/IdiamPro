@@ -28,7 +28,7 @@ export function renderDay7TipsEmail(props: Day7EmailProps): RenderedEmail {
 <p style="margin:0 0 16px;">Click the down-arrow (Import) icon in the toolbar, choose <em>Research &amp; Import</em>. Add a stack of YouTube videos, PDFs, web pages, audio recordings. IdeaM synthesises all of them into one structured outline with the connections drawn for you. People use this for study guides, meeting roll-ups, and competitive analysis.</p>
 
 <p style="margin:24px 0 8px;font-weight:600;">3. Ask your outlines</p>
-<p style="margin:0 0 16px;">Open Smart Tools &gt; <em>Ask Your Outlines</em>. Type a question in plain English. The AI answers based only on what's in your outlines &mdash; not the wider internet. Great for "what did I write about X six months ago".</p>
+<p style="margin:0 0 16px;">Open the AI menu (sparkles in the toolbar) &gt; <em>Ask Your Outlines</em>. Type a question in plain English. The AI answers based only on what's in your outlines &mdash; not the wider internet. Great for "what did I write about X six months ago".</p>
 
 <p style="margin:24px 0 24px;text-align:center;">
   ${ctaButton('Open IdeaM', appUrl)}
@@ -44,7 +44,7 @@ export function renderDay7TipsEmail(props: Day7EmailProps): RenderedEmail {
    Click the down-arrow (Import) icon in the toolbar, choose Research & Import. Add a stack of YouTube videos, PDFs, web pages, audio recordings. IdeaM synthesises all of them into one structured outline with the connections drawn for you. People use this for study guides, meeting roll-ups, and competitive analysis.
 
 3. Ask your outlines.
-   Open Smart Tools > Ask Your Outlines. Type a question in plain English. The AI answers based only on what's in your outlines — not the wider internet. Great for "what did I write about X six months ago".
+   Open the AI menu (sparkles in the toolbar) > Ask Your Outlines. Type a question in plain English. The AI answers based only on what's in your outlines — not the wider internet. Great for "what did I write about X six months ago".
 
 Open IdeaM: ${appUrl}`;
 
